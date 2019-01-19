@@ -1,0 +1,102 @@
+#!/usr/bin/env swipl
+% vim: set filetype=prolog: ts=2 sw=2 sts=2 expandtab:cindent:formatoptions+=cro %
+
+:- dynamic fact/3. % can be retracted/asserted at runtime
+fact(emp,tim,      [dob=1990, job=cleaner, mother=president]).
+fact(emp,tony,     [dob=2002, job=cleaner, mother=president]).
+fact(emp,jane,     [job=president]).
+fact(job,cleaner,  [salary=10000]).
+fact(job,professor,[salary=30000]).
+fact(rule,Id,      [id          = Id 
+                   ,priority    = 1 
+                   ,specificity = 1 
+                   ,(if)        = _
+                   ,(then)      = _
+                   ]).
+
+think:-
+  reset, run, report.
+
+:- op(802, xfx,  if).
+:- op(801, xfx,  then).
+:- op(800, xfy,  or).
+:- op(799, xfy,  and).
+:- op(798,  fy,  not).
+:- op(797, xfy,  had).
+:- op(797, xfy,  has).
+:- op(796, xfx,  in).
+:- op(1,    fx,  rule).
+
+rule nepotism 
+if   
+     emp = E had job=J had mother in [president,chancellor] and
+     job = J had salary =< 10000 and
+     job = J2 had salary > 20000
+then
+     emp =E has job = J2.
+
+rule promote
+     emp = E had job=J had mother in [president,chancellor] and
+     job = J had salary =< 10000 and
+     job = J2 had salary > 20000 and
+     emp = E has dob > 2000
+then
+     emp =E has job = J2.
+
+
+tests :- forall(test(N), test1(N)).
+
+test1(X) :-
+  nl,rule X if Condition then _,
+  had(Condition),
+  print(passed(Condition)), nl,!.
+test1(X) :-
+  print(failed(X)),nl.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+X and Y :- X,Y.
+X or  _ :- X.
+_ or  Y :- Y.
+not X   :- \+ X.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% "had"
+
+X =Id had Y  :- fact(X,Id,Fs),  b4(Y,Fs).
+
+b4(X had Y,Fs)    :- b4(X,Fs), b4(Y,Fs).
+b4(X =  Y, Fs)    :- member(X=Y,Fs).
+b4(X>=  Y, Fs)    :- b4(X=Z,Fs), Z>=Y.
+b4(X >  Y, Fs)    :- b4(X=Z,Fs), Z> Y.
+b4(X \= Y, Fs)    :- b4(X=Z,Fs), Z \= Y.
+b4(X <  Y, Fs)    :- b4(X=Z,Fs), Z < Y.
+b4(X =< Y, Fs)    :- b4(X=Z,Fs), Z =< Y.
+b4(X in [H|T], Fs):- b4(X=Z,Fs), member(Z,[H|T]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% "has"
+
+X = Id has Y  :- 
+   retract(fact(X,Id,Old)), 
+   now(Y,Old,New), 
+   asserta(fact(X,Id,New)). 
+
+now(X has Y, Old,New) :-  now(X,Old,Tmp), now(Y,Tmp,New).
+now(X = Y,  Old, New) :-  switch(Old,X=Y,New).
+
+switch([],_,[]).
+switch([X=_Old | T],  X=New, [X=New|T]).
+switch([Y=Old  | T0], X=New, [Y=Old|T]) :-
+   X \= Y,
+   switch(T0,X=New,T).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% utils
+
+prints(L)  :- maplist(prints1,L).
+
+prints1(X) :- print(X), nl.
+
+allOps :- setof([P,A,X],current_op(P,A,X),L), prints(L).
+
