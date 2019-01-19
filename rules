@@ -20,7 +20,7 @@ term_expansion(Meta if If then Then, Expanded) :-
 
 xpand( Meta if If then Then, 
        ifThen(Group, Id, L)) :-
-   term_variables( [X,Y], Vars ),
+   term_variables( [If,Then], Vars ),
    size(If, Size),
    metas(Meta, [id       = Id 
                ,(if)     = If
