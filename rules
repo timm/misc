@@ -11,45 +11,38 @@
 :- op(797, xfy,  had).
 :- op(797, xfy,  has).
 :- op(796, xfx,  in).
-:- op(1,    fy,  rule).
-:- op(1,    fy,  for).
-:- op(1,    fy,  at).
 
 term_expansion(Meta if If then Then, Expanded) :-
    xpand(Meta if If then Then, Expanded).
 
 xpand( Meta if If then Then, 
        ifThen(Group, Id, L)) :-
-   term_variables( [If,Then], Vars ),
-   size(If, Size),
-   metas(Meta, [id       = Id 
-               ,(if)     = If
-               ,vars     = Vars
-               ,size     = Size 
-               ,(then)   = Then
-               ,group    = Group
-               ,priority = 1 
+   vars(Then, Vars ),
+   once(size(If, 0,Size)),
+   meta(Meta, [id       = Id 
+              ,(if)     = If
+              ,vars     = Vars
+              ,size     = Size 
+              ,(then)   = Then
+              ,group    = all
+              ,priority = 1 
                ], L).
 
-size(X,N) :- findall(X, size1(X), L), length(L,N).
+vars(X,L) :-
+  term_variables(X,L0),
+  sort(L0,L).
 
-size1(X and Y) :- size1(X); size1(Y).
-size1(X or  Y) :- size1(X); size1(Y).
-size1(not X)   :- size1(X).
-%XXXX <=== missing
-size1(_ has Y) :- size1(Y).
-size1(X)       :- functor(X,F,2), member(F,[=,>=,>,\=,<,=<,in]).
+meta(X and Y)      --> meta(X), meta(Y).
+meta(rule=Id)      --> swap(id=Id).
+meta(group=Id)     --> swap(group=Id).
+meta(priority=Id)  --> swap(priority=Id).
 
-metas(M) --> {findall(X, fy(M, X), New)}, swap(New).
-
-fy(M,Z) :- M =.. [_,X | T], fy1(X,T, Z).
-
-fy1(This=Val, _, That=Val) :- meta(This, That).
-fy1(_,        T, Z)        :- fy(T, Z).
-
-meta(rule, id).
-meta(for,  group). 
-meta(at,   priority). 
+size(X and Y)      --> size(X), size(Y).
+size(X or  Y)      --> size(X), size(Y).
+size1(not X)       --> size(X).
+size(_ had Y)      --> size(had(Y))).
+size(had(X had Y)) --> size(had(X)), size(had(Y)).
+size1(_)           --> inc.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -132,7 +125,7 @@ swaps([X=Y|T]) -->  swap(X=Y), swap(T).
 
 swap(X=Y,L0,[X=Y|L] ) :- less(L0,X=_,L).
 
-inc(X, L0, [X=N|L] ) :- less(L0, X=N0, L), N is N0 + 1.
+inc(X,Y) --> {Y is X + 1}.
 
 members([], _).
 members([H|T], L) :- member(H,L), members(T,L).
