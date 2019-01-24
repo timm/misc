@@ -1,0 +1,17 @@
+#!/usr/bin/env gst
+
+"things in quotes are comments"
+
+Transcript show: 1 printString; cr " command are grouped by '!'
+!
+
+Show=[:x | Transcript show: x printString; cr]. "show is a global"
+Show value: 'tim'   "should print tim"
+!
+
+| x y | "locals vars. live till next '!'"
+
+x := 1.
+y:=2.
+Show value: x+y.  "should print 3"
+!
