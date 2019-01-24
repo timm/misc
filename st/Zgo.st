@@ -2,6 +2,10 @@ FileStream fileIn: '0lib.st' !
 
 'a list of words' asWords oo ! 
 
+"Smalltalk so verbose
+
+OrderedCollection... why not List?"
+
 ObjectMemory halt !
 
 |g r usage s|
