@@ -1,7 +1,7 @@
 #!/usr/bin/env swipl
 % vim: set filetype=prolog: ts=2 sw=2 sts=2 expandtab:cindent:formatoptions+=cro %
 
-:- dynamic fact/3, used/3. % can be retracted/asserted at runtime
+:- dynamic ifThen/3, fact/3, used/3. % can be retracted/asserted at runtime
 
 :- op(802, xfx,  if).
 :- op(801, xfx,  then).
@@ -24,25 +24,28 @@ xpand( Meta if If then Then,
               ,vars     = Vars
               ,size     = Size 
               ,(then)   = Then
-              ,group    = Group
+              ,group    = all
               ,priority = 1 
-               ], L).
+               ], L),
+   members([id=Id,group=Group], L).
 
 vars(X,L) :-
   term_variables(X,L0),
-  sort(L0,L).
+  L =.. [wme|L0].
 
 meta(X and Y)      --> meta(X), meta(Y).
 meta(rule=Id)      --> swap(id=Id).
-meta(group=Id)     --> swap(group=Id).
-meta(priority=Id)  --> swap(priority=Id).
+meta(for=Group)    --> swap(group=Group).
+meta(at=Priority)  --> swap(priority=Priority).
 
 size(X and Y)      --> size(X), size(Y).
 size(X or  Y)      --> size(X), size(Y).
 size(not X)       --> size(X).
 size(_ had Y)      --> size(had1(Y)).
 size(had1(X had Y)) --> size(had1(X)), size(had1(Y)).
-size(_)           --> inc.
+size(_,      N0,N) :- N is N0 - 1.
+
+default(G1,G2) :- once((G1; G2)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -79,7 +82,7 @@ now(X = Y,  Old, New) :-  swap(X=Y,Old,New).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % inference engine
 
-think :- resets, run(main), report.
+think :- resets, run(all), report.
 
 report :- listing(fact).
 
@@ -90,22 +93,21 @@ reset0 :-
 
 run(Group) :- 
    match(Group, Some),
-   !,
-   select(Some, One)
+   select(Some, One),
    act(One),
-   run(Group).
+   run(Group), !.
 run(_).
 
 match(Group, L) :- findall(One,match1(Group,One),L).
 
-match1(Group, [ (Priority, Size) = Then ]) :- 
-  ifthen(Group,Id,L), 
+match1(Group,  (Priority, Size) = Then ) :- 
+  ifThen(Group,Id,L), 
   members([ id     = Id
-          , at     = Priority
-          , size   = Size,
+          , priority = Priority
+          , size   = Size
           , (if)   = If
           , (then) = Then
-          , var    = Vars 
+          , vars    = Vars 
           ], L),
   If,
   \+ used(Group, Id, Vars).
@@ -119,14 +121,12 @@ act(Then) :- Then.
 
 less([],_,[]).
 less([H|T],H,T).
-less([H|T], H1, T) :- H \= H1, less(T,H1,T).
+less([H|T0], H1, [H|T]) :- H \= H1, less(T0,H1,T).
 
 swap([],X,X).
-swaps([X=Y|T]) -->  swap(X=Y), swap(T). 
-
+swap([X=Y|T]) -->  swap(X=Y), swap(T). 
 swap(X=Y,L0,[X=Y|L] ) :- less(L0,X=_,L).
 
-inc(X,Y) --> {Y is X + 1}.
 
 members([], _).
 members([H|T], L) :- member(H,L), members(T,L).
@@ -149,7 +149,7 @@ reset :-
      , fact(job, professor, [salary=30000])
      ]).
 
-rule nepotism 
+rule=nepotism 
 if   
      emp = E had job=J had mother in [president,chancellor] and
      job = J had salary =< 10000 and
@@ -157,13 +157,18 @@ if
 then
      emp =E has job = J2.
 
-rule promote for group at 1
+rule=promote 
+if
      emp = E had job=J had mother in [president,chancellor] and
      job = J had salary =< 10000 and
      job = J2 had salary > 20000 and
-     emp = E has dob > 2000
+     emp = E had dob > 2000
 then
      emp =E has job = J2.
 
-
-:- halt.
+show:-
+	ifThen(X,Y,Z),
+	nl,
+        print(ifThen(X,Y,etc)),nl,
+	forall(member(A,Z),format('\t~p\n',[A])).
+%:- halt.
