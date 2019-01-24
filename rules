@@ -24,7 +24,7 @@ xpand( Meta if If then Then,
               ,vars     = Vars
               ,size     = Size 
               ,(then)   = Then
-              ,group    = all
+              ,group    = Group
               ,priority = 1 
                ], L).
 
@@ -39,10 +39,10 @@ meta(priority=Id)  --> swap(priority=Id).
 
 size(X and Y)      --> size(X), size(Y).
 size(X or  Y)      --> size(X), size(Y).
-size1(not X)       --> size(X).
-size(_ had Y)      --> size(had(Y))).
-size(had(X had Y)) --> size(had(X)), size(had(Y)).
-size1(_)           --> inc.
+size(not X)       --> size(X).
+size(_ had Y)      --> size(had1(Y)).
+size(had1(X had Y)) --> size(had1(X)), size(had1(Y)).
+size(_)           --> inc.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -79,11 +79,12 @@ now(X = Y,  Old, New) :-  swap(X=Y,Old,New).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % inference engine
 
-think :- reset0, reset, run(main), report.
+think :- resets, run(main), report.
 
 report :- listing(fact).
 
-reset0 ;-
+resets :- reset0, reset.
+reset0 :-
   retractall(used(_,_,_)),
   retractall(fact(_,_,_)).
 
@@ -163,3 +164,6 @@ rule promote for group at 1
      emp = E has dob > 2000
 then
      emp =E has job = J2.
+
+
+:- halt.
