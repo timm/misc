@@ -1,6 +1,6 @@
 #!/usr/bin/env gst
 
-"--- timm tricks -----"
+"=== Timm Tricks ================================="
 
 ! Object methods !
 s
@@ -12,7 +12,25 @@ oo
 
 ! String methods !
 asWords
-  ^(self tokenize: '\s+') asArray !!
+  ^(self tokenize: '\s+') asArray !
+
+right: n
+  ^self right: n with: $  !
+
+right: n with: char
+  out := WriteStream on:''.
+  1 to: n - self size do: [ put nextPut: char ].
+  out nextPutall: self.
+  ^out contents !
+
+left: n
+  ^self left: n with: $  !
+
+left: n with: char
+  out := WriteStream on:self.
+  1 to: n - self size do: [ put nextPut: char ].
+  ^out contents !
+!
 
 ! Class methods !
 public
@@ -35,15 +53,13 @@ sub: kid has: vars
    ^self sub: kid has: vars shares: ''!
 
 sub: kid has: vars1 shares: vars2
-   |tmp|
-   tmp := self
+   ^(self
      subclass: kid
      instanceVariableNames: vars1
      classVariableNames: vars2
      poolDictionaries: ''
-     category: nil.
-   tmp public.
-   ^tmp !
+     category: nil) 
+     public !
 !
 
 Object sub: #Magic!
@@ -80,20 +96,25 @@ visit: aBlock
 !!
 
 ! Object methods !
+stop: at because: other
+  ((at x s left: 5), '     ',( 'see ', other)) oo
+!
 hop: aBlock
   ^self hop: aBlock 
-        stop: [:at :seen| self stop: at seen: seen] 
+        stop: [:at :because| self stop: at because: cause] 
         at:  0@0 
         seen: IdentityDictionary new!!
 
 hop: aBlock stop: aStop at: at seen: seen
-  (seen includesKey: self)
-     ifTrue: [^aStop value: at value: seen]
-     ifFalse:[
-      
-  ^aBlock value: self  
-          value: at 
-          value: (seen includesKey: self)     
+  | old |
+  at x: at x + 1.
+  old := seen at: self ifAbsent: [nil]
+  old isNil
+    ifTrue: [ at y: at y+ 1.
+              seen at: self put: at x.
+              ^aBlock value: self at: at] 
+    ifTrue:  [^aStop value: at value: old] !
+!
 
 ! Collection methods !
 hop: aBlock at: at seen: seen
