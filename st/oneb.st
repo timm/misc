@@ -7,7 +7,7 @@ s
   ^self printString !
 
 oo
-   Transcript show: self s;
+   Transcript nextPutAll: self s;
               cr!!
 
 ! String methods !
