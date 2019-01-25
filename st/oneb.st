@@ -18,8 +18,9 @@ right: n
   ^self right: n with: $  !
 
 right: n with: char
+  |out|
   out := WriteStream on:''.
-  1 to: n - self size do: [ put nextPut: char ].
+  1 to: n - self size do: [ out nextPut: char ].
   out nextPutall: self.
   ^out contents !
 
@@ -27,10 +28,13 @@ left: n
   ^self left: n with: $  !
 
 left: n with: char
+  |out|
   out := WriteStream on:self.
-  1 to: n - self size do: [ put nextPut: char ].
+  1 to: n - self size do: [ out nextPut: char ].
   ^out contents !
 !
+
+('123' left: 10) oo!
 
 ! Class methods !
 public
