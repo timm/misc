@@ -138,12 +138,11 @@ Challenge: make sure `#abc` is printed as `#abc` and not:
     $b
     $c
 
-## Extra credit: max 2 marks.
+## Extra credit: max 1 marks.
 
 For each of the following, include a litte test script showing off what can be done.
 
 
-### Extra 1 (0.5)
 
 My file my.st hows an exampe of class methods contain tests in the
 category 'testing'.  Write some test cases for your classes using the
@@ -152,16 +151,9 @@ Smalltalk code to
 
 - iterate through all classes (hint `allSubclasses`)
 - iterate through all methods of class methods categories called 'testing' 
-
-### Extra 2 (0.5)
-
-- Extra1 plus...
 - run all class methods in category `testing` (hint `methodDictionary` and `perform:`)
   count how pass,fails you get
-
-### Extra 3 (1)
-
-- Extra2 plus...
 - run methods such that if any one test method fails, the result gets recorded as "fail"
   and the test carries on to the next method. 
-- Hint: see [Gnu Smaltalk manual](https://www.gnu.org/software/smalltalk/manual/html_node/Handling-exceptions.html),
+- Hint: see [Gnu Smaltalk manual](https://www.gnu.org/software/smalltalk/manual/html_node/Handling-exceptions.html)
+      and `on:do:`.
