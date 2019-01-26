@@ -1,4 +1,4 @@
-## Number collector
+## Number collector (0.5 marks)
     
 Write a `Magic` subclass called `Num` that is
 equivalent to the following.
@@ -32,7 +32,7 @@ When that works, it should do the following:
      num mu oo. "==> 7"
      num n  oo. "==> 20"
 
-## Iterators (1)
+## Iterators (0.5 marks)
 
 Go to /usr/share/gnu-smalltak/kernel and browse the
 `Collection.st` class. Reflect on the methods
@@ -50,7 +50,9 @@ e.g.
 
 IMPORTANT: do not edit anything in that kernel directory.
 
-## Iterators (2)
+HINT: the solution is two lines long.
+
+## Iterators (0.5 marks)
 
 Write an iterator `b4Now:` that pass the i-th 
 and (i+1)-th item to a alist:
@@ -65,7 +67,8 @@ e.g.
     0.34375
     0.2558139534883721
 
-## Generic visit
+
+## Generic visit (1.5 marks)
 
 My `Magic` class has a method called `visit` that walks
 a block across all instance variables. Write more
@@ -132,7 +135,7 @@ Output:
     4
     5    
         
-Challenge: make sure `#abc` is printed as `#abc` and not:
+Important: make sure `#abc` is printed as `#abc` and not:
 
     $a
     $b
