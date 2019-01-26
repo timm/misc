@@ -1,19 +1,36 @@
-## Self initializing Variables
-
-Write a class called Car with instance variables
-wheels, color, seats.
-
-Using the `ifNil:` method,
-self initialize `wheels` at the getter level. i.e. 
-when the class creates, the instance variables are nil. But
-if I type
-
-    |c|
-    c := Car new.
-    c  wheels oo.
-
-then inside the `wheels` method set wheels to 4, but
-only it if is currently nil.
+## Number collector
+    
+Write a `Magic` subclass called `Num` that is
+equivalent to the following.
+ 
+     function num(txt)  
+         return {n=0, mu=0, m2=0, sd=0, id = id(), 
+                 lo=10^32, hi=-1*10^32, txt=txt,
+                 w=1}
+     end
+     
+     function numInc(t,x,    d) 
+       if x == "?" then return x end
+       t.n  = t.n + 1
+       d    = x - t.mu
+       t.mu = t.mu + d/t.n
+       t.m2 = t.m2 + d*(x - t.mu)
+       if x > t.hi then t.hi = x end
+       if x < t.lo then t.lo = x end
+       if (t.n>=2) then 
+         t.sd = (t.m2/(t.n - 1 + 10^-32))^0.5 end
+       return x  
+     end
+        
+When that works, it should do the following:
+ 
+     | num |
+     num := Num new.
+     num nextPutAll: #( 2 3 4 4 4 4 5 5 6 7 7
+                      8 9 9 9 9 10 11 12 12).
+     num sd oo. "==> 3.06"
+     num mu oo. "==> 7"
+     num n  oo. "==> 20"
 
 ## Iterators (1)
 
@@ -51,7 +68,7 @@ e.g.
 ## Generic visit
 
 My `Magic` class has a method called `visit` that walks
-a block across all instance variables. With more
+a block across all instance variables. Write more
 methods (not in `Magic`) such that you can write a generic
 visit that walks across anything in Smalltalk (exception,
 the `C*` classes that talk to ``C`` structs.
