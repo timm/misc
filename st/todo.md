@@ -2,13 +2,13 @@
     
 Write a `Magic` subclass called `Num` that is
 equivalent to the following.
- 
+
      function num(txt)  
          return {n=0, mu=0, m2=0, sd=0, id = id(), 
                  lo=10^32, hi=-1*10^32, txt=txt,
                  w=1}
      end
-     
+
      function numInc(t,x,    d) 
        if x == "?" then return x end
        t.n  = t.n + 1
@@ -21,9 +21,21 @@ equivalent to the following.
          t.sd = (t.m2/(t.n - 1 + 10^-32))^0.5 end
        return x  
      end
-        
-When that works, it should do the following:
  
+     function numDec(t,x,    d) 
+       if (x == "?") then return x end
+       if (t.n == 1) then return x end
+       t.n  = t.n - 1
+       d    = x - t.mu
+       t.mu = t.mu - d/t.n
+       t.m2 = t.m2 - d*(x- t.mu)
+       if (t.n>=2) then
+         t.sd = (t.m2/(t.n - 1 + 10^-32))^0.5 end
+       return x
+     end
+ 
+When that works, it should do the following:
+
      | num |
      num := Num new.
      num nextPutAll: #( 2 3 4 4 4 4 5 5 6 7 7
@@ -61,12 +73,11 @@ e.g.
 
     #(10 21 32 43 54) b4Now: [:b4 :now|
          ((now-b4)/b4) asFloat oo] !!
-
+    
     1.1
     0.5238095238095238
     0.34375
     0.2558139534883721
-
 
 ## Generic visit (1.5 marks)
 
