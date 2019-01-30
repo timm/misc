@@ -1,200 +1,10 @@
 # 1b (Smalltalk).
 
-## Crash Course in Smalltalk
+Here are four marks of homework. 
+You only need to get 3 marks for full amrks (so 1 is extra).
 
-To understand Smalltalk,reflect on
+You will need [my Smalltalk tools](my0.st).
 
-- self  =pointer to self
-- super =pointer to superclass
-- true  =Only intance of class True
-- false  =Only intance of class False
-- nil    =Only instance of class UndefinedObject
-- Smalltalk =global, holds all globals; e.g. classes
-- $x =character
-- "  =comments
-- ' =strings
-     - BTW, strings are Collections of characters
-- . =end statement
-- ^ =return
-- := =assignment
-- [] =block
-    - basis of all control, loops
-    - [e.g whileTrue:](https://github.com/gnu-smalltalk/smalltalk/blob/master/kernel/BlkClosure.st#L346-L354)
-- #() =array
-- : =keyword argument
-    - `5 between: 3 and: 8`  = selector `between:and:`
-- Novel precedence: unary, binary, keywords, brackets
-    - _Binary are one,two letter selectors for maths,
-      equality, etc.
-    - So `1 + 8/4` is... surprising
-- Postfix messages
-    -  1 negated
-    - -1 negated
-    -  false not
-    -  false not not
-    -  -1 abs
-    -  1 abs
-    -  10 factorial
-    -  10 factorial sqrt
-    -  5 sqrt
-    -  1 isNumber
-    -  $a isNumber
-    -  $a isNumber not
-    -  1 isCharacter
-    -  $a isCharacter
-    -  'someString' first
-    -  'hello world' size
-    -  'hello world' asUppercase
-    -  'hello world' copy
-    -  'hello world' copy sort
-    -  #( 17 99 1 57 13) copy sort
-    -  1 class name
-    -  1 class name asUppercase
-- Blocks. `aBlock value: x`.
-     - e.g. `1 to: 10 by:2 do: [:x| x oo]`
-     - [Number.st](https://github.com/gnu-smalltalk/smalltalk/blob/master/kernel/Number.st#L1030-L1048)
-- Polymorphism: decentralized control
-    - e.g. [ifTrue:](https://github.com/gnu-smalltalk/smalltalk/blob/master/kernel/True.st#L60-L71)
-
-E.g.
-
-    $ cd /usr/share/gnu-smalltalk/kernel/
-    $ grep  '^    =='  *.st
-    Object.st:    == arg [
-    SmallInt.st:    == arg [
-    
-    $ grep '^    = ' *.st
-    AnsiDates.st:    = aDateTime [
-    Association.st:    = anAssociation [
-    Bag.st:    = aBag [
-    BindingDict.st:    = arg [
-    ByteArray.st:    = aCollection [
-    Character.st:    = char [
-    CharArray.st:    = aString [
-    Class.st:    = aClass [
-    CObject.st:    = anObject [
-    CompildCode.st:    = aMethod [
-    CompildMeth.st:    = aMethod [
-    CompiledBlk.st:    = aMethod [
-    CType.st:    = anObject [
-    CType.st:    = anObject [
-    CType.st:    = anObject [
-    Date.st:    = aDate [
-    Delay.st:    = aDelay [
-    Dictionary.st:    = aDictionary [
-    ExcHandling.st:    = anObject [
-    FileSegment.st:    = aFileSegment [
-    File.st:    = aFile [
-    FloatD.st:    = arg [
-    FloatE.st:    = arg [
-    FloatQ.st:    = arg [
-    Fraction.st:    = arg [
-    HashedColl.st:    = aHashedCollection [
-    Interval.st:    = anInterval [
-    LargeInt.st:    = aNumber [
-    LookupKey.st:    = aLookupKey [
-    Magnitude.st:    = aMagnitude [
-    MethodInfo.st:    = aMethodInfo [
-    Object.st:    = arg [
-    OtherArrays.st:    = anObject [
-    OtherArrays.st:    = aLargeArray [
-    Point.st:    = aPoint [
-    Rectangle.st:    = aRectangle [
-    RunArray.st:    = anObject [
-    ScaledDec.st:    = arg [
-    SeqCollect.st:    = aCollection [
-    SmallInt.st:    = arg [
-    String.st:    = aCollection [
-    Symbol.st:    = aSymbol [
-    Time.st:    = aTime [
-    URL.st:    = anURL [
-    VFS.st:    = aFile [
-    VFS.st:    = aFile [
-
-
-E.g. [Point =](https://github.com/gnu-smalltalk/smalltalk/blob/master/kernel/Point.st#L198-L203) 
-
-Everything is an object, even a class.
-
-- Point is an instance of `Class`
-- Point class methods are managers of Point instances
-    - e.g. Point `x: 10 y:10`
-    - class message to Point that returns an instance
-      with `x=10,y= 20`
-
-After that, you got to understand the class Hierarchy.
-Literally, everything is an object.
-    
-    Object
-        Behavior
-          ClassDescription
-            Class -- and Class is instance of Metaclass
-            Metaclass
-        BlockClosure -- []
-        Boolean
-          False -- true
-          True  -- false
-        CObject
-          -- C stuff
-        Collection
-          Bag
-          MappedCollection
-          SequenceableCollection
-            ArrayedCollection
-              Array
-              Interval
-              CharacterArray
-                String
-                  Symbol
-            LinkedList
-              Semaphore
-            OrderedCollection
-              SortedCollection
-          HashedCollection
-            Dictionary
-              IdentityDictionary
-              RootNamespace
-                SystemDictionary
-            Set
-              IdentitySet
-        File
-          Directory
-        Magnitude
-          Association
-          Character
-          Date
-          Number
-            Float
-            Fraction
-            Integer
-              SmallInteger
-          Time
-        Message
-          DirectedMessage
-        Point
-        Rectangle
-        Signal -- exception handling. see on:do:
-          Exception
-            Error
-              Halt
-                ArithmeticError
-                  ZeroDivide
-                MessageNotUnderstood
-              UserBreak
-            Notification
-              Warning
-        Stream
-          PositionableStream
-            ReadStream
-            WriteStream
-              ReadWriteStream -- why not under ReadStream?
-                ByteStream
-                  FileStream
-          Random
-        UndefinedObject -- nil
-   
-\* [on:do:](https://www.gnu.org/software/smalltalk/manual/html_node/Handling-exceptions.html#Handling-exceptions)
- 
 ## 1b1. Number collector (0.5 marks)
     
 Write a `Magic` subclass called `Num` that is
@@ -233,13 +43,16 @@ equivalent to the following.
  
 When that works, it should do the following:
 
+     FileStream fileIn: 'my0.st' "mytricks" !
+     FileStream fileIn: 'num.st' "yourcode" !
+
      | num |
      num := Num new.
      num nextPutAll: #( 2 3 4 4 4 4 5 5 6 7 7
                       8 9 9 9 9 10 11 12 12).
      num sd oo. "==> 3.06"
      num mu oo. "==> 7"
-     num n  oo. "==> 20"
+     num n  oo. "==> 20" !
 
 ## 1b2. Iterators (0.5 marks)
 
@@ -268,15 +81,17 @@ and (i+1)-th item to a alist:
 
 e.g.
 
+    FileStream fileIn: 'my0.st' !
+
     #(10 21 32 43 54) b4Now: [:b4 :now|
-         ((now-b4)/b4) asFloat oo] !!
+         ((now-b4)/b4) asFloat oo] !x!
     
     1.1
     0.5238095238095238
     0.34375
     0.2558139534883721
 
-## Generic visit (1.5 marks)
+## 1b4. Polymorphism (1.5 marks)
 
 My `Magic` class has a method called `visit` that walks
 a block across all instance variables. Write more
@@ -349,10 +164,21 @@ Important: make sure `#abc` is printed as `#abc` and not:
     $b
     $c
 
-## Extra credit: max 1 marks.
+To test this one, run
+
+    FileStream fileIn: 'my0.st'.
+    FileStream fileIn: 'yourcode.st'.
+    Object goodVisit.
+
+Then yu should see something like the above (and don't worry
+if you see stuff that is a little difference).
+
+## 1b5.  1 marks.
+
+This is the extra mark one. Its a little tricky since you'll need
+to hunt around looking for some magic methods.
 
 For each of the following, include a litte test script showing off what can be done.
-
 
 
 My file my.st hows an exampe of class methods contain tests in the
