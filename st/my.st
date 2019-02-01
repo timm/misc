@@ -184,4 +184,18 @@ goodVisit
 !!
 
 
+(Magic sub: #Fuzzy has: 'cf on') public!
+! Fuzzy class methods !
+new: x at: cf
+  ^(self new) cf: cf; on: x
+!!
+
+! Collection methods !
+ands
+  ^(self collect: [:x| x cf] ) inject: 1 into: [:x :y| x min: y] !
+
+ors
+  ^(self collect: [:x| x cf] ) inject: 0 into: [:x :y| x max: y] !
+!
+
 
