@@ -1,4 +1,4 @@
-#!/usr/bin/env clisp
+;#!/usr/bin/env clisp
 ;  vim: set filetype=lisp tabstop=2 shiftwidth=2 expandtab : 
 
 (defparameter *grammar1*
@@ -10,7 +10,7 @@
     (Verb -> hit took saw liked))
   "A grammar for a trivial subset of English.")
 
-(defparameter *grammar1*
+(defparameter *grammar2*
   '((sentence -> (noun-phrase verb-phrase))
     (noun-phrase -> (Article Adj* Noun PP*) (Name) (Pronoun))
     (verb-phrase -> (Verb noun-phrase PP*))
@@ -27,7 +27,7 @@
     (Verb -> hit took saw liked)
     (Pronoun -> He Her it these those that)))
 
-(defparameter *grammar2*
+(defparameter *grammar3*
   '((Sentence -> (Nounphrase Verbphrase))  
    (Nounphrase -> (Boy))              
    (Nounphrase -> (Girl))           
@@ -47,6 +47,19 @@
 (defun Noun ()        (one-of '(man ball woman table)))
 (defun Verb ()        (one-of '(hit took saw liked)))
 
+;;; ==============================
+(let* ((seed0      10013)
+       (seed       seed0)
+       (multiplier 16807.0d0)
+       (modulus    2147483647.0d0))
+  (defun reset-seed ()  (setf seed seed0))
+  (defun randf      (n) (* n (- 1.0d0 (park-miller-randomizer))))
+  (defun randi      (n) (floor (* n (/ (randf 1000.0) 1000))))
+  (defun park-miller-randomizer ()
+    "cycle= 2,147,483,646 numbers"
+    (setf seed (mod (* multiplier seed) modulus))
+    (/ seed modulus))
+)
 ;;; ==============================
 
 (defun one-of (set)
@@ -79,3 +92,10 @@
          (generate (random-elt (rewrites phrase))))
         (t (list phrase))))
 
+(defun mappend (fn list)
+  "Append the results of calling fn on each element of list.
+    Like mapcon, but uses append instead of nconc."
+      (apply #'append (mapcar fn list)))
+
+(setf *grammar* *grammar1*)
+(print (generate 'sentence))
