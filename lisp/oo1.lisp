@@ -1,6 +1,6 @@
-(defclass thing () ())
+(defclass magic () ())
 
-(defmacro isa! (x parent &rest slots)
+(defmacro isa (x parent &rest slots)
   "simpler creator for claseses. see example in thingeg.lisp"
   (labels ((uses  
 	     (slot x form)
@@ -8,14 +8,13 @@
 		:initarg  ,(intern (symbol-name slot) "KEYWORD")
 		:initform ,form
 		:accessor ,(intern (format nil "~a-~a" x slot)))))
-    (let ((creator (intern (format nil "~a!" x))))
-      `(progn
-	 (defun ,creator  (&rest inits)
-	   (apply #'make-instance (cons ',x inits)))
-	 (defclass ,x (,parent)
-	   ,(loop for (slot form) in slots collect (uses slot x form)))))))
+    `(progn
+       (defun ,x  (&rest inits)
+	 (apply #'make-instance (cons ',x inits)))
+       (defclass ,x (,parent)
+	 ,(loop for (slot form) in slots collect (uses slot x form))))))
 
-(defmethod slots ((x thing))
+(defmethod slots ((x magic))
   (labels 
     ((hide (y)
 	   (and (symbolp y) 
@@ -27,20 +26,22 @@
 	   #+clisp (slot-definition-name y)
 	   #+sbcl  (sb-mop:slot-definition-name y)))
     (remove-if #'hide 
-	       (mapcar #'name (slots1 x)))))
+	       (mapcar #'name 
+		       (slots1 x)))))
 
-(defmethod show! ((x t))  (print (has! x)))
+(isa stuff magic (a 1) (b 2) (_cache "tim"))
 
-(defmethod has! ((x t))    x)
-(defmethod has! ((x cons)) (mapcar #'has! x))
-(defmethod has! ((x thing))  
-  (cons `(ako! ,(type-of x))
+(defmethod show ((x t))  (print (has x)))
+
+(defmethod has ((x t))    x)
+(defmethod has ((x cons)) (mapcar #'has x))
+(defmethod has ((x magic))  
+  (cons `(ako ,(type-of x))
 	(mapcar #'(lambda(slot)
-		    `(,slot . ,(has! (slot-value x slot)))) 
+		    `(,slot . ,(has (slot-value x slot))))
 		(slots x))))
 
-(isa! stuff thing (a 1) (b 2) (_secret "tim"))
+(show `(1 2 #'_has "asdas" ,(make-instance 'stuff :b 20)))
+(show `(1 2 #'_has "asdas" ,(stuff :b 20)))
+(show `(1 2 #'_has "asdas" ,(stuff)))
 
-(show! `(1 2 ,(stuff! :b 20)))
-(show! `(1 2 ,(stuff!)))
-(show! `(1 2 ,(make-instance 'stuff :b 20)))
