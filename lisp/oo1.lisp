@@ -51,7 +51,7 @@
 
 ;--------- --------- --------- --------- --------- --------- ---------
 ;;; has
-(defmethod has ((x t))    x)
+(defmethod has ((x t)) x)
 (defmethod has ((x cons)) (mapcar #'has x))
 (defmethod has ((x magic))  
   (cons `(ako ,(type-of x))
