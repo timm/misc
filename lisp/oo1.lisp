@@ -31,7 +31,7 @@
 
 (isa stuff magic (a 1) (b 2) (_cache "tim"))
 
-(defmethod show ((x t))  (print (has x)))
+(defmethod show ((x t)) (print (has x)))
 
 (defmethod has ((x t))    x)
 (defmethod has ((x cons)) (mapcar #'has x))
