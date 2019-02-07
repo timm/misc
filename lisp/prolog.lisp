@@ -29,6 +29,21 @@
            (parent ?z ?y)
            (not (= ?x ?y)))))
 
+(defun show (x) (format t "[~a]~%" x))
+
+;--------- --------- --------- --------- --------- --------- ---------
+(defun test1 ()
+  (data0)
+  (query 
+    (father ?x ?y)
+    (format t "~A is the father of ~A~%" ?x ?y))
+  (query 
+    (sibling ?x ?y)
+    (format t "~A is the sibling of ~A.~%" ?x ?y))
+  (query 
+    (chain ?x 1)
+    (format t "?x matches to ~A.~%" ?x)))
+    
 ;--------- --------- --------- --------- --------- --------- ---------
 (defun unify (x y &optional binds)
   (cond 
@@ -53,17 +68,41 @@
       (or (known (cdr b) binds)
           (cdr b)))))
 
-(defun show (x) (format t "[~a]~%" x))
+;; does no occur check cause crash?
+;--------- --------- --------- --------- --------- --------- ---------
+(defmacro query (question &body body)
+  (let ((binds (gensym)))
+    `(dolist (,binds (prove ',question))
+       (let ,(mapcar (lambda (v)
+                         `(,v (known ',v ,binds)))
+         (has-vars question))
+   (declare (ignorable ,@(has-vars question)))
+   ,@body))))
 
 (defun prove (expr &optional binds)
   (case (car expr)
     (and  (ands        (reverse (cdr expr))  binds))
     (or   (ors         (cdr expr)            binds))
     (not  (negation    (cadr expr)           binds))
-    (do   (prove-code  (cadr expr)           binds))
+    (do   (code        (cadr expr)           binds))
     (t    (prove1      (car expr) (cdr expr) binds))))
 
-(defun prove-code (expr binds)
+(defun ands (goals binds)
+  (if (null goals)
+      (list binds)
+      (mapcan (lambda (b)
+                  (prove (car goals) b))
+              (ands (cdr goals) binds))))
+
+(defun ors(goals binds)
+  (mapcan (lambda (c) (prove c binds))
+          goals))
+
+(defun negation (goal binds)
+  (unless (prove goal binds)
+    (list binds)))
+
+(defun code (expr binds)
   " turns e.g. (print (list ?a ?b)) into
     (let ((?a x) ; where x is computed from (known ?a binds)
           (?b y)); where y is computed from (known ?b binds)
@@ -75,7 +114,7 @@
                  `(,x ',(known x binds))) 
              want)))
     ; (eval code)
-    (format t "~a~%" `(let ,(lets binds (has-vars expr)) ,expr))
+    ;(format t "~a~%" `(let ,(lets binds (has-vars expr)) ,expr))
     (eval `(let ,(lets binds (has-vars expr))
              ,expr))
     (list binds)))
@@ -94,49 +133,16 @@
     (mapcar #'renames
             (gethash pred *rules*))))
 
-(defun renames (r)
-  (sublis (mapcar (lambda (v) (cons v (gensym "?")))
-                  (has-vars r))
-          r))
-
+;--------- --------- --------- --------- --------- --------- ---------
 (defun has-vars (expr)
   (if (atom expr)
       (if (var? expr) (list expr))
       (union (has-vars (car expr))
              (has-vars (cdr expr)))))
 
-(defun ands (goals binds)
-  (if (null goals)
-      (list binds)
-      (mapcan (lambda (b)
-                  (prove (car goals) b))
-              (ands (cdr goals) binds))))
+(defun renames (r)
+  (sublis (mapcar (lambda (v) (cons v (gensym "?")))
+                  (has-vars r))
+          r))
 
-(defun ors(goals binds)
-  (mapcan (lambda (c) (prove c binds))
-          goals))
 
-(defun negation (goal binds)
-  (unless (prove goal binds)
-    (list binds)))
-
-(defmacro query (question &body body)
-  (let ((binds (gensym)))
-    `(dolist (,binds (prove ',question))
-       (let ,(mapcar (lambda (v)
-                         `(,v (known ',v ,binds)))
-         (has-vars question))
-   (declare (ignorable ,@(has-vars question)))
-   ,@body))))
-
-(defun test1 ()
-  (data0)
-  (query 
-    (father ?x ?y)
-    (format t "~A is the father of ~A~%" ?x ?y))
-  (query 
-    (sibling ?x ?y)
-    (format t "~A is the sibling of ~A.~%" ?x ?y))
-  (query 
-    (chain ?x 1)
-    (format t "?x matches to ~A.~%" ?x)))
