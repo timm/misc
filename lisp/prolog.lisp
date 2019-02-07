@@ -1,5 +1,35 @@
 ;  vim: set filetype=lisp tabstop=2 shiftwidth=2 expandtab : 
 
+(defvar *rules* (make-hash-table))
+
+;xxx implement some siple utilities
+(defmacro <- (con &optional ant)
+  `(push (cons (cdr ',con) ',ant)
+         (gethash (car ',con) *rules*)))
+
+; father not working? why
+; sibling seems brokem... person cant be their own siblings 
+(defun data0 ()
+  (clrhash *rules*)
+  (<- (= ?x ?x))
+  (<- (parent donald nancy))
+  (<- (parent donald debbie))
+  (<- (male donald))
+  (<- (chain ?a ?b)
+         (and (= ?a ?b)
+              (= ?b ?c)
+              (do (show ?c))
+              (= ?c 1)))
+  (<- (father ?x ?y) 
+      (and 
+        (parent ?x ?y) 
+        (male ?x)))
+  (<- (sibling ?x ?y) 
+      (and (parent ?z ?x)
+           (parent ?z ?y)
+           (not (= ?x ?y)))))
+
+;--------- --------- --------- --------- --------- --------- ---------
 (defun unify (x y &optional binds)
   (cond 
     ((eql x y)        (values binds t))
@@ -23,54 +53,29 @@
       (or (known (cdr b) binds)
           (cdr b)))))
 
-(defvar *rules* (make-hash-table))
-
-;xxx implement some siple utilities
-
-(defmacro <- (con &optional ant)
-  `(length (push (cons (cdr ',con) ',ant)
-                 (gethash (car ',con) *rules*))))
-
-; father not working? why
-; sibling seems brokem... person cant be their own siblings 
-(defun data0 ()
-  (clrhash *rules*)
-  (<- (= ?x ?x))
-  (<- (parent donald nancy))
-  (<- (parent donald debbie))
-  (<- (male donald))
-  (<- (chain ?a ?b)
-         (and (= ?a ?b)
-              (= ?b ?c)
-              (do (xxx ?c))
-              (= ?c 1)))
-  (<- (father ?x ?y) 
-      (and 
-        (parent ?x ?y) 
-        (male ?x)))
-  (<- (sibling ?x ?y) 
-      (and (parent ?z ?x)
-           (parent ?z ?y)
-           (not (= ?x ?y)))))
-
-(defun xxx (x) (format t "[~a]~%" x))
+(defun show (x) (format t "[~a]~%" x))
 
 (defun prove (expr &optional binds)
   (case (car expr)
-    (and  (ands    (reverse (cdr expr)) binds))
-    (or   (ors     (cdr expr) binds))
-    (not  (negation    (cadr expr) binds))
-    (do    (prove-code (cadr expr) binds))
-    (t    (prove1 (car expr) (cdr expr) binds))))
+    (and  (ands        (reverse (cdr expr))  binds))
+    (or   (ors         (cdr expr)            binds))
+    (not  (negation    (cadr expr)           binds))
+    (do   (prove-code  (cadr expr)           binds))
+    (t    (prove1      (car expr) (cdr expr) binds))))
 
 (defun prove-code (expr binds)
+  " turns e.g. (print (list ?a ?b)) into
+    (let ((?a x) ; where x is computed from (known ?a binds)
+          (?b y)); where y is computed from (known ?b binds)
+      (print ?a ?b))"
   (labels 
     ((lets (binds want)
            (mapcar 
-             #'(lambda (x) 
+             (lambda (x) 
                  `(,x ',(known x binds))) 
              want)))
     ; (eval code)
+    (format t "~a~%" `(let ,(lets binds (has-vars expr)) ,expr))
     (eval `(let ,(lets binds (has-vars expr))
              ,expr))
     (list binds)))
@@ -78,19 +83,19 @@
 (defun prove1 (pred args binds)
   ;(format t "preds ~a args ~a~&" pred args)
   (mapcan 
-    #'(lambda (r)
+    (lambda (r)
         (multiple-value-bind (b2 yes) 
           (unify args (car r) 
                  binds)
           (when yes
-            (if (cdr r) 
+            (if (cdr r)  
               (prove (cdr r) b2) 
               (list b2)))))
     (mapcar #'renames
             (gethash pred *rules*))))
 
 (defun renames (r)
-  (sublis (mapcar #'(lambda (v) (cons v (gensym "?")))
+  (sublis (mapcar (lambda (v) (cons v (gensym "?")))
                   (has-vars r))
           r))
 
@@ -103,12 +108,12 @@
 (defun ands (goals binds)
   (if (null goals)
       (list binds)
-      (mapcan #'(lambda (b)
+      (mapcan (lambda (b)
                   (prove (car goals) b))
               (ands (cdr goals) binds))))
 
 (defun ors(goals binds)
-  (mapcan #'(lambda (c) (prove c binds))
+  (mapcan (lambda (c) (prove c binds))
           goals))
 
 (defun negation (goal binds)
@@ -118,7 +123,7 @@
 (defmacro query (question &body body)
   (let ((binds (gensym)))
     `(dolist (,binds (prove ',question))
-       (let ,(mapcar #'(lambda (v)
+       (let ,(mapcar (lambda (v)
                          `(,v (known ',v ,binds)))
          (has-vars question))
    (declare (ignorable ,@(has-vars question)))
@@ -135,4 +140,3 @@
   (query 
     (chain ?x 1)
     (format t "?x matches to ~A.~%" ?x)))
-
