@@ -1,4 +1,4 @@
-; vim: set filetype=lisp tabstop=2 shiftwidth=2 expandtab
+; vim: filetype=lisp tabstop=2 shiftwidth=2 expandtab
 
 
 (defvar *rules* (make-hash-table))
