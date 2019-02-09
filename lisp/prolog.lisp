@@ -1,4 +1,5 @@
-;  vim: set filetype=lisp tabstop=2 shiftwidth=2 expandtab : 
+; vim: set filetype=lisp tabstop=2 shiftwidth=2 expandtab
+
 
 (defvar *rules* (make-hash-table))
 
@@ -15,10 +16,23 @@
   (<- (parent donald nancy))
   (<- (parent donald debbie))
   (<- (male donald))
-  (<- (chain ?a ?b)
+  (<- (chain1 ?a ?b)
          (and (= ?a ?b)
               (= ?b ?c)
               (do (show ?c))
+              (= ?c 1)))
+  (<- (chain2 ?a ?b)
+         (and (= ?a ?b)
+              (= ?b ?c)
+              (>  ?c 0.3)))
+  (<- (chain3 ?a ?b)
+         (and (= ?a ?b)
+              (= ?b ?c)
+              (> ?c 3)))
+  (<- (chain4 ?a ?b)
+         (and (= ?a ?b)
+              (= ?b ?c)
+              (not (> ?c 3))
               (= ?c 1)))
   (<- (father ?x ?y) 
       (and 
@@ -41,8 +55,18 @@
     (sibling ?x ?y)
     (format t "~A is the sibling of ~A.~%" ?x ?y))
   (query 
-    (chain ?x 1)
-    (format t "?x matches to ~A.~%" ?x)))
+    (chain1 ?x 1)
+    (format t "?x in chain1 matches to ~A.~%" ?x))
+  (query 
+    (chain2 ?x 1)
+    (format t "?x in chain2 matches to ~A.~%" ?x))
+  (query 
+    (chain3 ?x 1)
+    (format t "?x in chain3 matches to ~A.~%" ?x))
+  (query 
+    (chain4 ?x 1)
+    (format t "?x in chain4 matches to ~A.~%" ?x))
+)
     
 ;--------- --------- --------- --------- --------- --------- ---------
 (defun unify (x y &optional binds)
@@ -81,12 +105,14 @@
 
 (defun prove (expr &optional binds)
   (case (car expr)
-    (and  (ands        (reverse (cdr expr))  binds))
-    (or   (ors         (cdr expr)            binds))
-    (not  (negation    (cadr expr)           binds))
-    (do   (code        (cadr expr)           binds))
-    (t    (prove1      (car expr) (cdr expr) binds))))
+    (and  (ands        (reverse (cdr expr))   binds))
+    (or   (ors         (cdr  expr)            binds))
+    (not  (negation    (cadr expr)            binds))
+    (>    (maths    expr      binds))
+    (do   (evals       (cadr expr)            binds))
+    (t    (prove1      (car  expr) (cdr expr) binds))))
 
+;--------- --------- --------- --------- --------- --------- ---------
 (defun ands (goals binds)
   (if (null goals)
       (list binds)
@@ -102,21 +128,25 @@
   (unless (prove goal binds)
     (list binds)))
 
-(defun code (expr binds)
+(defun maths (expr binds)
+  (if (eval (lets expr binds))
+     (list binds)))
+
+(defun evals (expr binds)
   " turns e.g. (print (list ?a ?b)) into
     (let ((?a x) ; where x is computed from (known ?a binds)
           (?b y)); where y is computed from (known ?b binds)
       (print ?a ?b))"
   (labels 
-    ((lets (binds want)
-           (mapcar 
-             (lambda (x) 
+    ((local-vars ()
+        (mapcar 
+          (lambda (x) 
                  `(,x ',(known x binds))) 
-             want)))
+             (has-vars expr))))
     ; (eval code)
     ;(format t "~a~%" `(let ,(lets binds (has-vars expr)) ,expr))
-    (eval `(let ,(lets binds (has-vars expr))
-             ,expr))
+    (eval `(let ,(local-vars) 
+              ,expr))
     (list binds)))
 
 (defun prove1 (pred args binds)
@@ -134,6 +164,17 @@
             (gethash pred *rules*))))
 
 ;--------- --------- --------- --------- --------- --------- ---------
+(defun lets (expr binds)
+  (labels (
+    (local-vars ()
+       (mapcar 
+         (lambda (x) 
+           `(,x ',(known x binds))) 
+         (has-vars expr))))
+   `(let ,(local-vars)
+      ,expr)))
+
+
 (defun has-vars (expr)
   (if (atom expr)
       (if (var? expr) (list expr))
@@ -146,3 +187,7 @@
           r))
 
 
+(trace has-vars)
+(test1)
+
+(print (has-vars '(?x ?y ?y)))
