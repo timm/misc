@@ -1,0 +1,3 @@
+wget https://raw.githubusercontent.com/pipeseroni/pipes.sh/master/pipes.sh 
+chmod +x pipes.sh
+./pipes.sh
