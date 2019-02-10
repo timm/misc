@@ -100,7 +100,6 @@
        (let ,(mapcar (lambda (v)
                          `(,v (known ',v ,binds)))
          (has-vars question))
-   (declare (ignorable ,@(has-vars question)))
    ,@body))))
 
 (defun prove (expr &optional binds)
@@ -174,7 +173,6 @@
    `(let ,(local-vars)
       ,expr)))
 
-
 (defun has-vars (expr)
   (if (atom expr)
       (if (var? expr) (list expr))
@@ -186,8 +184,4 @@
                   (has-vars r))
           r))
 
-
-(trace has-vars)
 (test1)
-
-(print (has-vars '(?x ?y ?y)))
