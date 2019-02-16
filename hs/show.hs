@@ -18,3 +18,7 @@ data BBPlayer = BBPlayer { playername :: String,
                            era :: Double }  
      deriving (Show)
 
+m=Diet(steaks 2)
+
+main = print "1"
+
