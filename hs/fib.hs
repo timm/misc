@@ -34,7 +34,10 @@ moin =  do
   putStrLn(show(doubles(fib 10)))
 
 main =  do 
-  filter (<=2) [1,2,3,4]
+  putStrLn(show(quicksort [(4,100),(3,30),(2,10),(1,10)]))
+  putStrLn(show(filter (<=2) [1,2,3,4]))
+
+:load Shape
 
 --  quicksort([10,1, 5 ,7, 2, 8, 3])
 --main = putStrLn(show(bob))
