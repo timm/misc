@@ -16,6 +16,26 @@ downCase st = [ c | c <- st, not (elem c  ['A'..'Z'])]
 data Employee = Employee { name :: String, salary :: Double }
 bob   = Employee { name = "Bob", salary = 1000000 }
 
--- main = putStrLn(show(doubles(fib(10))))
-main = putStrLn(show(bob))
+data Question = Question{ answered :: Bool
+                        , text     :: String }
+
+mop _ [] = []  
+mop f (x:xs) = f x : mop f xs  
+
+quicksort [] = [] 
+quicksort (x:xs) = 
+    let smallerSorted = quicksort (filter (<=x) xs)  
+        biggerSorted = quicksort (filter (>x) xs)   
+    in  smallerSorted ++ [x] ++ biggerSorted  
+
+m=Question True "asd"
+moin =  do 
+  putStrLn(show(doubles(fib 10)))
+  putStrLn(show(doubles(fib 10)))
+
+main =  do 
+  filter (<=2) [1,2,3,4]
+
+--  quicksort([10,1, 5 ,7, 2, 8, 3])
+--main = putStrLn(show(bob))
 
