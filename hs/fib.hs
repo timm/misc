@@ -22,11 +22,9 @@ data Question = Question{ answered :: Bool
 mop _ [] = []  
 mop f (x:xs) = f x : mop f xs  
 
-quicksort [] = [] 
-quicksort (x:xs) = 
-  (quicksort (filter (<=x) xs))  
-  ++ [x] 
-  ++ (quicksort (filter (>x) xs))
+qsort [] = [] 
+qsort (x:xs) = 
+  qsort(filter (<=x) xs) ++ [x] ++ qsort(filter (>x) xs)
 
 m=Question True "asd"
 moin =  do 
@@ -35,7 +33,7 @@ moin =  do
 
 
 main =  do 
-  putStrLn(show(quicksort [(4,100),(3,30),(2,10),(1,10)]))
+  putStrLn(show(qsort [(4,100),(3,30),(2,10),(1,10)]))
   putStrLn(show(filter (<=2) [1,2,3,4]))
 
 
