@@ -1,6 +1,6 @@
 
 data Point = Point Float Float deriving (Show)  
-data Shape = Circle Point Float 
+data Shape = Circle Point Float
            | Rectangle Point Point deriving (Show)
 
 surface (Circle _ r) = pi * r ^ 2  
@@ -39,6 +39,6 @@ tellCar :: (Show a) => Car String String a -> String
 tellCar (Car {model = c, company = m, year = y}) = 
   "This " ++ c ++ " " ++ m ++ " was made in " ++ show y  
 
---main = print(tellCar( car0 {year=2030}))
+main = print(tellCar( car0 {year=2030}))
 
 --main = putStrLn(show( 10))
