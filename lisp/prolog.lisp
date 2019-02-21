@@ -32,7 +32,7 @@
   (<- (chain4 ?a ?b)
          (and (= ?a ?b)
               (= ?b ?c)
-              (not (> ?c 3))
+              (not (or (= 1 2) (> ?c 3)))
               (= ?c 1)))
   (<- (father ?x ?y) 
       (and 
@@ -142,8 +142,6 @@
           (lambda (x) 
                  `(,x ',(known x binds))) 
              (has-vars expr))))
-    ; (eval code)
-    ;(format t "~a~%" `(let ,(lets binds (has-vars expr)) ,expr))
     (eval `(let ,(local-vars) 
               ,expr))
     (list binds)))
