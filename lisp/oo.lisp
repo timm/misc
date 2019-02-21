@@ -1,5 +1,5 @@
 ;  vim: set filetype=lisp tabstop=2 shiftwidth=2 expandtab :
-(defun new-account (name &optional (balance 0.00)
+(defun now-account (name &optional (balance 0.00)
                     (interest-rate .06))
   "Create a new account that knows the following messages:"
   (lambda (message)
@@ -15,62 +15,39 @@
                       (incf balance
                             (* interest-rate balance)))))))
 
+(defun start (x)
+  (if (consp x) (first x) x))
+
 (defmacro defklass (klass &key isa has does)
-  (let* ((message (gensym))
-         (locals  (mapcar #'start has))
-         (inherited (if isa
-                        (send isa '$vars)))
-         (vars     (append locals inherited))) ; need to get the defaults into the has list
-    `(defun ,klass (&key ,@has) ; does this work as .,has?
-       (lambda (,message)
-         (case ,message
-           ,@(methods-as-case  does)
-           ,@(datas-as-case     vars)
-           (otherwise (get-method ,isa ,message)))))))
+  (let ((message (gensym "MESSAGE"))
+        (parent  (gensym "PARENT")))
+    `(defun ,klass (&key ,@has)
+       (let ((,parent ,isa))
+         (lambda (,message)
+           (case ,message
+             ,@(methods-as-case does)
+             ,@(datas-as-case (mapcar #'start has))
+             (otherwise 
+                (and ,parent
+                     (get-method ,parent ,message)))))))))
 
 (defun method-as-case (args)
   `(,(first args) (lambda ,(second args) ,@(cddr args))))
 
-(defun methods-as-case(lst)
-  (mapcar #'method-as-case lst))
+(defun methods-as-case(xs)
+  (mapcar #'method-as-case xs))
 
-(defun start (x)
-  (if (consp x) (first x) x))
+(defun data-as-case (x)
+  `(,x (lambda () ,x)))
 
-(defun data-as-case (thing)
-  `(,(start thing) (lambda () ,(start thing))))
-
-(defun datas-as-case (lst isa)
-  (let ((vars (append (mapcar #'start lst) 
-                      (if isa 
-                          (send isa '$locals)))))
-    `(($locals (lambda () ',vars))
-      ,@(mapcar  #'data-as-case vars))))
+(defun datas-as-case (xs)
+  (mapcar #'data-as-case xs))
 
 (defun xpand(x)
-  (not 
-    (write 
-      (macroexpand-1 x)
-      :pretty t :right-margin 50 :case :downcase)))
-
-(defun one ()
-  (xpand 
-    '(defklass 
-       new-account 
-       :isa account
-       :has ((name)  (balance 0) (interest-rate .05))
-       :does ((withdraw (amt)
-                        (if (<= amt balance)
-                          (decf balance amt)
-                          'insufficient-funds))
-              (deposit (amt)
-                       (incf balance amt))
-              (interest ()
-                        (incf balance
-                              (* interest-rate balance)))))))
-
-
-;;; ==============================
+  (write 
+    (macroexpand-1 x)
+    :pretty t :right-margin 50 :case :downcase)
+  t)
 
 (defun get-method (object message)
   "Return the method that implements message for this object."
@@ -80,6 +57,50 @@
   "Get the function to implement the message,
   and apply the function to the args."
   (apply (get-method object message) args))
+
+(let ((counter 0))
+  (defun id () (incf counter)))
+
+(defklass thing :has ((id (id))))
+
+; have to keep all in a cache and do an expand
+; need a semd
+
+(defklass
+  account
+  :isa (thing)
+  :has  ((name) (balance 0) (interest-rate .05))
+  :does ((withdraw (amt)
+                     (decf balance amt))
+         (deposit (amt)
+                  (incf balance amt))
+         (interest ()
+                   (incf balance
+                         (* interest-rate balance)))))
+
+(defklass
+  trimmed-account
+  :isa (account)
+  :does ((withdraw (amt)
+                   (if (<= amt balance)
+                     (decf balance amt)
+                     'insufficient-funds))))
+
+(defun one ()
+   (let ((acc (trimmed-account)))
+      (print (send acc 'deposit 100))
+      (print (send acc 'interest))
+      (print (send acc 'interest))
+      (print (send acc 'balance))
+      (print (send acc 'id))
+      (dotimes (i 10)
+         (print (send acc 'withdraw 20)))
+      ))
+
+(one)
+(one)
+
+;;; ==============================
 
 ;;; ==============================
 
