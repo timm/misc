@@ -35,7 +35,8 @@
 
 (defun xpand(x)
   (terpri) 
-  (write (macroexpand-1 x)
+  (write 
+    (macroexpand-1 x)
     :pretty t 
     :right-margin 40 
     :case :downcase)
