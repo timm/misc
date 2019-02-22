@@ -104,14 +104,27 @@
 
 (defun prove (expr &optional binds)
   (case (car expr)
-    (and  (ands        (reverse (cdr expr))   binds))
-    (or   (ors         (cdr  expr)            binds))
-    (not  (negation    (cadr expr)            binds))
-    (>    (maths    expr      binds))
-    (do   (evals       (cadr expr)            binds))
-    (t    (prove1      (car  expr) (cdr expr) binds))))
+    (and         (ands     (reverse (cdr expr))   binds))
+    (or          (ors      (cdr  expr)            binds))
+    (not         (negation (cadr expr)            binds))
+    ((> < <= >=) (eval?    expr                   binds))
+    (do          (eval!    (cadr expr)            binds))
+    (t           (prove1   (car  expr) (cdr expr) binds))))
 
-;--------- --------- --------- --------- --------- --------- ---------
+(defun lets (expr binds)
+  `(let ,(mapcar 
+           (lambda (x) `(,x ',(known x binds))) 
+           (has-vars expr))
+     ,expr))
+
+(defun eval? (expr binds)
+  (if (eval (lets expr binds))
+    (list binds)))
+
+(defun eval! (expr binds)
+  (eval (lets expr binds))
+  (list binds))
+
 (defun ands (goals binds)
   (if (null goals)
       (list binds)
@@ -125,25 +138,6 @@
 
 (defun negation (goal binds)
   (unless (prove goal binds)
-    (list binds)))
-
-(defun maths (expr binds)
-  (if (eval (lets expr binds))
-     (list binds)))
-
-(defun evals (expr binds)
-  " turns e.g. (print (list ?a ?b)) into
-    (let ((?a x) ; where x is computed from (known ?a binds)
-          (?b y)); where y is computed from (known ?b binds)
-      (print ?a ?b))"
-  (labels 
-    ((local-vars ()
-        (mapcar 
-          (lambda (x) 
-                 `(,x ',(known x binds))) 
-             (has-vars expr))))
-    (eval `(let ,(local-vars) 
-              ,expr))
     (list binds)))
 
 (defun prove1 (pred args binds)
@@ -161,15 +155,6 @@
             (gethash pred *rules*))))
 
 ;--------- --------- --------- --------- --------- --------- ---------
-(defun lets (expr binds)
-  (labels (
-    (local-vars ()
-       (mapcar 
-         (lambda (x) 
-           `(,x ',(known x binds))) 
-         (has-vars expr))))
-   `(let ,(local-vars)
-      ,expr)))
 
 (defun has-vars (expr)
   (if (atom expr)
