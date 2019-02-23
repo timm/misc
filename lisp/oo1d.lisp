@@ -5,12 +5,26 @@ In this assignment you will use the LISP macro system
 to learn that "objects" can be viewed as macros that
 generate "lambdas".
 
+To find what you need to do, look for TODOx"
+
 When its all done, you should see output like this:
 
     > clisp oo1d.lisp
-    
+    (ENCAPSULATON 105.0 110.25 110.25)
+    (ENCAPSULATION 90.25)
+    (ENCAPSULATION 70.25)
+    (ENCAPSULATION 50.25)
+    (ENCAPSULATION 30.25)
+    (ENCAPSULATION 10.25)
+    (ENCAPSULATION -9.75)
+    (ENCAPSULATION -29.75)
+    (ENCAPSULATION -49.75)
+    (ENCAPSULATION -69.75)
+    (ENCAPSULATION -89.75)
+
     (POLYMORPHISM 115.7079632679489662L0)
-    (INHERITANCE 100 105.0 110.25 110.25 2)
+
+    (INHERITANCE 100 105.0 110.25 110.25 1)
     (INHERITANCE 90.25)
     (INHERITANCE 70.25)
     (INHERITANCE 50.25)
@@ -21,8 +35,8 @@ When its all done, you should see output like this:
     (INHERITANCE INSUFFICIENT-FUNDS)
     (INHERITANCE INSUFFICIENT-FUNDS)
     (INHERITANCE INSUFFICIENT-FUNDS)
-    (META ((ID . 3) (INTEREST-RATE . 0.05) (BALANCE . 0) (NAME)))
-    
+
+    (META ((ID . 2) (INTEREST-RATE . 0.05) (BALANCE . 0) (NAME)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; BACKGROUND:
@@ -76,9 +90,10 @@ that can create an "account".
 "defthing" creates a function that returns a lambda body.
 This lambda body holds a case statement which, when called
 with a message, returns another lambda body that can do something (run
-some code or return a value).
+some code or return a value). For example, from the above
+defthing, the following function is generated:
 
-    (defun account (&key (name) (balance 0) (interest-rate 0.05))
+    (defun account (&key (name) (balance 0) (interest-rate .05))
      (lambda (#:message2822)
       (case #:message2822
        (withdraw
@@ -95,7 +110,7 @@ some code or return a value).
         (lambda nil interest-rate)))))
 
 Note the jump from the input form to the output form.
-The forms "(name)" and "(balance 0)" expands into two
+The forms "(name)" and "(balance .05)" expands into two
 accessor lines (within the case statement.
 
     (name    (lambda nil name))
@@ -105,10 +120,10 @@ which has the general form:
 
     (slotname (lambda nil soltname))
 
-The forms "(name)" and "(balance 0)" also expands into
+The forms "(name)" and "(balance .05)" also expands into
 init form in the header of the function.
 
-    (defun account (&key (name) (balance 0) (interest-rate 0.05))
+    (defun account (&key (name) (balance 0) (interest-rate .05))
        ...
     )
 
@@ -135,13 +150,12 @@ and "datas-as-case" is missing... till you write it.
            ,@(datas-as-case (mapcar #'car has)))))))
 
 #|
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 1. Make defthing work
 
-1a. Why does mapcar call #'car over the "has"?
-1b. Why is message set to a gensym?
-1c. Implement "data-as-case": 
+TODO 1a. Why does mapcar call #'car over the "has"?
+TODO 1b. Why is message set to a gensym?
+TODO 1c. Implement "data-as-case": 
 
     (datas-as-case '(name balance interest-rate))
     ==>
@@ -156,23 +170,7 @@ and "datas-as-case" is missing... till you write it.
      ((MORE (LAMBDA (X) (+ X 1))) 
       (LESS (LAMBDA (X) (- X 1))))
      
-|#
 
-
-(defun method-as-case (args)
-  `(,(first args) 
-    (lambda ,(second args) ,@(cddr args))))
-
-(defun methods-as-case(xs) 
-   (mapcar #'method-as-case xs))
-
-(defun data-as-case (x) 
-   `(,x (lambda () ,x)))
-
-(defun datas-as-case (xs) 
-   (mapcar #'data-as-case xs))
-
-#|
 Now that that is working, the following should
 expand nicely:
 |#
@@ -191,14 +189,17 @@ expand nicely:
 
 #|
 
-1e. Show the result of expanding you account.
+TODO 1e. Show the result of expanding you account.
+|#
 
-    (xpand (account))
+; uncomment this to see what an account looks like
+'(xpand (account))
 
+#|
 1f. Fix "withdraw" in "account" such that if you withdraw more than
 what is there, it  returns the symbol 'insufficient-funds
  
-1f.. Show the output from the following test
+TODO 1f.. Show the output from the following function
 
 |#
 
@@ -221,30 +222,18 @@ what is there, it  returns the symbol 'insufficient-funds
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; POLYMORPHISM
 
-2a. Define an object "rectangle" with variables x1,x2,y1,y2
+TODO 2a. Define an object "cirle" with variables x,y
+    (for  the center of the circle) and radius 
+    (to hold the size of the circle). Add a method 
+    "area" that returns 2 *pi*radius^2
+
+; run this to peek inside circle
+'(xpand (circle))
+
+TODO 2b. Define an object "rectangle" with variables x1,x2,y1,y2
     that all default value of 0. Add
     a method "area" that returns the area of that rectangle
-2b. Define an object "cirle" with variables x,y
-    (for  the center of the circle) and radius (to hold the size of the 
-    circle). Add a method "area" that returns 2 *pi*radius^2
-
-|#
-
-(defthing 
-  rectangle 
-  :has  ((x1 0) (y1 0) (x2 0) (y2 0))
-  :does ((area () 
-               (* (abs (- x1 x2)) (abs (- y1 y2))))))
-
-(defthing 
-  circle
-  :has  ((x 0) (y 0) (radius  0))
-  :does ((area () 
-               (* pi radius radius))))
-
-#|
-
-2c. Show the output from the following test
+TODO 2c. Show the output from the following test
 
 |#
 
@@ -257,7 +246,8 @@ what is there, it  returns the symbol 'insufficient-funds
       (incf sum (send one 'area)))
     (print `(polymorphism ,sum))))
 
-(polymorphism)
+; to run, uncomment the following
+'(polymorphism)
 
 #|
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -321,22 +311,8 @@ object
     trimmed-account
 
 |#
-(defmacro defklass (klass &key isa has does)
-  (let* ((b4      (and    isa  (gethash isa *meta*)))
-         (has     (append has  (and b4 (about-has b4))))
-         (does    (append does (and b4 (about-does b4))))
-         (self    (gensym "SELF"))
-         (message (gensym "MESSAGE")))
-    (setf (gethash klass *meta*)
-          (make-about :has has :does does))
-    `(defun ,klass (&key ,@has) 
-       (let ((,self (lambda (,message)
-                      (case ,message
-                        ,@(methods-as-case does)
-                        ,@(datas-as-case (mapcar #'car has))))))
-         (send ,self '_self! ,self)
-         (send ,self '_isa! ',klass)
-         ,self))))
+
+; implement defklass here
 
 (let ((_counter 0))
   (defun counter () (incf _counter)))
@@ -345,7 +321,9 @@ object
   (and (symbolp x) 
        (eql (char (symbol-name x) 0) #\_)))
 
-(defklass 
+; uncomment the following when defklass is implemented
+
+'(defklass 
   object 
   :has ((_self)  (_isa) (id (counter)))
   :does (
@@ -353,13 +331,14 @@ object
          (_self! (x) (setf _self x))
          (show () (let ((slot-values)
                         (slots (mapcar #'car 
-                                        (about-has (gethash _isa *meta*)))))
+                                 (about-has (gethash _isa *meta*)))))
                       (dolist (one slots slot-values)
                         (if (not (meta? one))
-                          (push  `(,one . ,(send _self one)) 
-                                 slot-values)))))))
+                          (push `(,one . ,(send _self one)) 
+                                slot-values)))))))
 
-(defklass
+; uncomment the following when defklass is implemented
+'(defklass
   account
   :isa object
   :has  ((name) (balance 0) (interest-rate .05))
@@ -370,16 +349,18 @@ object
          (interest ()
                    (incf balance
                          (* interest-rate balance)))))
-                         (account)
 
-(defklass
+; uncomment this to see what is going on
+'(xpand (account))
+
+; uncomment the following when defklass is implemented
+'(defklass
   trimmed-account
   :isa account
   :does ((withdraw (amt)
                    (if (<= amt balance)
                      (decf balance amt)
                      'insufficient-funds))))
-
 (defun inheritance ()
   (let ((acc (trimmed-account)))
     (print `(inheritance ,(send acc 'deposit 100)
@@ -391,15 +372,16 @@ object
         (print `(inheritance ,(send acc 'withdraw 20))))
       ))
 
-; 3a show that the following works correctly
+; TODO: 3a show that the following works correctly
 
-(inheritance)
+'(inheritance)
 
-; 3b. show that the following prints out the slots of an object.
+'(xpand (trimmed-account))
+; TODO: 3b. show that the following prints out the slots of an object.
 
 (defun meta ()
    (let ((acc (trimmed-account)))
       (print `(meta ,(send acc 'show))
    )))
 
-(meta)
+'(meta)
