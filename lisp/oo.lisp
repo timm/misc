@@ -7,6 +7,7 @@
 (defstruct about has does )
 
 (defmacro defklass (klass &key isa has does)
+  "stuff"
   (let* ((b4      (and    isa  (gethash isa *meta*)))
          (has     (append has  (and b4 (about-has b4))))
          (does    (append does (and b4 (about-does b4))))
