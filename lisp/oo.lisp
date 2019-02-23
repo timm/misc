@@ -87,7 +87,6 @@
 
 (send (account) 'show)
 
-(quit)
 (xpand (gethash 'account *meta*))
 
 (defklass
