@@ -2,26 +2,26 @@
 (defun start (x)
   (if (consp x) (first x) x))
 
-(defvar *about* (make-hash-table))
+(defvar *meta* (make-hash-table))
 
 (defstruct about has does )
 
 (defmacro defklass (klass &key isa has does)
-  (let* ((b4      (and    isa  (gethash isa *about*)))
+  (let* ((b4      (and    isa  (gethash isa *meta*)))
          (has     (append has  (and b4 (about-has b4))))
          (does    (append does (and b4 (about-does b4))))
          (self    (gensym "SELF"))
          (message (gensym "MESSAGE")))
-  (setf (gethash klass *about*)
-        (make-about :has has :does does))
-  `(defun ,klass (&key ,@has &aux ,self)
-     (setf ,self (lambda (,message)
-                  (case ,message
-                    ,@(methods-as-case does)
-                    ,@(datas-as-case (mapcar #'start has)))))
-     (send ,self 'self! ,self)
-     (send ,self 'isa! ',klass)
-     ,self)))
+    (setf (gethash klass *meta*)
+          (make-about :has has :does does))
+    `(defun ,klass (&key ,@has) 
+       (let ((,self (lambda (,message)
+                      (case ,message
+                        ,@(methods-as-case does)
+                        ,@(datas-as-case (mapcar #'start has))))))
+         (send ,self 'self! ,self)
+         (send ,self 'isa! ',klass)
+         ,self))))
 
 (defun method-as-case (args)
   `(,(first args) 
@@ -59,7 +59,7 @@
   :does (
          (isa!  (x) (setf isa  x))
          (self! (x) (setf self x))
-         (show () (dolist (slot (mapcar #'start (about-has (gethash isa *about*))))
+         (show () (dolist (slot (mapcar #'start (about-has (gethash isa *meta*))))
                     (if (not (member slot '(self isa)))
                        (print `(,slot . ,(send self slot)))
                     )))))
@@ -87,7 +87,7 @@
 (send (account) 'show)
 
 (quit)
-(xpand (gethash 'account *about*))
+(xpand (gethash 'account *meta*))
 
 (defklass
   trimmed-account
@@ -98,7 +98,7 @@
                      'insufficient-funds))))
 (print 5)
 
-(xpand (gethash 'trimmed-account *about*))
+(xpand (gethash 'trimmed-account *meta*))
 
 (defun test1 ()
    (let ((acc (trimmed-account)))
