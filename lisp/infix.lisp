@@ -97,7 +97,9 @@
 
 ;; an implementation of shunting-yard algorithm for operators w/o parenthesis for grouping
 (defun shunting-yard (lst &optional (ops  *ops*))
-  (let (q stack) 
+  (let (q     ; output queue 
+        stack ; temporary stack
+        ) 
     (loop for element in lst
           do
           (if (assoc element ops)
@@ -124,3 +126,4 @@
   then name = 22 and ll = 21 and kk = 2
 ))
 
+;; need a parser that carries around a bindings list and returns bindings and flag t for success
