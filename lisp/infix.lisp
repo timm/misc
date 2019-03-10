@@ -89,7 +89,7 @@
 (xpand '($ emp = 23 had name = 'timm had age > 23 had salary < 23))
 (xpand '($
   id = 31 
-  if emp = 23 had name = timm had age > 23 had salary < 23 
+  if   emp = 23 had name = timm had age > 23 had salary < 23 
   then name = 22 and ll = 21 and kk = 2
 ))
 
