@@ -67,18 +67,15 @@
                    always (and (consp item) (symbolp (car item)) (numberp (cdr item))))))
     (error 'type-error :expected-type "non-empty-alist" :datum ops)))
 
-;; returns values of  stack, list of popped elements
+;; divide stack into things to do first (popped) and remaining stack
 (defun recursively-pop-stack (stack element ops &optional (popped '()) )
-  (if (and (not (null stack))
+  (if (and stack 
            (>=  (cdr (assoc element       ops)) 
                 (cdr (assoc (first stack) ops))))
-    ;; recursively pop stack
-    (progn
-      (setf popped (append popped (list (pop stack))))  
+    (let ((first (pop stack)))
       ;; append to popped, not push, because order of returned 
       ;; popped stack should be same as was in working stack
-      (recursively-pop-stack stack element ops popped))
-    ;; else
+      (recursively-pop-stack stack element ops (append popped (list first))))
     (values (push element stack) popped)))
 
 ;; apply popped operators to first two operands in q for each popped 
@@ -88,11 +85,10 @@
   ;;input      : popped-stack  = (* -), q = (1 2 3)
   ;;iteration 1: popped-stack  = (-),   q = ((* 2 1) 3)
   ;;iteration 2: popped-stack  = (),    q = (- 3 (* 2 1))
-  (loop for operator in popped-stack
-        do
-        (let ((b (pop q))
-              (a (pop q)))
-          (push (list operator a b) q)))
+  (loop for operator in popped-stack do
+     (let ((a (pop q))
+           (b (pop q)))
+        (push `(,operator ,b ,a) q)))
   q)
 
 ;; an implementation of shunting-yard algorithm for operators w/o parenthesis for grouping
@@ -100,8 +96,7 @@
   (let (q     ; output queue 
         stack ; temporary stack
         ) 
-    (loop for element in lst
-          do
+    (loop for element in lst do
           (if (assoc element ops)
             (multiple-value-bind (new-stack popped)
               (recursively-pop-stack stack element ops)
@@ -122,7 +117,7 @@
 (xpand '($ emp = 23 had name = 'timm had age > 23 had salary < 23))
 (xpand '($
   id = 31 
-  if emp = 23 had name = 'timm had age > 23 had salary < 23 
+  if emp = 23 had name = timm had age > 23 had salary < 23 
   then name = 22 and ll = 21 and kk = 2
 ))
 
