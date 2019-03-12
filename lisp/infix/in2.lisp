@@ -14,18 +14,18 @@
   `(progn 
      (terpri) 
      (write 
-       (macroexpand-1 ',x) :miser-width 10
+       (macroexpand-1 ',x) 
             :pretty t :right-margin 20 :case :downcase)
      (terpri)))
 
 (defun postfix (lst &optional (ops *ops0*) st out)
   (labels
     ((operator (x) (assoc x ops))
-     (operand  (x) (not  (operator x)))
-     (prec     (x) (cadr (operator x)))
-     (aka      (x) (if   (operator x) (caddr (operator x)) x))
-     (out+     (x) (push (aka x) out))
-     (st+      (x) (push x st))
+     (operand  (x) (not    (operator x)))
+     (prec     (x) (second (operator x)))
+     (aka      (x) (if     (operand x) x (third (operator x))))
+     (out+     (x) (push   (aka x) out))
+     (st+      (x) (push   x st))
      (up       ()  (let ((x (pop st))) (out+ x)))
      (somethingMoreImportant 
                (x) (and st (<= (prec x) (prec (car st))))))
