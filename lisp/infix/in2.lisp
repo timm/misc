@@ -19,13 +19,14 @@
 
 (defun postfix (lst &optional (ops *ops0*) st out)
   (labels
-    ((operator (x) (assoc  x ops))
+    ((operator (x) (assoc x ops))
      (operand  (x) (not (operator x)))
      (lower    (x) (and st (<= (prec x) (prec (car st)))))
      (prec     (x) (second (operator x)))
      (aka      (x) (if (operand x) x (third (operator x))))
      (out+     (x) (push (aka x) out))
-     (st+      (x) (while (lower x) (up)) (push x st))
+     (st+      (x) (while (lower x) (up)) 
+                   (push x st))
      (up       ()  (let ((x (pop st))) (out+ x))))
     (dolist (x lst)
       (if (operand x) (out+ x) (st+ x)))
