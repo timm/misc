@@ -35,7 +35,7 @@
   `(progn 
      (terpri) 
      (write 
-       (macroexpand-1 ,x) :miser-width 10
+       (macroexpand-1 ',x) :miser-width 10
             :pretty t :right-margin 30 :case :downcase)
      (terpri)))
 
@@ -86,8 +86,8 @@
   (check-lst lst *ops*)
   (shunting-yard lst))
 
-(xpand '($ emp = 23 had name = 'timm had age > 23 had salary < 23))
-(xpand '($
+(xpand ($ emp = 23 had name = 'timm had age > 23 had salary < 23))
+(xpand ($
   id = 31 
   if   emp = 23 had name = timm had age > 23 had salary < 23 
   then name = 22 and ll = 21 and kk = 2
