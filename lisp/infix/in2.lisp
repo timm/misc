@@ -1,11 +1,10 @@
 ; vim: set filetype=lisp tabstop=2 shiftwidth=2 expandtab :
 
 (defvar *ops0* '((if 1 if) (then 2 then) (and 3 and) 
-                 (< 4 <) 
-                 (> 4 >) 
-                 (>= 4 >=) 
-                 (<= 4 <=) 
-                 (= 4 =) (* 6 *) (/ 6 /) (+ 5 +) (- 5 -)))
+                           (< 4 <) (> 4 >) (>= 4 >=) (<= 4 <=) (= 4 =) 
+                           (+ 5 +) (- 5 -)
+                           (* 6 *) (/ 6 /) 
+                           ))
 
 (defmacro while (test &body body)
   `(do () ((not ,test)) ,@body))
@@ -15,7 +14,7 @@
      (terpri) 
      (write 
        (macroexpand-1 ',x) 
-            :pretty t :right-margin 20 :case :downcase)
+       :pretty t :right-margin 20 :case :downcase)
      (terpri)))
 
 (defun postfix (lst &optional (ops *ops0*) st out)
