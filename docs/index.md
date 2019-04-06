@@ -3,10 +3,10 @@ title: Demo page
 layout: default
 ---
 
-When you code... never more than 53 characters wide
+When you code... never more than 55 characters wide
 
 ```python 
-#       1        2        3        4        50 5345
+#       1        2        3        4        50    5
 def aa(): return b()
 ```
 
