@@ -34,6 +34,7 @@ asda da as
 | Foot1   | Foot2   | Foot3
 {: rules="groups"}
 
+$$\sum_{n=1}^\infty 1/n^2 = \frac{\pi^2}{6}$$
 
 ## BTW
 
