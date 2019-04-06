@@ -3,9 +3,10 @@ title: Demo page
 layout: default
 ---
 
-When you code... never more than 55 characters wide
+## Code
 
 ```python 
+# try to work in less that 55 characters wide
 #       1        2        3        4        50    5
 def aa(): return b()
 ```
