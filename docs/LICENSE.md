@@ -8,7 +8,7 @@ layout: default
 - The other non-code content of this site is licensed under a [Creative Commons Attribution 4.0 International License](https://github.com/idleberg/Creative-Commons-Markdown/blob/master/4.0/by.markdown).
 - The other code content of this code is licenses under a MIT 2-clause license, as follows.
 
-Copyright 2019, Tim Menzies
+Copyright {{site.about.when}}, {{site.about.who}}
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
