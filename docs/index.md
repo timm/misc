@@ -72,12 +72,8 @@ I make these promises solemnly, freely and upon my honour.
 </div>
 
 <div role="tabpanel" class="tab-pane" id="about">
-    <p>
-    I solemnly pledge myself to the service of humanity and will endeavour to practise my profession with conscience and with dignity.
-</p><p>
-
-I will maintain, by all the means in my power, the honour and noble tradition of my profession.
-</p></div>
+    <img src="http://aux2.iconspalace.com/uploads/pharmacist-female-icon-256.png">
+</div>
 
 <div role="tabpanel" class="tab-pane" id="match">
     <ul>
