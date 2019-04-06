@@ -12,7 +12,7 @@ div.wrapper {
 	max-width: 700px;
 	margin: auto;
 }
-code { margin-left: 10px; margin-right: 10px;
+code { 
 	padding-left: 10px; padding-right: 10px;
 }
 header p { margin: 0px;  padding: 0px; }
