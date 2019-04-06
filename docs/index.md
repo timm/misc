@@ -23,7 +23,7 @@ asda da as
 
 ![](https://images.pexels.com/photos/1133957/pexels-photo-1133957.jpeg?cs=srgb&dl=beautiful-beautiful-flowers-bird-1133957.jpg&fm=jpg){:class="img-responsive img-rounded"}
 
-| Header1 | Header2 | Header3 |
+| Header1&nbsp;| Header2&nbsp;| Header3&nbsp;|
 |:--------|:-------:|--------:|
 | cell1   | cell2   | cell3   |
 | cell4   | cell5   | cell6   |
@@ -32,7 +32,6 @@ asda da as
 | cell4   | cell5   | cell6   |
 |=====
 | Foot1   | Foot2   | Foot3
-|<img width=200/>|<img width=200/>|<img width=200/>
 {: rules="groups"}
 
 $$
