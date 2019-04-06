@@ -84,12 +84,13 @@ I will maintain, by all the means in my power, the honour and noble tradition of
 <div role="tabpanel" class="tab-pane" id="match">
     <ul>
     <li>
-    The total health of my patients will be my first consideration.
+    The total health of my patients will be my first consideration.</li>
 <li>
-I will hold in confidence all personal matters coming to my knowledge.
+I will hold in confidence all personal matters coming to my knowledge.</li>
 <li>
 
 I will not permit consideration of religion, nationality, race or social standing to intervene between my duty and my patient.
+</li>
 </ul>
 </div>
 </div>
