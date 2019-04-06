@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+
+files="$(find . -type f)"
+com=/tmp/$$.com
+for f in $files; do
+   if [ ! "$f" == "." ]; then
+	d=$(dirname $f)
+	echo mkdir -p $d 
+	#t=$(echo $f | sed 's/[\.\/]/_/g')
+	#echo dir [$d] tag [$t] file [$f]
+	#echo "$d : ; echo \$@"
+  fi
+done | sort | uniq > $com
+bash $com
+all=""
+for f in $files; do
+   if [ ! "$f" == "." ]; then
+	t=Web$(echo $f | sed 's/[\.\/]/_/g')
+	all="$all $t"
+	cat<<-EOF
+	$f : ; @echo "\$\$$t" > \$@; git add \$@
+
+	define $t
+	`sed 's/\\$/$$/gp' $f`
+	endef
+	export $t
+	EOF
+   fi
+done
+echo $all
