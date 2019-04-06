@@ -1,212 +1,46 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>{{page.title}}</title>
-<link href="https://fonts.googleapis.com/css?family=Roboto+Slab" 
-      rel="stylesheet">
-<link rel="stylesheet" 
-      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" 
-      crossorigin="anonymous">
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-<script src="https://unpkg.com/mathjs@5.8.0/dist/math.min.js></script>
-
-
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    TeX: {
-      equationNumbers: {
-        autoNumber: "AMS"
-      }
-    },
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\(', '\)'] ],
-      displayMath: [ ['$$','$$'] ],
-      processEscapes: true,
-    }
-  });
-</script>
-<script type="text/javascript"
-        src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
+	<head>
+		<title>{{page.title}}</title>
+		<link href="https://fonts.googleapis.com/css?family=Roboto+Slab" 
+		      rel="stylesheet">
+		<link rel="stylesheet" 
+		      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" 
+		      crossorigin="anonymous">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script src="https://unpkg.com/mathjs@5.8.0/dist/math.min.js></script>
+		<script type="text/x-mathjax-config">
+					  MathJax.Hub.Config({
+					    TeX: {
+					      equationNumbers: {
+						autoNumber: "AMS"
+					      }
+					    },
+					    tex2jax: {
+					      inlineMath: [ ['$','$'], ['\(', '\)'] ],
+					      displayMath: [ ['$$','$$'] ],
+					      processEscapes: true,
+					    }
+					  });
+		</script>
+		<script type="text/javascript"
+			src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+		</script>
 <style>
-
-@import url('https://fonts.googleapis.com/css?family=Nunito:300,300i,600,600i');
-
-body {
-	font-weight: 300;
-	font-family: "Nunito", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	margin-left: 15px;
-	margin-right: 15px;
-	margin-top: 5px;
-}
-div.wrapper {
-	max-width: 700px;
-	margin: auto;
-}
-code { margin-left: 10px; margin-right: 10px;
-       padding-left: 10px; padding-right: 10px;
-}
-.highlight .hll { background-color: #ffffcc }
-.highlight  { background: #f8f8f8; }
-.highlight .c { color: #8f5902; font-style: italic } /* Comment */
-.highlight .err { color: #a40000; border: 1px solid #ef2929 } /* Error */
-.highlight .g { color: #000000 } /* Generic */
-.highlight .k { color: #204a87; font-weight: bold } /* Keyword */
-.highlight .l { color: #000000 } /* Literal */
-.highlight .n { color: #000000 } /* Name */
-.highlight .o { color: #ce5c00; font-weight: bold } /* Operator */
-.highlight .x { color: #000000 } /* Other */
-.highlight .p { color: #000000; font-weight: bold } /* Punctuation */
-.highlight .ch { color: #8f5902; font-style: italic } /* Comment.Hashbang */
-.highlight .cm { color: #8f5902; font-style: italic } /* Comment.Multiline */
-.highlight .cp { color: #8f5902; font-style: italic } /* Comment.Preproc */
-.highlight .cpf { color: #8f5902; font-style: italic } /* Comment.PreprocFile */
-.highlight .c1 { color: #8f5902; font-style: italic } /* Comment.Single */
-.highlight .cs { color: #8f5902; font-style: italic } /* Comment.Special */
-.highlight .gd { color: #a40000 } /* Generic.Deleted */
-.highlight .ge { color: #000000; font-style: italic } /* Generic.Emph */
-.highlight .gr { color: #ef2929 } /* Generic.Error */
-.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
-.highlight .gi { color: #00A000 } /* Generic.Inserted */
-.highlight .go { color: #000000; font-style: italic } /* Generic.Output */
-.highlight .gp { color: #8f5902 } /* Generic.Prompt */
-.highlight .gs { color: #000000; font-weight: bold } /* Generic.Strong */
-.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
-.highlight .gt { color: #a40000; font-weight: bold } /* Generic.Traceback */
-.highlight .kc { color: #204a87; font-weight: bold } /* Keyword.Constant */
-.highlight .kd { color: #204a87; font-weight: bold } /* Keyword.Declaration */
-.highlight .kn { color: #204a87; font-weight: bold } /* Keyword.Namespace */
-.highlight .kp { color: #204a87; font-weight: bold } /* Keyword.Pseudo */
-.highlight .kr { color: #204a87; font-weight: bold } /* Keyword.Reserved */
-.highlight .kt { color: #204a87; font-weight: bold } /* Keyword.Type */
-.highlight .ld { color: #000000 } /* Literal.Date */
-.highlight .m { color: #0000cf; font-weight: bold } /* Literal.Number */
-.highlight .s { color: #4e9a06 } /* Literal.String */
-.highlight .na { color: #c4a000 } /* Name.Attribute */
-.highlight .nb { color: #204a87 } /* Name.Builtin */
-.highlight .nc { color: #000000 } /* Name.Class */
-.highlight .no { color: #000000 } /* Name.Constant */
-.highlight .nd { color: #5c35cc; font-weight: bold } /* Name.Decorator */
-.highlight .ni { color: #ce5c00 } /* Name.Entity */
-.highlight .ne { color: #cc0000; font-weight: bold } /* Name.Exception */
-.highlight .nf { color: #000000 } /* Name.Function */
-.highlight .nl { color: #f57900 } /* Name.Label */
-.highlight .nn { color: #000000 } /* Name.Namespace */
-.highlight .nx { color: #000000 } /* Name.Other */
-.highlight .py { color: #000000 } /* Name.Property */
-.highlight .nt { color: #204a87; font-weight: bold } /* Name.Tag */
-.highlight .nv { color: #000000 } /* Name.Variable */
-.highlight .ow { color: #204a87; font-weight: bold } /* Operator.Word */
-.highlight .w { color: #f8f8f8; text-decoration: underline } /* Text.Whitespace */
-.highlight .mb { color: #0000cf; font-weight: bold } /* Literal.Number.Bin */
-.highlight .mf { color: #0000cf; font-weight: bold } /* Literal.Number.Float */
-.highlight .mh { color: #0000cf; font-weight: bold } /* Literal.Number.Hex */
-.highlight .mi { color: #0000cf; font-weight: bold } /* Literal.Number.Integer */
-.highlight .mo { color: #0000cf; font-weight: bold } /* Literal.Number.Oct */
-.highlight .sa { color: #4e9a06 } /* Literal.String.Affix */
-.highlight .sb { color: #4e9a06 } /* Literal.String.Backtick */
-.highlight .sc { color: #4e9a06 } /* Literal.String.Char */
-.highlight .dl { color: #4e9a06 } /* Literal.String.Delimiter */
-.highlight .sd { color: #8f5902; font-style: italic } /* Literal.String.Doc */
-.highlight .s2 { color: #4e9a06 } /* Literal.String.Double */
-.highlight .se { color: #4e9a06 } /* Literal.String.Escape */
-.highlight .sh { color: #4e9a06 } /* Literal.String.Heredoc */
-.highlight .si { color: #4e9a06 } /* Literal.String.Interpol */
-.highlight .sx { color: #4e9a06 } /* Literal.String.Other */
-.highlight .sr { color: #4e9a06 } /* Literal.String.Regex */
-.highlight .s1 { color: #4e9a06 } /* Literal.String.Single */
-.highlight .ss { color: #4e9a06 } /* Literal.String.Symbol */
-.highlight .bp { color: #3465a4 } /* Name.Builtin.Pseudo */
-.highlight .fm { color: #000000 } /* Name.Function.Magic */
-.highlight .vc { color: #000000 } /* Name.Variable.Class */
-.highlight .vg { color: #000000 } /* Name.Variable.Global */
-.highlight .vi { color: #000000 } /* Name.Variable.Instance */
-.highlight .vm { color: #000000 } /* Name.Variable.Magic */
-.highlight .il { color: #0000cf; font-weight: bold } /* Literal.Number.Integer.Long */		
-
-header p { margin: 0px;  padding: 0px; }
-header h1 {height: 100px; padding-top: 6px; padding-bottom: 5px; margin-top: 0px; margin-bottom:2px;
-            color: #fff; border:0px;
-
-/* IE10+ */
-background-image: -ms-linear-gradient(left, #{{site.about.bold}} 0%, #FFFFFF 100%);
-
-/* Mozilla Firefox */
-background-image: -moz-linear-gradient(left, #{{site.about.bold}} 0%, #FFFFFF 100%);
-
-/* Opera */
-background-image: -o-linear-gradient(left, #{{site.about.bold}} 0%, #FFFFFF 100%);
-
-/* Webkit (Safari/Chrome 10) */
-background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #{{site.about.bold}}), color-stop(100, #FFFFFF));
-
-/* Webkit (Chrome 11+) */
-background-image: -webkit-linear-gradient(left, #{{site.about.bold}} 0%, #FFFFFF 100%);
-
-/* W3C Markup */
-background-image: linear-gradient(to right, #{{site.about.bold}} 0%, #FFFFFF 100%);
-
-
-}
-.alignleft {
-	margin-top:0px;
-	padding-top:0px;
-	float: left;
-}
-.alignright {
-	margin-top:0px;
-	padding-top:0px;
-	float: right;
-}
-a:link,
-a:visited,
-a:hover,
-a:active {
-	color:#{{site.about.bold}};
-}
-a:hover { background-color: #EEE;}
-
-table.center {
-    margin-left:auto; 
-    margin-right:auto;
-    border-collapse: separate;
-    border-spacing: 10px 0;
-}
-
+{% include style.css %}
+{% include code-tango.css %}
 </style>
 </head>
 <body>
 	<div class=wrapper>
-		<header>
-			<font color="#{{site.about.bold}}"<i class="fas fa-home"></i></font>
-			<h1>&nbsp; 
-				<p class=alignleft style="padding-top: 30px;" >&nbsp;{{site.about.who}}</p>
-				<p class=alignright style="padding-top: 40px; color:#{{site.about.bold}};
-				text-align: right; font-size: 20px;
-				font-weight: bold;">{{site.about.what}}
-				</p>
-			</h1>
-		</header>
-
-		<a href=https://github.com/txt/plm18/blob/master/doc/syllabus.md>syllabus</a> |
-		<a href=https://github.com/txt/plm18/tree/master/src>src</a> |
-		<a href=http://tiny.cc/plm18give>submit</a> |
-		<a href=https://plm18.slack.com/>chat</a> <br>
-
+		{% include header.html %}
 		<h1>{{page.title}}</h1>
 		{{ content }}
 		<hr>
 		<center>
-			<p><a href="https://github.com/txt/plm18/blob/master/LICENSE.md">&copy;{{site.about.when}}</a> {{site.about.email}}<br>
-			<i class="fas fa-phone"></i> 
-			<i class="fab fa-github"></i> 
-			<i class="fab fa-twitter"></i> 
-			</p>
+			{% include header.html %}
 		</center>
 	</div>
 </body>
