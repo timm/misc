@@ -15,6 +15,28 @@ div.wrapper {
 code { 
 	padding-left: 10px; padding-right: 10px;
 }
+.alignleft {
+	margin-top:0px;
+	padding-top:0px;
+	float: left;
+}
+.alignright {
+	margin-top:0px;
+	padding-top:0px;
+	float: right;
+}
+a:link,
+a:visited,
+a:hover,
+a:active { color:#{{site.about.bold}}; }
+a:hover  { background-color: #EEE; }
+
+table.center {
+	margin-left:auto; 
+	margin-right:auto;
+	border-collapse: separate;
+	border-spacing: 10px 0;
+}
 header p { margin: 0px;  padding: 0px; }
 header h1 {
 	height: 100px; 
@@ -40,25 +62,4 @@ header h1 {
 	/* W3C Markup */
 	background-image: linear-gradient(to right, #{{site.about.bold}} 0%, #FFFFFF 100%);
 }
-.alignleft {
-	margin-top:0px;
-	padding-top:0px;
-	float: left;
-}
-.alignright {
-	margin-top:0px;
-	padding-top:0px;
-	float: right;
-}
-a:link,
-a:visited,
-a:hover,
-a:active { color:#{{site.about.bold}}; }
-a:hover  { background-color: #EEE; }
 
-table.center {
-	margin-left:auto; 
-	margin-right:auto;
-	border-collapse: separate;
-	border-spacing: 10px 0;
-}
