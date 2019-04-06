@@ -19,7 +19,7 @@ Now we are engaged in a great civil war, testing whether that nation, or any nat
 
 ## Centered tables
 
-| Header1&nbsp;| Header2&nbsp;| Header3&nbsp;|
+| Header1 | Header2 | Header3 |
 |:--------|:-------:|--------:|
 | cell1   | cell2   | cell3   |
 | cell4   | cell5   | cell6   |
