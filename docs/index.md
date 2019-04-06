@@ -64,7 +64,6 @@ $$
   <div class="tab-content">
 <div role="tabpanel" class="tab-pane active" id="profile">
 <p>
-<img align=right width=150 src="http://www.clipartroo.com/images/40/group-of-nurses-clipart-40862.png">
 I will maintain the utmost respect for human life.
 </p><p>
 I make these promises solemnly, freely and upon my honour.
@@ -74,7 +73,6 @@ I make these promises solemnly, freely and upon my honour.
 
 <div role="tabpanel" class="tab-pane" id="about">
     <p>
-    ![](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIw7-nzx-0HjB1QBzlxzDgLzNXskeFJIAc-6hO-jz0TMVh499L0A)
     I solemnly pledge myself to the service of humanity and will endeavour to practise my profession with conscience and with dignity.
 </p><p>
 
