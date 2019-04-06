@@ -82,16 +82,15 @@ I will maintain, by all the means in my power, the honour and noble tradition of
 </p></div>
 
 <div role="tabpanel" class="tab-pane" id="match">
-    <p>
-    <img src="http://clipart-library.com/data_images/464629.png" width=150 align=right>
+    <ul>
+    <li>
     The total health of my patients will be my first consideration.
-</p><p>
-
+<li>
 I will hold in confidence all personal matters coming to my knowledge.
-</p><p>
+<li>
 
 I will not permit consideration of religion, nationality, race or social standing to intervene between my duty and my patient.
-</p>
+</ul>
 </div>
 </div>
 
