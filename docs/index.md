@@ -23,6 +23,7 @@ asda da as
 
 ![](https://images.pexels.com/photos/1133957/pexels-photo-1133957.jpeg?cs=srgb&dl=beautiful-beautiful-flowers-bird-1133957.jpg&fm=jpg){:class="img-responsive img-rounded"}
 
+<center>
 | Header1&nbsp;| Header2&nbsp;| Header3&nbsp;|
 |:--------|:-------:|--------:|
 | cell1   | cell2   | cell3   |
@@ -33,6 +34,7 @@ asda da as
 |=====
 | Foot1   | Foot2   | Foot3
 {: rules="groups"}
+</center>
 
 $$
 \begin{align*}
