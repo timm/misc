@@ -53,7 +53,7 @@ I make these promises solemnly, freely and upon my honour.
 </div>
 
 <div role="tabpanel" class="tab-pane" id="about">
-    <img src="http://aux2.iconspalace.com/uploads/pharmacist-female-icon-256.png">
+    <img width=200 src="http://aux2.iconspalace.com/uploads/pharmacist-female-icon-256.png">
 </div>
 
 <div role="tabpanel" class="tab-pane" id="match">
