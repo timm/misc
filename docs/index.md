@@ -74,7 +74,7 @@ I make these promises solemnly, freely and upon my honour.
 
 <div role="tabpanel" class="tab-pane" id="about">
     <p>
-    <img align=right src="https://forum.nursejanx.com/uploads/default/original/1X/d748c9f4a66122a6d375328b2dbf1482a32c13b0.png" width=150>
+    ![](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIw7-nzx-0HjB1QBzlxzDgLzNXskeFJIAc-6hO-jz0TMVh499L0A)
     I solemnly pledge myself to the service of humanity and will endeavour to practise my profession with conscience and with dignity.
 </p><p>
 
