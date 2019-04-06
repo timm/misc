@@ -53,8 +53,8 @@ I make these promises solemnly, freely and upon my honour.
 </div>
 
 <div role="tabpanel" class="tab-pane" id="about">
+    <p> I wanna be a nurse and help people when they are sick! And when they are well!</p>
     <img  src="http://aux2.iconspalace.com/uploads/pharmacist-female-icon-256.png">
-    <p> I wanna be a nurse!</p>
 </div>
 
 <div role="tabpanel" class="tab-pane" id="match">
