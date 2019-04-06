@@ -34,9 +34,10 @@ asda da as
 | Foot1   | Foot2   | Foot3
 {: rules="groups"}
 
-111
 
-This is a text with a
-footnote[^1].
 
-[^1]: And here is the definition.
+Four score and seven years[^1] ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.
+
+Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altogether fitting and proper that we should do this.
+
+[^1]: i.e. 47 years
