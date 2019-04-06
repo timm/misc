@@ -6,8 +6,8 @@ layout: default
 ## Code
 
 ```python 
-# try to work in less that 55 characters wide
-#       1        2        3        4        50    567890
+# try to work in less that 60 characters wide
+#       1        2        3        4        5        60
 def aa(): return b()
 ```
 
