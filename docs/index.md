@@ -34,7 +34,7 @@ asda da as
 | cell4   | cell5   | cell6   |
 |=====
 | Foot1   | Foot2   | Foot3|
-{: rules="groups"}
+{: rules="groups" class="center"}
 
 $$
 \begin{align*}
