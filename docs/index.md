@@ -64,25 +64,34 @@ $$
   <div class="tab-content">
 <div role="tabpanel" class="tab-pane active" id="profile">
 <p>
-This is my rifle. There are many like it, but this one is mine.
-My rifle is my best friend. It is my life. I must master it as I must master my life.
-
-Without me, my rifle is useless. Without my rifle, I am useless. I must fire my rifle true. I must shoot straighter than my enemy who is trying to kill me. I must shoot him before he shoots me. I will ...
-
+<img align=right width=150 src="http://www.clipartroo.com/images/40/group-of-nurses-clipart-40862.png">
+I will maintain the utmost respect for human life.
+</p><p>
+I make these promises solemnly, freely and upon my honour.
 
 </p>
 </div>
 
 <div role="tabpanel" class="tab-pane" id="about">
-    <p>My rifle and I know that what counts in war is not the rounds we fire, the noise of our burst, nor the smoke we make. We know that it is the hits that count. We will hit ...
+    <p>
+    <img align=right src="https://forum.nursejanx.com/uploads/default/original/1X/d748c9f4a66122a6d375328b2dbf1482a32c13b0.png" width=150>
+    I solemnly pledge myself to the service of humanity and will endeavour to practise my profession with conscience and with dignity.
+</p><p>
 
-My rifle is human, even as I, because it is my life. Thus, I will learn it as a brother. I will learn its weaknesses, its strength, its parts, its accessories, its sights and its barrel. I will keep my rifle clean and ready, even as I am clean and ready. We will become part of each other. We will ...
-Lorem ipsum ...</p></div>
+I will maintain, by all the means in my power, the honour and noble tradition of my profession.
+</p></div>
 
 <div role="tabpanel" class="tab-pane" id="match">
-    <p>Before God, I swear this creed. My rifle and I are the defenders of my country. We are the masters of our enemy. We are the saviors of my life.
+    <p>
+    <img src="http://clipart-library.com/data_images/464629.png" width=150 align=right>
+    The total health of my patients will be my first consideration.
+</p><p>
 
-So be it, until victory is America's and there is no enemy, but peace!Vel vehicula ....</p>
+I will hold in confidence all personal matters coming to my knowledge.
+</p><p>
+
+I will not permit consideration of religion, nationality, race or social standing to intervene between my duty and my patient.
+</p>
 </div>
 </div>
 
