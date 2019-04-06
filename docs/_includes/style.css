@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css?family=Nunito:300,300i,600,600i');
 
 body {
+	background: #EEE;
 	font-weight: 300;
 	font-family: "Nunito", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	margin-left: 15px;
@@ -9,6 +10,9 @@ body {
 	margin-top: 5px;
 }
 div.wrapper {
+ 	border: 1px solid black;
+  	background: #fff;
+	border: 1px gray solid;
 	max-width: 700px;
 	margin: auto;
 }
