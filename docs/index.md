@@ -34,7 +34,9 @@ asda da as
 | Foot1   | Foot2   | Foot3
 {: rules="groups"}
 
-$$\sum_{n=1}^\infty 1/n^2 = \frac{\pi^2}{6}$$
+$$
+   |\psi_1\rangle = a|0\rangle + b|1\rangle
+$$
 
 ## BTW
 
