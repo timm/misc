@@ -3,7 +3,7 @@ about:
  when: 2019
  what: 'Purpose, details'
  email: 'timm@ieee.org'
- bold: 'CC0000'
+ bold: '006666'
 markdown: kramdown
 kramdown:
  input: GFM
