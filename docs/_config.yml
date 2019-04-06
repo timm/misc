@@ -1,0 +1,12 @@
+about:
+ who: Web site name
+ when: 2019
+ what: 'Purpose, details'
+ email: 'timm@ieee.org'
+ bold: '006666'
+markdown: kramdown
+kramdown:
+ input: GFM
+ auto_ids: true
+ hard_wrap: false
+ syntax_highlighter: rouge
