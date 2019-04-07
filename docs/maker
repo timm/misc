@@ -1,31 +1,29 @@
 #!/usr/bin/env bash
 
-
+prefix=${1:-Web}
 files="$(find . -type f)"
 com=/tmp/$$.com
 for f in $files; do
-   if [ ! "$f" == "." ]; then
-	d=$(dirname $f)
-	echo mkdir -p $d 
-	#t=$(echo $f | sed 's/[\.\/]/_/g')
-	#echo dir [$d] tag [$t] file [$f]
-	#echo "$d : ; echo \$@"
+  if [ ! "$f" == "." ]; then
+    d=$(dirname $f)
+    echo mkdir -p $d 
   fi
 done | sort | uniq > $com
 bash $com
 all=""
 for f in $files; do
-   if [ ! "$f" == "." ]; then
-	t=Web$(echo $f | sed 's/[\.\/]/_/g')
-	all="$all $t"
-	cat<<-EOF
+  if [ ! "$f" == "." ]; then
+    t=$prefix$(echo $f | sed 's/[\.\/]/_/g')
+    all="$all $f"
+    cat<<-EOF
 	$f : ; @echo "\$\$$t" > \$@; git add \$@
-
+	    
 	define $t
-	`sed 's/\\$/$$/gp' $f`
+	`sed 's/\\$/$$/g' $f`
 	endef
 	export $t
+	
 	EOF
-   fi
+  fi
 done
-echo $all
+echo "$prefix : $all"
