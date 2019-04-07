@@ -1,29 +1,39 @@
 #!/usr/bin/env bash
 
 prefix=${1:-Web}
-files="$(find . -type f)"
+files="$(find docs -type f)"
 com=/tmp/$$.com
-for f in $files; do
-  if [ ! "$f" == "." ]; then
-    d=$(dirname $f)
-    echo mkdir -p $d 
-  fi
-done | sort | uniq > $com
-bash $com
+
+dirs() {
+  for f in $files; do
+    if [[  "$f" =~ "." ]]; then
+      echo $(dirname $f)
+    fi
+  done | sort | uniq
+}
+#| sed 's/\\/\&\&/g'`
 all=""
-for f in $files; do
-  if [ ! "$f" == "." ]; then
-    t=$prefix$(echo $f | sed 's/[\.\/]/_/g')
-    all="$all $f"
-    cat<<-EOF
+makes() {
+  for f in $files; do
+    if [[  "$f" =~ "." ]]; then
+      local t=$prefix$(echo $f | sed 's/[\.\/]/_/g')
+      all="$all $f"
+      cat<<-EOF
 	$f : ; @echo "\$\$$t" > \$@; git add \$@
 	    
 	define $t
-	`sed 's/\\$/$$/g' $f`
+	`sed 's/\\$/\$(dollar)/g' $f | sed 's/\\\\/\$(slash)/g'`
 	endef
 	export $t
 	
 	EOF
-  fi
-done
-echo "$prefix : $all"
+    fi
+  done
+}
+echo "dollar = \$\$#"
+echo "slash = \\\\\\\\#"
+makes
+echo "${prefix}Dirs : "
+echo "	@mkdir -p $(echo `dirs`)"
+echo ""
+echo "$prefix : ${prefix}Dirs $all"
