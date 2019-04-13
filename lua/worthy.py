@@ -7,6 +7,7 @@ any = random.choice
 def of(lo,hi,x)  : return  lo + x*(hi-lo)
 def wrap(lo,hi,x): return  lo + (x - lo) % (hi-lo) 
 
+#---------1---------2---------3---------4---------5---------
 class o(object):
   def __init__(i, **d): 
     super().init(); i.defaults(); i.__dict__.update(d)
@@ -14,37 +15,42 @@ class o(object):
     return '%s%s' % (i.__class__.__name__. i.__dict__)
   def defaults(i): pass
 
+#---------1---------2---------3---------4---------5---------
 class is(o):
   def defaults(i) : pass
   def has(i)      : pass
   def have(i,n)   : return [i.has() for _ in range(n)]
   def ok(i,x)     : True
   def mutate(i,x) : return i.has()
+  def interpolate(i,a,b,c) : pass
   def mutates(i,x): return i.try(x,i.mutate) 
-  def interpolates(i,x): return i.try(x,i.interpolate) 
+  def interpolates(i,a,b,c): 
+    return i.try(x,lambda: i.interpolate(a,b,c)) 
   def try(i,x,f,n=16)
     while n>0:
       new = f(x)
       if i.ok(new): return new
       n -= 1
 
-class num(is):
-  def defaults(i) : i.lo, i.hi = 0, 1
-  def has(i)  : return of(i.lo,i.hi,r())
-  def ok(i,x) : return i.lo <= x <= i.hi
-  def interpola(i,x,y,f=0.5,cr=0.3):
-    return 0,False if r() > cr else f*(x - y),True
-  def mutate(i,x): return wrap(i.lo,i.hi,x+(i.hi-i.lo)*r())
-
+#---------1---------2---------3---------4---------5---------
 class oneof(is):
   def defaults(i) : i.range=[True,False]
   def has(i)      : return any(i.range)
   def ok(i,x)     : return x in i.range
-  def intraploate(i,x,y,f=0.5,cr=0.3): 
+  def intraploate(i,a,b,c,f=0.5,cr=0.3): 
     return x,False if r() > cr else (x if r()<f else y),True
   def mutate(i,x): return i.has()
 
-class bool(one): pass
+class bool(oneof): pass
+
+#---------1---------2---------3---------4---------5---------
+class num(is):
+  def defaults(i) : i.lo, i.hi = 0, 1
+  def has(i)  : return of(i.lo,i.hi,r())
+  def ok(i,x) : return i.lo <= x <= i.hi
+  def interpola(i,b,c,f=0.5,cr=0.3):
+    return 0,False if r() > cr else f*(b - c),True
+  def mutate(i,x): return wrap(i.lo,i.hi,x+(i.hi-i.lo)*r())
 
 class triangle(num):
   def defaults(i) : i.lo, i.c, i.hi = 0, 0.5, 1
