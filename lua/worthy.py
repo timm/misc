@@ -5,7 +5,6 @@ r   = random.random
 any = random.choice
 
 def of(lo,hi,x)  : return  lo + x*(hi-lo)
-def wrap(lo,hi,x): return  lo + (x - lo) % (hi-lo) 
 
 #---------1---------2---------3---------4---------5---------
 class o(object):
@@ -17,52 +16,55 @@ class o(object):
 
 #---------1---------2---------3---------4---------5---------
 class is(o):
-  def defaults(i) : pass
-  def has(i)      : pass
-  def have(i,n)   : return [i.has() for _ in range(n)]
-  def ok(i,x)     : True
-  def mutate(i,x) : return i.has()
-  def interpolate(i,a,b,c) : pass
-  def mutates(i,x): return i.try(x,i.mutate) 
-  def interpolates(i,a,b,c): 
-    return i.try(x,lambda: i.interpolate(a,b,c)) 
-  def try(i,x,f,n=16)
+  def defaults(i)    : pass
+  def ok(i,x)        : True
+  def has(i)         : pass
+  def have(i,n)      : return [i.has() for _ in range(n)]
+  def tap(i,x)       : pass
+  def kick(i,x,a,b,c): pass
+  def taps(i,x)      : return i.vary(x,lambda:i.tap(x)) 
+  def kicks(i,a,b,c) : return i.vary(x,lambda:i.kick(a,b,c)) 
+  def vary(i,old,f,n=16):
     while n>0:
-      new = f(x)
-      if i.ok(new): return new
       n -= 1
+      new = f()
+      if new ~= old and i.ok(new): return new
+    assert False,"cannot find a new value"
 
 #---------1---------2---------3---------4---------5---------
 class oneof(is):
   def defaults(i) : i.range=[True,False]
-  def has(i)      : return any(i.range)
   def ok(i,x)     : return x in i.range
-  def intraploate(i,a,b,c,f=0.5,cr=0.3): 
-    return x,False if r() > cr else (x if r()<f else y),True
-  def mutate(i,x): return i.has()
+  def has(i)      : return any(i.range)
+  def kick(i,x)   : return i.has()
+  def tap(i,x,a,b,c,f=0.5,cr=0.3): 
+    return x if r() > cr else i.has()
 
 class bool(oneof): pass
 
 #---------1---------2---------3---------4---------5---------
 class num(is):
   def defaults(i) : i.lo, i.hi = 0, 1
-  def has(i)  : return of(i.lo,i.hi,r())
-  def ok(i,x) : return i.lo <= x <= i.hi
-  def interpola(i,b,c,f=0.5,cr=0.3):
-    return 0,False if r() > cr else f*(b - c),True
-  def mutate(i,x): return wrap(i.lo,i.hi,x+(i.hi-i.lo)*r())
+  def ok(i,x)     : return i.lo <= x <= i.hi
+  def has(i)      : return of(i.lo,i.hi,r())
+  def wrap(i,x)   : return i.lo + (x - i.lo) % (i.hi-i.lo) 
+  def kick(i,x)   : return i.wrap(x + (i.hi-i.lo)*r())
+  def tap(i,a,b,c,f=0.5,cr=0.3):
+    return a+ (0 if r() > cr else f*(b - c))
 
 class triangle(num):
   def defaults(i) : i.lo, i.c, i.hi = 0, 0.5, 1
-  def has(i)  : return of(i.lo,i.hi,i.c+(r()-i.c)*r()**0.5)
+  def has(i)      : return of(i.lo,i.hi,
+                              i.c+(r()-i.c)*r()**0.5)
 
 class norm(num):
   def defaults(i) : i.mu, i.sd = 0, 1
-  def has(i)  : return random.normal(i.mu,i.sd)
-  def ok(i,x) : return i.mu - 3*i.sd < x < i.mu + 3*i.sd
+  def ok(i,x)     : return i.mu - 3*i.sd < x < i.mu + 3*i.sd
+  def has(i)      : return random.gauss(i.mu,i.sd)
 
 
 
+#---------1---------2---------3---------4---------5---------
 def worthy():
   more =  1
   less = -1
