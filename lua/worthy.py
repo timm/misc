@@ -1,51 +1,63 @@
 # vim: ts=2 sw=2 sts=2 expandtab:cindent:formatoptions+=cro
 #---------1---------2---------3---------4---------5---------
-r= random.random
+
+r   = random.random
+any = random.choice
+
+def of(lo,hi,x)  : return  lo + x*(hi-lo)
+def wrap(lo,hi,x): return  lo + (x - lo) % (hi-lo) 
 
 class o(object):
   def __init__(i, **d): 
-    super().init(); i.uses(); i.__dict__.update(d)
+    super().init(); i.defaults(); i.__dict__.update(d)
   def __repr__(i): 
     return '%s%s' % (i.__class__.__name__. i.__dict__)
-  def uses(i): pass
+  def defaults(i): pass
 
 class is(o):
-  def __call__(i) : return some(i,i.n)
-  def any(i,lst)  : return random.choose(lst)
+  def defaults(i) : pass
   def has(i)      : pass
   def have(i,n)   : return [i.has() for _ in range(n)]
   def ok(i,x)     : True
-  def uses(i)     : i.n = 1
+  def mutate(i,x) : return i.has()
+  def mutates(i,x): return i.try(x,i.mutate) 
+  def interpolates(i,x): return i.try(x,i.interpolate) 
+  def try(i,x,f,n=16)
+    while n>0:
+      new = f(x)
+      if i.ok(new): return new
+      n -= 1
 
 class num(is):
-  def has(i)  : return i.lo + r()*(i.hi - i.lo)
-  def uses(i) : i.lo, i.hi = 0, 1
+  def defaults(i) : i.lo, i.hi = 0, 1
+  def has(i)  : return of(i.lo,i.hi,r())
   def ok(i,x) : return i.lo <= x <= i.hi
-
-class triangle(num):
-  def has(i)     : return i.lo + (i.hi - i.lo) * (
-                                  i.s(i.mode, r(), r()))
-  def uses(i)    : i.lo, i.mode, i.hi = 0, 0.5, 1
-  def s(i,c,u,v) : 
-    """"http://www.sciencedirect.com/
-        science/article/pii/S0895717708002665"""
-    return c + (u-c)*v**0.5
-
-class norm(is):
-  def has(i)  : return random.normal(i.mu,i.sd)
-  def ok(i,x) : return i.mu - 3*i.sd < x < i.mu + 3*i.sd
-  def uses(i) : i.mu, i.sd = 0, 1
+  def interpola(i,x,y,f=0.5,cr=0.3):
+    return 0,False if r() > cr else f*(x - y),True
+  def mutate(i,x): return wrap(i.lo,i.hi,x+(i.hi-i.lo)*r())
 
 class oneof(is):
-  def has(i) : return i.any(i.range)
-  def uses() : i.range=[True,False]
+  def defaults(i) : i.range=[True,False]
+  def has(i)      : return any(i.range)
+  def ok(i,x)     : return x in i.range
+  def intraploate(i,x,y,f=0.5,cr=0.3): 
+    return x,False if r() > cr else (x if r()<f else y),True
+  def mutate(i,x): return i.has()
 
 class bool(one): pass
 
+class triangle(num):
+  def defaults(i) : i.lo, i.c, i.hi = 0, 0.5, 1
+  def has(i)  : return of(i.lo,i.hi,i.c+(r()-i.c)*r()**0.5)
+
+class norm(num):
+  def defaults(i) : i.mu, i.sd = 0, 1
+  def has(i)  : return random.normal(i.mu,i.sd)
+  def ok(i,x) : return i.mu - 3*i.sd < x < i.mu + 3*i.sd
+
+
 
 def worthy():
-  r    = random.random
-  any  = random.choice
   more =  1
   less = -1
 
