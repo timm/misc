@@ -90,3 +90,97 @@ def worthy():
   about = thing()
   p=0
   pop=[eg(n,about)]
+
+
+"""
+my = {all  = 100
+     ,some = 100
+     ,k    = 5
+     ,x    = {num=10, sym=0}
+     ,y    = {more=3, less=2, klass=0} 
+     }
+
+#---------#---------#---------#---------#---------#---------
+sub(x,y)   = x - y
+change(x,y) = nil if x==y else y
+zero()     = 0
+id         = 0
+
+dec(item) = item.sym  ++ item.num
+obj(item) = item.more ++ item.less
+
+dist(item1,item2,what=dec) = distance between what
+
+cluster(lst,what=dec) = hiearchical cluster of lst using
+                        dist(what) with |leaf| >= the.k
+
+nearest(k,item,lst,what=dec) = all other items that are k closest
+                          to item using dist(what)
+
+ok(valids, old, new) = repair(valids,old,new) if bad(new) else new 
+
+repair(valids, old, new) = 
+   for valid in valids
+     do binary chops new to valid.x looking for something close to new that is not bad
+         if found return it
+  return old
+
+#---------#---------#---------#---------#---------#---------
+num(n=1) = [random()          for range(n)]
+sym(n=1) = [any('randomStuf') for range(n)]
+item()   = {x = {num   = num( my.x.num  )
+                ,sym   = sym( my.x.sym  )}
+           ,y = {klass = sym( my.y.klass )
+                ,more  = num( my.y.more  )
+                ,less  = num( my.y.less  )}
+items(n) = [item() for range( n )]
+           or from Z3
+
+#---------#---------#---------#---------#---------#---------
+delta(a,b) = 
+   {id    = id++
+    ,x    = a
+    ,y    = b
+    ,sym  = map(change, a.x.sym, b.x.sym)
+    ,num  = map(sub, a.x.num, b.x.num)
+    ,more = map(sub, a.y.more, b.y.more)
+    ,less = map(sub, a.y.less, b.y.less)
+    }
+i=0
+pop[i]= items( my.all ) # n items
+
+:PLAN 
+  # learn candidate mutants
+  some  = shuffle(pop[i])[1:the.some]
+  tree  = cluster( map(delta, some, some), what=dec)
+  plans = all deltas in all leaves of tree
+            with at least one less,more more than 1*sd of all mean less,more
+            with at least one mean less,more going in right direction
+
+  # score candidate mutants 
+  for plan in plans
+    local = nearest(the.k, plan, plans, what=dec)
+    plan.predict.more = mean(more in local)
+    plan.predict.less = mean(less in local)
+
+:MUTATE
+  # mutate and score with surrogate
+  pop[i+1] = []
+  for old in pop[i]
+    best = old
+    local = nearest(the.k, old, plans, what=dec) # sortet closest to furthest
+    for plan in local
+      new = old + plan.sym + plan.num + plan.more + plan.less
+      new = ok(local, old, new)
+      if dominates(new, best)
+        best = new
+    pop[i+1] += [best]
+
+:LOOP
+  i++
+  if we have a model, then
+      evaluate(pop[i]) 
+      goto :PLAN
+  else
+      goto :MUTATE
+"""
