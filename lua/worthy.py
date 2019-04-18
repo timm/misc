@@ -170,7 +170,7 @@ verify oepration: if discrete explore the CNF. inf contonusous, uas the surroage
     plan.predict.more = mean(more in local)
     plan.predict.less = mean(less in local)
 
-:MUTATE
+:MUTAT
   # mutate and score with surrogate
   pop[i+1] = []
   for old in pop[i]
@@ -190,5 +190,30 @@ verify oepration: if discrete explore the CNF. inf contonusous, uas the surroage
       goto :PLAN
   else
       goto :MUTATE
-"""
 
+
+Input:
+
+MAKE() ==> produces a valid example {decs = [number]+}
+objs=SCORE(eg) ==> less=[number]*, more=[number]*
+OK(x) ==> TRUE, FALSEtests validity of decisions
+P= 100 (say)
+D=1000 (say)
+diff(eg1,eg2) ==> {from=eg1, to=eg2, 
+                   dist= {objs=distance(eg1,eg2.what=objs)
+                          decs=distance(eg1,eg2,what=decs)}
+                    delta = {objs=[number]+, objs=[number]+}
+
+:SAMPLE
+Pop=  [SCORE((MAKE()) for _ in range(P}]
+Deltas = [diff(any(Pop), any(Pop)) for _in range(D)]
+
+for d in Deltas
+   Collect statistics on mean and standard deviation of all dist.objs, dist.decs  and delta of all 
+
+:SURROGATES
+for d1 in Deltas
+   for d2 in Deltas
+    if dist.decs < mean- sd
+
+"""
