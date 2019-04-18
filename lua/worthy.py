@@ -149,6 +149,11 @@ delta(a,b) =
 i=0
 pop[i]= items( my.all ) # n items
 
+change langaiuge to soverample and priunce. suroage. contrast . simialrity. diversirty . evaluationspeed . theoreem somethimes
+
+verify oepration: if discrete explore the CNF. inf contonusous, uas the surroage if it improves things
+     if vertification fails, got to repair.
+
 :PLAN 
   # learn candidate mutants
   some  = shuffle(pop[i])[1:the.some]
@@ -156,6 +161,8 @@ pop[i]= items( my.all ) # n items
   plans = all deltas in all leaves of tree
             with at least one less,more more than 1*sd of all mean less,more
             with at least one mean less,more going in right direction
+
+# simpler: dont bother clsutering. jsut do deltas between anything at all
 
   # score candidate mutants 
   for plan in plans
