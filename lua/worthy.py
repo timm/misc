@@ -199,10 +199,11 @@ objs=SCORE(eg) ==> less=[number]*, more=[number]*
 OK(x) ==> TRUE, FALSEtests validity of decisions
 P= 100 (say)
 D=1000 (say)
-diff(eg1,eg2) ==> {from=eg1, to=eg2, 
+diff(eg1,eg2) ==> {improvement= nil
+                   from=eg1, to=eg2, 
                    dist= {objs=distance(eg1,eg2.what=objs)
                           decs=distance(eg1,eg2,what=decs)}
-                    delta = {objs=[number]+, objs=[number]+}
+                   delta = {objs=[number]+, objs=[number]+}
 
 :SAMPLE
 Pop=  [SCORE((MAKE()) for _ in range(P}]
@@ -212,8 +213,67 @@ for d in Deltas
    Collect statistics on mean and standard deviation of all dist.objs, dist.decs  and delta of all 
 
 :SURROGATES
-for d1 in Deltas
-   for d2 in Deltas
-    if dist.decs < mean- sd
+candiates=[d for d in Delta if promising(d)]
+
+d=0.5
+jump=2
+n = 100
+near = n/10
+f=0.5
+cr=0.5
+
+different(l1,l2,sds) = 
+  cohen(x,y,sd) = abs(x - y) > sd * d 
+  for x,y,z in news,olds,sds
+    if cohen(x,y,z) then return true
+
+stats(x,ys) =
+  tmp = [{s=0,s2=0} for _ in x.objs]
+  for y in ys
+     for t,o1,o2 in zip(tmp,y.objs,x.objs) 
+       z = o1-o2
+       t.s += z; t.s2+=z**z 
+  return [(t.s2 - (t.s*t.s)/|ys|)/(|ys| - 1) for t in tmp]
+
+for x in pop
+  x= mutate(x, any n of pop)
+
+# cachec all the distance calcs
+# min change heuristic from jc
+# what if best is brittle (better to avoid worst?)
+# find tose in best half. work toward theravegat cirection
+
+# is this de?
+mutate(x, ys) 
+   # find things near to x
+   stats = [ {new=obj,sum=0} for obj in x.objs]
+   ys    = sort( [ (dist(x,y),y) for y in ys ] )
+   sds   = stats(ys)
+   ys    = ys[:near]
+
+   # find the best thing near to x
+   best = x
+   for y in ys 
+     if different(y.obs, x.objs,sds) and dominates(y,best):
+       best=y
+
+   # find things on the best side of x
+   ys = [y for y in ys if distance(y,best) < distance(x,best) ]
+
+   # find the effect of moving from best side things to best
+   deltas = [ 0 for _ in x.decs ]
+   for y in ys
+     dist = distance(y,best, using="decs")
+     deltas= [ delta + (o1-o2)/dist/|ys| 
+               for o1,o2 in zip(deltas,best.objs, y.objs)]
+
+   # mutate cr-th of x towards best
+   x.decs = [dec if r() > cr else dec + jump*(z -  dec)*f for
+                  dec,z in zip(x.decs,best.decs)]
+
+   # guess the impact of that change
+   dist = distance(x, best, using="decs")
+   x.objs = [obj + jump*delta*dist*cr for obj,z for zip(x.objs, deltas]
+   return x
 
 """
