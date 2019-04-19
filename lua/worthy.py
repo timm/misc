@@ -213,7 +213,6 @@ for d in Deltas
    Collect statistics on mean and standard deviation of all dist.objs, dist.decs  and delta of all 
 
 :SURROGATES
-candiates=[d for d in Delta if promising(d)]
 
 d=0.5
 jump=2
@@ -222,18 +221,33 @@ near = n/10
 f=0.5
 cr=0.5
 
-different(l1,l2,sds) = 
-  cohen(x,y,sd) = abs(x - y) > sd * d 
-  for x,y,z in news,olds,sds
-    if cohen(x,y,z) then return true
+class Num:
+  def __init__(self):
+    self.n,self.mu, self.sd, self.m2 = 0,0,0,0
+  def small(self,x,y):
+    return abs(x-y) <= self.sd *d
+  def __iadd__(self,x):
+    n      += 1
+		d       = x - self.mu
+  	self.mu = self.mu + d/self.n
+    self.m2 = self.m2 + d*(x - self.mu)
+    self.sd = (self.m2/(self.n - 1 + 0.0001))s**0.5 
+    return sekf
 
-stats(x,ys) =
-  tmp = [{s=0,s2=0} for _ in x.objs]
-  for y in ys
-     for t,o1,o2 in zip(tmp,y.objs,x.objs) 
-       z = o1-o2
-       t.s += z; t.s2+=z**z 
-  return [(t.s2 - (t.s*t.s)/|ys|)/(|ys| - 1) for t in tmp]
+class Stats:
+  def __init__(self, example):
+     self.objs= [ Num() for _ in example.objs]
+     self.decs= [ Num() for _ in example.decs]
+  self __iadd__(self,new):
+     [num + z for x,num in zip(new.decs, self.decs]
+     [num + z for x,num in zip(new.objs, self.objs]
+	   return self
+
+
+def different(xs,ys,nums):
+	for num,x,y in zip(nums,xs,ys)
+    if not small(x,y): return True
+  return False
 
 for x in pop
   x= mutate(x, any n of pop)
@@ -244,36 +258,120 @@ for x in pop
 # find tose in best half. work toward theravegat cirection
 
 # is this de?
-mutate(x, ys) 
-   # find things near to x
-   stats = [ {new=obj,sum=0} for obj in x.objs]
-   ys    = sort( [ (dist(x,y),y) for y in ys ] )
-   sds   = stats(ys)
-   ys    = ys[:near]
 
-   # find the best thing near to x
-   best = x
-   for y in ys 
-     if different(y.obs, x.objs,sds) and dominates(y,best):
-       best=y
+decs: lambda z: z.decs
+objs: lambda z: z.decs
+dom:  lambda z: z.dom()
 
-   # find things on the best side of x
-   ys = [y for y in ys if distance(y,best) < distance(x,best) ]
+class Eg:
+  id=0
+  dists={}
+  doms={}
+  def __init__(self, decs=[],objs=[]):
+    Item.id = self.id = Item.id + 1
+    self.decs, self.objs = decs,objs
+  def distance(self,other,using=decs):
+    if self.id > other.id: 
+      return other.dist(self)
+    else:
+      key = (self.id,other.id)
+      if key not in Eg.dists:
+        return eg.dists[key] = euclidian(using(self), using(other))
+      return Eg.dists[key]
+   def dominates(self, lst,stats):
+     i,all = self.id, Eg.doms
+     all[i]=0
+     for y in lst
+      if x.dominates(y,stats):
+         all[i] += 1 / len(lst)
+   def dom(self): return Eg.items.get(self.id,0)
+   def nearest(self,lst)
+     out,best=lst[0],10**10
+     for x in lst:
+       tmp= self.distance(x)
+       if tmp < best:
+         out,best = x, tmp
+     return out
+   def dominate(self, x,stats):
+     return t,f
 
-   # find the effect of moving from best side things to best
-   deltas = [ 0 for _ in x.decs ]
-   for y in ys
-     dist = distance(y,best, using="decs")
-     deltas= [ delta + (o1-o2)/dist/|ys| 
-               for o1,o2 in zip(deltas,best.objs, y.objs)]
+def centroid(lst):
+  out=clone(lst[0])
+  n=len(lst)
+  for x in lst:
+    out.decs = [z+dec/n for z,dec in zip(out.decs, x.decs) ]
+    out.objs = [z+obj/n for z,obj in zip(out.decs, x.objs) ]
+  return out
+  
+def euclidian(xs,ys):
+  sum=0
+  for x,y in zip(xs,ys): sum += (x-y)**2
+  return sum**0.5/ len(xs)
 
-   # mutate cr-th of x towards best
+def clone(eg):
+   return Eg( decs = [0 for _ in eg.decs], 
+              objs = [0 for _ in eg.objs])
+
+def elite(lst, most=0):
+   n = len(lst)
+   m = n * upper
+   for y in lst: y.dominates(lst)
+   return sorted( lst, key=dom)[most:]
+
+def mutate(x, ys,stats, some=100):
+   # clear any old memory
+   Eg.dists={}
+   Eg.doms={}
+   ignore = lambda: r() > some/len(ys)
+
+   #interesting things clearly dominate x
+   def inteseting(y):
+     return different(y,x,stats,objs) and dominate(y,x)
+
+   ys = [y for y in ys if not ignore() and interesting(y)]
+
+   #interesting things are nearly
+   ys = ys.sorted(key = lambda y: x.distance(y))
+   ys = ys[:near]
+
+   if reckless::
+     # I most envy the thing which most domiantes 
+     # I most interested in things closer than me to what i envy
+     envy = elite(ys)[-1]
+     ys = [y for y in ys if distance(y,envy) < distance(x,envy) ]
+ 
+   else:
+     # heaven is en imaginaty point  nearest the centroid of the non-dominated examples
+     best = elite(ys,0.5)
+     heaven= centroid( best )
+     
+     # i'm most interested in the things closer to heaven than me
+     ys = [y for y in best if distance(y,heaven) < distance(x,heaven) ]
+  
+     # so i envy the thing nearest the centroid of the intereting itesm
+     envy  = centroid(ys).nearest(ys)
+
+   #-----------------------------------------------------
+   # now i have the ys pruned and an i have an envy point
+   # so can mutate cr-th of x towards envy
    x.decs = [dec if r() > cr else dec + jump*(z -  dec)*f for
-                  dec,z in zip(x.decs,best.decs)]
+                  dec,z in zip(x.decs,envy.decs)]
 
-   # guess the impact of that change
-   dist = distance(x, best, using="decs")
-   x.objs = [obj + jump*delta*dist*cr for obj,z for zip(x.objs, deltas]
+   #-----------
+   # and now i must use interpolation to guess what happens to the objectives
+
+   # step1 determine how far i have to push
+   dist = distance(x, envy, using="decs")
+
+   # step2: find the local slopes
+   deltas = clone(ys[0])
+   for y in ys
+     step = y.distance(envy)
+     deltas.objs =  [ (o1-o2)/step/len(ys)
+                      for o1,o2 in zip(y.objs,  envy.objs)]
+
+   # step3: push the objectives down those slopes
+   x.objs = [obj + jump*delta*dist for obj,delta for zip(x.objs, deltas)]
    return x
 
 """
