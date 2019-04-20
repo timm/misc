@@ -18,21 +18,25 @@ Notes
 # jc's repair heuristics?
 
 lives = 9   # like a cat
-cohen = 0.5 # things less than standardDev*cohen are not really different
+# things less than standardDev*cohen are not really different
+cohen = 0.5
 some = 100  # size of pop to explore
-near = n/10 # size of local neighborhood in pop
-f=0.5       # mutate 150% toward envy
-cr=1        # mutate all attributes towards the envy point
-kiss=True   # Keep It Simple
+near = n / 10  # size of local neighborhood in pop
+f = 0.5       # mutate 150% toward envy
+cr = 1        # mutate all attributes towards the envy point
+kiss = True   # Keep It Simple
+
 
 class Num:
   def __init__(self):
-    self.n, self.mu, self.sd, self.m2 = 0,0,0,0
-  def small(self,a,b):
-    return abs(a-b) <= self.sd *d
-  def __iadd__(self,a):
-    n      += 1
-		d       = a - self.mu
+    self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
+
+  def small(self, a, b):
+    return abs(a - b) <= self.sd * d
+
+  def __iadd__(self, a):
+    n += 1
+		d = a - self.mu
   	self.mu = self.mu + d/self.n
     self.m2 = self.m2 + d*(a - self.mu)
     self.sd = (self.m2/(self.n - 1 + 0.0001))s**0.5 
@@ -130,13 +134,13 @@ def mutate(old, egs,stats):
    Eg.doms={}
    ignore = lambda: r() > some/len(egs)
 
-   #interesting things clearly dominate old
+   # interesting things clearly dominate old
    def inteseting(eg):
      return stats.different(old,eg) and dominate(eg,old)
 
    egs = [eg for eg in egs if not ignore() and interesting(eg)]
 
-   #interesting things are nearby
+   # interesting things are nearby
    egs = egs.sorted(key = lambda eg: old.distance(eg))
    egs = egs[:near]
 
@@ -157,13 +161,13 @@ def mutate(old, egs,stats):
      # so i envy the thing nearest the centroid of the intereting itesm
      envy  = centroid(egs).nearest(egs)
 
-   #-----------------------------------------------------
+   # -----------------------------------------------------
    # now i have the egs pruned and an i have an envy point
    # so can mutate f-th of old towards envy
    mutant.xs = [x if r() > cr else x + f*(a -  x) for
                 x,a in zip(old.xs,envy.xs)]
 
-   #-----------
+   # -----------
    # and now i must use interpolation to guess what happens to the yectives
 
    # step1 determine how far i have to push
