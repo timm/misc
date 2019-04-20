@@ -17,14 +17,14 @@ Notes
 
 # jc's repair heuristics?
 
-BATCH = True      # if false, mutate archive as we g
-LIVES = 9         # like a cat
-COHEN = 0.5       # not different when it < standardDev*cohen
-SOME = 100        # size of pop to explore
-NEAR = SOME / 10  # size of local neighborhood in pop
-FF = 0.5          # mutate 150% toward envy
-CR = 1            # mutate all attributes towards the envy point
-KISS = True       # Keep It Simple
+BATCH = True       # if false, mutate archive as we go
+LIVES = 9          # like a cat
+COHEN = 0.5        # not different when it < standardDev*cohen
+SOME  = 100        # size of pop to explore
+NEAR  = SOME / 10  # size of local neighborhood in pop
+FF    = 0.5        # mutate 150% toward envy
+CR    = 1          # mutate all attributes towards the envy point
+KISS  = True       # Keep It Simple
 
 
 class Num:
@@ -61,7 +61,7 @@ class Stats:
 
 # is this de?
 
-
+#----
 class Eg:
   id = 0
   dists = {}
@@ -105,7 +105,8 @@ class Eg:
          out,best = a, tmp
      return out
 
-def center(lst):
+#----
+def mid(lst):
   out = Eg(xs= [0 for _ in lst[0].xs])
   n=len(lst)
   for a in lst:
@@ -113,6 +114,7 @@ def center(lst):
     out.ys = [b+y/n for b,y in zip(out.xs, a.ys) ]
   return out
 
+#----
 def elite(lst, most=0):
    n = len(lst)
    m = n * upper
@@ -125,66 +127,40 @@ def elite(lst, most=0):
 # what is the essence of flash
 # what is the essence of dodge
 
+#----
 def mutate(old, egs,stats):
-   # clear any old memory
-   Eg.dists={}
-   Eg.doms={}
-   ignore = lambda: r() > SOME/len(egs)
-
-   # interesting things clearly dominate old
    def inteseting(eg):
      return stats.different(old,eg) and dominate(eg,old)
-
-   egs = [eg for eg in egs if not ignore() and interesting(eg)]
-
-   # interesting things are nearby
-   egs = egs.sorted(key = lambda eg: old.gap(eg))
-   egs = egs[:NEAR]
-
+   Eg.dists={} # clear any old memory
+   Eg.doms={}
+   ignore = lambda: r() > SOME/len(egs)
+   egs    = [eg for eg in egs if not ignore() and interesting(eg)]
+   egs    = egs.sorted(key = lambda eg: old.gap(eg))
+   egs    = egs[:NEAR]
    if KISS:
-     # I most envy the thing which most domiantes 
      envy = old
      for eg in egs:
        if eg.dominate(envy): 
-         envy = eg
+         envy = eg # the thing that most dominates
    else:
-     # heaven is en imaginary point  nearest the center 
-     # of the non-dominated egs
-     best = elite(egs,0.5)
-     heaven= center( best )
-     
-     # i'm most interested in the things 
-     # closer to heaven than me
-     egs = [eg for eg in best if 
-            heaven.gap(eg) < old.gap(heaven) ]
-  
-     # i envy the thing near the center of interesting
-     envy  = center(egs).nearest(egs)
-
-   # -----------------------------------------------------
-   # now i have the egs pruned and an i have an envy point
-   # so can mutate f-th of old towards envy
+     bests = elite(egs,0.5)
+     best1 = mid(bests) # thing near mid of non-dominated egs
+     egs = [eg for eg in bests if  # closer to heaven than me
+            best1.gap(eg) < old.gap(best1) ]
+     envy  = mid(egs).nearest(egs)  # mid of the most heavenly
+   # end if
    mutant.xs = [x if r() > CR else x + FF*(a -  x) for
                 x,a in zip(old.xs,envy.xs)]
-
-   # -----------
-   # use interpolation to guess impact on objectives
-
-   # step1 determine how far i have to push
-   dist = old.gap(envy)
-
-   # step2: find the local slopes
-   slopes = Eg(xs = zeros(egs[0]))
-   for eg in egs
+   dist = old.gap(envy) # how far to push
+   slopes = Eg(xs = zeros(egs[0])) # local slopes 
+   for eg in egs:
      step = eg.gap(envy)
      slopes.ys = [ (o1-o2)/step/len(egs)
                    for o1,o2 in zip(eg.ys,  envy.ys)]
-
-   # step3: push the yectives down those slopes
-   mutant.ys = [y + slope*dist 
+   mutant.ys = [y + slope*dist  # push down slope 
                for y,slope in zip(old.ys, slopes.ys)]
    return mutant if mutant.dominate(old) and 
-                  stats.different(old,mutant) else old
+                    stats.different(old,mutant) else old
 
 # the de trick incremental domination within the archive
 # what about the moea/d trick?
