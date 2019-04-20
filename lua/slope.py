@@ -26,7 +26,12 @@ FF    = 0.5        # mutate 150% toward envy
 CR    = 1          # mutate all attributes towards the envy point
 KISS  = True       # Keep It Simple
 
-
+# # Text
+#
+# asdasd asdas das as asddasasd
+# asdasd asdas das as asddasasd
+# asdasd asdas das as asddasasd
+# asdasd asdas das as asddasasd
 class Num:
   def __init__(self):
     self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
