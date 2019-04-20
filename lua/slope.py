@@ -184,11 +184,17 @@ def mutate(old, egs,stats):
    mutant.ys = [y + slope*dist for y,slope for zip(old.ys, slopes.ys)]
    return mutant if mutant.dominates(old) and stats.different(old,mutant) else old
 
+## the de trick incremental domination within the archive
+## what about the moea/d trick?
+## the surroage trick: eval as few times as possible
+
 egs = some initial evaluations
 b4  = None
 while lives > 0
   stats = Stats(egs)
-  egs = [ mutate(eg, pos, stats) for eg in egs ]
+  for a in len(egs):
+    egs[a] =  mutate(egs[a], egs, stats) 
+  ## here... reevaluate egs
   lives -= 1
   if b4:
     if better(stats,b4): lives += 1
