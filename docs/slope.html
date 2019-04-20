@@ -48,11 +48,11 @@
       <div class="highlight"><pre><span class="n">BATCH</span> <span class="o">=</span> <span class="bp">True</span>       <span class="c1"># if false, mutate archive as we go</span>
 <span class="n">LIVES</span> <span class="o">=</span> <span class="mi">9</span>          <span class="c1"># like a cat</span>
 <span class="n">COHEN</span> <span class="o">=</span> <span class="mf">0.5</span>        <span class="c1"># not different when it &lt; standardDev*cohen</span>
-<span class="n">SOME</span>  <span class="o">=</span> <span class="mi">100</span>        <span class="c1"># size of pop to explore</span>
-<span class="n">NEAR</span>  <span class="o">=</span> <span class="n">SOME</span> <span class="o">/</span> <span class="mi">10</span>  <span class="c1"># size of local neighborhood in pop</span>
-<span class="n">FF</span>    <span class="o">=</span> <span class="mf">0.5</span>        <span class="c1"># mutate 150% toward envy</span>
-<span class="n">CR</span>    <span class="o">=</span> <span class="mi">1</span>          <span class="c1"># mutate all attributes towards the envy point</span>
-<span class="n">KISS</span>  <span class="o">=</span> <span class="bp">True</span>       <span class="c1"># Keep It Simple</span></pre></div>
+<span class="n">SOME</span> <span class="o">=</span> <span class="mi">100</span>        <span class="c1"># size of pop to explore</span>
+<span class="n">NEAR</span> <span class="o">=</span> <span class="n">SOME</span> <span class="o">/</span> <span class="mi">10</span>  <span class="c1"># size of local neighborhood in pop</span>
+<span class="n">FF</span> <span class="o">=</span> <span class="mf">0.5</span>        <span class="c1"># mutate 150% toward envy</span>
+<span class="n">CR</span> <span class="o">=</span> <span class="mi">1</span>          <span class="c1"># mutate all attributes towards the envy point</span>
+<span class="n">KISS</span> <span class="o">=</span> <span class="bp">True</span>       <span class="c1"># Keep It Simple</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -119,8 +119,8 @@ asdasd asdas das as asddasasd</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>  <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
-    <span class="n">n</span>      <span class="o">+=</span> <span class="mi">1</span>
-    <span class="n">d</span>       <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu</span>
+    <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu</span> <span class="o">+</span> <span class="n">d</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">m2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m2</span> <span class="o">+</span> <span class="n">d</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">sd</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m2</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">0.0001</span><span class="p">))</span><span class="o">**</span><span class="mf">0.5</span>
@@ -167,7 +167,7 @@ asdasd asdas das as asddasasd</p>
     <div class='code'>
       <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">different</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eg1</span><span class="p">,</span> <span class="n">eg2</span><span class="p">):</span>
      <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">stat</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eg1</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="n">eg2</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">):</span>
-       <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">different</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+       <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">different</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
          <span class="n">then</span> <span class="bp">True</span>
      <span class="k">return</span> <span class="bp">False</span></pre></div>
     </div>
@@ -247,10 +247,10 @@ sample heuristic from vivek</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">euclidian</span><span class="p">(</span><span class="n">lst1</span><span class="p">,</span><span class="n">lst2</span><span class="p">)</span>
-      <span class="nb">sum</span><span class="o">=</span><span class="mi">0</span>
-      <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lst1</span><span class="p">,</span><span class="n">lst2</span><span class="p">):</span> <span class="nb">sum</span> <span class="o">+=</span> <span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
-      <span class="k">return</span> <span class="nb">sum</span><span class="o">**</span><span class="mf">0.5</span><span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst1</span><span class="p">)</span>
+      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">euclidian</span><span class="p">(</span><span class="n">lst1</span><span class="p">,</span> <span class="n">lst2</span><span class="p">)</span>
+      <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lst1</span><span class="p">,</span> <span class="n">lst2</span><span class="p">):</span> <span class="nb">sum</span> <span class="o">+=</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+      <span class="k">return</span> <span class="nb">sum</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst1</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>

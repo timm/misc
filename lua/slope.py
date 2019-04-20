@@ -20,11 +20,11 @@ Notes
 BATCH = True       # if false, mutate archive as we go
 LIVES = 9          # like a cat
 COHEN = 0.5        # not different when it < standardDev*cohen
-SOME  = 100        # size of pop to explore
-NEAR  = SOME / 10  # size of local neighborhood in pop
-FF    = 0.5        # mutate 150% toward envy
-CR    = 1          # mutate all attributes towards the envy point
-KISS  = True       # Keep It Simple
+SOME = 100        # size of pop to explore
+NEAR = SOME / 10  # size of local neighborhood in pop
+FF = 0.5        # mutate 150% toward envy
+CR = 1          # mutate all attributes towards the envy point
+KISS = True       # Keep It Simple
 
 # # Text
 #
@@ -33,18 +33,22 @@ KISS  = True       # Keep It Simple
 # asdasd asdas das as asddasasd
 # asdasd asdas das as asddasasd
 
+
 class Num:
   def __init__(self):
     self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
+
   def different(self, a, b):
     return abs(a - b) > self.sd * COHEN
+
   def __add__(self, a):
-    n      += 1
-    d       = a - self.mu
+    n += 1
+    d = a - self.mu
     self.mu = self.mu + d / self.n
     self.m2 = self.m2 + d * (a - self.mu)
     self.sd = (self.m2 / (self.n - 1 + 0.0001))**0.5
     return self
+
 
 class Stats:
   def __init__(self, egs):
@@ -53,9 +57,10 @@ class Stats:
      for eg in egs:
        [num + a for a, num in zip(eg.xs, self.xs)]
        [num + a for a, num in zip(eg.ys, self.ys)]
+
   def different(self, eg1, eg2):
      for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
-       if stat.different(a,b):
+       if stat.different(a, b):
          then True
      return False
 
@@ -64,18 +69,21 @@ class Stats:
 
 # is this de?
 
+
 class Eg:
   id = 0
   dists = {}
   doms = {}
+
   def __init__(self, xs=[], ys=[]):
     Item.id = self.id = Item.id + 1
     self.xs, self.ys = xs, ys
+
   def gap(self, other):
-    def euclidian(lst1,lst2)
-      sum=0
-      for a,b in zip(lst1,lst2): sum += (a-b)**2
-      return sum**0.5/ len(lst1)
+    def euclidian(lst1, lst2)
+      sum = 0
+      for a, b in zip(lst1, lst2): sum += (a - b)**2
+      return sum**0.5 / len(lst1)
     if self.id > other.id:
       return other.dist(self)
     else:
