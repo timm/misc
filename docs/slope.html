@@ -23,14 +23,14 @@
 <li>Words beginning with uppercase are classes except
        True and False which are booleans</li>
 <li>WORDS that are all uppercase are constants</li>
-<li>a,b = local variables</li>
-<li>sd  = standard deviation</li>
-<li>r() is a random number 0..1</li>
-<li>x,y = decision, objective</li>
-<li>xs,ys= decisions, objectives</li>
-<li>Eg = the example class and an example is a pair xs,ys</li>
-<li>eg = an instance of class Eg</li>
-<li>egs = a list of examples</li>
+<li><code>a,b</code> = local variables</li>
+<li><code>sd</code>  = standard deviation</li>
+<li><code>r()</code> is a random number 0..1</li>
+<li><code>x,y</code> = decision, objective</li>
+<li><code>xs,ys</code> = decisions, objectives</li>
+<li><code>Eg</code> = the example class and an example is a pair xs,ys</li>
+<li><code>eg</code> = an instance of class Eg</li>
+<li><code>egs</code> = a list of examples</li>
 </ul>
     </div>
     <div class='code'>
@@ -43,7 +43,7 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-1'>#</a>
       </div>
-      <p>jc&rsquo;s repair heuristics?</p>
+      <h2>jc&rsquo;s repair heuristics?</h2>
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="n">BATCH</span> <span class="o">=</span> <span class="bp">True</span>      <span class="c1"># if false, mutate archive as we go</span>
@@ -78,7 +78,7 @@ asdasd asdas das as asddasasd</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-3'>#</a>
       </div>
-      
+      <hr />
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">Num</span><span class="p">:</span></pre></div>
@@ -134,7 +134,7 @@ asdasd asdas das as asddasasd</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-7'>#</a>
       </div>
-      
+      <hr />
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">Stats</span><span class="p">:</span></pre></div>
@@ -204,7 +204,7 @@ sample heuristic from vivek</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-12'>#</a>
       </div>
-      
+      <hr />
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="k">class</span> <span class="nc">Eg</span><span class="p">:</span>
@@ -328,7 +328,7 @@ sample heuristic from vivek</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-20'>#</a>
       </div>
-      
+      <hr />
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="k">def</span> <span class="nf">mid</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
@@ -346,7 +346,7 @@ sample heuristic from vivek</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-21'>#</a>
       </div>
-      
+      <hr />
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="k">def</span> <span class="nf">elite</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">most</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -378,7 +378,7 @@ what is the essence of dodge</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-23'>#</a>
       </div>
-      
+      <hr />
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="k">def</span> <span class="nf">mutate</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">egs</span><span class="p">,</span><span class="n">stats</span><span class="p">):</span>
@@ -436,6 +436,18 @@ what about the moea/d trick?
 the surroage trick: eval as few times as possible</p>
     </div>
     <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-26'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-26'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
       <div class="highlight"><pre><span class="n">egs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">eval</span><span class="p">(</span><span class="n">Eg</span><span class="p">())</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">SOME</span><span class="p">)]</span>
 <span class="n">b4</span>  <span class="o">=</span> <span class="bp">None</span>
 <span class="k">while</span> <span class="n">LIVES</span> <span class="o">&gt;</span> <span class="mi">0</span>
@@ -448,10 +460,10 @@ the surroage trick: eval as few times as possible</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-26'>
+  <div class='section' id='section-27'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-26'>#</a>
+        <a class='octothorpe' href='#section-27'>#</a>
       </div>
       <p>here&hellip; reevaluate egs</p>
     </div>

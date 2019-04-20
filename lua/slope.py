@@ -5,19 +5,19 @@ Notes in the following:
 - Words beginning with uppercase are classes except
        True and False which are booleans
 - WORDS that are all uppercase are constants
-- a,b = local variables
-- sd  = standard deviation
-- r() is a random number 0..1
-- x,y = decision, objective
-- xs,ys= decisions, objectives
-- Eg = the example class and an example is a pair xs,ys
-- eg = an instance of class Eg
-- egs = a list of examples
+- `a,b` = local variables
+- `sd`  = standard deviation
+- `r()` is a random number 0..1
+- `x,y` = decision, objective
+- `xs,ys` = decisions, objectives
+- `Eg` = the example class and an example is a pair xs,ys
+- `eg` = an instance of class Eg
+- `egs` = a list of examples
 
 """
 
 # jc's repair heuristics?
-
+#-----
 BATCH = True      # if false, mutate archive as we go
 LIVES = 9         # like a cat
 COHEN = 0.5       # not other when it < standardDev*cohen
@@ -35,6 +35,7 @@ KISS = True       # Keep It Simple
 # asdasd asdas das as asddasasd
 
 
+#-----
 class Num:
   def __init__(self):
     self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
@@ -51,6 +52,7 @@ class Num:
     return self
 
 
+#-----
 class Stats:
   def __init__(self, egs):
      self.ys = [Num() for _ in eg.ys]
@@ -71,6 +73,7 @@ class Stats:
 # is this de?
 
 
+#-----
 class Eg:
   id = 0
   dists = {}
@@ -109,6 +112,7 @@ class Eg:
         out,best = a, tmp
     return out
 
+#-----
 def mid(lst):
   out = Eg(xs= [0 for _ in lst[0].xs])
   n=len(lst)
@@ -117,6 +121,7 @@ def mid(lst):
     out.ys = [ b+y/n for b,y in zip(out.xs, a.ys) ]
   return out
 
+#-----
 def elite(lst, most=0):
    n = len(lst)
    m = n * upper
@@ -129,6 +134,7 @@ def elite(lst, most=0):
 # what is the essence of flash
 # what is the essence of dodge
 
+#-----
 def mutate(old, egs,stats):
    Eg.dists= {} # clear any old memory
    Eg.doms = {}
@@ -166,6 +172,7 @@ def mutate(old, egs,stats):
 # what about the moea/d trick?
 # the surroage trick: eval as few times as possible
 
+#-----
 egs = [eval(Eg()) for _ in range(SOME)]
 b4  = None
 while LIVES > 0
