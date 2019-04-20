@@ -17,20 +17,21 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-0'>#</a>
       </div>
-      <p>Notes
-- in the following
-    self is an object
-    Words beginning with uppercase are classes execpt
-       True and False which are booleans
-    WORDS that are all uppercase are constants
-    a,b = local variables
-    sd  = standard deviation
-    r() is a random number 0..1
-    x,y = decision, objective
-    xs,ys= decisions, objectives
-    Eg = the example class and an example is a pair xs,ys
-    eg = an instance of class Eg
-    egs = a list of examples</p>
+      <p>Notes in the following:</p>
+<ul>
+<li><code>self</code> is an object</li>
+<li>Words beginning with uppercase are classes except
+       True and False which are booleans</li>
+<li>WORDS that are all uppercase are constants</li>
+<li>a,b = local variables</li>
+<li>sd  = standard deviation</li>
+<li>r() is a random number 0..1</li>
+<li>x,y = decision, objective</li>
+<li>xs,ys= decisions, objectives</li>
+<li>Eg = the example class and an example is a pair xs,ys</li>
+<li>eg = an instance of class Eg</li>
+<li>egs = a list of examples</li>
+</ul>
     </div>
     <div class='code'>
       <div class="highlight"><pre><span></span></pre></div>
@@ -269,8 +270,8 @@ sample heuristic from vivek</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>   <span class="k">def</span> <span class="nf">dominate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span><span class="n">stats</span><span class="p">):</span>
-     <span class="k">return</span> <span class="n">t</span><span class="p">,</span><span class="n">f</span></pre></div>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">dominate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span><span class="n">stats</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">t</span><span class="p">,</span><span class="n">f</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -282,12 +283,12 @@ sample heuristic from vivek</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>   <span class="k">def</span> <span class="nf">dominates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lst</span><span class="p">,</span><span class="n">stats</span><span class="p">):</span>
-     <span class="n">i</span><span class="p">,</span><span class="nb">all</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">Eg</span><span class="o">.</span><span class="n">doms</span>
-     <span class="nb">all</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
-     <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">lst</span>
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dominate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">stats</span><span class="p">):</span>
-         <span class="nb">all</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span></pre></div>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">dominates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lst</span><span class="p">,</span><span class="n">stats</span><span class="p">):</span>
+    <span class="n">i</span><span class="p">,</span><span class="nb">all</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">Eg</span><span class="o">.</span><span class="n">doms</span>
+    <span class="nb">all</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">lst</span>
+     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dominate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">stats</span><span class="p">):</span>
+       <span class="nb">all</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -299,7 +300,7 @@ sample heuristic from vivek</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>   <span class="k">def</span> <span class="nf">dom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">dom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
      <span class="k">return</span> <span class="n">Eg</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span></pre></div>
     </div>
   </div>
@@ -312,13 +313,13 @@ sample heuristic from vivek</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>   <span class="k">def</span> <span class="nf">nearest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lst</span><span class="p">)</span>
-     <span class="n">out</span><span class="p">,</span><span class="n">best</span><span class="o">=</span><span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">10</span><span class="o">**</span><span class="mi">10</span>
-     <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>
-       <span class="n">tmp</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gap</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-       <span class="k">if</span> <span class="n">tmp</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">:</span>
-         <span class="n">out</span><span class="p">,</span><span class="n">best</span> <span class="o">=</span> <span class="n">a</span><span class="p">,</span> <span class="n">tmp</span>
-     <span class="k">return</span> <span class="n">out</span></pre></div>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">nearest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lst</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">,</span><span class="n">best</span><span class="o">=</span><span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">10</span><span class="o">**</span><span class="mi">10</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>
+      <span class="n">tmp</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gap</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">tmp</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">,</span><span class="n">best</span> <span class="o">=</span> <span class="n">a</span><span class="p">,</span> <span class="n">tmp</span>
+    <span class="k">return</span> <span class="n">out</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>

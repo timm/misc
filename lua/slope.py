@@ -1,18 +1,19 @@
 """
-Notes
-- in the following
-    self is an object
-    Words beginning with uppercase are classes execpt
+Notes in the following:
+
+- `self` is an object
+- Words beginning with uppercase are classes except
        True and False which are booleans
-    WORDS that are all uppercase are constants
-    a,b = local variables
-    sd  = standard deviation
-    r() is a random number 0..1
-    x,y = decision, objective
-    xs,ys= decisions, objectives
-    Eg = the example class and an example is a pair xs,ys
-    eg = an instance of class Eg
-    egs = a list of examples
+- WORDS that are all uppercase are constants
+- a,b = local variables
+- sd  = standard deviation
+- r() is a random number 0..1
+- x,y = decision, objective
+- xs,ys= decisions, objectives
+- Eg = the example class and an example is a pair xs,ys
+- eg = an instance of class Eg
+- egs = a list of examples
+
 """
 
 # jc's repair heuristics?
@@ -78,7 +79,6 @@ class Eg:
   def __init__(self, xs=[], ys=[]):
     Item.id = self.id = Item.id + 1
     self.xs, self.ys = xs, ys
-
   def gap(self, other):
     def euclidian(lst1, lst2)
       sum = 0
@@ -91,23 +91,23 @@ class Eg:
       if key not in Eg.dists:
         return eg.dists[key] = euclidian(self.xs, other.xs)
       return Eg.dists[key]
-   def dominate(self, a,stats):
-     return t,f
-   def dominates(self, lst,stats):
-     i,all = self.id, Eg.doms
-     all[i]=0
-     for a in lst
-      if self.dominate(a,stats):
-         all[i] += 1 / len(lst)
-   def dom(self): 
+  def dominate(self, a,stats):
+    return t,f
+  def dominates(self, lst,stats):
+    i,all = self.id, Eg.doms
+    all[i]=0
+    for a in lst
+     if self.dominate(a,stats):
+       all[i] += 1 / len(lst)
+  def dom(self): 
      return Eg.items.get(self.id,0)
-   def nearest(self,lst)
-     out,best=lst[0],10**10
-     for a in lst:
-       tmp= self.gap(a)
-       if tmp < best:
-         out,best = a, tmp
-     return out
+  def nearest(self,lst)
+    out,best=lst[0],10**10
+    for a in lst:
+      tmp= self.gap(a)
+      if tmp < best:
+        out,best = a, tmp
+    return out
 
 def mid(lst):
   out = Eg(xs= [0 for _ in lst[0].xs])
