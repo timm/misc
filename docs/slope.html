@@ -47,11 +47,11 @@
     <div class='code'>
       <div class="highlight"><pre><span class="n">BATCH</span> <span class="o">=</span> <span class="bp">True</span>      <span class="c1"># if false, mutate archive as we go</span>
 <span class="n">LIVES</span> <span class="o">=</span> <span class="mi">9</span>         <span class="c1"># like a cat</span>
-<span class="n">COHEN</span> <span class="o">=</span> <span class="mf">0.5</span>       <span class="c1"># not different when it &lt; standardDev*cohen</span>
+<span class="n">COHEN</span> <span class="o">=</span> <span class="mf">0.5</span>       <span class="c1"># not other when it &lt; standardDev*cohen</span>
 <span class="n">SOME</span> <span class="o">=</span> <span class="mi">100</span>        <span class="c1"># size of pop to explore</span>
 <span class="n">NEAR</span> <span class="o">=</span> <span class="n">SOME</span> <span class="o">/</span> <span class="mi">10</span>  <span class="c1"># size of local neighborhood in pop</span>
-<span class="n">FF</span>   <span class="o">=</span> <span class="mf">0.5</span>        <span class="c1"># mutate 150% toward envy</span>
-<span class="n">CR</span>   <span class="o">=</span> <span class="mi">1</span>          <span class="c1"># mutate all attributes towards the envy point</span>
+<span class="n">FF</span> <span class="o">=</span> <span class="mf">0.5</span>        <span class="c1"># mutate 150% toward envy</span>
+<span class="n">CR</span> <span class="o">=</span> <span class="mi">1</span>          <span class="c1"># mutate all attributes towards the envy point</span>
 <span class="n">KISS</span> <span class="o">=</span> <span class="bp">True</span>       <span class="c1"># Keep It Simple</span></pre></div>
     </div>
   </div>
@@ -105,7 +105,7 @@ asdasd asdas das as asddasasd</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">different</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sd</span> <span class="o">*</span> <span class="n">COHEN</span></pre></div>
     </div>
   </div>
@@ -165,9 +165,9 @@ asdasd asdas das as asddasasd</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">different</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eg1</span><span class="p">,</span> <span class="n">eg2</span><span class="p">):</span>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eg1</span><span class="p">,</span> <span class="n">eg2</span><span class="p">):</span>
      <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">stat</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eg1</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="n">eg2</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">):</span>
-       <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">different</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+       <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">other</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
          <span class="n">then</span> <span class="bp">True</span>
      <span class="k">return</span> <span class="bp">False</span></pre></div>
     </div>
@@ -380,26 +380,14 @@ what is the essence of dodge</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">mutate</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">egs</span><span class="p">,</span><span class="n">stats</span><span class="p">):</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-24'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-24'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>   <span class="k">def</span> <span class="nf">inteseting</span><span class="p">(</span><span class="n">eg</span><span class="p">):</span>
-     <span class="k">return</span> <span class="n">stats</span><span class="o">.</span><span class="n">different</span><span class="p">(</span><span class="n">old</span><span class="p">,</span><span class="n">eg</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dominate</span><span class="p">(</span><span class="n">eg</span><span class="p">,</span><span class="n">old</span><span class="p">)</span>
-   <span class="n">Eg</span><span class="o">.</span><span class="n">dists</span><span class="o">=</span><span class="p">{}</span> <span class="c1"># clear any old memory</span>
-   <span class="n">Eg</span><span class="o">.</span><span class="n">doms</span><span class="o">=</span><span class="p">{}</span>
-   <span class="n">ignore</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">r</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">SOME</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">egs</span><span class="p">)</span>
-   <span class="n">egs</span>    <span class="o">=</span> <span class="p">[</span><span class="n">eg</span> <span class="k">for</span> <span class="n">eg</span> <span class="ow">in</span> <span class="n">egs</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore</span><span class="p">()</span> <span class="ow">and</span> <span class="n">interesting</span><span class="p">(</span><span class="n">eg</span><span class="p">)]</span>
-   <span class="n">egs</span>    <span class="o">=</span> <span class="n">egs</span><span class="o">.</span><span class="n">sorted</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">eg</span><span class="p">:</span> <span class="n">old</span><span class="o">.</span><span class="n">gap</span><span class="p">(</span><span class="n">eg</span><span class="p">))</span>
-   <span class="n">egs</span>    <span class="o">=</span> <span class="n">egs</span><span class="p">[:</span><span class="n">NEAR</span><span class="p">]</span>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">mutate</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">egs</span><span class="p">,</span><span class="n">stats</span><span class="p">):</span>
+   <span class="n">Eg</span><span class="o">.</span><span class="n">dists</span><span class="o">=</span> <span class="p">{}</span> <span class="c1"># clear any old memory</span>
+   <span class="n">Eg</span><span class="o">.</span><span class="n">doms</span> <span class="o">=</span> <span class="p">{}</span>
+   <span class="n">want</span>    <span class="o">=</span> <span class="k">lambda</span> <span class="n">eg</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">other</span><span class="p">(</span><span class="n">old</span><span class="p">,</span><span class="n">eg</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dominate</span><span class="p">(</span><span class="n">eg</span><span class="p">,</span><span class="n">old</span><span class="p">)</span>
+   <span class="n">ignore</span>  <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">r</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">SOME</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">egs</span><span class="p">)</span>
+   <span class="n">egs</span>     <span class="o">=</span> <span class="p">[</span><span class="n">eg</span> <span class="k">for</span> <span class="n">eg</span> <span class="ow">in</span> <span class="n">egs</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore</span><span class="p">()</span> <span class="ow">and</span> <span class="n">want</span><span class="p">(</span><span class="n">eg</span><span class="p">)]</span>
+   <span class="n">egs</span>     <span class="o">=</span> <span class="n">egs</span><span class="o">.</span><span class="n">sorted</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">eg</span><span class="p">:</span> <span class="n">old</span><span class="o">.</span><span class="n">gap</span><span class="p">(</span><span class="n">eg</span><span class="p">))</span>
+   <span class="n">egs</span>     <span class="o">=</span> <span class="n">egs</span><span class="p">[:</span><span class="n">NEAR</span><span class="p">]</span>
    <span class="k">if</span> <span class="n">KISS</span><span class="p">:</span>
      <span class="n">envy</span> <span class="o">=</span> <span class="n">old</span>
      <span class="k">for</span> <span class="n">eg</span> <span class="ow">in</span> <span class="n">egs</span><span class="p">:</span>
@@ -414,10 +402,10 @@ what is the essence of dodge</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-25'>
+  <div class='section' id='section-24'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-25'>#</a>
+        <a class='octothorpe' href='#section-24'>#</a>
       </div>
       <p>end if</p>
     </div>
@@ -433,14 +421,14 @@ what is the essence of dodge</p>
    <span class="n">mutant</span><span class="o">.</span><span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="o">+</span> <span class="n">slope</span><span class="o">*</span><span class="n">dist</span>  <span class="c1"># push down slope </span>
                <span class="k">for</span> <span class="n">y</span><span class="p">,</span><span class="n">slope</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">old</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="n">slopes</span><span class="o">.</span><span class="n">ys</span><span class="p">)]</span>
    <span class="k">return</span> <span class="n">mutant</span> <span class="k">if</span> <span class="n">mutant</span><span class="o">.</span><span class="n">dominate</span><span class="p">(</span><span class="n">old</span><span class="p">)</span> <span class="ow">and</span> 
-                    <span class="n">stats</span><span class="o">.</span><span class="n">different</span><span class="p">(</span><span class="n">old</span><span class="p">,</span><span class="n">mutant</span><span class="p">)</span> <span class="k">else</span> <span class="n">old</span></pre></div>
+                    <span class="n">stats</span><span class="o">.</span><span class="n">other</span><span class="p">(</span><span class="n">old</span><span class="p">,</span><span class="n">mutant</span><span class="p">)</span> <span class="k">else</span> <span class="n">old</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-26'>
+  <div class='section' id='section-25'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-26'>#</a>
+        <a class='octothorpe' href='#section-25'>#</a>
       </div>
       <p>the de trick incremental domination within the archive
 what about the moea/d trick?
@@ -459,10 +447,10 @@ the surroage trick: eval as few times as possible</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-27'>
+  <div class='section' id='section-26'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-27'>#</a>
+        <a class='octothorpe' href='#section-26'>#</a>
       </div>
       <p>here&hellip; reevaluate egs</p>
     </div>

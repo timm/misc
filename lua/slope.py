@@ -19,11 +19,11 @@ Notes
 
 BATCH = True      # if false, mutate archive as we go
 LIVES = 9         # like a cat
-COHEN = 0.5       # not different when it < standardDev*cohen
+COHEN = 0.5       # not other when it < standardDev*cohen
 SOME = 100        # size of pop to explore
 NEAR = SOME / 10  # size of local neighborhood in pop
-FF   = 0.5        # mutate 150% toward envy
-CR   = 1          # mutate all attributes towards the envy point
+FF = 0.5        # mutate 150% toward envy
+CR = 1          # mutate all attributes towards the envy point
 KISS = True       # Keep It Simple
 
 # # Text
@@ -33,11 +33,12 @@ KISS = True       # Keep It Simple
 # asdasd asdas das as asddasasd
 # asdasd asdas das as asddasasd
 
+
 class Num:
   def __init__(self):
     self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
 
-  def different(self, a, b):
+  def other(self, a, b):
     return abs(a - b) > self.sd * COHEN
 
   def __add__(self, a):
@@ -48,6 +49,7 @@ class Num:
     self.sd = (self.m2 / (self.n - 1 + 0.0001))**0.5
     return self
 
+
 class Stats:
   def __init__(self, egs):
      self.ys = [Num() for _ in eg.ys]
@@ -56,9 +58,9 @@ class Stats:
        [num + a for a, num in zip(eg.xs, self.xs)]
        [num + a for a, num in zip(eg.ys, self.ys)]
 
-  def different(self, eg1, eg2):
+  def other(self, eg1, eg2):
      for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
-       if stat.different(a, b):
+       if stat.other(a, b):
          then True
      return False
 
@@ -128,14 +130,13 @@ def elite(lst, most=0):
 # what is the essence of dodge
 
 def mutate(old, egs,stats):
-   def inteseting(eg):
-     return stats.different(old,eg) and dominate(eg,old)
-   Eg.dists={} # clear any old memory
-   Eg.doms={}
-   ignore = lambda: r() > SOME/len(egs)
-   egs    = [eg for eg in egs if not ignore() and interesting(eg)]
-   egs    = egs.sorted(key = lambda eg: old.gap(eg))
-   egs    = egs[:NEAR]
+   Eg.dists= {} # clear any old memory
+   Eg.doms = {}
+   want    = lambda eg: stats.other(old,eg) and dominate(eg,old)
+   ignore  = lambda: r() > SOME/len(egs)
+   egs     = [eg for eg in egs if not ignore() and want(eg)]
+   egs     = egs.sorted(key = lambda eg: old.gap(eg))
+   egs     = egs[:NEAR]
    if KISS:
      envy = old
      for eg in egs:
@@ -159,7 +160,7 @@ def mutate(old, egs,stats):
    mutant.ys = [y + slope*dist  # push down slope 
                for y,slope in zip(old.ys, slopes.ys)]
    return mutant if mutant.dominate(old) and 
-                    stats.different(old,mutant) else old
+                    stats.other(old,mutant) else old
 
 # the de trick incremental domination within the archive
 # what about the moea/d trick?
