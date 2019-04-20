@@ -58,7 +58,6 @@ class Stats:
 
 # is this de?
 
-#----
 class Eg:
   id = 0
   dists = {}
@@ -96,7 +95,6 @@ class Eg:
          out,best = a, tmp
      return out
 
-#----
 def mid(lst):
   out = Eg(xs= [0 for _ in lst[0].xs])
   n=len(lst)
@@ -105,7 +103,6 @@ def mid(lst):
     out.ys = [b+y/n for b,y in zip(out.xs, a.ys) ]
   return out
 
-#----
 def elite(lst, most=0):
    n = len(lst)
    m = n * upper
@@ -118,7 +115,6 @@ def elite(lst, most=0):
 # what is the essence of flash
 # what is the essence of dodge
 
-#----
 def mutate(old, egs,stats):
    def inteseting(eg):
      return stats.different(old,eg) and dominate(eg,old)
