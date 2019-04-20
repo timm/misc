@@ -30,10 +30,8 @@ KISS  = True       # Keep It Simple
 class Num:
   def __init__(self):
     self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
-
   def different(self, a, b):
     return abs(a - b) > self.sd * COHEN
-
   def __add__(self, a):
     n      += 1
     d       = a - self.mu
@@ -49,7 +47,6 @@ class Stats:
      for eg in egs:
        [num + a for a, num in zip(eg.xs, self.xs)]
        [num + a for a, num in zip(eg.ys, self.ys)]
-
   def different(self, eg1, eg2):
      for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
        if stat.different(a,b):
@@ -66,11 +63,9 @@ class Eg:
   id = 0
   dists = {}
   doms = {}
-
   def __init__(self, xs=[], ys=[]):
     Item.id = self.id = Item.id + 1
     self.xs, self.ys = xs, ys
-
   def gap(self, other):
     def euclidian(lst1,lst2)
       sum=0
@@ -83,20 +78,16 @@ class Eg:
       if key not in Eg.dists:
         return eg.dists[key] = euclidian(self.xs, other.xs)
       return Eg.dists[key]
-
    def dominate(self, a,stats):
      return t,f
-
    def dominates(self, lst,stats):
      i,all = self.id, Eg.doms
      all[i]=0
      for a in lst
       if self.dominate(a,stats):
          all[i] += 1 / len(lst)
-
    def dom(self): 
      return Eg.items.get(self.id,0)
-
    def nearest(self,lst)
      out,best=lst[0],10**10
      for a in lst:
