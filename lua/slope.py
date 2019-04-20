@@ -18,14 +18,14 @@ Notes in the following:
 
 # jc's repair heuristics?
 #-----
-BATCH = True      # if false, mutate archive as we go
-LIVES = 9         # like a cat
-COHEN = 0.5       # not other when it < standardDev*cohen
-SOME = 100        # size of pop to explore
-NEAR = SOME / 10  # size of local neighborhood in pop
-FF = 0.5        # mutate 150% toward envy
-CR = 1          # mutate all attributes towards the envy point
-KISS = True       # Keep It Simple
+BATCH = True     # if false, mutate archive as we go
+LIVES = 9        # like a cat
+COHEN = 0.5      # not other when it < standardDev*cohen
+SOME = 100       # size of pop to explore
+NEAR = SOME / 10 # size of local neighborhood in pop
+FF = 0.5         # mutate 150% toward envy
+CR = 1           # mutate all attributes towards the envy point
+KISS = True      # Keep It Simple
 
 # # Text
 #
@@ -55,17 +55,19 @@ class Num:
 #-----
 class Stats:
   def __init__(self, egs):
-     self.ys = [Num() for _ in eg.ys]
-     self.xs = [Num() for _ in eg.xs]
-     for eg in egs:
-       [num + a for a, num in zip(eg.xs, self.xs)]
-       [num + a for a, num in zip(eg.ys, self.ys)]
+    self.ys = [Num() for _ in eg.ys]
+    self.xs = [Num() for _ in eg.xs]
+    for eg in egs:
+      [num + a for a, num in zip(eg.xs, self.xs)]
+      [num + a for a, num in zip(eg.ys, self.ys)]
 
   def other(self, eg1, eg2):
-     for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
-       if stat.other(a, b):
-         then True
-     return False
+    for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
+      if stat.other(a, b):
+        return True
+
+  def better(self, other):
+    "stats ehre"
 
 # min change heuristic from jc
 # sample heuristic from vivek
@@ -83,17 +85,13 @@ class Eg:
     Item.id = self.id = Item.id + 1
     self.xs, self.ys = xs, ys
   def gap(self, other):
-    def euclidian(lst1, lst2)
-      sum = 0
-      for a, b in zip(lst1, lst2): sum += (a - b)**2
-      return sum**0.5 / len(lst1)
     if self.id > other.id:
-      return other.dist(self)
+      key = (other.id, key.id)
     else:
-      key = (self.id, other.id)
-      if key not in Eg.dists:
-        return eg.dists[key] = euclidian(self.xs, other.xs)
-      return Eg.dists[key]
+      key = (self.id, other.id) 
+    if key not in Eg.dists:
+      return Eg.dists[key] = euclidian(self.xs, other.xs)
+    return Eg.dists[key]
   def dominate(self, a,stats):
     return t,f
   def dominates(self, lst,stats):
@@ -111,6 +109,12 @@ class Eg:
       if tmp < best:
         out,best = a, tmp
     return out
+
+#-----
+def euclidian(lst1, lst2)
+  sum = 0
+  for a, b in zip(lst1, lst2): sum += (a - b)**2
+  return sum**0.5 / len(lst1)
 
 #-----
 def mid(lst):

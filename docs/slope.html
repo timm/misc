@@ -46,14 +46,14 @@
       <h2>jc&rsquo;s repair heuristics?</h2>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="n">BATCH</span> <span class="o">=</span> <span class="bp">True</span>      <span class="c1"># if false, mutate archive as we go</span>
-<span class="n">LIVES</span> <span class="o">=</span> <span class="mi">9</span>         <span class="c1"># like a cat</span>
-<span class="n">COHEN</span> <span class="o">=</span> <span class="mf">0.5</span>       <span class="c1"># not other when it &lt; standardDev*cohen</span>
-<span class="n">SOME</span> <span class="o">=</span> <span class="mi">100</span>        <span class="c1"># size of pop to explore</span>
-<span class="n">NEAR</span> <span class="o">=</span> <span class="n">SOME</span> <span class="o">/</span> <span class="mi">10</span>  <span class="c1"># size of local neighborhood in pop</span>
-<span class="n">FF</span> <span class="o">=</span> <span class="mf">0.5</span>        <span class="c1"># mutate 150% toward envy</span>
-<span class="n">CR</span> <span class="o">=</span> <span class="mi">1</span>          <span class="c1"># mutate all attributes towards the envy point</span>
-<span class="n">KISS</span> <span class="o">=</span> <span class="bp">True</span>       <span class="c1"># Keep It Simple</span></pre></div>
+      <div class="highlight"><pre><span class="n">BATCH</span> <span class="o">=</span> <span class="bp">True</span>     <span class="c1"># if false, mutate archive as we go</span>
+<span class="n">LIVES</span> <span class="o">=</span> <span class="mi">9</span>        <span class="c1"># like a cat</span>
+<span class="n">COHEN</span> <span class="o">=</span> <span class="mf">0.5</span>      <span class="c1"># not other when it &lt; standardDev*cohen</span>
+<span class="n">SOME</span> <span class="o">=</span> <span class="mi">100</span>       <span class="c1"># size of pop to explore</span>
+<span class="n">NEAR</span> <span class="o">=</span> <span class="n">SOME</span> <span class="o">/</span> <span class="mi">10</span> <span class="c1"># size of local neighborhood in pop</span>
+<span class="n">FF</span> <span class="o">=</span> <span class="mf">0.5</span>         <span class="c1"># mutate 150% toward envy</span>
+<span class="n">CR</span> <span class="o">=</span> <span class="mi">1</span>           <span class="c1"># mutate all attributes towards the envy point</span>
+<span class="n">KISS</span> <span class="o">=</span> <span class="bp">True</span>      <span class="c1"># Keep It Simple</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -150,11 +150,11 @@ asdasd asdas das as asddasasd</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">egs</span><span class="p">):</span>
-     <span class="bp">self</span><span class="o">.</span><span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">Num</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">eg</span><span class="o">.</span><span class="n">ys</span><span class="p">]</span>
-     <span class="bp">self</span><span class="o">.</span><span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Num</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">eg</span><span class="o">.</span><span class="n">xs</span><span class="p">]</span>
-     <span class="k">for</span> <span class="n">eg</span> <span class="ow">in</span> <span class="n">egs</span><span class="p">:</span>
-       <span class="p">[</span><span class="n">num</span> <span class="o">+</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eg</span><span class="o">.</span><span class="n">xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">)]</span>
-       <span class="p">[</span><span class="n">num</span> <span class="o">+</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eg</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">)]</span></pre></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">Num</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">eg</span><span class="o">.</span><span class="n">ys</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Num</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">eg</span><span class="o">.</span><span class="n">xs</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">eg</span> <span class="ow">in</span> <span class="n">egs</span><span class="p">:</span>
+      <span class="p">[</span><span class="n">num</span> <span class="o">+</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eg</span><span class="o">.</span><span class="n">xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">)]</span>
+      <span class="p">[</span><span class="n">num</span> <span class="o">+</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eg</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">)]</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -167,10 +167,9 @@ asdasd asdas das as asddasasd</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eg1</span><span class="p">,</span> <span class="n">eg2</span><span class="p">):</span>
-     <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">stat</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eg1</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="n">eg2</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">):</span>
-       <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">other</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-         <span class="n">then</span> <span class="bp">True</span>
-     <span class="k">return</span> <span class="bp">False</span></pre></div>
+    <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">stat</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eg1</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="n">eg2</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">other</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -179,11 +178,11 @@ asdasd asdas das as asddasasd</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-10'>#</a>
       </div>
-      <p>min change heuristic from jc
-sample heuristic from vivek</p>
+      
     </div>
     <div class='code'>
-      <div class="highlight"><pre></pre></div>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">better</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="s2">&quot;stats ehre&quot;</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -192,7 +191,8 @@ sample heuristic from vivek</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-11'>#</a>
       </div>
-      <p>is this de?</p>
+      <p>min change heuristic from jc
+sample heuristic from vivek</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre></pre></div>
@@ -204,13 +204,10 @@ sample heuristic from vivek</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-12'>#</a>
       </div>
-      <hr />
+      <p>is this de?</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">class</span> <span class="nc">Eg</span><span class="p">:</span>
-  <span class="nb">id</span> <span class="o">=</span> <span class="mi">0</span>
-  <span class="n">dists</span> <span class="o">=</span> <span class="p">{}</span>
-  <span class="n">doms</span> <span class="o">=</span> <span class="p">{}</span></pre></div>
+      <div class="highlight"><pre></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -219,12 +216,13 @@ sample heuristic from vivek</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-13'>#</a>
       </div>
-      
+      <hr />
     </div>
     <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xs</span><span class="o">=</span><span class="p">[],</span> <span class="n">ys</span><span class="o">=</span><span class="p">[]):</span>
-    <span class="n">Item</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">Item</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span> <span class="o">=</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span></pre></div>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">Eg</span><span class="p">:</span>
+  <span class="nb">id</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">dists</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="n">doms</span> <span class="o">=</span> <span class="p">{}</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -236,7 +234,9 @@ sample heuristic from vivek</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">gap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span></pre></div>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xs</span><span class="o">=</span><span class="p">[],</span> <span class="n">ys</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="n">Item</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">Item</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span> <span class="o">=</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -248,17 +248,14 @@ sample heuristic from vivek</p>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">euclidian</span><span class="p">(</span><span class="n">lst1</span><span class="p">,</span> <span class="n">lst2</span><span class="p">)</span>
-      <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
-      <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lst1</span><span class="p">,</span> <span class="n">lst2</span><span class="p">):</span> <span class="nb">sum</span> <span class="o">+=</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
-      <span class="k">return</span> <span class="nb">sum</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst1</span><span class="p">)</span>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">gap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+      <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Eg</span><span class="o">.</span><span class="n">dists</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">eg</span><span class="o">.</span><span class="n">dists</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">euclidian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">xs</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">Eg</span><span class="o">.</span><span class="n">dists</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></pre></div>
+      <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> 
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Eg</span><span class="o">.</span><span class="n">dists</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">Eg</span><span class="o">.</span><span class="n">dists</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">euclidian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">xs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Eg</span><span class="o">.</span><span class="n">dists</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -331,6 +328,21 @@ sample heuristic from vivek</p>
       <hr />
     </div>
     <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">euclidian</span><span class="p">(</span><span class="n">lst1</span><span class="p">,</span> <span class="n">lst2</span><span class="p">)</span>
+  <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lst1</span><span class="p">,</span> <span class="n">lst2</span><span class="p">):</span> <span class="nb">sum</span> <span class="o">+=</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+  <span class="k">return</span> <span class="nb">sum</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst1</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-21'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-21'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
       <div class="highlight"><pre><span class="k">def</span> <span class="nf">mid</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
   <span class="n">out</span> <span class="o">=</span> <span class="n">Eg</span><span class="p">(</span><span class="n">xs</span><span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">xs</span><span class="p">])</span>
   <span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>
@@ -341,10 +353,10 @@ sample heuristic from vivek</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-21'>
+  <div class='section' id='section-22'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-21'>#</a>
+        <a class='octothorpe' href='#section-22'>#</a>
       </div>
       <hr />
     </div>
@@ -357,10 +369,10 @@ sample heuristic from vivek</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-22'>
+  <div class='section' id='section-23'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-22'>#</a>
+        <a class='octothorpe' href='#section-23'>#</a>
       </div>
       <p>repair constraint violations
 cost to eval
@@ -373,10 +385,10 @@ what is the essence of dodge</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-23'>
+  <div class='section' id='section-24'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-23'>#</a>
+        <a class='octothorpe' href='#section-24'>#</a>
       </div>
       <hr />
     </div>
@@ -403,10 +415,10 @@ what is the essence of dodge</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-24'>
+  <div class='section' id='section-25'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-24'>#</a>
+        <a class='octothorpe' href='#section-25'>#</a>
       </div>
       <p>end if</p>
     </div>
@@ -426,10 +438,10 @@ what is the essence of dodge</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-25'>
+  <div class='section' id='section-26'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-25'>#</a>
+        <a class='octothorpe' href='#section-26'>#</a>
       </div>
       <p>the de trick incremental domination within the archive
 what about the moea/d trick?
@@ -440,10 +452,10 @@ the surroage trick: eval as few times as possible</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-26'>
+  <div class='section' id='section-27'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-26'>#</a>
+        <a class='octothorpe' href='#section-27'>#</a>
       </div>
       <hr />
     </div>
@@ -460,10 +472,10 @@ the surroage trick: eval as few times as possible</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-27'>
+  <div class='section' id='section-28'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-27'>#</a>
+        <a class='octothorpe' href='#section-28'>#</a>
       </div>
       <p>here&hellip; reevaluate egs</p>
     </div>
