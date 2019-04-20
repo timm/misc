@@ -17,13 +17,13 @@ Notes
 
 # jc's repair heuristics?
 
-BATCH = True       # if false, mutate archive as we go
-LIVES = 9          # like a cat
-COHEN = 0.5        # not different when it < standardDev*cohen
+BATCH = True      # if false, mutate archive as we go
+LIVES = 9         # like a cat
+COHEN = 0.5       # not different when it < standardDev*cohen
 SOME = 100        # size of pop to explore
 NEAR = SOME / 10  # size of local neighborhood in pop
-FF = 0.5        # mutate 150% toward envy
-CR = 1          # mutate all attributes towards the envy point
+FF   = 0.5        # mutate 150% toward envy
+CR   = 1          # mutate all attributes towards the envy point
 KISS = True       # Keep It Simple
 
 # # Text
@@ -32,7 +32,6 @@ KISS = True       # Keep It Simple
 # asdasd asdas das as asddasasd
 # asdasd asdas das as asddasasd
 # asdasd asdas das as asddasasd
-
 
 class Num:
   def __init__(self):
@@ -48,7 +47,6 @@ class Num:
     self.m2 = self.m2 + d * (a - self.mu)
     self.sd = (self.m2 / (self.n - 1 + 0.0001))**0.5
     return self
-
 
 class Stats:
   def __init__(self, egs):
@@ -113,8 +111,8 @@ def mid(lst):
   out = Eg(xs= [0 for _ in lst[0].xs])
   n=len(lst)
   for a in lst:
-    out.xs = [b+x/n for b,x in zip(out.xs, a.xs) ]
-    out.ys = [b+y/n for b,y in zip(out.xs, a.ys) ]
+    out.xs = [ b+x/n for b,x in zip(out.xs, a.xs) ]
+    out.ys = [ b+y/n for b,y in zip(out.xs, a.ys) ]
   return out
 
 def elite(lst, most=0):
@@ -146,12 +144,12 @@ def mutate(old, egs,stats):
    else:
      bests = elite(egs,0.5)
      best1 = mid(bests) # thing near mid of non-dominated egs
-     egs = [eg for eg in bests if  # closer to heaven than me
-            best1.gap(eg) < old.gap(best1) ]
+     egs   = [eg for eg in bests # closer to heaven than me
+              if best1.gap(eg) < old.gap(best1) ]
      envy  = mid(egs).nearest(egs)  # mid of the most heavenly
    # end if
-   mutant.xs = [x if r() > CR else x + FF*(a -  x) for
-                x,a in zip(old.xs,envy.xs)]
+   mutant.xs = [x if r() > CR else x + FF*(a -  x) 
+                for x,a in zip(old.xs,envy.xs)]
    dist = old.gap(envy) # how far to push
    slopes = Eg(xs = zeros(egs[0])) # local slopes 
    for eg in egs:
