@@ -32,6 +32,7 @@ KISS  = True       # Keep It Simple
 # asdasd asdas das as asddasasd
 # asdasd asdas das as asddasasd
 # asdasd asdas das as asddasasd
+
 class Num:
   def __init__(self):
     self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
