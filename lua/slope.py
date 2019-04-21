@@ -36,30 +36,54 @@ KISS = True      # Keep It Simple
 
 
 #-----
+def clone(x): return x.__class__()
+
 class Num:
   def __init__(self):
     self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
+    self.lo, self.hi = 10**32, -10**32
 
   def other(self, a, b):
     return abs(a - b) > self.sd * COHEN
 
+  def norm(self,a):
+    return a if a is "?"else 
+           (a -  self.lo) / (self.hi - self.lo + 10**-32)
+
+  def gap(self,a,b):
+    if a is "?" and b is "?": return 1
+    a = self.norm(a)
+    b = self.norm(b)
+    if a is "?": a = 0 if b > 0.5 else 1
+    if b is "?": b = 0 if a > 0.5 else 1
+    return (a - b)**2
+
   def __add__(self, a):
-    n += 1
+    self.n += 1
     d = a - self.mu
     self.mu = self.mu + d / self.n
     self.m2 = self.m2 + d * (a - self.mu)
     self.sd = (self.m2 / (self.n - 1 + 0.0001))**0.5
+    if a < self.lo: self.lo = a
+    if a > self.hi: self.hi = 1
     return self
 
+class Sym:
+   def __add__(self,a) : pass
+   def other(self, a,b): return a isnt b
+   def norm(self,a)    : return a 
+   def gap(self,a,b)   : 
+     if a is "?" or  b is "?" : return 1
+     return 0 if a is b else 1
 
 #-----
 class Stats:
-  def __init__(self, egs):
-    self.ys = [Num() for _ in eg.ys]
-    self.xs = [Num() for _ in eg.xs]
+  def __init__(self, eg0, egs):
+    self.ys = [clone(y) for y in eg0.ys]
+    self.xs = [clone(y) for y in eg0.xs]
     for eg in egs:
-      [num + a for a, num in zip(eg.xs, self.xs)]
-      [num + a for a, num in zip(eg.ys, self.ys)]
+      [stat + a for a, stat in zip(eg.xs, self.xs)]
+      [stat + a for a, stat in zip(eg.ys, self.ys)]
 
   def other(self, eg1, eg2):
     for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
@@ -68,6 +92,23 @@ class Stats:
 
   def better(self, other):
     "stats ehre"
+
+  def gap(self, eg1, eg2):
+    sum = 0
+    for a, b, stat in zip(eg1.xs, eg2.xs, self.xs): 
+      sum += stat.gap(a,b)
+    return (sum / len(eg1.xs)**0.5
+
+  def gapfun(self): #XXX to be added below
+    cache={}
+    def worker(eg1,eg2)
+      k1,k2 = eg1.id, eg2.id
+      k     = (k1,k2) if k1<k2 else (k2,k1)
+      if k in cache: return cache[k]
+      out = cache[k] = self.gap(eg1,eg2)
+      return out
+    return worker
+
 
 # min change heuristic from jc
 # sample heuristic from vivek
@@ -111,11 +152,6 @@ class Eg:
     return out
 
 #-----
-def euclidian(lst1, lst2)
-  sum = 0
-  for a, b in zip(lst1, lst2): sum += (a - b)**2
-  return sum**0.5 / len(lst1)
-
 #-----
 def mid(lst):
   out = Eg(xs= [0 for _ in lst[0].xs])
