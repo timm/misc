@@ -25,7 +25,7 @@
 <li>WORDS that are all uppercase are constants</li>
 <li><code>a,b</code> = local variables</li>
 <li><code>sd</code>  = standard deviation</li>
-<li><code>r()</code> is a random number 0..1</li>
+<li><code>r()</code> is a random number 0  1</li>
 <li><code>x,y</code> = decision, objective</li>
 <li><code>xs,ys</code> = decisions, objectives</li>
 <li><code>Eg</code> = the example class and an example is a pair xs,ys</li>
@@ -202,18 +202,18 @@ asdasd asdas das as asddasasd</p>
      <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="n">missing</span> <span class="ow">or</span> <span class="n">b</span> <span class="ow">is</span> <span class="n">missing</span><span class="p">:</span> <span class="k">return</span> <span class="mi">1</span>
      <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="n">b</span> <span class="k">else</span> <span class="mi">1</span>
   <span class="k">def</span> <span class="nf">sames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-  <span class="o">..</span><span class="k">def</span> <span class="nf">countsequal</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="n">xpect</span><span class="p">):</span>
-    <span class="o">..</span>  <span class="n">x2</span><span class="p">,</span><span class="n">df</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span>
-    <span class="o">..</span>  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">xpect</span><span class="p">:</span>
-    <span class="o">..</span>    <span class="n">df</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="o">..</span>    <span class="n">e</span>   <span class="o">=</span> <span class="n">xpect</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-    <span class="o">..</span>    <span class="n">o</span>   <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-    <span class="o">..</span>    <span class="n">x2</span> <span class="o">+=</span> <span class="p">(</span><span class="n">o</span>  <span class="o">-</span> <span class="n">e</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span> <span class="n">e</span>
-    <span class="o">..</span>  <span class="n">critical</span> <span class="o">=</span> <span class="n">interpolate</span><span class="p">(</span><span class="n">df</span><span class="p">,[</span> <span class="c1"># 95% confidence</span>
-    <span class="o">..</span>                <span class="p">(</span> <span class="mi">1</span><span class="p">,</span>  <span class="mf">3.841</span><span class="p">),</span> <span class="p">(</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">11.070</span><span class="p">),</span> 
-    <span class="o">..</span>                <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">18.307</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mf">24.996</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">31.410</span><span class="p">),</span>
-    <span class="o">..</span>                <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mf">43.66</span><span class="p">),</span>  <span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mf">79.08</span><span class="p">)])</span>
-    <span class="o">..</span>  <span class="k">return</span> <span class="n">x2</span> <span class="o">&lt;=</span> <span class="n">critical</span>
+    <span class="k">def</span> <span class="nf">countsequal</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="n">xpect</span><span class="p">):</span>
+        <span class="n">x2</span><span class="p">,</span><span class="n">df</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">xpect</span><span class="p">:</span>
+          <span class="n">df</span> <span class="o">+=</span> <span class="mi">1</span>
+          <span class="n">e</span>   <span class="o">=</span> <span class="n">xpect</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+          <span class="n">o</span>   <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+          <span class="n">x2</span> <span class="o">+=</span> <span class="p">(</span><span class="n">o</span>  <span class="o">-</span> <span class="n">e</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span> <span class="n">e</span>
+        <span class="n">critical</span> <span class="o">=</span> <span class="n">interpolate</span><span class="p">(</span><span class="n">df</span><span class="p">,[</span> <span class="c1"># 95% confidence</span>
+                      <span class="p">(</span> <span class="mi">1</span><span class="p">,</span>  <span class="mf">3.841</span><span class="p">),</span> <span class="p">(</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">11.070</span><span class="p">),</span> 
+                      <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">18.307</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mf">24.996</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">31.410</span><span class="p">),</span>
+                      <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mf">43.66</span><span class="p">),</span>  <span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mf">79.08</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">x2</span> <span class="o">&lt;=</span> <span class="n">critical</span>
     <span class="k">return</span> <span class="n">countsequal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">counts</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">Num</span><span class="p">(</span><span class="n">Stat</span><span class="p">):</span>
@@ -653,7 +653,7 @@ the surroage trick: eval as few times as possible</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-36'>#</a>
       </div>
-      <p>here&hellip; reevaluate egs</p>
+      <p>here  . reevaluate egs</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>  <span class="n">LIVES</span> <span class="o">-=</span> <span class="mi">1</span>

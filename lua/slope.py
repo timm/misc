@@ -7,7 +7,7 @@ Notes in the following:
 - WORDS that are all uppercase are constants
 - `a,b` = local variables
 - `sd`  = standard deviation
-- `r()` is a random number 0..1
+- `r()` is a random number 0  1
 - `x,y` = decision, objective
 - `xs,ys` = decisions, objectives
 - `Eg` = the example class and an example is a pair xs,ys
@@ -71,18 +71,18 @@ class Sym(Stat):
      if a is missing or b is missing: return 1
      return 0 if a is b else 1
   def sames(self,other):
-  ..def countsequal(obs,xpect):
-    ..  x2,df = 0,-1
-    ..  for k in xpect:
-    ..    df += 1
-    ..    e   = xpect[k]
-    ..    o   = obs.get(k,0)
-    ..    x2 += (o  - e)**2/ e
-    ..  critical = interpolate(df,[ # 95% confidence
-    ..                ( 1,  3.841), ( 5, 11.070), 
-    ..                (10, 18.307), (15, 24.996), (20, 31.410),
-    ..                (30, 43.66),  (60, 79.08)])
-    ..  return x2 <= critical
+    def countsequal(obs,xpect):
+        x2,df = 0,-1
+        for k in xpect:
+          df += 1
+          e   = xpect[k]
+          o   = obs.get(k,0)
+          x2 += (o  - e)**2/ e
+        critical = interpolate(df,[ # 95% confidence
+                      ( 1,  3.841), ( 5, 11.070), 
+                      (10, 18.307), (15, 24.996), (20, 31.410),
+                      (30, 43.66),  (60, 79.08)])
+        return x2 <= critical
     return countsequal(self.counts, other.counts)
 
 class Num(Stat):
@@ -275,7 +275,7 @@ while LIVES > 0
       egs[a]=mutate(egs[a], egs, stats)
   else:
      egs=[mutate(eg, egs, stats) for eg in egs]
-  # here... reevaluate egs
+  # here  . reevaluate egs
   LIVES -= 1
   if b4:
     if better(stats, b4): LIVES += 1
