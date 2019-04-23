@@ -36,30 +36,89 @@ KISS = True      # Keep It Simple
 
 
 # -----
+def interpolate(x,xy): 
+  x1,y1 = xy[0]
+  if x < x1: return y1
+  for x2,y2 in xy[1:]:
+    if x1 <= x < x2:
+      return y1 + (y2-y1) * (x - x1) / (x2 - x1)
+    x1,y1 = x2,y2
+  return y2
+
 def clone(x): return x.__class__()
 
-seeSubclass= assert 0,"implemented by subclass"
+seeBelow()= assert 0,"implemented by subclass"
 
-class Col(object):
+class Stat(object):
+  missing="?"
+  def add(self, a)     : seeBelow()
+  def same(self, a, b) : seeBelow()
+  def sames(self, a, b): seeBelow()
+  def gap(self, a, b)  : seeBelow()
   def __add__(i,x): i.n += 1;  self.add(x); return self
-  def add(self, a)     : seeSubclass()
-  def same(self, a, b): seeSubclass()
-  def norm(self, a):   : seeSubclass()
-  def gap(self, a, b)  : seeSubclass()
+  @classmethod
+  def ako(cls,pat):
+    me,no = cls.__name__,r"Stat(s)?"
+    if re.match(pat,me) and not re.match(no,me): return cls
+    for sub in cls.__subclasses__():  return sub.ako(pat)
 
-class Num(Col):
+class Sym(Stat):
+   def __init__(self): self.w.=1; self.counts={},self.n = 0
+   def add(self, a): self.counts[a] = self.counts.get(a,0)+1
+   def same(self, a, b): return a is b
+   def better(self, other): return False
+   def gap(self, a, b):
+     if a is missing or b is missing: return 1
+     return 0 if a is b else 1
+  def sames(self,other):
+  ..def countsequal(obs,xpect):
+    ..  x2,df = 0,-1
+    ..  for k in xpect:
+    ..    df += 1
+    ..    e   = xpect[k]
+    ..    o   = obs.get(k,0)
+    ..    x2 += (o  - e)**2/ e
+    ..  critical = interpolate(df,[ # 95% confidence
+    ..                ( 1,  3.841), ( 5, 11.070), 
+    ..                (10, 18.307), (15, 24.996), (20, 31.410),
+    ..                (30, 43.66),  (60, 79.08)])
+    ..  return x2 <= critical
+    return countsequal(self.counts, other.counts)
+
+class Num(Stat):
   def __init__(self):
     self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
-    self.lo, self.hi = 10**32, -10**32
+    self.lo, self.hi, self.w= 10**32, -10**32, 0
 
   def same(self, a, b):
     return abs(a - b) <= self.sd * COHEN
 
-  def norm(self, a):
-    return a if a is "?"else
-           (a - self.lo) / (self.hi - self.lo + 10**-32)
+  def better(self,them):
+    return not self.sames(them) and  \
+           (self.mu<them.mu if i.w<0 else self.mu>them.mu)
+
+  def sames(self,them):
+    small=0.38
+    def ttest():
+         df = min(self.n - 1, them.n - 1)
+         critical = interpolate(df,[
+                      (1,6.314),  (5,2.015), (10,1.812), (15,1.753), 
+                      (20,1.725), (30,1.697), (60,1.671)])
+         return (abs(i.mu - j.mu) / 
+                 ((self.sd/i.n + them.sd/j.n)**0.5) ) < critical
+    def hedges():
+         num        = (self.n - 1)*self.sd**2 + (them.n - 1)*them.sd**2
+         denom      = (self.n - 1) + (them.n - 1)
+         sp         = ( num / denom )**0.5
+         delta      = abs(self.mu - them.mu) / sp
+         correction = 1 - 3.0 / (4*(self.n + them.n - 2) - 1)
+         return delta * correction < small
+     return hedges() or ttest()
 
   def gap(self, a, b):
+    def norm(self, a):
+        return a if a is "?"else
+             (a - self.lo) / (self.hi - self.lo + 10**-32)
     if a is "?" and b is "?": return 1
     a = self.norm(a)
     b = self.norm(b)
@@ -76,51 +135,48 @@ class Num(Col):
     if a > self.hi: self.hi = 1
 
 
-class Sym(Col):
-   def __init__(self): i.n = 0
-   def add(self, a): pass
-   def same(self, a, b): return a is b
-   def norm(self, a): return a
-   def gap(self, a, b):
-     if a is "?" or b is "?": return 1
-     return 0 if a is b else 1
-
 # -----
 
+def cached(f):  # XXX to be added below
+  cache={}
+  def worker(a, b)
+    k = (a.id, b.id) if a.id <= b.id else (b.id, a.id)
+    if k in cache: return cache[k]
+    out = cache[k] = f(a, b)
+    return out
+  return worker
 
-class Stats:
-  def __init__(self, eg0, egs):
+class Stats(Stat):
+  def __init__(self, eg0, egs=[]):
     self.ys = [clone(y) for y in eg0.ys]
     self.xs = [clone(y) for y in eg0.xs]
-    for eg in egs:
-      [stat + a for a, stat in zip(eg.xs, self.xs)]
-      [stat + a for a, stat in zip(eg.ys, self.ys)]
+    [self + eg for eg in egs]
+
+  def add(self,eg):
+    "visitor over composite: recurse on parts"
+    [stat + a for a, stat in zip(eg.xs, self.xs)]
+    [stat + a for a, stat in zip(eg.ys, self.ys)]
 
   def same(self, eg1, eg2):
+    "visitor over composite: false if any part different"
     for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
       if not stat.same(a, b):
         return False
     return True
 
-  def better(self, other):
-    "stats ehre"
-
   def gap(self, eg1, eg2):
+    "visitor over composite: sum gaps in parts"
     sum = 0
     for a, b, stat in zip(eg1.xs, eg2.xs, self.xs):
       sum += stat.gap(a, b)
     return (sum / len(eg1.xs)**0.5
 
-  def gapfun(self):  # XXX to be added below
-    cache={}
-    def worker(eg1, eg2)
-      k1, k2=eg1.id, eg2.id
-      k=(k1, k2) if k1 < k2 else (k2, k1)
-      if k in cache: return cache[k]
-      out=cache[k]=self.gap(eg1, eg2)
-      return out
-    return worker
+  def gaps(self)
+    "Caching trick to reduce #distance calcs"
+    return cahced(self.gap)
 
+  def sames(self, a,b): 
+    assert 0,"not defined for sets of stats"
 
 # min change heuristic from jc
 # sample heuristic from vivek
@@ -144,8 +200,6 @@ class Eg:
      if self.dominate(eg, stats):
        a += 1 / len(lst)
     return a
-  def dom(self):
-     return Eg.items.get(self.id, 0)
   def nearest(self, lst)
     out, best=lst[0], 10**10
     for a in lst:
