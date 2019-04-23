@@ -3,7 +3,7 @@ def interpolate(x,xy):
   if x < x1: return y1
   for x2,y2 in xy[1:]:
     if x1 <= x < x2:
-      y1 + (y2-y1) * (x - x1) / (x2 - x1)
+      return y1 + (y2-y1) * (x - x1) / (x2 - x1)
     x1,y1 = x2,y2
   return y2
 
