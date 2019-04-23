@@ -98,28 +98,36 @@ def main():
 # ## Main Mutation Function
 
 
-def mutate(old, egs, stats):
-   want = lambda eg: not stats.same(old, eg) and dominate(eg, old)
-   ignore = lambda: r() > SOME / len(egs)
-   egs = [eg for eg in egs if not ignore() and want(eg)]
-   egs = egs.sorted(key=lambda eg: old.gap(eg))
-   egs = egs[:NEAR]
+def meanSlope(envy, egs):
+   deltas = [0 for _ in egs[0].ys]  # local slopes
+   for eg in egs:
+     step = eg.gap(envy)
+     out = [delta + (y1 - y2) / step / len(egs)
+              for y1, y2, delta in zip(envy.ys, eg.ys, deltas)]
+   return [slope / len(egs) for slope in slopes]
+
+
+def best(egs):
    envy = egs[0]
    for eg in egs[1:]:
      if eg.dominate(envy):
-       envy = eg  # the thing that most dominates
-   slopes = Eg(xs=zeros(egs[0]))  # local slopes
-   for eg in egs:
-     step = eg.gap(envy)
-     slopes.ys = [y + (o1 - o2) / step / len(egs)
-                for o1, o2, y in zip(eg.ys, envy.ys, slopes.ys)]
-   mutant.xs = [x if r() > CR else x + FF * (a - x)
-                for x, a in zip(old.xs, envy.xs)]
+       envy = eg
+   return envy
+
+
+def mutate(old, egs, stats):
+   want = lambda eg: not stats.same(old, eg) and dominate(eg, old)
+   ignore = lambda: r() > SOME / len(egs)
+   some = [eg for eg in egs if not ignore() and want(eg)]
+   near = some.sorted(key=lambda eg: old.gap(eg))[:NEAR]
+   envy = best(near)
+   slope = meanSlope(envy, near)
+   mutant.xs = [x + FF * (a - x) for x, a in zip(old.xs, envy.xs)]
    dist = old.gap(mutant)  # how far to push
-   mutant.ys = [y + slope * dist  # push down slope
-               for y, slope in zip(old.ys, slopes.ys)]
+   mutant.ys = [y + slope1 * dist for y, slope1 in zip(old.ys, slope)]
    return mutant if mutant.dominate(old) and
                     not stats.same(old, mutant) else old
+
 # Maybe a bad idea. Ignore?
 #
 #     bests=elite(egs, 0.5)
