@@ -38,14 +38,22 @@ KISS = True      # Keep It Simple
 # -----
 def clone(x): return x.__class__()
 
+seeSubclass= assert 0,"implemented by subclass"
 
-class Num:
+class Col(object):
+  def __add__(i,x): i.n += 1;  self.add(x); return self
+  def add(self, a)     : seeSubclass()
+  def same(self, a, b): seeSubclass()
+  def norm(self, a):   : seeSubclass()
+  def gap(self, a, b)  : seeSubclass()
+
+class Num(Col):
   def __init__(self):
     self.n, self.mu, self.sd, self.m2 = 0, 0, 0, 0
     self.lo, self.hi = 10**32, -10**32
 
-  def other(self, a, b):
-    return abs(a - b) > self.sd * COHEN
+  def same(self, a, b):
+    return abs(a - b) <= self.sd * COHEN
 
   def norm(self, a):
     return a if a is "?"else
@@ -59,22 +67,20 @@ class Num:
     if b is "?": b = 0 if a > 0.5 else 1
     return (a - b)**2
 
-  def __add__(self, a):
-    self.n += 1
+  def add(self, a):
     d = a - self.mu
     self.mu = self.mu + d / self.n
     self.m2 = self.m2 + d * (a - self.mu)
     self.sd = (self.m2 / (self.n - 1 + 0.0001))**0.5
     if a < self.lo: self.lo = a
     if a > self.hi: self.hi = 1
-    return self
 
 
-class Sym:
-   def __add__(self, a): pass
-   def other(self, a, b): return a isnt b
+class Sym(Col):
+   def __init__(self): i.n = 0
+   def add(self, a): pass
+   def same(self, a, b): return a is b
    def norm(self, a): return a
-
    def gap(self, a, b):
      if a is "?" or b is "?": return 1
      return 0 if a is b else 1
@@ -90,10 +96,11 @@ class Stats:
       [stat + a for a, stat in zip(eg.xs, self.xs)]
       [stat + a for a, stat in zip(eg.ys, self.ys)]
 
-  def other(self, eg1, eg2):
+  def same(self, eg1, eg2):
     for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
-      if stat.other(a, b):
-        return True
+      if not stat.same(a, b):
+        return False
+    return True
 
   def better(self, other):
     "stats ehre"
@@ -124,28 +131,19 @@ class Stats:
 # -----
 class Eg:
   id=0
-  dists={}
-  doms={}
-
   def __init__(self, xs=[], ys=[]):
     Item.id=self.id=Item.id + 1
     self.xs, self.ys=xs, ys
   def gap(self, other):
-    if self.id > other.id:
-      key=(other.id, key.id)
-    else:
-      key=(self.id, other.id)
-    if key not in Eg.dists:
-      return Eg.dists[key]=euclidian(self.xs, other.xs)
-    return Eg.dists[key]
+     return euclidian(self.xs, other.xs)
   def dominate(self, a, stats):
     return t, f
   def dominates(self, lst, stats):
-    i, all=self.id, Eg.doms
-    all[i]=0
-    for a in lst
-     if self.dominate(a, stats):
-       all[i] += 1 / len(lst)
+    a= 0
+    for eg in lst
+     if self.dominate(eg, stats):
+       a += 1 / len(lst)
+    return a
   def dom(self):
      return Eg.items.get(self.id, 0)
   def nearest(self, lst)
@@ -181,38 +179,34 @@ def elite(lst, most=0):
 
 # -----
 def mutate(old, egs, stats):
-   Eg.dists={}  # clear any old memory
-   Eg.doms={}
-   want=lambda eg: stats.other(old, eg) and dominate(eg, old)
-   ignore=lambda: r() > SOME / len(egs)
-   egs=[eg for eg in egs if not ignore() and want(eg)]
-   egs=egs.sorted(key=lambda eg: old.gap(eg))
-   egs=egs[:NEAR]
-   if KISS:
-     envy=old
-     for eg in egs:
-       if eg.dominate(envy):
-         envy=eg  # the thing that most dominates
-   else:
-     bests=elite(egs, 0.5)
-     best1=mid(bests)  # thing near mid of non-dominated egs
-     egs=[eg for eg in bests  # closer to heaven than me
-              if best1.gap(eg) < old.gap(best1)]
-     envy=mid(egs).nearest(egs)  # mid of the most heavenly
-   # end if
-   mutant.xs=[x if r() > CR else x + FF * (a - x)
-                for x, a in zip(old.xs, envy.xs)]
-   dist=old.gap(envy)  # how far to push
+   want = lambda eg: not stats.same(old, eg) and dominate(eg, old)
+   ignore = lambda: r() > SOME / len(egs)
+   egs    = [eg for eg in egs if not ignore() and want(eg)]
+   egs    = egs.sorted(key=lambda eg: old.gap(eg))
+   egs    = egs[:NEAR]
+   envy   = eg0]
+   for eg in egs[1:]:
+     if eg.dominate(envy):
+       envy=eg  # the thing that most dominates
    slopes=Eg(xs=zeros(egs[0]))  # local slopes
    for eg in egs:
      step=eg.gap(envy)
      slopes.ys=[(o1 - o2) / step / len(egs)
-                   for o1, o2 in zip(eg.ys, envy.ys)]
+                for o1, o2 in zip(eg.ys, envy.ys)]
+   dist=old.gap(envy)  # how far to push
+   mutant.xs=[x if r() > CR else x + FF * (a - x)
+                for x, a in zip(old.xs, envy.xs)]
    mutant.ys=[y + slope * dist  # push down slope
                for y, slope in zip(old.ys, slopes.ys)]
    return mutant if mutant.dominate(old) and
-                    stats.other(old, mutant) else old
-
+                    not stats.same(old, mutant) else old
+#else:
+#     bests=elite(egs, 0.5)
+#     best1=mid(bests)  # thing near mid of non-dominated egs
+#     egs=[eg for eg in bests  # closer to heaven than me
+#              if best1.gap(eg) < old.gap(best1)]
+#     envy=mid(egs).nearest(egs)  # mid of the most heavenly
+#
 # the de trick incremental domination within the archive
 # what about the moea/d trick?
 # the surroage trick: eval as few times as possible
