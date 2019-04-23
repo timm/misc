@@ -105,8 +105,8 @@ def mutate(old, egs, stats):
    slopes=Eg(xs=zeros(egs[0]))  # local slopes
    for eg in egs:
      step=eg.gap(envy)
-     slopes.ys=[(o1 - o2) / step / len(egs)
-                for o1, o2 in zip(eg.ys, envy.ys)]
+     slopes.ys=[y + (o1 - o2) / step /len(egs)
+                for o1, o2, y in zip(eg.ys, envy.ys, slopes.ys)]
    mutant.xs=[x if r() > CR else x + FF * (a - x)
                 for x, a in zip(old.xs, envy.xs)]
    dist=old.gap(mutant)  # how far to push
