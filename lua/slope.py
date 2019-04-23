@@ -54,10 +54,18 @@ class Eg:
     self.xs, self.ys = xs, ys
 
   def gap(self, other, stats):
-     return euclidian(self.xs, other.xs, stats)
+     return euclidian(self.xs, other.xs,stats)
 
-  def dominate(self, a, stats):
-    return t, f
+  def dominate(self, other, stats):
+    n = len(self.ys)
+    s1 = s2 = 0
+    for a,b,stat in zip(self.ys,other.ys,stats.ys):
+      w = stat.w 
+      a = stat.norm(a)
+      b = stat.norm(b)
+      s1 -= 10**(w * (a - b) / n)
+      s2 -= 10**(w * (b - a) / n) 
+    return s1 < s2
 
   def dominates(self, lst, stats):
     a = 0
@@ -65,14 +73,6 @@ class Eg:
      if self.dominate(eg, stats):
        a += 1 / len(lst)
     return a
-
-  def nearest(self, lst)
-    out, best = lst[0], 10**10
-    for a in lst:
-      tmp = self.gap(a)
-      if tmp < best:
-        out, best = a, tmp
-    return out
 
 # -----
 # ## Main Loop
@@ -97,34 +97,31 @@ def main():
 # -----
 # ## Main Mutation Function
 
-
-def mutate(old, lst, stats):
+def mutate(old, egs, stats):
   def meanSlope(envy, lst):
       deltas = [0 for _ in lst[0].ys]  # local slopes
       for eg in lst:
         step = eg.gap(envy)
-        out = [delta + (y1 - y2) / step / len(egs)
+        out = [delta + (y1 - y2) / step / len(lst)
                  for y1, y2, delta in zip(envy.ys, eg.ys, deltas)]
-      return [slope / len(lst) for slope in slopes]
+      return deltas
 
-  def best(lst):
-      envy = lst[0]
-      for eg in lst[1:]:
-        if eg.dominate(envy):
-          envy = eg
-      return envy
+  def best(lst, stats)
+    return reduce(lambda a,b: a if a.dominate(b,stats) else b,lst)
 
    want   = lambda eg: not stats.same(old, eg) and dominate(eg, old)
    ignore = lambda: r() > SOME / len(egs)
+
    some   = [eg for eg in egs if not ignore() and want(eg)]
-   near   = some.sorted(key=lambda eg: old.gap(eg,stats))[:NEAR]
-   envy   = best(near)
+   some   = some.sorted(key=lambda eg: old.gap(eg,stats)
+   near   = some[:NEAR]
+   envy   = best(near, stats)
    slope  = meanSlope(envy,near)
    mutant.xs = [x if r() > CR else x + FF * (a - x) 
                 for x, a in zip(old.xs, envy.xs)]
    dist      = old.gap(mutant, stats)  # how far to push
-   mutant.ys = [y + slope1 * dist  
-                for y, slope1 in zip(old.ys, slope)]
+   mutant.ys = [y + m * dist  
+                for y, m in zip(old.ys, slope)]
    return mutant if mutant.dominate(old) and
                     not stats.same(old, mutant) else old
 
@@ -135,6 +132,14 @@ def mutate(old, lst, stats):
 #     egs=[eg for eg in bests  # closer to heaven than me
 #              if best1.gap(eg) < old.gap(best1)]
 #     envy=mid(egs).nearest(egs)  # mid of the most heavenly
+#
+#      def nearest(self, lst)
+#        out, best = lst[0], 10**10
+#        for a in lst:
+#          tmp = self.gap(a)
+#          if tmp < best:
+#            out, best = a, tmp
+#        return out
 #
 
 # ------
