@@ -238,7 +238,7 @@ def mutate(old, egs, stats):
    egs    = [eg for eg in egs if not ignore() and want(eg)]
    egs    = egs.sorted(key=lambda eg: old.gap(eg))
    egs    = egs[:NEAR]
-   envy   = eg0]
+   envy   = egs[0]
    for eg in egs[1:]:
      if eg.dominate(envy):
        envy=eg  # the thing that most dominates
@@ -247,9 +247,9 @@ def mutate(old, egs, stats):
      step=eg.gap(envy)
      slopes.ys=[(o1 - o2) / step / len(egs)
                 for o1, o2 in zip(eg.ys, envy.ys)]
-   dist=old.gap(envy)  # how far to push
    mutant.xs=[x if r() > CR else x + FF * (a - x)
                 for x, a in zip(old.xs, envy.xs)]
+   dist=old.gap(mutant)  # how far to push
    mutant.ys=[y + slope * dist  # push down slope
                for y, slope in zip(old.ys, slopes.ys)]
    return mutant if mutant.dominate(old) and
