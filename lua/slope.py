@@ -16,8 +16,19 @@ Notes in the following:
 
 """
 
+## Todo
 
-# jc's repair heuristics?
+# - jc's repair heuristics?
+# - todo. needs lists of facts and guesses
+# = min change heuristic from jc
+# - sample heuristic from vivek
+# - is this de?
+# -  MOEA/D?
+# - the de trick incremental domination within the archive
+# - what about the moea/d trick?
+# - the surroage trick: eval as few times as possible
+
+#
 # -----
 # ## Constants
 BATCH = True     # if false, mutate archive as we go
@@ -30,6 +41,88 @@ CR = 1           # mutate all attributes towards the envy point
 KISS = True      # Keep It Simple
 
 
+
+# -----
+# ## Eg
+
+# A thing that stores a list of x and y values.
+
+class Eg:
+  id=0
+  def __init__(self, xs=[], ys=[]):
+    Item.id=self.id=Item.id + 1
+    self.xs, self.ys=xs, ys
+  def gap(self, other):
+     return euclidian(self.xs, other.xs)
+  def dominate(self, a, stats):
+    return t, f
+  def dominates(self, lst, stats):
+    a= 0
+    for eg in lst
+     if self.dominate(eg, stats):
+       a += 1 / len(lst)
+    return a
+  def nearest(self, lst)
+    out, best=lst[0], 10**10
+    for a in lst:
+      tmp=self.gap(a)
+      if tmp < best:
+        out, best=a, tmp
+    return out
+
+# -----
+# ## Main Loop
+
+def main():
+  egs=[eval(Eg()) for _ in range(SOME)]
+  b4=None
+  while LIVES > 0
+    stats=Stats(egs)
+    if BATCH
+      for a in len(egs):
+        egs[a]=mutate(egs[a], egs, stats)
+    else:
+       egs=[mutate(eg, egs, stats) for eg in egs]
+    # here  . reevaluate egs
+    LIVES -= 1
+    if b4:
+      if better(stats, b4): LIVES += 1
+    b4=Stats(egs)
+ 
+# -----
+# ## Main Mutation Function
+
+def mutate(old, egs, stats):
+   want   = lambda eg: not stats.same(old, eg) and dominate(eg, old)
+   ignore = lambda: r() > SOME / len(egs)
+   egs    = [eg for eg in egs if not ignore() and want(eg)]
+   egs    = egs.sorted(key=lambda eg: old.gap(eg))
+   egs    = egs[:NEAR]
+   envy   = egs[0]
+   for eg in egs[1:]:
+     if eg.dominate(envy):
+       envy=eg  # the thing that most dominates
+   slopes=Eg(xs=zeros(egs[0]))  # local slopes
+   for eg in egs:
+     step=eg.gap(envy)
+     slopes.ys=[(o1 - o2) / step / len(egs)
+                for o1, o2 in zip(eg.ys, envy.ys)]
+   mutant.xs=[x if r() > CR else x + FF * (a - x)
+                for x, a in zip(old.xs, envy.xs)]
+   dist=old.gap(mutant)  # how far to push
+   mutant.ys=[y + slope * dist  # push down slope
+               for y, slope in zip(old.ys, slopes.ys)]
+   return mutant if mutant.dominate(old) and
+                    not stats.same(old, mutant) else old
+# Maybe a bad idea. Ignore?
+#
+#     bests=elite(egs, 0.5)
+#     best1=mid(bests)  # thing near mid of non-dominated egs
+#     egs=[eg for eg in bests  # closer to heaven than me
+#              if best1.gap(eg) < old.gap(best1)]
+#     envy=mid(egs).nearest(egs)  # mid of the most heavenly
+#
+ 
 # -----
 # ## Misc Support Functions
 
@@ -59,7 +152,6 @@ def mid(lst):
     out.ys=[b + y / n for b, y in zip(out.xs, a.ys)]
   return out
 
-# -----
 def elite(lst, most=0):
    n=len(lst)
    m=n * upper
@@ -209,94 +301,4 @@ class Stats(Stat):
   def sames(self, a,b): 
     assert 0,"not defined for sets of stats"
 
-# min change heuristic from jc
-# sample heuristic from vivek
 
-# is this de?
-
-
-# -----
-# ## Eg
-
-# A thing that stores a list of x and y values.
-
-class Eg:
-  id=0
-  def __init__(self, xs=[], ys=[]):
-    Item.id=self.id=Item.id + 1
-    self.xs, self.ys=xs, ys
-  def gap(self, other):
-     return euclidian(self.xs, other.xs)
-  def dominate(self, a, stats):
-    return t, f
-  def dominates(self, lst, stats):
-    a= 0
-    for eg in lst
-     if self.dominate(eg, stats):
-       a += 1 / len(lst)
-    return a
-  def nearest(self, lst)
-    out, best=lst[0], 10**10
-    for a in lst:
-      tmp=self.gap(a)
-      if tmp < best:
-        out, best=a, tmp
-    return out
-
-
-# -----
-# ## Main Mutation Function
-
-def mutate(old, egs, stats):
-   want   = lambda eg: not stats.same(old, eg) and dominate(eg, old)
-   ignore = lambda: r() > SOME / len(egs)
-   egs    = [eg for eg in egs if not ignore() and want(eg)]
-   egs    = egs.sorted(key=lambda eg: old.gap(eg))
-   egs    = egs[:NEAR]
-   envy   = egs[0]
-   for eg in egs[1:]:
-     if eg.dominate(envy):
-       envy=eg  # the thing that most dominates
-   slopes=Eg(xs=zeros(egs[0]))  # local slopes
-   for eg in egs:
-     step=eg.gap(envy)
-     slopes.ys=[(o1 - o2) / step / len(egs)
-                for o1, o2 in zip(eg.ys, envy.ys)]
-   mutant.xs=[x if r() > CR else x + FF * (a - x)
-                for x, a in zip(old.xs, envy.xs)]
-   dist=old.gap(mutant)  # how far to push
-   mutant.ys=[y + slope * dist  # push down slope
-               for y, slope in zip(old.ys, slopes.ys)]
-   return mutant if mutant.dominate(old) and
-                    not stats.same(old, mutant) else old
-#else:
-#     bests=elite(egs, 0.5)
-#     best1=mid(bests)  # thing near mid of non-dominated egs
-#     egs=[eg for eg in bests  # closer to heaven than me
-#              if best1.gap(eg) < old.gap(best1)]
-#     envy=mid(egs).nearest(egs)  # mid of the most heavenly
-#
-# the de trick incremental domination within the archive
-# what about the moea/d trick?
-# the surroage trick: eval as few times as possible
-
-
-# -----
-# ## Main Loop
-
-egs=[eval(Eg()) for _ in range(SOME)]
-b4=None
-while LIVES > 0
-  stats=Stats(egs)
-  if BATCH
-    for a in len(egs):
-      egs[a]=mutate(egs[a], egs, stats)
-  else:
-     egs=[mutate(eg, egs, stats) for eg in egs]
-  # here  . reevaluate egs
-  LIVES -= 1
-  if b4:
-    if better(stats, b4): LIVES += 1
-  b4=Stats(egs)
-o
-#todo. needs lists of facts and guesses
