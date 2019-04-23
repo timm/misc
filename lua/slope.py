@@ -53,8 +53,8 @@ class Eg:
     Eg.id = self.id = Eg.id + 1
     self.xs, self.ys = xs, ys
 
-  def gap(self, other):
-     return euclidian(self.xs, other.xs)
+  def gap(self, other, stats):
+     return euclidian(self.xs, other.xs, stats)
 
   def dominate(self, a, stats):
     return t, f
@@ -98,33 +98,33 @@ def main():
 # ## Main Mutation Function
 
 
-def meanSlope(envy, egs):
-   deltas = [0 for _ in egs[0].ys]  # local slopes
-   for eg in egs:
-     step = eg.gap(envy)
-     out = [delta + (y1 - y2) / step / len(egs)
-              for y1, y2, delta in zip(envy.ys, eg.ys, deltas)]
-   return [slope / len(egs) for slope in slopes]
+def mutate(old, lst, stats):
+  def meanSlope(envy, lst):
+      deltas = [0 for _ in lst[0].ys]  # local slopes
+      for eg in lst:
+        step = eg.gap(envy)
+        out = [delta + (y1 - y2) / step / len(egs)
+                 for y1, y2, delta in zip(envy.ys, eg.ys, deltas)]
+      return [slope / len(lst) for slope in slopes]
 
+  def best(lst):
+      envy = lst[0]
+      for eg in lst[1:]:
+        if eg.dominate(envy):
+          envy = eg
+      return envy
 
-def best(egs):
-   envy = egs[0]
-   for eg in egs[1:]:
-     if eg.dominate(envy):
-       envy = eg
-   return envy
-
-
-def mutate(old, egs, stats):
-   want = lambda eg: not stats.same(old, eg) and dominate(eg, old)
+   want   = lambda eg: not stats.same(old, eg) and dominate(eg, old)
    ignore = lambda: r() > SOME / len(egs)
-   some = [eg for eg in egs if not ignore() and want(eg)]
-   near = some.sorted(key=lambda eg: old.gap(eg))[:NEAR]
-   envy = best(near)
-   slope = meanSlope(envy, near)
-   mutant.xs = [x + FF * (a - x) for x, a in zip(old.xs, envy.xs)]
-   dist = old.gap(mutant)  # how far to push
-   mutant.ys = [y + slope1 * dist for y, slope1 in zip(old.ys, slope)]
+   some   = [eg for eg in egs if not ignore() and want(eg)]
+   near   = some.sorted(key=lambda eg: old.gap(eg,stats))[:NEAR]
+   envy   = best(near)
+   slope  = meanSlope(envy,near)
+   mutant.xs = [x if r() > CR else x + FF * (a - x) 
+                for x, a in zip(old.xs, envy.xs)]
+   dist      = old.gap(mutant, stats)  # how far to push
+   mutant.ys = [y + slope1 * dist  
+                for y, slope1 in zip(old.ys, slope)]
    return mutant if mutant.dominate(old) and
                     not stats.same(old, mutant) else old
 
