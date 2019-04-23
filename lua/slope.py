@@ -16,8 +16,10 @@ Notes in the following:
 
 """
 
+
 # jc's repair heuristics?
 # -----
+# ## Constants
 BATCH = True     # if false, mutate archive as we go
 LIVES = 9        # like a cat
 COHEN = 0.5      # not other when it < standardDev*cohen
@@ -27,15 +29,10 @@ FF = 0.5         # mutate 150% toward envy
 CR = 1           # mutate all attributes towards the envy point
 KISS = True      # Keep It Simple
 
-# # Text
-#
-# asdasd asdas das as asddasasd
-# asdasd asdas das as asddasasd
-# asdasd asdas das as asddasasd
-# asdasd asdas das as asddasasd
-
 
 # -----
+# ## Misc Support Functions
+
 def interpolate(x,xy): 
   x1,y1 = xy[0]
   if x < x1: return y1
@@ -45,9 +42,39 @@ def interpolate(x,xy):
     x1,y1 = x2,y2
   return y2
 
+def cached(f):  # XXX to be added below
+  cache={}
+  def worker(a, b)
+    k = (a.id, b.id) if a.id <= b.id else (b.id, a.id)
+    if k in cache: return cache[k]
+    out = cache[k] = f(a, b)
+    return out
+  return worker
+
+def mid(lst):
+  out=Eg(xs=[0 for _ in lst[0].xs])
+  n=len(lst)
+  for a in lst:
+    out.xs=[b + x / n for b, x in zip(out.xs, a.xs)]
+    out.ys=[b + y / n for b, y in zip(out.xs, a.ys)]
+  return out
+
+# -----
+def elite(lst, most=0):
+   n=len(lst)
+   m=n * upper
+   for a in lst: a.dominates(lst)
+   return sorted(lst, key=dom)[most:]
+
 def clone(x): return x.__class__()
 
 seeBelow()= assert 0,"implemented by subclass"
+
+
+# -----
+# ## Stat
+
+# Track inforamtion about examples
 
 class Stat(object):
   missing="?"
@@ -61,6 +88,10 @@ class Stat(object):
     me,no = cls.__name__,r"Stat(s)?"
     if re.match(pat,me) and not re.match(no,me): return cls
     for sub in cls.__subclasses__():  return sub.ako(pat)
+
+# ### Sym
+
+# Track info on symbols
 
 class Sym(Stat):
    def __init__(self): self.w.=1; self.counts={},self.n = 0
@@ -84,6 +115,10 @@ class Sym(Stat):
                       (30, 43.66),  (60, 79.08)])
         return x2 <= critical
     return countsequal(self.counts, other.counts)
+
+# ### Num
+
+# Track info on numbers
 
 class Num(Stat):
   def __init__(self):
@@ -137,14 +172,10 @@ class Num(Stat):
 
 # -----
 
-def cached(f):  # XXX to be added below
-  cache={}
-  def worker(a, b)
-    k = (a.id, b.id) if a.id <= b.id else (b.id, a.id)
-    if k in cache: return cache[k]
-    out = cache[k] = f(a, b)
-    return out
-  return worker
+
+# ### Stats
+
+# Composites of Stat
 
 class Stats(Stat):
   def __init__(self, eg0, egs=[]):
@@ -185,6 +216,10 @@ class Stats(Stat):
 
 
 # -----
+# ## Eg
+
+# A thing that stores a list of x and y values.
+
 class Eg:
   id=0
   def __init__(self, xs=[], ys=[]):
@@ -208,30 +243,10 @@ class Eg:
         out, best=a, tmp
     return out
 
-# -----
-# -----
-def mid(lst):
-  out=Eg(xs=[0 for _ in lst[0].xs])
-  n=len(lst)
-  for a in lst:
-    out.xs=[b + x / n for b, x in zip(out.xs, a.xs)]
-    out.ys=[b + y / n for b, y in zip(out.xs, a.ys)]
-  return out
 
 # -----
-def elite(lst, most=0):
-   n=len(lst)
-   m=n * upper
-   for a in lst: a.dominates(lst)
-   return sorted(lst, key=dom)[most:]
+# ## Main Mutation Function
 
-# repair constraint violations
-# cost to eval
-# cost to check constraint violations
-# what is the essence of flash
-# what is the essence of dodge
-
-# -----
 def mutate(old, egs, stats):
    want   = lambda eg: not stats.same(old, eg) and dominate(eg, old)
    ignore = lambda: r() > SOME / len(egs)
@@ -265,7 +280,10 @@ def mutate(old, egs, stats):
 # what about the moea/d trick?
 # the surroage trick: eval as few times as possible
 
+
 # -----
+# ## Main Loop
+
 egs=[eval(Eg()) for _ in range(SOME)]
 b4=None
 while LIVES > 0
@@ -280,3 +298,5 @@ while LIVES > 0
   if b4:
     if better(stats, b4): LIVES += 1
   b4=Stats(egs)
+o
+#todo. needs lists of facts and guesses
