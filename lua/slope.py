@@ -106,17 +106,14 @@ def mutate(old, egs, stats):
                  for y1, y2, delta in zip(envy.ys, eg.ys, deltas)]
       return deltas
 
-  def best(lst, stats)
-    return reduce(lambda a,b: a if a.dominate(b,stats) else b,lst)
-
-   want   = lambda eg: not stats.same(old, eg) and dominate(eg, old)
    ignore = lambda: r() > SOME / len(egs)
+   want   = lambda eg: not stats.same(old, eg) and dominate(eg, old)
+   best   = lambda eg1,eg2: eg1 if eg1.dominate(eg2,stats) else eg2
 
-   some   = [eg for eg in egs if not ignore() and want(eg)]
-   some   = some.sorted(key=lambda eg: old.gap(eg,stats)
-   near   = some[:NEAR]
-   envy   = best(near, stats)
-   slope  = meanSlope(envy,near)
+   better = [eg for eg in egs if not ignore() and want(eg)]
+   better = better.sorted(key=lambda eg: old.gap(eg,stats))
+   envy   = reduce(best, better[:NEAR])
+   slope  = meanSlope(envy, near)
    mutant.xs = [x if r() > CR else x + FF * (a - x) 
                 for x, a in zip(old.xs, envy.xs)]
    dist      = old.gap(mutant, stats)  # how far to push
