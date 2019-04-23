@@ -83,7 +83,7 @@ def main():
         egs[a]=mutate(egs[a], egs, stats)
     else:
        egs=[mutate(eg, egs, stats) for eg in egs]
-    # here  . reevaluate egs
+    # here  ?? reevaluate egs
     LIVES -= 1
     if b4:
       if better(stats, b4): LIVES += 1
@@ -122,6 +122,11 @@ def mutate(old, egs, stats):
 #              if best1.gap(eg) < old.gap(best1)]
 #     envy=mid(egs).nearest(egs)  # mid of the most heavenly
 #
+
+# ------
+# ## Note
+
+# The rest is "just" details.
  
 # -----
 # ## Misc Support Functions
@@ -180,6 +185,43 @@ class Stat(object):
     me,no = cls.__name__,r"Stat(s)?"
     if re.match(pat,me) and not re.match(no,me): return cls
     for sub in cls.__subclasses__():  return sub.ako(pat)
+
+# ### Stats
+
+# Composites of Stat
+
+class Stats(Stat):
+  def __init__(self, eg0, egs=[]):
+    self.ys = [clone(y) for y in eg0.ys]
+    self.xs = [clone(y) for y in eg0.xs]
+    [self + eg for eg in egs]
+
+  def add(self,eg):
+    "visitor over composite: recurse on parts"
+    [stat + a for a, stat in zip(eg.xs, self.xs)]
+    [stat + a for a, stat in zip(eg.ys, self.ys)]
+
+  def same(self, eg1, eg2):
+    "visitor over composite: false if any part different"
+    for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
+      if not stat.same(a, b):
+        return False
+    return True
+
+  def gap(self, eg1, eg2):
+    "visitor over composite: sum gaps in parts"
+    sum = 0
+    for a, b, stat in zip(eg1.xs, eg2.xs, self.xs):
+      sum += stat.gap(a, b)
+    return (sum / len(eg1.xs)**0.5
+
+  def gaps(self)
+    "Caching trick to reduce #distance calcs"
+    return cahced(self.gap)
+
+  def sames(self, a,b): 
+    assert 0,"not defined for sets of stats"
+
 
 # ### Sym
 
@@ -261,44 +303,5 @@ class Num(Stat):
     if a < self.lo: self.lo = a
     if a > self.hi: self.hi = 1
 
-
-# -----
-
-
-# ### Stats
-
-# Composites of Stat
-
-class Stats(Stat):
-  def __init__(self, eg0, egs=[]):
-    self.ys = [clone(y) for y in eg0.ys]
-    self.xs = [clone(y) for y in eg0.xs]
-    [self + eg for eg in egs]
-
-  def add(self,eg):
-    "visitor over composite: recurse on parts"
-    [stat + a for a, stat in zip(eg.xs, self.xs)]
-    [stat + a for a, stat in zip(eg.ys, self.ys)]
-
-  def same(self, eg1, eg2):
-    "visitor over composite: false if any part different"
-    for a, b, stat in zip(eg1.ys, eg2.ys, self.ys):
-      if not stat.same(a, b):
-        return False
-    return True
-
-  def gap(self, eg1, eg2):
-    "visitor over composite: sum gaps in parts"
-    sum = 0
-    for a, b, stat in zip(eg1.xs, eg2.xs, self.xs):
-      sum += stat.gap(a, b)
-    return (sum / len(eg1.xs)**0.5
-
-  def gaps(self)
-    "Caching trick to reduce #distance calcs"
-    return cahced(self.gap)
-
-  def sames(self, a,b): 
-    assert 0,"not defined for sets of stats"
 
 
