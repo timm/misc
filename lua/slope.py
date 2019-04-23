@@ -233,7 +233,7 @@ def elite(lst, most=0):
 
 # -----
 def mutate(old, egs, stats):
-   want = lambda eg: not stats.same(old, eg) and dominate(eg, old)
+   want   = lambda eg: not stats.same(old, eg) and dominate(eg, old)
    ignore = lambda: r() > SOME / len(egs)
    egs    = [eg for eg in egs if not ignore() and want(eg)]
    egs    = egs.sorted(key=lambda eg: old.gap(eg))
