@@ -17,12 +17,12 @@ Notes in the following:
 """
 
 # jc's repair heuristics?
-#-----
+# -----
 BATCH = True     # if false, mutate archive as we go
 LIVES = 9        # like a cat
 COHEN = 0.5      # not other when it < standardDev*cohen
 SOME = 100       # size of pop to explore
-NEAR = SOME / 10 # size of local neighborhood in pop
+NEAR = SOME / 10  # size of local neighborhood in pop
 FF = 0.5         # mutate 150% toward envy
 CR = 1           # mutate all attributes towards the envy point
 KISS = True      # Keep It Simple
@@ -35,8 +35,9 @@ KISS = True      # Keep It Simple
 # asdasd asdas das as asddasasd
 
 
-#-----
+# -----
 def clone(x): return x.__class__()
+
 
 class Num:
   def __init__(self):
@@ -46,11 +47,11 @@ class Num:
   def other(self, a, b):
     return abs(a - b) > self.sd * COHEN
 
-  def norm(self,a):
-    return a if a is "?"else 
-           (a -  self.lo) / (self.hi - self.lo + 10**-32)
+  def norm(self, a):
+    return a if a is "?"else
+           (a - self.lo) / (self.hi - self.lo + 10**-32)
 
-  def gap(self,a,b):
+  def gap(self, a, b):
     if a is "?" and b is "?": return 1
     a = self.norm(a)
     b = self.norm(b)
@@ -68,15 +69,19 @@ class Num:
     if a > self.hi: self.hi = 1
     return self
 
+
 class Sym:
-   def __add__(self,a) : pass
-   def other(self, a,b): return a isnt b
-   def norm(self,a)    : return a 
-   def gap(self,a,b)   : 
-     if a is "?" or  b is "?" : return 1
+   def __add__(self, a): pass
+   def other(self, a, b): return a isnt b
+   def norm(self, a): return a
+
+   def gap(self, a, b):
+     if a is "?" or b is "?": return 1
      return 0 if a is b else 1
 
-#-----
+# -----
+
+
 class Stats:
   def __init__(self, eg0, egs):
     self.ys = [clone(y) for y in eg0.ys]
@@ -95,17 +100,17 @@ class Stats:
 
   def gap(self, eg1, eg2):
     sum = 0
-    for a, b, stat in zip(eg1.xs, eg2.xs, self.xs): 
-      sum += stat.gap(a,b)
+    for a, b, stat in zip(eg1.xs, eg2.xs, self.xs):
+      sum += stat.gap(a, b)
     return (sum / len(eg1.xs)**0.5
 
-  def gapfun(self): #XXX to be added below
+  def gapfun(self):  # XXX to be added below
     cache={}
-    def worker(eg1,eg2)
-      k1,k2 = eg1.id, eg2.id
-      k     = (k1,k2) if k1<k2 else (k2,k1)
+    def worker(eg1, eg2)
+      k1, k2=eg1.id, eg2.id
+      k=(k1, k2) if k1 < k2 else (k2, k1)
       if k in cache: return cache[k]
-      out = cache[k] = self.gap(eg1,eg2)
+      out=cache[k]=self.gap(eg1, eg2)
       return out
     return worker
 
@@ -116,57 +121,57 @@ class Stats:
 # is this de?
 
 
-#-----
+# -----
 class Eg:
-  id = 0
-  dists = {}
-  doms = {}
+  id=0
+  dists={}
+  doms={}
 
   def __init__(self, xs=[], ys=[]):
-    Item.id = self.id = Item.id + 1
-    self.xs, self.ys = xs, ys
+    Item.id=self.id=Item.id + 1
+    self.xs, self.ys=xs, ys
   def gap(self, other):
     if self.id > other.id:
-      key = (other.id, key.id)
+      key=(other.id, key.id)
     else:
-      key = (self.id, other.id) 
+      key=(self.id, other.id)
     if key not in Eg.dists:
-      return Eg.dists[key] = euclidian(self.xs, other.xs)
+      return Eg.dists[key]=euclidian(self.xs, other.xs)
     return Eg.dists[key]
-  def dominate(self, a,stats):
-    return t,f
-  def dominates(self, lst,stats):
-    i,all = self.id, Eg.doms
+  def dominate(self, a, stats):
+    return t, f
+  def dominates(self, lst, stats):
+    i, all=self.id, Eg.doms
     all[i]=0
     for a in lst
-     if self.dominate(a,stats):
+     if self.dominate(a, stats):
        all[i] += 1 / len(lst)
-  def dom(self): 
-     return Eg.items.get(self.id,0)
-  def nearest(self,lst)
-    out,best=lst[0],10**10
+  def dom(self):
+     return Eg.items.get(self.id, 0)
+  def nearest(self, lst)
+    out, best=lst[0], 10**10
     for a in lst:
-      tmp= self.gap(a)
+      tmp=self.gap(a)
       if tmp < best:
-        out,best = a, tmp
+        out, best=a, tmp
     return out
 
-#-----
-#-----
+# -----
+# -----
 def mid(lst):
-  out = Eg(xs= [0 for _ in lst[0].xs])
+  out=Eg(xs=[0 for _ in lst[0].xs])
   n=len(lst)
   for a in lst:
-    out.xs = [ b+x/n for b,x in zip(out.xs, a.xs) ]
-    out.ys = [ b+y/n for b,y in zip(out.xs, a.ys) ]
+    out.xs=[b + x / n for b, x in zip(out.xs, a.xs)]
+    out.ys=[b + y / n for b, y in zip(out.xs, a.ys)]
   return out
 
-#-----
+# -----
 def elite(lst, most=0):
-   n = len(lst)
-   m = n * upper
+   n=len(lst)
+   m=n * upper
    for a in lst: a.dominates(lst)
-   return sorted( lst, key=dom)[most:]
+   return sorted(lst, key=dom)[most:]
 
 # repair constraint violations
 # cost to eval
@@ -174,56 +179,56 @@ def elite(lst, most=0):
 # what is the essence of flash
 # what is the essence of dodge
 
-#-----
-def mutate(old, egs,stats):
-   Eg.dists= {} # clear any old memory
-   Eg.doms = {}
-   want    = lambda eg: stats.other(old,eg) and dominate(eg,old)
-   ignore  = lambda: r() > SOME/len(egs)
-   egs     = [eg for eg in egs if not ignore() and want(eg)]
-   egs     = egs.sorted(key = lambda eg: old.gap(eg))
-   egs     = egs[:NEAR]
+# -----
+def mutate(old, egs, stats):
+   Eg.dists={}  # clear any old memory
+   Eg.doms={}
+   want=lambda eg: stats.other(old, eg) and dominate(eg, old)
+   ignore=lambda: r() > SOME / len(egs)
+   egs=[eg for eg in egs if not ignore() and want(eg)]
+   egs=egs.sorted(key=lambda eg: old.gap(eg))
+   egs=egs[:NEAR]
    if KISS:
-     envy = old
+     envy=old
      for eg in egs:
-       if eg.dominate(envy): 
-         envy = eg # the thing that most dominates
+       if eg.dominate(envy):
+         envy=eg  # the thing that most dominates
    else:
-     bests = elite(egs,0.5)
-     best1 = mid(bests) # thing near mid of non-dominated egs
-     egs   = [eg for eg in bests # closer to heaven than me
-              if best1.gap(eg) < old.gap(best1) ]
-     envy  = mid(egs).nearest(egs)  # mid of the most heavenly
+     bests=elite(egs, 0.5)
+     best1=mid(bests)  # thing near mid of non-dominated egs
+     egs=[eg for eg in bests  # closer to heaven than me
+              if best1.gap(eg) < old.gap(best1)]
+     envy=mid(egs).nearest(egs)  # mid of the most heavenly
    # end if
-   mutant.xs = [x if r() > CR else x + FF*(a -  x) 
-                for x,a in zip(old.xs,envy.xs)]
-   dist = old.gap(envy) # how far to push
-   slopes = Eg(xs = zeros(egs[0])) # local slopes 
+   mutant.xs=[x if r() > CR else x + FF * (a - x)
+                for x, a in zip(old.xs, envy.xs)]
+   dist=old.gap(envy)  # how far to push
+   slopes=Eg(xs=zeros(egs[0]))  # local slopes
    for eg in egs:
-     step = eg.gap(envy)
-     slopes.ys = [ (o1-o2)/step/len(egs)
-                   for o1,o2 in zip(eg.ys,  envy.ys)]
-   mutant.ys = [y + slope*dist  # push down slope 
-               for y,slope in zip(old.ys, slopes.ys)]
-   return mutant if mutant.dominate(old) and 
-                    stats.other(old,mutant) else old
+     step=eg.gap(envy)
+     slopes.ys=[(o1 - o2) / step / len(egs)
+                   for o1, o2 in zip(eg.ys, envy.ys)]
+   mutant.ys=[y + slope * dist  # push down slope
+               for y, slope in zip(old.ys, slopes.ys)]
+   return mutant if mutant.dominate(old) and
+                    stats.other(old, mutant) else old
 
 # the de trick incremental domination within the archive
 # what about the moea/d trick?
 # the surroage trick: eval as few times as possible
 
-#-----
-egs = [eval(Eg()) for _ in range(SOME)]
-b4  = None
+# -----
+egs=[eval(Eg()) for _ in range(SOME)]
+b4=None
 while LIVES > 0
-  stats = Stats(egs)
-  if BATCH 
+  stats=Stats(egs)
+  if BATCH
     for a in len(egs):
-      egs[a] =  mutate(egs[a], egs, stats) 
+      egs[a]=mutate(egs[a], egs, stats)
   else:
-     egs = [mutate(eg, egs, stats) for eg in egs]
+     egs=[mutate(eg, egs, stats) for eg in egs]
   # here... reevaluate egs
   LIVES -= 1
   if b4:
-    if better(stats,b4): LIVES += 1
-  b4 = Stats(egs)
+    if better(stats, b4): LIVES += 1
+  b4=Stats(egs)
