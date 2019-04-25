@@ -53,6 +53,8 @@ class Eg:
     Eg.id = self.id = Eg.id + 1
     self.xs, self.ys = xs, ys
 
+  def __hash__(self): return self.id 
+
   def gap(self, other, stats):
      return euclidian(self.xs, other.xs,stats)
 
@@ -213,15 +215,55 @@ class Stat(object):
 
 # Composites of Stat
 
+import maths
+
+def atLeast4(n) : return max(4, round(math.log(n,2)))
+
+class Pole:
+  def __init__(i,n,dist,eg1,eg2);
+    self.c = dist(eg1,eg2)
+    self.north=eg1
+    self.south=eg2
+    self.stat = Num()
+    self.n = 2**n
+  def __add__(i,eg):
+    a = self.dist(self.north,eg)
+    b = self.dist(self.south,eg)
+    c = self.c
+    x = (a**2 + c**2 - b**2) / (2*c)
+    self.stat + x
+    return x
+    
+
+class Poles:
+  def __init__(i,stats=stats,dist=dist,enough=atLeast4):
+    self.enough = lambda : enough(stats.n)
+    self.poles  = {}
+    self.dist   = lambda eg1,eg2 : eg1.gap(eg2,stats)
+    self.all    = lambda : stats.all
+    self.n      = lambda : stats.n
+  def __add__(i, eg1,n):
+    if len(self.poles) < self.enough():
+      self.poles += [Pole(len(self.poles), dist, eg1,eg2)]
+    for left,right,c,stat in self.poles
+      a = self.dist(eg1,left)
+      b = self.dist(eg2,left)
+      x = 
+      
+      
 
 class Stats(Stat):
   def __init__(self, eg0, egs=[]):
+    i.n = 0
+    i.all=[]
     self.ys = [clone(y) for y in eg0.ys]
     self.xs = [clone(y) for y in eg0.xs]
     [self + eg for eg in egs]
 
   def add(self, eg):
     "visitor over composite: recurse on parts"
+    i.n += 1
+    i.all += [eg]
     [stat + a for a, stat in zip(eg.xs, self.xs)]
     [stat + a for a, stat in zip(eg.ys, self.ys)]
 
