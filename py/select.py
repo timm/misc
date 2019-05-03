@@ -1,5 +1,35 @@
 from random import random as r
 
+class symbols:
+    def __init__(i): i.d={}; i.n=0
+    def put(i,x,n=1): d[x] = d.get(x,0) + n
+    def get(i):
+      c=r()*i.n
+      for k,v in d.items():
+         c -= v 
+         if c <= 0:
+           return k
+
+class numbers:
+    def __init__(i,lo,hi,n): 
+       a= lo
+       i.step=(hi - lo)/n
+       i.counts=symbols()
+       while a < hi:
+         synbols.put(a,0)
+         a += step
+
+       fori.d={}; i.n=0
+    def put(i,x,n=1): d[x] = d.get(x,0) + n
+    def get(i):
+      c=r()*i.n
+      for k,v in d.items():
+         c -= v 
+         if c <= 0:
+           return k
+
+
+
 def plus(x,d):
     d[x] = d.get(x,0) + 1
 
