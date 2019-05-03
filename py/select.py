@@ -1,5 +1,26 @@
 from random import random as r
 
+ 
+class bin:
+    def put(i): i.n += 1
+    def splitp(i): return False
+    def split(i): return [i]
+
+class symbin(bin):
+    def __init__(i,x): i.n,i.x = 0,x,{}
+    def __repr__(i): return "%s %s" %(i.n, i.n)
+    def minep(i,x) : return x==i.x
+    def get(i): return i.x
+
+
+class numbin(bin):
+    def __init__(i,lo,hi): i.n,i.lo,i.hi = 0,i.lo,i.hi
+    def __repr__(i): return "[%s:%s) %s" %(i.lo, i.hi, i.n)
+    def minep(i,x) : return i.lo <= x < i.hi
+    def splitp(i,bins,n): return i.n > n and r() < 1/bins
+
+    def get(i): return i.lo + r()*(i.hi - i.lo)
+
 class symbols:
     def __init__(i): i.d={}; i.n=0
     def put(i,x,n=1): d[x] = d.get(x,0) + n
