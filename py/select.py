@@ -1,5 +1,12 @@
 from random import random as r
 
+# split full bins
+# if less than first, split downwards by 2 bins. one of size w, one down to newlow
+# if more than last, split updates by 2 bins. one of size w, one up to newhigh
+# for nums, bin chop
+# for syms, exact. 
+# two finds of bins
+# need to call this tabu
 class bins :
     def __init__(i,lo,hi,b=16): 
       i.n, i.d, i.lo, i.hi, i.w = 0, {}, lo, hi, (i.hi - i.lo)/b
@@ -24,3 +31,5 @@ n=100
 [plus(one(d),e) for _ in range(n)]
 for k,v in sorted(e.items()):
     print(k,v/n)
+
+
