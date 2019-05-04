@@ -131,9 +131,10 @@ Functions are upper case letters.
 - x= decision
 - y= objective 
 
+Data structures:
+
 - xs= set of decisions
 - ys = sef of objectives ys = f(xs)
-
 - eg = example = a pair of xs,ys
 - egs = a set of examples
 - fact = an example where ys = F(xs)
