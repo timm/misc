@@ -108,6 +108,19 @@ we found that our SE data was inherently different to other data. It turns
 
 More generally, nfl. nnumber of better solutions 
 
+## Related Work
+
+part of our ongoing work to unify se and AI and data mining and optimization. iprior work offered
+high-level principles. here, we move to details.
+
+cloud big data, orthogonal to this work
+
+deep learning, again orrthgonal but we would offer 3 caustions on DL. everything we;ve looked at w cold do
+mch better much simpler. may not hold for all future appcaitions but aht is our experience so far.
+and others have had the same experience. secondly, see above re commissioning. time to assess ai not just on how well it does but how
+east it is easy to explore options to the current methods. dl hard on taht (very bad train times). thirdly, if
+dl is the answer, what was the question. here, we hae a very clear gal: support agent wondering around the
+world learning from old, deciding where to look next, revising old opionions. which part of that is DL ? jsut te first third? we just dont know
 
 ## Notation
 Functions are upper case letters.
@@ -128,11 +141,14 @@ Functions are upper case letters.
 - R = repair function
 - s= standard deviation
 - T= tabu
+- V = validation function. inputs many examples, outputs (e.g. hypervolume GD, IGD, etc)
+- w= some wieght. a numeric preferenc value
 - x= decision
 - y= objective 
 
 Data structures:
 
+- ws = set of weghts
 - xs= set of decisions
 - ys = sef of objectives ys = f(xs)
 - eg = example = a pair of xs,ys
@@ -141,5 +157,5 @@ Data structures:
 - guess= an example where ys = G(xs)
 
 currently unused:
- UVWZ
+ HUZ
 
