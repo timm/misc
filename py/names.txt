@@ -1,0 +1,24 @@
+a,b,c= throw away local vars
+d = distribution. x =d().e.g. normal, trianular, et
+e= entropy
+f= a function of the form ys = f(xs)
+g= a guesses function (surrogates). ys= g(xs)
+i,j= self, another instance of the same class
+k= short for "ok". checks if 
+m = mu
+n = counts
+l = not used (too easy to confuse with i)
+o= genetic container clss
+s= standard deviation
+x= decision
+y= objective 
+
+xs= set of decisions
+ys = sef of objectives ys = f(xs)
+
+eg = example = pairs of xs,ys
+egs = a set of examples
+fact = an example where ys = f(xs)
+guess= an example where ys = g(xs)
+
+
