@@ -1,34 +1,33 @@
-# Understanding Design Patterns and Heuristics for AI Software
+# SE for AI: Design Patterns and Heuristics of AI Software
 
 ## Introduction
 
-At first glance, it might
-seem difficult
-to build
-an agent that wonders the world, generalizing from the
-past, 
-learning what it needs to look at next,  while always reviewing and revising
-past ideas.
-But this is not the case,
+Consider the problem of 
+_making an agent that wonders the world, generalizing from the past, learning what it needs to look at next,  while always reviewing and revising past ideas_.
+In the general case, this is a hard problem.
+But in more specific cases,
+where
+we restrict the problem to some  specific problem in software engineering (e.g. advise for software project
+managers) then we claim that AI software becomes easily constructed, maintained, and extended.
 
-As shown in this paper, inside such AI software,
-are a  small number of repeated design patterns and heuristics.
-These heuristics and patterns
-succinctly summarize numerous prior systems. Also, they
-can quickly find
-important design choices that were not explored in the past.
-
-The end of this paper includes a long list of 
-SE design choices not yet tested within AI software.
-By our estimates,
-that list could guide another decade (or more) of research into SE for AI.
-To demonstrate the value of this list, we 
-use the design patterns in this paper
-to 
-revise and improve prior results about:
+To support that claim, this paper reflects on a  decade of research
+into SE for AI.  After refactoring that work, we find that inside our
+AI software, are a  small number of design patterns and heuristics.
+These patterns can be used to train students of software engineering;
+to define general purpose AI toolkits; and
+to improve past results.  For example, in
+this paper, we use these design patterns to review, revise and improve
+prior results about:
 
 - Management choices for agile or waterfall software systems;
 - Configuraion options for complex software.
+
+The above application areas are just a small sample of   how SE design
+patterns and heuristics can improve AI software.  The end of this paper
+we reflect on our design patterns and heuristics to offer a long list
+of _paths not taken_; i.e.  SE design choices not yet tested within
+AI software.  By our estimates, that list could guide another decade
+(or more) of research into SE for AI.
 
 The rest of this paper is strucutred as follows.
 
@@ -40,12 +39,11 @@ The rest of this paper is strucutred as follows.
 
 
 Before beginning, we note two restrictions to the inquiry of this aper,
-Firstly, here we report on  software agents exploring digitial data. We do not dare
-(yet) to apply this work to real world robots and drones. Such physically embodied devices
-must deal with hundreds
-of sensing and hardware issues that we do not (yet) understand (except
-to say that we understand  that those issues are the focus of much current reseach).
-
+Firstly, here we report on  software agents exploring digitial data. We do
+not dare (yet) to apply this work to real world robots and drones. Such
+physically embodied devices must deal with hundreds of sensing and
+hardware issues that we do not (yet) understand (except to say that we
+understand  that those issues are the focus of much current reseach).
 
 Seconldy, we do not discuss the _data engineering_ required before the knowledge engineering
 can begin.  In our experience, it is a time consuming task to situate AI into a real world context
@@ -57,7 +55,7 @@ many commerical organizations already have such skilled data enginners (who mght
 database adminstrators, or cloud service engineers, or some such). So in this paper, we
 do not focus on something that is done very well in industry (data engineering).
 Rather, we focus on something there industrial practitioners and resaerchers might need
-some more support (design principles for AI algorithms).
+some more support (SE design principles for AI algorithms).
 
 
 ## Motivatin
@@ -71,13 +69,15 @@ our big data dashboards, or on our Facebook or Google feeds); Also,
 it can also control What we can do or not do (as determined by polices
 within software that control what functions we can access); Further,
 it very useful to help us explore the world looking for new insights and
-opportunities (using data mining or optimization software).  Just to say
+opportunities (using data mining or optimization software).  
+
+Just to say
 the obvious, AI software is still software that needs to be maintained
-and extended. Another property of most software systems is that they have
-to be integrated with other software systems ("no man is an island").
+and extended. Software systems usually have to
+be integrated with other software systems.
 Software engineers are always  needed when software must be patched,
 extended, customized, integrated with other software tools,  deployed,
-then maintained.  
+and then maintained.  
 
 The _less_  an  engineers understand what they
 are patching, extending, customizing, intergrateding, deploying and
@@ -109,6 +109,10 @@ we found that our SE data was inherently different to other data. It turns
 More generally, nfl. nnumber of better solutions 
 
 ## Related Work
+
+sbse 
+
+data mining
 
 part of our ongoing work to unify se and AI and data mining and optimization. iprior work offered
 high-level principles. here, we move to details.
