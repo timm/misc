@@ -15,7 +15,6 @@ class Nums :
       i.bins += [(lo, lo + skip, 0)]
       lo     += skip
   def ascend(i,ceiling):
-    say("+")
     mid     = i.hi + (ceiling - i.hi)  /2
     n       = i.bins[-1][-1]
     n1      = n // 2
@@ -26,17 +25,15 @@ class Nums :
     mid     = i.lo - (i.lo - floor)/2
     n       = i.bins[0][-1]
     n1      = n // 2
-    n2      = n - n1
-    i.bins  = [(floor,mid, n1), (mid,i.lo,n2)] + i.bins
+    i.bins  = [(floor,mid, n1), (mid,i.lo,n-n1)] + i.bins
     i.lo    = floor
   def split(i,pos):
     b4      = i.bins[:pos]
     after   = i.bins[pos+1:]
     lo,hi,n = i.bins[pos]
     n1      = n//2
-    n2      = n - n1
     step    = lo + (hi-lo)/2
-    return  b4 + [(lo,step,n1), (step,hi,n2)] + after
+    return  b4 + [(lo,step,n1), (step,hi,n - n1)] + after
   def put(i,a, n=1):
     def bsearch(a):
       lo, hi = 0, len(i.bins) - 1
