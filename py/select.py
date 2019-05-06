@@ -8,66 +8,44 @@ say=sys.stdout.write
 random.seed(1)
 1,4      2 3 5 2 
 5,10
+# do sorted true if the first place
 class Nums :
   class bucket:
-    def __init__(i,lo,hi,b4=None,after=None,n=0): 
-      i.lo,i.hi,i.n = lo,hi,n
-      i.b4, i.after = b4,after
-    def relevant(i,a): 
-      return i.lo <= a < i.hi 
-    def get(i): 
-      return  lo + (hi - lo)*r()
-    def put(i,n):
-      i.n += 1
-    def append(i,j):
-      if i: i.after = j
-      if j: j.b4    = i
-    def ascent(i,up):
-      mid = i.hi + math.log(up - i.hi)
-      n1  = i.n // 2
-      one = self.__class__(i.hi, mid, n1)
-      two = self.__class_(mid, up, i.n - n1)
-   def descend(i,down):
-      mid = i.lo - math.log(i.lo - down)
-      n1  = i.n // 2
-      return [Nums.bucket(down, mid, n1)
-             ,Nums.bucket(mid, i.lo, i.n - n1)]
-   def split(i):
+    def __init__(i,lo,hi,n=0): i.lo,i.hi,i.n = lo,hi,n
+    def get(i)               : return  lo + (hi - lo)*r()
+    def put(i,n=1):          : i.n += n
+    def split(i):
       mid = (i.lo + i.hi)/2
       n1  = i.n // 2
-      one = Nums.bucket(i.lo, mid,  n1)
-      two = Nums.bucket(mid,  i.hi, i.n - n1)
-      one.append(two)
-      if i.b4   : i.b4.append(one)
-      if i.after: two.append(i.after)
+      return [Nums.bucket(i.lo, mid,  n1)
+             ,Nums.bucket(mid,  i.hi, i.n - n1)]
+        
  
-  def __init__(i,lo,hi,b=16):
-    i.lo, i.hi, i.n, i.b, i.bins = lo, hi, 0, b, []
-    skip = (hi - lo)/b
-    while lo  < i.hi: 
-      i.bins += [(lo, lo + skip, 0)]
-      lo     += skip
-  def ascend(i,ceiling):
-    mid     = i.hi + (ceiling - i.hi)  /2
-    n       = i.bins[-1][-1]
-    n1      = n // 2
-    n2      = n - n1
-    i.bins  = i.bins + [(i.hi, mid, n1), (mid,ceiling,n2)]
-    i.hi    = ceiling
-  def descend(i,floor):
-    mid     = i.lo - (i.lo - floor)/2
-    n       = i.bins[0][-1]
-    n1      = n // 2
-    i.bins  = [(floor,mid, n1), (mid,i.lo,n-n1)] + i.bins
-    i.lo    = floor
-  def split(i,pos):
-    b4      = i.bins[:pos]
-    after   = i.bins[pos+1:]
-    lo,hi,n = i.bins[pos]
-    n1      = n//2
-    step    = lo + (hi-lo)/2
-    return  b4 + [(lo,step,n1), (step,hi,n - n1)] + after
-  def put(i,a, n=1):
+  def __init__(i,lo=0,hi=1,b=16):
+    i.lo, i.hi, i.n, i.bins = lo, hi,  0, []
+    inc = (i.hi - i.lo)/b
+    while lo  < hi: 
+      i.bins += [Num.buckets(lo, lo + inc)]
+      lo     += inc
+  def ascend(i,up):
+      a = i.lo + math.log(up - i.lo)
+      return [Nums.bucket(i.lo,a), Nums.bucket(mid,up,1)]
+   def descend(i,down):
+      a = i.hi - math.log(i.hi - down)
+      return [Nums.bucket(down,a,1),Nums.bucket(a,i.hi)]
+   def sort(i,lst):
+     i.bins = sorted(lst, key=lambda b:b.n, reverse=True)
+   def put(i,a, n=1):
+     if a < i.lo: i.lo = a; i.sort(i.descend(a)+i.bins)
+     if a > i.hi: i.hi = a; i.sort(i.bins + i.ascend(a))
+     for c,b in enumerate(i.bins):
+       if b.lo <= a < b.hi: break
+     i.n += na XXXXX
+     i.bins[c].put(n)
+     if i.bins[c].n > 1.5*i.n/len(i.bins):
+        i.bins = i.bins[:c-1] + i.bins[c].split() + i.bins[c:]
+       
+
     def bsearch(a):
       lo, hi = 0, len(i.bins) - 1
       while lo <= hi:
