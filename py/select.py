@@ -6,8 +6,41 @@ r=random.random
 
 say=sys.stdout.write
 random.seed(1)
-
+1,4      2 3 5 2 
+5,10
 class Nums :
+  class bucket:
+    def __init__(i,lo,hi,b4=None,after=None,n=0): 
+      i.lo,i.hi,i.n = lo,hi,n
+      i.b4, i.after = b4,after
+    def relevant(i,a): 
+      return i.lo <= a < i.hi 
+    def get(i): 
+      return  lo + (hi - lo)*r()
+    def put(i,n):
+      i.n += 1
+    def append(i,j):
+      if i: i.after = j
+      if j: j.b4    = i
+    def ascent(i,up):
+      mid = i.hi + math.log(up - i.hi)
+      n1  = i.n // 2
+      one = self.__class__(i.hi, mid, n1)
+      two = self.__class_(mid, up, i.n - n1)
+   def descend(i,down):
+      mid = i.lo - math.log(i.lo - down)
+      n1  = i.n // 2
+      return [Nums.bucket(down, mid, n1)
+             ,Nums.bucket(mid, i.lo, i.n - n1)]
+   def split(i):
+      mid = (i.lo + i.hi)/2
+      n1  = i.n // 2
+      one = Nums.bucket(i.lo, mid,  n1)
+      two = Nums.bucket(mid,  i.hi, i.n - n1)
+      one.append(two)
+      if i.b4   : i.b4.append(one)
+      if i.after: two.append(i.after)
+ 
   def __init__(i,lo,hi,b=16):
     i.lo, i.hi, i.n, i.b, i.bins = lo, hi, 0, b, []
     skip = (hi - lo)/b
