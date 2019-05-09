@@ -126,7 +126,21 @@ east it is easy to explore options to the current methods. dl hard on taht (very
 dl is the answer, what was the question. here, we hae a very clear gal: support agent wondering around the
 world learning from old, deciding where to look next, revising old opionions. which part of that is DL ? jsut te first third? we just dont know
 
+## "But this isn't reallt the SE for AI"
+
+reply1: ai is what doesnt wor. ntelligence not defined
+
+reply2: orthogal to commerial inteest in big data, deep learning. for advocates
+of those approaches we ask "if deep learning is the answer what was the question". here
+we offer a rnage of services and when certain other areas can address hese services then we are in 
+a combabtive situation. unti then there is nothignt o discuss since our ntentions
+are so different.
+
+reply3: many other exciting books offering core principles for AI. our personnely
+fav on sorvig's paradigms of AI.
+
 ## Notation
+
 Functions are upper case letters.
 
 - a,b,c = throw away local vars
@@ -136,14 +150,15 @@ Functions are upper case letters.
 - G= a guesses function (surrogates). ys= G(xs)
 - i,j= self, another instance of the same class
 - K= short for "ok". checks if 
-- L = the Like function. tests of we prefer eg1 over eg2
-- m = mu
+- L = the Like function. tests of we prefer eg1 over eg2. used for domination
+- M = mutant
+- mu = mean
 - n = counts
 - o= genetic container class
 - p = distribution. can be a function (eg. normal) or a sample
 - Q = aquisition function
 - R = repair function
-- s= standard deviation
+- sd= standard deviation
 - T= tabu
 - V = validation function. inputs many examples, outputs (e.g. hypervolume GD, IGD, etc)
 - w= some wieght. a numeric preferenc value
@@ -162,4 +177,20 @@ Data structures:
 
 currently unused:
  HUZ
+
+## JC's tricks
+
+Certain sampling. for all memberes of the fronet, build the local models, mutate only tose with least uncrtainty.
+
+Linear time domination
+	
+- Sort examples randomly
+- n = len(examples)
+- a=0
+- b4=egs[0]
+- while a<n-1:
+     - a+=1
+     - now=  egs[a]
+     - if L(b4,now): b4.score += 1 # shohuld this be +1 now's score?
+     - if L(now,b4): b4=now; b4.score  += a
 

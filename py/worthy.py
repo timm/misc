@@ -69,7 +69,7 @@ def worthy():
   more =  1
   less = -1
 
-    def weight()             : return any([more,less])
+  def weight()             : return any([more,less])
   def num(lo=0, hi=1)      : return lo+r()*(hi - lo)
   def sym(lst=[True,False]): return any(lst)
 
