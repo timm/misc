@@ -9,6 +9,9 @@ random.seed(1)
 1,4      2 3 5 2 
 5,10
 # do sorted true if the first place
+
+
+
 class Nums :
   class bucket:
     def __init__(i,lo,hi,n=0): i.lo,i.hi,i.n = lo,hi,n

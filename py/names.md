@@ -181,16 +181,31 @@ currently unused:
 ## JC's tricks
 
 Certain sampling. for all memberes of the fronet, build the local models, mutate only tose with least uncrtainty.
+-- ### shuffle(t: table): t
+
+-- Elements in `t` are rearranged randomly.
+function lib.shuffle( t )
+  for i= 1,#t do
+    local j = i + math.floor((#t - i) * lib.rand() + 0.5)
+    t[i],t[j] = t[j], t[i] end
+  return t 
+en
 
 Linear time domination
+
+anyAbove(lst,here):
+   there = here + int((len(lst) - here) * r())
+   lst[here], lst[there] = lst[there],lst[here]
+   return lst[here]
 	
-- Sort examples randomly
-- n = len(examples)
-- a=0
-- b4=egs[0]
-- while a<n-1:
-     - a+=1
-     - now=  egs[a]
-     - if L(b4,now): b4.score += 1 # shohuld this be +1 now's score?
-     - if L(now,b4): b4=now; b4.score  += a
+- [eg.score=1 for eg in examples], 
+- for a = 1 to 10
+   - egs = [eg for eg in egs if eg.score >= a]
+   - best = None
+   - for b = 0 to len(egs):
+       now = anyAbove(egs,b)
+       best = best or now
+       if L(now,best): best,now= now,best
+       best.score += (1+ now.score)
+- return egs
 
