@@ -3,6 +3,10 @@ r=random.random
 #random.seed(1)  <== important! somewhere, you must maintain seed control
 
 # add a support set. and an untrain
+# add a simulated annealler
+# add a rule learner (greedy) 
+# remember to add things at strength 0 if we like them (otherwise
+#      we'll never see that thing)
 # add ffts and doing within/without at each level
 class bins:
   """Train a distributions with samples. Draw from 'within'
