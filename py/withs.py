@@ -2,6 +2,8 @@ import random
 r=random.random
 #random.seed(1)  <== important! somewhere, you must maintain seed control
 
+# add a support set. and an untrain
+# add ffts and doing within/without at each level
 class bins:
   """Train a distributions with samples. Draw from 'within'
   that to recreate it. Draw from 'without' to avoid it."""
