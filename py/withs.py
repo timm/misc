@@ -30,14 +30,24 @@ class nums:
 
 class around:
   """Using 'nums', whenever you train on z, spread 
-  that effect around the nearby regions."""
+  some of that effect around the nearby region."""
   def __init__(i, w      = 0.12,
                   nearby = [-1.5, -0.5, 0, 0.5, 1.5],
                   fxs    = [1,     2,   6, 2,   1]):
     i.nums = nums(w)
-    i.todo = [(s, fx/sum(fxs)) for s,fx in zip(nearby,fxs)]
+    i.todo = [(n, fx/sum(fxs)) for n,fx in zip(nearby,fxs)]
   def within(i)       : return i.nums.within()
   def without(i)      : return i.nums.without()
   def train(i, z, n=1):
     for nearby, effect in i.todo:
       i.nums.train( z + i.nums.w*nearby, n*effect )
+
+class norm(object):
+  def __init__(i, lo=10**32, hi=-10**32): i.lo,i.hi = lo,hi
+  def __call__(i,z):
+    i.lo, i.hi = min(z,i.lo), max(z,i.hi)
+    return (z - i.lo) / (i.hi - i.lo + 10**-32)
+
+norm1=norm()
+for _ in range(100):
+  print(norm1(10*r()))
