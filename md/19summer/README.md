@@ -27,12 +27,20 @@ Human-in-the-loop AI for SE. Generalize a "frugal" representation to N goals. Op
 
 From  [FSE'18](https://arxiv.org/pdf/1803.05067.pdf)
 
+Just look at all the stuff we want to do with software analytics:
+
+![](https://i.imgur.com/O5AVwGF.png?width=489)
+
+For all this to work, _people_ are going to have to _talk_ about what they need,
+what they can see in the data, and how to apply what they see to what they need.
+So our models must be **comprehensible**.
+
 Why Demand Comprehensibility? This work assumes that better data mining
 algorithms are better at explaining their models to humans. But is that
 always the case?
 
 The obvious counter-argument is that if no human ever needs to understand
-our audited model, then it does not need to be com- prehensible. For
+our audited model, then it does not need to be comprehensible. For
 example, a neural net could control the carburetor of an internal
 combustion engine since that carburetor will never dispute the model or
 ask for clarification of any of its reasoning.
@@ -50,7 +58,7 @@ insights from software artifacts that help practitioners accomplish
 tasks related to software development, systems, and users.
 -  Other
 researchers [64] argue that for software vendors, managers, developers
-and users, such com- prehensible insights are the core deliverable of
+and users, such comprehensible insights are the core deliverable of
 software analytics. 
 - Sawyer et al. comments that actionable insight is
 the key driver for businesses to invest in data analytics initiatives
@@ -67,4 +75,4 @@ that might mitigate that problem. For example:
 - In secondary learning, the examples given to a neural network are used to train a rule-based learner and those learners could be said to “explain” the neural net [13].
 - In contrast set learning for instance-based reasoning, data is clustered and users are shown the difference between a few exemplars selected from each cluster [35].
 
-Such explanation facilities are post-processors to the original learn- ing method. An alternative simpler approach would be to use learn- ers that generate comprehensible models in the first place.
+Such explanation facilities are post-processors to the original learning method. An alternative simpler approach would be to use learners that generate comprehensible models in the first place.
