@@ -70,8 +70,7 @@ Accordingly, much research focuses on the generation of simple
 models, or make blackbox models more explainable, so that human engineers
 can understand and appropriately trust the decisions made by software
 analytics models [1, 19].
-
-If a model is not comprehensible, there are some explanation algorithms
+It turns out that if a model is not comprehensible, there are several explanation algorithms
 that might mitigate that problem. For example:
 
 - In secondary learning, the examples given to a neural network are used to train a rule-based learner and those learners could be said to “explain” the neural net [13].
