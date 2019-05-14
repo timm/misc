@@ -1,6 +1,6 @@
 # Summer Resaerch, 2019
 
-<img align=right width=400 src="https://acmesabertooth.com/images/under.png">
+<img align=right width=200 src="https://acmesabertooth.com/images/under.png">
 
 
 _(Incomplete quick notes. **Not** complete. Please back in, later.)_
