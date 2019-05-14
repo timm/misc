@@ -21,6 +21,7 @@ Human-in-the-loop AI for SE. Generalize a "frugal" representation to N goals. Op
 - Theory: 
     - 2008: [Why Heuristics work](https://pure.mpg.de/rest/items/item_2100099/component/file_2100098/content)
     - 2003: [Naive yet Englightenned](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.412.6594&rep=rep1&type=pdf)
+- Other work on "[comprehensability](http://papers.nips.cc/paper/7062-a-unified-approach-to-interpreting-model-predictions)"
 
 
 ## The  Manifesto
