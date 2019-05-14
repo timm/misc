@@ -76,3 +76,5 @@ that might mitigate that problem. For example:
 - In contrast set learning for instance-based reasoning, data is clustered and users are shown the difference between a few exemplars selected from each cluster [35].
 
 Such explanation facilities are post-processors to the original learning method. An alternative simpler approach would be to use learners that generate comprehensible models in the first place.
+
+Hence, this work.
