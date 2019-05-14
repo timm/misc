@@ -1,8 +1,9 @@
 # Summer Resaerch, 2019
 
-Notes.
+<img align=right width=400 src="https://acmesabertooth.com/images/under.png">
 
-Watch this space.
+
+_(Incomplete quick notes. **Not** complete. Please back in, later.)_
 
 Goal; human-in-the-loop AI for SE. Generalize a "frugal" representation to N goals. Optimize that "frugal" reasoner.
 
