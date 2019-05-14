@@ -1,6 +1,7 @@
+<img align=right width=200 src="https://acmesabertooth.com/images/under.png">
+
 _(Incomplete quick notes. **Not** complete. Please ckeck back in, later.)_
 
-<img align=right width=200 src="https://acmesabertooth.com/images/under.png">
 
 # Summer Research, 2019
 
