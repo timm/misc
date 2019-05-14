@@ -1,11 +1,12 @@
-_(Incomplete quick notes. **Not** complete. Please back in, later.)_
+_(Incomplete quick notes. **Not** complete. Please ckeck back in, later.)_
 
 <img align=right width=200 src="https://acmesabertooth.com/images/under.png">
 
 # Summer Research, 2019
 
 
-**If Deep Learning is the Answer, What was the Question?**
+"**If Deep Learning is the answer, what was the question?**"     
+-- [Tim Menzies](http://menzies.us)
 
 ## Goal
 
