@@ -1,10 +1,8 @@
 <img align=right width=200 src="https://acmesabertooth.com/images/under.png">
 
-_(Incomplete quick notes. **Not** complete. Please ckeck back in, later.)_
-
+_(Incomplete quick notes. **Not** complete. Please check back in, later.)_
 
 # Summer Research, 2019
-
 
 "**If Deep Learning is the answer, what was the question?**"     
 -- [Tim Menzies](http://menzies.us)
@@ -42,18 +40,20 @@ algorithms are better at explaining their models to humans. But is that
 always the case?
 
 The obvious counter-argument is that if no human ever needs to understand
-our audited model, then it does not need to be comprehensible. For
+our audited model, then it does not need to be comprehensible:
+
+- For
 example, a neural net could control the carburetor of an internal
 combustion engine since that carburetor will never dispute the model or
 ask for clarification of any of its reasoning.
-
-On the other hand, if a model is to be used to persuade software engineers
+- On the other hand, if a model is to be used to persuade software engineers
 to change what they are doing, it needs to be comprehensible so humans
 can debate the merits of its conclusions.
 
-- Several researchers demand that
+Several researchers demand that
 software analytics models needs to be expressed in a simple way that is
 easy for software practitioners to interpret [16, 39, 45]. 
+
 - According
 to Kim et al. [32], software analytics aim to obtain actionable
 insights from software artifacts that help practitioners accomplish
