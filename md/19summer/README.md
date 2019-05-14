@@ -1,14 +1,19 @@
-# Summer Resaerch, 2019
+_(Incomplete quick notes. **Not** complete. Please back in, later.)_
 
 <img align=right width=200 src="https://acmesabertooth.com/images/under.png">
 
-## If Deep Learning is the Answer, What was the Question?
+# Summer Research, 2019
 
-_(Incomplete quick notes. **Not** complete. Please back in, later.)_
 
-Goal; human-in-the-loop AI for SE. Generalize a "frugal" representation to N goals. Optimize that "frugal" reasoner.
+**If Deep Learning is the Answer, What was the Question?**
 
-Background reading (currently this is an incomplete list):
+## Goal
+
+Human-in-the-loop AI for SE. Generalize a "frugal" representation to N goals. Optimize that "frugal" reasoner.
+
+## Background reading 
+
+(Currently this is an incomplete list):
 
 - My prior work on this: [FSE'18](https://arxiv.org/pdf/1803.05067.pdf)
 - [R project package](https://cran.r-project.org/web/packages/FFTrees/vignettes/guide.html) (code is slow, does not 
@@ -18,7 +23,7 @@ Background reading (currently this is an incomplete list):
     - 2003: [Naive yet Englightenned](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.412.6594&rep=rep1&type=pdf)
 
 
-## The Manifesto
+## The  Manifesto
 
 From  [FSE'18](https://arxiv.org/pdf/1803.05067.pdf)
 
