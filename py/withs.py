@@ -2,27 +2,28 @@ import random
 r=random.random
 #random.seed(1)  <== important! somewhere, you must maintain seed control
 
-# add a support set. and an untrain
+# add a support set. and an forget
 # add a simulated annealler
 # add a rule learner (greedy) 
 # remember to add things at strength 0 if we like them (otherwise
 #      we'll never see that thing)
 # add ffts and doing within/without at each level
+
 class bins:
   """Train a distributions with samples. Draw from 'within'
   that to recreate it. Draw from 'without' to avoid it."""
   def __init__(i)     : i.n, i.d, i.ndx = 0, {}, {}
   def train(  i,z,n=1,on=None): 
     i.put(z, n) 
-    if thing:          
+    if on:          
       if z not in i.ndx : i.ndx[z] = set()
-      i.ndx[z].add(thing)
-  def untrain(i,z,n=1,on=None): 
+      i.ndx[z].add(on)
+  def forget(i,z,n=1,on=None): 
     i.put(z, n*-1)  
     i.ndx[z].remove(thing)
-  def within(i)   : return i.get(lambda z:z/i.n)
-  def without(i)  : return i.get(lambda z:(i.n - z)/i.n)
-  def put(i,z, n) : i.n += n; i.d[z] = i.d.get(z,0) + n
+  def within(i)  : return i.get(lambda z:z/i.n)
+  def without(i) : return i.get(lambda z:(i.n - z)/i.n)
+  def put(i,z,n) : i.n += n; i.d[z] = i.d.get(z,0) + n
   def get(f):
     tmp = r()
     for k,v in i.d.items():
@@ -35,7 +36,7 @@ class nums:
   def within(i)                 : return i.bins.within()  + r()*i.w
   def without(i)                : return i.bins.without() + r()*i.w
   def train(  i, z, n=1,on=None): i.bins.train(  z//i.w * i.w, n, on)
-  def untrain(i, z, n=1,on=None): i.bins.untrain(z//i.w * i.w, n, on)
+  def forget( i, z, n=1,on=None): i.bins.forget( z//i.w * i.w, n, on)
 
 class around:
   """Using 'nums', whenever you train on z, spread 
@@ -48,7 +49,7 @@ class around:
   def within(i)                 : return i.nums.within()
   def without(i)                : return i.nums.without()
   def train(  i, z, n=1,on=None): i.nearby(z, n, on, i.nums.train)
-  def untrain(i, z, n=1,on=None): i.nearby(z, n, on, i.nums.untrain)
+  def forget( i, z, n=1,on=None): i.nearby(z, n, on, i.nums.forget)
   def nearby(i,z,n,on, f)   : 
     for near, effect in i.todo: 
       f( z + i.nums.w*near, n*effect, on )
