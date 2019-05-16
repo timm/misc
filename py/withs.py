@@ -54,22 +54,6 @@ class around:
     for near, effect in i.todo: 
       f( z + i.nums.w*near, n*effect, on )
 
-class thing(object):
-   """The first thing seen is the name.
-      The other things are either things to ignore 
-      or things we should use in training"""
-   ignore = "?"
-   def __init__(i): i.name, i.it = None, None
-   def train(i, z, n=1):
-     nump = lambda z: isinstance(z,(int,float))
-     if z is thing.ignore: 
-       return z
-     elif not i.name:
-       i.name = z
-     else:
-       i.it = i.it or around() if nump(z) else bins()
-       i.it.train(z, n)
-
 class norm(object):
   def __init__(i, lo=10**32, hi=-10**32): i.lo,i.hi = lo,hi
   def __call__(i,z):
