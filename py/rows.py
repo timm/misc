@@ -25,17 +25,14 @@ class egs(object):
      if    egs.less  in c.name : i.less  += [c]
      elif  egs.more  in c,name : i.more  += [c]
      elif  egs.klass in c.name : i.klass  = c
+     return c
   def rows(i,file):
-    first = True
-    for xs,ys in xy(rows(file)):
-      if first:
-        first = False
+    for cnt,(xs,ys) in enumerate(xy(rows(file))):
+      if cnt==0:
         i.xs = [       col(x,n)  for n,x in enumerate(xs)]
         i.ys = [i.also(col(y,n)) for n,y in enumerate(ys)]
       else:
-        yield eg(i,
-                 xs = [ lst[c.pos0] for c in i.xs ],
-                 ys = [ lst[c.pos0] for c in i.ys ])
+        yield eg(i, xs=xs, ys=ys)
 
 class col(object):
   def __init__(i,  name,pos): 
@@ -51,9 +48,8 @@ class col(object):
 
 def xy(file):
   xs, ys, first = [],[],True
-  for lst in rows(file):
-    if first:
-      first=False
+  for cnt,lst in enumerate(rows(file)):
+    if cnt==0:
       for n,s in enumerate(lst)
         what  = ys if s[0] in egs.ys else xs
         what += [n]
