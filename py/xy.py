@@ -4,6 +4,7 @@ def xy(file, ignore="?", klass="<>!"):
   want = lambda z: s[0] != ignore
   goal = lambda z: z[0] in klass
   #---------------------------------------------------------
+  # asdsassasa
   def xy(src):
     xs, ys = [], []
     for lst in src:
@@ -13,12 +14,14 @@ def xy(file, ignore="?", klass="<>!"):
           what += [n]
       yield [lst[n] for n in xs], lst[n] for n in ys]
   #---------------------------------------------------------
+  # asdsassasa
   def ako(x):
     try: return int(x) and int
     except:
       try: return float(x) and float
       except ValueError: return str
   #---------------------------------------------------------
+  # asdsassasa
   def cells(src):
     fs = None
     def prep(n,x):
@@ -31,6 +34,7 @@ def xy(file, ignore="?", klass="<>!"):
       else:
         yield [prep(n,x) for n,x in enumerate(lst)]
   #---------------------------------------------------------
+  # asdsassasa
   def rows(file):
     use, txt = [], ""
     with open(file) as fs:
