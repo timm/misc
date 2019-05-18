@@ -1,5 +1,7 @@
 # vim : ts=2 sw=2 sts=2 expandtab:cindent:formatoptions+=cro
 
+# sasasa asd asd as das das das dasas
+# adas das asds
 def xy(file, ignore= "?", klass = "<>!", 
              sep   = ",", doomed= r'([\n\t\r ]|#.*)'):
   want = lambda z: s[0] != ignore
