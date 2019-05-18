@@ -2,6 +2,12 @@
 
 # sasasa asd asd as das das das dasas
 # adas das asds
+# sasasa asd asd as das das das dasas
+# adas das asds
+# sasasa asd asd as das das das dasas
+# adas das asds
+# sasasa asd asd as das das das dasas
+# adas das asds
 def xy(file, ignore= "?", klass = "<>!", 
              sep   = ",", doomed= r'([\n\t\r ]|#.*)'):
   want = lambda z: s[0] != ignore
