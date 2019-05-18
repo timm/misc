@@ -1,18 +1,10 @@
 # vim : ts=2 sw=2 sts=2 expandtab:cindent:formatoptions+=cro
 
-# ## asdassd
+import re
 
-# asasa asd asd as das das das dasas
-# adas das asds
-# sasasa asd asd as das das das dasas
-# adas das asds
-# sasasa asd asd as das das das dasas
-# adas das asds
-# sasasa asd asd as das das das dasas
-# adas das asds
 def xy(file, ignore= "?", klass = "<>!", 
              sep   = ",", doomed= r'([\n\t\r ]|#.*)'):
-  want = lambda z: s[0] != ignore
+  want = lambda z: z[0] != ignore
   goal = lambda z: z[0] in klass
   # --------------------------------------------------------
   # Add all the goal cells to y, the rest to y.
@@ -23,7 +15,7 @@ def xy(file, ignore= "?", klass = "<>!",
         for n,s in enumerate(lst):
           what  = ys if goal(s) else xs
           what += [n]
-      yield [lst[n] for n in xs], lst[n] for n in ys]
+      yield [lst[n] for n in xs], [lst[n] for n in ys]
   # --------------------------------------------------------
   # What can compile this string, without crashing?
   def ako(x):
@@ -36,6 +28,7 @@ def xy(file, ignore= "?", klass = "<>!",
   def cells(src):
     fs = None
     def prep(n,x):
+      if x is ignore: return x
       f = fs[n] = fs[n] or ako(x)
       return f(x)
     for lst in src:
@@ -54,7 +47,7 @@ def xy(file, ignore= "?", klass = "<>!",
       for line in fs:
         txt += re.sub(doomed, '', line)
         if txt and txt[-1] != sep:
-          lst = txt.split(",") 
+          lst = txt.split(sep) 
           if lst:
             txt = ""
             use = use or [n for n,s in 
@@ -66,5 +59,5 @@ def xy(file, ignore= "?", klass = "<>!",
     yield x,y
 
 if __name__ == "__main__":
-  for x,y in xy("../data/weather.csv"):
-    print(x,y)
+  for x,y in xy("../data/auto93m.csv"):
+    True #print(x,y)
