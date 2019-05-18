@@ -2,9 +2,9 @@
 
 import re
 
-def xy(file, ignore= "?", klass = "<>!", 
-             sep   = ",", doomed= r'([\n\t\r ]|#.*)'):
-  want = lambda z: z[0] != ignore
+def xy(file, no  = "?", klass  = "<>!", 
+             sep = ",", doomed = r'([\n\t\r ]|#.*)'):
+  want = lambda z: z[0] != no
   goal = lambda z: z[0] in klass
   # --------------------------------------------------------
   # Add all the goal cells to y, the rest to y.
@@ -28,7 +28,7 @@ def xy(file, ignore= "?", klass = "<>!",
   def cells(src):
     fs = None
     def prep(n,x):
-      if x is ignore: return x
+      if x is no: return x
       f = fs[n] = fs[n] or ako(x)
       return f(x)
     for lst in src:
@@ -59,5 +59,5 @@ def xy(file, ignore= "?", klass = "<>!",
     yield x,y
 
 if __name__ == "__main__":
-  for x,y in xy("../data/auto93m.csv"):
+  for x,y in xy("../data/auto93.csv"):
     True #print(x,y)
