@@ -46,34 +46,4 @@ class col(object):
        i.log     = bins() if i.prep == str else around()
     i.log.train( pre(z), n )
 
-def xy(file):
-  xs, ys, first = [],[],True
-  for cnt,lst in enumerate(rows(file)):
-    if cnt==0:
-      for n,s in enumerate(lst)
-        what  = ys if s[0] in egs.ys else xs
-        what += [n]
-    yield [lst[n] for n in xs], lst[n] for n in ys]
 
-def rows(file):
-  """kill whitespace, comments, skip blanklines, join lines
-     ending with ',', return list of cells, one per line,
-     ignore columns maked with '?'
-     skip blanklines"""
-  txt,use = "",[]
-  with open(file) as fs:
-    for line in fs:
-      txt += re.sub(r'([\n\t\r ]|#.*)', '', line)
-      if txt and txt[-1] != ",":
-        lst = txt.split(",") 
-        if lst:
-          txt = ""
-          use = use or [n for n,s in enumerate(lst) 
-                        if s[0] != egs.ignore]
-          yield [ n for n in use ]
-
-def atom(x)  :
-  try: return int(x), int
-  except:
-    try: return float(x), float
-    except ValueError: return x, str
