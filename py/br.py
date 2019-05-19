@@ -4,10 +4,14 @@ def br(src, pop=30, lt="<", gt=">", gen=128):
   goals, lst, best, rest, x0, y0 = [],[],[],[],None,None
 
   class Eg:
-    def __init__(i,x,y): i.n, i.x, i.y = 0, x, y
+    dob = 0 
+    def __init__(i,x,y): 
+      i.n, i.x, i.y = 0, x, y
+      Eg.dob = i.dob = Eg.dob+1
     def __lt__(i,j)    : return i.n > j.n
     def __repr__(i)    : 
       return 'Eg(x=%s, y=%s, n=%s)' % (i.x, i.y, i.n)
+
   class Num:
     def __init__(i,name="txt"): 
       i.lo, i.hi,  i.name = 10**32, -10**32, name
@@ -27,25 +31,34 @@ def br(src, pop=30, lt="<", gt=">", gen=128):
       s1 -= 10**(goal.w * (a-b)/n)
       s2 -= 10**(goal.w * (b-a)/n)
     return s1/n < s2/n
+
   def divide(best,lst):
+    if not best:
+      random.shuffle(lst)
+      best = lst[:pop]
     for eg1 in lst:
       eg1.n = sum([ gt(eg1.y, eg2.y) for eg2 in best ]) 
     lst.sort()
     return lst[:pop], lst[pop:]
 
-  r=0
+  def dump():
+    best, rest = divide(best, lst)
+    return [ 
+      (eg,True)  for eg in best if eg.dob > before ] + [
+      (eg,False) for eg in rest if eg.dob > before ]
+
+  before=0
   for x,y in xy.egs(src):
     if not goals:
-      x0, y0 = x,y
+      header= (x,y(
       goals  = [ Num(s) for s in y ]
     else:
       [ goal + y1 for y1,goal in zip(y,goals) ]
       lst += [ Eg(x,y) ]
       if 0 == len(lst) % gen:
-        r += 1
-        best, rest = divide(best, lst)
-        if r > 1:
-          yield x0,y0, best,rest
+        for one in dump(): yield header,one
+        before = Eg.dob
+  for one in dump(): yield header,one
 
 if __name__ == "__main__":
   def report(what,y,ls):
