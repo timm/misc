@@ -30,7 +30,6 @@ def br(src, pop=30, lt="<", gt=">", gen=128):
   def divide(best,lst):
     for eg1 in lst:
       eg1.n = sum([ gt(eg1.y, eg2.y) for eg2 in best ]) 
-      print(eg1.n)
     lst.sort()
     return lst[:pop], lst[pop:]
 
