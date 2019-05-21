@@ -1,5 +1,5 @@
 import xy  
-from random import choice as any
+import random
 
 def br(src, pop=30, lt="<", gt=">", gen=128):
   class Eg:
@@ -19,42 +19,49 @@ def br(src, pop=30, lt="<", gt=">", gen=128):
     def __add__(i,z): i.lo, i.hi = min(i.lo,z), max(i.hi,z)
     def norm(i,z)   : return (z-i.lo)/(i.hi-i.lo+0.00001)
 
-  def gt(y0,y1, hilos):
-    s1, s2, n = 0, 0, len(hilos)
-    for a,b,hilo in zip(y0,y1,hilos):
-      a   = hilo.norm( a )
-      b   = hilo.norm( b )
-      s1 -= 10**(hilo.w * (a-b)/n)
-      s2 -= 10**(hilo.w * (b-a)/n)
-    return s1/n < s2/n
-
-  def rank(best, egs, hilos):
-    for eg1 in egs:
-      eg1.best = False
-      eg1.n    = sum([gt(eg1.y, eg2.y, hilos) for eg2 in best]) 
-    egs.sort()
-    best = egs[:pop]
-    for eg in best: eg.best=True
-    return best, egs
-
-  hilos, latest, best, egs = [], [], [], []
-  for x,y in xy.egs(src):
-    if not hilos:
-      hilos  = [ HiLo(s) for s in y ]
-      yield  (x,y)
+  class Frontier:
+    def __init__(i,y): 
+      i.best, i.egs, i.hilos  = None, [],[HiLo(s) for s in y]
+    def update(i, latest):
+      i.egs += latest
+      for eg1 in latest:
+        for y,hilo in zip(eg.y,i.hilos): hilo + y1
+    def gt(i,y0,y):
+      s1, s2, n = 0, 0, len(i.hilos)
+      for a,b,hilo in zip(y0,y1,i.hilos):
+        a   = hilo.norm( a )
+        b   = hilo.norm( b )
+        s1 -= 10**(hilo.w * (a-b)/n)
+        s2 -= 10**(hilo.w * (b-a)/n)
+      return s1/n < s2/n
+    def bests(i):
+       i.best = i.best or [
+                random.choice(i.egs) for _ in range(pop)]
+       return i.best
+    def classify(i, latest):
+       i.update(latest) 
+       for eg in i.egs:
+         eg.best = False
+         eg.n    = sum([i.gt(eg.y, b.y) for b in i.bests()]) 
+       i.egs.sort()
+       i.egs  = i.egs[:gen]
+       i.best = i.egs[:pop]
+       for eg in i.best: eg.best=True
+       return latest
+      
+  latest = []
+  for n,(x,y) in enumerate(xy.egs(src)):
+    if n == 1
+      frontier = Frontier(i,y)
+      yield (x,y)
     else:
-      for y1,hilo in zip(y,hilos): hilo + y1
-      eg      = Eg(x,y)
-      egs    += [ eg ]
-      latest += [ eg ]
-      if 0 == len(egs) % gen:
-        best,egs = rank(best or [any(egs) for _ in range(pop)]
-                        egs, hilos)
-        for eg in latest: yield eg
+      latest += [ Eg(x,y) ]
+      if n % gen == 0:
+        for eg in frontier.classify(latest): 
+          yield eg
         latest = []
-  # finale
-  rank(best, egs, hilos)
-  for eg in latest: yield eg
+  for eg in frontier.classify(latest): 
+    yield eg
 
 if __name__ == "__main__":
   def report(what,y,ls):
