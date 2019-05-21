@@ -1,73 +1,69 @@
-import xy, random
+import xy  
+from random import choice as any
 
 def br(src, pop=30, lt="<", gt=">", gen=128):
-  goals, lst, best, rest, x0, y0 = [],[],[],[],None,None
-
   class Eg:
-    dob = 0 
-    def __init__(i,x,y): 
-      i.n, i.x, i.y = 0, x, y
-      Eg.dob = i.dob = Eg.dob+1
-    def __lt__(i,j)    : return i.n > j.n
-    def __repr__(i)    : 
+    def __init__(i,x,y): i.x, i.y, i.n, i.best = x,y,0,False
+    def __lt__(i,j): return i.n > j.n
+    def __repr__(i): 
       return 'Eg(x=%s, y=%s, n=%s)' % (i.x, i.y, i.n)
 
-  class Num:
+  class HiLo:
     def __init__(i,name="txt"): 
       i.lo, i.hi,  i.name = 10**32, -10**32, name
-      i.w = i.weight( name[0] )
+      s = name[0]
+      if   s == lt: i.w = -1
+      elif s == gt: i.w =  1
+      else 
+        assert False , "header type [%s] not '<' or '>'" % s
     def __add__(i,z): i.lo, i.hi = min(i.lo,z), max(i.hi,z)
     def norm(i,z)   : return (z-i.lo)/(i.hi-i.lo+0.00001)
-    def weight(i,s):
-      if s == lt: return -1
-      if s == gt: return  1
-      return 0
 
-  def gt(y0,y1):
-    s1, s2, n = 0, 0, len(goals)
-    for a,b,goal in zip(y0,y1,goals):
-      a   = goal.norm( a )
-      b   = goal.norm( b )
-      s1 -= 10**(goal.w * (a-b)/n)
-      s2 -= 10**(goal.w * (b-a)/n)
+  def gt(y0,y1, hilos):
+    s1, s2, n = 0, 0, len(hilos)
+    for a,b,hilo in zip(y0,y1,hilos):
+      a   = hilo.norm( a )
+      b   = hilo.norm( b )
+      s1 -= 10**(hilo.w * (a-b)/n)
+      s2 -= 10**(hilo.w * (b-a)/n)
     return s1/n < s2/n
 
-  def divide(best,lst):
-    if not best:
-      random.shuffle(lst)
-      best = lst[:pop]
-    for eg1 in lst:
-      eg1.n = sum([ gt(eg1.y, eg2.y) for eg2 in best ]) 
-    lst.sort()
-    return lst[:pop], lst[pop:]
+  def rank(best, egs, hilos):
+    for eg1 in egs:
+      eg1.best = False
+      eg1.n    = sum([gt(eg1.y, eg2.y, hilos) for eg2 in best]) 
+    egs.sort()
+    best = egs[:pop]
+    for eg in best: eg.best=True
+    return best, egs
 
-  def dump():
-    best, rest = divide(best, lst)
-    return [ 
-      (eg,True)  for eg in best if eg.dob > before ] + [
-      (eg,False) for eg in rest if eg.dob > before ]
-
-  before=0
+  hilos, latest, best, egs = [], [], [], []
   for x,y in xy.egs(src):
-    if not goals:
-      header= (x,y(
-      goals  = [ Num(s) for s in y ]
+    if not hilos:
+      hilos  = [ HiLo(s) for s in y ]
+      yield  (x,y)
     else:
-      [ goal + y1 for y1,goal in zip(y,goals) ]
-      lst += [ Eg(x,y) ]
-      if 0 == len(lst) % gen:
-        for one in dump(): yield header,one
-        before = Eg.dob
-  for one in dump(): yield header,one
+      for y1,hilo in zip(y,hilos): hilo + y1
+      eg      = Eg(x,y)
+      egs    += [ eg ]
+      latest += [ eg ]
+      if 0 == len(egs) % gen:
+        best,egs = rank(best or [any(egs) for _ in range(pop)]
+                        egs, hilos)
+        for eg in latest: yield eg
+        latest = []
+  # finale
+  rank(best, egs, hilos)
+  for eg in latest: yield eg
 
 if __name__ == "__main__":
   def report(what,y,ls):
     if ls:
-      all=None
+      egs=None
       for l in ls:
-        all = all or [[] for _ in y]
-        [ l0.append(z)  for z,l0 in zip(l.y,all) ]
-      print(what, [int(sum(l)/len(l)) for l in all])
+        egs = all or [[] for _ in y]
+        [ l0.append(z)  for z,l0 in zip(l.y,egs) ]
+      print(what, [int(sum(l)/len(l)) for l in egs])
     else:
       print(what,[])
   for x,y,bs,rs in br("../data/auto93.csv"):  
