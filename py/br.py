@@ -18,7 +18,7 @@ class Num:
   def norm(i,z): 
     return (z - i.lo)/(i.hi - i.lo + 0.00001)
 
-def br(src, pop=32, gen=500):
+def br(src, pop=32, gen=256):
   class Eg:
     def __init__(i,x,y): 
       i.x, i.y, i.n, i.klass = x, y, 0, False
@@ -82,5 +82,5 @@ if __name__ == "__main__":
       print(n)
       bad  = [Num(s) for s in eg[1]]
       good = [Num(s) for s in eg[1]]
-  print("good", [num.mu for  num in good])
-  print("bad" , [num.mu for  num in bad])
+  print("good", [int(num.mu) for  num in good])
+  print("bad ", [int(num.mu) for  num in bad])
