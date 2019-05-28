@@ -30,8 +30,16 @@ class bins:
       tmp -= f(v)
       if tmp <= 0: return k
 
-class nums:
+class ints:
   "Using 'bins',keep track of nums (rounded to a width i.w)"
+  def __init__(i,w=1): i.w, i.bins = w, bins
+  def within(i)                 : return i.bins.within()  
+  def without(i)                : return i.bins.without() 
+  def train(  i, z, n=1,on=None): i.bins.train(  i.w, n, on)
+  def forget( i, z, n=1,on=None): i.bins.forget( i.w, n, on)
+
+class floats:
+  "Using 'bins',keep track of floats (rounded to a width i.w)"
   def __init__(i,w=0.12): i.w, i.bins = w, bins
   def within(i)                 : return i.bins.within()  + r()*i.w
   def without(i)                : return i.bins.without() + r()*i.w
@@ -40,7 +48,7 @@ class nums:
 
 class around:
   """Using 'nums', whenever you train on z, spread 
-  some of that effect around the nearby region."""
+  some of that effect around the nearby region. XXXnot defined for ints?"""
   def __init__(i, w    = 0.12,
                   near = [-1.5, -0.5, 0, 0.5, 1.5],
                   fxs  = [   1,    2, 6,   2, 1  ]):
