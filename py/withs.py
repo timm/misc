@@ -3,8 +3,8 @@ r=random.random
 #random.seed(1)  <== important! somewhere, you must maintain seed control
 
 class bins:
-  """Train a distributions with samples. Draw from 'within'
-  that to recreate it. Draw from 'without' to avoid it."""
+  """Train a distributions with samples. Draw from within
+  that to recreate it. Draw from without to avoid it."""
   def __init__(i)  : i.n, i.d, i.ndx = 0, {}, {}
   def train(  i,z,n=1,on=None): 
     i.put(z, n) 
