@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>withs.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>withs.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span> 
+<span class="n">r</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">random</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>random.seed(1)  &lt;== important! somewhere, you must maintain seed control</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>add a support set. and an forget
+add a simulated annealler
+add a rule learner (greedy) 
+remember to add things at strength 0 if we like them (otherwise
+     we&rsquo;ll never see that thing)
+add ffts and doing within/without at each level</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>Train a distributions with samples. Draw from &lsquo;within&rsquo;</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">bins</span><span class="p">:</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="n">that</span> <span class="n">to</span> <span class="n">recreate</span> <span class="n">it</span><span class="o">.</span> <span class="n">Draw</span> <span class="kn">from</span> <span class="s1">&#39;without&#39;</span> <span class="n">to</span> <span class="n">avoid</span> <span class="n">it</span><span class="o">.</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def __init__(i)     : i.n, i.d, i.ndx = 0, {}, {}</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def train(  i,z,n=1,on=None): </span>
+<span class="s2">    i.put(z, n) </span>
+<span class="s2">    if on:          </span>
+<span class="s2">      if z not in i.ndx : i.ndx[z] = set()</span>
+<span class="s2">      i.ndx[z].add(on)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def forget(i,z,n=1,on=None): </span>
+<span class="s2">    i.put(z, n*-1)  </span>
+<span class="s2">    i.ndx[z].remove(thing)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def within(i)  : return i.get(lambda z:z/i.n)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def without(i) : return i.get(lambda z:(i.n - z)/i.n)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def put(i,z,n) : i.n += n; i.d[z] = i.d.get(z,0) + n</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def get(f):</span>
+<span class="s2">    tmp = r()</span>
+<span class="s2">    for k,v in i.d.items():</span>
+<span class="s2">      tmp -= f(v)</span>
+<span class="s2">      if tmp &lt;= 0: return k</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">class ints:</span>
+<span class="s2">  &quot;Using &#39;bins&#39;,keep track of nums (rounded to a width i.w)&quot;</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def __init__(i,w=1): i.w, i.bins = w, bins</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def within(i)                 : return i.bins.within()</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def without(i)                : return i.bins.without()</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def train(  i, z, n=1,on=None): i.bins.train(  i.w, n, on)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def forget( i, z, n=1,on=None): i.bins.forget( i.w, n, on)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">class floats:</span>
+<span class="s2">  &quot;Using &#39;bins&#39;,keep track of floats (rounded to a width i.w)&quot;</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def __init__(i,w=0.12): i.w, i.bins = w, bins</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def within(i)                 : return i.bins.within()  + r()*i.w</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def without(i)                : return i.bins.without() + r()*i.w</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def train(  i, z, n=1,on=None): i.bins.train(  z//i.w * i.w, n, on)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def forget( i, z, n=1,on=None): i.bins.forget( z//i.w * i.w, n, on)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">class around:</span>
+<span class="s2">  &quot;&quot;&quot;</span><span class="n">Using</span> <span class="s1">&#39;nums&#39;</span><span class="p">,</span> <span class="n">whenever</span> <span class="n">you</span> <span class="n">train</span> <span class="n">on</span> <span class="n">z</span><span class="p">,</span> <span class="n">spread</span> 
+  <span class="n">some</span> <span class="n">of</span> <span class="n">that</span> <span class="n">effect</span> <span class="n">around</span> <span class="n">the</span> <span class="n">nearby</span> <span class="n">region</span><span class="o">.</span> <span class="n">XXXnot</span> <span class="n">defined</span> <span class="k">for</span> <span class="n">ints</span><span class="err">?</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def __init__(i, w    = 0.12,</span>
+<span class="s2">                  near = [-1.5, -0.5, 0, 0.5, 1.5],</span>
+<span class="s2">                  fxs  = [   1,    2, 6,   2, 1  ]):</span>
+<span class="s2">    i.nums = nums(w)</span>
+<span class="s2">    i.todo = [(z, fx/sum(fxs)) for z,fx in zip(near,fxs)]</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def within(i)                 : return i.nums.within()</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def without(i)                : return i.nums.without()</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def train(  i, z, n=1,on=None): i.nearby(z, n, on, i.nums.train)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def forget( i, z, n=1,on=None): i.nearby(z, n, on, i.nums.forget)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def nearby(i,z,n,on, f)   : </span>
+<span class="s2">    for near, effect in i.todo: </span>
+<span class="s2">      f( z + i.nums.w*near, n*effect, on )</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">class norm(object):</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def __init__(i, lo=10**32, hi=-10**32): i.lo,i.hi = lo,hi</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def __call__(i,z):</span>
+<span class="s2">    i.lo, i.hi = min(z,i.lo), max(z,i.hi)</span>
+<span class="s2">    return (z - i.lo) / (i.hi - i.lo + 10**-32)</span>
+
+<span class="s2">norm1=norm()</span>
+<span class="s2">for _ in range(100):</span>
+<span class="s2">  print(norm1(10*r()))</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-11'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-11'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-12'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-12'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-13'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-13'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-14'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-14'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-15'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-15'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-16'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-16'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-17'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-17'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-18'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-18'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-19'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-19'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-20'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-20'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-21'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-21'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-22'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-22'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-23'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-23'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-24'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-24'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-25'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-25'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-26'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-26'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-27'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-27'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-28'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-28'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-29'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-29'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-30'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-30'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-31'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-31'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-32'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-32'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-33'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-33'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>
