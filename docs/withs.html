@@ -42,15 +42,10 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-2'>#</a>
       </div>
-      <p>add a support set. and an forget
-add a simulated annealler
-add a rule learner (greedy) 
-remember to add things at strength 0 if we like them (otherwise
-     we&rsquo;ll never see that thing)
-add ffts and doing within/without at each level</p>
+      <p>Train a distributions with samples. Draw from &lsquo;within&rsquo;</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre></pre></div>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">bins</span><span class="p">:</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -59,34 +54,18 @@ add ffts and doing within/without at each level</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-3'>#</a>
       </div>
-      <p>Train a distributions with samples. Draw from &lsquo;within&rsquo;</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="k">class</span> <span class="nc">bins</span><span class="p">:</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-4'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-4'>#</a>
-      </div>
       
     </div>
     <div class='code'>
       <div class="highlight"><pre>  <span class="n">that</span> <span class="n">to</span> <span class="n">recreate</span> <span class="n">it</span><span class="o">.</span> <span class="n">Draw</span> <span class="kn">from</span> <span class="s1">&#39;without&#39;</span> <span class="n">to</span> <span class="n">avoid</span> <span class="n">it</span><span class="o">.</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#DIVIDER</span>
-<span class="s2">  def __init__(i)     : i.n, i.d, i.ndx = 0, {}, {}</span>
+<span class="s2">  def __init__(i)  : i.n, i.d, i.ndx = 0, {}, {}</span>
 <span class="s2">#DIVIDER</span>
 <span class="s2">  def train(  i,z,n=1,on=None): </span>
 <span class="s2">    i.put(z, n) </span>
 <span class="s2">    if on:          </span>
 <span class="s2">      if z not in i.ndx : i.ndx[z] = set()</span>
 <span class="s2">      i.ndx[z].add(on)</span>
-<span class="s2">#DIVIDER</span>
-<span class="s2">  def forget(i,z,n=1,on=None): </span>
-<span class="s2">    i.put(z, n*-1)  </span>
-<span class="s2">    i.ndx[z].remove(thing)</span>
 <span class="s2">#DIVIDER</span>
 <span class="s2">  def within(i)  : return i.get(lambda z:z/i.n)</span>
 <span class="s2">#DIVIDER</span>
@@ -159,8 +138,21 @@ add ffts and doing within/without at each level</p>
 <span class="s2">norm1=norm()</span>
 <span class="s2">for _ in range(100):</span>
 <span class="s2">  print(norm1(10*r()))</span>
+<span class="s2">#DIVIDER</span>
 
 </pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -493,19 +485,12 @@ add ffts and doing within/without at each level</p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-32'>#</a>
       </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-33'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-33'>#</a>
-      </div>
-      
+      <p>add a support set. and an forget
+add a simulated annealler
+add a rule learner (greedy) 
+remember to add things at strength 0 if we like them (otherwise
+     we&rsquo;ll never see that thing)
+add ffts and doing within/without at each level</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre></pre></div>
