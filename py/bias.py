@@ -1,7 +1,7 @@
 import random 
 r=random.random
-#random.seed(1)  <== important! somewhere, you must maintain seed control
 
+# From observations, learn bias
 # Train a distributions with samples. Draw from within
 # that to recreate it. Draw from without to avoid it
 class bins:
@@ -20,13 +20,14 @@ class bins:
       tmp -= f(v)
       if tmp <= 0: return k
 
+# -----------------------------------------------------------------
+# Misc stuff for different kinds of bias
 class ints:
   "Using 'bins',keep track of nums (rounded to a width i.w)"
   def __init__(i,w=1): i.w, i.bins = w, bins
   def within(i)                 : return i.bins.within()  
   def without(i)                : return i.bins.without() 
   def train(  i, z, n=1,on=None): i.bins.train(  i.w, n, on)
-  def forget( i, z, n=1,on=None): i.bins.forget( i.w, n, on)
 
 class floats:
   "Using 'bins',keep track of floats (rounded to a width i.w)"
@@ -34,7 +35,6 @@ class floats:
   def within(i)                 : return i.bins.within()  + r()*i.w
   def without(i)                : return i.bins.without() + r()*i.w
   def train(  i, z, n=1,on=None): i.bins.train(  z//i.w * i.w, n, on)
-  def forget( i, z, n=1,on=None): i.bins.forget( z//i.w * i.w, n, on)
 
 class around:
   """Using 'nums', whenever you train on z, spread 
@@ -47,11 +47,20 @@ class around:
   def within(i)                 : return i.nums.within()
   def without(i)                : return i.nums.without()
   def train(  i, z, n=1,on=None): i.nearby(z, n, on, i.nums.train)
-  def forget( i, z, n=1,on=None): i.nearby(z, n, on, i.nums.forget)
   def nearby(i,z,n,on, f)   : 
     for near, effect in i.todo: 
       f( z + i.nums.w*near, n*effect, on )
 
+# -----------------------------------------------------------------
+# train
+
+def train(f,nums):
+  
+  with  open(f) as fs:
+    rows = [ (prep(x,j) if j in nums else x) for
+              j,x in enumerate(line) 
+              line in fs]
+   
 class norm(object):
   def __init__(i, lo=10**32, hi=-10**32): i.lo,i.hi = lo,hi
   def __call__(i,z):
