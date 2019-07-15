@@ -1,0 +1,33 @@
+#/usr/bin/env bash
+
+Tmp=$USER$$.awk
+
+f=$1
+shift
+cat $f | gawk -f auk.awk > $Tmp
+cat<<EOF>>$Tmp
+function new(i)      { split("",i,"") }
+function Object(i)   { new(i); i["oid"] = ++OID }
+
+function has(a,k,f) {
+  a[k][SUBSEP]
+  split("",a[k],"")
+  if (f) @f(a[k])
+}
+function have( l,k,f,a)         { has(l,k); @f(l[k],a) }
+function haves(l,k,f,a,b)       { has(l,k); @f(l[k],a,b) }
+function have2(l,k,f,a,b,c)     { has(l,k); @f(l[k],a,b,c) }
+function have3(l,k,f,a,b,c,d)   { has(l,k); @f(l[k],a,b,c,d) }
+function have4(l,k,f,a,b,c,d,e) { has(l,k); @f(l[k],a,b,c,d,e) }
+
+function def(x,y) { return x=="" ? y : x }
+
+function push(i,v) { i[length(i) + 1] = v }
+function median(l,    m,n) {
+  n = length(l)
+  m = int(n/2)
+  return (n % 2) ? l[m+1] : (l[m] + l[m+1])/2
+}
+EOF
+echo $Tmp
+gawk -f $Tmp  $*

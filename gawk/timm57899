@@ -1,0 +1,57 @@
+/* vim: set filetype=awk ts=2 sw=2 sts=2 expandtab: */
+
+BEGIN { demo() }
+function demo(     s,i) {
+  Some(s)
+  for(i=1;i<=100;i++) SomeAdd(s,i)
+  print(i["n"]
+}
+
+function Some(i,     most) {
+  Object(i)
+  i["most"]= def(most,64) # keep up to `most` number of items
+  has(i,"all")             # i["all"] holds the kept value
+  i["n"]=0
+  i["sorted"]=0
+}
+
+function SomeAdd(i,v,    added,len) {
+  i["n"]++
+  i["sorted"] = 0
+  len = length(i["all"])
+  if (len < i["most"]) {  # the cache is not full, add something
+    push(i["all"],v)
+    added = 1
+  } else if (rand() < len/i["n"]) {  # else, sometimes, add "v"
+    i["all"][ int(len*rand()) + 1 ] = v
+    added = 1
+  }
+  return added
+}
+function SomeMedian(i,  m,n) {
+  n= i["sorted"] ? length(i["all"]) : asort(i["all"])
+  i["sorted"]=1
+  return median(i["all"])
+}
+function new(i)      { split("",i,"") }
+function Object(i)   { new(i); i["oid"] = ++OID }
+
+function has(a,k,f) {
+  a[k][SUBSEP]
+  split("",a[k],"")
+  if (f) @f(a[k])
+}
+function have( a,k,f,a)         { has(a,k); @f(a[k],a) }
+function haves(a,k,f,a,b)       { has(a,k); @f(a[k],a,b) }
+function have2(a,k,f,a,b,c)     { has(a,k); @f(a[k],a,b,c) }
+function have3(a,k,f,a,b,c,d)   { has(a,k); @f(a[k],a,b,c,d) }
+function have4(a,k,f,a,b,c,d,e) { has(a,k); @f(a[k],a,b,c,d,e) }
+
+function def(x,y) { return x=="" ? y : x }
+
+function push(i,v) { i[length(i) + 1] = v }
+function median(l,    m,n) {
+  n = length(l)
+  m = int(n/2)
+  return (n % 2) ? l[m+1] : (l[m] + l[m+1])/2
+}
