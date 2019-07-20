@@ -1,21 +1,22 @@
 # vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
 #--------- --------- --------- --------- --------- ---------
 
-@include "lib"
+@include "au"
 @include "num"
 
-function _num(f,   n,lst,s,i) {
+function _num(f,   n,lst,s,i,j) {
    s=" 9 2 5 4 12 7 8 11 9 3" \
      " 7 4 12 5 4 10 9 6 9 4"
    split(s, lst, " ")
-   Num(n)
-   for(i in lst)
-     NumAdd(n,lst[i])
+   for(j=1; j<=1000;j++) {
+     Num(n)
+     for(i in lst)
+       NumAdd(n,lst[i])
+   }
    is(f, int(100*n.sd), 306)
    is(f, n.mu, 7)
 }
 
 BEGIN {
-   srand(1)
    tests("num","_num")
 }

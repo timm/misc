@@ -46,16 +46,11 @@ case "${uname}" in
       *) ;;
 esac
 
-awks() {
-  pre=$Ell/etc/auk.au
-  for f in $Ell/*.au; do
-    g=${f%.au}.awk
-    if [ "$pre" -nt "$g" ] || [ "$pre" -nt "$f" ] ||  [ "$f" -nt "$g" ] ; then
-      gawk -f $pre $f > $g
-    fi
-  done
+alias auk="./au0; gawk -f "
+
+function ok() {
+  ./au0; gawk -f ${1}ok
 }
-alias au="awks;gawk "
 
 alias reload=". $Ell/etc/bashrc"
 echo -e "${_c5}sh ell v2.0 (c) 2019 <timm@ieee.org> "

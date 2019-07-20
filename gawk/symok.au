@@ -1,0 +1,14 @@
+# vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
+#--------- --------- --------- --------- --------- ---------
+
+@include "au"
+@include "sym"
+
+function _sym(f,   a,s,i) {
+  split("yyyyyyyyynnnnn",a,"")
+  Sym(s,10,100)
+  for(i in a) @Add(s,a[i]) 
+  is(f, int(100*SymEnt(s)), 94)
+}
+
+BEGIN { tests("sym","_sym") }

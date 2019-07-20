@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# vim: set nospell ts=2 sw=2 sts=2 et :
+#--------- --------- --------- --------- --------- ---------
+
+prep() {
+ gawk '
+
+BEGIN {In=1}
+gsub(/^"""/,"") { In =  1 - In  }
+                { pre  = In ? "" : "# " }
+
+# catch the current function name (needed for isa)
+In && /^[ \t]*function[ \t]+/ {
+	Fun=gensub(/^[ \t]*function[ \t]+([_A-Za-z0-9]+).*/,
+             "\\1","g",$0)	
+}
+
+# make isa also add links kids to parents
+In && /^[ \t]*isa\(/ {
+	$0= gensub(/(^[ \t]*)isa\((([_A-Za-z0-9]+)\(([^,\)]+).*)/,
+	             "\\1isa(\\4,\""Fun"\",\"\\3\",\\2","g",$0)
+}
+
+# add polymoprhism lookup
+In && /@[A-Z]/ {
+	$0= gensub(/@([A-Z].+)(\(([^,\)]+)[,\)])/, 
+             "my(\\3,\"\\1\")@MY\\2","g",$0)
+}
+
+# add in dot notation
+In {
+  $0 = gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
+              "[\"\\1\\2\"]", "g", $0) 
+}
+
+{ print pre $0 } '
+}
+
+
+for f in *.au; do
+  g=${f%.au}.awk
+  if [ "$f" -nt "$g" ]  ; then
+    cat $f | prep > $g
+  fi
+done
+
+if [ ! -f ".gitignore" ]; then 
+   echo '*.awk' > .gitingore
+   git add .gitignore
+fi
+

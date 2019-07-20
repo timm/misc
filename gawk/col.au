@@ -1,5 +1,5 @@
-# /* vim: set filetype=awk ts=2 sw=2 sts=2 expandtab: */
-@include "lib"
+# /* vim: set nospell filetype=awk ts=2 sw=2 sts=2 expandtab: */
+@include "au"
 
 
 function Col(i,pos,txt) {
@@ -7,3 +7,5 @@ function Col(i,pos,txt) {
    i.txt = txt
    i.pos = pos="" ? 1 : pos
 }
+
+function ColPos(i) { return i.pos }

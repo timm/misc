@@ -1,7 +1,8 @@
-#  vim: set filetype=awk ts=2 sw=2 sts=2 expandtab: 
+#  vim: set nospell filetype=awk ts=2 sw=2 sts=2 expandtab: 
 
 # Num 
 
+@include "au" 
 @include "col" 
 
 function Num(i) {
