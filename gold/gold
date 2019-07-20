@@ -18,30 +18,30 @@ fi
 
 ### make sure that auto-genereated files are never committed
 f=$GOLD/.gitignore
-if [ ! -f "$f" ]; then cat<<-'EOF'>$f
-	# Gold
-  *.awk
-	goldrc
-	# Swap
-	[._]*.s[a-v][a-z]
-	[._]*.sw[a-p]
-	[._]s[a-rt-v][a-z]
-	[._]ss[a-gi-z]
-	[._]sw[a-p]
-	
-	# Session
-	Session.vim
-	Sessionx.vim
-	
-	# Temporary
-	.netrwhist
-	*~
-	# Auto-generated tag files
-	tags
-	# Persistent undo
-	[._]*.un~
-	EOF
-  git add $f
+if [ ! -f "$f" ]; then cat<<'EOF'>$f
+# Gold
+*.awk
+goldrc
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+Sessionx.vim
+
+# Temporary
+.netrwhist
+*~
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+EOF
+git add $f
 fi
 
 ### make sure we have the library
