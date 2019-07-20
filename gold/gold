@@ -3,11 +3,11 @@
 #--------- --------- --------- --------- --------- ---------
 
 ### if no local .gitigre, do the config
-f=.gitignore
+f=../.gitignore
+g=../au
 if [ ! -f "$f" ]; then 
   chmod +x $0
   ### make sure we have the library
-  g=au
   from=https://raw.githubusercontent.com/timm/misc/master/gold/au
   if [ ! -f "$g" ]; then 
     wget -O $g $from
@@ -83,13 +83,13 @@ In {
 ### zap old awks
 if [ "$1" == "zap"  ] 
 then
-  rm *.awk */*.awk ../*/*.awk 2> /dev/null
+  rm  ../*/*.awk 2> /dev/null
 else
    Todo="$*"
 fi
 
 ### update files
-for f in *.au */*.au ../*/*.au ; do
+for f in ../*/*.au ; do
   g=${f%.au}.awk
   if [ "$f" -nt "$g" ]  ; then
     cat $f | au2awk > $g
