@@ -17,7 +17,7 @@ done
 $AFTER
 
 export Ell=$(git rev-parse --show-toplevel)/gawk
-From=https://raw.githubusercontent.com/timm/misc/master/gawk/etc
+From=https://raw.githubusercontent.com/timm/misc/master/gold/etc
 
 mkdir -p $Ell/etc
 for f in bashrc vimrc tmuxrc; do

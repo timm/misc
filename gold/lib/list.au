@@ -1,0 +1,28 @@
+# vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
+#--------- --------- --------- --------- --------- ---------
+
+@include "au"
+
+"""
+# list 
+`push(lst,x)` : add `x` to the end of `lst`.
+"""
+
+function push(i,v) { i[length(i) + 1] = v }
+
+"""
+`top(lst)` : return last item in `lst`.
+"""
+
+function top(i)    { return i[ length(i) ] }
+
+"""
+`median(lst)` : return middle number of lst (assumes it is sorted).
+"""
+
+function median(l,    m,n,l1) {
+  n = length(l)
+  m = int(n/2)
+  l1 = l[m+1]
+  return (n % 2) ? l1 : (l[m] + l1)/2
+}
