@@ -47,14 +47,15 @@ case "${uname}" in
 esac
 
 awks() {
-  pre=$Ell/etc/auk.awk
-  for f in $Ell/*.auk; do
-    g=${f%.auk}.awk
-    if [ "$pre" -nt "$g" ]; then gawk -f $pre $f > $g; fi
-    if [ "$f"   -nt "$g" ]; then gawk -f $pre $f > $g; fi
+  pre=$Ell/etc/auk.au
+  for f in $Ell/*.au; do
+    g=${f%.au}.awk
+    if [ "$pre" -nt "$g" ] || [ "$pre" -nt "$f" ] ||  [ "$f" -nt "$g" ] ; then
+      gawk -f $pre $f > $g
+    fi
   done
 }
-alias auk="awks;gawk "
+alias au="awks;gawk "
 
 alias reload=". $Ell/etc/bashrc"
 echo -e "${_c5}sh ell v2.0 (c) 2019 <timm@ieee.org> "

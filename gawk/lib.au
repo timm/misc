@@ -1,6 +1,5 @@
-# vim: syntax=awk ts=2 sw=2 sts=2  et :
-;--------- --------- --------- --------- --------- ---------
-
+# vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
+#--------- --------- --------- --------- --------- ---------
 
 function my(k,f,    m) {
   while(k) {
@@ -14,5 +13,35 @@ function my(k,f,    m) {
 
 function isa(x,y,_) { ISA[x]=y }
 
-function List(i) { split("",i,"") }
+function new(i) { split("",i,"") }
+function Object(i)   { new(i); i["oid"] = ++OID }
 
+function tests(what, all,   one,a,i,n) {
+   n = split(all,a,",")
+   print " "
+   print "#--- " what " -----------------------"
+   for(i=1;i<=n;i++) {
+     one = a[i]
+     @one(one)
+}}
+function is(f,got,want,    pre) {
+  if (want == "") want=1
+  if (want == got)
+    pre="#TEST:\tPASSED"
+  else
+    pre="#TEST:\tFAILED"
+  print( pre "\t" f "\t" want "\t" got )
+}
+
+
+function has(lst,key,fun) {
+  lst[key][SUBSEP]
+  split("",lst[key],"")
+  if (fun) @fun(lst[key])
+}
+function have( a,k,f,b)           { has(a,k); @f(a[k],b) }
+function haves(a,k,f,b,c)         { has(a,k); @f(a[k],b,c) }
+function haveS(a,k,f,b,c,d)       { has(a,k); @f(a[k],b,c,d) }
+function havES(a,k,f,b,c,d,e)     { has(a,k); @f(a[k],b,c,d,e) }
+function haVES(a,k,f,b,c,d,e,f)   { has(a,k); @f(a[k],b,c,d,e,f) }
+function hAVES(a,k,f,b,c,d,e,f,g) { has(a,k); @f(a[k],b,c,d,e,f,g) }

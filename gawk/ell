@@ -16,7 +16,7 @@ for c in wget git tmux vim bash gawk; do
 done
 $AFTER
 
-export Ell=$(git rev-parse --show-toplevel)
+export Ell=$(git rev-parse --show-toplevel)/gawk
 From=https://raw.githubusercontent.com/timm/misc/master/gawk/etc
 
 mkdir -p $Ell/etc
