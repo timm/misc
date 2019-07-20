@@ -36,7 +36,6 @@ In {
 { print pre $0 } '
 }
 
-
 for f in *.au; do
   g=${f%.au}.awk
   if [ "$f" -nt "$g" ]  ; then
@@ -49,3 +48,6 @@ if [ ! -f ".gitignore" ]; then
    git add .gitignore
 fi
 
+if [ -n "$*" ]; then
+  gawk -f $*
+fi

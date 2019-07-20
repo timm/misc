@@ -46,10 +46,8 @@ case "${uname}" in
       *) ;;
 esac
 
-alias auk="./au0; gawk -f "
-
 function ok() {
-  ./au0; gawk -f ${1}ok
+  ./auk ${1}ok
 }
 
 alias reload=". $Ell/etc/bashrc"
