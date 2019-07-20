@@ -1,7 +1,21 @@
 <img src="etc/img/banner.png">
 
+_"Cause a little little <strike>auk</stike> awk goes a long way"_
 
-[![](etc/img/button_install.png)](#install)[![](etc/img/button_tutorial.png)](#tutorial)[![](etc/img/button_tools.png)](#tools)[![](etc/img/button_tips.png)](#tips)[![](etc/img/button_contribute.png)](#contribute)
+
+We like AWK. A lot. The simplicity and power of AWK often make it just the right tool for the job.
+
+Off-the-shelf AWK does not support objects, inheritance, or polymorphism, unit tests, or literate programming.  But a shown here, that's easy to add.
+
+The result is _GOLD_, the GAWK object language. Share and enjoy.
+
+<p align="center">
+<a href="#install"><img src="etc/img/button_install.png"></a>
+<a href="#tutorial"><img src="etc/img/button_tutorial.png"></a>
+<a href="#tools"><img src="etc/img/button_tools.png"></a>
+<a href="#tips"><img src="etc/img/button_tips.png"></a>
+<a href="#contribute"><img src="etc/img/button_contribute.png"></a>
+</p>
 
 The minimal system is two files: `[auk](auk)` and `[au](au)`. 
 
