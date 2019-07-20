@@ -5,6 +5,7 @@ The minimal system is two files: `auk` and `au`.
 ## Install
 
 - Place `auk` and `au` in a fresh directory. 
+- Make `auk` executable (`chmod +x auk`).
 - If using Git: dd a `.gitignore` file in that directory
 
 ```
@@ -61,7 +62,8 @@ function Num(i) {
 }
 ```
 
-This expands to the following (note now `isa` has extra arguments):
+This expands to the following. Note now `isa` has extra arguments and the dots are expanded
+to array field accessors.
 
 ```awk
 function Num(i) {
@@ -72,7 +74,8 @@ function Num(i) {
 }
 ```
 
-In the baove example, `Num` is defined in terms of `Col`. `Col` is defined in terms of `Object`:
+In the above example, `Num` is defined in terms of `Col`.  Now it turns out
+tat `Col` is defined in terms of `Object`:
 
 ```Col
 function Col(i,pos,txt) {
@@ -92,10 +95,27 @@ function Object(i) {
 }
 function new(i) { split("",i,"") }
 ```
-That is, `Objets have 
-a `oid` file holding a unique integer id and 
-an `isa` field describing their class. (Aside: note that the `isa` function resets the class `isa` field to the child class.)
+That is, `Objects` are arrays and newly created objects are initially empty.
+After that, we add:
+
+- a `oid` file holding a unique integer id and 
+- an `isa` field describing their class. 
+
+(Aside: note that the `isa` function always ensures that  the class `isa` field references the child, not parent class.
+That is, everything is not an `Object`).
  
 
 
 - `au`: an awk library for unittests, instance creation, method inheritance lookup
+
+## Extras
+
+The file `ell` and the directory `etc` are optional. They contain my environment tricks that you may not care about.  But if you want to try them:
+
+```bash
+sh ell
+```
+
+then <control-d> to exit.
+
+For what details on what `ell` gives you, see etc/*.
