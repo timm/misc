@@ -2,8 +2,8 @@
 #--------- --------- --------- --------- --------- ---------
 
 @include "au"
-@include "meta"
-@include "list"
+@include "lib/meta"
+@include "lib/list"
 
 
 function Some(i,     most) {

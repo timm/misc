@@ -2,7 +2,7 @@
 #--------- --------- --------- --------- --------- ---------
 
 @include "au"
-@include "sym"
+@include "data/sym"
 
 function _sym(f,   a,s,i) {
   split("yyyyyyyyynnnnn",a,"")

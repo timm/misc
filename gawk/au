@@ -5,7 +5,7 @@ function my(i,f,    k,m) {
   k = i["isa"]
   while(k) {
     m=k f
-    if (m in FUNCTAB) {MY=m; return}
+    if (m in FUNCTAB) return m
     k=ISA[k]
   }
   print "E> failed method lookup on ["f"]"; 

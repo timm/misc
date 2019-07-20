@@ -2,7 +2,7 @@
 #--------- --------- --------- --------- --------- ---------
 
 @include "au"
-@include "col"
+@include "data/col"
 
 
 function Sym(i,pos,txt) {
