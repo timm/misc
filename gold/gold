@@ -2,18 +2,17 @@
 # vim: set nospell ts=2 sw=2 sts=2 et :
 #--------- --------- --------- --------- --------- ---------
 
-### if no local .gitigre, do the config
-f=../.gitignore
-g=../au
+### if no local lib file, then 
+f=../au
 if [ ! -f "$f" ]; then 
-  chmod +x $0
   ### make sure we have the library
   from=https://raw.githubusercontent.com/timm/misc/master/gold/au
-  if [ ! -f "$g" ]; then 
-    wget -O $g $from
-    git add $g
-  fi
-  cat<<'EOF'>$f
+  wget -O $f $from
+fi
+
+if [ -d ".git" ]; then 
+  g=../.gitignore
+  if [ ! -f $g ]]; then; cat<<'EOF'>$g
 # Gold
 *.awk
 # Swap
@@ -35,9 +34,9 @@ tags
 # Persistent undo
 [._]*.un~
 EOF
-  git add $f
 fi
-
+  git add $f $g
+fi
 
 ### turn .au into .awk
 au2awk() {
@@ -77,8 +76,6 @@ In {
 
 { print pre $0 } '
 }
-
-
 
 ### zap old awks
 if [ "$1" == "zap"  ] 

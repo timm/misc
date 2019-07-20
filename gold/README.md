@@ -1,6 +1,6 @@
 <img src="etc/img/banner.png">
 
-<em>"Cause a little little <strike>auk</strike> awk goes a long way"</em>
+<em>"Cause a little <strike>auk</strike> awk goes a long way"</em>
 
 
 We like AWK. A lot. The simplicity and power of AWK often make it just the right tool for the job.
