@@ -6,6 +6,8 @@ prep() {
  gawk '
 
 BEGIN {In=1}
+
+# convert multi-line strings to commented lines
 gsub(/^"""/,"") { In =  1 - In  }
                 { pre  = In ? "" : "# " }
 

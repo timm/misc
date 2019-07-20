@@ -1,6 +1,6 @@
 # GOLD: the gawk object layer
 
-The minimal system is two files: `auk` and `au`. 
+The minimal system is two files: `[auk](auk)` and `[au](au)`. 
 
 ## Install
 
@@ -18,6 +18,8 @@ The minimal system is two files: `auk` and `au`.
 Source code is kept in `.au` files that the `auk` utility translates to `.awk` files:
 
     x.au -> ./auk -> x.awk
+
+### Code is executed via the `./auk file` command
 
 When  called with N arguments, `./auk args` converts all the .au files to .awk files in the current directory, 
 then calls `gawk -f args`.
