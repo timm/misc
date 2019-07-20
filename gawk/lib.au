@@ -43,5 +43,5 @@ function have( a,k,f,b)           { has(a,k); @f(a[k],b) }
 function haves(a,k,f,b,c)         { has(a,k); @f(a[k],b,c) }
 function haveS(a,k,f,b,c,d)       { has(a,k); @f(a[k],b,c,d) }
 function havES(a,k,f,b,c,d,e)     { has(a,k); @f(a[k],b,c,d,e) }
-function haVES(a,k,f,b,c,d,e,f)   { has(a,k); @f(a[k],b,c,d,e,f) }
-function hAVES(a,k,f,b,c,d,e,f,g) { has(a,k); @f(a[k],b,c,d,e,f,g) }
+function haVES(a,k,f,b,c,d,e,g)   { has(a,k); @f(a[k],b,c,d,e,g) }
+function hAVES(a,k,f,b,c,d,e,g,h) { has(a,k); @f(a[k],b,c,d,e,g,h) }
