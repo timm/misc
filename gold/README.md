@@ -1,6 +1,7 @@
 <img src="etc/img/banner.png">
 
-# GOLD: the gawk object layer
+
+[![](etc/img/button_install.png)](#install)[![](etc/img/button_tutorial.png)](#tutorial)[![](etc/img/button_tools.png)](#tools)[![](etc/img/button_tips.png)](#tips)[![](etc/img/button_contribute.png)](#contribute)
 
 The minimal system is two files: `[auk](auk)` and `[au](au)`. 
 
@@ -13,7 +14,7 @@ The minimal system is two files: `[auk](auk)` and `[au](au)`.
 ```
 *.awk
 ```
-## Language Guide
+## Tutorial 
 
 ### Source is kept in `.au` files
 
