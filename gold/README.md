@@ -1,3 +1,5 @@
+<img src="etc/img/banner.png">
+
 # GOLD: the gawk object layer
 
 The minimal system is two files: `[auk](auk)` and `[au](au)`. 
