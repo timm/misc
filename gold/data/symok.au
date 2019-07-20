@@ -1,8 +1,8 @@
 # vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
 #--------- --------- --------- --------- --------- ---------
 
-@include "au"
-@include "data/sym"
+@include "../au"
+@include "../data/sym"
 
 function _sym(f,   a,s,i) {
   split("yyyyyyyyynnnnn",a,"")

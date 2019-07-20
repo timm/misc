@@ -2,26 +2,20 @@
 # vim: set nospell ts=2 sw=2 sts=2 et :
 #--------- --------- --------- --------- --------- ---------
 
-### make sure we have a config file
-f=goldrc
-if   [ -f "$f"    ]; then . $f
-elif [ -f "../$f" ]; then . ../$f
-else cat <<-'EOF'>$f
-	if [ -z "$GOLD" ]; then
-	  export GOLD="$(PWD)"
-	  export AWKPATH="$GOLD:$AWKPATH"
-	  export PATH="$GOLD:$PATH"
-	fi
-	EOF
-  . $f
-fi
-
-### make sure that auto-genereated files are never committed
-f=$GOLD/.gitignore
-if [ ! -f "$f" ]; then cat<<'EOF'>$f
+### if no local .gitigre, do the config
+f=.gitignore
+if [ ! -f "$f" ]; then 
+  chmod +x $0
+  ### make sure we have the library
+  g=au
+  from=https://raw.githubusercontent.com/timm/misc/master/gold/au
+  if [ ! -f "$g" ]; then 
+    wget -O $g $from
+    git add $g
+  fi
+  cat<<'EOF'>$f
 # Gold
 *.awk
-goldrc
 # Swap
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
@@ -41,19 +35,9 @@ tags
 # Persistent undo
 [._]*.un~
 EOF
-git add $f
-fi
-
-### make sure we have the library
-f=$GOLD/au
-from=https://raw.githubusercontent.com/timm/misc/master/gold/au
-if [ ! -f "$f" ]; then 
-  wget -O $f $from
   git add $f
 fi
 
-### make sure i can run gold
-chmod +x $GOLD/gold
 
 ### turn .au into .awk
 au2awk() {
@@ -86,8 +70,9 @@ In && /@[A-Z]/ {
 
 # add in dot notation
 In {
-  $0 = gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
-              "[\"\\1\\2\"]", "g", $0) 
+  if ($0 !~ /^@include/) 
+    $0 = gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
+                "[\"\\1\\2\"]", "g", $0) 
 }
 
 { print pre $0 } '
@@ -98,13 +83,13 @@ In {
 ### zap old awks
 if [ "$1" == "zap"  ] 
 then
-  rm */*.awk
+  rm *.awk */*.awk ../*/*.awk 2> /dev/null
 else
    Todo="$*"
 fi
 
 ### update files
-for f in $GOLD/*.au $GOLD/*/*.au; do
+for f in *.au */*.au ../*/*.au ; do
   g=${f%.au}.awk
   if [ "$f" -nt "$g" ]  ; then
     cat $f | au2awk > $g

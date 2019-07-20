@@ -17,6 +17,15 @@ function isa(i,x,y,_) { i["isa"]=x; ISA[x]=y }
 function new(i) { split("",i,"") }
 function Object(i)   { new(i); i["isa"]="Object"; i["oid"] = ++OID }
 
+function warning(txt) {
+  print "#E> " txt > "/dev/stderr"
+}
+function error(txt) {
+  warning(txt)
+  fflush("/dev/stderr")
+  exit 1
+}
+
 function tests(what, all,   one,a,i,n) {
    n = split(all,a,",")
    print " "

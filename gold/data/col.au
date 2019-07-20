@@ -1,5 +1,5 @@
 # /* vim: set nospell filetype=awk ts=2 sw=2 sts=2 expandtab: */
-@include "au"
+@include "../au"
 
 
 function Col(i,pos,txt) {

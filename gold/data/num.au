@@ -2,8 +2,8 @@
 
 # Num 
 
-@include "au" 
-@include "data/col" 
+@include "../au" 
+@include "../data/col" 
 
 function Num(i) {
   isa(Col(i))
