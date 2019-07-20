@@ -7,7 +7,7 @@ We like AWK. A lot. The simplicity and power of AWK often make it just the right
 
 Off-the-shelf AWK does not support objects, inheritance, or polymorphism, unit tests, or literate programming.  But a shown here, that's easy to add.
 
-The result is _GOLD_, the GAWK object language. Share and enjoy.
+The result is _GOLD_, the GAWK object layer. Share and enjoy.
 
 <p align="center">
 <a href="#install"><img src="etc/img/button_install.png"></a>
