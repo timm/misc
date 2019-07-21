@@ -3,87 +3,100 @@
 #--------- --------- --------- --------- --------- ---------
 
 Base="https://raw.githubusercontent.com/timm/misc/master/gold"
-help() {
-  cat<<-'EOF'
-	gold install  : install base files
-	gold zap      : kill all generated awk files
+
+help() { cat<<-'EOF'
 	gold          : regenerate awk files
+	gold reset    : kill old generated awk files; regenerate
+	gold install  : install base files
 	gold XXX      : run gawk -f XXX
 	EOF
 }
-goldrc() {
-  cat<<-'EOF'
-	if [ -z "$Gold" ]; then
-	export Gold="$(PWD)"
-	export Lib="$HOME/opt/gold"
-	export AWKPATH="$Lib:$AWKPATH"
-	export PATH="$Lib:$PATH"
-	fi
+
+goldrc() { cat<<-EOF
+        export Gold="$(PWD)"
+	export GoldAwk="$HOME/opt/gold"
+	export AWKPATH="$GoldAwk:$AWKPATH"
+	export PATH="$GoldAwk:$PATH"
 	EOF
 }
-gitignore() {
-  cat<<-'EOF'
-	# Gold
-	goldrc
-	# Swap
-	[._]*.s[a-v][a-z]
-	[._]*.sw[a-p]
-	[._]s[a-rt-v][a-z]
-	[._]ss[a-gi-z]
-	[._]sw[a-p]
-	
-	# Session
-	Session.vim
-	Sessionx.vim
-	
-	# Temporary
-	.netrwhist
-	*~
-	# Auto-generated tag files
-	tags
-	# Persistent undo
-	[._]*.un~
-	EOF
+
+gold2awk() { gawk '
+  BEGIN { In=1 }
+  NR==1 { print "#!/usr/bin/env gawk -f "; next }
+  
+  # convert multi-line strings to commented lines
+  
+  gsub(/^"""/,"") { In =  1 - In  }
+                  { pre  = In ? "" : "# " }
+  
+  # catch the current function name (needed for isa)
+  In && /^[ \t]*function[ \t]+/ {
+  	Fun=gensub(/^[ \t]*function[ \t]+([_A-Za-z0-9]+).*/,
+               "\\1","g",$0)	
+  }
+  
+  # let isa add link kid class to parent class as well
+  # as do some object initializations
+  In && /^[ \t]*isa\(/ {
+  	$0= gensub(/(^[ \t]*)isa\((([_A-Za-z0-9]+)\(([^,\)]+).*)/,
+  	             "\\1isa(\\4,\""Fun"\",\"\\3\",\\2","g",$0)
+  }
+  
+  # allow polymoprhism lookup
+  In && /@[A-Z]/ {
+  	$0= gensub(/@([A-Z].+)(\(([^,\)]+)[,\)])/, 
+               "(MY=my(\\3,\"\\1\"))@MY\\2","g",$0)
+  }
+  
+  # allow dot notation
+  In {
+    if ($0 !~ /^@include/) 
+      $0 = gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
+                  "[\"\\1\\2\"]", "g", $0) 
+  }
+  
+  { print pre $0 } 
+'
 }
-f=goldrc
-if   [ -f "$f"    ]; then . $f 
-elif [ -f "../$f" ]; then . ../$f
-else goldrc >  $f
-     . $f
-fi
 
+zap()     { 
+  [ -n "$GoldAwk" ] && rm  $GoldAwk/*.awk 2> /dev/null 
+}
 
-### zap old awks
-if [ "$1" == "help"  ]; then
-	help
-elif [ "$1" == "zap"  ]; then
-  rm  $Lib/*.awk 2> /dev/null
-elif [ "$1" == "install" ]; then
+install() {
   chmod +x gold
-  if [ ! -f "gold.gold" ]; then
-    wget -O gold.gold "$Base/gold.gold"
+  [ -f "gold.gold" ] || wget -O gold.gold "$Base/gold.gold"
+  if [ ! -f "$HOME/.config/gold" ]; then
+    mkdir -p $HOME/.config
+    goldrc > $HOME/.config/gold 
   fi
-  if [ ! -f "goldrc" ]; then
-    wget -O goldrc "$Base/etc/rc"
-  fi
-else
-  mkdir -p $Lib
+}
 
-  ### update files
-  Files=$(find . -name '*.gold')
-  for f in $Files; do
+regenerate() {
+  mkdir -p $GoldAwk
+  files=$(find $Gold -name '*.gold')
+  for f in $files; do
     g=$(basename $f)
-    g=$Lib/${g%.gold}.awk
+    g=$GoldAwk/${g%.gold}.awk
     if [ "$f" -nt "$g" ]  ; then
       cat $f | gold2awk > $g
       chmod +x $g
     fi
     echo $(basename $f)
   done |
-  gawk 'Seen[$0]++ {print "#E> repeat " $0}' 2> /dev/stderr
-  
-  ### if any command line args, run them
-  if [ -n "$Todo" ]; then
-     AWKPATH="$AWKPATH" gawk -f $*
+  gawk 'Seen[$0]++ {print "#E> repeated file name " $0 > "/dev/stderr"}' 
+}  
+
+g=$HOME/.config/gold
+if [ -f "$g" ]; then 
+  . $g
+  if   [ "$1" == "help"    ]; then help
+  elif [ "$1" == "reset"   ]; then zap; regenerate
+  elif [ "$1" == "install" ]; then install
+  else 
+    regenerate
+    [ -n "$*" ] && AWKPATH="$AWKPATH" gawk -f $*
   fi
+else
+  echo "#E> missing $g. Try running 'gold install'"
 fi
