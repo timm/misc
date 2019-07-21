@@ -3,11 +3,12 @@
 <em>"Cause a little <strike>auk</strike> awk goes a long way"</em>
 
 
-We like AWK. A lot. The simplicity and power of AWK often make it just the right tool for the job.
+We like AWK. A lot. The simplicity and power of AWK often make it
+just the right tool for the job.  But off-the-shelf AWK has no
+support objects, inheritance, or polymorphism, unit tests, or
+literate programming.  
 
-Off-the-shelf AWK does not support objects, inheritance, or polymorphism, unit tests, or literate programming.  But a shown here, that's easy to add.
-
-The result is _GOLD_, the GAWK object layer. Share and enjoy.
+Enter GOLD, which supports all the above.
 
 <p align="center">
 <a href="#install"><img src="etc/img/button_install.png"></a>
@@ -17,16 +18,83 @@ The result is _GOLD_, the GAWK object layer. Share and enjoy.
 <a href="#contribute"><img src="etc/img/button_contribute.png"></a>
 </p>
 
-The minimal system is two files: `[auk](auk)` and `[au](au)`. 
-
 ## Install
 
-- Place `auk` and `au` in a fresh directory. 
-- Make `auk` executable (`chmod +x auk`).
-- If using Git: dd a `.gitignore` file in that directory
+In a new directory, download a base system:
 
+```bash
+wget https://raw.githubusercontent.com/timm/misc/master/gold/79
+chmod +x 79
+./79 install
 ```
-*.awk
+
+This generates the file `goldrc`. Optionally, you might want
+to change this file's `Lib` variable (which 
+stores
+where GOLD generates its `.awk` files). 
+
+```bash
+if [ -z "$Gold" ]; then
+export Gold="$(PWD)"
+export Lib="$HOME/opt/gold"
+export AWKPATH="$Lib:$AWKPATH"
+export PATH="$Lib:$PATH"
+fi
+```
+
+## Tutorial
+
+In GOLD:
+
+- objects constructors are  functions that start with one uppercase letter;
+- methods are functions that have two uppercase letters: one for the class name and one for the method name. 
+```awk
+     1	function Col(i,pos,txt) {
+     2	   isa(Object(i))
+     3	   i.txt = txt
+     4	   i.pos = pos="" ? 1 : pos
+     5	}
+     6	function Num(i) {
+     7	  isa(Col(i))
+     8	  i.hi = -1e32
+     9	  i.lo =  1e32
+    10	  i.n  = i.mu = i.m2 = i.sd = 0
+    11	}
+    12	function NumAdd(i,x,          delta) {
+    13	  x    += 0
+    14	  i.n  += 1
+    15	  i.lo  = x < i.lo ? x : i.lo
+    16	  i.hi  = x > i.hi ? x : i.hi
+    17	  delta = x - i.mu
+    18	  i.mu += delta/i.n
+    19	  i.m2 += delta*(x - i.mu)
+    20	  i.sd = (i.m2/(i.n-0.99999999))^0.5
+    21	  return x
+    22	}
+    23	function Sym(i,pos,txt) {
+    24	  isa(Col(i))
+    25	  i.pos = pos
+    26	  i.txt = txt
+    27	  i.mode = ""
+    28	  i.most = 0
+    29	  i.ent =""
+    30	  i.n = 0
+    31	  i.ignore="?"
+    32	  i.w=1
+    33	  has(i,"counts")
+    34	}
+    35	function SymAdd(i,x,   tmp) {
+    36	  if( x == i.ignore ) return x
+    37	  i.n++
+    38	  tmp = i.counts[x] = i.counts[x] + 1
+    39	  if(tmp > i.mode) {
+    40	    i.most = tmp
+    41	    i.mode = x
+    42	  }
+    43	  return x
+    44	}
+```
+
 ```
 ## Tutorial 
 

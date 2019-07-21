@@ -1,0 +1,6 @@
+if [ -z "$Gold" ]; then
+export Gold="$(PWD)"
+export Lib="$HOME/opt/gold"
+export AWKPATH="$Lib:$AWKPATH"
+export PATH="$Lib:$PATH"
+fi

@@ -124,7 +124,7 @@ function! Header()
    let l:lineone="# vim: nospell filetype=awk ts=2 sw=2 sts=2  et :"
    let l:linetwo="#--------- --------- --------- --------- --------- ---------"
    let l:linethree=""
-   let l:linefour="@include \"au\""
+   let l:linefour="@include \"gold\""
    put! =l:linethree
    put! =l:linefour
    put! =l:linethree

@@ -3,7 +3,7 @@
 
 
 function Col(i,pos,txt) {
-   Object(i)
+   isa(Object(i))
    i.txt = txt
    i.pos = pos="" ? 1 : pos
 }

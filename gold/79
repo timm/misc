@@ -2,6 +2,7 @@
 # vim: set nospell ts=2 sw=2 sts=2 et :
 #--------- --------- --------- --------- --------- ---------
 
+Base="https://raw.githubusercontent.com/timm/misc/master/gold"
 f=goldrc
 if   [ -f "$f"    ]; then . $f 
 elif [ -f "../$f" ]; then . ../$f
@@ -16,7 +17,6 @@ EOF
 . $f
 fi
 
-mkdir -p $Lib
 
 ### turn .au into .awk
 au2awk() {
@@ -59,27 +59,41 @@ In {
 }
 
 ### zap old awks
-if [ "$1" == "zap"  ] 
-then
+if [ "$1" == "help"  ]; then
+  cat<<EOF
+
+./79 install   : install base files
+./79 zap       : kill all generated awk files
+./79           : regenerate awk files
+./79 XXX       : run gawk -f XXX
+EOF
+elif [ "$1" == "zap"  ]; then
   rm  $Lib/*.awk 2> /dev/null
-else
-  Todo="$*"
-fi
-
-### update files
-
-for f in $Gold/gold.au $Gold/*/*.au ; do
-  g=$(basename $f)
-  g=$Lib/${g%.au}.awk
-  if [ "$f" -nt "$g" ]  ; then
-    cat $f | au2awk > $g
-    chmod +x $g
+elif [ "$1" == "install" ]; then
+  chmod +x 79
+  if [ ! -f "gold.au" ]; then
+    wgey -O gold.au "$Base/gold.au"
   fi
-  echo $(basename $f)
-done |
-gawk 'Seen[$0]++ {print "#E> repeat " $0}' 2> /dev/stderr
+  if [ ! -f "goldrc" ]; then
+    wget -O goldrc "$Base/etc/rc"
+  fi
+else
+  mkdir -p $Lib
 
-### if any command line args, run them
-if [ -n "$Todo" ]; then
-   AWKPATH="$AWKPATH" gawk -f $Todo
+  ### update files
+  for f in $Gold/gold.au $Gold/*/*.au ; do
+    g=$(basename $f)
+    g=$Lib/${g%.au}.awk
+    if [ "$f" -nt "$g" ]  ; then
+      cat $f | au2awk > $g
+      chmod +x $g
+    fi
+    echo $(basename $f)
+  done |
+  gawk 'Seen[$0]++ {print "#E> repeat " $0}' 2> /dev/stderr
+  
+  ### if any command line args, run them
+  if [ -n "$Todo" ]; then
+     AWKPATH="$AWKPATH" gawk -f $*
+  fi
 fi
