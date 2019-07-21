@@ -49,7 +49,7 @@ gold2awk() { gawk '
   }
   
   # allow dot notation
-  I {
+  In {
     if ($0 !~ /^@include/) 
       $0 = gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
                   "[\"\\1\\2\"]", "g", $0) 
@@ -69,6 +69,7 @@ install() {
   if [ ! -f "$f" ]; then
     mkdir -p rocks/lib
     wget -O $f  "$Base/$f"
+  fi
   if [ ! -f "$HOME/.config/gold" ]; then
     mkdir -p $HOME/.config
     goldrc > $HOME/.config/gold 
@@ -90,7 +91,7 @@ regenerate() {
   gawk 'Seen[$0]++ {print "#E> repeated file name " $0 > "/dev/stderr"}' 
 }  
 
-if [ "$1" == "install" ]s then install
+if [ "$1" == "install" ]; then install
 else
   g=$HOME/.config/gold
   if  [ -f "$g" ]; then 
