@@ -26,4 +26,4 @@ Enter GOLD, which supports all the above.
 ## Credits
 
 - Gold v1: tim menzies timm@ieee.org
-- Gold's polymorphism mechanism: [Manuel Collado0(https://groups.google.com/forum/#!topic/comp.lang.awk/GWs_41y79YM)
+- Gold's polymorphism mechanism: [Manuel Collado](https://groups.google.com/forum/#!topic/comp.lang.awk/GWs_41y79YM)
