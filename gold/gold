@@ -7,7 +7,6 @@ Base="https://raw.githubusercontent.com/timm/misc/master/gold"
 help() { cat<<-EOF
 	gold          : regenerate awk files
 	gold reset    : kill old awk then regenerate
-	gold install  : install base files (g0ld.gold; $HOME/.config/gold)
 	gold XXX      : run gawk -f XXX
 	EOF
 }
@@ -63,7 +62,7 @@ zap()     {
   [ -n "$GoldAwk" ] && rm  $GoldAwk/*.awk 2> /dev/null 
 }
 
-install() {
+ready() {
   chmod +x gold
   f=rocks/lib/g0ld.gold
   if [ ! -f "$f" ]; then
@@ -91,18 +90,11 @@ regenerate() {
   gawk 'Seen[$0]++ {print "#E> repeated file name " $0 > "/dev/stderr"}' 
 }  
 
-if [ "$1" == "install" ]; then install
-else
-  g=$HOME/.config/gold
-  if  [ -f "$g" ]; then 
-    . $g
-    if   [ "$1" == "help"    ]; then help
-    elif [ "$1" == "reset"   ]; then zap; regenerate
-    else 
-      regenerate
-      [ -n "$*" ] && AWKPATH="$AWKPATH" gawk -f $*
-    fi
-  else
-    echo "#E> missing $g. Try running 'gold install'"
-  fi
+ready
+. $HOME/.config/gold
+
+if   [ "$1" == "help"    ]; then help
+elif [ "$1" == "reset"   ]; then zap; regenerate
+else regenerate
+     [ -n "$*" ] && AWKPATH="$AWKPATH" gawk -f $*
 fi
