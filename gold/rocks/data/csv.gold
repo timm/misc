@@ -1,7 +1,7 @@
 # vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
 #--------- --------- --------- --------- --------- ---------
 
-@include "gold"
+@include "g0ld"
 
 function csv(i,file,row,header,fs,rs,        
              fs0,rs0,txts,txt,cells, n,what) {
