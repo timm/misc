@@ -7,7 +7,7 @@ Base="https://raw.githubusercontent.com/timm/misc/master/gold"
 help() { cat<<-EOF
 	au          : regenerate awk files
 	au reset    : kill old awk then regenerate
-	au XXX      : run gawk -f XXX
+	au XXX      : regenerated, then run gawk -f XXX
 	EOF
 }
 
