@@ -1,9 +1,9 @@
 # vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
 #--------- --------- --------- --------- --------- ---------
 
-@include "../au"
-@include "../lib/meta"
-@include "../lib/list"
+@include "gold"
+@include "meta"
+@include "list"
 
 
 function Some(i,     most) {

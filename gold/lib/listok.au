@@ -1,9 +1,9 @@
 # vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
 #--------- --------- --------- --------- --------- ---------
 
-@include "../au"
-@include "../lib/list"
-@include "../lib/meta"
+@include "gold"
+@include "list"
+@include "meta"
 
 function _push(f,   lst,i) {
   new(lst)

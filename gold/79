@@ -2,6 +2,21 @@
 # vim: set nospell ts=2 sw=2 sts=2 et :
 #--------- --------- --------- --------- --------- ---------
 
+rm goldrc
+f=goldrc
+if   [ -f "$f"    ]; then . $f 
+elif [ -f "../$f" ]; then . ../$f
+else cat<<'EOF'> $f
+if [ -z "$GOLD" ]; then
+export GOLD="$(PWD)"
+export Lib="$HOME/opt/gold"
+export AWKPATH="$Lib:$AWKPATH"
+fi
+EOF
+. $f
+fi
+
+mkdir -p $Lib
 ### if no local lib file, then 
 f=../au
 if [ ! -f "$f" ]; then 
@@ -12,9 +27,9 @@ fi
 
 if [ -d ".git" ]; then 
   g=../.gitignore
-  if [ ! -f $g ]]; then; cat<<'EOF'>$g
+  if [ ! -f $g ]; then; cat<<'EOF'>$g
 # Gold
-*.awk
+goldrc
 # Swap
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
@@ -80,20 +95,23 @@ In {
 ### zap old awks
 if [ "$1" == "zap"  ] 
 then
-  rm  ../*/*.awk 2> /dev/null
+  rm  $Lib/*.awk 2> /dev/null
 else
    Todo="$*"
 fi
 
 ### update files
-for f in ../*/*.au ; do
-  g=${f%.au}.awk
+
+for f in $GOLD/gold.au $GOLD/*/*.au ; do
+  g=$Lib/${f%.au}.awk
   if [ "$f" -nt "$g" ]  ; then
     cat $f | au2awk > $g
   fi
-done
+  echo $(basename $f)
+done |
+gawk '++Seen[$0] {print "#E> repeat " $0}' 2> /dev/stderr
 
 ### if any command line args, run them
 if [ -n "$Todo" ]; then
-   gawk -f $Todo
+   AWKPATH="$AWKPATH" gawk -f $Todo
 fi
