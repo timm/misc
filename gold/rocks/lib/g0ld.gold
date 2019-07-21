@@ -1,6 +1,8 @@
 # vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
 #--------- --------- --------- --------- --------- ---------
 
+BEGIN{ Dot=sprintf("%c",46)}
+
 function my(i,f,    k,m) {
   k = i["isa"]
   while(k) {
