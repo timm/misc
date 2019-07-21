@@ -2,7 +2,7 @@
 
 # Table 
 
-@include "g0ld" 
+@include "gold" 
 @include "num" 
 @include "sym" 
 

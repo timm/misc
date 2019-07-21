@@ -5,9 +5,9 @@
 Base="https://raw.githubusercontent.com/timm/misc/master/gold"
 
 help() { cat<<-EOF
-	gold          : regenerate awk files
-	gold reset    : kill old awk then regenerate
-	gold XXX      : run gawk -f XXX
+	au          : regenerate awk files
+	au reset    : kill old awk then regenerate
+	au XXX      : run gawk -f XXX
 	EOF
 }
 
@@ -63,11 +63,10 @@ zap()     {
 }
 
 ready() {
-  chmod +x gold
-  f=rocks/lib/g0ld.gold
+  f=lib/gold.gold
   if [ ! -f "$f" ]; then
-    mkdir -p rocks/lib
-    wget -O $f  "$Base/$f"
+    mkdir -p lib
+    wget -O $f  "$Base/rocks/$f"
   fi
   if [ ! -f "$HOME/.config/gold" ]; then
     mkdir -p $HOME/.config

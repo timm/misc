@@ -2,7 +2,7 @@
 
 # Num 
 
-@include "g0ld" 
+@include "gold" 
 @include "col" 
 
 function Num(i) {
