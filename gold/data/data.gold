@@ -9,7 +9,7 @@
 function Table(i) {
   isa(Object(i))
   has(i,"headers")
-  has(i,"rows)
+  has(i,"rows")
 }
 function NumNorm(i,x) {
   return (x - i.lo)/(i.hi - i.lo + 1e-32)

@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# vim: set nospell :
+#--------- --------- --------- --------- --------- ---------
+
+Base="https://raw.githubusercontent.com/timm/misc/master/gold"
+help() {
+  cat<<-'EOF'
+	gold install  : install base files
+	gold zap      : kill all generated awk files
+	gold          : regenerate awk files
+	gold XXX      : run gawk -f XXX
+	EOF
+}
+goldrc() {
+  cat<<-'EOF'
+	if [ -z "$Gold" ]; then
+	export Gold="$(PWD)"
+	export Lib="$HOME/opt/gold"
+	export AWKPATH="$Lib:$AWKPATH"
+	export PATH="$Lib:$PATH"
+	fi
+	EOF
+}
+gitignore() {
+  cat<<-'EOF'
+	# Gold
+	goldrc
+	# Swap
+	[._]*.s[a-v][a-z]
+	[._]*.sw[a-p]
+	[._]s[a-rt-v][a-z]
+	[._]ss[a-gi-z]
+	[._]sw[a-p]
+	
+	# Session
+	Session.vim
+	Sessionx.vim
+	
+	# Temporary
+	.netrwhist
+	*~
+	# Auto-generated tag files
+	tags
+	# Persistent undo
+	[._]*.un~
+	EOF
+}
+f=goldrc
+if   [ -f "$f"    ]; then . $f 
+elif [ -f "../$f" ]; then . ../$f
+else goldrc >  $f
+     . $f
+fi
+
+
+### zap old awks
+if [ "$1" == "help"  ]; then
+	help
+elif [ "$1" == "zap"  ]; then
+  rm  $Lib/*.awk 2> /dev/null
+elif [ "$1" == "install" ]; then
+  chmod +x gold
+  if [ ! -f "gold.gold" ]; then
+    wget -O gold.gold "$Base/gold.gold"
+  fi
+  if [ ! -f "goldrc" ]; then
+    wget -O goldrc "$Base/etc/rc"
+  fi
+else
+  mkdir -p $Lib
+
+  ### update files
+  Files=$(find . -name '*.gold')
+  for f in $Files; do
+    g=$(basename $f)
+    g=$Lib/${g%.gold}.awk
+    if [ "$f" -nt "$g" ]  ; then
+      cat $f | gold2awk > $g
+      chmod +x $g
+    fi
+    echo $(basename $f)
+  done |
+  gawk 'Seen[$0]++ {print "#E> repeat " $0}' 2> /dev/stderr
+  
+  ### if any command line args, run them
+  if [ -n "$Todo" ]; then
+     AWKPATH="$AWKPATH" gawk -f $*
+  fi
+fi
