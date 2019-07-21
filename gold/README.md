@@ -18,7 +18,7 @@ Enter GOLD, which supports all the above.
 <a href="#contribute"><img src="etc/img/button_contribute.png"></a>
 </p>
 
-(for rest of page, i eed tow rite a few _rocks_ and get things stabler first...)
+(for rest of page, i need to write a few _rocks_ and get things stabler first...)
 
 
 
