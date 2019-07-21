@@ -8,14 +8,14 @@ help() { ## show help
   cat $Gold/au | gawk ' BEGIN { FS="##" }
    /^[A-Za-z0-9_]*\(\).*{.*##/ {
      gsub(/\(\).*/,"",$1)
-     printf("au %-8s %s\n",$1,$2) }'
+     printf("au %-8s %s\n",$1,$2) }'| sort
 }
 
 goldrc() { cat<<-EOF
 	export Gold="$(PWD)"
-	export GoldAwk="$HOME/opt/gold"
-	export AWKPATH="$HOME/opt/gold:$AWKPATH"
-	export PATH="$HOME/opt/gold:$PATH"
+	export GoldAwk="$HOME/opt/gold/awk"
+	export AWKPATH="$HOME/opt/gold/awk:$AWKPATH"
+	export PATH="$HOME/opt/gold/awk:$PATH"
 	EOF
 }
 
@@ -62,7 +62,7 @@ zap() { ## delete all awks
   [ -n "$GoldAwk" ] && rm  $GoldAwk/*.awk 2> /dev/null 
 }
 
-install() {
+install() { ## ensure base files exist
   f=lib/gold.gold
   if [ ! -f "$f" ]; then
     mkdir -p lib
@@ -74,7 +74,7 @@ install() {
   fi
 }
 
-ready() { ## update all awks 
+make() { ## update all awks 
   mkdir -p $GoldAwk
   files=$(find $Gold -name '*.gold')
   for f in $files; do
@@ -94,12 +94,15 @@ go() { ## update awks, then call gawk -f for command line args
   [ -n "$*" ] && AWKPATH="$AWKPATH" gawk -f $*
 }
 
-install
-. $HOME/.config/gold
-
-if   [ "$1" == "help"  ]; then help
-elif [ "$1" == "zap"   ]; then zap
-elif [ "$1" == "ready" ]; then zap; ready
-elif [ "$1" == "go"    ]; then shift; go $*
-else echo "??"
+if     [ "$1" == "install" ]; then install
+elif   [ ! -f "$HOME/.config/gold" ]; then
+       echo "missing config file. run 'au install'"
+else
+       . $HOME/.config/gold
+       if   [ "$1" == "help"  ]; then help
+       elif [ "$1" == "zap"   ]; then zap
+       elif [ "$1" == "make" ]; then zap; cwmakeready
+       elif [ "$1" == "go"    ]; then shift; go $*
+       else help
+       fi
 fi
