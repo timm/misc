@@ -13,6 +13,17 @@ function Header(i) {
   has(i,"all")
   i.class=""
 }
+function HeaderAdd(i,c,cell,     what) {
+  what = "Num"
+  if (index("!", cell)) i.class = c
+  if (index(">", cell)) push(i.more, c)
+  if (index("<", cell)) push(i.less, c)
+  if (cell  ~ [<>\$])   push(i.nums, c)
+  if (cell !~ [<>\$])   {push(i.syms, c); what="Sym"}
+  if (cell  ~ [<>!])    push(i.dep,  c)
+  if (cell !~ [<>!])    push(i.indep,c)
+  haves(i.all, c, what, c, cell)
+}
 function Row(i) {
   isa(Object(i))
   has(i,"cells")
@@ -21,28 +32,21 @@ function Table(i) {
   isa(Object(i))
   has(i,"has","Header")
   has(i,"rows")
+  has(i,"use")
 }
 function TableFromFile(i,file) {
   csv(i,file,"TableHeader","TableRow")
 }
-function TableHeader(i,r,cells,  j,c0,c1,cell,what) {
+function TableHeader(i,r,cells,  c0,c1,cell) {
   for(c0 in cells) {
     cell  = cells[c0]
     if (! index("?", cell)) {
-      i.has.cols[++c1] = c0 
-      what = "Num"
-      if ( index("!", cell))  i.has.class = c1
-      if ( index(">", cell))  push(i.has.more, c1)
-      if ( index("<", cell))  push(i.has.less, c1)
-      if ( index("$", cell))  push(i.has.nums, c1)
-      if (!index("$", cell)) {push(i.has.syms, c1); what="Sym"}
-      if ( cell  ~ [<>!])     push(i.has.dep,  c1)
-      if ( cell !~ [<>!])     push(i.has.indep,c1)
-      haves(i.has.all, c1, what, c1, cell)
-}}     
+      i.use[++c1] = c0 
+      HeaderAdd(i.has,c1,cell)
+}}}     
 function TableRow(i,r,cells,    c0,c1,cell) {
   has(i.rows,r,"Row")
-  for(c1 in i.has.cols) {
-    c0 = i.has.cols[c1]
+  for(c1 in i.use)  
+    c0 = i.use[c1]
     i.rows[r].cells[c1] = @Add(i.has.all[c1], cells[c0])
 }}
