@@ -87,16 +87,18 @@ regenerate() {
   gawk 'Seen[$0]++ {print "#E> repeated file name " $0 > "/dev/stderr"}' 
 }  
 
-g=$HOME/.config/gold
-if [ -f "$g" ]; then 
-  . $g
-  if   [ "$1" == "help"    ]; then help
-  elif [ "$1" == "reset"   ]; then zap; regenerate
-  elif [ "$1" == "install" ]; then install
-  else 
-    regenerate
-    [ -n "$*" ] && AWKPATH="$AWKPATH" gawk -f $*
-  fi
+if [ "$1" == "install" ]; then install
 else
-  echo "#E> missing $g. Try running 'gold install'"
+  g=$HOME/.config/gold
+  if  [ -f "$g" ]; then 
+    . $g
+    if   [ "$1" == "help"    ]; then help
+    elif [ "$1" == "reset"   ]; then zap; regenerate
+    else 
+      regenerate
+      [ -n "$*" ] && AWKPATH="$AWKPATH" gawk -f $*
+    fi
+  else
+    echo "#E> missing $g. Try running 'gold install'"
+  fi
 fi
