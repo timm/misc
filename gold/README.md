@@ -1,5 +1,9 @@
 <img src="etc/img/banner.png">
 
+<p align=center>
+<img src="http://murphymac.com/slib/images/your-first-shell-script.jpg">
+</p>
+
 <em>"Cause a little <strike>auk</strike> awk goes a long way"</em>
 
 
