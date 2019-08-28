@@ -11,11 +11,16 @@ function Num.new()
                     sd=0,lo=10^32, hi= -10^32,w=1}
 end
 
-function adds(x,t,f)
- x=x.new()
- f=f or function(z) return z end
- for _,y in pairs(t) do x._isa.add(x, f(y) ) end
- return x
+function adds(i,t,f)
+ i = i.new()
+ f = f or function(z) return z end
+ for _,y in pairs(t) do add1(i, f(y) ) end
+ return i
+end
+
+function add1(i,n)
+  if n=="?" then return n end
+  return i._isa.add(i, n)
 end
 
 function Num.add(i,n)
