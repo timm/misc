@@ -7,6 +7,7 @@ Object = {}
 do
   local id = 0
   function Object.new(t)
+    t = t or {}
     t.ako = t.ako or "Object"
     id = id + 1
     t._isa= _ENV[t.ako]
