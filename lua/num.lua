@@ -22,6 +22,5 @@ function Num.add(i,n)
   i.mu = i.mu + n 
 end
 
-
 n = adds(Num,{10,20,30})
 o(n)
