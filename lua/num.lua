@@ -13,14 +13,13 @@ end
 
 function adds(i,t,f)
  i = i.new()
- f = f or function(z) return z end
- for _,y in pairs(t) do add1(i, f(y) ) end
+ for _,y in pairs(t) do add1(i,y,f) end
  return i
 end
 
-function add1(i,n)
+function add1(i,n,f)
   if n=="?" then return n end
-  return i._isa.add(i, n)
+  return i._isa.add(i, f and f(n) or n)
 end
 
 function Num.add(i,n)
