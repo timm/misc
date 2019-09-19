@@ -2,9 +2,9 @@
 # vim : nospell filetype=py ts=2 sw=2 sts=2  et  :
 
 
-from thing import Sym,Num
-from the import THE
-from lib import *
+#from thing import Sym,Num
+#from the import THE
+#from lib import *
 from copy import deepcopy as kopy
 
 #-------------------------------------------------------
@@ -50,6 +50,27 @@ def cliffsDelta(lst1, lst2, goal=0,
   return abs(d)  <= dull[goal]
 
 #-------------------------------------------------------
+def same(x): return x
+
+class Mine:
+  oid = 0
+
+  def identify(i):
+    Mine.oid += 1
+    i.oid = Mine.oid
+    return i.oid
+
+  def __repr__(i):
+    pairs = sorted([(k, v) for k, v in i.__dict__.items()
+                    if k[0] != "_"])
+    pre = i.__class__.__name__ + '{'
+    def q(z):
+     if isinstance(z,str): return "'%s'" % z 
+     if callable(z): return "fun(%s)" % z.__name__
+     return str(z)
+    return pre + ", ".join(['%s=%s' % (k, q(v))])
+
+#-------------------------------------------------------
 class Rx(Mine):
   def fromDict(d):
     return [Rx(k,v) for k,v in d.items()]
@@ -66,7 +87,7 @@ class Rx(Mine):
       print('%4s %10s %s' % (rx.rank, rx.rx, rx.tiles()))
   #----------------------------------------------
   def __init__(i, rx="",vals=[], key=same): 
-    i.rx, i.vals = rx, sorted([x for x in vals if x != THE.skip])
+    i.rx, i.vals = rx, sorted([x for x in vals if x != "?"])
     i.n = len(i.vals)
     i.med= i.vals[int(i.n/2)]
     i.mu= sum(i.vals)/i.n

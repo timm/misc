@@ -24,5 +24,5 @@ def last(l):  return l[-1]
 isa = isinstance
 
 def isNum(x) : return isa(x,(float,int))
-
 def same(x): return x
+
