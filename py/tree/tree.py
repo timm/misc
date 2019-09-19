@@ -6,7 +6,7 @@ import random
 from the import THE
 from lib import *
 from thing import Num,Sym
-from tbl import Tbl
+from tbl import Tbl,string
 
 
 def main():

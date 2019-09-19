@@ -13,8 +13,16 @@ class Mine:
     pairs = sorted([(k, v) for k, v in i.__dict__.items()
                     if k[0] != "_"])
     pre = i.__class__.__name__ + '{'
-    q = lambda z: "'%s'" % z if isinstance(z, str) else str(z)
+    def q(z):
+     if isinstance(z,str): return "'%s'" % z 
+     if callable(z): return "fun(%s)" % z.__name__
+     return str(z)
     return pre + ", ".join(['%s=%s' % (k, q(v))
                             for k, v in pairs]) + '}'
+def first(l): return l[0]
+def last(l):  return l[-1]
+isa = isinstance
 
+def isNum(x) : return isa(x,(float,int))
 
+def same(x): return x

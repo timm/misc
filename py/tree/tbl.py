@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # vim : nospell filetype=py ts=2 sw=2 sts=2  et  :
 
+import re,sys
+from lib import Mine
+from the import THE
+from thing import Num,Sym
+
 class Meta(Mine):
   def __init__(i):
     i.klass=None
