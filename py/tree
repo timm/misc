@@ -1,0 +1,236 @@
+#!/usr/bin/env python3
+# vim : nospell filetype=py ts=2 sw=2 sts=2  et  :
+
+import re, sys
+import random
+
+class THE:
+  sep = ","
+  num = "$"
+  less = "<"
+  more = ">"
+  skip = "?"
+  klass= "!"
+  doomed = r'([\n\t\r ]|#.*)'
+
+class Mine:
+  oid = 0
+
+  def identify(i):
+    Mine.oid += 1
+    i.oid = Mine.oid
+    return i.oid
+
+  def __repr__(i):
+    pairs = sorted([(k, v) for k, v in i.__dict__.items()
+                    if k[0] != "_"])
+    pre = i.__class__.__name__ + '{'
+    q = lambda z: "'%s'" % z if isinstance(z, str) else str(z)
+    return pre + ", ".join(['%s=%s' % (k, q(v))
+                            for k, v in pairs]) + '}'
+
+class Col(Mine):
+  def xpectv(i,j):
+    n = i.n + j.n
+    return i.n/n*i.variety() + j.n/n*j.variety()
+
+  def __add__(i,x):
+    if x == THE.skip: return x
+    i.n += 1
+    i.add(x)
+    return x
+
+class Num(Col):
+  "Track numbers seen in a column"
+  def __init__(i, inits=[], pos=0,txt="",w=1):
+    i.pos, i.txt = pos, txt
+    i.n, i.w = 0, w
+    i.mu, i.m2 = 0, 0
+    i.lo, i.hi = 10 ** 32, -10 ** 32
+    [i + x for x in inits]
+  def variety(i): return i.sd()
+  def expect(i): return i.mu
+  def sd(i):
+    return 0 if i.n < 2 else (i.m2 / (i.n - 1 + 10 ** -32)) ** 0.5
+  def add(i, x):
+      if x < i.lo:
+        i.lo = x
+      if x > i.hi:
+        i.hi = x
+      d = x - i.mu
+      i.mu += d / i.n
+      i.m2 += d * (x - i.mu)
+
+  def __sub__(i, x):
+      if i.n < 2:
+        i.n, i.mu, i.m2 = 0, 0, 0
+      else:
+        i.n -= 1
+        d = x - i.mu
+        i.mu -= d / i.n
+        i.m2 -= d * (x - i.mu)
+
+class Sym(Col):
+  def __init__(i,inits=[],pos=0,txt="",w=1):
+   i.pos, i.txt = pos, txt
+   i.n, i.w = 0, w
+   i.mode=None
+   i.most=0
+   i.cnt = {}
+   [i + x for x in inits]
+  def add(i,x):
+   new = i.cnt.get(x,0) + 1
+   i.cnt[x] = new
+   if new > i.most:
+     i.mode, i.most = x,new
+  def ent(i):
+    e=0
+    for v in i.cnt.values():
+      p = v/i.n
+      e += -1*p*math.log(p,2)
+    return e
+
+
+class Meta(Mine):
+  def __init__(i):
+    i.klass=None
+    i.xnums=[]
+    i.xsyms=[]
+    i.nums=[]
+    i.syms=[]
+
+class Tbl(Mine):
+  def __init__(i):
+    i.rows=[]
+    i.cols=[]
+    i.my  = Meta()
+    i.identify()  
+
+  def what(i,pos,txt):
+    def nump():
+      for y in [THE.less, THE.more, THE.num]:    
+        if y in txt: return True
+      return False
+    def indep():
+      for y in [THE.less, THE.more, THE.klass]: 
+        if y in txt: return False
+      return True
+    w       = -1 if THE.less in txt else 1
+    klass   = Num if nump() else Sym
+    new     = klass(txt=txt,pos=pos,w=w)
+    i.cols += [new]
+    what    = i.my.nums if nump() else i.my.syms
+    what   += [new]
+    if indep():
+       what  = i.my.xnums if nump() else i.my.xsyms
+       what += [new]
+    if THE.klass in txt: i.my.klass = new
+    return new 
+
+  def read(i, src):
+    for n, lst in enumerate(cells(cols(rows(src)))):
+      if n == 0:  # check init title list is empty
+        i.cols = [i.what(pos,txt) for pos,txt in enumerate(lst)]
+      else:
+        [col + x for col,x in zip(i.cols,lst)]
+        i.rows += [Row(lst)]
+
+class Col(Mine):
+  def __init__(i, pos=0, txt=None):
+    i.identify()
+    i.pos = pos
+    i.txt = txt
+
+class Row(Mine):
+  def __init__(i, cells=[], cooked=[], dom=0):
+    i.identify()
+    i.cells = cells
+    i.cooked = cooked
+    i.dom = dom
+
+
+def string(s):
+  """read lines from a string"""
+  for line in s.splitlines():
+    yield line
+
+
+def rows(src):
+  """convert lines into lists, killing whitespace
+  and comments. skip over lines of the wrong size"""
+  linesize = None
+  for n, line in enumerate(src):
+    line = re.sub(THE.doomed, '', line.strip())
+    if line:
+      line = line.split(THE.sep)  # breakup a string and add the data to a string array
+      if linesize is None:
+        linesize = len(line)
+      if len(line) == linesize:
+        yield line
+      else:
+        print("E> skipping line %s" % n, file = sys.stderr)  # To print to STDERR
+
+def cols(src):
+  """skip columns whose name contains '?'"""
+  usedCol = None
+  for cells in src:
+    # usedCol = usedCol or [n for n, cell in enumerate(cells) if not THE.skip in cell]
+    if usedCol is None:
+      usedCol = [n for n, cell in enumerate(cells) if not THE.skip in cell]
+    yield [cells[n] for n in usedCol]
+
+def cells(src):
+  """convert strings into their right types"""
+  one = next(src)
+  fs = [None] * len(one)  # [None, None, None, None]
+  yield one  # the first line
+  def ready(n, cell):
+    if cell == THE.skip:
+      return cell  # skip over '?'
+    fs[n] = fs[n] or prep(one[n])  # ensure column 'n' compiles
+    return fs[n](cell)  # compile column 'n'
+  for _, cells in enumerate(src):
+    yield [ready(n, cell) for n, cell in enumerate(cells)]
+
+
+def prep(x):
+  def num(z):
+    f = float(z)
+    i = int(f)
+    return i if i == f else f
+  for c in [THE.num, THE.less, THE.more]:
+    if c in x:
+      return num
+  return str
+
+
+def main():
+    what = """
+    mood, $cloudCover, $temp, ?$humid, <wind,  $playHours
+    happy, 100,        68,    80,    0,    3   # comments
+    sad,   0,          85,    85,    0,    0
+    
+    happy, 0,          80,    90,    10,   0
+    happy, 60,         83,    86,    0,    4
+    sad  , 100,        70,    96,    0,    3
+    happy, 100,        65,    70,    20,   0
+    happy, 70,         64,    65,    15,   5
+    sad  , 0,          72,    95,    0,    0
+    happy, 0,          69,    70,    0,    4
+    happy, ?,          75,    80,    0,    ?
+   sad  ,  0,          75,    70,    18,   4
+    happy, 60,         72,
+    sad  , 40,         81,    75,    0,    2
+    happy, 100,        71,    91,    15,   0
+    """
+
+    tbl = Tbl()
+    tbl.read(string(what))
+    [print(x) for x in tbl.cols]
+    [print(x) for x in tbl.rows]
+
+
+if __name__ == "__main__":
+    main()
+
+
