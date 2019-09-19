@@ -13,6 +13,7 @@ class Meta(Mine):
     i.xsyms=[]
     i.nums=[]
     i.syms=[]
+    i.indep=[]
 
 class Tbl(Mine):
   def __init__(i):
@@ -37,6 +38,7 @@ class Tbl(Mine):
     what    = i.my.nums if nump() else i.my.syms
     what   += [new]
     if indep():
+       i.my.indep += [new]
        what  = i.my.xnums if nump() else i.my.xsyms
        what += [new]
     if THE.klass in txt: i.my.klass = new
