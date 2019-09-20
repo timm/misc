@@ -1,18 +1,54 @@
 #!/usr/bin/env python3
 # vim : nospell filetype=py ts=2 sw=2 sts=2  et  :
 
-### new
-#from thing import Sym,Num
-#from the import THE
-#from lib import *
 from copy import deepcopy as kopy
+import random
 
-#-------------------------------------------------------
-def cliffsDeltaSlow(lst1,lst2,
-                dull = [0.147, # small
-                        0.33,  # medium
-                        0.474 # large
-                        ][0] ): 
+"""
+Scott-Knot test + non parametric effect size + significance tests.
+Tim Menzies, 2019. Share and enjoy. No warranty. Caveat Emptor.
+
+Accepts data as per the following exmaple (you can ignore the "*n"
+stuff, that is just there for the purposes of demos on larger
+and larger data)
+
+Ouputs treatments, clustered such that things that have similar
+results get the same ranks.
+
+For a demo of this code:
+
+    python3 sk.py
+
+"""
+
+def skDemo(n=5) :
+  return Rx.data( x1 =[ 0.34, 0.49 ,0.51, 0.6]*n,
+                  x2  =[0.6  ,0.7 , 0.8 , 0.89]*n,
+                  x3  =[0.13 ,0.23, 0.38 , 0.38]*n,
+                  x4  =[0.6  ,0.7,  0.8 , 0.9]*n,
+                  x5  =[0.1  ,0.2,  0.3 , 0.4]*n)
+
+class o:
+  def __init__(i,**d) : i.__dict__.update(**d)
+
+class THE:
+  cliffs = o(dull= [0.147, # small
+                    0.33,  # medium
+                    0.474 # large
+                    ][0])
+  bs=     o( conf=0.05,
+             b=500)
+  mine =  o( private="_")
+  char =  o( skip="?")
+  rx   =  o( show="%4s %10s %s")
+  tile =  o( width=50,
+             chops=[0.1 ,0.3,0.5,0.7,0.9],
+             marks=[" " ,"-","-","-"," "],
+             bar="|",
+             star="*",
+             show=" %5.3f")
+#-----------------------------------------------------
+def cliffsDeltaSlow(lst1,lst2, dull = THE.cliffs.dull):
   """Returns true if there are more than 'dull' difference.
      Warning: O(N)^2."""
   n= gt = lt = 0.0
@@ -23,12 +59,8 @@ def cliffsDeltaSlow(lst1,lst2,
       if x < y:  lt += 1
   return abs(lt - gt)/n <= dull
 
-def cliffsDelta(lst1, lst2, goal=0, 
-                dull = [0.147, # small
-                        0.33,  # medium
-                        0.474 # large
-                        ]):
-  "Returns true if there are more than 'dull' differences"
+def cliffsDelta(lst1, lst2,  dull=THE.cliffs.dull):
+  "By pre-soring the lists, this cliffsDelta runs in NlogN time"
   def runs(lst):
     for j,two in enumerate(lst):
       if j == 0: one,i = two,0
@@ -36,7 +68,7 @@ def cliffsDelta(lst1, lst2, goal=0,
         yield j - i,one
         i = j
       one=two
-    yield j - i + 1,two  
+    yield j - i + 1,two
   #---------------------
   m, n = len(lst1), len(lst2)
   lst2 = sorted(lst2)
@@ -46,95 +78,131 @@ def cliffsDelta(lst1, lst2, goal=0,
     more += j*repeats
     while j <= (n - 1) and lst2[j] == x: j += 1
     less += (n - j)*repeats
-  d= (more - less) / (m*n) 
-  return abs(d)  <= dull[goal]
+  d= (more - less) / (m*n)
+  return abs(d)  <= dull
+
+def bootstrap(y0,z0,conf=THE.bs.conf,b=THE.bs.b):
+  """two  lists y0,z0 are the same if the same
+   patterns can be seen in all of them, as well
+   as in samples of them"""
+  class Sum():
+    def __init__(i,some=[]):
+      i.sum = i.n = i.mu = 0 ; i.all=[]
+      for one in some: i.put(one)
+    def put(i,x):
+      i.all.append(x);
+      i.sum +=x; i.n += 1; i.mu = float(i.sum)/i.n
+    def __add__(i1,i2): return Sum(i1.all + i2.all)
+  def testStatistic(y,z):
+     tmp1 = tmp2 = 0
+     for y1 in y.all: tmp1 += (y1 - y.mu)**2
+     for z1 in z.all: tmp2 += (z1 - z.mu)**2
+     s1    = float(tmp1)/(y.n - 1)
+     s2    = float(tmp2)/(z.n - 1)
+     delta = z.mu - y.mu
+     if s1+s2:
+       delta =  delta/((s1/y.n + s2/z.n)**0.5)
+     return delta
+  def one(lst): return lst[ int(any(len(lst))) ]
+  def any(n)  : return random.uniform(0,n)
+  y,z  = Sum(y0), Sum(z0)
+  x    = y + z
+  baseline = testStatistic(y,z)
+  yhat = [y1 - y.mu + x.mu for y1 in y.all]
+  zhat = [z1 - z.mu + x.mu for z1 in z.all]
+  bigger = 0
+  for i in range(b):
+    if testStatistic(Sum([one(yhat) for _ in yhat]),
+                     Sum([one(zhat) for _ in zhat])) > baseline:
+      bigger += 1
+  return bigger / b >= conf
 
 #-------------------------------------------------------
+# misc functions
 def same(x): return x
 
 class Mine:
+  "class that, amongst other times, pretty prints objects"
   oid = 0
-
   def identify(i):
     Mine.oid += 1
     i.oid = Mine.oid
     return i.oid
-
   def __repr__(i):
     pairs = sorted([(k, v) for k, v in i.__dict__.items()
-                    if k[0] != "_"])
+                    if k[0] != THE.mine.private])
     pre = i.__class__.__name__ + '{'
     def q(z):
-     if isinstance(z,str): return "'%s'" % z 
+     if isinstance(z,str): return "'%s'" % z
      if callable(z): return "fun(%s)" % z.__name__
      return str(z)
     return pre + ", ".join(['%s=%s' % (k, q(v))])
 
 #-------------------------------------------------------
 class Rx(Mine):
-  def fromDict(d):
+  "place to manage pairs of (TreatmentName,ListofResults)"
+  def __init__(i, rx="",vals=[], key=same):
+    i.rx   = rx
+    i.vals = sorted([x for x in vals if x != THE.char.skip])
+    i.n    = len(i.vals)
+    i.med  = i.vals[int(i.n/2)]
+    i.mu   = sum(i.vals)/i.n
+    i.rank = 1
+  def tiles(i,lo=0,hi=1): return  xtile(i.vals,lo,hi)
+  def __lt__(i,j):        return i.med < j.med
+  def __eq__(i,j):
+    return cliffsDelta(i.vals,j.vals) and \
+            bootstrap(i.vals,j.vals)
+  def __repr__(i):
+    return '%4s %10s %s' % (i.rank, i.rx, i.tiles())
+  def xpect(i,j,b4):
+    "Expected value of difference in emans before and after a split"
+    n = i.n + j.n
+    return i.n/n * (b4.med- i.med)**2 + j.n/n * (j.med-b4.med)**2
+  #-- end instance methods --------------------------
+  @staticmethod
+  def data(**d):
+    "convert dictionary to list of treatments"
     return [Rx(k,v) for k,v in d.items()]
+  @staticmethod
   def sum(rxs):
+    "make a new rx from all the rxs' vals"
     all = []
-    for rx in rxs: 
-      for val in rx.vals:
-        all += [val]
+    for rx in rxs:
+        for val in rx.vals:
+            all += [val]
     return Rx(vals=all)
+  @staticmethod
   def show(rxs):
+    "pretty print set of treatments"
     tmp=Rx.sum(rxs)
     lo,hi=tmp.vals[0], tmp.vals[-1]
     for rx in sorted(rxs):
-      print('%4s %10s %s' % (rx.rank, rx.rx, rx.tiles()))
-  #----------------------------------------------
-  def __init__(i, rx="",vals=[], key=same): 
-    i.rx, i.vals = rx, sorted([x for x in vals if x != "?"])
-    i.n = len(i.vals)
-    i.med= i.vals[int(i.n/2)]
-    i.mu= sum(i.vals)/i.n
-    i.rank=1
-  def __lt__(i,j):
-    return i.med < j.med
-  def __eq__(i,j):
-    return cliffsDelta(i.vals,j.vals)
-  def xpect(i,j,b4):
-    n = i.n + j.n
-    return i.n/n * (b4.med- i.med)**2 + j.n/n * (j.med-b4.med)**2
-  def tiles(i,lo=0,hi=1):
-     return  xtile(i.vals,lo,hi) 
-  def __repr__(i):
-    return '%4s %10s %s' % (i.rank, i.rx, i.tiles())
-
-def skDemo(n=5) :
-  return Rx.fromDict(
-             dict(x1 =[ 0.34, 0.49 ,0.51, 0.6]*n,
-                  x2  =[0.6  ,0.7 , 0.8 , 0.89]*n,
-                  x3  =[0.13 ,0.23, 0.38 , 0.38]*n, 
-                  x4  =[0.6  ,0.7,  0.8 , 0.9]*n,
-                  x5  =[0.1  ,0.2,  0.3 , 0.4]*n))
-#-------------------------------------------------------
-  
-def sk(rxs):
-  sk1( sorted(rxs),Rx.sum(rxs),1)
-  return rxs
-
-def sk1(rxs,b4,rank):
-  cut = left=right=None
-  best = 0
-  for j,rx in enumerate(rxs):
-    if j > 0:
-      left0  = Rx.sum( rxs[:j] )
-      right0 = Rx.sum( rxs[j:] )
-      now = left0.xpect(right0, b4)
-      if now > best:
-        if left0 != right0:
-         best, cut,left,right = now,j,kopy(left0),kopy(right0)
-  if cut:
-    rank = sk1(rxs[:cut],left, rank)
-    rank = sk1(rxs[cut:],right,rank+1)
-  else:
-    for rx in rxs:
-      rx.rank = rank
-  return rank
+        print(THE.rx.show % (rx.rank, rx.rx, rx.tiles()))
+  @staticmethod
+  def sk(rxs):
+    "sort treatments and rank them"
+    def divide(lo,hi,b4,rank):
+      cut = left=right=None
+      best = 0
+      for j in range(lo+1,hi):
+          left0  = Rx.sum( rxs[lo:j] )
+          right0 = Rx.sum( rxs[j:hi] )
+          now    = left0.xpect(right0, b4)
+          if now > best:
+              if left0 != right0:
+                  best, cut,left,right = now,j,kopy(left0),kopy(right0)
+      if cut:
+        rank = divide(lo, cut, left, rank) + 1
+        rank = divide(cut ,hi, right,rank)
+      else:
+        for rx in rxs[lo:hi]:
+          rx.rank = rank
+      return rank
+    #-- sk main
+    rxs=sorted(rxs)
+    divide(1, len(rxs),Rx.sum(rxs),1)
+    return rxs
 
 #-------------------------------------------------------
 def pairs(lst):
@@ -144,22 +212,24 @@ def pairs(lst):
          yield last,i
          last = i
 
-def xtile(lst,lo,hi,width=50,
-             chops=[0.1 ,0.3,0.5,0.7,0.9],
-             #marks=["-" ," "," ","-"," "],
-             marks=[" " ,"-","-","-"," "],
-             bar="|",star="*",show=" %5.3f"):
+def xtile(lst,lo,hi,
+             width= THE.tile.width,
+             chops= THE.tile.chops,
+             marks= THE.tile.marks,
+             bar=   THE.tile.bar,
+             star=  THE.tile.star,
+             show=  THE.tile.show):
   """The function _xtile_ takes a list of (possibly)
   unsorted numbers and presents them as a horizontal
-  xtile chart (in ascii format). The default is a 
-  contracted _quintile_ that shows the 
-  10,30,50,70,90 breaks in the data (but this can be 
+  xtile chart (in ascii format). The default is a
+  contracted _quintile_ that shows the
+  10,30,50,70,90 breaks in the data (but this can be
   changed- see the optional flags of the function).
   """
   def pos(p)   : return ordered[int(len(lst)*p)]
-  def place(x) : 
+  def place(x) :
     return int(width*float((x - lo))/(hi - lo+0.00001))
-  def pretty(lst) : 
+  def pretty(lst) :
     return ', '.join([show % x for x in lst])
   ordered = sorted(lst)
   lo      = min(lo,ordered[0])
@@ -168,13 +238,14 @@ def xtile(lst,lo,hi,width=50,
   where   = [place(n) for n in  what]
   out     = [" "] * width
   for one,two in pairs(where):
-    for i in range(one,two): 
+    for i in range(one,two):
       out[i] = marks[0]
     marks = marks[1:]
   out[int(width/2)]    = bar
-  out[place(pos(0.5))] = star 
+  out[place(pos(0.5))] = star
   return '('+''.join(out) +  ")," +  pretty(what)
 
+#-------------------------------------------------------
 def _cliffsDelta():
   "demo function"
   lst1=[1,2,3,4,5,6,7]*100
@@ -184,16 +255,31 @@ def _cliffsDelta():
       print(cliffsDelta(lst1,lst2),n) # should return False
       n*=1.03
 
+def bsTest(n=1000,mu1=10,sigma1=1,mu2=10.2,sigma2=1):
+   def g(mu,sigma) : return random.gauss(mu,sigma)
+   x = [g(mu1,sigma1) for i in range(n)]
+   y = [g(mu2,sigma2) for i in range(n)]
+   return n,mu1,sigma1,mu2,sigma2,\
+          'same' if bootstrap(x,y) else 'different'
 
+#-------------------------------------------------------
 
 if __name__ == "__main__":
+  random.seed(1)
   _cliffsDelta()
-  n=5
-  for _ in range(7):
+  print(  bsTest(100, 10.1, 1, 10.2, 1) )
+  print(  bsTest(100, 10.1, 1, 10.8, 1) )
+  print(  bsTest(100, 10.1, 10, 10.8, 1))
+  n=1
+  l1= [1,2,3,4,5,6,7,8,9,10]*10
+  for _ in range(10):
+    l2=[n*x for x in l1]
+    print('same' if bootstrap(l1,l2) else 'different',n)
+    n*=1.02
+  n=1
+  for _ in range(4):
     print()
-    print(n)
-    Rx.show(sk(skDemo(n)))
+    print(n*5)
+    Rx.show(Rx.sk(skDemo(n)))
     n*=5
-
-
 
