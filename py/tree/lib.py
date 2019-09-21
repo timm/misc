@@ -28,6 +28,12 @@ def atom(x):
 # -------------------------------------------------
 # some convenient iterators
 
+def words(f):
+  with open(f) as fp:
+    for line in fp:
+      for word in line.strip().split():
+        yield word
+
 def string(s):
   "read lines from a string"
   for line in s.splitlines():
@@ -37,7 +43,7 @@ def file(f):
   "read lines from a file"
   with open(f) as fp:
     for line in fp:
-      yield line
+      yield line.strip()
 
 # -------------------------------------------------
 # error handling
@@ -74,7 +80,3 @@ def cli():
         what[arg] = val
   return THE   
 
-if __name__ == "__main__":
-    cli()
-    for l in file("lib.py"):
-        print("["+l+"]")
