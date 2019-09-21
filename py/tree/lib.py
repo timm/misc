@@ -1,28 +1,80 @@
 #!/usr/bin/env python3
 # vim : nospell filetype=py ts=2 sw=2 sts=2  et  :
 
-class Mine:
-  oid = 0
+import random,sys,re,os
+from the import *
 
-  def identify(i):
-    Mine.oid += 1
-    i.oid = Mine.oid
-    return i.oid
+# -------------------------------------------------
+# standard shortcuts
 
-  def __repr__(i):
-    pairs = sorted([(k, v) for k, v in i.__dict__.items()
-                    if k[0] != "_"])
-    pre = i.__class__.__name__ + '{'
-    def q(z):
-     if isinstance(z,str): return "'%s'" % z 
-     if callable(z): return "fun(%s)" % z.__name__
-     return str(z)
-    return pre + ", ".join(['%s=%s' % (k, q(v))
-                            for k, v in pairs]) + '}'
+r    = random.random
+seed = random.seed
+isa  = isinstance
 def first(l): return l[0]
 def last(l):  return l[-1]
-isa = isinstance
+def isNum(x): return isa(x,(float,int))
+def same(x):  return x
 
-def isNum(x) : return isa(x,(float,int))
-def same(x): return x
+# -------------------------------------------------
+# string stuff
 
+def atom(x):
+  "coerce x into the right kind of atom"
+  try: return int(x)
+  except:
+    try: return float(x)
+    except: return x
+
+# -------------------------------------------------
+# some convenient iterators
+
+def string(s):
+  "read lines from a string"
+  for line in s.splitlines():
+    yield line
+
+def file(f):
+  "read lines from a file"
+  with open(f) as fp:
+    for line in fp:
+      yield line
+
+# -------------------------------------------------
+# error handling
+
+def now(t,m):
+  "maybe complain and exit"
+  if not t:
+    sys.stderr.write('#E> '+str(m)+'\n')
+    sys.exit()
+
+# -------------------------------------------------
+# cli tricks
+
+def cli():
+  "Allow command lines args to update fields in the nested THE" 
+  args   = [thing(x) for x in sys.argv[1:]]
+  what   = {}
+  groups = THE.d()
+  while args:
+    arg = args.pop(0)
+    if arg in groups:
+      what = groups[arg].d()
+    else:
+      now(isa(arg,str) and arg[0] == "-", "bad flag '%s'" %arg)
+      arg = arg[1:]
+      now(arg in what, "%s not one of %s" % (arg,list(what.keys())))
+      old = what[arg]
+      if isa(old, bool):
+        what[arg] = not what[arg]
+      else:
+        val = args.pop(0)
+        now(type(old) == type(val), 
+             "'%s' value not of type '%s'" % (arg,type(old)))
+        what[arg] = val
+  return THE   
+
+if __name__ == "__main__":
+    cli()
+    for l in file("lib.py"):
+        print("["+l+"]")
