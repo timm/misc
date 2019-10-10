@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 # vim: nospell:sta:et:sw=2:ts=2:sts=2
 
+def config(): return o(
+   char = o( no    = "?",
+             less  = "<",  
+             more  = ">",
+             sep   = ",", 
+             doomed= r'([\n\t\r ]|#.*)'),
+   dist = o( p=2 ))
+  
 import re,sys
 
 class o:
@@ -10,12 +18,7 @@ class o:
     return i.__class__.__name__ + '{' + ", ".join(
            [('%s=%s' % (k, v)) for k,v in sorted(pairs)]) +'}'
 
-The= o( char = o(no    = "?",
-                 less  = "<",  
-                 more  = ">",
-                 sep   = ",", 
-                 doomed= r'([\n\t\r ]|#.*)'),
-        dist = o(p=2))
+The = config()
 
 class Tbl(o):
   def __init__(i,names=[], rows=None):
@@ -26,7 +29,7 @@ class Tbl(o):
   def header(i,names):
     for n,s in enumerate(names):
       x     = (Num    if s[0] in "<>$" else Sym)(s,n)
-      what  = i.cols.objs if s[0] in '<>'  else i.cols.decs
+      what  = i.cols.objs if s[0] in '<>' else i.cols.decs
       what += [x]
       i.cols.all += [x]
   def read(i,rows):
