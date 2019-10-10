@@ -1,0 +1,222 @@
+#!/usr/bin/env python3 -B
+# vim: ft=python:nospell:sta:et:sw=2:ts=2:sts=2
+""" 
+
+## Breaking bad
+
+"I am the one who knocks."
+
+      .-------.
+      |       |
+    -=_________=-
+      ___   ___
+     |___)=(___|
+    
+         ###
+        # = #
+        #####
+         ###
+
+- Divide data into regions of bad and better.
+- Find the least you need to do to nudge things away from bad.
+
+     Better
+    .------.
+    |    36| <--- a score you want to minimize
+    | Br   |
+    .______.______.
+           |    56| <--- a larger, hence worse, score
+           | Ba   |
+           .______.
+             Bad
+
+"""
+
+def config(): 
+  """Set global options.i to change these, at the comamnd-line,
+   type
+       
+        ./braknbad GROUP -OPTION value
+
+  where GROUP is one of char,dist,do,etc and OPTION
+  is some sub-setting in GROUP; e.g. 
+
+        ./braknbad dist -p 3
+
+  """ 
+  return o(
+   char = o( no    = "?",
+             less  = "<",  
+             more  = ">",
+             sep   = ",", 
+             doomed= r'([\n\t\r ]|#.*)'),
+   dist = o( p=2 ),
+   do   = o( y=0, n=0, run=r".",
+             tell="#Tests 0 tries 0 fails 100% passed.")
+   )
+
+
+#--------- --------- --------- --------- -------- ----------
+import re,sys
+
+class o:
+  def __init__(i,**d) : i.__dict__.update(**d)
+  def __repr__(i):
+    lst= [(k, v) for k,v in i.__dict__.items() if k[0] != "_"]
+    return i.__class__.__name__ + '{' + ", ".join(
+           [('%s=%s' % (k, v)) for k,v in sorted(lst)]) +'}'
+
+def atom(x):
+  "coerce x into the right kind of atom"
+  try: return int(x)
+  except:
+    try: return float(x)
+    except: return x
+
+
+def cli(d,args=sys.argv[1:]):
+  "Allow command lines args to update fields in the THE object" 
+  args   = [atom(x) for x in args]
+  what   = {}
+  groups = d.__dict__
+  while args:
+    arg = args.pop(0)
+    if arg in groups:
+      what = groups[arg].__dict__
+    else:
+      assert isinstance(arg,str) and arg[0] == "-", "bad flag '%s'" %arg
+      arg = arg[1:]
+      assert arg in what, "%s not one of %s" % (arg,list(what.keys()))
+      old = what[arg]
+      if isinstance(old, bool):
+        what[arg] = not what[arg]
+      else:
+        val = args.pop(0)
+        assert type(old)==type(val), "'%s' value not of type '%s'"%(
+                                       arg,type(old))
+        what[arg] = val
+  return d   
+
+THE=config()
+
+def eg(f=None, all=[]):
+  if not f:
+     return [eg1(one) for one in all]
+  all +=[f]
+  return f
+
+def eg1(f):
+  if re.match(THE.do.run, f.__name__):
+    print("\n-----| %s |%s" % (f.__name__,"-"*40))
+    if f.__doc__:
+      print("# "+ re.sub(r'\n[ \t]*',"\n# ", f.__doc__))
+    THE.do.y += 1; f()
+    try:    
+      f()
+    except: 
+      THE.do.n += 1 
+      y,n  = THE.do.y, THE.do.n
+      print(traceback.format_exc())
+      o.do.tell = "#Tests %s tries %s fails %s%% passed." % (
+                    y,n, round(100*(y/(y+n+0.0001)),0))
+
+class Row(o):
+  "Holder for lists of values."
+  def __init__(i,lst):
+    i.cells=lst
+    i.count=0
+  def dist(i,j,cols): return dist(i.cells, j.cells. cols)
+
+
+class Tbl(o):
+  def __init__(i,names=[], rows=None):
+    i.rows = []
+    i.cols = o(all=[], decs = [], objs=[])
+    if names: i.header(names)
+    if rows:  i.read(rows)
+  def header(i,names):
+    for n,s in enumerate(names):
+      x     = (Num    if s[0] in "<>$" else Sym)(s,n)
+      what  = i.cols.objs if s[0] in '<>' else i.cols.decs
+      what += [x]
+      i.cols.all += [x]
+  def read(i,rows):
+    for row in rows:
+      i + row if i.cols.all else i.header(row)
+  def __add__(i,lst):
+    lst     = [ c + lst[c.pos] for c in i.cols.all ]
+    i.rows += [ Row(lst) ]
+
+class Num(o):
+  def __init__(i,name="",pos=0):
+    i.name,i.pos = name,pos
+    i.n,i.mu,i.m2 = 0,0,0
+    i.lo,i.hi     = 10**32, -10**32
+  def norm(i,x): 
+    return (x - i.lo) / (i.hi - i.lo + 10**-32)
+  def __add__(i,x):
+    if x == THE.char.no: return x
+    x = float(x)
+    if x < i.lo: i.lo = x
+    if x > i.hi: i.hi = x
+    i.n  += 1
+    d     = x - i.mu
+    i.mu += d/i.n
+    i.m2 += d*(x - i.mu)
+    i.sd  = i.sd0()
+    return x
+  def sd0(i):
+    if i.m2 < 0: return 0
+    if i.n  < 2: return 0
+    return (i.m2/(i.n - 1 + 10**-32))**0.5
+  def dist(i,x,y):
+    no = THE.char.no
+    if   x==no and y == no: return 1
+    if   x==no: y = i.norm(y); x = 0 if y > 0.5 else 1
+    elif y==no: x = i.norm(x); y = 0 if x > 0.5 else 1
+    else                     : x,y = i.norm(x), i.norm(y)
+    return x-y
+
+class Sym(o):
+  def __init__(i,name="",pos=0):
+    i.name,i.pos = name,pos
+    i.n,i.most,i.mode,i.bag = 0,0,None,{}
+  def __add__(i,x):
+    if x == THE.char.no: return x
+    i.n += 1
+    c = i.bag[x] = i.bag.get(x,0) + 1
+    if c > i.most:
+       i.most, i.mode = c, x
+    return x
+  def dist(i,x,y):
+    if   x==no and y == no: return 1
+    return 0 if x == y else 1
+
+
+def csv(file):
+  use, txt = [], ""
+  with open(file) as fs:
+    for line in fs:
+      txt += re.sub(THE.char.doomed, '', line)
+      if txt and txt[-1] != THE.char.sep:
+        lst = txt.split(THE.char.sep) 
+        if lst:
+          txt = ""
+          use = use or [n for n,s in enumerate(lst) 
+                       if s[0] != THE.char.no ]
+          if len(lst) != len(use):
+            err("wanted %s cells, got %s in %s", 
+                (len(use), len(lst),lst))
+          yield [lst[n] for n in use]
+
+@eg
+def doco():
+  import subprocess
+  subprocess.call(["/usr/bin/pydoc","./braknbad"])
+  sys.exit()
+
+if __name__ == "__main__":
+  THE = cli(THE)
+  eg()
+  t =  Tbl(rows = csv("../data/weather.csv")) 
+  print(t.cols.objs)
