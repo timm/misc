@@ -56,13 +56,13 @@ class Sym:
     if   x==no and y == no: return 1
     return 0 if x == y else 1
 
-class tbl:
+class Tbl:
    def __init__(i):
      i.rows = []
      i.decs = []
      i.objs = []
 
-class row:
+class Row:
   def __init__(i,lst):
     i.cells=lst
     i.count=0
@@ -76,7 +76,7 @@ def dist(x,y,cols)
 def egs(file, less  = "<",  more=">",
              sep = ",", doomed = r'([\n\t\r ]|#.*)'):
   want = lambda z: z[0] != no
-  t= tbl()
+  t= Tbl()
   cols = None
 
   def ako(name,n,x):
@@ -95,7 +95,7 @@ def egs(file, less  = "<",  more=">",
   def cols(src):
     for lst in src:
       if cols:
-        t.rows += [ row([prep(n,x) for n,x in enumerate(lst)]) ]
+        t.rows += [ Row([prep(n,x) for n,x in enumerate(lst)]) ]
       else:
         cols = [None for _ in lst]
         names = lst
