@@ -32,7 +32,7 @@ class Num:
     if i.m2 < 0: return 0
     if i.n  < 2: return 0
     return  (i.m2/(i.n - 1 + 10**-32))**0.5
-  def __sub__(i,x,y):
+  def dist(i,x,y):
     if   x==no and y == no: return 1
     if   x==no: y = i.norm(y); x = 0 if y > 0.5 else 1
     elif y==no: x = i.norm(x); y = 0 if x > 0.5 else 1
@@ -52,7 +52,7 @@ class Sym:
     if c > i.most:
        i.most, i.mode = c, x
     return x
-  def __sub__(i,x,y):
+  def dist(i,x,y):
     if   x==no and y == no: return 1
     return 0 if x == y else 1
 
