@@ -88,6 +88,7 @@ class o:
            [('%s=%s' % (k, v)) for k,v in sorted(lst)]) +'}'
 
 any = random.choice
+p=lambda z: int(round(z*100,0))
 
 def same(x):
   "The identity function. Returns 'x'."
@@ -207,10 +208,12 @@ class Tbl(o):
       r1.score = tmp/n
   def cook(i):
     i.scoring()
+    r=[]
     for col in i.cols.numdecs:
-       print(Div2(i.rows,
+       r += Div2(i.rows,
                    x=lambda row: row.cells[col.pos],
-                   y=lambda row: row.score).ranges)
+                   y=lambda row: row.score).ranges
+    return sorted(r,key=lambda z:z.stats.mu)
   def clone(i):
     """Return an (empty) table that can read rows like 
     those seen in this table."""
@@ -277,6 +280,17 @@ class Num(Thing):
     i.m2 += d*(x - i.mu)
     i.sd  = i.sd0()
     return x
+  def __sub__(i, x):
+    if i.n < 2:
+      i.n, i.mu, i.m2 = 0, 0, 0
+    else:
+      i.n -= 1
+      x = i.key(x)
+      d = x - i.mu
+      i.mu -= d / i.n
+      i.m2 -= d * (x - i.mu)
+      i.sd = i.sd0()
+    return x
   def sd0(i):
     if i.m2 < 0: return 0
     if i.n  < 2: return 0
@@ -342,6 +356,7 @@ class Div2(o):
     i._lst     = sorted([one for one in lst if x(one) is not THE.char.no], key=x)
     i.xs       = i.xis(i._lst)
     i.ys       = i.yis(i._lst)
+    print(p(i.ys.mu), p(i.ys.sd))
     i.step     = int(len(i._lst)**THE.div.min) # each split need >= 'step' items
     i.stop     = x(last(i._lst))               # top list value
     i.start    = x(first(i._lst))              # bottom list value
@@ -353,8 +368,8 @@ class Div2(o):
     """Find a split between lo and hi, then recurse on each split.
      If no split can be found then assign everything a rank of 'rank'.
      'xr' and 'yr' are statistics on the whole x,y space from lo to hi."""
-    print(lo,hi)
     xb4       = kopy(xr)
+    xb4.stats = kopy(yr)
     xl        = i.xis()
     yl        = i.yis()
     best      = yr.variety()
@@ -382,8 +397,10 @@ class Div2(o):
       rank = i.__divide(cut, hi, i.xis(rs), i.yis(rs), rank)
     else:
       xb4.rank  = rank
-      xb.uses = set(i._lst[lo:hi])
+      xb4.uses = set(i._lst[lo:hi])
       i.ranges += [ xb4 ]
+      for row in i._lst[lo:hi]:
+        row.ranges[xb4.pos] = xb4
     return rank
 
 def csv(file):
@@ -410,4 +427,6 @@ def doco():
 if __name__ == "__main__":
   THE = cli(THE)
   #Eg.run()
-  t =  Tbl(rows = csv("../data/auto93.csv")).cook()
+  for r in Tbl(rows = csv("../data/auto93.csv")).cook():
+    print(p(r.stats.mu),p(r.stats.sd),r.n)
+
