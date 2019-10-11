@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 -B
+#!/usr/bin/env python3 
 # vim: ft=python:nospell:sta:et:sw=2:ts=2:sts=2
 """ 
 
@@ -56,7 +56,7 @@ def config():
    do   = o(  run=r"."     ),
    nb   = o(  k=1, m=2     ),
    row  = o(  doms = 64    ),
-   two  = o(  better = 0.2 )
+   two  = o(  better = 0.2 ),
    div  = o(  cohen  = 0.3,
               trivial= 1.05,
               min    = 0.6)
@@ -68,9 +68,18 @@ import re,sys,traceback,random
 from copy import deepcopy as kopy
 
 class o:
-  """A class for quick specification of fields. 
-  And for pretty-printing instances."""
+  """A few of my favorite things; (1) fast creation
+  of instance attributes; (2) hash id management; 
+  (3) pretty print of instances."""
+  id = 0
+  "used to generate ids for an instance"
   def __init__(i,**d) : i.__dict__.update(**d)
+  def identity(i): 
+    "assign a new unique integer as 'id' of this instance."
+    i.id = o.id = o.id+ 1;return i.id
+  def __hash__(i):
+    "Allow this instance to be used in sets or dictionary keys."
+    return i.id
   def __repr__(i):
     """Print attributes in alphabetical order, skipping
      'private' attributes (those starting with '_')."""
@@ -79,6 +88,10 @@ class o:
            [('%s=%s' % (k, v)) for k,v in sorted(lst)]) +'}'
 
 any = random.choice
+
+def same(x):
+  "The identity function. Returns 'x'."
+  return x
 
 def atom(x):
   "Coerce the string x into the right kind of atom."
@@ -153,8 +166,8 @@ class Row(o):
   def __init__(i,lst):
     i.cells=lst
     i.ranges=[None]*len(lst)
-    i.count=0
-  def dom(i,j,t):
+    i.score=0
+  def scoring(i,j,t):
     "Check if this row 'i' is better than row 'j'."
     n = len(t.cols.objs)
     s1 = s2 = 0
@@ -171,7 +184,7 @@ class Tbl(o):
   `Sym` instances)."""
   def __init__(i,names=[], rows=None):
     i.rows = []
-    i.cols = o(all=[], decs = [], objs=[])
+    i.cols = o(all=[], decs = [], objs=[], numdecs=[])
     if names: 
       i.header(names)
       i.names = names
@@ -181,16 +194,23 @@ class Tbl(o):
   def centroid(i):
     "Return the middle."
     return [ c.centroid() for c in i.cols.all ]
-  def div(i):
-    "Divide the rows into those that dominate most/least."
+  def scoring(i):
+    """Score each row (using the row's `scoring` method).
+     If there are too many rows to score fully, then
+     just score against a random number."""
     n = THE.row.doms
     for r1 in i.rows:
       if n < len(i.rows):
-        tmp= sum(r1.dom(any(i.rows),i) for _ in range(n)) 
+        tmp= sum(r1.scoring(any(i.rows),i) for _ in range(n)) 
       else: 
-        tmp= sum(r1.dom(r2,i) for r2 in i.rows)
-      r1.count = tmp/n
-    return Two(i, i.rows)
+        tmp= sum(r1.scoring(r2,i) for r2 in i.rows)
+      r1.score = tmp/n
+  def cook(i):
+    i.scoring()
+    for col in i.cols.numdecs:
+       print(Div2(i.rows,
+                   x=lambda row: row.cells[col.pos],
+                   y=lambda row: row.score).ranges)
   def clone(i):
     """Return an (empty) table that can read rows like 
     those seen in this table."""
@@ -203,7 +223,7 @@ class Tbl(o):
       what  = i.cols.objs if s[0] in '<>' else i.cols.decs
       what += [x]
       i.cols.all += [x]
-      print(x)
+      if s[0] == "$": i.cols.numdecs += [x]
   def read(i,src):
     """Read rows from some src. Add to this table.
       If this table does not know what is columns are yet,
@@ -228,13 +248,7 @@ class Tbl(o):
     return like
 
 class Thing(o):
-  id = 0
-  def identity(i):
-    i.id = Thing.id = Thing.id+ 1
-    return i.id
-  def __hash__(i):
-    return i.id
-  def xpect(i,j):
+   def xpect(i,j):
     n = i.n + j.n
     return i.n/n * i.variety() + j.n/n * j.variety()
 
@@ -245,7 +259,7 @@ class Num(Thing):
     i.w=w
     i.n,i.mu,i.m2 = 0,0,0
     i.lo,i.hi     = 10**32, -10**32
-    i.key = same
+    i.key = key
     [i + one for one in inits]
   def variety(i) : return i.sd
   def centroid(i): return i.mu
@@ -296,22 +310,20 @@ class Sym(Thing):
         i._ent -= p*math.log(p,2)
     return i._ent
 
-class Two:
+class Two(o):
   """Stores two tables: one for `_bad` things
      and one for `_better` things."""
   def __init__(i,t, lst):
-    i._bad, i._better = t.clone(), t.clone()
+    i.bad, i.better = t.clone(), t.clone()
     lst = sorted(lst, key=lambda z:z.count)
     n   = int(len(lst)*THE.two.better)
     for m,one in enumerate(lst):
       a = one.cells
-      (i._bad + a) if m < n else (i._better + a)
-  def bad(i,lst)     : i._bad + lst
-  def better(i,lst)  : i._better + lst
+      (i.bad + a) if m < n else (i.better + a)
   def p(i,lst): 
-    ns = len(i._bad.rows) + len(i._better.rows)
-    l1 = i._bad.like(   i,lst, ns)
-    l2 = i._better.like(i,lst, ns)
+    ns = len(i.bad.rows) + len(i.better.rows)
+    l1 = i.bad.like(   i,lst, ns)
+    l2 = i.better.like(i,lst, ns)
     return l1/(l1+l2), l2/(l1+l2)
 
 def first(lst): return lst[0]
@@ -327,21 +339,21 @@ class Div2(o):
     i.x, i.y   = x,y
     i.xis      = lambda lst=[]: xis(inits=lst, key=i.x) # a collector for x things
     i.yis      = lambda lst=[]: yis(inits=lst, key=i.y) # a collector for y things
-    i._lst     = sorted(one for one in lst 
-                        if x(one) is not THE.char.no, ,key=x)
+    i._lst     = sorted([one for one in lst if x(one) is not THE.char.no], key=x)
     i.xs       = i.xis(i._lst)
     i.ys       = i.yis(i._lst)
     i.step     = int(len(i._lst)**THE.div.min) # each split need >= 'step' items
     i.stop     = x(last(i._lst))               # top list value
     i.start    = x(first(i._lst))              # bottom list value
     i.ranges   = []                            # the generted ranges
-    i.epsilon  = i.xs.sd() * THE.div.cohen     # bins must be seperated >= epsilon
+    i.epsilon  = i.xs.sd * THE.div.cohen     # bins must be seperated >= epsilon
     i.__divide(1, len(i._lst), i.xs, i.ys, 1)
 
   def __divide(i, lo, hi, xr, yr, rank):
     """Find a split between lo and hi, then recurse on each split.
      If no split can be found then assign everything a rank of 'rank'.
      'xr' and 'yr' are statistics on the whole x,y space from lo to hi."""
+    print(lo,hi)
     xb4       = kopy(xr)
     xl        = i.xis()
     yl        = i.yis()
@@ -370,6 +382,7 @@ class Div2(o):
       rank = i.__divide(cut, hi, i.xis(rs), i.yis(rs), rank)
     else:
       xb4.rank  = rank
+      xb.uses = set(i._lst[lo:hi])
       i.ranges += [ xb4 ]
     return rank
 
@@ -397,6 +410,4 @@ def doco():
 if __name__ == "__main__":
   THE = cli(THE)
   #Eg.run()
-  t =  Tbl(rows = csv("../data/auto93.csv")).div()
-  print(t._bad.centroid())
-  print(t._better.centroid())
+  t =  Tbl(rows = csv("../data/auto93.csv")).cook()
