@@ -210,10 +210,11 @@ class Tbl(o):
     i.scoring()
     r=[]
     for col in i.cols.numdecs:
-       r += Div2(i.rows,
+       d=  Div2(i.rows,
                    x=lambda row: row.cells[col.pos],
-                   y=lambda row: row.score).ranges
-    return sorted(r,key=lambda z:z.stats.mu)
+                   y=lambda row: row.score)
+       r+= d.ranges
+    return d.b4, sorted(r,key=lambda z:z.stats.mu)
   def clone(i):
     """Return an (empty) table that can read rows like 
     those seen in this table."""
@@ -356,7 +357,7 @@ class Div2(o):
     i._lst     = sorted([one for one in lst if x(one) is not THE.char.no], key=x)
     i.xs       = i.xis(i._lst)
     i.ys       = i.yis(i._lst)
-    print(p(i.ys.mu), p(i.ys.sd))
+    i.b4       = kopy(i.ys)
     i.step     = int(len(i._lst)**THE.div.min) # each split need >= 'step' items
     i.stop     = x(last(i._lst))               # top list value
     i.start    = x(first(i._lst))              # bottom list value
@@ -427,6 +428,9 @@ def doco():
 if __name__ == "__main__":
   THE = cli(THE)
   #Eg.run()
-  for r in Tbl(rows = csv("../data/auto93.csv")).cook():
-    print(p(r.stats.mu),p(r.stats.sd),r.n)
+  t= Tbl(rows = csv("../data/auto93.csv"))
+  b4, after = t.cook()
+  print(p(b4.mu), p(b4.sd),b4.n)
+  for r in after:
+    print(p(r.stats.mu), p(r.stats.sd),r.n)
 
