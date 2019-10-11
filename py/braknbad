@@ -51,13 +51,15 @@ def config():
              sep   = ",", 
              doomed= r'([\n\t\r ]|#.*)'),
    dist = o( p=2 ),
-   do   = o( y=0, n=0, run=r".",
-             tell="#Tests 0 tries 0 fails 100% passed.")
+   do   = o(  run=r"."     ),
+   nb   = o(  k=1, m=2     ),
+   row  = o(  doms = 64    ),
+   two  = o(  better = 0.2 )
    )
 
 
 #--------- --------- --------- --------- -------- ----------
-import re,sys
+import re,sys,traceback,random
 
 class o:
   def __init__(i,**d) : i.__dict__.update(**d)
@@ -65,6 +67,8 @@ class o:
     lst= [(k, v) for k,v in i.__dict__.items() if k[0] != "_"]
     return i.__class__.__name__ + '{' + ", ".join(
            [('%s=%s' % (k, v)) for k,v in sorted(lst)]) +'}'
+
+any = random.choice
 
 def atom(x):
   "coerce x into the right kind of atom"
@@ -99,59 +103,102 @@ def cli(d,args=sys.argv[1:]):
 
 THE=config()
 
-def eg(f=None, all=[]):
-  if not f:
-     return [eg1(one) for one in all]
-  all +=[f]
-  return f
-
-def eg1(f):
-  if re.match(THE.do.run, f.__name__):
-    print("\n-----| %s |%s" % (f.__name__,"-"*40))
-    if f.__doc__:
-      print("# "+ re.sub(r'\n[ \t]*',"\n# ", f.__doc__))
-    THE.do.y += 1; f()
-    try:    
-      f()
-    except: 
-      THE.do.n += 1 
-      y,n  = THE.do.y, THE.do.n
-      print(traceback.format_exc())
-      o.do.tell = "#Tests %s tries %s fails %s%% passed." % (
+class Eg(o):
+  all = []
+  y   = 0
+  n   = 0
+  tell= "#Tests 0 tries 0 fails 100% passes."
+  def run(): 
+    [Eg.run1(one) for one in Eg.all]
+  def run1(f):
+    if re.match(THE.do.run, f.__name__):
+      print("\n-----| %s |%s" % (f.__name__,"-"*40))
+      if f.__doc__:
+        print("# "+ re.sub(r'\n[ \t]*',"\n# ", f.__doc__))
+      Eg.y += 1
+      try:    
+        f()
+      except: 
+        Eg.n += 1
+        y,n  = Eg.y, Eg.n
+        print(traceback.format_exc())
+        Eg.tell = "#Tests %s tries %s fails %s%% passed." % (
                     y,n, round(100*(y/(y+n+0.0001)),0))
+
+def eg(f): Eg.all += [f]; return f
 
 class Row(o):
   "Holder for lists of values."
   def __init__(i,lst):
     i.cells=lst
+    i.ranges=[None]*len(lst)
     i.count=0
-  def dist(i,j,cols): return dist(i.cells, j.cells. cols)
-
+  def dom(i,j,t):
+    n = len(t.cols.objs)
+    s1 = s2 = 0
+    for c in t.cols.objs:
+      x,y = i.cells[c.pos], j.cells[c.pos]
+      x,y = c.norm(x), c.norm(y)
+      s1 -= 10**( c.w * (x-y)/n )
+      s2 -= 10**( c.w * (y-x)/n )
+    return s1/n < s2/n
 
 class Tbl(o):
   def __init__(i,names=[], rows=None):
     i.rows = []
     i.cols = o(all=[], decs = [], objs=[])
-    if names: i.header(names)
-    if rows:  i.read(rows)
+    if names: 
+      i.header(names)
+      i.names = names
+    if rows:  
+      i.read(rows)
+      i.names = [ c.txt for c in i.cols.all ]
+  def centroid(i):
+    return [ c.centroid() for c in i.cols.all ]
+  def div(i):
+    n = THE.row.doms
+    for r1 in i.rows:
+      if n < len(i.rows):
+        tmp= sum(r1.dom(any(i.rows),i) for _ in range(n)) 
+      else: 
+        tmp= sum(r1.dom(r2,i) for r2 in i.rows)
+      r1.count = tmp/n
+    return Two(i, i.rows)
+  def clone(i):
+    return Tbl(i.names)
   def header(i,names):
     for n,s in enumerate(names):
-      x     = (Num    if s[0] in "<>$" else Sym)(s,n)
+      w     = -1 if s[0] == '<' else 1
+      x     = (Num    if s[0] in "<>$" else Sym)(s,n,w)
       what  = i.cols.objs if s[0] in '<>' else i.cols.decs
       what += [x]
       i.cols.all += [x]
+      print(x)
   def read(i,rows):
     for row in rows:
       i + row if i.cols.all else i.header(row)
   def __add__(i,lst):
     lst     = [ c + lst[c.pos] for c in i.cols.all ]
     i.rows += [ Row(lst) ]
-
+  def like(i,lst,ns):
+    n    = len(i.rows)
+    k, m = THE.nb.k, THE.nb.m
+    like = prior = (n + k) / (ns + k*2)
+    for c in i.all.decs:
+      x     = lst[c.pos]
+      if x == THE.char.no: continue
+      f     = c.bag.get(x,0)
+      inc   = (f + m*prior) / (n + m)
+      like *= inc
+    return like
+ 
 class Num(o):
-  def __init__(i,name="",pos=0):
-    i.name,i.pos = name,pos
+  def __init__(i,txt="",pos=0,w=1):
+    i.txt,i.pos = txt,pos
+    i.w=w
     i.n,i.mu,i.m2 = 0,0,0
     i.lo,i.hi     = 10**32, -10**32
+  def centroid(i): return i.mu
   def norm(i,x): 
     return (x - i.lo) / (i.hi - i.lo + 10**-32)
   def __add__(i,x):
@@ -169,18 +216,13 @@ class Num(o):
     if i.m2 < 0: return 0
     if i.n  < 2: return 0
     return (i.m2/(i.n - 1 + 10**-32))**0.5
-  def dist(i,x,y):
-    no = THE.char.no
-    if   x==no and y == no: return 1
-    if   x==no: y = i.norm(y); x = 0 if y > 0.5 else 1
-    elif y==no: x = i.norm(x); y = 0 if x > 0.5 else 1
-    else                     : x,y = i.norm(x), i.norm(y)
-    return x-y
 
 class Sym(o):
-  def __init__(i,name="",pos=0):
-    i.name,i.pos = name,pos
+  def __init__(i,txt="",pos=0,w=1):
+    i.txt,i.pos = txt,pos
+    i.w=w
     i.n,i.most,i.mode,i.bag = 0,0,None,{}
+  def centroid(i): return i.mode
   def __add__(i,x):
     if x == THE.char.no: return x
     i.n += 1
@@ -188,10 +230,32 @@ class Sym(o):
     if c > i.most:
        i.most, i.mode = c, x
     return x
-  def dist(i,x,y):
-    if   x==no and y == no: return 1
-    return 0 if x == y else 1
 
+class Two:
+  """Stores two tables: one for `_bad` things
+     and one for `_better` things."""
+  def __init__(i,t, lst):
+    i._bad, i._better = t.clone(), t.clone()
+    lst = sorted(lst, key=lambda z:z.count)
+    n   = int(len(lst)*THE.two.better)
+    for m,one in enumerate(lst):
+      a = one.cells
+      (i._bad + a) if m < n else (i._better + a)
+  def bad(i,lst)     : i._bad + lst
+  def better(i,lst)  : i._better + lst
+  def p(i,lst): 
+    ns = len(i._bad.rows) + len(i._better.rows)
+    l1 = i._bad.like(   i,lst, ns)
+    l2 = i._better.like(i,lst, ns)
+    return l1/(l1+l2), l2/(l1+l2)
+   
+class Range(o):
+  id = 0
+  def __init__(i,lo,hi) : 
+    i.lo,i.hi=lo,hi
+    i.id = Range.id = Range.id + 1
+  def __hash__(i):
+    return i.id
 
 def csv(file):
   use, txt = [], ""
@@ -213,10 +277,10 @@ def csv(file):
 def doco():
   import subprocess
   subprocess.call(["/usr/bin/pydoc","./braknbad"])
-  sys.exit()
 
 if __name__ == "__main__":
   THE = cli(THE)
-  eg()
-  t =  Tbl(rows = csv("../data/weather.csv")) 
-  print(t.cols.objs)
+  #Eg.run()
+  t =  Tbl(rows = csv("../data/auto93.csv")).div()
+  print(t._bad.centroid())
+  print(t._better.centroid())
