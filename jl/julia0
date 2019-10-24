@@ -1,4 +1,3 @@
-
 brew update --verbose; brew cask install julia
+julia -e 'using Pkg; Pkg.add("DataFrames"); Pkg.add("Parameters")'
 
-julia -e 'using Pkg; Pkg.add("DataFrames")'
