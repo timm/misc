@@ -6,21 +6,48 @@ using Parameters
            goals= [22], klass= nothing)
   all  = [] 
   nums = [] 
-  syms = []
+  syms = (10, 20,   30, 40)
   name=""
   pos=0
 end
 
-z=Cols(name="jane", pos=2)
-show(z)
-#w = Cols()
+#z=Cols(name="jane", pos=2)
+#show(z)
+#w = Cols(),
 #dump(w)
 #dump(nothing)
 
+function num(s)
+  v = tryparse(Float64,s) 
+  v == nothing ? s : v
+end
+function dd()
+open("sherlock-holmes.txt") do f
+   line = 1
+   while !eof(f)
+     x = readline(f)
+     println("$line $x")
+     line += 1
+   end
+ end
+end
+
 open("got.jl") do file
     n=1
+    old=""
+    function prep(s)
+      if sizeof(s) > 0
+        println( map(num, split(s,",")))end end
     for line in eachline(file)
-        words= split(strip(line), "a[ \t]*,a[ \t]*")
-        println(words) 
+        line = replace(line, r"([ \t\n]|#.*)" => "")
+        if sizeof(line) == 0  continue end
+        print(line[end])
+        if line[end] == ',' 
+          old = old * line
+        else
+          prep(old*line)
+          old=""
+        end 
     end
+    prep(old)
 end
