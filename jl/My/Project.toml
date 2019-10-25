@@ -1,0 +1,7 @@
+name = "My"
+uuid = "a948cd5c-62d3-455a-82e0-b0b4ac7ea438"
+authors = ["Tim Menzies <tim.menzies@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"

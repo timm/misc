@@ -1,5 +1,8 @@
-module Got
-export demo
+module My
+
+greet() = print("Hello World!")
+
+
 using Parameters 
 
 @with_kw mutable struct Cols
@@ -9,7 +12,7 @@ using Parameters
   all  = [] 
   nums = [] 
   syms = (10, 20,   30, 40)
-  name=""
+  name= ""
   pos=0
 end
 
@@ -47,8 +50,9 @@ end
 #       end
 #
 
-demo = begin
-  open("got.jl") do file
+function demo()
+  print(1111)
+  open("src/My.jl") do file
       n=1
       old=""
       function prep(s)
@@ -62,7 +66,7 @@ demo = begin
             old = old * line
           else
             prep(old*line)
-            old=""
+            old = ""
           end 
       end
       prep(old)
