@@ -32,6 +32,19 @@ open("sherlock-holmes.txt") do f
  end
 end
 
+#[take(PSerie(2),10)...]
+#
+#struct PSerie
+#           p
+#       end
+#
+#
+#function Base.iterate(ps::PSerie, (s,n) = (0,1))
+#    s += 1 / (n^ps.p)
+#           s, (s, n+1)
+#       end
+#
+
 open("got.jl") do file
     n=1
     old=""
