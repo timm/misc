@@ -11,9 +11,16 @@ using Parameters
   pos=0
 end
 
-z=Cols(name="jane",pos=2)
+z=Cols(name="jane", pos=2)
 show(z)
 #w = Cols()
 #dump(w)
 #dump(nothing)
 
+open("got.jl") do file
+    n=1
+    for line in eachline(file)
+        words= split(strip(line), "a[ \t]*,a[ \t]*")
+        println(words) 
+    end
+end
