@@ -44,27 +44,31 @@ end
 end
 #
 #print(Lines(name="src/My.jl"))
-#
-function Base.iterate(z::Lines, (s,b4)=("",""))
-   line1()  = replace(readline(z.stream),r"([ \t\n]|#.*)",""))
-   ready(z) = split(z,",")
-   some(z)  = sizeof(z) > 0
-   if eof(z.src) 
-     if sizeof(b4) > 0 (ready(s),"") else nothing end 
-   else
-     while (!eof(z.src) and some(s)) s=line1()) end
-     if eof(z.src)
-       nothing
-     while (!eof(z.src) and some(s) and is[end] == ',' 
-       s = line1()
+
+function row(str,b4="")
+  while true
+    if eof(str) return b4 end
+    r = replace(readline(str),r"([ \t\n]|#.*)"=>"")
+    if sizeof(r) == 0 continue end
+    if r[end] == ',' 
+       b4 *= r
      else
-       prep(b4*s)
-     end end end 
+       return b4 * r
+     end 
+  end
+end
+
+function Base.iterate(z::Lines,(n)=(1))
+   line = row(z.src)
+   if sizeof(line) > 0 
+     split(line,",") ,(n+1)
+   end
+end 
 
 #f=Lines(name="src/My.jl")
 #
-for line in Lines(name="src/My.jl")
-   println(line)
+for tmp in Lines(name="src/My.jl")
+   println(tmp)
 end
 #
 #function Base.iterate(z::Lines, (s,n) = (0,1))
