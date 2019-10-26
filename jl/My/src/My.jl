@@ -40,22 +40,27 @@ end
 
 @with_kw mutable struct Lines
   name = ""
-  stream    = open(name)
+  src    = open(name)
 end
 #
 #print(Lines(name="src/My.jl"))
 #
-function Base.iterate(z::Lines,(b4)=(""))
-   if eof(z.stream)
-     nothing
+function Base.iterate(z::Lines, (s,b4)=("",""))
+   line1()  = replace(readline(z.stream),r"([ \t\n]|#.*)",""))
+   ready(z) = split(z,",")
+   some(z)  = sizeof(z) > 0
+   if eof(z.src) 
+     if sizeof(b4) > 0 (ready(s),"") else nothing end 
    else
-     line= readline(z.stream)
-     line = replace(line, r"([ \t\n]|#.*)")
-     if sizeof(line) == 0 w
+     while (!eof(z.src) and some(s)) s=line1()) end
+     if eof(z.src)
+       nothing
+     while (!eof(z.src) and some(s) and is[end] == ',' 
+       s = line1()
+     else
+       prep(b4*s)
+     end end end 
 
-   end
- end
-#
 #f=Lines(name="src/My.jl")
 #
 for line in Lines(name="src/My.jl")
