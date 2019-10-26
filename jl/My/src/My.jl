@@ -20,10 +20,6 @@ z=Cols(name="jane", pos=2)
 #dump(w)
 #dump(nothing)
 
-function num(s)
-  v = tryparse(Float64,s) 
-  v == nothing ? s : v
-end
 function dd()
 open("sherlock-holmes.txt") do f
    line = 1
@@ -38,36 +34,45 @@ end
 #[take(PSerie(2),10)...]
 #
 
+
+#print(Lines(name="src/My.jl"))
+
+using Parameters
 @with_kw mutable struct Lines
   name = ""
   src    = open(name)
 end
-#
-#print(Lines(name="src/My.jl"))
 
-function row(str,b4="")
-  while true
-    if eof(str) return b4 end
-    r = replace(readline(str),r"([ \t\n]|#.*)"=>"")
-    if sizeof(r) == 0 continue end
-    if r[end] == ',' 
-       b4 *= r
-     else
-       return b4 * r
-     end 
-  end
-end
-
+"Define an iterator that returns a comma-seperated file, one
+ record at a time without loading the whole file into memory."
 function Base.iterate(z::Lines,(n)=(1))
-   line = row(z.src)
-   if sizeof(line) > 0 
-     split(line,",") ,(n+1)
-   end
-end 
+  "Co-erce strings to numbers or strings, as approriate." 
+  function atom(s)
+    v = tryparse(Float64,s) 
+    v == nothing ? s : v
+  end
+  "Delete comments and whitespace. Lines ending in
+   ',' are joined to the next. Skip empty lines."
+  function row(str,b4="")
+    while true
+      if eof(str) return b4 end
+      r = replace(readline(str),r"([ \t\n]|#.*)"=>"")
+      if sizeof(r) == 0 continue end
+      if r[end] == ',' 
+        b4 *= r
+      else
+        return b4 * r end end 
+  end
+  "Split on comma, then coerce sub-strings."
+  function prep(words)
+    [atom(word) for word in split(words,",")]
+  end
+  #------------------------------
+  line = row(z.src)
+  if sizeof(line) > 0 prep(line),(n+1) end
+ end 
 
-#f=Lines(name="src/My.jl")
-#
-for tmp in Lines(name="src/My.jl")
+for tmp in Lines(name="data/weather.csv")
    println(tmp)
 end
 #
