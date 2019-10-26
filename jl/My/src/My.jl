@@ -35,25 +35,34 @@ end
 
 "Define an iterator that returns a comma-seperated file, one
  record at a time without loading the whole file into memory."
-function Base.iterate(it::Lines, (n)=(1))
+function Base.iterate(it::Lines, (n,use)=(1,[]))
   "Split on comma, coerce strings to numbers or strings, as approriate." 
-  cells(s)= map(cell, split(s,","))
-  cell(s) = ((x = tryparse(Float64,s))==nothing) ? s : x
+  cells(s)    = map(cell, split(s,","))
+  cell(s)     = ((x = tryparse(Float64,s))==nothing) ? s : x
+  relevant(s) = match(r"\?",s) == nothing
 
+  function words(txt)
+      lst = cells(txt)
+      println(">>",lst)
+      if n == 1 
+        use = [i for (i,s) in enumerate(lst) if relevant(s)]
+      else
+        [lst[i] for i in use]  end end
+  
   "Delete comments and whitespace. Lines ending in
    ',' are joined to the next. Skip empty lines."
   function row(txt="")
     while true
-      if eof(it.src) return txt end
+      if eof(it.src) return words(txt) end
       new = readline(it.src)
       new = replace(new, r"([ \t\n]|#.*)"=>"")
       if sizeof(new) != 0 
         txt *= new
         if txt[end] != ',' 
-          return txt end end end end
+	  return words(txt) end end end end 
 
-  line     = row()
-  if sizeof(line) > 0 (n,cells(line)), (n+1) end
+  new = row()
+  if sizeof(new) > 0 (n,new) , (n+1,use) end
  end 
 
 for (n,tmp) in Lines(file= "data/weather.csv")
