@@ -31,56 +31,34 @@ open("sherlock-holmes.txt") do f
  end
 end
 
-#[take(PSerie(2),10)...]
-#
-
-
-#print(Lines(name="src/My.jl"))
-
-using Parameters
-@with_kw mutable struct Lines
-  name = ""
-  src    = open(name)
-end
+@with_kw struct Lines file= ""; src= open(file) end
 
 "Define an iterator that returns a comma-seperated file, one
  record at a time without loading the whole file into memory."
-function Base.iterate(z::Lines,(n)=(1))
-  "Co-erce strings to numbers or strings, as approriate." 
-  function atom(s)
-    v = tryparse(Float64,s) 
-    v == nothing ? s : v
-  end
+function Base.iterate(it::Lines, (n)=(1))
+  "Split on comma, coerce strings to numbers or strings, as approriate." 
+  cells(s)= map(cell, split(s,","))
+  cell(s) = ((x = tryparse(Float64,s))==nothing) ? s : x
+
   "Delete comments and whitespace. Lines ending in
    ',' are joined to the next. Skip empty lines."
-  function row(str,b4="")
+  function row(txt="")
     while true
-      if eof(str) return b4 end
-      r = replace(readline(str),r"([ \t\n]|#.*)"=>"")
-      if sizeof(r) == 0 continue end
-      if r[end] == ',' 
-        b4 *= r
-      else
-        return b4 * r end end 
-  end
-  "Split on comma, then coerce sub-strings."
-  function prep(words)
-    [atom(word) for word in split(words,",")]
-  end
-  #------------------------------
-  line = row(z.src)
-  if sizeof(line) > 0 prep(line),(n+1) end
+      if eof(it.src) return txt end
+      new = readline(it.src)
+      new = replace(new, r"([ \t\n]|#.*)"=>"")
+      if sizeof(new) != 0 
+        txt *= new
+        if txt[end] != ',' 
+          return txt end end end end
+
+  line     = row()
+  if sizeof(line) > 0 (n,cells(line)), (n+1) end
  end 
 
-for tmp in Lines(name="data/weather.csv")
-   println(tmp)
+for (n,tmp) in Lines(file= "data/weather.csv")
+   println(n," ",tmp)
 end
-#
-#function Base.iterate(z::Lines, (s,n) = (0,1))
-#    s += 1 / (n^ps.p)
-#           s, (s, n+1)
-#       end
-#
 
 function demo()
   print(444)
