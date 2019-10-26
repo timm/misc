@@ -1,9 +1,7 @@
 module My
+using Parameters 
 
 greet() = print("Hello World!")
-
-
-using Parameters 
 
 @with_kw mutable struct Cols
   x  = (all  = [], nums = [], syms = [])
@@ -39,22 +37,42 @@ end
 
 #[take(PSerie(2),10)...]
 #
-#struct PSerie
-#           p
-#       end
+
+@with_kw mutable struct Lines
+  name = ""
+  stream    = open(name)
+end
 #
+#print(Lines(name="src/My.jl"))
 #
-#function Base.iterate(ps::PSerie, (s,n) = (0,1))
+function Base.iterate(z::Lines,(b4)=(""))
+   if eof(z.stream)
+     nothing
+   else
+     line= readline(z.stream)
+     line = replace(line, r"([ \t\n]|#.*)")
+     if sizeof(line) == 0 w
+
+   end
+ end
+#
+#f=Lines(name="src/My.jl")
+#
+for line in Lines(name="src/My.jl")
+   println(line)
+end
+#
+#function Base.iterate(z::Lines, (s,n) = (0,1))
 #    s += 1 / (n^ps.p)
 #           s, (s, n+1)
 #       end
 #
 
 function demo()
-  print(1111)
+  print(444)
   open("src/My.jl") do file
       n=1
-      old=""
+      ld=""
       function prep(s)
         if sizeof(s) > 0
           println( map(num, split(s,",")))end end
