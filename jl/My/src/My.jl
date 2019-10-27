@@ -9,25 +9,12 @@ anyi(s)  = floor(Int,round(s*rand()))
 any(lst) = lst[ anyi(size(lst)[1]) ]
 
 @with_kw mutable struct Config
-  char = (skip='?',)
+  char = (skip='?',less='>',more='<',num='$',klass='!')
   str  = (skip="?",)
   some = (max=256,)
 end
 
 THE = Config()
-
-@with_kw mutable struct Cols
-  x  = (all  = [], nums = [], syms = [])
-  y = (all  = [], nums = [], syms = [],
-           goals= [22], klass= nothing)
-  all  = [] 
-  nums = [] 
-  syms = (10, 20,   30, 40)
-  name= ""
-  pos=0
-end
-
-z=Cols(name="jane", pos=2)
 
 function adds(lst=[], i=Some,key=same)
   j = i(key=same)
@@ -43,7 +30,8 @@ function add(i,x)
 end
 
 @with_kw mutable struct Some 
-  key=same; all=[]; n=0; max=THE.some.max ;sorted=false end
+  pos=0; txt=""; w=1; key=same; n=0;
+  all=[]; max=THE.some.max ;sorted=false end
 
 function contents(s::Some)
   if (!s.sorted) sort!(s.all,by=s.key); s.sorted=true end
@@ -64,7 +52,8 @@ function add1(i::Some, x)
     i.all[ floor(Int,m*rand()) + 1 ] = x end end
 
 @with_kw mutable struct Sym 
-  seen=Dict(); n=0; ent=nothing; most=0; mode="";key=same end
+  pos=0; txt=""; w=1; key=same; n=0;
+  seen=Dict(); ent=nothing; most=0; mode="" end
 
 mid(i::Sym) = i.mode
 coerce(i::Sym,x) = x
@@ -82,22 +71,6 @@ function add1(i::Sym,x)
   if new > i.most
     i.most, i.mode = new, x end
 end
-
-function sym1()
-  s=Sym()
-  [add(s,x) for x in "aaaabbc"]
-  println(">> ", s.seen['a'], " ", var(s))
-end
-
-function some1()
-  s=Some(max=32)
-  for j in 1:10000 add(s,j) end
-  println(contents(s))
-  println(var(s))
-end
-
-some1()
-sym1()
 
 @with_kw struct Lines file; src=open(file) end
 
@@ -132,6 +105,65 @@ function Base.iterate(it::Lines, (n,want)=(1,[]))
     (n, cols(coerce(new))) , (n+1,want) end 
  end
 
+#--------------------------------------------
+# Tbl
+@with_kw mutable struct Row
+ cells=[]; cooked=[] end
+
+@with_kw mutable struct Tbl
+  rows=[]; cols=Cols() end
+
+
+@with_kw mutable struct Cols
+  x = (all=[], nums=[], syms=[])
+  y = (all=[], nums=[], syms=[], goals=[], klass=nothing)
+  all  = [] 
+  nums = [] 
+  syms = []
+end
+
+function head(i::Cols, lst,
+    skip=THE.char.skip,less=THE.char.less,more=THE.char.more,
+    num =THE.char.num, klass=THE.char.klass)
+  for (n,w) in enumerate(lst)
+    klassp() = klass in w
+    goalp()  = less  in w or more in w
+    nump()   = num   in w or goal()
+    yp()     = klassp() or goalp()
+    x        = nump() ? Some : Sym 
+    y        = x(pos=n,txt=w)
+    push!(i.all, y)
+    push!(yp()  ? i.y.all : i.x.all, y)
+    if goalp()  push!(i.y.goals, y) end
+    if nump()
+      push!(i.nums,y); push!(yp() ? i.y.nums : i.x.nums, y)
+    else
+      push!(i.syms,y); push!(yp() ? i.y.syms : i.x.syms, y)
+    end
+  end
+end
+
+function row(i::tbl,lst) 
+  [add(h,x) for (h,x) in zip(i.cols.all,lst)]
+  push!(i.rows, Row(cells=lst) )
+end
+
+z=Cols(name="jane", pos=2)
+#--------------------------------------------
+
+function sym1()
+  s=Sym()
+  [add(s,x) for x in "aaaabbc"]
+  println(">> ", s.seen['a'], " ", var(s))
+end
+
+function some1()
+  s=Some(max=32)
+  for j in 1:10000 add(s,j) end
+  println(contents(s))
+  println(var(s))
+end
+
 function Lines1()
   m=1
   print(m)
@@ -142,26 +174,6 @@ function Lines1()
   print(m)
 end
 
-function demo()
-  print(444)
-  open("src/My.jl") do file
-      n=1
-      ld=""
-      function prep(s)
-        if sizeof(s) > 0
-          println( map(num, split(s,",")))end end
-      for line in eachline(file)
-          line = replace(line, r"([ \t\n]|#.*)" => "")
-          if sizeof(line) == 0  continue end
-          print(line[end])
-          if line[end] == ',' 
-            old = old * line
-          else
-            prep(old*line)
-            old = ""
-          end 
-      end
-      prep(old)
-  end
-end 
+some1()
+sym1()
 end
