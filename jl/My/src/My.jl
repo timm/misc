@@ -31,42 +31,48 @@ open("sherlock-holmes.txt") do f
  end
 end
 
-@with_kw struct Lines file= ""; src= open(file) end
+@with_kw struct Lines file; src=open(file) end
 
 "Define an iterator that returns a comma-seperated file, one
  record at a time without loading the whole file into memory."
-function Base.iterate(it::Lines, (n,use)=(1,[]))
+function Base.iterate(it::Lines, (n,want)=(1,[]))
   "Split on comma, coerce strings to numbers or strings, as approriate." 
-  cells(s)    = map(cell, split(s,","))
-  cell(s)     = ((x = tryparse(Float64,s))==nothing) ? s : x
-  relevant(s) = match(r"\?",s) == nothing
+  coerce(s)  = map(coerce1, split(s,","))
+  coerce1(s) = ((x = tryparse(Float64,s))==nothing) ? s : x
+  use(s)     = match(r"\?",s) == nothing
 
-  function words(txt)
-      lst = cells(txt)
-      println(">>",lst)
-      if n == 1 
-        use = [i for (i,s) in enumerate(lst) if relevant(s)]
-      else
-        [lst[i] for i in use]  end end
+  "Coerce strings. If first row, check what columns we should use.
+   Only return those columns."
+  function cols(lst)
+    if n == 1 
+      want = [i for (i,s) in enumerate(lst) if use(s)] end
+    [lst[i] for i in want]  end 
   
   "Delete comments and whitespace. Lines ending in
    ',' are joined to the next. Skip empty lines."
   function row(txt="")
     while true
-      if eof(it.src) return words(txt) end
+      if eof(it.src) return txt end
       new = readline(it.src)
       new = replace(new, r"([ \t\n]|#.*)"=>"")
       if sizeof(new) != 0 
         txt *= new
         if txt[end] != ',' 
-	  return words(txt) end end end end 
+	  return txt end end end end 
 
   new = row()
-  if sizeof(new) > 0 (n,new) , (n+1,use) end
- end 
+  if sizeof(new) > 0 
+    (n, cols(coerce(new))) , (n+1,want) end 
+ end
 
-for (n,tmp) in Lines(file= "data/weather.csv")
-   println(n," ",tmp)
+function xomo()
+  m=1
+  print(m)
+  for (n,tmp) in Lines(file= "data/xomo10000.csv")
+     m += sizeof(tmp)  #println(n," ",tmp)
+     if mod(n,1000) == 0 println(n,":",m) end
+  end
+  print(m)
 end
 
 function demo()
