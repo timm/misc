@@ -28,67 +28,57 @@ THE = Config()
 end
 
 z=Cols(name="jane", pos=2)
-#show(z)
-#w = Cols(),
-#dump(w)
-#dump(nothing)
 
+function adds(lst=[], i=Some,key=same)
+  j = i(key=same)
+  [add(j,x) for x in lst]
+  j
+end
+
+function add(i,x)
+  y=i.key(x)
+  if y != THE.char.skip 
+    i.n += 1
+    add1(i, coerce(i,y)) end
+end
 
 @with_kw mutable struct Some 
-  key=same; all=[]; n=0; max=THE.some.max ;sorted=false;
-end
-
-function adds(t, lst=[], key=same)
-  u = t(key=same)
-  [add(u,x) for x in lst]
-  u
-end
-
-function add(s,x)
-  y = s.key(x)
-  if y != THE.char.skip 
-    s.n += 1
-    add1(s,x) end
-  y
-end
+  key=same; all=[]; n=0; max=THE.some.max ;sorted=false end
 
 function contents(s::Some)
-  if !s.sorted 
-    sort!(s.all,by=s.key); s.sorted = true end
+  if (!s.sorted) sort!(s.all,by=s.key); s.sorted=true end
   s.all
 end
 
-len(i::Some)   = size(i.all)[1]
-p(  i::Some,n) = contents(i)[ floor(Int,n*len(i)) + 1 ]
-var(i::Some)   = (p(i,0.9) - p(i,0.1))/2.7
-    
+p(i::Some,n)      = contents(i)[ floor(Int,n*length(i.all)) + 1 ]
+mid(i::Some)      = p(i,0.5)
+var(i::Some)      = (p(i,0.9) - p(i,0.1))/2.7
+coerce(i::Some,x) = x isa Number ? x : tryparse(Float64,x)
+
 function add1(i::Some, x)
   i.sorted=false
-  m = len(i)
+  m = length(i.all)
   if m < i.max
     push!(i.all,x)
   elseif rand() < m/i.n
-    r = floor(Int,m*rand()) + 1
-    i.all[ r ]= x end end
+    i.all[ floor(Int,m*rand()) + 1 ] = x end end
 
 @with_kw mutable struct Sym 
-  seen=Dict();  n=0; ent=nothing; most=0; mode="";key=same;
-end
+  seen=Dict(); n=0; ent=nothing; most=0; mode="";key=same end
 
-function var(i::Sym)
+mid(i::Sym) = i.mode
+coerce(i::Sym,x) = x
+
+function var(i::Sym) 
   if i.ent == nothing
-    i.ent = 0
-    for (_,n) in i.seen
-      p = n/i.n
-      i.ent -= p*log(2,p) end end
+    i.ent = sum( -n/i.n*log(2,n/i.n) for (_,n) in i.seen ) end
    i.ent
 end
 
 function add1(i::Sym,x)
   i.ent = nothing
-  old = haskey(i.seen, x) ? i.seen[x] : 0
-  new = i.seen[x] = old + 1
-  println(x," ",i.seen[x])
+  old   = haskey(i.seen, x) ? i.seen[x] : 0
+  new   = i.seen[x] = old + 1
   if new > i.most
     i.most, i.mode = new, x end
 end
