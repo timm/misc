@@ -132,14 +132,15 @@ function head(i::Cols, lst,
     yp()     = klassp() or goalp()
     x        = nump() ? Some : Sym 
     y        = x(pos=n,txt=w)
-    push!(i.all, y)
-    push!(yp()  ? i.y.all : i.x.all, y)
+    if klassp() i.y.klass = y end
     if goalp()  push!(i.y.goals, y) end
     if nump()
       push!(i.nums,y); push!(yp() ? i.y.nums : i.x.nums, y)
     else
       push!(i.syms,y); push!(yp() ? i.y.syms : i.x.syms, y)
     end
+    push!(yp()  ? i.y.all : i.x.all, y)
+    push!(i.all, y)
   end
 end
 
