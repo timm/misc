@@ -107,12 +107,11 @@ function Base.iterate(it::Lines, (n,want)=(1,[]))
 
 #--------------------------------------------
 # Tbl
-@with_kw mutable struct Row
- cells=[]; cooked=[] end
-
 @with_kw mutable struct Tbl
   rows=[]; cols=Cols() end
 
+@with_kw mutable struct Row
+ cells=[]; cooked=[] end
 
 @with_kw mutable struct Cols
   x = (all=[], nums=[], syms=[])
@@ -122,34 +121,38 @@ function Base.iterate(it::Lines, (n,want)=(1,[]))
   syms = []
 end
 
-function head(i::Cols, lst,
-    skip=THE.char.skip,less=THE.char.less,more=THE.char.more,
-    num =THE.char.num, klass=THE.char.klass)
-  for (n,w) in enumerate(lst)
-    klassp() = klass in w
-    goalp()  = less  in w or more in w
-    nump()   = num   in w or goal()
-    yp()     = klassp() or goalp()
-    x        = nump() ? Some : Sym 
-    y        = x(pos=n,txt=w)
-    if klassp() i.y.klass = y end
-    if goalp()  push!(i.y.goals, y) end
-    if nump()
-      push!(i.nums,y); push!(yp() ? i.y.nums : i.x.nums, y)
-    else
-      push!(i.syms,y); push!(yp() ? i.y.syms : i.x.syms, y)
-    end
-    push!(yp()  ? i.y.all : i.x.all, y)
-    push!(i.all, y)
+function table(file::String) 
+  t=Tbl()
+  for (n,lst) in Lines(file=file)
+    n==1 ? head(t,lst) : row(t,lst) end
+end
+
+function row(i::Tbl,a) 
+  [add(h,x) for (h,x) in zip(i.cols.all,a)]
+  push!(i.rows, Row(cells=a) )
+end
+
+head(i::Tbl,a) = [head(i.cols,n,x) for (n,x) in enumerate(a)]
+
+function head(i::Cols, n,txt)
+  the      = THE.char
+  klassp() = the.klass in txt
+  goalp()  = the.less  in txt or the.more in txt
+  nump()   = the.num   in txt or goal()
+  yp()     = klassp() or goalp()
+  x        = nump() ? Some : Sym 
+  y        = x(pos=n,txt=txt)
+  if klassp() i.y.klass = y end
+  if goalp()  push!(i.y.goals, y) end
+  if nump()
+    push!(i.nums,y); push!(yp() ? i.y.nums : i.x.nums, y)
+  else
+    push!(i.syms,y); push!(yp() ? i.y.syms : i.x.syms, y)
   end
+  push!(yp()  ? i.y.all : i.x.all, y)
+  push!(i.all, y)
 end
 
-function row(i::tbl,lst) 
-  [add(h,x) for (h,x) in zip(i.cols.all,lst)]
-  push!(i.rows, Row(cells=lst) )
-end
-
-z=Cols(name="jane", pos=2)
 #--------------------------------------------
 
 function sym1()
