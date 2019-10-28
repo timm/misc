@@ -4,9 +4,9 @@ using Random
 
 Random.seed!(1)
 
-same(s)  = s
-anyi(s)  = floor(Int,round(s*rand()))
-any(lst) = lst[ anyi(size(lst)[1]) ]
+same(s) = s
+anyi(s) = floor(Int,round(s*rand()))
+any(a)  = a[ anyi(size(a)[1]) ]
 
 @with_kw mutable struct Config
   char = (skip='?',less='>',more='<',num='$',klass='!')
@@ -16,34 +16,34 @@ end
 
 THE = Config()
 
-function adds(lst=[], i=Some,key=same)
+function adds!(init=[], i=Some,key=same)
   j = i(key=same)
-  [add(j,x) for x in lst]
+  [add!(j,x) for x in init]
   j
 end
 
-function add(i,x)
+function add!(i,x)
   y=i.key(x)
   if y != THE.char.skip 
     i.n += 1
-    add1(i, coerce(i,y)) end
+    add1!(i, y) end
 end
 
 @with_kw mutable struct Some 
   pos=0; txt=""; w=1; key=same; n=0;
   all=[]; max=THE.some.max ;sorted=false end
 
-function contents(s::Some)
+function contents!(s::Some)
   if (!s.sorted) sort!(s.all,by=s.key); s.sorted=true end
   s.all
 end
 
-p(i::Some,n)      = contents(i)[ floor(Int,n*length(i.all)) + 1 ]
+p(i::Some,n)      = contents!(i)[ floor(Int,n*length(i.all)) + 1 ]
 mid(i::Some)      = p(i,0.5)
 var(i::Some)      = (p(i,0.9) - p(i,0.1))/2.7
 coerce(i::Some,x) = x isa Number ? x : tryparse(Float64,x)
 
-function add1(i::Some, x)
+function add1!(i::Some, x)
   i.sorted=false
   m = length(i.all)
   if m < i.max
@@ -64,7 +64,7 @@ function var(i::Sym)
    i.ent
 end
 
-function add1(i::Sym,x)
+function add1!(i::Sym,x)
   i.ent = nothing
   old   = haskey(i.seen, x) ? i.seen[x] : 0
   new   = i.seen[x] = old + 1
@@ -83,10 +83,10 @@ function Base.iterate(it::Lines, (n,want)=(1,[]))
 
   "Coerce strings. If first row, check what columns we should use.
    Only return those columns."
-  function cols(lst)
+  function cols(a)
     if n == 1 
-      want = [i for (i,s) in enumerate(lst) if !('?' in s)] end
-    [lst[i] for i in want]  end 
+      want = [i for (i,s) in enumerate(a) if !('?' in s)] end
+    [a[i] for i in want]  end 
   
   "Delete comments and whitespace. Lines ending in
    ',' are joined to the next. Skip empty lines."
@@ -123,25 +123,25 @@ end
 
 function table(file::String) 
   t=Tbl()
-  for (n,lst) in Lines(file=file)
-    n==1 ? head(t,lst) : row(t,lst) end
+  for (n,a) in Lines(file=file)
+    n==1 ? head!(t,a) : row!(t,a) end
 end
 
-function row(i::Tbl,a) 
-  [add(h,x) for (h,x) in zip(i.cols.all,a)]
+function row!(i::Tbl,a) 
+  [add!(h,x) for (h,x) in zip(i.cols.all,a)]
   push!(i.rows, Row(cells=a) )
 end
 
-head(i::Tbl,a) = [head(i.cols,n,x) for (n,x) in enumerate(a)]
+head!(i::Tbl,a) = [head!(i.cols,n,x) for (n,x) in enumerate(a)]
 
-function head(i::Cols, n,txt)
+function head!(i::Cols, n,txt)
   the      = THE.char
   klassp() = the.klass in txt
   goalp()  = the.less  in txt or the.more in txt
   nump()   = the.num   in txt or goal()
   yp()     = klassp() or goalp()
   x        = nump() ? Some : Sym 
-  y        = x(pos=n,txt=txt)
+  y        = x(pos=n, txt=txt)
   if klassp() i.y.klass = y end
   if goalp()  push!(i.y.goals, y) end
   if nump()
@@ -157,14 +157,14 @@ end
 
 function sym1()
   s=Sym()
-  [add(s,x) for x in "aaaabbc"]
+  [add!(s,x) for x in "aaaabbc"]
   println(">> ", s.seen['a'], " ", var(s))
 end
 
 function some1()
   s=Some(max=32)
-  for j in 1:10000 add(s,j) end
-  println(contents(s))
+  for j in 1:10000 add!(s,j) end
+  println(contents!(s))
   println(var(s))
 end
 
