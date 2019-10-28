@@ -86,7 +86,8 @@ function Base.iterate(it::Lines, (n,want)=(1,[]))
   function cols(a)
     if n == 1 
       want = [i for (i,s) in enumerate(a) if !('?' in s)] end
-    [a[i] for i in want]  end 
+    [a[i] for i in want]  
+  end
   
   "Delete comments and whitespace. Lines ending in
    ',' are joined to the next. Skip empty lines."
@@ -113,35 +114,35 @@ function Base.iterate(it::Lines, (n,want)=(1,[]))
 @with_kw mutable struct Row
  cells=[]; cooked=[] end
 
+@with_kw mutable struct Xs 
+  all=[]; nums=[]; syms=[] end
+@with_kw mutable struct Ys 
+  all=[]; nums=[]; syms=[];goals=[];klass="" end
 @with_kw mutable struct Cols
-  x = (all=[], nums=[], syms=[])
-  y = (all=[], nums=[], syms=[], goals=[], klass=nothing)
-  all  = [] 
-  nums = [] 
-  syms = []
-end
+  x = Xs(); y = Ys(); all  = []; nums = []; syms = []; end
 
 function table(file::String) 
   t=Tbl()
   for (n,a) in Lines(file=file)
     n==1 ? head!(t,a) : row!(t,a) end
+  t
 end
 
 function row!(i::Tbl,a) 
-  [add!(h,x) for (h,x) in zip(i.cols.all,a)]
+  [add!(c,a[c.pos]) for c in i.cols.all]
   push!(i.rows, Row(cells=a) )
 end
 
 head!(i::Tbl,a) = [head!(i.cols,n,x) for (n,x) in enumerate(a)]
 
 function head!(i::Cols, n,txt)
-  the      = THE.char
-  klassp() = the.klass in txt
-  goalp()  = the.less  in txt or the.more in txt
-  nump()   = the.num   in txt or goal()
-  yp()     = klassp() or goalp()
-  x        = nump() ? Some : Sym 
-  y        = x(pos=n, txt=txt)
+  the = THE.char
+  goalp()  = the.less in txt || the.more in txt 
+  nump()   = the.num  in txt || goalp() 
+  yp()     = klassp() || goalp() 
+  klassp() = the.klass in txt 
+  x = nump() ? Some : Sym 
+  y = x(pos=n, txt=txt)
   if klassp() i.y.klass = y end
   if goalp()  push!(i.y.goals, y) end
   if nump()
@@ -154,6 +155,12 @@ function head!(i::Cols, n,txt)
 end
 
 #--------------------------------------------
+
+function tbl1()
+  t = table("data/xomo10000.csv")
+  #println(t.rows[end].cells)
+  print(length(t.rows))
+end
 
 function sym1()
   s=Sym()
@@ -178,6 +185,7 @@ function Lines1()
   print(m)
 end
 
-some1()
-sym1()
+#some1()
+#sym1()
+tbl1()
 end
