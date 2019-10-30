@@ -1,0 +1,143 @@
+diff --git a/jl/My/src/My.jl b/jl/My/src/My.jl
+index dd9dd76..356db00 100644
+--- a/jl/My/src/My.jl
++++ b/jl/My/src/My.jl
+@@ -11,22 +11,26 @@ any(a)  = a[ anyi(size(a)[1]) ]
+ @with_kw mutable struct Config
+   char = (skip='?',less='>',more='<',num='$',klass='!')
+   str  = (skip="?",)
+-  some = (max=256,)
++  some = (max=256,step=.5, cohen=.3, trival=1.05)
+ end
+ 
+ THE = Config()
+ 
+-function adds!(init=[], i=Some,key=same)
+-  j = i(key=same)
+-  [add!(j,x) for x in init]
+-  j
++adds!(init=[],i=Some) = incs!(i(),init, 1)
++subs!(init=[],i=Some) = incs!(i(),init,-1)
++add!(i,x)             = inc!( i  ,   x, 1)
++sub!(i,x)             = inc!( i  ,   x,-1)
++
++function incs!(i,init, w)
++  [inc!(i,x,w) for x in init]
++  i
+ end
+ 
+-function add!(i,x)
++function inc!(i,x,w)
+   y=i.key(x)
+   if y != THE.char.skip 
+-    i.n += 1
+-    add1!(i, y) end
++    i.n += w
++    inc1!(i, y,w) end
+ end
+ 
+ @with_kw mutable struct Some 
+@@ -40,20 +44,54 @@ end
+ 
+ p(i::Some,n)      = contents!(i)[ floor(Int,n*length(i.all)) + 1 ]
+ mid(i::Some)      = p(i,0.5)
+-var(i::Some)      = (p(i,0.9) - p(i,0.1))/2.7
+ coerce(i::Some,x) = x isa Number ? x : tryparse(Float64,x)
+-
+-function add1!(i::Some, x)
++function var(i::Some,lo=0,hi=1)      
++  lo  = floor(Int,lo*length(i.all)) + 1
++  hi  = floor(Int,hi*length(i.all)) + 1
++  p10 = floor(Int,lo + (hi - lo) *.1) + 1
++  p90 = floor(Int,lo + (hi - lo) *.9) + 1
++  return (i.all[p90] - i.all[p10])/2.7
++
++function inc1!(i::Some, x,_)
+   i.sorted=false
+   m = length(i.all)
+   if m < i.max
+     push!(i.all,x)
+   elseif rand() < m/i.n
+-    i.all[ floor(Int,m*rand()) + 1 ] = x end end
+-
++ i.all[ floor(Int,m*rand()) + 1 ] = x end end
++
++#
++#def div(i,step=.5, cohen=.3, trival=1.05):
++#    def go(lo, hi, rank,  cuts,cut=None):
++#      best = i.var(lo,hi)
++#      for j in range(lo,hi):
++#        if j - lo >= step:
++#         if hi - j >= step:
++#           now = i.x(j)
++#           after=i.x(j+1)
++#           if now == afer: continue
++#           if  after - start > epsilon:
++#             if stop - now   > epsilon:
++#               if abs(i.mid(lo,j) - i.mid(j,hi)) > epsilon:
++#                 xpect = i.xpect(lo,j,hi)
++#                 if xpect*trivial < best:
++#                   best,cut = xpect,j+1
++#      if cut:
++#        rank = go(lo,cut,rank, cuts) + 1
++#        rank = go(cut,hi,rank, cuts)
++#      else:
++#        cuts += [ [i.has[z] for z in range(lo,hi)] ]
++#      return rank
++#    n               = len(i.has)
++#    step,start,stop = n**step, i.x(0), i.x(n)
++#    epsilon         = i.var(0,n)*cohen
++#    cuts            = []
++#    go(1, n, 1, cuts)
++#    return cuts
++#
+ @with_kw mutable struct Sym 
+   pos=0; txt=""; w=1; key=same; n=0;
+-  seen=Dict(); ent=nothing; most=0; mode="" end
++  seen=Dict(); ent=nothing end
+ 
+ mid(i::Sym) = i.mode
+ coerce(i::Sym,x) = x
+@@ -64,12 +102,12 @@ function var(i::Sym)
+    i.ent
+ end
+ 
+-function add1!(i::Sym,x)
++function inc1(i::Sym,x,w)
+   i.ent = nothing
+   old   = haskey(i.seen, x) ? i.seen[x] : 0
+-  new   = i.seen[x] = old + 1
+-  if new > i.most
+-    i.most, i.mode = new, x end
++  new   = old + w
++  if new <0 new=0 end
++  i.seen[x] = new
+ end
+ 
+ @with_kw struct Lines file; src=open(file) end
+@@ -114,12 +152,11 @@ function Base.iterate(it::Lines, (n,want)=(1,[]))
+ @with_kw mutable struct Row
+  cells=[]; cooked=[] end
+ 
+-@with_kw mutable struct Xs 
+-  all=[]; nums=[]; syms=[] end
+-@with_kw mutable struct Ys 
+-  all=[]; nums=[]; syms=[];goals=[];klass="" end
+ @with_kw mutable struct Cols
+-  x = Xs(); y = Ys(); all  = []; nums = []; syms = []; end
++  x = (all=[], nums=[], syms=[])
++  y = (all=[], nums=[], syms=[], goals=[])
++  klass=""
++  all  = []; nums = []; syms = []; end
+ 
+ function table(file::String) 
+   t=Tbl()
+@@ -143,7 +180,7 @@ function head!(i::Cols, n,txt)
+   klassp() = the.klass in txt 
+   x = nump() ? Some : Sym 
+   y = x(pos=n, txt=txt)
+-  if klassp() i.y.klass = y end
++  if klassp() i.klass = y end
+   if goalp()  push!(i.y.goals, y) end
+   if nump()
+     push!(i.nums,y); push!(yp() ? i.y.nums : i.x.nums, y)
