@@ -25,7 +25,7 @@ function say(i)
     s = s * pre * "$f=$g" 
     pre=", "
   end
-  s * "}"
+  print(s * "}")
 end
 
 # -------------------------------------------
@@ -98,7 +98,7 @@ div(i::Some) = begin fresh(i); div(i.all,i.key) end
 @with_kw mutable struct Range 
   lo=0; hi=0; _all=[]; start=0; stop=0; w=0; _kids=[] end
 
-Base.show(io::IO, i::Range) = print(say(i))
+Base.show(io::IO, i::Range) = say(i)
 
 "assumes lst is sorted"
 function div(lst,key=same)
@@ -156,6 +156,20 @@ function inc1!(i::Sym,x,w=1)
   i.seen[x] = max(new,0)
 end
 
+# --------------------------------------------
+norm(i::Sym, x) = x
+norm(i::Some,x) = begin fresh(i); (x-i.all[1])/(i.all[end]-i.all[1]) end
+
+difference(i::Sym, x,y) = x==THE.string.skip ? 1 : x == y
+function difference(i::Some,x,y, no = THE.string.skip)
+  d(a,b) = begin a= norm(i,a); b= a<0.5 ? 1 : 0; abs(a-b) end
+  if     x==no && y==no 1 
+  elseif x==no          d(y,x) 
+  elseif y==no          d(x,y) 
+  else                  abs(norm(i,x) - norm(i,y)) end
+end
+
+
 # -------------------------------------------
 @with_kw struct Lines file; src=open(file) end
 
@@ -192,13 +206,17 @@ function Base.iterate(it::Lines, (n,want)=(1,[]))
  end
 
 #--------------------------------------------
-# Tbl
+id=0
+
 @with_kw mutable struct Tbl
   rows=[]; cols=Cols() end
 
 @with_kw mutable struct Row
- cells=[]; cooked=[] end
+  cells=[]; cooked=[]; id=global id+= 1
+end
 
+say(Row())
+say(Row())
 @with_kw mutable struct Cols
   x = (all=[], nums=[], syms=[])
   y = (all=[], nums=[], syms=[], goals=[])
@@ -292,8 +310,8 @@ end
 #some1()
 #sym1()
 #@time tbl1("data/xomo10000.csv")
-#@time tbl1("data/weather.csv")
-@time nums("data/xomo10000.csv")
+@time tbl1("data/weather.csv")
+#@time nums("data/xomo10000.csv")
 #numbers1()
 #@time numbers2(3)
 end
