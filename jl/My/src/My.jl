@@ -2,19 +2,33 @@ module My
 using Parameters 
 using Random
 
-Random.seed!(1)
-
-same(s) = s
-int(x)  = floor(Int,x)
-any(a)  = a[ int(size(a) * rand()) + 1 ]
-
 @with_kw mutable struct Config
   char = (skip='?',less='>',more='<',num='$',klass='!')
   str  = (skip="?",)
   some = (max=512,step=.5, cohen=.3, trivial=1.05)
+  seed = 1
 end
 
 THE = Config()
+Random.seed!(THE.seed)
+
+# -------------------------------------------
+same(s) = s
+int(x)  = floor(Int,x)
+any(a)  = a[ int(size(a) * rand()) + 1 ]
+
+function say(i)
+  s,pre="$(typeof(i)){",""
+  for f in sort!([x for x in fieldnames(typeof(i)) 
+                     if !("$x"[1] == '_')])
+    g = getfield(i,f)
+    s = s * pre * "$f=$g" 
+    pre=", "
+  end
+  s * "}"
+end
+
+# -------------------------------------------
 
 adds!(init=[],i=Some) = incs!(i(),init, 1)
 subs!(init=[],i=Some) = incs!(i(),init,-1)
@@ -35,6 +49,7 @@ function inc!(i,x,w=1)
     inc1!(i, y,w) end
 end
 
+# -------------------------------------------
 @with_kw mutable struct Some 
   pos=0; txt=""; w=1; key=same; n=0;
   all=[]; max=THE.some.max ;tidy=false end
@@ -79,28 +94,18 @@ end
 
 div(i::Some) = begin fresh(i); div(i.all,i.key) end
 
+# -------------------------------------------
 @with_kw mutable struct Range 
   lo=0; hi=0; _all=[]; start=0; stop=0; w=0; _kids=[] end
 
 Base.show(io::IO, i::Range) = print(say(i))
 
-function say(i)
-  s,pre="$(typeof(i)){",""
-  for f in sort!([x for x in fieldnames(typeof(i)) 
-                     if !("$x"[1] == '_')])
-    g = getfield(i,f)
-    s = s * pre * "$f=$g" 
-    pre=", "
-  end
-  s * "}"
-end
-
 "assumes lst is sorted"
 function div(lst,key=same)
   the = THE.some
   x(z)          = key(lst[int(z)])
-  at(y,z,p=0.5) = x(y+(z-y)*p)
-  var(y,z)      = (at(y,z,0.9) - at(y,z,0.1))/2.7
+  val(y,z,p=0.5)= x(y+(z-y)*p)
+  var(y,z)      = (val(y,z,0.9) - val(y,z,0.1))/2.7
   function chop(lo,hi,ranges,cut=nothing)
     best = var(lo,hi)
     for j=lo:hi
@@ -109,10 +114,9 @@ function div(lst,key=same)
         after = x(j+1)
         if now == after continue end
         if after - start > epsilon && stop - now > epsilon
-          if abs(at(lo,j,0.5) - at(j+1,hi,0.5)) > epsilon
-	    n1,n2 = j-lo+1, hi-j+1
-	    p1,p2 = n1/(n1+n2), n2/(n1+n2)
-            here  = var(lo,j)*p1 + var(j+1,hi)*p2
+          if abs(val(lo,j) - val(j+1,hi)) > epsilon
+	    n1,n2 = j-lo+1, hi-j
+            here  = (var(lo,j)*n1 + var(j+1,hi)*n2)/(n1+n2)
             if here*the.trivial < best
               best,cut = here,j end end end end 
     end
@@ -129,6 +133,7 @@ function div(lst,key=same)
   chop(1,n,[])
 end
 
+# -------------------------------------------
 @with_kw mutable struct Sym 
   pos=0; txt=""; w=1; key=same; n=0;
   seen=Dict();  mode=nothing; ent=nothing;  end
@@ -151,6 +156,7 @@ function inc1!(i::Sym,x,w=1)
   i.seen[x] = max(new,0)
 end
 
+# -------------------------------------------
 @with_kw struct Lines file; src=open(file) end
 
 "Define an iterator that returns a comma-seperated file, one
