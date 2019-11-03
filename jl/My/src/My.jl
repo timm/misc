@@ -5,13 +5,13 @@ using Random
 Random.seed!(1)
 
 same(s) = s
-anyi(s) = floor(Int,round(s*rand()))
-any(a)  = a[ anyi(size(a)[1]) ]
+int(x)  = floor(Int,x)
+any(a)  = a[ int(size(a) * rand()) + 1 ]
 
 @with_kw mutable struct Config
   char = (skip='?',less='>',more='<',num='$',klass='!')
   str  = (skip="?",)
-  some = (max=256,step=.5, cohen=.3, trival=1.05)
+  some = (max=512,step=.5, cohen=.3, trivial=1.05)
 end
 
 THE = Config()
@@ -21,93 +21,134 @@ subs!(init=[],i=Some) = incs!(i(),init,-1)
 add!(i,x)             = inc!( i  ,   x, 1)
 sub!(i,x)             = inc!( i  ,   x,-1)
 
-function incs!(i,init, w)
-  [inc!(i,x,w) for x in init]
-  i
-end
+# my cols can do:
+#    incs!, inc!, statel, fresh, mid, var
+# my cols know about:
+#    w,pos,txt,w,key,n
+incs!(i,init=[],w=1) = begin [inc!(i,x,w) for x in init]; i end
 
-function inc!(i,x,w)
+function inc!(i,x,w=1)
   y=i.key(x)
-  if y != THE.char.skip 
+  if y != THE.str.skip 
+    stale(i)
     i.n += w
     inc1!(i, y,w) end
 end
 
 @with_kw mutable struct Some 
   pos=0; txt=""; w=1; key=same; n=0;
-  all=[]; max=THE.some.max ;sorted=false end
+  all=[]; max=THE.some.max ;tidy=false end
 
-function contents!(s::Some)
-  if (!s.sorted) sort!(s.all,by=s.key); s.sorted=true end
-  s.all
+p(i::Some,n)   = begin fresh(i); i.all[int(n*length(i.all))+1] end
+stale(i::Some) = i.tidy=false
+
+function fresh(i::Some)
+  if !i.tidy 
+    sort!(i.all) 
+    i.tidy=true end  end
+
+has(i::Some,n) = begin fresh(i); i.all[n] end
+mid(i::Some, lo=1, hi=length(i.all)) = has(i,int(lo+(hi-lo)*.5)) 
+
+function var(i::Some,lo=1,hi=length(i.all))      
+  fresh(i)
+  n10 = int(lo+(hi-lo)*.1) + 1
+  n90 = int(lo+(hi-lo)*.9) + 1
+  (i.all[n90] - i.all[n10])/2.7
 end
 
-p(i::Some,n)      = contents!(i)[ floor(Int,n*length(i.all)) + 1 ]
-mid(i::Some)      = p(i,0.5)
-coerce(i::Some,x) = x isa Number ? x : tryparse(Float64,x)
-function var(i::Some,lo=0,hi=1)      
-  lo  = floor(Int,lo*length(i.all)) + 1
-  hi  = floor(Int,hi*length(i.all)) + 1
-  p10 = floor(Int,lo + (hi - lo) *.1) + 1
-  p90 = floor(Int,lo + (hi - lo) *.9) + 1
-  return (i.all[p90] - i.all[p10])/2.7
-
-function inc1!(i::Some, x,_)
-  i.sorted=false
+function inc1!(i::Some, x,w=1)
   m = length(i.all)
   if m < i.max
     push!(i.all,x)
   elseif rand() < m/i.n
- i.all[ floor(Int,m*rand()) + 1 ] = x end end
-
-#
-#def div(i,step=.5, cohen=.3, trival=1.05):
-#    def go(lo, hi, rank,  cuts,cut=None):
-#      best = i.var(lo,hi)
-#      for j in range(lo,hi):
-#        if j - lo >= step:
-#         if hi - j >= step:
-#           now = i.x(j)
-#           after=i.x(j+1)
-#           if now == afer: continue
-#           if  after - start > epsilon:
-#             if stop - now   > epsilon:
-#               if abs(i.mid(lo,j) - i.mid(j,hi)) > epsilon:
-#                 xpect = i.xpect(lo,j,hi)
-#                 if xpect*trivial < best:
-#                   best,cut = xpect,j+1
-#      if cut:
-#        rank = go(lo,cut,rank, cuts) + 1
-#        rank = go(cut,hi,rank, cuts)
-#      else:
-#        cuts += [ [i.has[z] for z in range(lo,hi)] ]
-#      return rank
-#    n               = len(i.has)
-#    step,start,stop = n**step, i.x(0), i.x(n)
-#    epsilon         = i.var(0,n)*cohen
-#    cuts            = []
-#    go(1, n, 1, cuts)
-#    return cuts
-#
-@with_kw mutable struct Sym 
-  pos=0; txt=""; w=1; key=same; n=0;
-  seen=Dict(); ent=nothing end
-
-mid(i::Sym) = i.mode
-coerce(i::Sym,x) = x
-
-function var(i::Sym) 
-  if i.ent == nothing
-    i.ent = sum( -n/i.n*log(2,n/i.n) for (_,n) in i.seen ) end
-   i.ent
+    i.all[ int(m*rand()) + 1 ] = x end 
 end
 
-function inc1(i::Sym,x,w)
-  i.ent = nothing
-  old   = haskey(i.seen, x) ? i.seen[x] : 0
-  new   = old + w
-  if new <0 new=0 end
-  i.seen[x] = new
+"If i.all is broken at the points listed in `a`
+between `lo` and `hi`, what is the expected value?"
+function xpect(i::Some,a,lo=1,hi=length(i.all))
+  e1(x,y) = (y-x+1)/(hi-lo+1)*var(i,x,y)
+  e,m = 0,lo
+  for n in a
+    e += e1(m,n)
+    m = n+1
+  end
+  e + e1(m,hi) 
+end
+
+div(i::Some) = begin fresh(i); div(i.all,i.key) end
+
+@with_kw mutable struct Range 
+  lo=0; hi=0; _all=[]; start=0; stop=0; w=0; _kids=[] end
+
+Base.show(io::IO, i::Range) = print(say(i))
+
+function say(i)
+  s,pre="$(typeof(i)){",""
+  for f in sort!([x for x in fieldnames(typeof(i)) 
+                     if !("$x"[1] == '_')])
+    g = getfield(i,f)
+    s = s * pre * "$f=$g" 
+    pre=", "
+  end
+  s * "}"
+end
+
+"assumes lst is sorted"
+function div(lst,key=same)
+  the = THE.some
+  x(z)          = key(lst[int(z)])
+  at(y,z,p=0.5) = x(y+(z-y)*p)
+  var(y,z)      = (at(y,z,0.9) - at(y,z,0.1))/2.7
+  function chop(lo,hi,ranges,cut=nothing)
+    best = var(lo,hi)
+    for j=lo:hi
+      if j - lo >= step && hi - j >= step
+        now   = x(j)
+        after = x(j+1)
+        if now == after continue end
+        if after - start > epsilon && stop - now > epsilon
+          if abs(at(lo,j,0.5) - at(j+1,hi,0.5)) > epsilon
+	    n1,n2 = j-lo+1, hi-j+1
+	    p1,p2 = n1/(n1+n2), n2/(n1+n2)
+            here  = var(lo,j)*p1 + var(j+1,hi)*p2
+            if here*the.trivial < best
+              best,cut = here,j end end end end 
+    end
+    if cut == nothing  
+      push!(ranges, Range(lo=x(lo), hi=x(hi), 
+                          _all=lst[lo:hi],start=lo,stop=hi))
+    else 
+      chop(lo,    cut, ranges)
+      chop(cut+1, hi,  ranges) end 
+  end
+  n                 = length(lst)
+  epsilon           = var(1,n) * the.cohen
+  step, start, stop = n^the.step, x(1), x(n)
+  chop(1,n,[])
+end
+
+@with_kw mutable struct Sym 
+  pos=0; txt=""; w=1; key=same; n=0;
+  seen=Dict();  mode=nothing; ent=nothing;  end
+
+mid(i::Sym) = begin i.fresh(); i.mode end
+var(i::Sym) = begin i.fresh(); i.ent  end
+
+stale(i::Sym) = i.mode,i.ent = nothing,nothing 
+function fresh(i::Sym) 
+  if i.mode == nothing
+    i.ent, most = 0,0
+    for (k,n) in i.seen 
+      p = n/i.n
+      i.ent -= p*log(2,p)  
+      if n > most most,i.mode = n.k end end end
+ end  
+
+function inc1!(i::Sym,x,w=1)
+  new = w + (haskey(i.seen, x) ? i.seen[x] : 0)
+  i.seen[x] = max(new,0)
 end
 
 @with_kw struct Lines file; src=open(file) end
@@ -193,36 +234,60 @@ end
 
 #--------------------------------------------
 
-function tbl1()
-  t = table("data/xomo10000.csv")
+function tbl1(f="data/auto.csv")
+  t = table(f)
+  println("n ",length(t.rows))
+  for col in t.cols.x.nums
+   println(div(col)) #println(var(col)," ",col.all)
+  end
+end
+
+function nums(f="data/auto.csv")
+  t = table(f)
   #println(t.rows[end].cells)
-  print(length(t.rows))
+  for num in t.cols.x.nums
+    d=div(num)
+    println(num.txt, " ",length(d))
+    println(d)
+  end
 end
 
 function sym1()
   s=Sym()
   [add!(s,x) for x in "aaaabbc"]
-  println(">> ", s.seen['a'], " ", var(s))
 end
 
-function some1()
-  s=Some(max=32)
-  for j in 1:10000 add!(s,j) end
-  println(contents!(s))
-  println(var(s))
-end
-
-function Lines1()
+function Lines1(f="data/weather.csv")
   m=1
   print(m)
-  for (n,tmp) in Lines(file= "data/xomo10000.csv")
+  for (n,tmp) in Lines(file= f)
      m += sizeof(tmp)  #println(n," ",tmp)
      if mod(n,1000) == 0 println(n,":",m) end
   end
   print(m)
 end
 
+function num1(x)
+  if x<0.3 return 0.1 end
+  if x<0.7 return 0.8 end
+  return 0.9
+ end
+
+function numbers1(s=Some())
+  [add!(s,num1(rand())) for i in 1:100]
+  println([has(s,i) for i in div(s)])
+end
+
+function numbers2(n=2, s=Some())
+  [add!(s,rand()^0.5) for i in 1:10^n]
+  println([(i,has(s,i)) for i in div(s)])
+end
+
 #some1()
 #sym1()
-tbl1()
+#@time tbl1("data/xomo10000.csv")
+#@time tbl1("data/weather.csv")
+@time nums("data/xomo10000.csv")
+#numbers1()
+#@time numbers2(3)
 end
