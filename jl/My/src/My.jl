@@ -101,36 +101,38 @@ div(i::Some) = begin fresh(i); div(i.all,i.key) end
 Base.show(io::IO, i::Range) = say(i)
 
 "assumes lst is sorted"
-function div(lst,key=same)
+function div(lst::Array,key=same)
   the = THE.some
   x(z)          = key(lst[int(z)])
   val(y,z,p=0.5)= x(y+(z-y)*p)
   var(y,z)      = (val(y,z,0.9) - val(y,z,0.1))/2.7
-  function chop(lo,hi,ranges,cut=nothing)
+  function chop(lo,hi,ranges,out=nothing)
     best = var(lo,hi)
-    for j=lo:hi
-      if j - lo >= step && hi - j >= step
-        now   = x(j)
-        after = x(j+1)
-        if now == after continue end
-        if after - start > epsilon && stop - now > epsilon
-          if abs(val(lo,j) - val(j+1,hi)) > epsilon
-	    n1,n2 = j-lo+1, hi-j
-            here  = (var(lo,j)*n1 + var(j+1,hi)*n2)/(n1+n2)
-            if here*the.trivial < best
-              best,cut = here,j end end end end 
-    end
+    for j = lo+step:hi-step
+      now, after = x(j), x(j+1)
+      if now != after 
+        if after - start > epsilon 
+	  if stop - now > epsilon
+            if abs(val(lo,j) - val(j+1,hi)) > epsilon
+	      n1,n2 = j-lo+1, hi-j
+              here  = (var(lo,j)*n1 + var(j+1,hi)*n2)/(n1+n2)
+              if here*the.trivial < best
+                best,out = here,j end end end end end end
+    return out
+  end
+  function chops(lo,hi,ranges, cut = chop(lo,hi,ranges))
     if cut == nothing  
       push!(ranges, Range(lo=x(lo), hi=x(hi), 
                           _all=lst[lo:hi],start=lo,stop=hi))
     else 
-      chop(lo,    cut, ranges)
-      chop(cut+1, hi,  ranges) end 
+      chops(lo,    cut, ranges)
+      chops(cut+1, hi,  ranges) end 
   end
+  #----------------------------------------------
   n                 = length(lst)
   epsilon           = var(1,n) * the.cohen
-  step, start, stop = n^the.step, x(1), x(n)
-  chop(1,n,[])
+  step, start, stop = int(n^the.step)-1, x(1), x(n)
+  chops(1,n,[])
 end
 
 # -------------------------------------------
