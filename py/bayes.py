@@ -11,7 +11,7 @@ def p(s=2,hi=0.25,d=10,repeats=10000):
     y = r()*hi
     a = r()*hi
     b = r()*hi
-    if b> 0 and a> 0 and x>=a**m and y>=b**n and a<1 and b<1 and x<1 and y<1:
+    if b> 0 and a> 0 and x>=a**m and y>=b**n and a<1 and b<1 and x<1 and y<1 and x> y:
       tried = tried+ 1
       if (a/x)**s/(a/x + b/y) > a**s/(a+b):
         passed=passed+1
