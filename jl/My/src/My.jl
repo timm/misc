@@ -50,6 +50,29 @@ function inc!(i,x,w=1)
 end
 
 # -------------------------------------------
+@with_kw mutable struct Num 
+  pos=0; txt=""; w=1; key=same; n=0;
+  lo=10^32; hi=-1*10^32; mu=0; m2=0; sd=nothing end
+
+mid(i::Num)   = i.mu
+stale(i::Num) = i.sd = nothing
+
+function var(i::Num)
+  if i.sd == nothing 
+    i.sd = i.n < 2 ? 0 : (i.m2 / (i.n - 1 + 10^-32))^0.5 end 
+  i.sd
+end
+
+function inc1!(i::Num,x)
+  i.lo  = min(i.lo, x)
+  i.hi  = max(i.hi, x)
+  d     = x - i.mu
+  i.mu += d / i.n
+  i.m2 += d * (x - i.mu)
+end
+
+# -------------------------------------------
+
 @with_kw mutable struct Some 
   pos=0; txt=""; w=1; key=same; n=0;
   all=[]; max=THE.some.max ;tidy=false end
@@ -106,7 +129,7 @@ function div(lst::Array,key=same)
   x(z)          = key(lst[int(z)])
   val(y,z,p=0.5)= x(y+(z-y)*p)
   var(y,z)      = (val(y,z,0.9) - val(y,z,0.1))/2.7
-  function chop(lo,hi,ranges,out=nothing)
+  function xchop(lo,hi,out=nothing)
     best = var(lo,hi)
     for j = lo+step:hi-step
       now, after = x(j), x(j+1)
@@ -120,19 +143,36 @@ function div(lst::Array,key=same)
                 best,out = here,j end end end end end end
     return out
   end
-  function chops(lo,hi,ranges, cut = chop(lo,hi,ranges))
+  function xchops(lo,hi,ranges, cut = chop(lo,hi))
     if cut == nothing  
       push!(ranges, Range(lo=x(lo), hi=x(hi), 
                           _all=lst[lo:hi],start=lo,stop=hi))
     else 
-      chops(lo,    cut, ranges)
-      chops(cut+1, hi,  ranges) end 
+      xchops(lo,    cut, ranges)
+      xchops(cut+1, hi,  ranges) end 
   end
   #----------------------------------------------
   n                 = length(lst)
   epsilon           = var(1,n) * the.cohen
   step, start, stop = int(n^the.step)-1, x(1), x(n)
-  chops(1,n,[])
+  xchops(1,n,[])
+end
+
+function unite(rs, y=same,better= <, yis=Num)
+  the = THE.some
+  all(x=yis(key=y),a=[])= begin [incs!(x,r._all] for r in a]; x end
+  function ychop(lo,hi,rs,best,out=nothing)
+    left = yis(key=y)
+    for j in lo:hi-1
+      l= all(x=left,[rs[j]])
+      rall(a=rs[j+1:hi])
+      now = (var(l)*l.n + var(r)*r.n)/(l.n + r.n)
+      if better(now*the.trivial, best)
+        best,out = now,j end end
+    out
+  end
+  function ychops(lo,hi,rs,cut=xchp[
+  go(1,length(rs),[], var(all(ranges)))
 end
 
 # -------------------------------------------
