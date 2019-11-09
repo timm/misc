@@ -28,12 +28,8 @@ function SomeAdd(i,x,n) { i.fresh = 0; i.all[n]=x }
 
 function Some1(i,x, n) {
   n = len(i.all)
-  if (n < i.max) 
-     SomeAdd(i,x, ++n)
-  else if (rand() < n/i.max)
-     SomeAdd(i, x, int(n*rand()) + 1)
+  if (n < i.max)        return SomeAdd(i,x, ++n)
+  if (rand() < n/i.max) SomeAdd(i, x, int(n*rand()) + 1)
 } 
-
-  
 
 BEGIN {print DOT,V.some.max}
