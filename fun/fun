@@ -9,12 +9,12 @@ parse() { gawk '
                            { print "DOC " $0} '
 }
 doc() {  gawk  ' 
-  sub(/^CODE /,"")         { if(!Code) print "```awk"; Code=1; print sprintf("%4s.  ",++N) $0; next }
-  sub(/^DOC /,"")          { if( Code) print "```";    Code=0 }
-  BEGIN                    { print  "---\ntitle: "'$1'"\n---\n\n"'$2' "<br>\n\n" "\n\n# "'$3'" }
-  NR < 4                   { next }
-                           { print }
-  END                      { if (Code) print "```";  } '
+  sub(/^CODE /,"") { if(!Code) print "```awk"; Code=1; print sprintf("%4s.  ",++N) $0; next }
+  sub(/^DOC /,"")  { if( Code) print "```";    Code=0 }
+  BEGIN            { print  "---\ntitle: "'$1'"\n---\n\n"'$2' "<br>\n\n" "\n\n# "'$3'" }
+  NR < 3           { next }
+                   { print }
+  END              { if (Code) print "```";  } '
 }
 gen() { gawk ' 
   function prep(s) {
@@ -33,6 +33,4 @@ f=$(basename $1)
 d="$HOME/tmp/fun"
 mkdir -p $d
 cat $1 |  gen  > $d/$f
-
-
 gawk -f $d/$f $*
