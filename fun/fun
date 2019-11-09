@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# vim: filetype=sh ts=2 sw=2 sts=2  et :
+
+
+parse() { gawk '
+  /^@include/              { print "CODE "$0; next }
+  /^(func|BEGIN|END).*}$/  { print "CODE "$0; next }
+  /^(func|BEGIN|END)/,/^}/ { print "CODE "$0; next }
+                           { print "DOC " $0} '
+}
+doc() {  gawk  ' 
+  sub(/^CODE /,"")         { if(!Code) print "```awk"; Code=1; print sprintf("%4s.  ",++N) $0; next }
+  sub(/^DOC /,"")          { if( Code) print "```";    Code=0 }
+  BEGIN                    { print  "---\ntitle: "'$1'"\n---\n\n"'$2' "<br>\n\n" "\n\n# "'$3'" }
+  NR < 4                   { next }
+                           { print }
+  END                      { if (Code) print "```";  } '
+}
+gen() { gawk ' 
+  function prep(s) {
+    print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/, 
+                  "[\"\\1\\2\"]","g",s) } 
+   
+  sub(/^DOC /,"#")         { print; next }
+                           { gsub(/(CODE |[ \t]*$)/,"")   }
+  /^@include/              { prep($0); next }
+  /^(func|BEGIN|END).*}$/  { prep($0); next }
+  /^(func|BEGIN|END)/,/^}/ { prep($0); next }
+                           { print "# " $0  } '
+}
+
+f=$(basename $1)
+d="$HOME/tmp/fun"
+mkdir -p $d
+cat $1 |  gen  > $d/$f
+
+
+gawk -f $d/$f $*
