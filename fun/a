@@ -14,14 +14,14 @@ function Some(i) {
   i.max= V.some.max
   has(i,"all")
   i.fresh=0
+  i.add1="Some1"
 }
-function adds(a,what,  f) {
+function adds(a,i,what,  x) {
   what = what ? what : "Some"  
-  f    = f    ? f    : what 1)
   &what(i)
-  for(x in a) add(i,a[x], f)
+  for(x in a) add(i,a[x])
 }
-function add(i,z,f) { if (z != V.skip)  { i.n++;  &f(i,z) } }
+function add(i,z,  f) { if (z != V.skip)  { i.n++; f=i.add1; &f(i,z) } }
 
 function SomeOk(i)      { i.fresh = asort(i.all)  }
 function SomeAdd(i,x,n) { i.fresh = 0; i.all[n]=x }
