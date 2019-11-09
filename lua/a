@@ -1,0 +1,25 @@
+#!/usr/bin/env lua
+-- vim: filetype=lua:ts=2:sw=2:sts=2:expandtab:
+
+require "lib"
+
+A= class()
+function A:init(x) self.x = x end
+function A:test() print("x>",self.x) end
+
+B = class(A)
+function B:init(x,y)
+  A.init(self,x)
+  self.y = y
+end
+
+function A:__add(b) return A(self.x + b.x) end
+
+do
+  local a,b=A(2),A(3)
+  print((a+b).x)
+  local c=B(10,20)
+  c:test()
+end
+
+rogues()
