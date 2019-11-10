@@ -12,8 +12,9 @@ function o(a,t   ,x,s,sep) {
 }
 
 function rogues(    s) {
-  for(s in SYMTAB) if (s ~ /^[A-Z][a-z]/) print "Global " s
-  for(s in SYMTAB) if (s ~ /^[_a-z]/    ) print "Rogue: " s
+  for(s in SYMTAB) {
+     if (s ~ /^[A-Z][a-z]/) print "Global " s
+     if (s ~ /^[_a-z]/    ) print "Rogue: " s }
 }
 
 function List(i)         { split("",i,"") }

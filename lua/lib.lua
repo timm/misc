@@ -20,15 +20,15 @@ function class(base, init)
 
    -- expose a constructor which can be called by <classname>(<args>)
    local mt = {}
-   mt.__call = function(class_tbl, ...)
+   mt.__call = function(class_tbl, t)
      local obj = {}
      setmetatable(obj,c)
      if class_tbl.init then
-        class_tbl.init(obj,...)
+        class_tbl.init(obj,t) 
      else 
         -- make sure that any stuff from the base class is initialized!
         if base and base.init then
-        base.init(obj, ...)
+        base.init(obj, t)
         end
      end
      return obj
@@ -46,6 +46,9 @@ function class(base, init)
    return c
 end
 
+function has(i,j)
+  for k,v in pairs(i) do j[k] = v end
+end
 function ordered(t,  i,keys)
   i,keys = 0,{}
   for key,_ in pairs(t) do keys[#keys+1] = key end

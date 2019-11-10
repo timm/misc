@@ -4,7 +4,7 @@
 require "lib"
 
 A= class()
-function A:init(x) self.x = x end
+function A:init(x) has(self,x)  end
 function A:test() print("x>",self.x) end
 
 B = class(A)
@@ -16,7 +16,7 @@ end
 function A:__add(b) return A(self.x + b.x) end
 
 do
-  local a,b=A(2),A(3)
+  local a,b=A{x=100},A{x=10}
   print((a+b).x)
   local c=B(10,20)
   c:test()

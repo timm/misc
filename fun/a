@@ -18,17 +18,17 @@ function Some(i) {
 }
 function adds(a,i,what,  x) {
   what = what ? what : "Some"  
-  &what(i)
+  @what(i)
   for(x in a) add(i,a[x])
 }
-function add(i,z,  f) { if (z != V.skip)  { i.n++; f=i.add1; &f(i,z) } }
+function add(i,z,  f) { if (z != V.skip)  { i.n++; f=i.add1; @f(i,z) } }
 
 function SomeOk(i)      { i.fresh = asort(i.all)  }
 function SomeAdd(i,x,n) { i.fresh = 0; i.all[n]=x }
 
 function Some1(i,x, n) {
   n = len(i.all)
-  if (n < i.max)        return SomeAdd(i,x, ++n)
+  if (n < i.max) return SomeAdd(i,x, ++n)
   if (rand() < n/i.max) SomeAdd(i, x, int(n*rand()) + 1)
 } 
 
