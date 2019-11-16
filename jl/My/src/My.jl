@@ -158,23 +158,34 @@ function div(lst::Array,key=same)
   xchops(1,n,[])
 end
 
-function unite(rs, y=same,better= <, yis=Num)
-  the = THE.some
-  all(x=yis(key=y),a=[])= begin [incs!(x,r._all] for r in a]; x end
-  function ychop(lo,hi,rs,best,out=nothing)
-    left = yis(key=y)
-    for j in lo:hi-1
-      l= all(x=left,[rs[j]])
-      rall(a=rs[j+1:hi])
-      now = (var(l)*l.n + var(r)*r.n)/(l.n + r.n)
-      if better(now*the.trivial, best)
-        best,out = now,j end end
-    out
+function chops(lo,hi,ranges,chop)
+    cut = chop(lo,hi)
+    if cut == nothing  
+      push!(ranges, Range(lo=x(lo), hi=x(hi), 
+                          _all=lst[lo:hi],start=lo,stop=hi))
+    else 
+      ychops(lo,    cut, ranges)
+      ychops(cut+1, hi,  ranges) end 
   end
-  function ychops(lo,hi,rs,cut=xchp[
-  go(1,length(rs),[], var(all(ranges)))
 end
-
+#
+#function unite(rs, y=same,better= <, yis=Num)
+#  the = THE.some
+#  all(x=yis(key=y),a=[])= begin [incs!(x,r._all) for r in a]; x end
+#  function ychop(lo,hi,best,rs,out=nothing)
+#    left = yis(key=y)
+#    for j in lo:hi-1
+#      l= all(x=left,[rs[j]])
+#      rall(a=rs[j+1:hi])
+#      now = (var(l)*l.n + var(r)*r.n)/(l.n + r.n)
+#      if better(now*the.trivial, best)
+#        best,out = now,j end end
+#    out
+#  end
+#  f = (start,stop) -> ychop(start,stopr,)
+#  chop(1,length(rs),[], var(all(ranges)))
+#end
+#
 # -------------------------------------------
 @with_kw mutable struct Sym 
   pos=0; txt=""; w=1; key=same; n=0;
