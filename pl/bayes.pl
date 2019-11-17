@@ -37,8 +37,8 @@ slot2(F,X,Y,[F|FS],[X|L0],[Y|L]) :- !, slot2(F,X,Y,FS,L0,L).
 slot2(F,X,Y,[_|FS],[Z|L0],[Z|L]) :-    slot2(F,X,Y,FS,L0,L).
 
 o(X,A) :- o(X,_,A).
-o(a X,_,A) :- slot(X,_,_,_,A,A).
-o(an X,_,A) :- slot(X,_,_,_,A,A).
+o(a  X,_,A)   :- slot(X,_,_,_,A,A).
+o(an X,_,A)   :- slot(X,_,_,_,A,A).
 o(X of  Y,A,B):- slot(_,X,Old,New,A,B), o(Y,Old,New).
 o(X and Y)   --> o(X), o(Y).
 o(X or  Y)   --> o(X) | o(Y).
@@ -46,12 +46,12 @@ o(X @=  Y/Z) --> slot(_,X,Y,Z).
 o(X ++  Y)   --> slot(_,X,Z,[Y|Z]).
 o(X :=  Y)   --> slot(_,X,_,Y).
 o(X =   Y)   --> slot(_,X,Y,Y).
-o(X in  Y)   --> o(X=Z), {member(Z,Y)}.
-o(X =<  Y)   --> o(X=Z), {Z=<Y}.
-o(X >=  Y)   --> o(X=Z), {Z>=Y}.
-o(X \=  Y)   --> o(X=Z), {Z\=Y}.
-o(X  <  Y)   --> o(X=Z), {Z <Y}.
-o(X  >  Y)   --> o(X=Z), {Z >Y}.
+o(X in  Y)   --> slot(_,X,Z,Z), {member(Z,Y)}.
+o(X =<  Y)   --> slot(_,X,Z,Z), {Z=<Y}.
+o(X >=  Y)   --> slot(_,X,Z,Z), {Z>=Y}.
+o(X \=  Y)   --> slot(_,X,Z,Z), {Z\=Y}.
+o(X  <  Y)   --> slot(_,X,Z,Z), {Z <Y}.
+o(X  >  Y)   --> slot(_,X,Z,Z), {Z >Y}.
 
 goal_expansion(o(A,B,C),D) :- clause(o(A,B,C),D).
 
@@ -63,9 +63,9 @@ num = [n=0,m=0,sd].
 cols= [x=[nums=[], syms=[]]
       ,y=[nums=[], syms=[], less=[], more=[], klass=_]].
 
-z(N) --> o name of emp := N and dob < 2000 and  shoesize > 23.
+z(N) --> o name of emp := N and dob < 2000 and  shoesize > 23 and name=helen.
 z --> o dob in [a,b] and name := tim. 
 
-col0(L) --> o x of nums ++ a.
+col0(L) --> o  x of nums ++ L.
  
 
