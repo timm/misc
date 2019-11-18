@@ -40,18 +40,18 @@ o(X,A) :- o(X,_,A).
 
 o(X of  Y, A,B) :- slot(_,X,Old,New,A,B), o(Y,Old,New).
 o(X and Y, A,B) :- o(X,A,C), o(Y,C,B).
-o(a  F,    A,B) :- slot(F,_,_,_,A,B).
-o(an F,    A,B) :- slot(F,_,_,_,A,B).
-o(X @= Y/Z,A,B) :- slot(_,X,Y,Z,A,B).
+o(a  F,    A,B) :- slot(F,_,_,_,    A,B).
+o(an F,    A,B) :- slot(F,_,_,_,    A,B).
+o(X @= Y/Z,A,B) :- slot(_,X,Y,Z,    A,B).
 o(X ++ Y,  A,B) :- slot(_,X,Z,[Y|Z],A,B).
-o(X := Y,  A,B) :- slot(_,X,_,Y,A,B).
-o(X =  Y,  A,B) :- slot(_,X,Y,Y,A,B).
-o(X in Y,  A,B) :- slot(_,X,Z,Z,A,B), member(Z,Y).
-o(X =< Y,  A,B) :- slot(_,X,Z,Z,A,B), Z=<Y.
-o(X >= Y,  A,B) :- slot(_,X,Z,Z,A,B), Z>=Y.
-o(X \= Y,  A,B) :- slot(_,X,Z,Z,A,B), Z\=Y.
-o(X  < Y,  A,B) :- slot(_,X,Z,Z,A,B), Z <Y.
-o(X  > Y,  A,B) :- slot(_,X,Z,Z,A,B), Z >Y.
+o(X := Y,  A,B) :- slot(_,X,_,Y,    A,B).
+o(X =  Y,  A,B) :- slot(_,X,Y,Y,    A,B).
+o(X in Y,  A,B) :- slot(_,X,Z,Z,    A,B), member(Z,Y).
+o(X =< Y,  A,B) :- slot(_,X,Z,Z,    A,B), Z=<Y.
+o(X >= Y,  A,B) :- slot(_,X,Z,Z,    A,B), Z>=Y.
+o(X \= Y,  A,B) :- slot(_,X,Z,Z,    A,B), Z\=Y.
+o(X  < Y,  A,B) :- slot(_,X,Z,Z,    A,B), Z <Y.
+o(X  > Y,  A,B) :- slot(_,X,Z,Z,    A,B), Z >Y.
 
 goal_expansion(o(A,B,C),D) :- clause(o(A,B,C),D).
 goal_expansion(slot(A,B,C,D,E,F), true) :-
