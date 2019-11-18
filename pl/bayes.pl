@@ -14,8 +14,8 @@
 :- op( 100, xfx,   (++)).
 :- op( 100, xfx,   in).
 
-:-  (dynamic slot/6), (discontiguous slot/6).
-:-  (dynamic new/2),  (discontiguous new/2).
+:- (dynamic slot/6), (discontiguous slot/6).
+:- (dynamic new/2),  (discontiguous new/2).
 
 term_expansion(F=Y, Out) :-
   fields(Y, Fields, Defaults),
