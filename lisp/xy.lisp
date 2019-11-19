@@ -1,6 +1,6 @@
 ; vim: ts=2 sw=2 sts=2 expandtab:
 
-(setf *the*
+(defvar *the*
        '(char (     skip #\?
                     less #\>
                     more #\>
@@ -22,12 +22,13 @@
 (labels 
   ((comma-split (string)
       (loop for lo = 0 then (1+ hi)
-            for hi = (position #\, string :lo lo)
+            for hi = (position #\, string :start lo)
             collecting (string-trim " " (subseq string lo hi))
             until (null hi))))
   (defmacro with-lines ((line file) &body body)
     (let ((str (gensym)))
-      `(with-open-file (,str ,file)
+      `(with-open-file
+	   (,str ,file)
          (while (setf ,line (read-line ,str nil))
                 (setf ,line (comma-split ,line))
                 ,@body)))))
@@ -35,6 +36,7 @@
 (defun prefix (x y) (eql (char (symbol-name x) 0) y))
 
 (defun skip?    (x) (prefix x #\?))
+
 (defun more?    (x) (prefix x #\>))
 (defun less?    (x) (prefix x #\<))
 (defun klass?   (x) (prefix x #\!))
