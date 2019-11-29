@@ -1,16 +1,21 @@
 -- vim: nospell:sta:et:sw=2:ts=2:sts=2
 
-local Object={}
+function same(z) return z end
 
-local function same(x) return x end
-local function copy(t)        return type(t) ~= 'table' and t or collect(t,copy) end
-local function shallowCopy(t) return map(t,same) end
+function call(i,k) return i.me[k]() end
 
-function Object:new(o)
-  o = o or {}
-  setmetatable(o,self)
-  self.__index = self
-  return o
+function also(new,old)
+  new = new or {}
+  for k,v in pairs(new) do old[k] = v end 
+  return old
 end
 
-return Object
+Object={show="Object"}
+
+do
+  local id = 0
+  function new(i)
+    id   = id + 1
+    i.id = id
+    return i  end
+end
