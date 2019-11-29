@@ -1,18 +1,4 @@
 -- vim: nospell:sta:et:sw=2:ts=2:sts=2
-
-Object = {}
-
-function show(i,  str,sep)
-  str,sep = "{",""
-  for k,v in pairs(i) do 
-    if type(v) ~= "function" then
-      str = str..sep..tostring(k)..":"..tostring(v)
-      sep = ", "
-    end 
-  end
-  return str .. "}"
-end
-
 function collect(t,f)
   local out={}
   if t then  
@@ -23,15 +9,18 @@ end
 function deepcopy(t) 
   return type(t) ~= 'table' and t or collect(t,deepcopy) end
 
+Object = {}
 
 function Object:new (o)
   o = deepcopy(o) or {}
   setmetatable(o, self)
   self.__index = self
   self.__tostring = show
-  return o
+  return self:init()
 end
-
+function Object:init()
+  return self
+end
 Account = Object:new{balance = 0,all={}}
 
 function Account:push(v) 
@@ -46,6 +35,15 @@ function Account:withdraw (v)
   self.balance = self.balance - v
 end
 
+function show(i,  str,sep)
+  str,sep = "{",""
+  for k,v in pairs(i) do 
+    if type(v) ~= "function" then
+      str = str..sep..tostring(k)..":"..tostring(v)
+      sep = ", " end end
+  return str .. "}"
+end
+
 a=Account:new()
 b=Account:new()
 a:deposit(100)
@@ -57,18 +55,10 @@ a:push(300)
 print("a all", show(a), show(a.all))
 print("b all", show(b), show(b.all))
 
-SpecialAccount = Account:new()
+c={xx={}}
+d=deepcopy(c)
 
-function SpecialAccount:withdraw (v)
-  if self.balance - v  < self:getLimit() then
-    error"insufficient funds"
-  end
-  self.balance = self.balance - v
-end
-    
-function SpecialAccount:getLimit ()
-  return self.limit or 0
-end
-
-s = SpecialAccount:new{limit=100,owners={}}
+c.xx[#c.xx+1] = 10
+print("c", show(c.xx))
+print("d", show(d.xx))
 
