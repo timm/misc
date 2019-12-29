@@ -30,7 +30,7 @@ function Table1(i,r,lst,      c) {
   else for(c in lst) 
     if (lst[c] !~ /\?/)  {
       i.names[c] = lst[c]
-      if (name[c] ~ /[\$<>]/) 
+      if (i.names[c] ~ /[\$<>]/) 
         has1(i.nums,c,"Some") 
       else
         has1(i.syms,c,"Sym")}}}
@@ -47,14 +47,42 @@ function Row(i,lst,t,     n,c) {
          Some1(t.nums[c], n) }
       i.cells[c] = n }}}
 
+function Num(i) {
+  Object(i)
+  i.n  = i.mu = i.m2 = i.sd = 0
+  i.hi = -1 * (i.lo= 10^32) }
+
+function Num1(i,x,    d) {
+  if (x == "?") return
+  i.n++
+  i.lo  = x < i.lo ? x : i.lo
+  i.hi  = x > i.hi ? x : i.hi
+  d     = x - i.mu
+  i.mu += d/i.n
+  i.m2 += d*(x - i.mu)
+  if (i.n > 1) sd = (i.m2/(i.n - 1))^0.5 }
+
+function Sym(i,c,v) { 
+  Object(i)
+  i.n = i.mode= i.most = 0
+  has(i,"seen") }
+
+function Sym1(i,x,  tmp) {
+  if (x == "?") return
+  i.n++
+  tmp = ++i.seen[x]
+  if (tmp > i.most) {
+    i.most = tmp
+    i.mode = x }}
+
 function Some(i) {
   Object(i)
-  i.magic = 2.56
-  i.max=V.some.max
+  i.magic = G.some.magic
+  i.max=G.some.max
   has(i,"has")
   i.ok=0
-  i.n=0
-}
+  i.n=0 }
+
 function Some1(i,x) {
   if (x == "?") return
   i.n++
@@ -67,22 +95,26 @@ function Some1(i,x) {
     if rand() < i.max/i.n)
       i.has[ bsearch(i.has,x) ] = x }}
 
-function SomeCut(i,some,   n)
-  Object(i)
-  n = l(some.has)
+function SomeCuts(i,some)
+  SomeCuts0(i,n)
+  _SomeCuts(i,1, l(i,has)) {
+
+function SomeCuts0(i,    n) {
+  n = l(i.has)
   has(i,"cuts")
-  i.start   = j.has[1]
-  i.stop    = j.has[ n ]
-  i,step    = n^V.div.step
-  i.epsilon = sd(j,1, n )*V.div.cohen
-  i.trivial = V.div.trivial
-}
-function SomeCutting(i,lo,hi,       j,cut,min,now,after,new) {
+  i.cohen   = G.div.cohen
+  i.start   = i.has[ 1 ]
+  i.stop    = i.has[ n ]
+  i,step    = n^G.div.step
+  i.trivial = G.div.trivial 
+  i.epsilon = sd(i,1, n )*i.cohen }
+
+function _SomeCuts(i,lo,hi,       j,cut,min,now,after,new) {
   if hi - lo > i.step {
     min  = sd(i,lo,hi)
     for(j = lo + i.step; j<=hi-i.step; j++) {
-      now = x(j)
-      after = x(j+1)
+      now = x(i,j)
+      after = x(i,j+1)
       if (now != after && 
           after - i.start             > i.epsilon && 
           i.stop - now                > i.epsilon &&
@@ -91,8 +123,8 @@ function SomeCutting(i,lo,hi,       j,cut,min,now,after,new) {
              min = new
              cut = j }}}
   if (cut)
-    SomeCutting(i,lo,    cut)
-    SomeCutting(i,cut+1, hi)
+    _SomeCuts(i,lo,    cut)
+    _SomeCuts(i,cut+1, hi)
   else
     i.cuts[l(i.cuts)+1] = i.has[cut] }
 

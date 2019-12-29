@@ -39,23 +39,17 @@ function has2(i,k,f,m,n) {               zap(i,k); @f(i[k],m,n) }
 } 
 
 function abs(x) {return x<0? -1*x : x }
-function binChop(a,x,           y,lo, hi,mid) 
-  lo,hi = 1,#a
+
+function binChop(a,x,           y,lo, hi,mid)  {
+  lo = 1
+  hi = l(a)
   while (lo <= hi) {
     mid = int((hi + lo) / 2)
     y=a[mid]
     if (x == y) break 
-    if (x <  y) hi=mid-1; else lo=mid+1 
-  }
+    if (x <  y) hi=mid-1; else lo=mid+1 }
   return mid }
 
-function bsearch(a,x,   y,hi,lo,mid) {
-  lo=1
-  hi=length(a)
-  while(lo<=hi) {
-   mid= int((hi+lo)/2)
-   
-}
 function oo(x,p,pre, i,txt) {
   txt = pre ? pre : (p DOT)
   ooSortOrder(x)
