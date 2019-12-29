@@ -33,4 +33,5 @@ f=$(basename $1)
 d="$HOME/tmp/fun"
 mkdir -p $d
 cat $1 |  gen  > $d/$f
+echo gawk -f $d/$f $*
 gawk -f $d/$f $*

@@ -22,8 +22,8 @@ function zap(i,k)        { i[k][0]; List(i[k])}
 function Object(i)       { List(i); i["oid"]=++OID }
 
 function has( i,k,f)     { f=f?f:"List"; zap(i,k); @f(i[k]) }
-function has1(i,k,f,m)   {               zap(i,k); @f(i[k],m) }
-function has2(i,k,f,m,n) {               zap(i,k); @f(i[k],m,n) }
+function hass(i,k,f,m)   {               zap(i,k); @f(i[k],m) }
+function hasss(i,k,f,m,n) {               zap(i,k); @f(i[k],m,n) }
 
  function lines(i,update,f,sep,  r,line,lst,com) {
   f   = f ? f : "/dev/stdin"

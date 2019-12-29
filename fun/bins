@@ -1,0 +1,146 @@
+#!/usr/bin/env ./fun
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+@include "lib"
+
+# sadasd
+# adasd
+
+## this is unsuper. it should be followed by super
+
+## needs a pre-processor cols (to prune sillies)
+
+## cat | clean | cols | ranges | super | rows | cluster | privitize | contrast
+#                                                               explanation, planning, monitoring
+# repeat the above without super 
+BEGIN {Globals(G); FS=G.sep}
+function Globals(i) {
+  i.skip = "?"
+  i.sep  = ","
+  i.div.step = 0.5
+  i.some.max = 256
+  i.some.magic = 2.56
+  i.div.cohen = 0.3
+  i.div.trivial = 0.3 }
+
+function Table(i,f) {
+  Object(i)
+  has(i,"names")
+  has(i,"nums") }
+
+function TableFile(i,f) { lines(i,"Table1",f) }
+
+function Table1(i,r,lst,      c,x) {
+  if (r>1)  
+    hass(i.rows,r-1,"Row",lst,i)
+  else # Set up nums and syms named in row1
+    for(c in lst)  {
+      x = lst[c]
+      if (x !~ /\?/)  {
+        i.names[c] = x
+        if (x ~ /[\$<>]/) 
+          hass(i.nums,c,"Some") }}}
+
+function Row(i,lst,t,     x,c) {
+  Object(i)
+  has(i,"cells")
+  has(i,"cooked")
+  for(c in t.names) {
+    x = lst[c]
+    if (x != "?") {
+      if (c in t.nums) {
+         x += 0
+         Some1(t.nums[c], x) }
+      i.cells[c] = x }}}
+
+#function Num(i) {
+#  Object(i)
+#  i.n  = i.mu = i.m2 = i.sd = 0
+#  i.hi = -1 * (i.lo= 10^32) }
+#
+#function Num1(i,x,    d) {
+#  if (x == "?") return
+#  i.n++
+#  i.lo  = x < i.lo ? x : i.lo
+#  i.hi  = x > i.hi ? x : i.hi
+#  d     = x - i.mu
+#  i.mu += d/i.n
+#  i.m2 += d*(x - i.mu)
+#  if (i.n > 1) sd = (i.m2/(i.n - 1))^0.5 }
+#
+#function Sym(i,c,v) { 
+#  Object(i)
+#  i.n = i.mode= i.most = 0
+#  has(i,"seen") }
+#
+#function Sym1(i,x,  tmp) {
+#  if (x == "?") return
+#  i.n++
+#  tmp = ++i.seen[x]
+#  if (tmp > i.most) {
+#    i.most = tmp
+#    i.mode = x }}
+#
+function Some(i) {
+  Object(i)
+  i.magic = G.some.magic
+  i.max=G.some.max
+  has(i,"has")
+  i.ok=0
+  i.n=0 }
+
+function Some1(i,x) {
+  if (x == "?") return
+  i.n++
+  if (i.n < i.max) {
+    i.has[ l(i.has)+1 ] = x
+    i.ok=0
+  } else {
+    if (i.n == i.max) 
+      i.ok = asort(i.has)
+    if rand() < i.max/i.n)
+      i.has[ bsearch(i.has,x) ] = x }}
+
+function Cuts(i,some,    n) {
+  has(i,"cuts")
+  n         = l(some.has)
+  i.cohen   = G.div.cohen
+  i.start   = some.has[ 1 ]
+  i.stop    = some.has[ n ]
+  i,step    = n^G.div.step
+  i.trivial = G.div.trivial 
+  i.epsilon = sd(some,1, n )*i.cohen }
+
+function Cutting(i,some,lo,hi,       
+                 j,cut,min,now,after,new) {
+  if hi - lo > i.step {
+    min  = sd(some,lo,hi)
+    for(j = lo + i.step; j<=hi-i.step; j++) {
+      now = x(some,j)
+      after = x(some,j+1)
+      if (now != after && 
+          after - i.start > i.epsilon && 
+          i.stop - now    > i.epsilon &&
+          mid(some,j+1,hi) - mid(some,lo,j) > i.epsilon && 
+          min > (new = xpect(some,lo,j,hi)) * i.trivial) {
+             min = new
+             cut = j }}}
+  if (cut)
+    Cutting(i,some,lo,    cut)
+    Cutting(i,some,cut+1, hi)
+  else
+    i.cuts[l(i.cuts)+1] = i.has[cut] }
+
+# For any object containing a list i.has,  compute some stats
+function ok(i)       { if (!i.ok) i.ok= asort(i.has) }
+function x(i,z)      { ok(i);  return i.has[int(z)] }
+function p(i,z)      { return x(z*l(i.has)) }
+function mid(i,j,k)  { return x(j + .5*(k-j) )    }
+function sd(i,j,k)   {  
+  return abs((x(i,j+.9*(k-j)) - x(i,j+.1*(k-j))/i.magic) }
+function xpect(i,j,m,k,   n) {
+  n=k-j+1
+  return (m-j)/n*sd(i,j,m) + (k-m -1)/n*sd(i,m+1,k) }
+function nth(i,x) { ok(i); return bsearch(i.has,x)/l(i.has) }
+
+
