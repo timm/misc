@@ -15,7 +15,6 @@
 # repeat the above without super 
 BEGIN {Globals(G); FS=G.sep}
 function Globals(i) {
-  i.skip = "?"
   i.sep  = ","
   i.div.step = 0.5
   i.some.max = 256
@@ -142,5 +141,3 @@ function xpect(i,j,m,k,   n) {
   n=k-j+1
   return (m-j)/n*sd(i,j,m) + (k-m -1)/n*sd(i,m+1,k) }
 function nth(i,x) { ok(i); return bsearch(i.has,x)/l(i.has) }
-
-
