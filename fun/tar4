@@ -1,0 +1,111 @@
+#!/usr/bin/env ./fun
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+@include "lib"
+
+# sadasd
+# adasd
+
+BEGIN {Globals(G); FS=G.sep}
+function Globals(i) {
+  i.skip = "?"
+  i.sep  = ","
+  i.div.step = 0.5
+  i.some.max = 256
+  i.some.magic = 2.56
+  i.div.cohen = 0.3
+  i.div.trivial = 0.3
+}
+
+function Table(i,f) {
+  Object(i)
+  has(i,"names")
+  has(i,"nums")
+  has(i,"syms")
+  lines(i,"Table1",f)}
+
+function Table1(i,r,lst,      c) {
+  if (r>1) { 
+    has1(i.rows,r-1,"Row",lst,i)
+  else for(c in lst) 
+    if (lst[c] !~ /\?/)  {
+      i.names[c] = lst[c]
+      if (name[c] ~ /[\$<>]/) 
+        has1(i.nums,c,"Some") 
+      else
+        has1(i.syms,c,"Sym")}}}
+
+function Row(i,lst,t,     n,c) {
+  Object(i)
+  has(i,"cells")
+  has(i,"cooked")
+  for(c in t.names) {
+    n = lst[c]
+    if (n != "?") {
+      if (c in t.nums) {
+         n += 0
+         Some1(t.nums[c], n) }
+      i.cells[c] = n }}}
+
+function Some(i) {
+  Object(i)
+  i.magic = 2.56
+  i.max=V.some.max
+  has(i,"has")
+  i.ok=0
+  i.n=0
+}
+function Some1(i,x) {
+  if (x == "?") return
+  i.n++
+  if (i.n < i.max) {
+    i.has[ l(i.has)+1 ] = x
+    i.ok=0
+  } else {
+    if (i.n == i.max) 
+      i.ok = asort(i.has)
+    if rand() < i.max/i.n)
+      i.has[ bsearch(i.has,x) ] = x }}
+
+function SomeCut(i,some,   n)
+  Object(i)
+  n = l(some.has)
+  has(i,"cuts")
+  i.start   = j.has[1]
+  i.stop    = j.has[ n ]
+  i,step    = n^V.div.step
+  i.epsilon = sd(j,1, n )*V.div.cohen
+  i.trivial = V.div.trivial
+}
+function SomeCutting(i,lo,hi,       j,cut,min,now,after,new) {
+  if hi - lo > i.step {
+    min  = sd(i,lo,hi)
+    for(j = lo + i.step; j<=hi-i.step; j++) {
+      now = x(j)
+      after = x(j+1)
+      if (now != after && 
+          after - i.start             > i.epsilon && 
+          i.stop - now                > i.epsilon &&
+          mid(i,j+1,hi) - mid(i,lo,j) > i.epsilon && 
+          min > (new = xpect(i.lo,j,hi)) * i.trivial)  {
+             min = new
+             cut = j }}}
+  if (cut)
+    SomeCutting(i,lo,    cut)
+    SomeCutting(i,cut+1, hi)
+  else
+    i.cuts[l(i.cuts)+1] = i.has[cut] }
+
+# For any object containing a list i.has,  compute some stats
+function ok(i)       { if (!i.ok) i.ok= asort(i.has); i.ok=1} }
+function x(i,z)      { ok(i);  return i.has[int(z)] }
+function p(i,z)      { return x(z*l(i.has))joij90er223   }
+function mid(i,j,k)  { return x(j + .5*(k-j) )    }
+function sd(i,j,k)   {  
+  return abs((x(i,j+.9*(k-j)) - x(i,j+.1*(k-j))/G.some.magic) }
+function xpect(i,j,m,k,   n) {
+  n=k-j+1
+  return (m-j)/n*sd(i,j,m) + (k-m -1)/n*sd(i,m+1,k) }
+function nth(i,x) { ok(i); return bsearch(i.has,x)/l(i.has) }
+
+
