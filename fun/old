@@ -1,0 +1,41 @@
+function ksort(lst,k) {
+  90.    KSORT=k
+  91.    asort(lst,lst,"kcompare")
+  92.  }
+  93.  function kcompare(i1,v1,i2,v2,  l,r) {
+  94.    l = v1[KSORT] +0
+  95.    r = v2[KSORT] +0
+  96.    if (l < r) return -1
+  97.    if (l == r) return 0
+  98.    return 1
+  99.  }  
+
+#function Num(i) {
+#  Object(i)
+#  i.n  = i.mu = i.m2 = i.sd = 0
+#  i.hi = -1 * (i.lo= 10^32) }
+#
+#function Num1(i,x,    d) {
+#  if (x == "?") return
+#  i.n++
+#  i.lo  = x < i.lo ? x : i.lo
+#  i.hi  = x > i.hi ? x : i.hi
+#  d     = x - i.mu
+#  i.mu += d/i.n
+#  i.m2 += d*(x - i.mu)
+#  if (i.n > 1) sd = (i.m2/(i.n - 1))^0.5 }
+#
+#function Sym(i,c,v) { 
+#  Object(i)
+#  i.n = i.mode= i.most = 0
+#  has(i,"seen") }
+#
+#function Sym1(i,x,  tmp) {
+#  if (x == "?") return
+#  i.n++
+#  tmp = ++i.seen[x]
+#  if (tmp > i.most) {
+#    i.most = tmp
+#    i.mode = x }}
+#
+
