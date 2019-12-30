@@ -27,28 +27,32 @@ function Table(i,f) {
   has(i,"names")
   has(i,"nums") }
 
-function TableFile(i,f) { 
+function TableFile(i,f,   c) { 
   lines(i,"Table1",f) 
   for(c in i.nums) {
     SomeCuts(i.nums[c])
-    cellsort(i.rows,c)
-    TableBins(c, i.nums[c].cuts,i.rows)}}
+    TableBins(i,c, i.nums[c].cuts,i.rows)}
 
-function TableBins(c,cuts,rows,    n)
-  ncols= l(rows[1].cells)
-  nrows= l(rows)
-  for(i=1;i<=
+}
+
+function TableBins(i,c,cuts,rows,    cut,r,r1,cell) {
+  r=cellsort(i.rows,c)
+  cut=1
+  for(r1=1;r1<=r;r1++) {
+    cell = i.rows[r1].cells[c]
+    if (cell != "?") { 
+      while (cell >  cuts[cut]) cut++
+      cell = cuts[cut] }
+    i.rows[r1].cooked[c] = cell }}
 
 function Table1(i,r,lst,      c,x) {
   if (r>1)  
     hass(i.rows,r-1,"Row",lst,i)
   else # Set up nums and syms named in row1
     for(c in lst)  {
-      x = lst[c]
-      if (x !~ /\?/)  {
-        i.names[c] = x
-        if (x ~ /[\$<>]/) 
-          hass(i.nums,c,"Some") }}}
+      x = i.names[c] = lst[c]
+      if (x ~ /[\$<>]/) 
+        hass(i.nums,c,"Some") }}
 
 function Row(i,lst,t,     x,c) {
   Object(i)
@@ -62,14 +66,10 @@ function Row(i,lst,t,     x,c) {
          Some1(t.nums[c], x) }
       i.cells[c] = x }}}
 
-function SomeCut(i) {
+function SomeCut(i,   cutter) {
   Cuts(cutter,i)
   List(i.cuts)
   _Cuts(cutter,i,1,l(i.has)) }
-
- 
-  
-}
 
 function Some(i) {
   Object(i)
@@ -77,7 +77,7 @@ function Some(i) {
   i.max   = G.some.max
   has(i,"has")
   has(i,"cuts")
-  i.ok = 0
+  i.sorted = 0
   i.n  = 0 }
 
 function Some1(i,x) {
@@ -85,11 +85,11 @@ function Some1(i,x) {
   i.n++
   if (i.n < i.max) {
     i.has[ l(i.has)+1 ] = x
-    i.ok=0
+    i.sorted=0
   } else {
     if (i.n == i.max) 
-      i.ok = asort(i.has)
-    if rand() < i.max/i.n)
+      i.sorted = asort(i.has)
+    if (rand() < i.max/i.n)
       i.has[ bsearch(i.has,x) ] = x }}
 
 function Cuts(i,some,    n) {
@@ -98,17 +98,17 @@ function Cuts(i,some,    n) {
   i.cohen   = G.div.cohen
   i.start   = some.has[ 1 ]
   i.stop    = some.has[ n ]
-  i,step    = n^G.div.step
+  i.step    = n^G.div.step
   i.trivial = G.div.trivial 
   i.epsilon = sd(some,1, n )*i.cohen }
 
 function _Cuts(i,some,lo,hi,       
                  j,cut,min,now,after,new) {
-  if hi - lo > i.step {
+  if (hi - lo > i.step) {
     min  = sd(some,lo,hi)
     for(j = lo + i.step; j<=hi-i.step; j++) {
-      now = x(some,j)
-      after = x(some,j+1)
+      now =  at(some,j)
+      after = at(some,j+1)
       if (now != after && 
           after - i.start > i.epsilon && 
           i.stop - now    > i.epsilon &&
@@ -116,20 +116,21 @@ function _Cuts(i,some,lo,hi,
           min > (new = xpect(some,lo,j,hi)) * i.trivial) {
              min = new
              cut = j }}}
-  if (cut)
+  if (cut) {
     _Cuts(i,some,lo,    cut)
     _Cuts(i,some,cut+1, hi)
-  else
+  } else
     some.cuts[l(some.cuts)+1] = some.has[cut] }
 
 # For any object containing a list i.has,  compute some stats
-function ok(i)       { if (!i.ok) i.ok= asort(i.has) }
-function x(i,z)      { ok(i);  return i.has[int(z)] }
-function p(i,z)      { return x(z*l(i.has)) }
-function mid(i,j,k)  { return x(j + .5*(k-j) )    }
-function sd(i,j,k)   {  
-  return abs((x(i,j+.9*(k-j)) - x(i,j+.1*(k-j))/i.magic) }
+function sorted(i)    { if (!i.sorted) i.sorted=asort(i.has) }
+function at(i,z)      { sorted(i);  return i.has[int(z)] }
+function per(i,j,k,p) { return at(j + p*(k-j)) }
+function mid(i,j,k)   { return at(j + .5*(k-j) ) }
+function sd(i,j,k)    {
+   return abs(per(i,j,k,.9) - per(i,j,k,.1))/i.magic }
 function xpect(i,j,m,k,   n) {
   n=k-j+1
   return (m-j)/n*sd(i,j,m) + (k-m -1)/n*sd(i,m+1,k) }
-function nth(i,x) { ok(i); return bsearch(i.has,x)/l(i.has) }
+function nth(i,x) { sorted(i); return bsearch(i.has,x)/l(i.has) }
+BEGIN{ rogues() }
