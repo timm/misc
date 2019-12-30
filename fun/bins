@@ -27,12 +27,14 @@ function Table(i,f) {
   has(i,"names")
   has(i,"nums") }
 
-function TableFile(i,f,   c) { 
+function TableFile(i,f,   c,r) { 
   lines(i,"Table1",f) 
   for(c in i.nums) {
     SomeCuts(i.nums[c])
     TableBins(i,c, i.nums[c].cuts,i.rows)}
-
+  print(cat(i.names))
+  for(r in i.rows)
+    print(cat(i.rows[r].cooked))
 }
 
 function TableBins(i,c,cuts,rows,    cut,r,r1,cell) {

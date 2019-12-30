@@ -67,6 +67,7 @@ function ooSortOrder(x, i) {
 }
 
 function cat(a,sep,    j,n,s) {
+  sep = sep  ? sep : ","
   n = l(a)
   s = a[1]
   for(j=2;j<=n;j++) s = s sep a[j]
