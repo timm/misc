@@ -27,7 +27,17 @@ function Table(i,f) {
   has(i,"names")
   has(i,"nums") }
 
-function TableFile(i,f) { lines(i,"Table1",f) }
+function TableFile(i,f) { 
+  lines(i,"Table1",f) 
+  for(c in i.nums) {
+    SomeCuts(i.nums[c])
+    cellsort(i.rows,c)
+    TableBins(c, i.nums[c].cuts,i.rows)}}
+
+function TableBins(c,cuts,rows,    n)
+  ncols= l(rows[1].cells)
+  nrows= l(rows)
+  for(i=1;i<=
 
 function Table1(i,r,lst,      c,x) {
   if (r>1)  
@@ -52,41 +62,23 @@ function Row(i,lst,t,     x,c) {
          Some1(t.nums[c], x) }
       i.cells[c] = x }}}
 
-#function Num(i) {
-#  Object(i)
-#  i.n  = i.mu = i.m2 = i.sd = 0
-#  i.hi = -1 * (i.lo= 10^32) }
-#
-#function Num1(i,x,    d) {
-#  if (x == "?") return
-#  i.n++
-#  i.lo  = x < i.lo ? x : i.lo
-#  i.hi  = x > i.hi ? x : i.hi
-#  d     = x - i.mu
-#  i.mu += d/i.n
-#  i.m2 += d*(x - i.mu)
-#  if (i.n > 1) sd = (i.m2/(i.n - 1))^0.5 }
-#
-#function Sym(i,c,v) { 
-#  Object(i)
-#  i.n = i.mode= i.most = 0
-#  has(i,"seen") }
-#
-#function Sym1(i,x,  tmp) {
-#  if (x == "?") return
-#  i.n++
-#  tmp = ++i.seen[x]
-#  if (tmp > i.most) {
-#    i.most = tmp
-#    i.mode = x }}
-#
+function SomeCut(i) {
+  Cuts(cutter,i)
+  List(i.cuts)
+  _Cuts(cutter,i,1,l(i.has)) }
+
+ 
+  
+}
+
 function Some(i) {
   Object(i)
   i.magic = G.some.magic
-  i.max=G.some.max
+  i.max   = G.some.max
   has(i,"has")
-  i.ok=0
-  i.n=0 }
+  has(i,"cuts")
+  i.ok = 0
+  i.n  = 0 }
 
 function Some1(i,x) {
   if (x == "?") return
@@ -101,7 +93,7 @@ function Some1(i,x) {
       i.has[ bsearch(i.has,x) ] = x }}
 
 function Cuts(i,some,    n) {
-  has(i,"cuts")
+  Object(i)
   n         = l(some.has)
   i.cohen   = G.div.cohen
   i.start   = some.has[ 1 ]
@@ -110,7 +102,7 @@ function Cuts(i,some,    n) {
   i.trivial = G.div.trivial 
   i.epsilon = sd(some,1, n )*i.cohen }
 
-function Cutting(i,some,lo,hi,       
+function _Cuts(i,some,lo,hi,       
                  j,cut,min,now,after,new) {
   if hi - lo > i.step {
     min  = sd(some,lo,hi)
@@ -125,10 +117,10 @@ function Cutting(i,some,lo,hi,
              min = new
              cut = j }}}
   if (cut)
-    Cutting(i,some,lo,    cut)
-    Cutting(i,some,cut+1, hi)
+    _Cuts(i,some,lo,    cut)
+    _Cuts(i,some,cut+1, hi)
   else
-    i.cuts[l(i.cuts)+1] = i.has[cut] }
+    some.cuts[l(some.cuts)+1] = some.has[cut] }
 
 # For any object containing a list i.has,  compute some stats
 function ok(i)       { if (!i.ok) i.ok= asort(i.has) }

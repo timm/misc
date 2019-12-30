@@ -65,3 +65,21 @@ function ooSortOrder(x, i) {
     return PROCINFO["sorted_in"] =\
       typeof(i+1)=="number" ? "@ind_num_asc" : "@ind_str_asc"
 }
+
+function ksort(lst,k) { SORT=k; asort(lst,lst,"kcompare") }
+
+function kcompare(i1,v1,i2,v2,  l,r) {
+  l = v1[SORT] +0
+  r = v2[SORT] +0
+  if (l < r) return -1
+  if (l == r) return 0
+  return 1 } 
+
+function cellsort(lst,k) { SORT=k; asort(lst,lst,"cellcompare") }
+
+function cellcompare(i1,v1,i2,v2,  l,r) {
+  l = v1["cells"][SORT]
+  r = v2["cells"][SORT]
+  if (l < r) return -1
+  if (l == r) return 0
+  return 1 }  
