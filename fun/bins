@@ -1,65 +1,69 @@
 #!/usr/bin/env ./fun
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
+## hello
+
+
 @include "lib"
 
-# sadasd
-# adasd
+sadasd
+adasd
 
-## this is unsuper. it should be followed by super
+this is unsuper. it should be followed by super
 
-## needs a pre-processor cols (to prune sillies)
+needs a pre-processor cols (to prune sillies)
 
-## cat | clean | cols | ranges | super | rows | cluster | privitize | contrast
-#                                                               explanation, planning, monitoring
-# repeat the above without super 
-BEGIN {Globals(G); FS=G.sep}
-function Globals(i) {
+cat | clean | cols | ranges | super | rows | cluster | privitize | contrast
+
+repeat the above without super 
+
+function Bins(i) {
+  i.data = "data/weather" DOT "csv"
   i.sep  = ","
-  i.div.step = 0.5
-  i.some.max = 256
-  i.some.magic = 2.56
-  i.div.cohen = 0.3
-  i.div.trivial = 0.3 }
+  i.step = 0.5
+  i.max = 256
+  i.magic = 2.56
+  i.cohen = 0.3
+  i.trivial = 0.3}
 
-function Table(i,f) {
+function Table(i) {
   Object(i)
+  has(i,"rows")
   has(i,"names")
   has(i,"nums") }
 
-function TableFile(i,f,   c,r) { 
-  lines(i,"Table1",f) 
+function TableFile(i,f,   c,r) { lines(i,f, "Table1") }
+
+function TableChop(i,   c) {
   for(c in i.nums) {
     SomeCuts(i.nums[c])
-    TableBins(i,c, i.nums[c].cuts,i.rows)}
+    TableBins(i,c, i.nums[c].cuts,i.rows)}}
+
+function TableDump(i,   r) {
   print(cat(i.names))
   for(r in i.rows)
-    print(cat(i.rows[r].cooked))
-}
+    print(cat(i.rows[r].cells)) }
 
 function TableBins(i,c,cuts,rows,    cut,r,r1,cell) {
   r=cellsort(i.rows,c)
   cut=1
   for(r1=1;r1<=r;r1++) {
-    cell = i.rows[r1].cells[c]
-    if (cell != "?") { 
+    if ((cell = i.rows[r1].cells[c]) != "?") {
       while (cell >  cuts[cut]) cut++
-      cell = cuts[cut] }
-    i.rows[r1].cooked[c] = cell }}
+      i.rows[r1].cells[c] = cuts[cut]  }}}
 
 function Table1(i,r,lst,      c,x) {
   if (r>1)  
-    hass(i.rows,r-1,"Row",lst,i)
-  else # Set up nums and syms named in row1
-    for(c in lst)  {
-      x = i.names[c] = lst[c]
-      if (x ~ /[\$<>]/) 
-        hass(i.nums,c,"Some") }}
+    return hasss(i.rows,r-1,"Row",lst,i)
+  # Set up nums and syms named in row1
+  for(c in lst)  {
+    x = i.names[c] = lst[c]
+    if (x ~ /[\$<>]/) 
+      has(i.nums,c,"Some") }}
 
 function Row(i,lst,t,     x,c) {
   Object(i)
   has(i,"cells")
-  has(i,"cooked")
   for(c in t.names) {
     x = lst[c]
     if (x != "?") {
@@ -75,8 +79,8 @@ function SomeCut(i,   cutter) {
 
 function Some(i) {
   Object(i)
-  i.magic = G.some.magic
-  i.max   = G.some.max
+  i.magic = G.magic
+  i.max   = G.max
   has(i,"has")
   has(i,"cuts")
   i.sorted = 0
@@ -97,11 +101,11 @@ function Some1(i,x) {
 function Cuts(i,some,    n) {
   Object(i)
   n         = l(some.has)
-  i.cohen   = G.div.cohen
+  i.cohen   = G.cohen
   i.start   = some.has[ 1 ]
   i.stop    = some.has[ n ]
-  i.step    = n^G.div.step
-  i.trivial = G.div.trivial 
+  i.step    = n^G.step
+  i.trivial = G.trivial 
   i.epsilon = sd(some,1, n )*i.cohen }
 
 function _Cuts(i,some,lo,hi,       
@@ -135,4 +139,12 @@ function xpect(i,j,m,k,   n) {
   n=k-j+1
   return (m-j)/n*sd(i,j,m) + (k-m -1)/n*sd(i,m+1,k) }
 function nth(i,x) { sorted(i); return bsearch(i.has,x)/l(i.has) }
-BEGIN{ rogues() }
+
+function main( t) { 
+   Bins(G); argv(G);  FS=G.sep ; oo(G); 
+   Table(t)
+   TableFile(t, G.data)
+   oo(t)
+   rogues()}
+
+BEGIN { if (THIS=="bins") main() }

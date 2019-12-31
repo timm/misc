@@ -1,9 +1,10 @@
-#!/usr/bin/env ./fun
 # vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
 
 ## Misc utilities.
 
-BEGIN{  DOT=sprintf("%c",46)}
+BEGIN{  DOT="." }
+
+function l(a) { return length(a) }
 
 function o(a,t   ,x,s,sep) {
   for(x in a) {
@@ -23,20 +24,19 @@ function Object(i)       { List(i); i["oid"]=++OID }
 
 function has( i,k,f)     { f=f?f:"List"; zap(i,k); @f(i[k]) }
 function hass(i,k,f,m)   {               zap(i,k); @f(i[k],m) }
-function hasss(i,k,f,m,n) {               zap(i,k); @f(i[k],m,n) }
+function hasss(i,k,f,m,n) {              zap(i,k); @f(i[k],m,n) }
 
- function lines(i,update,f,sep,  r,line,lst,com) {
+ function lines(i,f, update,sep,  r,line,lst) {
   f   = f ? f : "/dev/stdin"
+  print(f)
   sep = sep ? sep : "[ \t]*,[ \t]*"
   while((getline line < f) > 0) {
     gsub(/^[ \t\r]*/,"",line)
     gsub(/[ \t\r]*$/,"",line)
     if (line) { 
       split(line,lst,sep)
-      @update(i,++r,lst) }
-  }
-  close(f)
-} 
+      @update(i,++r,lst) }}
+  close(f) } 
 
 function abs(x) {return x<0? -1*x : x }
 
@@ -63,8 +63,15 @@ function oo(x,p,pre, i,txt) {
 function ooSortOrder(x, i) {
   for (i in x)
     return PROCINFO["sorted_in"] =\
-      typeof(i + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc"
-}
+      typeof(i + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" }
+
+function coerce(x, y) { y=x+0; return x==y ? y : x }
+
+function argv(a,   x) {
+  for (x in ARGV) 
+   if (sub(/^--/,"",ARGV[x])) 
+     if (ARGV[x] in a) 
+       a[ARGV[x]] = coerce(ARGV[x+1]) }
 
 function cat(a,sep,    j,n,s) {
   sep = sep  ? sep : ","
@@ -73,7 +80,8 @@ function cat(a,sep,    j,n,s) {
   for(j=2;j<=n;j++) s = s sep a[j]
   return s }
 
-function ksort(lst,k) { SORT=k; return asort(lst,lst,"kcompare") }
+function ksort(lst,k) { 
+  SORT=k; return asort(lst,lst,"kcompare") }
 
 function kcompare(i1,v1,i2,v2,  l,r) {
   l = v1[SORT] +0
@@ -82,7 +90,8 @@ function kcompare(i1,v1,i2,v2,  l,r) {
   if (l == r) return 0
   return 1 } 
 
-function cellsort(lst,k) { SORT=k; return asort(lst,lst,"cellcompare") }
+function cellsort(lst,k) { 
+  SORT=k; return asort(lst,lst,"cellcompare") }
 
 function cellcompare(i1,v1,i2,v2,  l,r) {
   l = v1["cells"][SORT]
