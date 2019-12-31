@@ -25,7 +25,7 @@ function Bins(i) {
   i.magic = 2.56
   i.cohen = 0.3
   i.trivial = 0.3}
-_______________________________
+#_______________________________
 
 function Table(i) {
   Object(i)
@@ -48,22 +48,23 @@ function TableDump(i,   r) {
   for(r in i.rows)
     print(cat(i.rows[r].cells)) }
 
-function TableChop(i,   c,cuts) {
-  for(c in i.nums) 
-    TableChop1(i.nums[c]
-    r= l(i.has)
-    for(r1=1;r1<=r;r1++)
-     
-    Cutting( cuts, i.nums[c])
+function TableChop(i,   c) {
+  for(c in i.nums)  TableChop1(i,c,i.nums[c]) }
 
-function TableChio
-    cut=1
-    for(r1=1;r1<=r;r1++) {
-      if ((cell = i.rows[r1].cells[c]) != "?") {
-        while (cell > x i.nums[c].cuts[cut]) cut++
-       i.rows[r1].cells[c] = i.numc[c].cuts[cut]  }}}
+function TableChop1(i,c,some,    cutter,cut,x,rs) {
+  Cuts(cutter, some)
+  CutsUp(cutter,some)
+  rs = l(i.has)
+  cut=1
+  cellsort(i.has, c)
+  TableDump(i)
+  for(r=1; r<=rs; r++)  {
+    x = i.rows[r].cells[c]
+    if (x != "?") {
+      while (x > some.cuts[cut]) cut++
+      i.rows[r].cells[c] = some.cuts[cut]  }}}
 
-_______________________________
+# _______________________________
 function Row(i,lst,t,     x,c) {
   Object(i)
   has(i,"cells")
@@ -75,7 +76,7 @@ function Row(i,lst,t,     x,c) {
          Some1(t.nums[c], x) }
       i.cells[c] = x }}}
 
-______________________________
+# ______________________________
 function Some(i,pos) {
   Object(i)
   i.pos   = pos ? pos : 1
@@ -109,10 +110,6 @@ function sd(i,j,k)    {
 function xpect(i,j,m,k,   n) {
   n=k-j+1
   return (m-j)/n*sd(i,j,m) + (k-m -1)/n*sd(i,m+1,k) }
-function nth(i,x) { 
-  sorted(i); return bsearch(i.has,x)/l(i.has) }
-
------------------------------------------
 
 function Cuts(i,some,    n) {
   Object(i)
@@ -124,7 +121,7 @@ function Cuts(i,some,    n) {
   i.trivial = G.trivial 
   i.epsilon = sd(some,1, n )*i.cohen }
 
-function Cutting(i,some,lo,hi,       
+function CutsUp(i,some,lo,hi,       
                j,cut,min,now,after,new) {
   lo = lo ? lo : 1
   hi = hi ? hi : l(some.has)
@@ -141,12 +138,13 @@ function Cutting(i,some,lo,hi,
              min = new
              cut = j }}}
   if (cut) {
-    Cutting(i,some,lo,    cut)
-    Cutting(i,some,cut+1, hi)
+    CutsUp(i,some,lo,    cut)
+    CutsUp(i,some,cut+1, hi)
   } else
     some.cuts[l(some.cuts)+1] = some.has[cut] }
 
------------------------------------------
+#---------------------
+
 function main( t) { 
    Bins(G); argv(G); FS=G.sep 
    Table(t)
