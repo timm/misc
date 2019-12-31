@@ -28,7 +28,6 @@ function hasss(i,k,f,m,n) {              zap(i,k); @f(i[k],m,n) }
 
  function lines(i,f, update,sep,  r,line,lst) {
   f   = f ? f : "/dev/stdin"
-  print(f)
   sep = sep ? sep : "[ \t]*,[ \t]*"
   while((getline line < f) > 0) {
     gsub(/^[ \t\r]*/,"",line)

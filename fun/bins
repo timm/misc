@@ -51,17 +51,18 @@ function TableDump(i,   r) {
 function TableChop(i,   c) {
   for(c in i.nums)  TableChop1(i,c,i.nums[c]) }
 
-function TableChop1(i,c,some,    cutter,cut,x,rs) {
+function TableChop1(i,c,some,    r,cutter,cut,x,rs) {
   Cuts(cutter, some)
   CutsUp(cutter,some)
-  rs = l(i.has)
-  cut=1
-  cellsort(i.has, c)
-  TableDump(i)
+  rs  = l(i.rows)
+  cut = 1
+  cellsort(i.rows, c)
   for(r=1; r<=rs; r++)  {
     x = i.rows[r].cells[c]
     if (x != "?") {
-      while (x > some.cuts[cut]) cut++
+      if (x > some.cuts[cut]) 
+        if (cut< l(some.cuts))
+          cut++
       i.rows[r].cells[c] = some.cuts[cut]  }}}
 
 # _______________________________
@@ -79,13 +80,13 @@ function Row(i,lst,t,     x,c) {
 # ______________________________
 function Some(i,pos) {
   Object(i)
-  i.pos   = pos ? pos : 1
-  i.magic = G.magic
-  i.max   = G.max
   has(i,"has")
   has(i,"cuts")
+  i.pos    = pos ? pos : 1
+  i.magic  = G.magic
+  i.max    = G.max
   i.sorted = 0
-  i.n  = 0 }
+  i.n      = 0 }
 
 function Some1(i,x) {
   if (x == "?") return
@@ -100,11 +101,12 @@ function Some1(i,x) {
       i.has[ bsearch(i.has,x) ] = x }}
 
 function sorted(i)  { 
-  if (!i.sorted) i.sorted=asort(i.has) }
+  if (!i.sorted) 
+    i.sorted=asort(i.has) }
 
 function at(i,z)      { sorted(i);  return i.has[int(z)] }
-function per(i,j,k,p) { return at(j + p*(k-j))   }
-function mid(i,j,k)   { return at(j + .5*(k-j) ) }
+function per(i,j,k,p) { return at(i,j + p*(k-j))   }
+function mid(i,j,k)   { return at(i,j + .5*(k-j) ) }
 function sd(i,j,k)    {
    return abs(per(i,j,k,.9) - per(i,j,k,.1))/i.magic }
 function xpect(i,j,m,k,   n) {
@@ -115,11 +117,12 @@ function Cuts(i,some,    n) {
   Object(i)
   n         = l(some.has)
   i.cohen   = G.cohen
-  i.start   = some.has[ 1 ]
-  i.stop    = some.has[ n ]
-  i.step    = n^G.step
+  i.start   = at(some,1)
+  i.stop    = at(some,n)
+  i.step    = int(n^G.step)
   i.trivial = G.trivial 
-  i.epsilon = sd(some,1, n )*i.cohen }
+  i.epsilon = sd(some,1, n )*i.cohen
+  print(400) }
 
 function CutsUp(i,some,lo,hi,       
                j,cut,min,now,after,new) {
@@ -135,22 +138,24 @@ function CutsUp(i,some,lo,hi,
           i.stop - now    > i.epsilon &&
           mid(some,j+1,hi) - mid(some,lo,j) > i.epsilon && 
           min > (new = xpect(some,lo,j,hi)) * i.trivial) {
-             min = new
-             cut = j }}}
+            min = new
+            cut = j }}}
   if (cut) {
     CutsUp(i,some,lo,    cut)
     CutsUp(i,some,cut+1, hi)
-  } else
-    some.cuts[l(some.cuts)+1] = some.has[cut] }
+  } else 
+    some.cuts[l(some.cuts)+1] = some.has[lo] }
 
 #---------------------
 
 function main( t) { 
    Bins(G); argv(G); FS=G.sep 
    Table(t)
-   TableRead(t)
+   TableRead(t,G.data)
+   TableDump(t)
    TableChop(t)
    TableDump(t)
+   for(c in t.nums) {print(c); oo(t.nums[c].cuts)}
    rogues()}
 
 BEGIN { if (THIS=="bins") main() }
