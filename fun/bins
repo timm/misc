@@ -32,11 +32,11 @@ function Table(i) {
   has(i,"names")
   has(i,"nums") }
 
-function TableFile(i,f,   c,r) { lines(i,f, "Table1") }
+function TableRead(i,f,   c,r) { lines(i,f, "Table1") }
 
 function TableChop(i,   c) {
   for(c in i.nums) {
-    SomeCuts(i.nums[c])
+    Cuts(i)
     TableBins(i,c, i.nums[c].cuts,i.rows)}}
 
 function TableDump(i,   r) {
@@ -73,8 +73,9 @@ function Row(i,lst,t,     x,c) {
       i.cells[c] = x }}}
 
 function SomeCut(i,   cutter) {
-  Cuts(cutter,i)
-  List(i.cuts)
+  Cuts(cutter)
+  has(i,"cuts") <=== wrong. needs to be for one col only
+  cellsort(xxxx) <===
   _Cuts(cutter,i,1,l(i.has)) }
 
 function Some(i) {
@@ -98,9 +99,8 @@ function Some1(i,x) {
     if (rand() < i.max/i.n)
       i.has[ bsearch(i.has,x) ] = x }}
 
-function Cuts(i,some,    n) {
+function Cuts(i,  n) {
   Object(i)
-  n         = l(some.has)
   i.cohen   = G.cohen
   i.start   = some.has[ 1 ]
   i.stop    = some.has[ n ]
@@ -141,10 +141,11 @@ function xpect(i,j,m,k,   n) {
 function nth(i,x) { sorted(i); return bsearch(i.has,x)/l(i.has) }
 
 function main( t) { 
-   Bins(G); argv(G);  FS=G.sep ; oo(G); 
+   Bins(G); argv(G); FS=G.sep 
    Table(t)
-   TableFile(t, G.data)
-   oo(t)
+   TableRead(t)
+   TableChop(t)
+   TableDump(t)
    rogues()}
 
 BEGIN { if (THIS=="bins") main() }
