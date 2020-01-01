@@ -34,19 +34,20 @@ gen() { gawk '
                            { print "# " $0  } '
 }
 
+
 d="$HOME/tmp/$What"
-header="^#!/usr/bin/env.*$What"
 mkdir -p $d
-for f in *; do
+header="^#!/usr/bin/env.*$What"
+for f in *
+do
   if [ -f "$f" ]; then
     if head -1 $f | grep $header > /dev/null; then
-      g=$(basename $f)
-      if [ "$f" -nt "$d/$g" ]; then 
-        cat $f | parse | gen  > $d/$g ; fi
-      if [ "$f" -nt "$d/$g.md" ]; then 
-        cat $f | parse | doc  $f > $d/$g.md ; fi
-    fi 
-  fi 
+      out=$d/$(basename $f ".fun")
+      #echo "$f  ==>  $out.awk $out.md"
+      if [ "$f" -nt "${out}.awk" ]; then 
+        cat $f | parse | gen     > ${out}.awk; 
+        cat $f | parse | doc  $f > ${out}.md; fi
+  fi fi
 done
 
 g=$(basename $1)

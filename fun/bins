@@ -1,10 +1,8 @@
 #!/usr/bin/env ./fun
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
-## hello
-
-
 @include "lib"
+@include "some"
 
 sadasd
 adasd
@@ -24,15 +22,15 @@ function Bins(i) {
   i.max = 256
   i.magic = 2.56
   i.cohen = 0.3
-  i.trivial = 0.3}
-#_______________________________
-
+  i.trivial = 0.3
+}
+-------------------------
 function Table(i) {
   Object(i)
   has(i,"rows")
   has(i,"names")
-  has(i,"nums") }
-
+  has(i,"nums") 
+}
 function TableRead(i,f) { lines(i,f, "Table1") }
 
 function Table1(i,r,lst,      c,x) {
@@ -41,16 +39,17 @@ function Table1(i,r,lst,      c,x) {
   for(c in lst)  {
     x = i.names[c] = lst[c]
     if (x ~ /[\$<>]/) 
-      hass(i.nums,c,"Some",c) }}
-
+      hass(i.nums,c,"Some",c) }
+}
 function TableDump(i,   r) {
   print(cat(i.names))
   for(r in i.rows)
-    print(cat(i.rows[r].cells)) }
-
+    print(cat(i.rows[r].cells)) 
+}
 function TableChop(i,   c) {
-  for(c in i.nums)  TableChop1(i,c,i.nums[c]) }
-
+  for(c in i.nums)  
+    TableChop1(i,c,i.nums[c]) 
+}
 function TableChop1(i,c,some,    r,cutter,cut,x,rs) {
   Cuts(cutter, some)
   CutsUp(cutter,some)
@@ -61,11 +60,11 @@ function TableChop1(i,c,some,    r,cutter,cut,x,rs) {
     x = i.rows[r].cells[c]
     if (x != "?") {
       if (x > some.cuts[cut]) 
-        if (cut< l(some.cuts))
+        if (cut< l(some.cuts) -1 )
           cut++
-      i.rows[r].cells[c] = some.cuts[cut]  }}}
-
-# _______________________________
+      i.rows[r].cells[c] = some.cuts[cut]  }}
+}
+_______________________________
 function Row(i,lst,t,     x,c) {
   Object(i)
   has(i,"cells")
@@ -75,44 +74,9 @@ function Row(i,lst,t,     x,c) {
       if (c in t.nums) {
          x += 0
          Some1(t.nums[c], x) }
-      i.cells[c] = x }}}
-
-# ______________________________
-function Some(i,pos) {
-  Object(i)
-  has(i,"has")
-  has(i,"cuts")
-  i.pos    = pos ? pos : 1
-  i.magic  = G.magic
-  i.max    = G.max
-  i.sorted = 0
-  i.n      = 0 }
-
-function Some1(i,x) {
-  if (x == "?") return
-  i.n++
-  if (i.n < i.max) {
-    i.has[ l(i.has)+1 ] = x
-    i.sorted=0
-  } else {
-    if (i.n == i.max) 
-      i.sorted = asort(i.has)
-    if (rand() < i.max/i.n)
-      i.has[ bsearch(i.has,x) ] = x }}
-
-function sorted(i)  { 
-  if (!i.sorted) 
-    i.sorted=asort(i.has) }
-
-function at(i,z)      { sorted(i);  return i.has[int(z)] }
-function per(i,j,k,p) { return at(i,j + p*(k-j))   }
-function mid(i,j,k)   { return at(i,j + .5*(k-j) ) }
-function sd(i,j,k)    {
-   return abs(per(i,j,k,.9) - per(i,j,k,.1))/i.magic }
-function xpect(i,j,m,k,   n) {
-  n=k-j+1
-  return (m-j)/n*sd(i,j,m) + (k-m -1)/n*sd(i,m+1,k) }
-
+      i.cells[c] = x }}
+}
+---------------------
 function Cuts(i,some,    n) {
   Object(i)
   n         = l(some.has)
@@ -122,7 +86,7 @@ function Cuts(i,some,    n) {
   i.step    = int(n^G.step)
   i.trivial = G.trivial 
   i.epsilon = sd(some,1, n )*i.cohen
-  print(400) }
+}
 
 function CutsUp(i,some,lo,hi,       
                j,cut,min,now,after,new) {
@@ -144,10 +108,9 @@ function CutsUp(i,some,lo,hi,
     CutsUp(i,some,lo,    cut)
     CutsUp(i,some,cut+1, hi)
   } else 
-    some.cuts[l(some.cuts)+1] = some.has[lo] }
-
-#---------------------
-
+    some.cuts[l(some.cuts)+1] = some.has[hi] 
+}
+---------------------
 function main( t) { 
    Bins(G); argv(G); FS=G.sep 
    Table(t)
@@ -156,6 +119,6 @@ function main( t) {
    TableChop(t)
    TableDump(t)
    for(c in t.nums) {print(c); oo(t.nums[c].cuts)}
-   rogues()}
-
+   rogues()
+}
 BEGIN { if (THIS=="bins") main() }
