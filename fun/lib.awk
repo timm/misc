@@ -45,9 +45,10 @@ function binChop(a,x,           y,lo, hi,mid)  {
   while (lo <= hi) {
     mid = int((hi + lo) / 2)
     y=a[mid]
-    if (x == y) break 
+    if (x == y) break
     if (x <  y) hi=mid-1; else lo=mid+1 }
-  return mid }
+  return mid 
+}
 
 function oo(x,p,pre, i,txt) {
   txt = pre ? pre : (p DOT)
