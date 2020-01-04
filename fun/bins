@@ -111,14 +111,12 @@ function CutsUp(i,some,lo,hi,
     some.cuts[l(some.cuts)+1] = some.has[hi] 
 }
 ---------------------
-function main( t) { 
+function binsMain( t) { 
    Bins(G); argv(G); FS=G.sep 
    Table(t)
    TableRead(t,G.data)
-   TableDump(t)
    TableChop(t)
    TableDump(t)
-   for(c in t.nums) {print(c); oo(t.nums[c].cuts)}
    rogues()
 }
-BEGIN { if (THIS=="bins") main() }
+BEGIN { binsMain() }

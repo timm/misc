@@ -1,10 +1,14 @@
+col2=gawk -F, '{print $$2}' | sort -n | uniq -c
+sort2=sort -n -t, -k 2  | gawk -F, '{print $$2}'  | cat -n
 # title: Data Mining for Very Busy People
-clean1 : ; @cat data/bad.csv | clean
-col1   : ; @$(MAKE) clean1  | cols 
+clean1 :; @cat data/bad.csv | clea
+col1   :; @$(MAKE) clean1  | cols 
+bins1  :; 
+	@cat data/weather.csv | clean | cols | $(sort2)
+	@#cat data/weather.csv | clean | cols |  bins | $(sort2)
 
-
-# too few entries in bin1 of humidity
-# bin1 tabkeing input NOT from input stream
-bins1  : ; @$(MAKE) col1 | bins
+bins2  :; 
+	@  cat  data/auto93.csv | $(col2)
+	@  bins --data data/auto93.csv | $(col2)
 
 

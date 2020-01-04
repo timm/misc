@@ -65,13 +65,16 @@ function ooSortOrder(x, i) {
     return PROCINFO["sorted_in"] =\
       typeof(i + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" }
 
-function coerce(x, y) { y=x+0; return x==y ? y : x }
-
-function argv(a,   x) {
-  for (x in ARGV) 
-   if (sub(/^--/,"",ARGV[x])) 
-     if (ARGV[x] in a) 
-       a[ARGV[x]] = coerce(ARGV[x+1]) }
+function argv(b4,   x,k,v,w) {
+  for (x in ARGV)  {
+   k = ARGV[x]
+   if (sub(/^--/,"",k))  
+     if (k in b4) 
+      if (typeof(b4[k]) =="number")
+        b4[k] = strtonum(ARGV[x+1])
+      else
+        b4[k] = ARGV[x+1]}
+}
 
 function cat(a,sep,    j,n,s) {
   sep = sep  ? sep : ","

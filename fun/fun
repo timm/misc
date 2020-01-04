@@ -42,6 +42,7 @@ for f in *; do
     if head -1 $f | grep $header > /dev/null; then
       out=$d/$(basename $f ".fun")
       if [ "$f" -nt "${out}.awk" ]; then 
+        echo "#W> $f" 
         cat $f | parse | gen     > ${out}.awk; 
         cat $f | parse | doc  $f > ${out}.md; fi fi fi
 done
