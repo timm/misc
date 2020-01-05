@@ -8,7 +8,9 @@ function Demo(i) {
   i.bbb = "no"
   i.ccc = "where" DOT "csv"
 }
+{ print $0 "<<<" }
 BEGIN {
+  print(1)
   Demo(i)
   argv(i)
   oo(i)

@@ -2,6 +2,7 @@
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
 @include "lib"
+@include "the"
 @include "table"
 @include "some"
 
@@ -16,7 +17,7 @@ cat | clean | cols | ranges | super | rows | cluster | privitize | contrast
 
 repeat the above without super 
 
-function Bins(i) {
+function Bins0(i) {
   i.data = "data/weather" DOT "csv"
   i.sep  = ","
   i.step = 0.5

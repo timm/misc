@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # vim: filetype=sh ts=2 sw=2 sts=2  et :
 
+My=$(git rev-parse --show-toplevel)
+MySrc=$My/fun/src
+MyTest=$My/fun/test
+
 Ext=fun
 Doc=$HOME/opt/$Ext/docs
 Lib=$HOME/opt/$Ext/lib
 Bin=$HOME/opt/$Ext/bin
 PATH="$PATH:$Bin"
-My=$(git rev-parse --show-toplevel)
 
-MySrc=$My/fun/src
-
-mkdir -p $Doc $Lib $Bin
+mkdir -p $Doc $Lib $Bin $MySrc $MyTest
 
 parse() { gawk '
   /^@include/              { print "CODE "$0; next }
@@ -26,7 +27,7 @@ doc() {  gawk  -vhead="${1}" -vtop="$(buttons)" '
   sub(/^DOC /,"")  { if( Code) print "```";    
                      Code=0 }
   BEGIN            { print  "---\ntitle: " head "\n---\n\n"
-                     print  top   "<br>\n\n# " head    }
+                     print  top   "<br>\n\n# " head "\n\n" }
   NR < 3           { next }
                    { print }
   END              { if (Code) print "```";  } '
@@ -57,32 +58,52 @@ EOF
 }
 exe() {
  cat<<EOF
-AWKPATH="$Lib:.:$AWKPATH" gawk -f ${Lib}/${1}.awk \$*
+ if [ ! -t 0 ]; then
+   cat - | AWKPATH="$Lib:.:$AWKPATH" gawk -f ${Lib}/${1}.awk \$*
+ else
+   AWKPATH="$Lib:.:$AWKPATH" gawk -f ${Lib}/${1}.awk \$*
+ fi
 EOF
 }
 awkfiles() {
-  cp $MySrc/*.awk $Lib
-}
-
-funfiles() {
-  for f in $MySrc/*.fun; do
-     stem=$(basename $f ".fun")
-     if [ "$f" -nt "${Lib}/${stem}.awk" ]; then 
-       cat $f | parse | gen > ${Lib}/${stem}.awk ; fi
-     if [ "$f" -nt "${Doc}/${stem}.md" ]; then 
-       cat $f | parse | doc  ${stem}.fun > ${Doc}/${stem}.md; fi
-     if [ "$f" -nt "${Bin}/${stem}" ]; then 
-       exe $stem > ${Bin}/${stem};  
-       chmod +x ${Bin}/${stem}; fi
+  for f in $MySrc/*.awk $MyTest/*.awk; do
+    stem=$(basename $f ".awk")
+    if [ "$f" -nt "${Lib}/${stem}.awk" ]; then 
+      cp $f ${Lib}/${stem}.awk; fi
+    if [ "$f" -nt "${Bin}/${stem}" ]; then 
+      exe $stem > ${Bin}/${stem};  
+      chmod +x ${Bin}/${stem}; fi 
   done
 }
-
+funfiles() {
+  for f in $MySrc/*.fun $MyTest/*.fun; do
+    stem=$(basename $f ".fun")
+    if [ "$f" -nt "${Lib}/${stem}.awk" ]; then 
+      cat $f | parse | gen > ${Lib}/${stem}.awk ; fi
+    if [ "$f" -nt "${Doc}/${stem}.md" ]; then 
+      cat $f | parse | doc  ${stem}.fun > ${Doc}/${stem}.md; fi
+    if [ "$f" -nt "${Bin}/${stem}" ]; then 
+      exe $stem > ${Bin}/${stem};  
+      chmod +x ${Bin}/${stem}; fi
+  done
+}
+mdfiles() {
+  for f in $MySrc/*.md; do
+    stem=$(basename $f ".md")
+    if [ "$f" -nt "${Doc}/${stem}.md" ]; then 
+      cat $f | doc  ${stem}.fun > ${Doc}/${stem}.md; fi
+  done
+} 
 awkfiles
 funfiles
+mdfiles
 g=$(basename $1 ".fun")
-echo $g
 shift
-[ $# -ge 1 -a -f "$1" ] && input="$1" || input="-"
-$g $input
-
-$g $*
+if [ -n "$1" ]; then
+  if [ ! -t 0 ]; then
+   (cat - | $g $*)
+  else
+   $g $* 
+  fi
+fi
+exit 0
