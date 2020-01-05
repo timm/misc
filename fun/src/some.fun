@@ -1,19 +1,23 @@
-#!/usr/bin/env ./fun
+#!/usr/bin/env ../fun
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
 @include "lib"
-
+@include "the"
 ______________________________
+
 function Some(i,pos) {
   Object(i)
+  i.magic || Some0(i)
   has(i,"has")
   has(i,"cuts")
   i.pos    = pos ? pos : 1
-  i.magic  = 2.56
-  i.max    = 256
-  i.small   = 0.147
   i.sorted = 0
   i.n      = 0 
+}
+function Some0(i) {
+  i.magic = G.some.magic # 2.56
+  i.max   = G.some.max   # 256
+  i.small = G.stats.cliffs.small # 0.147
 }
 function Some1(i,x) {
   if (x == "?") return
@@ -57,4 +61,4 @@ function SomeDiff(i,j,   k,la,lb,n,x,lo,hi,gt,lt) {
   }
   return i.small < abs(gt - lt) / (la*lb)  
 }
-
+BEGIN { Some(i); argv(i); oo(i)}

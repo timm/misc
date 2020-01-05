@@ -62,8 +62,9 @@ function oo(x,p,pre, i,txt) {
 }}
 function ooSortOrder(x, i) {
   for (i in x)
-    return PROCINFO["sorted_in"] =\
-      typeof(i + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" }
+    return PROCINFO["sorted_in"] = \
+      typeof(i + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" 
+}
 
 function argv(b4,   x,k,v,w) {
   for (x in ARGV)  {
@@ -75,7 +76,6 @@ function argv(b4,   x,k,v,w) {
       else
         b4[k] = ARGV[x+1]}
 }
-
 function cat(a,sep,    j,n,s) {
   sep = sep  ? sep : ","
   n = l(a)

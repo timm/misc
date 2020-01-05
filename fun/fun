@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 # vim: filetype=sh ts=2 sw=2 sts=2  et :
 
-What=fun
+Ext=fun
+Doc=$HOME/opt/$Ext/docs
+Lib=$HOME/opt/$Ext/lib
+Bin=$HOME/opt/$Ext/bin
+PATH="$PATH:$Bin"
+My=$(git rev-parse --show-toplevel)
+
+MySrc=$My/fun/src
+
+mkdir -p $Doc $Lib $Bin
 
 parse() { gawk '
   /^@include/              { print "CODE "$0; next }
@@ -9,14 +18,15 @@ parse() { gawk '
   /^(func|BEGIN|END)/,/^}/ { print "CODE "$0; next }
                            { print "DOC " $0} '
 }
-doc() {  gawk  -vhead=$1 ' 
+doc() {  gawk  -vhead="${1}" -vtop="$(buttons)" ' 
   sub(/^CODE /,"") { if(!Code) print "```awk"; 
                      Code=1; 
                      print sprintf("%4s.  ",++N) $0; 
                      next }
   sub(/^DOC /,"")  { if( Code) print "```";    
                      Code=0 }
-  BEGIN            { print  "---\ntitle: " head "\n---\n\n# " head  }
+  BEGIN            { print  "---\ntitle: " head "\n---\n\n"
+                     print  top   "<br>\n\n# " head    }
   NR < 3           { next }
                    { print }
   END              { if (Code) print "```";  } '
@@ -25,7 +35,6 @@ gen() { gawk '
   function prep(s) {
     print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/, 
                   "[\"\\1\\2\"]","g",s) } 
-   
   sub(/^DOC /,"#")         { print; next }
                            { gsub(/(CODE |[ \t]*$)/,"")   }
   /^@include/              { prep($0); next }
@@ -34,19 +43,46 @@ gen() { gawk '
                            { print "# " $0  } '
 }
 
-d="$HOME/tmp/$What"
-mkdir -p $d
-header="^#!/usr/bin/env.*$What"
-for f in *; do
-  if [ -f "$f" ]; then
-    if head -1 $f | grep $header > /dev/null; then
-      out=$d/$(basename $f ".fun")
-      if [ "$f" -nt "${out}.awk" ]; then 
-        echo "#W> $f" 
-        cat $f | parse | gen     > ${out}.awk; 
-        cat $f | parse | doc  $f > ${out}.md; fi fi fi
-done
+buttons() { 
+  b0='</button>'
+  b1='<button class="button button1">'
+  b2='<button class="button button2">'
+  cat <<EOF
+  $b1 <a href="/fun/index">home</a> $b0
+  $b2 <a href="/fun/INSTALL">install</a> $b0
+  $b1 <a href="/fun/ABOUT">doc</a> $b0
+  $b2 <a href="http://github.com/timm/fun/issues">discuss</a> $b0
+  $b1 <a href="/fun/LICENSE">license</a> $b0
+EOF
+}
+exe() {
+ cat<<EOF
+AWKPATH="$Lib:.:$AWKPATH" gawk -f ${Lib}/${1}.awk \$*
+EOF
+}
+awkfiles() {
+  cp $MySrc/*.awk $Lib
+}
 
-g=$(basename $1)
+funfiles() {
+  for f in $MySrc/*.fun; do
+     stem=$(basename $f ".fun")
+     if [ "$f" -nt "${Lib}/${stem}.awk" ]; then 
+       cat $f | parse | gen > ${Lib}/${stem}.awk ; fi
+     if [ "$f" -nt "${Doc}/${stem}.md" ]; then 
+       cat $f | parse | doc  ${stem}.fun > ${Doc}/${stem}.md; fi
+     if [ "$f" -nt "${Bin}/${stem}" ]; then 
+       exe $stem > ${Bin}/${stem};  
+       chmod +x ${Bin}/${stem}; fi
+  done
+}
+
+awkfiles
+funfiles
+g=$(basename $1 ".fun")
+echo $g
 shift
-AWKPATH=".:$d:$AWKPATH" gawk -v THIS="$g" -f $d/$g $*
+[ $# -ge 1 -a -f "$1" ] && input="$1" || input="-"
+$g $input
+
+$g $*

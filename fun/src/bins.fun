@@ -2,6 +2,7 @@
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
 @include "lib"
+@include "table"
 @include "some"
 
 sadasd
@@ -24,35 +25,16 @@ function Bins(i) {
   i.cohen = 0.3
   i.trivial = 0.3
 }
--------------------------
-function Table(i) {
-  Object(i)
-  has(i,"rows")
-  has(i,"names")
-  has(i,"nums") 
-}
-function TableRead(i,f) { lines(i,f, "Table1") }
 
-function Table1(i,r,lst,      c,x) {
-  if (r>1)  
-    return hasss(i.rows,r-1,"Row",lst,i)
-  for(c in lst)  {
-    x = i.names[c] = lst[c]
-    if (x ~ /[\$<>]/) 
-      hass(i.nums,c,"Some",c) }
-}
-function TableDump(i,   r) {
-  print(cat(i.names))
-  for(r in i.rows)
-    print(cat(i.rows[r].cells)) 
-}
+-----------------------
+# some extensions to the basic table stuff
 function TableChop(i,   c) {
   for(c in i.nums)  
     TableChop1(i,c,i.nums[c]) 
 }
 function TableChop1(i,c,some,    r,cutter,cut,x,rs) {
-  Cuts(cutter, some)
-  CutsUp(cutter,some)
+  Cuts0(cutter, some)
+  Cuts(cutter,some)
   rs  = l(i.rows)
   cut = 1
   cellsort(i.rows, c)
@@ -64,20 +46,8 @@ function TableChop1(i,c,some,    r,cutter,cut,x,rs) {
           cut++
       i.rows[r].cells[c] = some.cuts[cut]  }}
 }
-_______________________________
-function Row(i,lst,t,     x,c) {
-  Object(i)
-  has(i,"cells")
-  for(c in t.names) {
-    x = lst[c]
-    if (x != "?") {
-      if (c in t.nums) {
-         x += 0
-         Some1(t.nums[c], x) }
-      i.cells[c] = x }}
-}
 ---------------------
-function Cuts(i,some,    n) {
+function Cuts0(i,some,    n) {
   Object(i)
   n         = l(some.has)
   i.cohen   = G.cohen
@@ -88,7 +58,7 @@ function Cuts(i,some,    n) {
   i.epsilon = sd(some,1, n )*i.cohen
 }
 
-function CutsUp(i,some,lo,hi,       
+function Cuts(i,some,lo,hi,       
                j,cut,min,now,after,new) {
   lo = lo ? lo : 1
   hi = hi ? hi : l(some.has)
@@ -105,8 +75,8 @@ function CutsUp(i,some,lo,hi,
             min = new
             cut = j }}}
   if (cut) {
-    CutsUp(i,some,lo,    cut)
-    CutsUp(i,some,cut+1, hi)
+    Cuts(i,some,lo,    cut)
+    Cuts(i,some,cut+1, hi)
   } else 
     some.cuts[l(some.cuts)+1] = some.has[hi] 
 }
