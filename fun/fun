@@ -1,109 +1,52 @@
 #!/usr/bin/env bash
-# vim: filetype=sh ts=2 sw=2 sts=2  et :
 
-My=$(git rev-parse --show-toplevel)
-MySrc=$My/fun/src
-MyTest=$My/fun/test
+Stem=$(basename $1 ".fun")
+In=${Stem}.fun
+Out=/tmp/${Stem}$$.fun
 
-Ext=fun
-Doc=$HOME/opt/$Ext/docs
-Lib=$HOME/opt/$Ext/lib
-Bin=$HOME/opt/$Ext/bin
-PATH="$PATH:$Bin"
+( #### transpiling
+echo "#!/usr/bin/env gawk -f"
+echo ""
 
-mkdir -p $Doc $Lib $Bin $MySrc $MyTest
+cat <<-EOF
+BEGIN{  DOT="." }
+function has( i,k,f)      { f=f?f:"List"; zap(i,k); @f(i[k]) }
+function hass(i,k,f,m)    {               zap(i,k); @f(i[k],m) }
+function hasss(i,k,f,m,n) {               zap(i,k); @f(i[k],m,n) }
 
-parse() { gawk '
-  /^@include/              { print "CODE "$0; next }
-  /^(func|BEGIN|END).*}$/  { print "CODE "$0; next }
-  /^(func|BEGIN|END)/,/^}/ { print "CODE "$0; next }
-                           { print "DOC " $0} '
-}
-doc() {  gawk  -vhead="${1}" -vtop="$(buttons)" ' 
-  sub(/^CODE /,"") { if(!Code) print "```awk"; 
-                     Code=1; 
-                     print sprintf("%4s.  ",++N) $0; 
-                     next }
-  sub(/^DOC /,"")  { if( Code) print "```";    
-                     Code=0 }
-  BEGIN            { print  "---\ntitle: " head "\n---\n\n"
-                     print  top   "<br>\n\n# " head "\n\n" }
-  NR < 3           { next }
-                   { print }
-  END              { if (Code) print "```";  } '
-}
-gen() { gawk ' 
-  function prep(s) {
-    print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/, 
-                  "[\"\\1\\2\"]","g",s) } 
-  sub(/^DOC /,"#")         { print; next }
-                           { gsub(/(CODE |[ \t]*$)/,"")   }
-  /^@include/              { prep($0); next }
-  /^(func|BEGIN|END).*}$/  { prep($0); next }
-  /^(func|BEGIN|END)/,/^}/ { prep($0); next }
-                           { print "# " $0  } '
-}
+function zap(i,k)         { i[k][0]; List(i[k])} 
+function List(i)          { split("",i,"") }
+function Object(i)        { List(i); i["oid"]=++OID }
 
-buttons() { 
-  b0='</button>'
-  b1='<button class="button button1">'
-  b2='<button class="button button2">'
-  cat <<EOF
-  $b1 <a href="/fun/index">home</a> $b0
-  $b2 <a href="/fun/INSTALL">install</a> $b0
-  $b1 <a href="/fun/ABOUT">doc</a> $b0
-  $b2 <a href="http://github.com/timm/fun/issues">discuss</a> $b0
-  $b1 <a href="/fun/LICENSE">license</a> $b0
 EOF
+
+gawk '
+function dots(s) {
+  return gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
+                "[\"\\1\\2\"]","g",s) } 
+ 
+function reads(f,    used,        show,line,file) {
+  if (!used[f]) { 
+    used[f]=1
+    print  "\n#### " f " #############################\n"
+    while((getline line < f) > 0) 
+     if (line ~ /^@include/) 
+       reads( gensub(/.*"(.*)".*/,
+                    "\\1.fun","g",line), used)
+     else {
+       if (line ~ /^}/)                    { show=0; print line;       continue } 
+       if (line ~ /^(func|BEGIN|END).*}$/) { show=0; print dots(line); continue }
+       if (line ~ /^(func|BEGIN|END)/)     { show=1; }
+       print (show ? dots(line) : "# " line) }}
 }
-exe() {
- cat<<EOF
- if [ ! -t 0 ]; then
-   cat - | AWKPATH="$Lib:.:$AWKPATH" gawk -f ${Lib}/${1}.awk \$*
- else
-   AWKPATH="$Lib:.:$AWKPATH" gawk -f ${Lib}/${1}.awk \$*
- fi
-EOF
-}
-awkfiles() {
-  for f in $MySrc/*.awk $MyTest/*.awk; do
-    stem=$(basename $f ".awk")
-    if [ "$f" -nt "${Lib}/${stem}.awk" ]; then 
-      cp $f ${Lib}/${stem}.awk; fi
-    if [ "$f" -nt "${Bin}/${stem}" ]; then 
-      exe $stem > ${Bin}/${stem};  
-      chmod +x ${Bin}/${stem}; fi 
-  done
-}
-funfiles() {
-  for f in $MySrc/*.fun $MyTest/*.fun; do
-    stem=$(basename $f ".fun")
-    if [ "$f" -nt "${Lib}/${stem}.awk" ]; then 
-      cat $f | parse | gen > ${Lib}/${stem}.awk ; fi
-    if [ "$f" -nt "${Doc}/${stem}.md" ]; then 
-      cat $f | parse | doc  ${stem}.fun > ${Doc}/${stem}.md; fi
-    if [ "$f" -nt "${Bin}/${stem}" ]; then 
-      exe $stem > ${Bin}/${stem};  
-      chmod +x ${Bin}/${stem}; fi
-  done
-}
-mdfiles() {
-  for f in $MySrc/*.md; do
-    stem=$(basename $f ".md")
-    if [ "$f" -nt "${Doc}/${stem}.md" ]; then 
-      cat $f | doc  ${stem}.fun > ${Doc}/${stem}.md; fi
-  done
-} 
-awkfiles
-funfiles
-mdfiles
-g=$(basename $1 ".fun")
+
+BEGIN { reads("'$In'")}
+' #### end transpiling
+) > $Out
+
+
 shift
-if [ -n "$1" ]; then
-  if [ ! -t 0 ]; then
-   (cat - | $g $*)
-  else
-   $g $* 
-  fi
+if    [ ! -t 0 ]
+then  cat - |  gawk -f $Out $*
+else  gawk -f $Out $*
 fi
-exit 0

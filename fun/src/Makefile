@@ -7,3 +7,6 @@ Built = $(HOME)/opt/$(What)#
 
 include $(Repo)/etc/tools.mk
 
+
+test: ## test stuff
+	echo $(MAKEFILE_LIST) 
