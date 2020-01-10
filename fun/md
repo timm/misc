@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+Stem=$(basename $1 ".fun")
+
+Docs=$HOME/opt/fun/docs
+mkdir -p  $Docs
+
+fun2md()  { 
+  b0="</button>"
+  b1="<button class=\"button button1\">"
+  b2="<button class=\"button button2\">"
+  echo $b1<a href=/fun/index>home</a>$b0
+  echo $b2<a href=/fun/INSTALL>install</a>$b0
+  echo $b1<a href=/fun/ABOUT>doc</a>$b0
+  echo $b2<a href=http://github.com/timm/fun/issues>discuss</a>$b0
+  echo $b1<a href=/fun/LICENSE>license</a>$b0
+  
+  gawk '
+  NR==1                    { print "\n# "'$In'"\n"; next }
+  /^}/                     { print; print "```\n";  next }
+  /^(func|BEGIN|END).*}$/) { print "```awk"; print; print "```"; next }
+  /^(func|BEGIN|END)/)     { print "```awk"; print; next }
+                           { print $0 } '
+}
+
+cat $1 | fun2md > $Docs/$Stem.md

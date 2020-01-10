@@ -1,52 +1,54 @@
 #!/usr/bin/env bash
 
+Bins=$HOME/opt/fun/bin
+mkdir -p $Bins 
+
 Stem=$(basename $1 ".fun")
-In=${Stem}.fun
-Out=/tmp/${Stem}$$.fun
+Bin=$Bins/$Stem
 
-( #### transpiling
-echo "#!/usr/bin/env gawk -f"
-echo ""
-
-cat <<-EOF
-BEGIN{  DOT="." }
-function has( i,k,f)      { f=f?f:"List"; zap(i,k); @f(i[k]) }
-function hass(i,k,f,m)    {               zap(i,k); @f(i[k],m) }
-function hasss(i,k,f,m,n) {               zap(i,k); @f(i[k],m,n) }
-
-function zap(i,k)         { i[k][0]; List(i[k])} 
-function List(i)          { split("",i,"") }
-function Object(i)        { List(i); i["oid"]=++OID }
-
+lib() { cat <<-EOF
+  BEGIN{  DOT="." }
+  function has( i,k,f)      { f=f?f:"List"; zap(i,k); @f(i[k]) }
+  function hass(i,k,f,m)    {               zap(i,k); @f(i[k],m) }
+  function hasss(i,k,f,m,n) {               zap(i,k); @f(i[k],m,n) }
+  
+  function zap(i,k)         { i[k][0]; List(i[k])} 
+  function List(i)          { split("",i,"") }
+  function Object(i)        { List(i); i["oid"]=++OID }
 EOF
-
-gawk '
-function dots(s) {
-  return gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
-                "[\"\\1\\2\"]","g",s) } 
- 
-function reads(f,    used,        show,line,file) {
-  if (!used[f]) { 
-    used[f]=1
-    print  "\n#### " f " #############################\n"
-    while((getline line < f) > 0) 
-     if (line ~ /^@include/) 
-       reads( gensub(/.*"(.*)".*/,
-                    "\\1.fun","g",line), used)
-     else {
-       if (line ~ /^}/)                    { show=0; print line;       continue } 
-       if (line ~ /^(func|BEGIN|END).*}$/) { show=0; print dots(line); continue }
-       if (line ~ /^(func|BEGIN|END)/)     { show=1; }
-       print (show ? dots(line) : "# " line) }}
+}
+fun2awk() { gawk '
+  function dots(s) {
+    return gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
+                  "[\"\\1\\2\"]","g",s) 
+  } 
+  function main(f,    used,        show,line,file) {
+    if (!used[f]) { 
+      used[f]=1
+      print  "\n#### " f " #############################\n"
+      while((getline line < f) > 0) 
+       if (line ~ /^@include/) 
+         main( gensub(/.*"(.*)".*/,
+                      "\\1.fun","g",line), 
+                used)
+       else {
+         if (line ~ /^}/)                    { show=0; print line;       continue } 
+         if (line ~ /^(func|BEGIN|END).*}$/) { show=0; print dots(line); continue }
+         if (line ~ /^(func|BEGIN|END)/)     { show=1; }
+         print (show ? dots(line) : "# " line) }}
+  }
+  BEGIN { main("'$1'")}'
 }
 
-BEGIN { reads("'$In'")}
-' #### end transpiling
-) > $Out
+(echo "#!/usr/bin/env gawk -f"
+ lib
+ fun2awk
+) > $Bin
 
+chmod +x $Bin
 
 shift
 if    [ ! -t 0 ]
-then  cat - |  gawk -f $Out $*
-else  gawk -f $Out $*
+then  cat - |  $Bin $*
+else  $Bin $*
 fi
