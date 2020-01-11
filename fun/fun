@@ -1,10 +1,44 @@
 #!/usr/bin/env bash
 
-Bins=$HOME/opt/fun/bin
-mkdir -p $Bins 
+copyleft() { cat<<'EOF'
 
-Stem=$(basename $1 ".fun")
-Bin=$Bins/$Stem
+######################################################################
+# This is free and unencumbered software released into the public domain.
+
+# Anyone is free to copy, modify, publish, use, compile, sell, or
+# distribute this software, either in source code form or as a compiled
+# binary, for any purpose, commercial or non-commercial, and by any
+# means.
+
+# In jurisdictions that recognize copyright laws, the author or authors
+# of this software dedicate any and all copyright interest in the
+# software to the public domain. We make this dedication for the benefit
+# of the public at large and to the detriment of our heirs and
+# successors. We intend this dedication to be an overt act of
+# relinquishment in perpetuity of all present and future rights to this
+# software under copyright law.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+
+# For more information, please refer to <http://unlicense.org/>
+######################################################################
+
+EOF
+}
+
+Bin=$HOME/opt/fun/bin
+mkdir -p $Bin 
+
+File=${1##*/}  
+Stem=${File%.*}
+Out=$Bin/$Stem
+Main=${Stem}Main
 
 lib() { cat <<-EOF
   BEGIN{  DOT="." }
@@ -25,11 +59,11 @@ fun2awk() { gawk '
   function main(f,    used,        show,line,file) {
     if (!used[f]) { 
       used[f]=1
-      print  "\n#### " f " #############################\n"
+      print  "\n#### [" f "] #############################\n"
       while((getline line < f) > 0) 
        if (line ~ /^@include/) 
-         main( gensub(/.*"(.*)".*/,
-                      "\\1.fun","g",line), 
+         main( gensub(/.*"(.*)".*$/,
+                      "\\1.awk","g",line), 
                 used)
        else {
          if (line ~ /^}/)                    { show=0; print line;       continue } 
@@ -37,18 +71,20 @@ fun2awk() { gawk '
          if (line ~ /^(func|BEGIN|END)/)     { show=1; }
          print (show ? dots(line) : "# " line) }}
   }
-  BEGIN { main("'$1'")}'
+  BEGIN { main("'${Stem}.awk'")}'
 }
 
 (echo "#!/usr/bin/env gawk -f"
+ copyleft
  lib
  fun2awk
-) > $Bin
+ echo 'BEGIN { if("'${Main}'" in FUNCTAB) '${Main}'()}'
+) > $Out
 
-chmod +x $Bin
+chmod +x $Out
 
 shift
 if    [ ! -t 0 ]
-then  cat - |  $Bin $*
-else  $Bin $*
+then  cat - |  $Out $*
+else  $Out $*
 fi

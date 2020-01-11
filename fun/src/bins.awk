@@ -2,7 +2,6 @@
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
 @include "lib"
-@include "the"
 @include "table"
 @include "some"
 
@@ -90,4 +89,15 @@ function binsMain( t) {
    TableDump(t)
    rogues()
 }
+function cellsort(lst,k) { 
+  SORT=k; return asort(lst,lst,"cellcompare") 
+}
+function cellcompare(i1,v1,i2,v2,  l,r) {
+  l = v1["cells"][SORT]
+  r = v2["cells"][SORT]
+  if (l < r) return -1
+  if (l == r) return 0
+  return 1 
+}
+
 BEGIN { binsMain() }
