@@ -1,0 +1,7 @@
+#!/usr/bin/env gawk -f
+
+BEGIN {
+  for(i in ARGV) print i, ARGV[i] 
+  while((getline  line < "-" ) > 0) 
+   print ++n, line
+}
