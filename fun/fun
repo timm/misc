@@ -56,20 +56,21 @@ fun2awk() { gawk '
     return gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
                   "[\"\\1\\2\"]","g",s) 
   } 
-  function main(f,    used,        show,line,file) {
+  function main(f,    path, used,        show,line,file) {
     if (!used[f]) { 
       used[f]=1
-      print  "\n#### [" f "] #############################\n"
+      print  "\n####" path " : " f " #############################\n"
       while((getline line < f) > 0) 
        if (line ~ /^@include/) 
          main( gensub(/.*"(.*)".*$/,
                       "\\1.awk","g",line), 
-                used)
+                path " : " f, used)
        else {
+         if (line ~ /^[\t ]*$/)              {         print line;       continue}
          if (line ~ /^}/)                    { show=0; print line;       continue } 
          if (line ~ /^(func|BEGIN|END).*}$/) { show=0; print dots(line); continue }
          if (line ~ /^(func|BEGIN|END)/)     { show=1; }
-         print (show ? dots(line) : "# " line) }}
+         print (show ? dots(line) : "# " line) } }
   }
   BEGIN { main("'${Stem}.awk'")}'
 }
