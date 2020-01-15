@@ -9,7 +9,8 @@ function rogues(    s) {
 function tests(what, all,   one,a,i,n) {
   n = split(all,a,",")
   print "\n#--- " what " -----------------------"
-  for(i=1;i<=n;i++) { one = a[i]; @one(one) }
+  for(i=1;i<=n;i++) { 
+    one = a[i]; @one(one) }
   rogues()
 }
 

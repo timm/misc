@@ -41,7 +41,6 @@ Out=$Bin/$Stem
 Main=${Stem}Main
 
 lib() { cat <<-EOF
-  BEGIN{  DOT="." }
   function has( i,k,f)      { f=f?f:"List"; zap(i,k); @f(i[k]) }
   function hass(i,k,f,m)    {               zap(i,k); @f(i[k],m) }
   function hasss(i,k,f,m,n) {               zap(i,k); @f(i[k],m,n) }
@@ -53,26 +52,30 @@ EOF
 }
 fun2awk() { gawk '
   function dots(s) {
-    return gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
-                  "[\"\\1\\2\"]","g",s) 
+    return gensub(/\.([^0-9])([a-zA-Z0-9_]*)/, 
+                 "[\"\\1\\2\"]","g",s) 
   } 
-  function main(f,    path, used,        show,line,file) {
-    if (!used[f]) { 
-      used[f]=1
-      print  "\n####" path " : " f " #############################\n"
-      while((getline line < f) > 0) 
-       if (line ~ /^@include/) 
-         main( gensub(/.*"(.*)".*$/,
-                      "\\1.awk","g",line), 
-                path " : " f, used)
-       else {
-         if (line ~ /^[\t ]*$/)              {         print line;       continue}
-         if (line ~ /^}/)                    { show=0; print line;       continue } 
-         if (line ~ /^(func|BEGIN|END).*}$/) { show=0; print dots(line); continue }
-         if (line ~ /^(func|BEGIN|END)/)     { show=1; }
-         print (show ? dots(line) : "# " line) } }
+  function line(s) {
+    if (s ~ /^}/) { 
+      show=0
+      return s      
+    } else {  
+      if (s ~ /^[\t ]*$/)              return s                                 
+      if (s ~ /^(func|BEGIN|END).*}$/) return dots(s) 
+      if (s ~ /^(func|BEGIN|END)/)     show=1  
+      return  ( show ?  dots(s) : "# " s ) }
   }
-  BEGIN { main("'${Stem}.awk'")}'
+  function main(f,    path, used,        s) {
+    if (used[f]++ == 0) { 
+      print "#:::::" path " : " f " :::::::::::::::::::::::::::::"
+      while((getline s < f) > 0) 
+        if (s ~ /^@include/) 
+          main( gensub(/.*"(.*)".*$/, "\\1","g",s), path ": " f, used)
+        else 
+          if ((s !~ /^#!/)  && (s !~ /^# vim/))
+            print line(s) }
+  }
+  BEGIN { main("'${Stem}.fun'")}'
 }
 
 (echo "#!/usr/bin/env gawk -f"
@@ -82,9 +85,11 @@ fun2awk() { gawk '
  echo 'BEGIN { if("'${Main}'" in FUNCTAB) '${Main}'()}'
 ) > $Out
 
+echo $Out
 chmod +x $Out
 
 shift
+echo $*
 if    [ ! -t 0 ]
 then  cat - |  $Out $*
 else  $Out $*
