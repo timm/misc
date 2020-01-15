@@ -1,9 +1,9 @@
 #!/usr/bin/env ./fun
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
-@include "lib"
-@include "table"
-@include "some"
+@include "lib.fun"
+@include "table.fun"
+@include "some.fun"
 
 sadasd
 adasd

@@ -1,12 +1,11 @@
 #!/usr/bin/env ../fun
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
-@include "lib"
+@include "lib.fun"
 ______________________________
 
 function Some(i,pos) {
-  Object(i)
-  i.magic || Some0(i)
+  Some0(i)
   has(i,"has")
   has(i,"cuts")
   i.pos    = pos ? pos : 1
@@ -14,9 +13,11 @@ function Some(i,pos) {
   i.n      = 0 
 }
 function Some0(i) {
-  i.magic = G.some.magic # 2.56
-  i.max   = G.some.max   # 256
-  i.small = G.stats.cliffs.small # 0.147
+  if(isarray(i)) return
+  Object(i)
+  i.magic = FUN.some.magic # 2.56
+  i.max   = FUN.some.max   # 256
+  i.small = FUN.stats.cliffs.small # 0.147
 }
 function Some1(i,x) {
   if (x == "?") return
@@ -35,7 +36,7 @@ function sorted(i)  {
     i.sorted=asort(i.has) 
   return length(i.has)
 }
-function at(i,z)      { sorted(i);  return i.has[int(z)] }
+function at(i,z)      { if(!i.sorted) sorted(i);  return i.has[int(z)] }
 function per(i,j,k,p) { return at(i,j + p*(k-j))   }
 function mid(i,j,k)   { return at(i,j + .5*(k-j) ) }
 function sd(i,j,k)    {

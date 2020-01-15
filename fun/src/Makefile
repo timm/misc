@@ -1,12 +1,10 @@
 ## Usage: 
 ##   make help
 
-What  = fun#
-Repo  = $(shell git rev-parse --show-toplevel)/$(What)#
-Built = $(HOME)/opt/$(What)#
+.PHONY: clean
+clean: ../data/bad.csv
+	@cat $< | gawk -f clean.awk
+ 
+cols:
+	@$(MAKE) clean | gawk -f cols.awk 
 
-include $(Repo)/etc/tools.mk
-
-
-test: ## test stuff
-	echo $(MAKEFILE_LIST) 
