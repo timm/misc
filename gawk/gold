@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+in=$1
+stem=$(basename $1 .au)
+out=/tmp/$stem$$.awk
+
+cat $1 | gawk '
+     { print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
+               "[\"\\1\\2\"]","g",$0)}
+' > $out
+
+shift
+
+gawk -f $out $*
+

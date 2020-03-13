@@ -1,0 +1,22 @@
+#!/usr/bin/env ./gold
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+BEGIN {
+  Ch.less="<"
+  Ch.more=">"
+  Ch.klass="!"
+  Ch.goal="[" Ch.less Ch.more Ch.klass "]"
+  Ch.num="[\$]"
+}
+function is(i,x) { split("",i,"") ; i.is=x}
+
+function Num(i,txt,pos) {
+  is(i,"Num")
+  i.n  = i.mu = i.m2 = i.sd = 0
+  i.lo = 10^32 
+  i.hi = -1*i.lo
+  i.txt=txt
+  i.pos=pos
+  i.w  = txt ~ Ch.less ? -1 : 1
+}
+BEGIN {print (Ch.num ~ "xasdas" ) }
