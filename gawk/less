@@ -15,19 +15,33 @@ BEGIN {
 #--------- --------- --------- -------- -------- --------- ---------
 # oo support
 func List(i)          { split("",i,"") }
-func is(i,x)          { List(i) ; i.is=x; i.id = ++D.id}
 func zap(i,k)         { i[k][0]; List(i[k])} 
+func is(i,k)          { iss(i,k,"Object") }
+func iss(  i,k,p)     { @p(i)     ; i.is=k; i.id = ++D.id; D.isa[k]=p}
+func isss( i,k,p,a)   { @p(i,a)   ; i.is=k; i.id = ++D.id; D,isa[k]=p}
+func issss(i,k,p,a,b) { @p(i,a,b) ; i.is=x; i.id = ++D.id; D.isa[k]=p}
 
-func has( i,k,f)      { f=f?f:"List"; zap(i,k); @f(i[k]) }
-func hass(i,k,f,a)    {               zap(i,k); @f(i[k],a) }
-func hasss(i,k,f,a,b) {               zap(i,k); @f(i[k],a,b) }
+func has( i,k,f)         { f=f?f:"List"; zap(i,k); @f(i[k]) }
+func hass(i,k,f,a)       {               zap(i,k); @f(i[k],a) }
+func hasss(i,k,f,a,b)    {               zap(i,k); @f(i[k],a,b) }
+func hassss(i,k,f,a,b,c) {               zap(i,k); @f(i[k],a,b,c) }
 
+func how(i,f,   g,k) {
+  k=i.is
+  while(k) {
+     g = k f
+     if (g in FUNCTAB) return g
+     k = D.isa[k]
+  }
+  print "#E> failed method lookup: ["f"]"
+  exit 2
+}
 #--------- --------- --------- -------- -------- --------- ---------
 # polymorphism
-func Add(i,v) { return i.is=="Num" ? NumAdd(i,v) : SymAdd(i,v) }
-func Dec(i,v) { return i.is=="Num" ? NumDec(i,v) : SymDec(i,v) }
-func Var(i)   { return i.is=="Num" ? NumSd(i)    : SymEnt(i) }
-func Mid(i)   { return i.is=="Num" ? i.mu        : i.mode }
+func Add(i,v,f) { f=how(i,"Add"); return @f(i,v) }
+func Dec(i,v,f) { f=how(i,"Dec"); return @f(i,v) }
+func Var(i)     { f=how(i,"Var"); return @f(i)   }
+func Mid(i)     { f=how(i,"Mid"); return @f(i)   }
 
 #--------- --------- --------- -------- -------- --------- ---------
 # utils
@@ -90,11 +104,19 @@ function is(f,got,want,   epsilon,     ok) {
 }
 
 #--------- --------- --------- -------- -------- --------- ---------
-class Num(i,txt,pos) {
-  i.n  = 0
-  i.txt=txt
-  i.pos=pos
-  i.w  = txt ~ D.less ? -1 : 1}
+class Col(i,txt,pos) {
+  is(i,"Col")
+  i.n     = 0
+  i.txt   = txt
+  i.pos   = pos
+  i.goal  = txt ~ D.goal
+  i.klass = text ~ D.klass
+  i.w     = txt ~ D.less ? -1 : 1}
+}
+
+#--------- --------- --------- -------- -------- --------- ---------
+class Num(i,txt,pos) { 
+  isss(i,"Num","Col",txt,pos)
   i.mu = i.m2 = i.sd = 0
   i.lo = 10^32 
   i.hi = -1*i.lo 
@@ -129,10 +151,7 @@ func _Less(i,v, d) {
 
 #--------- --------- --------- -------- -------- --------- ---------
 class Sym(i,txt,pos) { 
-  i.n  = 0
-  i.txt=txt
-  i.pos=pos
-  i.w  = txt ~ D.less ? -1 : 1}
+  isss(i,"Sym","Col",txt,pos)
   i.mode=""
   i.most=0
   has(i,"seen") 
@@ -158,16 +177,17 @@ func _Ent(i,   p,e,k) {
 
 #--------- --------- --------- -------- -------- --------- ---------
 class Row(i) {
+  is(i,"Row")
   has(i,"cells")
   has(i,"ranges"
 }
 
 #--------- --------- --------- -------- -------- --------- ---------
 class Table(i) {
+  is(i,"Table")
   has(i,"use")
   has(i,"rows")
   has(i,"cols")
-  has(i,"goals")
   i.klass = ""
 }
 func _Empty(i) (i) { return length(i.cols) == 0 }
@@ -177,14 +197,11 @@ func _Uses(i,a,       c,j) {
     if(a[j] ~ D.skip)
       i.use[++c]=j
 }
-func _Columns(i,a,       c,txt,what) { 
-  for(c in a) {
-    txt = a[c] 
-    if (txt ~ D.klass) i.klass=c
-    if (txt ~ D.goals) i.goals[c]
-    what = txt ~ D.numeric ? "Num" : "Sym"
-    hasss(i.cols, c, what, txt, pos)
-  } 
+func _Columns(i,a,       c) { 
+  for(c in a) 
+    hasss(i.cols, c, 
+          a[c] ~ D.numeric ? "Num" : "Sym"
+          a[c], pos)
 }
 func _Row(i,a,  r,c,x) {
   r = length(i.rows) + 1
