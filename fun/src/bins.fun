@@ -5,9 +5,6 @@
 @include "table.fun"
 @include "some.fun"
 
-sadasd
-adasd
-
 this is unsuper. it should be followed by super
 
 needs a pre-processor cols (to prune sillies)

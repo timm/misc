@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+in=$1
+stem=$(basename $1 .au)
+out=/tmp/$stem$$.awk
+
+cat $1 | gawk '
+/^class/ { split($2,a,/\(/); 
+           _=a[1]; 
+           sub(/^class/,"func")
+           $0 = $0 " is(i,\"_\")" 
+         }
+         { gsub(/_/,_,$0) }
+         { print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
+                        "[\"\\1\\2\"]","g",$0)}
+' > $out
+
+shift
+
+gawk -f $out $*

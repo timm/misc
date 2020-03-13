@@ -1,0 +1,215 @@
+#!/usr/bin/env ./dash
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+BEGIN {
+  D.test.epsilon = 0.0001
+  D.num="\\$"
+  D.less="<"
+  D.more=">"
+  D.klass="!"
+  D.goal=   "[" D.less D.more D.klass "]"
+  D.numeric="[" D.less D.more D.num   "]"
+  D.skip="\\?" 
+}
+
+#--------- --------- --------- -------- -------- --------- ---------
+# oo support
+func List(i)          { split("",i,"") }
+func is(i,x)          { List(i) ; i.is=x; i.id = ++D.id}
+func zap(i,k)         { i[k][0]; List(i[k])} 
+
+func has( i,k,f)      { f=f?f:"List"; zap(i,k); @f(i[k]) }
+func hass(i,k,f,a)    {               zap(i,k); @f(i[k],a) }
+func hasss(i,k,f,a,b) {               zap(i,k); @f(i[k],a,b) }
+
+#--------- --------- --------- -------- -------- --------- ---------
+# polymorphism
+func Add(i,v) { return i.is=="Num" ? NumAdd(i,v) : SymAdd(i,v) }
+func Dec(i,v) { return i.is=="Num" ? NumDec(i,v) : SymDec(i,v) }
+func Var(i)   { return i.is=="Num" ? NumSd(i)    : SymEnt(i) }
+func Mid(i)   { return i.is=="Num" ? i.mu        : i.mode }
+
+#--------- --------- --------- -------- -------- --------- ---------
+# utils
+func oo(x,p,pre, i,txt) {
+  txt = pre ? pre : (p DOT)
+  ooSortOrder(x)
+  for(i in x)  {
+    if (isarray(x[i]))   {
+      print(txt i"" )
+      oo(x[i],"","|  " pre)
+    } else
+      print(txt i (x[i]==""?"": ": " x[i])) }
+}
+func ooSortOrder(x, i) {
+  for (i in x)
+    return PROCINFO["sorted_in"] = \
+      typeof(i + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" 
+}
+func csv(f,a,     b4, g,txt) {
+  f = f ? f : "-"             
+  g = gettxt < f
+  if (g< 0) { print "#E> Missing f ["f"]"; exit 1 } # file missing
+  if (g==0) { close(f) ; return 0 }       # end of file                   
+  txt = b4 $0                             # combine with prior
+  gsub("([ \t]|#.*)/", "", txt)           # kill whitespace    
+  if (!txt)       { return csv(f,a,txt) } # skip blanks
+  if (txt ~ /,$/) { return csv(f,a,txt) } # continue txt into next
+  split(txt, a, ",")                      # split on "," into "a"
+  return 1
+}
+
+#--------- --------- --------- -------- -------- --------- ---------
+# unit testing
+
+function rogues(    s) {
+  for(s in SYMTAB) 
+    if (s ~ /^[A-Z][a-z]/) print "Global " s
+  for(s in SYMTAB) 
+    if (s ~ /^[_a-z]/) print "Rogue: " s
+}
+function tests(what, all,   one,a,i,n) {
+  n = split(all,a,",")
+  print "\n#--- " what " -----------------------"
+  for(i=1;i<=n;i++) { 
+    one = a[i]; @one(one) }
+  rogues()
+}
+function is(f,got,want,   epsilon,     ok) {
+  if (typeof(want) == "number") {
+     epsilon = epsilon ? epsilon : D.test.epsilon
+     ok = abs(want - got)/(want + 10^-32)  < epsilon
+  } else
+     ok = want == got
+  if (ok) 
+    print "#TEST:\tPASSED\t" f "\t" want "\t" got 
+  else 
+    print "#TEST:\tFAILED\t" f "\t" want "\t" got 
+}
+
+#--------- --------- --------- -------- -------- --------- ---------
+class Num(i,txt,pos) {
+  i.n  = 0
+  i.txt=txt
+  i.pos=pos
+  i.w  = txt ~ D.less ? -1 : 1}
+  i.mu = i.m2 = i.sd = 0
+  i.lo = 10^32 
+  i.hi = -1*i.lo 
+}
+func _Add(i,v,    d) {
+  if (v ~ D.skip) return v
+  v += 0
+  i.n++
+  i.lo  = v < i.lo ? v : i.lo
+  i.hi  = v > i.hi ? v : i.hi
+  d     = v - i.mu
+  i.mu += d/i.n
+  i.m2 += d*(v - i.mu)
+  i.sd  = _Sd(i)
+  return v 
+}
+func _Sd(i) {
+  if (i.m2 < 0) return 0
+  if (i.n < 2)  return 0
+  return  (i.m2/(i.n - 1))^0.5 
+}
+func _Less(i,v, d) {
+  if (i.n < 1)  return v
+  if (v ~ D.skip) return v
+  i.n  -= 1
+  d     = v - i.mu
+  i.mu -= d/i.n
+  i.m2 -= d*(v - i.mu)
+  i.sd  = _Sd(i)
+  return v
+}
+
+#--------- --------- --------- -------- -------- --------- ---------
+class Sym(i,txt,pos) { 
+  i.n  = 0
+  i.txt=txt
+  i.pos=pos
+  i.w  = txt ~ D.less ? -1 : 1}
+  i.mode=""
+  i.most=0
+  has(i,"seen") 
+}
+func _Add(i,v,  tmp) {
+  if (v ~ D.skip) return v
+  i.n++
+  tmp = ++i.seen[v]
+  if (tmp > i.most) { i.most = tmp; i.mode = v }
+  return v 
+}
+func _Dec(i,v) {
+  if (v ~ D.skip) return v
+  if (v in i.seen && i.seen[v] > 0) { i.n--; i.seen[v]-- }
+}
+func _Ent(i,   p,e,k) {
+  for(k in i.seen) {
+    p  = i.seen[k]/i.n
+    e -= p*log(p)/log(2)
+  }
+  return e
+}  
+
+#--------- --------- --------- -------- -------- --------- ---------
+class Row(i) {
+  has(i,"cells")
+  has(i,"ranges"
+}
+
+#--------- --------- --------- -------- -------- --------- ---------
+class Table(i) {
+  has(i,"use")
+  has(i,"rows")
+  has(i,"cols")
+  has(i,"goals")
+  i.klass = ""
+}
+func _Empty(i) (i) { return length(i.cols) == 0 }
+
+func _Uses(i,a,       c,j) {
+  for(j=1;j<=length(a);j++) 
+    if(a[j] ~ D.skip)
+      i.use[++c]=j
+}
+func _Columns(i,a,       c,txt,what) { 
+  for(c in a) {
+    txt = a[c] 
+    if (txt ~ D.klass) i.klass=c
+    if (txt ~ D.goals) i.goals[c]
+    what = txt ~ D.numeric ? "Num" : "Sym"
+    hasss(i.cols, c, what, txt, pos)
+  } 
+}
+func _Row(i,a,  r,c,x) {
+  r = length(i.rows) + 1
+  has(i.rows, r, "Row")
+  for(c in a) 
+    i.rows[r].cells[c] = Add(i.cols[c], a[c])
+}
+func _Read(i,file,    a,b) {
+  while(csv(file,a)) {
+    if (_Empty(i))
+      _Use(i,a)
+    for(j in i.use) 
+      b[j] = a[ i.use[j] ]
+    _Empty(i) ? _Columns(i,b) : _Row(i,b) 
+  }
+}   
+
+# func twice(    a,n,f) {
+#   f="csv.awk"
+#   while(n=csv(a,f)) print 1,n,a[1]
+#   while(n=csv(a,f)) print 2,n,a[1]
+# }
+# 
+# BEGIN { twice() }
+
+
+BEGIN {
+ print ("xasdas" ~ D.num ) 
+ print ("?" ~ D.skip ) 
+}

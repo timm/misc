@@ -4,6 +4,13 @@
 @include "lib.fun"
 ______________________________
 
+function Some0(i) {
+  if (!i.magic) {
+    List(i)
+    i.magic = FUN.some.magic # 2.56
+    i.max   = FUN.some.max   # 256
+    i.small = FUN.stats.cliffs.small} # 0.147
+}
 function Some(i,pos) {
   Some0(i)
   has(i,"has")
@@ -11,13 +18,6 @@ function Some(i,pos) {
   i.pos    = pos ? pos : 1
   i.sorted = 0
   i.n      = 0 
-}
-function Some0(i) {
-  if(isarray(i)) return
-  Object(i)
-  i.magic = FUN.some.magic # 2.56
-  i.max   = FUN.some.max   # 256
-  i.small = FUN.stats.cliffs.small # 0.147
 }
 function Some1(i,x) {
   if (x == "?") return
@@ -31,6 +31,21 @@ function Some1(i,x) {
     if (rand() < i.max/i.n)
       i.has[ binChop(i.has,x) ] = x }
 }
+function SomeDiff(a,b,  
+                  la,lb,j,x,lo,hi,gt,lt) {
+  la = sorted(a)
+  lb = sorted(b)
+  for(j in a.has) {
+    x  = a.has[j]
+    lo = hi= binChop(b.has, x)
+    while(lo >= 1 && b.has[lo] == x) lo--
+    while(hi <= n && b.has[hi] == x) hi++
+    gt += lb - hi 
+    lt += lo
+  }
+  return abs(lt-gt)/(la*lb) > a.small 
+}
+
 function sorted(i)  { 
   if (!i.sorted) 
     i.sorted=asort(i.has) 
@@ -47,18 +62,4 @@ function xpect(i,j,m,k,   n) {
   return (m-j)/n*sd(i,j,m) + (k-m -1)/n*sd(i,m+1,k) 
 }
 
-function SomeDiff(i,j,   k,la,lb,n,x,lo,hi,gt,lt) {
-  # Returns 1 if i,j differ by more than a small effect
-  la = sorted(i)
-  lb = sorted(j)
-  for(k in i.has) {
-    x= i.has[k]
-    lo= hi= binChop(j.has, x)
-    while(lo > 1 && i.has[lo] >= x) lo--
-    while(hi < n && i.has[hi] <= x) hi++
-    lt += la - hi + 1
-    gt += lo
-  }
-  return i.small < abs(gt - lt) / (la*lb)  
-}
 BEGIN { Some(i); argv(i); oo(i)}

@@ -31,15 +31,6 @@ copyleft() { cat<<'EOF'
 
 EOF
 }
-
-Bin=$HOME/opt/fun/bin
-mkdir -p $Bin 
-
-File=${1##*/}  
-Stem=${File%.*}
-Out=$Bin/$Stem
-Main=${Stem}Main
-
 lib() { cat <<-EOF
   function has( i,k,f)      { f=f?f:"List"; zap(i,k); @f(i[k]) }
   function hass(i,k,f,m)    {               zap(i,k); @f(i[k],m) }
@@ -77,21 +68,27 @@ fun2awk() { gawk '
           if ((s !~ /^#!/)  && (s !~ /^# vim/))
             print line(s) }
   }
-  BEGIN { main("'${Stem}.fun'")}'
+  BEGIN { main("'$1'")}'
 }
+
+Bin=$HOME/opt/fun/bin
+mkdir -p $Bin 
+
+File=${1##*/}  
+Stem=${File%.*}
+Out=$Bin/$Stem
 
 (echo "#!/usr/bin/env gawk -f"
  copyleft
- lib
- fun2awk
+ lib 
+ fun2awk $1
+ Main=${Stem}Main
  echo 'BEGIN { if("'${Main}'" in FUNCTAB) '${Main}'()}'
 ) > $Out
 
-echo $Out
 chmod +x $Out
 
 shift
-echo $*
 if    [ ! -t 0 ]
 then  cat - |  $Out $*
 else  $Out $*

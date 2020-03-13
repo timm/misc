@@ -25,7 +25,7 @@ function cliffsDeltaFaster(a,b,   tmp,j,la,lb,n,x,lo,hi,gt,lt) {
     lo= hi= binChop(b.has, x)
     while(lo >= 1 && b.has[lo] == x) lo--
     while(hi <= n && b.has[hi] == x) hi++
-    gt += lb - hi + 1
+    gt += lb - hi 
     lt += lo
   }
   tmp=  abs(lt-gt)/(la*lb) 
@@ -42,7 +42,6 @@ function cliffsDeltaFastest(a,b,s,   a1,la,j) {
   }
   return cliffsDeltaFaster(a1,b)
 }
-function z() {return sqrt(-2*log(rand()))*cos(6.2831853*rand())}
 
 function gauss(m,s) { return m + s*z() }
 function demo(n,r,   m1,s1, m2,s2,a,b,k,z) {
@@ -64,8 +63,8 @@ function demos(   r,j,n) {
    j=1
    while(j-- > 0) {
      print("") 
-     for(n=4;n<=10^4;n *= 2)  {
+     for(n=4;n<=128;n *= 1.5)  {
        print ""
-       for(r=1;r<=1.2;r *= 1.025) 
+       for(r=1;r<=1.3;r *= 1.025) 
          demo(n,r) }}}
 BEGIN { demos(); rogues() }

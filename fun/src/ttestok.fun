@@ -1,10 +1,17 @@
+#!/usr/bin/env ../fun
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+
+@include "lib.fun"
+@include "some.fun"
+
 function diff(x,y,      s) {
-  Nums(s)
+  Ttest(s)
   return ttest(x,y,s) && hedges(x,y,s)
 }
 
-function Num(i,c,v) {
-  Col(i,c,v)
+function Num(i) {
+  Object(i)
   i.n  = i.mu = i.m2 = i.sd = 0
   i.lo = 10^32
   i.hi = -1*i.lo
@@ -27,9 +34,9 @@ function _NumSd(i) {
   if (i.n < 2)  return 0
   return  (i.m2/(i.n - 1))^0.5
 }
-function Ttest(i    all) {
+function Ttest(i,   all) {
   Object(i)
-  i.conf  = 0.95# selects the threshold for ttest
+  i.conf  = 95# selects the threshold for ttest
   i.small = 0.3 # threshold for effect size test.
   # Thresholds for ttests at two different confidence levels
   # -- 95% --------------------------
@@ -60,31 +67,49 @@ function ttest(x,y,s,    t,a,b,df,c) {
   b  = y.sd^2/y.n
   df = (a + b)^2 / (10^-64 + a^2/(x.n-1) + b^2/(y.n - 1))
   c  = ttest1(s, int( df + 0.5 ), s.conf)
+  #print "c",c,"t",t
   return abs(t) > c
 }
 function ttest1(s,df,conf,   n1,n2,old,new,c) {
+  #print "df",df,"conf",conf,"first",s.first,"last",s.last
+  #oo(s)
   if (df < s.first)
     return s[conf][s.first]
   for(n1 = s.first*2; n1 < s.last; n1 *= 2) {
-    n2 = n1*2
+     n2 = n1*2
     if (df >= n1 && df <= n2) {
       old = s[conf][n1]
       new = s[conf][n2]
+      #print "old",old,"new",new,"df",df,"n1",n1,"n2",n2
       return old + (new-old) * (df-n1)/(n2-n1)
   }}
   return s[conf][s.last]
 }
 
-
-function _num1(a,k,    x,i,na,nk,s) {
+function _ttest(a,n,k,    x,i,na,nk,s) {
   Num(na)
   Num(nk)
-  for(i in a)
-     Num1(nk,
-          k * Num1(na, a[i]))
-  Nums(s)
-  print("k",k,
-         "\tsigDifferent",ttest(na,nk,s),
+  Some(sa)
+  Some(sk)
+  for(i in a) {
+     Num1(na,  a[i])
+     Num1(nk,  a[i]*k)
+     Some1(sa, a[i])
+     Some1(sk, a[i]*k)
+  }
+  Ttest(s)
+  print( "sigDifferent",ttest(na,nk,s),
          "notSmallEffect",hedges(na,nk,s),
-         "and", diff(na,nk))
+         "and", diff(na,nk),
+         "cliffs", SomeDiff(sa,sk),
+         "n",n,"k",k)
+}
 
+function ttestMain(  n,a,k) {
+  srand(1)
+  for(n=20;n<=100;n+=20)  {
+    for(m=1;m<=n;m++) a[m] = rand()^2
+    print("")
+    for(k=1;k<=1.5; k*=1.02)
+      _ttest(a,n,k)  } # exit}
+}
