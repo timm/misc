@@ -1,25 +1,15 @@
-#!/usr/bin/env ./dash
+#!/usr/bin/env ./morse
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
-BEGIN {
-  D.test.epsilon = 0.0001
-  D.num="\\$"
-  D.less="<"
-  D.more=">"
-  D.klass="!"
-  D.goal=   "[" D.less D.more D.klass "]"
-  D.numeric="[" D.less D.more D.num   "]"
-  D.skip="\\?" 
-}
-
+BEGIN {ME.dot = sprintf("%c",46) }
 #--------- --------- --------- -------- -------- --------- ---------
 # oo support
 func List(i)          { split("",i,"") }
 func zap(i,k)         { i[k][0]; List(i[k])} 
 func is(i,k)          { iss(i,k,"Object") }
-func iss(  i,k,p)     { @p(i)     ; i.is=k; i.id = ++D.id; D.isa[k]=p}
-func isss( i,k,p,a)   { @p(i,a)   ; i.is=k; i.id = ++D.id; D,isa[k]=p}
-func issss(i,k,p,a,b) { @p(i,a,b) ; i.is=x; i.id = ++D.id; D.isa[k]=p}
+func iss(  i,k,p)     { ME.isa[k]=p; @p(i)    ; i.is=k; i.id = ++ME.id}
+func isss( i,k,p,a)   { ME.isa[k]=p; @p(i,a)  ; i.is=k; i.id = ++ME.id}
+func issss(i,k,p,a,b) { ME.isa[k]=p; @p(i,a,b); i.is=x; i.id = ++ME.id}
 
 func has( i,k,f)         { f=f?f:"List"; zap(i,k); @f(i[k]) }
 func hass(i,k,f,a)       {               zap(i,k); @f(i[k],a) }
@@ -28,27 +18,18 @@ func hassss(i,k,f,a,b,c) {               zap(i,k); @f(i[k],a,b,c) }
 
 func how(i,f,   g,k) {
   k=i.is
-  while(k) {
-     g = k f
-     if (g in FUNCTAB) return g
-     k = D.isa[k]
-  }
+  do { g = k f
+       if (g in FUNCTAB) return g
+       k = ME.isa[k]
+  } while(k)
   print "#E> failed method lookup: ["f"]"
   exit 2
 }
 #--------- --------- --------- -------- -------- --------- ---------
-# polymorphism
-func Add(i,v,f) { f=how(i,"Add"); return @f(i,v) }
-func Dec(i,v,f) { f=how(i,"Dec"); return @f(i,v) }
-func Var(i)     { f=how(i,"Var"); return @f(i)   }
-func Mid(i)     { f=how(i,"Mid"); return @f(i)   }
-
-#--------- --------- --------- -------- -------- --------- ---------
 # utils
-BEGIN {D.dot = sprintf("%c",46( }
 
 func oo(x,p,pre,      j,txt) {
-  txt = pre ? pre : (p D.dot)
+  txt = pre ? pre : (p MY.dot)
   ooSortOrder(x)
   for(j in x)  {
     if (isarray(x[j]))   {
@@ -68,7 +49,7 @@ func csv(f,a,     b4, g,txt) {
   if (g< 0) { print "#E> Missing f ["f"]"; exit 1 } # file missing
   if (g==0) { close(f) ; return 0 }       # end of file                   
   txt = b4 $0                             # combine with prior
-  gsub("([ \t]|#.*)/", "", txt)           # kill whitespace    
+  gsub("([ \t]|#.*)/", "", txt)           # kill whitespace,comments    
   if (!txt)       { return csv(f,a,txt) } # skip blanks
   if (txt ~ /,$/) { return csv(f,a,txt) } # continue txt into next
   split(txt, a, ",")                      # split on "," into "a"
@@ -91,9 +72,12 @@ function tests(what, all,   one,a,i,n) {
     one = a[i]; @one(one) }
   rogues()
 }
+BEGIN {
+  D.test.epsilon = 0.0001
+}
 function is(f,got,want,   epsilon,     ok) {
   if (typeof(want) == "number") {
-     epsilon = epsilon ? epsilon : D.test.epsilon
+     epsilon = epsilon ? epsilon : MY.test.epsilon
      ok = abs(want - got)/(want + 10^-32)  < epsilon
   } else
      ok = want == got
@@ -102,6 +86,22 @@ function is(f,got,want,   epsilon,     ok) {
   else 
     print "#TEST:\tFAILED\t" f "\t" want "\t" got 
 }
+#--------- --------- --------- -------- -------- --------- ---------
+# my stuff
+BEGIN {
+  MY.num="\\$"
+  MY.less="<"
+  MY.more=">"
+  MY.klass="!"
+  MY.goal=   "[" MY.less MY.more MY.klass "]"
+  MY.numeric="[" MY.less MY.more MY.num   "]"
+  MY.skip="\\?" 
+}
+
+shared Add(i,v)
+shared Dec(i,v)
+shared Var(i)
+shared Mid(i)
 
 #--------- --------- --------- -------- -------- --------- ---------
 class Col(i,txt,pos) {
@@ -109,9 +109,9 @@ class Col(i,txt,pos) {
   i.n     = 0
   i.txt   = txt
   i.pos   = pos
-  i.goal  = txt ~ D.goal
-  i.klass = text ~ D.klass
-  i.w     = txt ~ D.less ? -1 : 1}
+  i.goal  = txt ~ MY.goal
+  i.klass = text ~ MY.klass
+  i.w     = txt ~ MY.less ? -1 : 1}
 }
 
 #--------- --------- --------- -------- -------- --------- ---------
@@ -121,8 +121,12 @@ class Num(i,txt,pos) {
   i.lo = 10^32 
   i.hi = -1*i.lo 
 }
+function _Var(i) { return i.sd }
+function _Mid(i) { return i.mu }
+
+
 func _Add(i,v,    d) {
-  if (v ~ D.skip) return v
+  if (v ~ MY.skip) return v
   v += 0
   i.n++
   i.lo  = v < i.lo ? v : i.lo
@@ -138,9 +142,9 @@ func _Sd(i) {
   if (i.n < 2)  return 0
   return  (i.m2/(i.n - 1))^0.5 
 }
-func _Less(i,v, d) {
+func _Dec(i,v, d) {
   if (i.n < 1)  return v
-  if (v ~ D.skip) return v
+  if (v ~ MY.skip) return v
   i.n  -= 1
   d     = v - i.mu
   i.mu -= d/i.n
@@ -156,15 +160,18 @@ class Sym(i,txt,pos) {
   i.most=0
   has(i,"seen") 
 }
+function _Var(i) { return _Ent(i) }
+function _Mid(i) { return i.mode  }
+
 func _Add(i,v,  tmp) {
-  if (v ~ D.skip) return v
+  if (v ~ MY.skip) return v
   i.n++
   tmp = ++i.seen[v]
   if (tmp > i.most) { i.most = tmp; i.mode = v }
   return v 
 }
 func _Dec(i,v) {
-  if (v ~ D.skip) return v
+  if (v ~ MY.skip) return v
   if (v in i.seen && i.seen[v] > 0) { i.n--; i.seen[v]-- }
 }
 func _Ent(i,   p,e,k) {
@@ -194,13 +201,13 @@ func _Empty(i) (i) { return length(i.cols) == 0 }
 
 func _Uses(i,a,       c,j) {
   for(j=1;j<=length(a);j++) 
-    if(a[j] ~ D.skip)
+    if(a[j] ~ MY.skip)
       i.use[++c]=j
 }
 func _Columns(i,a,       c) { 
   for(c in a) 
     hasss(i.cols, c, 
-          a[c] ~ D.numeric ? "Num" : "Sym"
+          a[c] ~ MY.numeric ? "Num" : "Sym"
           a[c], pos)
 }
 func _Row(i,a,  r,c,x) {
@@ -229,6 +236,6 @@ func _Read(i,file,    a,b) {
 
 
 BEGIN {
- print ("xasdas" ~ D.num ) 
- print ("?" ~ D.skip ) 
+ print ("xasdas" ~ MY.num ) 
+ print ("?" ~ MY.skip ) 
 }
