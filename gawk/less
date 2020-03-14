@@ -16,12 +16,12 @@ func hass(i,k,f,a)       {               zap(i,k); @f(i[k],a) }
 func hasss(i,k,f,a,b)    {               zap(i,k); @f(i[k],a,b) }
 func hassss(i,k,f,a,b,c) {               zap(i,k); @f(i[k],a,b,c) }
 
-func how(i,f,   g,k) {
-  k=i.is
-  do { g = k f
-       if (g in FUNCTAB) return g
-       k = ME.isa[k]
-  } while(k)
+func how(k,f,   g,k) {
+  while(k) {
+    g = k f
+    if (g in FUNCTAB) return g
+    k = ME.isa[k]
+  }
   print "#E> failed method lookup: ["f"]"
   exit 2
 }
