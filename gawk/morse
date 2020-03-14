@@ -28,5 +28,4 @@ END {for(f in funs) print funs[f]}
 
 shift
 
-#gawk -f $out $*
-cat $out
+gawk -f $out $*

@@ -16,7 +16,7 @@ func hass(i,k,f,a)       {               zap(i,k); @f(i[k],a) }
 func hasss(i,k,f,a,b)    {               zap(i,k); @f(i[k],a,b) }
 func hassss(i,k,f,a,b,c) {               zap(i,k); @f(i[k],a,b,c) }
 
-func how(k,f,   g,k) {
+func how(k,f,   g) {
   while(k) {
     g = k f
     if (g in FUNCTAB) return g
@@ -75,7 +75,7 @@ function tests(what, all,   one,a,i,n) {
 BEGIN {
   D.test.epsilon = 0.0001
 }
-function is(f,got,want,   epsilon,     ok) {
+function ok(f,got,want,   epsilon,     ok) {
   if (typeof(want) == "number") {
      epsilon = epsilon ? epsilon : MY.test.epsilon
      ok = abs(want - got)/(want + 10^-32)  < epsilon
@@ -207,7 +207,7 @@ func _Uses(i,a,       c,j) {
 func _Columns(i,a,       c) { 
   for(c in a) 
     hasss(i.cols, c, 
-          a[c] ~ MY.numeric ? "Num" : "Sym"
+          a[c] ~ MY.numeric ? "Num" : "Sym",
           a[c], pos)
 }
 func _Row(i,a,  r,c,x) {
