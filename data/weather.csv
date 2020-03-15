@@ -1,5 +1,5 @@
 outlook,        
-<temp,  #temperature      
+<temp,  temperature,      
 humid,        
 wind,     
 !play        
@@ -8,7 +8,7 @@ FALSE, no
 sunny, 80, 90, TRUE, no
 overcast, 83, 86, FALSE, yes
 rainy, 70, 96, FALSE, yes
-rainy, 68, 80, FALSE, yes # comments
+rainy, 68, 80, FALSE, yes
 rainy, 65, 70, TRUE, no
 overcast, 64, 
 65, TRUE, yes

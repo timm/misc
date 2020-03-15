@@ -10,20 +10,13 @@ function shared(s,     f,args,   b,tmp) {
   f    = b[1]
   args = b[2]
   tmp  = "tmp"int(rand()*100000)
-  return  "function " f "(" args "," tmp ") { "\
-                tmp"=how(i.it,\""f"\"); return @" tmp "(" args")}"
-}
-function class(s, a) {
-  split(s,a,/\(/) 
-  return a[1]; 
+  return "function " f "(" args "," tmp ") { "\
+             tmp"=how(i[\"it\"],\""f"\"); return @" tmp "(" args")}"
 }
 
-/^shared/  {sub(/shared/,""); print shared($1); next  }
-/^class/                 {  _ = class($2); sub(/^class/,"func")}
-                         { gsub(/_/,_,$0) }
-                         { print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
-                                "[\"\\1\\2\"]","g",$0)}
-END {for(f in funs) print funs[f]}
+/^shared/ { sub(/shared/,""); print shared($1); next  }
+          { print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
+                        "[\"\\1\\2\"]","g",$0)}
 ' > $out
 
 shift
