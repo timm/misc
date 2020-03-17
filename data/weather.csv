@@ -1,6 +1,5 @@
 outlook,        
-<temp,  temperature,      
-humid,        
+<temp,  $humid,      
 wind,     
 !play        
 sunny, 85, 85,  

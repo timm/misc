@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
 
-in=$1
-stem=$(basename $1 .au)
-out=/tmp/$stem$$.awk
+out=/tmp/$1
 
 cat $1 | gawk '
-     { print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
-               "[\"\\1\\2\"]","g",$0)}
+function shared(s,     f,args,   b,tmp) {
+  split(s,b,/[()]/)
+  f    = b[1]
+  args = b[2]
+  tmp  = "tmp"int(rand()*100000)
+  return "function " f "(" args "," tmp ") { "\
+             tmp"=how(i[\"is\"],\""f"\"); return @" tmp "(" args")}"
+}
+
+/^shared/ { sub(/shared/,""); print shared($1); next  }
+          { print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
+                        "[\"\\1\\2\"]","g",$0)}
 ' > $out
 
 shift
 
 gawk -f $out $*
-
