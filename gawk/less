@@ -10,7 +10,7 @@ func zap(i,k)         { i[k][0]; List(i[k])}
 func is(i,k)          { isa(i,k,"Object") }
 func isa(  i,k,p)     { THE.isa[k]=p; @p(i)    ; i.is=k }
 func isas( i,k,p,a)   { THE.isa[k]=p; @p(i,a)  ; i.is=k }
-func isass(i,k,p,a,b) { THE.isa[k]=p; @p(i,a,b); i.is=x }
+func isass(i,k,p,a,b) { THE.isa[k]=p; @p(i,a,b); i.is=k }
 
 func has( i,k,f)         { f=f?f:"List"; zap(i,k); @f(i[k]) }
 func hass(i,k,f,a)       {               zap(i,k); @f(i[k],a) }
@@ -219,7 +219,9 @@ func RowsAdd(i,a,  r,c,x) {
   r = length(i.rows) + 1
   has(i.rows, r, "Row")
   for(c in a) 
-    i.rows[r].cells[c] = RowsAdd(i.cols[c], a[c])
+    print c "[" i.cols[c].it "]"
+    #print how(i.cols[c],"Add")
+    #i.rows[r].cells[c] = Add(i.cols[c], a[c])
 }
 func RowsRead(i,file,    a,b,use) {
   while(csv(file,a)) {
@@ -228,7 +230,7 @@ func RowsRead(i,file,    a,b,use) {
     for(j in use) 
       b[j] = a[ use[j] ];
     o(b)
-    if(RowsEmpty(i)) RowsAddCols(i,b) : RowsAdd(i,b) 
+    RowsEmpty(i) ? RowsAddCols(i,b) :  RowsAdd(i,b) 
   }
 }   
 
