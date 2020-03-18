@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-gold={gold:-/tmp/gold}
-echo $gold
-
-mkdir -p $gold
+GOLD=${GOLD:-/tmp/gold}
+mkdir -p $GOLD
 
 compile() {  
   gawk '
@@ -20,16 +18,16 @@ compile() {
             { print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/, 
                            "[\"\\1\\2\"]","g",$0)
             }
-  ' 
+  ' $1
 }
-
 update() {
-  for i in *.awk; do
-    if [ "$i" -nt "$gold/$i" ]; then
-      cat $i | compile  > $gold/$i
+  for f in *.awk; do
+    if [ "$f" -nt "$GOLD/$f" ] ; then
+      compile $f > $GOLD/$f
     fi
   done
 }
 
-#update   
-#f=$1; shift; AWKPATH="$gold" gawk -f $f $*
+update   
+
+f=$1; shift; AWKPATH="$GOLD" gawk -f $f $*
