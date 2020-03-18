@@ -7,10 +7,10 @@
 @include "sym"
 @include "shared"
 
-func DivX(i,rows,r) { return rows[r].cells[i.x] }
-func DivY(i,rows,r) { return rows[r].cells[i.y] }
+function DivX(i,rows,r) { return rows[r].cells[i.x] }
+function DivY(i,rows,r) { return rows[r].cells[i.y] }
 
-func Div(i,rows,xpos,ypos,yis) {
+function Div(i,rows,xpos,ypos,yis) {
   is(i,"Div")
   i.cohen    = 0.2
   i.step     = 0.5
@@ -35,7 +35,7 @@ func Div(i,rows,xpos,ypos,yis) {
   i.epsilon = Var(i.xall)*i.cohen
 }
   
-func DivCut(i,rows,lo,hi,lvl,xr,yr,depth,
+function DivCut(i,rows,lo,hi,lvl,xr,yr,depth,
             yall1) {
   
   copy(yr, yall)
