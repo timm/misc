@@ -6,6 +6,10 @@
 
 BEGIN {AU.dot = sprintf("%c",46) }
 
+func copy(a,b,      j) { for(j in a) b[j] = a[j] }
+
+func last(a) { return a[ length(a) ] }
+
 func o(a,   s,sep,j) {
   s=sep=""
   for(j in a) {

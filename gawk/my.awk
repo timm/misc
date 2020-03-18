@@ -9,6 +9,8 @@ BEGIN {
   MY.goal=   "[" MY.less MY.more MY.klass "]"
   MY.numeric="[" MY.less MY.more MY.num   "]"
   MY.skip="\\?" 
+  #--------------
+  MY.step = 0.5
 }
 
 
