@@ -49,7 +49,7 @@ function DivReady(i,a)
   i.epsilon = i.epsilon ? i.epsilon : Var(i.xall)*i.cohen
   has(i,"cuts")
 }
-function DivCut(i,a,lo,hi,lvl,xr,yr, xr1,xl1,yr1,yl1,
+function DivCut(i,a,lo,hi,lvl,xr,yr, xr1,yr1,xl1,yl1,
                min,yis,min,r,x,y,new,cut) {
   if (hi - lo <=  i.step)  return 0
   min = Var(yr)
