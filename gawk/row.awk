@@ -1,0 +1,11 @@
+#!/usr/bin/env ./gold
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+@include "lib"
+@include "my"
+
+function  Row(i) {
+  is(i,"Row")
+  has(i,"cells")
+  has(i,"ranges")
+}

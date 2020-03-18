@@ -1,0 +1,219 @@
+<h1 id="module-braknbad">Module braknbad</h1>
+<h2 id="breaking-bad">Breaking bad</h2>
+<p>“I am the one who knocks.”</p>
+<pre><code>  .-------.
+  |       |
+-=_________=-
+  ___   ___
+ |___)=(___|
+      |
+     ###
+    #####
+    # = #
+     ###</code></pre>
+<ul>
+<li>Divide data into regions of bad and better.</li>
+<li>Find the least you need to do to nudge things away from bad.</li>
+</ul>
+<pre><code>Better
+.------.
+|    36| &lt;--- a score you want to minimize
+| Br   |
+.______.______.
+       |    56| &lt;--- a larger, hence worse, score
+       | Ba   |
+       .______.
+        Bad</code></pre>
+<h2 id="functions">Functions</h2>
+<dl>
+<dt><code>atom(x)</code></dt>
+<dd>Coerce the string x into the right kind of atom.
+</dd>
+<dt><code>cli(d, args=['braknbad'])</code></dt>
+<dd>Allow command lines args to update fields in the THE object. Example usage: THE = cli(THE).
+</dd>
+<dt><code>config()</code></dt>
+<dd><p>Set global options.i to change these, at the comamnd-line, type</p>
+<pre><code>  ./braknbad GROUP -OPTION value</code></pre>
+<p>where GROUP is one of char,dist,do,etc and OPTION is some sub-setting in GROUP; e.g. </p>
+<pre><code>  ./braknbad dist -p 3</code></pre>
+</dd>
+<dt><code>csv(file)</code></dt>
+<dd>
+</dd>
+<dt><code>doco()</code></dt>
+<dd>
+</dd>
+<dt><code>eg(f)</code></dt>
+<dd>Convenience function. Decorator that adds functions to the list managed by the <code>Eg</code> class.
+</dd>
+<dt><code>first(lst)</code></dt>
+<dd>
+</dd>
+<dt><code>last(lst)</code></dt>
+<dd>
+</dd>
+<dt><code>p(z)</code></dt>
+<dd>
+</dd>
+<dt><code>same(x)</code></dt>
+<dd>The identity function. Returns ‘x’.
+</dd>
+</dl>
+<h2 id="classes">Classes</h2>
+<dl>
+<dt><code>Div2(i, lst, x=&lt;function first&gt;, xis=braknbad.Num, y=&lt;function last&gt;, yis=braknbad.Num)</code></dt>
+<dd><p>Recursively divide a list of numns by finding splits that minimizing the expected value of the standard deviation (after the splits).</p>
+<h3 id="ancestors-in-mro">Ancestors (in MRO)</h3>
+<ul>
+<li>braknbad.o</li>
+</ul>
+</dd>
+<dt><code>Eg(i, **d)</code></dt>
+<dd><p>Manage a list of demo/test functions.</p>
+<h3 id="ancestors-in-mro-1">Ancestors (in MRO)</h3>
+<ul>
+<li>braknbad.o</li>
+</ul>
+<h3 id="class-variables">Class variables</h3>
+<dl>
+<dt><code>all</code></dt>
+<dd>Place to store demos/tests.
+</dd>
+<dt><code>n</code></dt>
+<dd>Number of called demos/tests.
+</dd>
+<dt><code>tell</code></dt>
+<dd>Report string (summarizes the run).
+</dd>
+<dt><code>y</code></dt>
+<dd>Number of demos/tests with assert failers
+</dd>
+</dl>
+<h3 id="methods">Methods</h3>
+<dl>
+<dt><code>run()</code></dt>
+<dd>Run the list of demos/tests.
+</dd>
+<dt><code>run1(f)</code></dt>
+<dd>Run a demo/test. If it fails, update the Eg.no counter.
+</dd>
+</dl>
+</dd>
+<dt><code>Num(i, txt='', pos=0, w=1, key=&lt;function same&gt;, inits=[])</code></dt>
+<dd><p>A few of my favorite things; (1) fast creation of instance attributes; (2) hash id management; (3) pretty print of instances.</p>
+<h3 id="ancestors-in-mro-2">Ancestors (in MRO)</h3>
+<ul>
+<li>braknbad.Thing</li>
+<li>braknbad.o</li>
+</ul>
+<h3 id="methods-1">Methods</h3>
+<p><code>centroid(i)</code> :</p>
+<p><code>norm(i, x)</code> :</p>
+<p><code>sd0(i)</code> :</p>
+<p><code>variety(i)</code> :</p>
+</dd>
+<dt><code>Row(i, lst)</code></dt>
+<dd><p>Holder for lists of values and their discretized ranges.</p>
+<h3 id="ancestors-in-mro-3">Ancestors (in MRO)</h3>
+<ul>
+<li>braknbad.o</li>
+</ul>
+<h3 id="methods-2">Methods</h3>
+<dl>
+<dt><code>scoring(i, j, t)</code></dt>
+<dd>Check if this row ‘i’ is better than row ‘j’.
+</dd>
+</dl>
+</dd>
+<dt><code>Sym(i, txt='', pos=0, w=1, key=&lt;function same&gt;, inits=[])</code></dt>
+<dd><p>A few of my favorite things; (1) fast creation of instance attributes; (2) hash id management; (3) pretty print of instances.</p>
+<h3 id="ancestors-in-mro-4">Ancestors (in MRO)</h3>
+<ul>
+<li>braknbad.Thing</li>
+<li>braknbad.o</li>
+</ul>
+<h3 id="methods-3">Methods</h3>
+<p><code>centroid(i)</code> :</p>
+<p><code>ent(i)</code> :</p>
+<p><code>variety(i)</code> :</p>
+</dd>
+<dt><code>Tbl(i, names=[], rows=None)</code></dt>
+<dd><p>Manage a list of Rows. Keep statistics on each column in <code>objs</code> or <code>decs</code> objects (which are either <code>Num</code> or <code>Sym</code> instances).</p>
+<h3 id="ancestors-in-mro-5">Ancestors (in MRO)</h3>
+<ul>
+<li>braknbad.o</li>
+</ul>
+<h3 id="methods-4">Methods</h3>
+<dl>
+<dt><code>centroid(i)</code></dt>
+<dd>Return the middle.
+</dd>
+<dt><code>clone(i)</code></dt>
+<dd>Return an (empty) table that can read rows like those seen in this table.
+</dd>
+</dl>
+<p><code>cook(i)</code> :</p>
+<dl>
+<dt><code>header(i, names)</code></dt>
+<dd>Convert a list of names into <code>Num</code>s and <code>Sym</code>s as appropriate.
+</dd>
+<dt><code>like(i, lst, ns)</code></dt>
+<dd>Report the likelihood that <code>lst</code> belongs in this table.
+</dd>
+<dt><code>read(i, src)</code></dt>
+<dd>Read rows from some src. Add to this table. If this table does not know what is columns are yet, then read those from the first row.
+</dd>
+<dt><code>scoring(i)</code></dt>
+<dd>Score each row (using the row’s <code>scoring</code> method). If there are too many rows to score fully, then just score against a random number.
+</dd>
+</dl>
+</dd>
+<dt><code>Thing(i, **d)</code></dt>
+<dd><p>A few of my favorite things; (1) fast creation of instance attributes; (2) hash id management; (3) pretty print of instances.</p>
+<h3 id="ancestors-in-mro-6">Ancestors (in MRO)</h3>
+<ul>
+<li>braknbad.o</li>
+</ul>
+<h3 id="descendants">Descendants</h3>
+<ul>
+<li>braknbad.Num</li>
+<li>braknbad.Sym</li>
+</ul>
+<h3 id="methods-5">Methods</h3>
+<p><code>xpect(i, j)</code> :</p>
+</dd>
+<dt><code>Two(i, t, lst)</code></dt>
+<dd><p>Stores two tables: one for <code>_bad</code> things and one for <code>_better</code> things.</p>
+<h3 id="ancestors-in-mro-7">Ancestors (in MRO)</h3>
+<ul>
+<li>braknbad.o</li>
+</ul>
+<h3 id="methods-6">Methods</h3>
+<p><code>p(i, lst)</code> :</p>
+</dd>
+<dt><code>o(i, **d)</code></dt>
+<dd><p>A few of my favorite things; (1) fast creation of instance attributes; (2) hash id management; (3) pretty print of instances.</p>
+<h3 id="descendants-1">Descendants</h3>
+<ul>
+<li>braknbad.Eg</li>
+<li>braknbad.Row</li>
+<li>braknbad.Tbl</li>
+<li>braknbad.Thing</li>
+<li>braknbad.Two</li>
+<li>braknbad.Div2</li>
+</ul>
+<h3 id="class-variables-1">Class variables</h3>
+<dl>
+<dt><code>id</code></dt>
+<dd>used to generate ids for an instance
+</dd>
+</dl>
+<h3 id="methods-7">Methods</h3>
+<dl>
+<dt><code>identity(i)</code></dt>
+<dd>assign a new unique integer as ‘id’ of this instance.
+</dd>
+</dl>
+</dd>
+</dl>
