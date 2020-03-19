@@ -1,0 +1,19 @@
+#!/usr/bin/env ./gold
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+@include "rows"
+
+function _divs(f,    d,i) {
+   d=AU.dot
+  Rows(i)
+  RowsRead(i, d d "/data/" f  d "csv")
+  oo(i.cols[1])
+  RowsDivs(i)
+  #for(r in i.rows) o(i.rows[r].ranges)
+}
+
+BEGIN { 
+  rogues()
+  _divs("weather") 
+  _divs("auto93") 
+}
