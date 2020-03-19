@@ -6,12 +6,12 @@
 
 BEGIN {AU.dot = sprintf("%c",46) }
 
-func copy(a,b,   j) { for(j in a) b[j] = a[j] }
-func push(a,x)      { a[length(a)+1] = x; return x}
+function copy(a,b,   j) { for(j in a) b[j] = a[j] }
+function push(a,x)      { a[length(a)+1] = x; return x}
 
-func last(a) { return a[ length(a) ] }
+function last(a) { return a[ length(a) ] }
 
-func o(a,   s,sep,j) {
+function o(a,   s,sep,j) {
   s=sep=""
   for(j in a) {
     s= s sep a[j]
@@ -19,7 +19,7 @@ func o(a,   s,sep,j) {
   }
   print s
 }
-func oo(x,p,pre,      j,txt) {
+function oo(x,p,pre,      j,txt) {
   txt = pre ? pre : (p AU.dot)
   ooSortOrder(x)
   for(j in x)  {
@@ -29,12 +29,12 @@ func oo(x,p,pre,      j,txt) {
     } else
       print(txt j (x[j]==""?"": ": " x[j])) }
 }
-func ooSortOrder(x, j) {
+function ooSortOrder(x, j) {
   for (j in x)
     return PROCINFO["sorted_in"] = \
       typeof(j + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" 
 }
-func csv(f,a,     b4, g,txt) {
+function csv(f,a,     b4, g,txt) {
   f = f ? f : "-"             
   g = getline < f
   if (g< 0) { print "#E> Missing f ["f"]"; exit 1 } # file missing

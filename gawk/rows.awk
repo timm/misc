@@ -6,6 +6,7 @@
 @include "num"
 @include "sym"
 @include "row"
+@include "div"
 
 function Rows(i) {
   is(i,"Rows")
@@ -30,7 +31,7 @@ function RowsAdd(i,a,  r,c,x) {
   has(i.rows, r, "Row")
   for(c in a) 
      i.rows[r].cells[c]= Add(i.cols[c], a[c])
-  copy(i.rows[r].cells, i.rows[r].cooked)
+  copy(i.rows[r].cells, i.rows[r].ranges)
 }
 function RowsRead(i,file,    a,b,use,j) {
   while(csv(file,a)) {
@@ -40,10 +41,24 @@ function RowsRead(i,file,    a,b,use,j) {
       b[j] = a[ use[j] ];
     RowsEmpty(i) ? RowsAddCols(i,b) :  RowsAdd(i,b) }
 }   
-
+function RowsDivs(i,  x,y) {
+  for(y in i.cols)  
+    if (i.cols[y].txt ~ MY.klass)
+      break;
+  for(x in i.cols)  
+    if( i.cols[x].txt ~ MY.numeric ) 
+       RowDiv(i,x,y) ;
+}
+function RowDiv(i,x,y,  d) {
+  Div(d, x,y)
+  DivMain(d, i.rows)
+  #return oo(d)
+}
 function _rows(    i,d) {
   d=AU.dot
   Rows(i);  RowsRead(i, d d "/data/weather" d "csv")
   print "d " d
-  oo(i)
+  #oo(i)
+  RowDiv(i)
 }
+BEGIN { _rows() }

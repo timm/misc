@@ -278,12 +278,12 @@ if [ "$AFTER" == "1" ]; then
   cat<<-"EOF"
 
 	   (\____/)         
-	     (_oo_)         Roger roger...
-	       (O)        
+	     (_oo_)         timm/misc/gawk
+	       (O)          Roger roger ...        
 	     __||__    \)  
 	  []/______\[] /    
 	  / \______/ \/     
-	 /    /__\          iSH v3 (c) 2019
+	 /    /__\          iSH v3.gawk (c) 2019,2010
 	(\   /____\         <timm@ieee.org>
 
 	EOF

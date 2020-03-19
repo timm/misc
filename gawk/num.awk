@@ -32,7 +32,7 @@ func NumSd(i) {
   return  (i.m2/(i.n - 1))^0.5 
 }
 func NumDec(i,v, d) {
-  if (i.n < 1)  return v
+  if (i.n < 2)  return v
   if (v ~ MY.skip) return v
   i.n  -= 1
   d     = v - i.mu
