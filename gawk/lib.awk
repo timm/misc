@@ -6,7 +6,14 @@
 
 BEGIN {AU.dot = sprintf("%c",46) }
 
-function copy(a,b,   j) { for(j in a) b[j] = a[j] }
+function copy(a,b,   j) { 
+  for(j in a) 
+    if(isarray(a[j]))  {
+      has(b,j)
+      copy(a[j], b[j]) 
+    } else
+      b[j] = a[j] 
+}
 function push(a,x)      { a[length(a)+1] = x; return x}
 
 function last(a) { return a[ length(a) ] }

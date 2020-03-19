@@ -41,24 +41,26 @@ function RowsRead(i,file,    a,b,use,j) {
       b[j] = a[ use[j] ];
     RowsEmpty(i) ? RowsAddCols(i,b) :  RowsAdd(i,b) }
 }   
+function colp(i,c,k) {
+  return i.cols[c].txt ~ MY[k] 
+}
 function RowsDivs(i,  x,y) {
   for(y in i.cols)  
-    if (i.cols[y].txt ~ MY.klass)
+    if (colp(i,y,"klass"))
       break;
   for(x in i.cols)  
-    if( i.cols[x].txt ~ MY.numeric ) 
-       RowDiv(i,x,y) ;
+    if (colp(i,x,"numeric"))
+      RowsDiv(i,x,y) ;
 }
-function RowDiv(i,x,y,  d) {
+function RowsDiv(i,x,y,  d) {
   Div(d, x,y)
   DivMain(d, i.rows)
-  #return oo(d)
 }
-function _rows(    i,d) {
+function _rows(    i,d,r) {
   d=AU.dot
   Rows(i);  RowsRead(i, d d "/data/weather" d "csv")
-  print "d " d
-  #oo(i)
-  RowDiv(i)
+  RowsDivs(i)
+  for(r in i.rows) 
+    o(i.rows[r].ranges)
 }
 BEGIN { _rows() }

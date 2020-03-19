@@ -28,8 +28,8 @@ function Div(i,x,y) {
   i.epsilon  = 0
   i.trivial  = 1.025
  }
-function DivReady(i,rows,   r,x,y) {
-  DivSort(i,rows, i.x)
+function DivReady(i, rows,      r,x,y) {
+  DivSort(i, rows, i.x)
   has(i, "all")
   has(i, "yall")
   has(i, "xall","Num")
@@ -46,12 +46,13 @@ function DivReady(i,rows,   r,x,y) {
   }  
   i.start   = i.xall.lo
   i.stop    = i.xall.hi
-  i.step    = i.step    ? i.step    : length(i.all)^i.step
+  i.step    = length(i.all)^i.step
   i.epsilon = i.epsilon ? i.epsilon : Var(i.xall)*i.cohen
+  has(i,"cuts")
 }
 function DivY(    i,rows,r)   { return rows[i.all[r]].cells[i.y] }
 function DivX(    i,rows,r)   { return rows[i.all[r]].cells[i.x] }
-function DivRange(i,rows,r,z) {        rows[i.all[r]].range[i.x]=z }
+function DivRange(i,rows,r,z) {        rows[i.all[r]].ranges[i.x]=z }
 
 function DivMain(i,rows) {
   DivReady(i,rows)
@@ -65,6 +66,7 @@ function DivCut1(i,rows,lo,hi,xall,yall,
     DivCut1(i,rows, cut+1,hi,xr,yr)
   } else  {
     lox = DivX(i, rows, lo)
+    push(i.cuts, lox)
     for(j=lo;j<=hi;j++)
       DivRange(i,rows,j, lox) }
 }
@@ -77,8 +79,8 @@ function DivArgmin(i,rows,lo,hi,xr,yr, xl1,yl1,xr1,yr1,
   for(r=lo; r<=hi; r++) {
     x = DivX(i, rows, r); Add(xl,x); Dec(xr, x)
     y = DivY(i, rows, r); Add(yl,y); Dec(yr, y)
-    if (i.step > hi-r) break
-    if (i.step > lo+r) continue
+    if (i.step > hi - r) break
+    if (i.step > lo + r) continue
     after = DivX(i, rows, r+1)
     if (x == after) continue 
     if (i.epsilon > x - i.start ) continue
