@@ -21,13 +21,16 @@ compile() {
   ' $1
 }
 update() {
-  for f in *.awk; do
-    if [ "$f" -nt "$GOLD/$f" ] ; then
-      compile $f > $GOLD/$f
+  for f in *.gold; do
+    g=$GOLD/$(basename $f .gold).awk
+    if [ "$f" -nt "$g" ] ; then
+      compile $f > $g
     fi
   done
 }
 
 update   
 
-f=$1; shift; AWKPATH="$GOLD" gawk -f $f $*
+g=$GOLD/$(basename $1 .gold).awk
+shift
+AWKPATH="$GOLD:." gawk -f $g $*
