@@ -63,4 +63,4 @@ function _rows(    i,d,r) {
   for(r in i.rows) 
     o(i.rows[r].ranges)
 }
-BEGIN { _rows() }
+BEGIN { rogues(); _rows() }

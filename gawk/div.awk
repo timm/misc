@@ -23,7 +23,7 @@ function Div(i,x,y) {
   i.x        = x
   i.y        = y
   i.cohen    = 0.2
-  i.step     = 0.5
+  i.minSize  = 0.5
   i.maxDepth = 15
   i.epsilon  = 0
   i.trivial  = 1.025
@@ -46,7 +46,7 @@ function DivReady(i, rows,      r,x,y) {
   }  
   i.start   = i.xall.lo
   i.stop    = i.xall.hi
-  i.step    = length(i.all)^i.step
+  i.minSize    = length(i.all)^i.minSize
   i.epsilon = i.epsilon ? i.epsilon : Var(i.xall)*i.cohen
   has(i,"cuts")
 }
@@ -56,14 +56,15 @@ function DivRange(i,rows,r,z) {        rows[i.all[r]].ranges[i.x]=z }
 
 function DivMain(i,rows) {
   DivReady(i,rows)
-  return DivCut1(i,rows,1,length(i.all),i.xall,i.yall)
+  return DivCut1(i,rows,1,length(i.all),1,i.xall,i.yall)
 }
-function DivCut1(i,rows,lo,hi,xall,yall,
+function DivCut1(i,rows,lo,hi,depth,xall,yall,
                  cut,xl,yl,xr,yr,lox,j) {
-  cut = DivArgmin(i,rows,lo,hi,xall,yall,xl,yl,xr,yr)
+  if (depth < i.maxDepth)
+    cut = DivArgmin(i,rows,lo,hi,xall,yall,xl,yl,xr,yr);
   if (cut) {
-    DivCut1(i,rows, lo,  cut,xl,yl)
-    DivCut1(i,rows, cut+1,hi,xr,yr)
+    DivCut1(i,rows, lo,  cut, depth+1, xl,yl)
+    DivCut1(i,rows, cut+1,hi, depth+1, xr,yr)
   } else  {
     lox = DivX(i, rows, lo)
     push(i.cuts, lox)
@@ -71,22 +72,22 @@ function DivCut1(i,rows,lo,hi,xall,yall,
       DivRange(i,rows,j, lox) }
 }
 function DivArgmin(i,rows,lo,hi,xr,yr, xl1,yl1,xr1,yr1,
-               min,xl,yl,r,s,x,x1,y,new,cut,after) {
-  if (hi - lo <= i.step) return 0
+                    min,xl,yl,r,s,x,x1,y,new,cut,after) {
+  if (hi - lo <= i.minSize) return 0
   min = Var(yr)
   Num(xl)
   Num(yl)
   for(r=lo; r<=hi; r++) {
-    x = DivX(i, rows, r); Add(xl,x); Dec(xr, x)
-    y = DivY(i, rows, r); Add(yl,y); Dec(yr, y)
-    if (i.step > hi - r) break
-    if (i.step > lo + r) continue
-    after = DivX(i, rows, r+1)
-    if (x == after) continue 
-    if (i.epsilon > x - i.start ) continue
-    if (i.epsilon > i.stop - after  ) continue
-    if (i.epsilon > Mid(xr) - Mid(xl) ) continue
-    if (i.trivial * Xpect(yl,yr) >= min)  continue
+    x = DivX(i, rows, r); Add(xl,x); Dec(xr, x)    # move a x value right to left
+    y = DivY(i, rows, r); Add(yl,y); Dec(yr, y)    # move a y value right to left
+    if (i.minSize > hi - r) break                  # give up: too close to end
+    if (i.minSize > lo + r) continue               # move on: too close to start
+    after = DivX(i, rows, r+1) 
+    if (x == after) continue                       # can't break here
+    if (i.epsilon > x - i.start ) continue         # move on: insufficient change from start
+    if (i.epsilon > i.stop - after  ) break        # give up: insufficent change from end
+    if (i.epsilon > Mid(xr) - Mid(xl) ) continue   # move on: difference left to right is so small
+    if (i.trivial * Xpect(yl,yr) >= min)  continue # move on: cut does not reduce y variance
     min = Xpect(yl,yr)
     cut = r
     copy(xr, xr1); copy(xl, xl1)
