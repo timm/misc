@@ -4,7 +4,7 @@
 @include "my"
 @include "lib"
 
-func Col(i,txt,pos) {
+function Col(i,txt,pos) {
   is(i,"Col")
   i.n     = 0
   i.txt   = txt
@@ -13,7 +13,10 @@ func Col(i,txt,pos) {
   i.klass = txt ~ MY.klass
   i.w     = txt ~ MY.less ? -1 : 1
 }
-func all(a,how,    v,j) {
+function ColXpect(i,j) {
+  return (i.n * Var(i) + j.n * Var(j)) / (i.n + j.n)
+}  
+function all(a,how,    v,j) {
   if (!isarray(how))
     typeof(a[1])== "number" ? Num(how) :  Sym(how);
   for(j in a) {
@@ -21,7 +24,7 @@ func all(a,how,    v,j) {
     if (v == MY.skip) next
     Add(how, v) }
 }
-func _all(    a,how,j) {
+function _all(    a,how,j) {
   for(j=1;j<=10;j++) a[j]=j
   all(a,how)
   oo(how)

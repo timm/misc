@@ -29,7 +29,8 @@ function RowsAdd(i,a,  r,c,x) {
   r = length(i.rows) + 1
   has(i.rows, r, "Row")
   for(c in a) 
-    i.rows[r].cells[c] = Add(i.cols[c], a[c])
+     i.rows[r].cells[c]= Add(i.cols[c], a[c])
+  copy(i.rows[r].cells, i.rows[r].cooked)
 }
 function RowsRead(i,file,    a,b,use,j) {
   while(csv(file,a)) {

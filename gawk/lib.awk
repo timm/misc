@@ -6,7 +6,8 @@
 
 BEGIN {AU.dot = sprintf("%c",46) }
 
-func copy(a,b,      j) { for(j in a) b[j] = a[j] }
+func copy(a,b,   j) { for(j in a) b[j] = a[j] }
+func push(a,x)      { a[length(a)+1] = x; return x}
 
 func last(a) { return a[ length(a) ] }
 
