@@ -21,7 +21,7 @@ function all(a,how,    v,j) {
     typeof(a[1])== "number" ? Num(how) :  Sym(how);
   for(j in a) {
     v = a[j]
-    if (v == MY.skip) next
+    if (v == MY.skip) continue
     Add(how, v) }
 }
 function _all(    a,how,j) {

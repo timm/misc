@@ -49,18 +49,12 @@ function RowsDivs(i,  x,y) {
     if (colp(i,y,"klass"))
       break;
   for(x in i.cols)  
-    if (colp(i,x,"numeric"))
-      RowsDiv(i,x,y) ;
+    if (colp(i,x,"numeric")) {
+      RowsDiv(i,x,y)
+  }
 }
 function RowsDiv(i,x,y,  d) {
   Div(d, x,y)
   DivMain(d, i.rows)
+  oo(d.cuts,"cut[" x "]")
 }
-function _rows(    i,d,r) {
-  d=AU.dot
-  Rows(i);  RowsRead(i, d d "/data/weather" d "csv")
-  RowsDivs(i)
-  for(r in i.rows) 
-    o(i.rows[r].ranges)
-}
-BEGIN { rogues(); _rows() }
