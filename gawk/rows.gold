@@ -41,17 +41,16 @@ function RowsRead(i,file,    a,b,use,j) {
       b[j] = a[ use[j] ];
     RowsEmpty(i) ? RowsAddCols(i,b) :  RowsAdd(i,b) }
 }   
-function colp(i,c,k) {
-  return i.cols[c].txt ~ MY[k] 
+function RowsKlass(i, y) {
+  for(y in i.cols)  
+    if (i.cols[y].txt ~ MY.klass)
+      return y;
 }
 function RowsDivs(i,  x,y) {
-  for(y in i.cols)  
-    if (colp(i,y,"klass"))
-      break;
+  y = RowKlass(i)
   for(x in i.cols)  
-    if (colp(i,x,"numeric")) {
+    if (i.cols[x].txt ~ MY.numeric) 
       RowsDiv(i,x,y)
-  }
 }
 function RowsDiv(i,x,y,  d) {
   Div(d, x,y)
