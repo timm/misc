@@ -18,6 +18,14 @@ function push(a,x)      { a[length(a)+1] = x; return x}
 
 function last(a) { return a[ length(a) ] }
 
+function abs(x)  { return x > 0 ? x : -1*x }
+
+function ns(n,s,  t) {
+  s = s ? s  : "*" 
+  while(n-- > 0) t = t s
+  return t
+}
+
 function o(a,   s,sep,j) {
   s=sep=""
   for(j in a) {

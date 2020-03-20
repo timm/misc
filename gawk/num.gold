@@ -5,14 +5,14 @@
 @include "lib"
 @include "col"
 
-func Num(i,txt,pos) { 
+function Num(i,txt,pos) { 
   isass(i,"Num","Col",txt,pos)
   i.mu = i.m2 = i.sd = 0
   i.lo = 10^32 
   i.hi = -1*i.lo 
 }
-func NumVar(i) { return i.sd }
-func NumMid(i) { return i.mu }
+function NumVar(i) { return i.sd }
+function NumMid(i) { return i.mu }
 
 function NumAdd(i,v,    d) {
   if (v ~ MY.skip) return v
@@ -26,12 +26,12 @@ function NumAdd(i,v,    d) {
   i.sd  = NumSd(i)
   return v 
 }
-func NumSd(i) {
+function NumSd(i) {
   if (i.m2 < 0) return 0
   if (i.n < 2)  return 0
   return  (i.m2/(i.n - 1))^0.5 
 }
-func NumDec(i,v, d) {
+function NumDec(i,v, d) {
   if (i.n < 2)  return v
   if (v ~ MY.skip) return v
   i.n  -= 1
@@ -40,4 +40,14 @@ func NumDec(i,v, d) {
   i.m2 -= d*(v - i.mu)
   i.sd  = NumSd(i) 
   return v
+}
+function NumNorm(i,v) {
+  if (v ~ MY.skip) return v
+  return (v - i.lo) / (i.hi - i.lo + 10^-32)
+} 
+function NumDist(i,v,w) {
+  if ((v ~ MY.skip) && (w ~ MY.skip))             return 1
+  if  (v ~ MY.skip) {w=NumNorm(i,w); v=w<0.5?1:0; return abs(v-w)}
+  if  (w ~ MY.skip) {v=NumNorm(i,v); w=v<0.5?1:0; return abs(v-w)}
+  return abs( NumNorm(i,v) - NumNorm(i,w) )
 }

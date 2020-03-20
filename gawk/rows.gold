@@ -56,5 +56,6 @@ function RowsDivs(i,  x,y) {
 function RowsDiv(i,x,y,  d) {
   Div(d, x,y)
   DivMain(d, i.rows)
-  oo(d.cuts,"cut[" x "]")
+  if (d.debug)
+    oo(d.cuts,"cut[" x "]")
 }
