@@ -91,13 +91,20 @@ function DivArgmin(i,rows,lo,hi,xr,yr, xl1,yl1,xr1,yr1,
     x = DivX(i, rows, r); Add(xl,x); Dec(xr, x)    # move a x value right to left
     y = DivY(i, rows, r); Add(yl,y); Dec(yr, y)    # move a y value right to left
     if (i.minSize > hi - r) break                  # give up: too close to end
+    print 1
     if (i.minSize > r - lo) continue               # move on: too close to start
+    print 22
     after = DivX(i, rows, r+1) 
     if (x == after) continue                       # move on: can't break here
+    print 333
     if (i.epsilon > x - i.start ) continue         # move on: insufficient change from start
+    print 4444
     if (i.epsilon > i.stop - after  ) break        # give up: insufficent change from end
+    print 55555
     if (i.epsilon > Mid(xr) - Mid(xl) ) continue   # move on: difference left to right is so small
+    print 666666, i.trivial, Xpect(yl,yr), min
     if (i.trivial * Xpect(yl,yr) >= min)  continue # move on: cut does not reduce y variance, enough
+    print 7777777
     min = Xpect(yl,yr)
     print "e " min
     cut = r

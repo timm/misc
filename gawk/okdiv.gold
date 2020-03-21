@@ -15,7 +15,7 @@ function _divs(f,    d,i) {
 
 BEGIN { 
   rogues()
-  _divs("weather") 
+  #_divs("weather") 
   #_divs("auto93") 
   #_divs("diabetes")
   _divs("syms")
