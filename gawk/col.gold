@@ -18,14 +18,12 @@ function ColXpect(i,j) {
 }  
 function all(a,how,    v,j) {
   if (!isarray(how))
-    typeof(a[1])== "number" ? Num(how) :  Sym(how);
+    for(j in a) { 
+      typeof(a[1])== "number" ? Num(how) :  Sym(how);
+      break
+  }
   for(j in a) {
     v = a[j]
     if (v == MY.skip) continue
     Add(how, v) }
-}
-function _all(    a,how,j) {
-  for(j=1;j<=10;j++) a[j]=j
-  all(a,how)
-  oo(how)
 }

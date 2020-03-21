@@ -27,10 +27,12 @@ function SymDec(i,v) {
     i.n--
     i.seen[v]-- }
 }
-function SymEnt(i,   p,e,k) {
+function SymEnt(i,   p,e,k,x) {
   for(k in i.seen) {
     p  = i.seen[k]/i.n
-    e -= p*log(p)/log(2)
+    x  = p*log(p)/log(2)
+    e -= x
+    #print "k " k " k " i.seen[k] " p " p " x " x " e " e
   }
   return e
 }  
