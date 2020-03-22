@@ -2,6 +2,7 @@
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
 @include "lib"
+@include "xy"
 
 function _s(    y,z) {
   split("a,b,c",y,/,/)
@@ -13,9 +14,23 @@ function _s(    y,z) {
   print 
   oo(z,"z")
 }
-
+function _rand(r) {
+  r = rand()
+  if (r < 0.33) return -1*r
+  if (r < 0.67) return "?"
+  return r
+}
+function _compare(    a,n,j) {
+  srand()
+  n = 10
+  for(j=1; j<=n; j++)  
+    hasss(a,j,"Xy",_rand())
+  xySort(a)
+  oo(a)
+}
 BEGIN {  
   _s() 
+  _compare()
 }
 
   

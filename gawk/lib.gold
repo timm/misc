@@ -3,6 +3,7 @@
 
 @include "object"
 @include "test"
+@include "my"
 
 BEGIN {AU.dot = sprintf("%c",46) }
 
@@ -24,6 +25,7 @@ function compare(x,y) {
   return 1
 }
 
+function _(a)      { split("",a,"") } 
 function abs(x)    { return x > 0 ? x : -1*x }
 function min(x,y)  { return x < y ? x : y    }
 function max(x,y)  { return x < y ? y : x    }
