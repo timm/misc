@@ -3,6 +3,7 @@
 
 shared Add(i,v)
 shared Dec(i,v)
+shared Dist(i,v,w)
 shared Var(i)
 shared Mid(i)
 shared Xpect(i,j)

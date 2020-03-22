@@ -2,13 +2,34 @@
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
 @include "rows"
+@include "xy"
 
-function _rows(    i,d,r) {
+function _rows(f,    i,d,r) {
   d=AU.dot
   Rows(i)
-  RowsRead(i, d d "/data/weather" d "csv")
-  oo(i.cols[1])
-  #RowsDivs(i)
-  #for(r in i.rows) o(i.rows[r].ranges)
+  RowsRead(i, d d "/data/" f d "csv")
 }
-BEGIN { rogues(); _rows() }
+function _dists(f,   d,i,r1,n,near,far) {
+  srand(1)
+  d=AU.dot
+  Rows(i)
+  RowsRead(i, d d "/data/" f d "csv")
+  for(r1 in i.rows)  {
+    n    = RowsNear(i,r1)
+    near = i.rows[r1].near[1].y
+    far  = i.rows[r1].near[n].y
+    #print ""
+    #o(i.rows[r1].cells)
+    #o(i.rows[near].cells)
+    #o(i.rows[far].cells)
+  }
+}
+
+BEGIN { 
+   #_rows("weather") 
+   #_rows("diabetes6000") 
+   #_rows("diabetes600012000") 
+   _rows("weather") 
+   _dists("diabetes") 
+   rogues(); 
+}

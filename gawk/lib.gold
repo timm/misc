@@ -14,11 +14,32 @@ function copy(a,b,   j) {
     } else
       b[j] = a[j] 
 }
-function push(a,x)      { a[length(a)+1] = x; return x}
+function push(a,x) { a[length(a)+1] = x; return x}
 
-function last(a) { return a[ length(a) ] }
+function last(a)   { return a[ length(a) ] }
 
-function abs(x)  { return x > 0 ? x : -1*x }
+function compare(x,y) {
+  if (x < y) return -1
+  if (x == y) return 0
+  return 1
+}
+
+function abs(x)    { return x > 0 ? x : -1*x }
+function min(x,y)  { return x < y ? x : y    }
+function max(x,y)  { return x < y ? y : x    }
+function anyi(a)   { return 1+int(rand() * length(a)) }
+function any(a)    { return a[ anyi(a) ] }
+
+function shuffle(a,  i,j,n,tmp) {
+  n=length(a)
+  for(i=1;i<=n;i++) {
+    j=i+round(rand()*(n-i));
+    tmp=a[j];
+    a[j]=a[i];
+    a[i]=tmp;
+  };
+  return n;
+}
 
 function ns(n,s,  t) {
   s = s ? s  : "*" 

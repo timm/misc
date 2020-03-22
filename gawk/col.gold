@@ -14,7 +14,6 @@ function Col(i,txt,pos) {
   i.w     = txt ~ MY.less ? -1 : 1
 }
 function ColXpect(i,j) {
-  oo(j)
   return (i.n * Var(i) + j.n * Var(j)) / (i.n + j.n)
 }  
 function all(a,how,    v,j) {

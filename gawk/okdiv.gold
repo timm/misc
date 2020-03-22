@@ -3,20 +3,19 @@
 
 @include "rows"
 
-function _divs(f,    d,i) {
-  print ""
+function _divs(f,    d,i,r) {
   d=AU.dot
   Rows(i)
   RowsRead(i, d d "/data/" f  d "csv")
-  oo(i.cols[1])
+  #oo(i.cols[1])
   RowsDivs(i)
   #for(r in i.rows) o(i.rows[r].ranges)
 }
 
 BEGIN { 
-  rogues()
   #_divs("weather") 
   #_divs("auto93") 
-  #_divs("diabetes")
-  _divs("syms")
+  _divs("diabetes600012000")
+  #_divs("syms")
+  rogues()
 }

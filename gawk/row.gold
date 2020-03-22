@@ -8,4 +8,5 @@ function  Row(i) {
   is(i,"Row")
   has(i,"cells")
   has(i,"ranges")
+  has(i,"near")
 }

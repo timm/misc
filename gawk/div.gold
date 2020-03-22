@@ -11,24 +11,22 @@ function DivSort(i,rows,x) {
   ROWSORT=x
   return asort(rows,rows,"__asortDiv")
 }
-function __asortDiv(i1,row1,i2,row2,    l,r) {
-  l = row1.cells[ ROWSORT ] + 0
-  r = row2.cells[ ROWSORT ] + 0
-  if (l <  r) return -1
-  if (l == r) return 0
-  return 1 
+function __asortDiv(i1,row1,i2,row2) {
+  return compare(row1.cells[ ROWSORT ] + 0,
+                 row2.cells[ ROWSORT ] + 0)
 } 
 function Div(i,x,y) {
   is(i,"Div")
-  i.debug    = 1
+  i.debug    = 0
   i.x        = x
   i.y        = y
   i.cohen    = 0.2
   i.minSize  = 0.5
   i.maxDepth = 15
-  i.epsilon  = 0
+  i.xepsilon = 0
   i.trivial  = 1.025
-  if (i.debug) print "x " x " y " y
+  i.yis      = ""
+  #if (i.debug) print "x " x " y " y
 }
 function DivReady(i, rows,      r,x,y) {
   DivSort(i, rows, i.x)
@@ -41,16 +39,17 @@ function DivReady(i, rows,      r,x,y) {
     if (x ~ MY.skip) continue
     if (y ~ MY.skip) continue
     push(i.all,r)
+    if (i.ys=="") 
+       i.yis = typeof(y)=="number" ? "Num" : "Sym" 
     if (! length(i.yall))
-      has(i, "yall", typeof(y)=="number" ? "Num" : "Sym")
-    Add(i.xall, x)
+      has(i, "yall", i.yis)
+    NumAdd(i.xall, x)
     Add(i.yall, y) 
   }  
   i.start   = i.xall.lo
   i.stop    = i.xall.hi
   i.minSize = length(i.all)^i.minSize
-  i.epsilon = i.epsilon ? i.epsilon : Var(i.xall)*i.cohen
-  
+  i.xepsilon = i.xepsilon ? i.xepsilon : Var(i.xall)*i.cohen
   has(i,"cuts")
 }
 function DivY(    i,rows,r)   { return rows[i.all[r]].cells[i.y] }
@@ -59,16 +58,16 @@ function DivRange(i,rows,r,z) {        rows[i.all[r]].ranges[i.x]=z }
 
 function DivMain(i,rows,   j) {
   DivReady(i,rows)
-  if (i.debug) {
-    print ""
-    for(j in i)
-      if (typeof(i[j]) == "number") print i.x, j, i[j] }
+#  if (i.debug) {
+#    print ""
+#    for(j in i)
+#      if (typeof(i[j]) == "number") print i.x, j, i[j] }
   return DivCut1(i,rows,1,length(i.all),1,i.xall,i.yall)
 }
 function DivCut1(i,rows,lo,hi,depth,xall,yall,
                  cut,xl,yl,xr,yr,lox,j) {
   if (i.debug)
-    print ns(depth,"|  ")  lo,hi, hi - lo
+    print ns(depth-1,"|  ")  lo,hi, "(" hi - lo +1 ")"
   if (depth < i.maxDepth)
     cut = DivArgmin(i,rows,lo,hi,xall,yall,xl,yl,xr,yr);
   if (cut) {
@@ -82,31 +81,23 @@ function DivCut1(i,rows,lo,hi,depth,xall,yall,
   }}
 }
 function DivArgmin(i,rows,lo,hi,xr,yr, xl1,yl1,xr1,yr1,
-                    min,xl,yl,r,s,x,x1,y,new,cut,after) {
+                    min,xl,yl,r,s,x,x1,y,new,cut,after,yis) {
   if (hi - lo <= 2*i.minSize) return 
   min = Var(yr)
   Num(xl)
-  Num(yl)
+  yis = i.yis; @yis(yl)
   for(r=lo; r<=hi; r++) {
-    x = DivX(i, rows, r); Add(xl,x); Dec(xr, x)    # move a x value right to left
-    y = DivY(i, rows, r); Add(yl,y); Dec(yr, y)    # move a y value right to left
-    if (i.minSize > hi - r) break                  # give up: too close to end
-    print 1
-    if (i.minSize > r - lo) continue               # move on: too close to start
-    print 22
+    x = DivX(i, rows, r); NumAdd(xl,x); NumDec(xr, x) # move a x value right to left
+    y = DivY(i, rows, r); Add(yl,y); Dec(yr, y)   # move a y value right to left
+    if (i.minSize  > hi - r)             break    # give up: too close to end
+    if (i.minSize  > r - lo)             continue # move on: too close to start
     after = DivX(i, rows, r+1) 
-    if (x == after) continue                       # move on: can't break here
-    print 333
-    if (i.epsilon > x - i.start ) continue         # move on: insufficient change from start
-    print 4444
-    if (i.epsilon > i.stop - after  ) break        # give up: insufficent change from end
-    print 55555
-    if (i.epsilon > Mid(xr) - Mid(xl) ) continue   # move on: difference left to right is so small
-    print 666666, i.trivial, Xpect(yl,yr), min
-    if (i.trivial * Xpect(yl,yr) >= min)  continue # move on: cut does not reduce y variance, enough
-    print 7777777
+    if (x == after)                      continue # move on: can't break here
+    if (i.xepsilon > x - i.start )       continue # move on: insufficient change from start
+    if (i.xepsilon > i.stop - after  )   break    # give up: insufficent change from end
+    if (i.xepsilon > xr.mu - xl.mu )     continue # move on: difference left to right is so small
+    if (i.trivial * Xpect(yl,yr) >= min) continue # move on: cut does not reduce y variance, enough
     min = Xpect(yl,yr)
-    print "e " min
     cut = r
     copy(xr, xr1); copy(xl, xl1)
     copy(yr, yr1); copy(yl, yl1) 

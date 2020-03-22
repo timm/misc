@@ -12,8 +12,22 @@ function Rows(i) {
   is(i,"Rows")
   has(i,"rows")
   has(i,"cols")
+  i.p = 2
   i.klass = ""
 }
+#--------- --------- --------- --------- --------- ---------
+# feature extractors from Rows
+
+function RowsKlass(i, y) {
+  for(y in i.cols)  
+    if (i.cols[y].txt ~ MY.klass)
+      return y;
+}
+function RowsCell(i, r,x) { return i.rows[r].cells[x] }
+
+#--------- --------- --------- --------- --------- ---------
+# Creation and update of Rows
+
 function RowsEmpty(i) { 
   return length(i.cols) == 0 
 }
@@ -33,6 +47,14 @@ function RowsAdd(i,a,  r,c,x) {
      i.rows[r].cells[c]= Add(i.cols[c], a[c])
   copy(i.rows[r].cells, i.rows[r].ranges)
 }
+#--------- --------- --------- --------- --------- ---------
+# read, write
+function RowsWrite(i,  c,r,txt) {
+  for(c=1; c <= length(i.cols); c++) txt[c]=i.cols[c].txt
+  o(txt)
+  for(r=1; r <= length(i.rows); r++) o(i.rows[r].cells)
+}
+
 function RowsRead(i,file,    a,b,use,j) {
   while(csv(file,a)) {
     if (RowsEmpty(i))
@@ -40,18 +62,48 @@ function RowsRead(i,file,    a,b,use,j) {
     for(j in use) 
       b[j] = a[ use[j] ];
     RowsEmpty(i) ? RowsAddCols(i,b) :  RowsAdd(i,b) }
-}   
-function RowsKlass(i, y) {
-  for(y in i.cols)  
-    if (i.cols[y].txt ~ MY.klass)
-      return y;
 }
+#--------- --------- --------- --------- --------- ---------
+# distance between rows
+function RowsDist(i, r1,r2,   c,inc,d,n,v,w) {
+  n = 10^-32
+  for(c in i.cols)
+    if(i.cols[c].txt !~ MY.goal) {
+      n++
+      v   = i.rows[r1].cells[c]
+      w   = i.rows[r2].cells[c]
+      inc = Dist(i.cols[c], v, w)
+      #print "r1",r1,"r2","c",i.cols[c].txt,"n",n,"v",v,"w",w,"inc",inc
+      d  += inc^i.p
+  }
+  return (d / n) ^ (1/i.p)
+}
+
+function RowsNear(i,r1,n) {
+  return RowsNear1(i,r1,
+                   n ? n : 30,
+                   i.rows[r1].near) 
+}
+function RowsNear1(i,r1,n,lst,  r2) {
+  while(n-- > 0) {
+    r2 = anyi(i.rows)
+    if (r1 != r2) 
+      hasss(lst, 
+            length(lst) + 1,
+            "Xy",
+            RowsDist(i, r1, r2),
+            r2)
+  }
+  return xySort(lst)
+} 
+#--------- --------- --------- --------- --------- ---------
+# discretization
+
 function RowsDivs(i,  x,y) {
   y = RowsKlass(i)
-  print "y " y
   for(x in i.cols)  
     if (i.cols[x].txt ~ MY.numeric) 
-      return RowsDiv(i,x,y)
+      RowsDiv(i,x,y)
 }
 function RowsDiv(i,x,y,  d) {
   Div(d, x,y)

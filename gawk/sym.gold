@@ -23,16 +23,22 @@ function SymAdd(i,v,  tmp) {
 }
 function SymDec(i,v) {
   if (v ~ MY.skip) return v
-  if (v in i.seen && i.seen[v] > 0) { 
-    i.n--
-    i.seen[v]-- }
+  if( --i.n       < 1) i.n=0
+  if( --i.seen[v] < 1) delete i.seen[v]
+  return v
 }
-function SymEnt(i,   p,e,k,x) {
-  for(k in i.seen) {
-    p  = i.seen[k]/i.n
-    x  = p*log(p)/log(2)
-    e -= x
-    #print "k " k " k " i.seen[k] " p " p " x " x " e " e
+function SymDist(i,v,w) {
+  if ((v ~ MY.skip) || (w ~ MY.skip)) return 1
+  return v == w ? 0 : 1
+}
+function SymEnt(i,   v,p,e,k,x) {
+  if (i.n > 0)
+    for(k in i.seen) 
+      if ((v = i.seen[k]) > 0) {
+        p  = v / i.n
+        x  = p*log(p)/log(2)
+        e -= x
+        #print "k " k " k " i.seen[k] " p " p " x " x " e " e
   }
   return e
 }  

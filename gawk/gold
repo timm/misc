@@ -8,7 +8,7 @@ function shared(s,     f,args,   b,tmp) {
   split(s,b,/[()]/)
   f    = b[1]
   args = b[2]
-  tmp  = "tmp"int(rand()*100000)
+  tmp  = "_t_m_p_"int(rand()*100000)
   return "function " f "(" args "," tmp ") { "\
              tmp"=how(i[\"is\"],\""f"\"); return @" tmp "(" args")}" 
 }
