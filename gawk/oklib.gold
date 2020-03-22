@@ -22,9 +22,10 @@ function _rand(r) {
 }
 function _compare(    a,n,j) {
   srand()
-  n = 10
+  n = 20
+  _(a)
   for(j=1; j<=n; j++)  
-    hasss(a,j,"Xy",_rand())
+    hasss(a, "","Xy",_rand())
   xySort(a)
   oo(a)
 }
