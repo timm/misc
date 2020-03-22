@@ -1,0 +1,2 @@
+ ./okdiv.gold | sort -n -t, -k $1  | cut -d, -f $1 | sort | uniq -c
+
