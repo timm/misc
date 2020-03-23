@@ -25,7 +25,7 @@ function _compare(    a,n,j) {
   n = 20
   _(a)
   for(j=1; j<=n; j++)  
-    hasss(a, "","Xy",_rand())
+    hasss(a, 0,"Xy",_rand())
   xySort(a)
   oo(a)
 }

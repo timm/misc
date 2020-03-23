@@ -56,13 +56,31 @@ function DivY(    i,rows,r)   { return rows[i.all[r]].cells[i.y] }
 function DivX(    i,rows,r)   { return rows[i.all[r]].cells[i.x] }
 function DivRange(i,rows,r,z) {        rows[i.all[r]].ranges[i.x]=z }
 
-function DivMain(i,rows,   j) {
+function DivMain(i,rows,   r) {
   DivReady(i,rows)
 #  if (i.debug) {
 #    print ""
 #    for(j in i)
 #      if (typeof(i[j]) == "number") print i.x, j, i[j] }
-  return DivCut1(i,rows,1,length(i.all),1,i.xall,i.yall)
+  DivCut1(i,rows,1,length(i.all),1,i.xall,i.yall)
+  DivSets(i)
+}
+function DivSets(i,   v,w,r) {
+  # assumes that i.rows is sorted on i.x
+  w = i.cuts[1]
+  for(r=1; r<=length(i.rows); r++) {
+    v = i.rows[r].cells[i.x]
+    if (v ~ MY.skip) 
+      i.rows[r].ranges[i.x] = MY.skip 
+    else {
+      w = v > w ? DivSets1(i,v,w) : w;
+      i.rows[r].ranges[i.x] = w }} 
+}
+function DivSets1(i,v,w,     c) {
+  for(c=1; c<=length(i.cuts); c++)
+    if (i.cuts[c] >= v)  
+      return i.cuts[c];
+  return w
 }
 function DivCut1(i,rows,lo,hi,depth,xall,yall,
                  cut,xl,yl,xr,yr,lox,j) {
@@ -73,12 +91,8 @@ function DivCut1(i,rows,lo,hi,depth,xall,yall,
   if (cut) {
     DivCut1(i,rows, lo,  cut, depth+1, xl,yl)
     DivCut1(i,rows, cut+1,hi, depth+1, xr,yr)
-  } else  {
-    lox = DivX(i, rows, lo)
-    for(j=lo;j<=hi;j++) {
-      DivRange(i,rows,j, lox) 
-      i.cuts[lox]++
-  }}
+  } else  
+     push(i.cuts, DivX(i, rows, hi))
 }
 function DivArgmin(i,rows,lo,hi,xr,yr, xl1,yl1,xr1,yr1,
                     min,xl,yl,r,s,x,x1,y,new,cut,after,yis) {
