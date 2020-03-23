@@ -25,26 +25,30 @@ function Div(i,x,y) {
   i.maxDepth = 15
   i.xepsilon = 0
   i.trivial  = 1.025
+  i.use      = 512
   i.yis      = ""
   #if (i.debug) print "x " x " y " y
 }
-function DivReady(i, rows,      r,x,y) {
+function DivReady(i, rows,      p,r,x,y) {
   DivSort(i, rows, i.x)
   has(i, "all")
   has(i, "yall")
   has(i, "xall","Num")
+  p = i.use  / length(rows)  # 1000, 256 ==> 256/1000
   for(r in rows) {
-    x = rows[r].cells[i.x]
-    y = rows[r].cells[i.y]
-    if (x ~ MY.skip) continue
-    if (y ~ MY.skip) continue
-    push(i.all,r)
-    if (i.ys=="") 
-       i.yis = typeof(y)=="number" ? "Num" : "Sym" 
-    if (! length(i.yall))
-      has(i, "yall", i.yis)
-    NumAdd(i.xall, x)
-    Add(i.yall, y) 
+    if (rand() <= p) {
+      x = rows[r].cells[i.x]
+      y = rows[r].cells[i.y]
+      if (x ~ MY.skip) continue
+      if (y ~ MY.skip) continue
+      push(i.all,r)
+      if (i.ys=="") 
+         i.yis = typeof(y)=="number" ? "Num" : "Sym" 
+      if (! length(i.yall))
+        has(i, "yall", i.yis)
+      NumAdd(i.xall, x)
+      Add(i.yall, y) 
+   }
   }  
   i.start   = i.xall.lo
   i.stop    = i.xall.hi
@@ -63,18 +67,18 @@ function DivMain(i,rows,   r) {
 #    for(j in i)
 #      if (typeof(i[j]) == "number") print i.x, j, i[j] }
   DivCut1(i,rows,1,length(i.all),1,i.xall,i.yall)
-  DivSets(i)
+  DivSets(i,rows)
 }
-function DivSets(i,   v,w,r) {
+function DivSets(i,rows,   v,w,r) {
   # assumes that i.rows is sorted on i.x
   w = i.cuts[1]
-  for(r=1; r<=length(i.rows); r++) {
-    v = i.rows[r].cells[i.x]
+  for(r=1; r<=length(rows); r++) {
+    v = rows[r].cells[i.x]
     if (v ~ MY.skip) 
-      i.rows[r].ranges[i.x] = MY.skip 
+      rows[r].ranges[i.x] = MY.skip 
     else {
       w = v > w ? DivSets1(i,v,w) : w;
-      i.rows[r].ranges[i.x] = w }} 
+      rows[r].ranges[i.x] = w }} 
 }
 function DivSets1(i,v,w,     c) {
   for(c=1; c<=length(i.cuts); c++)

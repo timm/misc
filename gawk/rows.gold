@@ -88,11 +88,7 @@ function RowsNear1(i,r1,n,lst,  r2) {
   while(n-- > 0) {
     r2 = anyi(i.rows)
     if (r1 != r2) 
-      hasss(lst, 
-            length(lst) + 1,
-            "Xy",
-            RowsDist(i, r1, r2),
-            r2)
+      hasss(lst, 0, "Xy", RowsDist(i, r1, r2), r2)
   }
   return xySort(lst)
 } 

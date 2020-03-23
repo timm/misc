@@ -13,10 +13,10 @@ function isas( i,k,p,a)   { AU.isa[k]=p; @p(i,a)  ; i.is=k }
 function isass(i,k,p,a,b) { AU.isa[k]=p; @p(i,a,b); i.is=k }
 
 # note the k=0 convention. if 0 then the new item is pushed to the end
-# of the list. 
+# of the list.  Note: k=0 only works if "i" has been pre initialized
 function has( i,k,f)         { f=f?f:"List"; k= zap(i,k); @f(i[k]) }
 function hass(i,k,f,a)       {               k= zap(i,k); @f(i[k],a) }
-function hasss(i,k,f,a,b)    {               print 21;k= zap(i,k); print 22; @f(i[k],a,b) }
+function hasss(i,k,f,a,b)    {               k= zap(i,k); @f(i[k],a,b) }
 function hassss(i,k,f,a,b,c) {               k= zap(i,k); @f(i[k],a,b,c) }
 
 function how(k,f,   g) {

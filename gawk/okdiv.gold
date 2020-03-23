@@ -9,13 +9,16 @@ function _divs(f,    d,i,r) {
   RowsRead(i, d d "/data/" f  d "csv")
   #oo(i.cols[1])
   RowsDivs(i)
-  #for(r in i.rows) o(i.rows[r].ranges)
+  #o(i.cuts)
+  for(r=1;r<=length(i.rows);r++)
+     o(i.rows[r].ranges) 
 }
 
 BEGIN { 
+  srand()
   #_divs("weather") 
-  #_divs("auto93") 
-  _divs("diabetes600012000")
+  _divs("auto93") 
+  #_divs("diabetes600012000")
   #_divs("syms")
   rogues()
 }
