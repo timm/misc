@@ -29,6 +29,9 @@ function _(a)      { split("",a,"") }
 function abs(x)    { return x > 0 ? x : -1*x }
 function min(x,y)  { return x < y ? x : y    }
 function max(x,y)  { return x < y ? y : x    }
+
+function first(a)  { return a[1] }
+function last(a)   { return a[length(a)] }
 function anyi(a)   { return 1+int(rand() * length(a)) }
 function any(a)    { return a[ anyi(a) ] }
 
@@ -48,7 +51,17 @@ function ns(n,s,  t) {
   while(n-- > 0) t = t s
   return t
 }
-
+function binChop(a,x,           y,lo, hi,mid)  {
+  lo = 1
+  hi = length(a)
+  while (lo <= hi) {
+    mid = int((hi + lo) / 2)
+    y = a[mid]
+    if (x == y) break
+    if (x <  y) {hi=mid-1} else {lo=mid+1} 
+  }
+  return mid 
+}
 function o(a,   s,sep,j) {
   s=sep=""
   for(j in a) {

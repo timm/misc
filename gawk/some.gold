@@ -1,0 +1,107 @@
+#!/usr/bin/env ./gold
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+@include "my"
+@include "lib"
+
+function Some(i,pos,txt,w) {
+  is(i,"Some")
+  i.magic = 2.56
+  i.max   = 256
+  i.small = 0.147
+  i.cohen = 0.2
+  i.step  = 0.5
+  i.n = 0
+  i.sorted = 0
+  i.w    = w?w:1
+  i.pos  = pos ? pos : 1
+  i.txt  = txt
+  has(i,"cuts")
+  has(i,"a")
+}
+function SomeAdd(i,v) {
+  if (v == "?") return
+  i.n++
+  if (i.n < i.max) {
+    i.a[ l(i.a)+1 ] = v
+    i.sorted=0
+  } else {
+    if (i.n == i.max) 
+      SomeSorted(i)
+    if (rand() < i.max/i.n)
+      i.a[ binChop(i.a,v) ] = v }
+  return v
+}
+function SomeDiff(a,b,  
+                  n,la,lb,j,x,lo,hi,gt,lt) {
+  la = SomeSorted(a)
+  lb = SomeSorted(b)
+  n  = length(b.a)
+  for(j in a.a) {
+    x  = a.a[j]
+    lo = hi= binChop(b, x)
+    while(lo > 1 && b.a[lo] == x) lo--
+    while(hi < n && b.a[hi] == x) hi++
+    gt += lb - hi 
+    lt += lo
+  }
+  return abs(lt-gt)/(la*lb) > a.small 
+}
+function SomeCut(i,lo,hi,minSize,epsilon,trivial,  
+                  j,cut,min,x,after,new,start,stop,above,below) {
+  if (!i.sorted) 
+    i.sorted=asort(i.a) 
+  lo      = lo      ? lo      : 1
+  hi      = hi      ? hi      : length(i.a)
+  trivial = trivial ? trivial : 1.05
+  minSize = minSize ? minSize : length(i.a)^i.minSize
+  epsilon = epsilon ? espilon : SomeVar(i) *i.cohen
+  start   = first(i.a)
+  stop    = last(i.a)
+  min     = SomeVar(i,lo,hi)
+  for(j = lo + minSize; j<=hi-minSize; j++) {
+    x     = i.a[j]
+    after = i.a[j+1]
+    if (x == after)               continue
+    if (epsilon >  x - start)     continue
+    if (epsilon > stop - after)   continue
+    below = SomePer(i,lo,j,0.5)      
+    above = SomePer(i,j+1,hi,0.5)
+    if (epsilon >  above - below) continue 
+    new =  SomeXpect(i,lo,j,hi)
+    if (trivial * new >= min)     continue
+    min = new
+    cut = j
+  }
+  if (cut)  {
+    SomeCut(i, lo,   cut, minSize, epsilon, trivial)
+    SomeCut(i, cut+1, hi, minSize, epsilon, trivial)
+  } else
+    push(i.cuts, i.a[hi])
+}
+
+function SomeXpect(i,j,mid,k,   n) {
+  n  = k-j+1
+  v1 = SomeVar(i,j,mid)
+  v2 = SomeVar(i,mid+1,k)
+  return (mid-j)/n*v1 + (k-mid -1)/n*v2
+}
+
+
+function SomeSorted(i)  { # ensure we are sorted
+  if (!i.sorted) i.sorted=asort(i.a) 
+  return length(i.a)
+}
+function SomeAt(i,z)      { # get the zth item 
+  if(!i.sorted) i.sorted=asort(i.a)
+  return i.a[int(z)] 
+}
+function SomePer(i,p,j,k)  {  # get the pth point between j and k
+  if(!i.sorted) i.sorted=asort(i.a)
+  z = j+p*(k-j)
+  return i.a[int(z)] 
+}
+function SomeMid(i,j,k) { return SomePer(i,0.5,j,k) }
+function SomeVar(i,j,k) { 
+  return abs(SomePer(i,.9,j,k) - SomePer(i,.1,j,k))/i.magic 
+}
