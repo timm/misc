@@ -1,0 +1,22 @@
+#!/usr/bin/env ./gold
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+@include "some"
+
+function _some(         a,i,s1,s2) {
+  Some(s1)
+  s1.debug=1
+  Some(s2)
+  for(i=1; i<=100000; i++) {
+    SomeAdd(s1, rand()^2)
+    SomeAdd(s2, rand()^0.5)
+  }
+  SomeCut(s1)
+  oo(s1)
+  #o(s1.cuts)
+}
+
+BEGIN { 
+  srand(1)
+  _some()
+}
