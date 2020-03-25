@@ -17,8 +17,6 @@ function copy(a,b,   j) {
 }
 function push(a,x) { a[length(a)+1] = x; return x}
 
-function last(a)   { return a[ length(a) ] }
-
 function compare(x,y) {
   if (x < y) return -1
   if (x == y) return 0
@@ -73,12 +71,13 @@ function o(a,   s,sep,j) {
 function oo(x,p,pre,      j,txt) {
   txt = pre ? pre : (p AU.dot)
   ooSortOrder(x)
-  for(j in x)  {
-    if (isarray(x[j]))   {
-      print(txt j"" )
-      oo(x[j],"","|  " pre)
-    } else
-      print(txt j (x[j]==""?"": ": " x[j])) }
+  for(j in x)  
+    if (j !~ /^_/) {
+      if (isarray(x[j]))   {
+        print(txt j"" )
+        oo(x[j],"","|  " pre)
+      } else
+        print(txt j (x[j]==""?"": ": " x[j])) }
 }
 function ooSortOrder(x, j) {
   for (j in x)
