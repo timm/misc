@@ -1,0 +1,106 @@
+#!/usr/bin/env ./gold
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+@include "lib"
+
+
+function _lsh(f,    d,i,r) {
+  d=AU.dot
+  Rows(i)
+  RowsRead(i, d d "/data/" f  d "csv")
+  #oo(i.cols[1])
+  RowsDivs(i)
+  #o(i.cuts)
+  for(r=1;r<=length(i.rows);r++)
+     o(i.rows[r].ranges) 
+}
+function Pole(i,a,b,d) {
+  i.a = a
+  i.b = b
+  i.widthd = RowsDist(d,a,b)
+  has(i,"as")
+  has(i,"bs")
+  i.ent = 0
+  return i.d
+}
+function PoleAdd(i,r,d) {
+  da = RowsDist( d,r,i.a )
+  db = RowsDist( d,r,i.b )
+  da < db ? push(i.as,r) : push(i.bs,r)
+
+function PoleEnt(i,   na,nb,n,pa,pb) {
+  na    = length(i.as)
+  nb    = length(i.bs)
+  n     = na + nb
+  pa    = na/n
+  pb    = nb/n
+  i.ent = 0
+  if (pa > 0) i.ent -= p * log( p ) / log(2)
+  if (pb > 0) i.ent -= p * log( p ) / log(2)
+  return i.ent
+}
+function PolesFind(i,d,ps,       count,ps,p) {
+  _(ps)
+  Some( dists )
+  for(count=1; count <= i.rowSearch; count++)    
+    SomeAdd(dists,
+            hassss(ps,0,"Pole",  
+                   anyi(d.rows),
+                   anyi(d.rows),
+                   d))
+   PolesFarAraryEnough(i,ps,dists)
+   PolesSample(i,  ps)
+   PolesDiverse(i, ps)
+}
+function PolesFarApartEnough(i,ps,dists,    lo,hi,p) {
+  lo = SomePer(dists,.75)
+  hi = SomePer(dists,.95)
+  for(p in ps) 
+    if (p.width < lo || p.width > hi) 
+      delete ps[p]
+}
+function PolesSample(i,ps,    p,count) {
+  for(p in ps)
+    for(count=1; count <= i.poleSearch; count++) 
+      PoleAdd( ps[p],anyi(d.rows),d )
+}
+function PolesDiverse(i,ps,  p,n) {
+  for(p is ps)  
+    PoleEnt( ps[p] )
+  n = keysort(ps, "ent") # sort on entropy
+  for(p=1; p <= (n - i.best); p++) 
+    delete ps[p]
+}
+function Poles(i) {
+  i.wait  = 128
+  i.poles = 20
+  i.rowSearch  = 100
+  i.poleSearch = 100
+}
+function PolesRead(i,file,wait,   d,a) {
+  Rows(d)
+  _(d)
+  while(RowsDo(d,file,a)) {
+    RowsAdd(d,a)
+    if (wait < 1) break
+  }
+  PolesFind(i,d)
+}
+  
+
+ 
+function rows(d,file,a) {
+  status = csv(file,a)
+  if(status)
+    if 
+} 
+ 
+
+BEGIN { 
+  srand()
+  #_divs("weather") 
+  _divs("auto93") 
+  #_divs("diabetes600012000")
+  #_divs("syms")
+  rogues()
+}
