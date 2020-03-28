@@ -50,44 +50,44 @@ function SomeDiff(a,b,
   return abs(lt-gt)/(la*lb) > a.small 
 }
 function SomeCut(i,lo,hi,minSize,epsilon,trivial,lvl,  
-                  j,cut,min,x,x1,after,new,start,stop,above,below) {
+                  j,cut,min,x,after,new,start,stop,above,below) {
   if (lvl> i.maxDepth) 
     return
-  if (!i.sorted) 
-    i.sorted=asort(i._a) 
-  lo      = lo      ? lo      : 1
-  hi      = hi      ? hi      : length(i._a)
-  trivial = trivial ? trivial : 1.05
-  minSize = minSize ? minSize : length(i._a)^i.minSize
-  epsilon = epsilon ? espilon : SomeVar(i) *i.cohen
-  start   = first(i._a)
-  stop    = last(i._a)
-  min     = SomeVar(i,lo,hi)
-  for(j = lo + minSize; j<=hi-minSize; j++) {
-    x     = i._a[j]
-    after = i._a[j+1]
-    if (x == after)               continue
-    if (epsilon >  x - start)     continue
-    if (epsilon > stop - after)   continue
-    below = SomePer(i,0.5,lo,j)      
-    above = SomePer(i,0.5,j+1,hi)
-    if (epsilon >  above - below) continue 
-    new =  SomeXpect(i,lo,j,hi)
-    if (trivial * new >= min)     continue
-    min = new
-    x1  = x
-    cut = j
-  }
-  if (i.debug) {
+  if (lvl > 0 && i.debug) {
     i.trivial=trivial
     i.minSize=minSize
     i.epsilon=epsilon
-    print ns(lvl,"| ") lo,hi, "(" hi - lo + 1 ") *",x1
+    print ns(lvl-1,"| ") lo,hi, "(" hi - lo + 1 ") *",x1
+  }
+  if (lvl < 1) {
+    i.sorted=asort(i._a) 
+    return SomeCut(i, 
+            1,                           # lo
+            length(i._a),                # high
+            int(length(i._a)^i.minSize), # minSize
+            SomeVar(i) *i.cohen,         # epsilon  
+            1.05,                        # trival
+            1)                           # lvl
+  }
+  start = first(i._a)
+  stop  = last(i._a)
+  min   = SomeVar(i,lo,hi)
+  for(j = lo + minSize; j<=hi-minSize; j++) {
+    x     = i._a[j]
+    after = i._a[j+1]
+    if (x == after) continue
+    below = SomePer(i,0.5,lo,j)      
+    above = SomePer(i,0.5,j+1,hi)
+    if ((above - below) < epsilon) continue 
+    new =  SomeXpect(i,lo,j,hi)
+    if (min/new < trivial) continue
+    min = new
+    cut = j
   }
   if (cut)  {
     SomeCut(i, lo,   cut, minSize, epsilon, trivial, lvl+1)
     SomeCut(i, cut+1, hi, minSize, epsilon, trivial, lvl+1)
-  } else
+  } else 
     push(i.cuts, i._a[hi])
 }
 
@@ -95,7 +95,7 @@ function SomeXpect(i,j,mid,k,   n) {
   n  = k-j+1
   v1 = SomeVar(i,j,mid)
   v2 = SomeVar(i,mid+1,k)
-  return (mid-j)/n*v1 + (k-mid -1)/n*v2
+  return 10^-32+ (mid-j)/n*v1 + (k-mid -1)/n*v2
 }
 function SomeSorted(i)  { # ensure we are sorted
   if (!i.sorted) i.sorted=asort(i._a) 

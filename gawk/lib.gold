@@ -7,6 +7,14 @@
 
 BEGIN {AU.dot = sprintf("%c",46) }
 
+function keysort(a,k) {
+  AU.keysort = k
+  return asort(a,a,"__keysort")
+}
+function __keysort(i1,x,i2,y) {
+  return compare(x[ AU.keysort ] + 0)
+                 y[ AU.keysort ] + 0)
+} 
 function copy(a,b,   j) { 
   for(j in a) 
     if(isarray(a[j]))  {

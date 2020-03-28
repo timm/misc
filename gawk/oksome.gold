@@ -3,14 +3,25 @@
 
 @include "some"
 
-function _some(         a,i,s1,s2) {
+function _some1(         y,a,i,s1,s2) {
   Some(s1)
   s1.debug=1
-  Some(s2)
-  for(i=1; i<=100000; i++) {
-    SomeAdd(s1, rand()^2)
-    SomeAdd(s2, rand()^0.5)
-  }
+  #Some(s2)
+  for(i=1; i<=10^7; i++) 
+    SomeAdd(s1, rand())
+  SomeCut(s1)
+  oo(s1)
+  #o(s1.cuts)
+}
+
+function _some2(         n,a,i,s1) {
+  Some(s1)
+  s1.debug=1
+  for(i=1; i<=10; i++) SomeAdd(s1, 1)
+  for(i=i; i<=20; i++) SomeAdd(s1, 2)
+  for(i=i; i<=30; i++) SomeAdd(s1, 3)
+  for(i=i; i<=40; i++) SomeAdd(s1, 4)
+  SomeSorted(s1)
   SomeCut(s1)
   oo(s1)
   #o(s1.cuts)
@@ -18,5 +29,5 @@ function _some(         a,i,s1,s2) {
 
 BEGIN { 
   srand(1)
-  _some()
+  _some1()
 }

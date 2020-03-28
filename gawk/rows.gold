@@ -12,6 +12,7 @@ function Rows(i) {
   is(i,"Rows")
   has(i,"rows")
   has(i,"cols")
+  has(i,"use")
   i.p = 2
   i.klass = ""
 }
@@ -31,10 +32,10 @@ function RowsCell(i, r,x) { return i.rows[r].cells[x] }
 function RowsEmpty(i) { 
   return length(i.cols) == 0 
 }
-function RowsUses(i,a,use,       n,j) {
+function RowsUses(i,a,      n,j) {
   for(j=1;j<=length(a);j++) 
-    if(a[j] ~ AU.skip)
-      use[++n]=j
+    if(a[j] !~ MY.skip)
+      i.use[++n]=j
 }
 function RowsAddCols(i,a,       c) { 
   for(c in a) 
@@ -55,13 +56,28 @@ function RowsWrite(i,  c,r,txt) {
   for(r=1; r <= length(i.rows); r++) o(i.rows[r].cells)
 }
 
-function RowsRead(i,file,    a,b,use,j) {
+function RowsRead(i,file,   a,b,j) {
   while(csv(file,a)) {
-    if (RowsEmpty(i))
-      RowsUses(i,a,use);
-    for(j in use) 
-      b[j] = a[ use[j] ];
+    if (RowsEmpty(i)) RowsUses(i,a);
+    for(j in i.use) b[j] = a[ i.use[j] ];
     RowsEmpty(i) ? RowsAddCols(i,b) :  RowsAdd(i,b) }
+}
+function RowsDo(i,file,b,   a,j,status) {
+  status = csv(file,a) 
+  if (!status) return 0
+  if (RowsEmpty(i)) 
+    RowsUses(i,a)
+  for(j in i.use) 
+    b[j] = a[ i.use[j] ]
+  if (RowsEmpty(i)) {
+    RowsAddCols(i,b)
+    return RowsDo(i,file,b)
+  } 
+  return 1
+}
+function RowsRead1(i,file,   a) {
+  while(RowsDo(i,file,a)) 
+    RowsAdd(i,a) 
 }
 #--------- --------- --------- --------- --------- ---------
 # distance between rows
