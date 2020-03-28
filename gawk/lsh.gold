@@ -40,6 +40,10 @@ function PoleEnt(i,   na,nb,n,pa,pb) {
   return i.ent
 }
 function PolesFind(i,d,ps,       count,ps,p) {
+  near   = 0.75
+  far    = 0.95
+  nPoles = 256
+  best   = 20
   _(ps)
   Some( dists )
   for(count=1; count <= i.rowSearch; count++)    
@@ -48,27 +52,27 @@ function PolesFind(i,d,ps,       count,ps,p) {
                    anyi(d.rows),
                    anyi(d.rows),
                    d))
-   PolesFarAraryEnough(i,ps,dists)
-   PolesSample(i,  ps)
-   PolesDiverse(i, ps)
-}
-function PolesFarApartEnough(i,ps,dists,    lo,hi,p) {
-  lo = SomePer(dists,.75)
-  hi = SomePer(dists,.95)
-  for(p in ps) 
-    if (p.width < lo || p.width > hi) 
-      delete ps[p]
-}
-function PolesSample(i,ps,    p,count) {
-  for(p in ps)
-    for(count=1; count <= i.poleSearch; count++) 
-      PoleAdd( ps[p],anyi(d.rows),d )
-}
-function PolesDiverse(i,ps,  p,n) {
-  for(p is ps)  
-    PoleEnt( ps[p] )
+  lo = SomePer(dists, near)
+  hi = SomePer(dists, far)
+  for(p in pos)
+    PolesFarAraryEnough(i,p,ps,lo,hi)
+  for(p in ps) {
+    PolesSample(i, ps[p],d,nPoles )
+    PoleEnt(i, ps[p])
+  }
   n = keysort(ps, "ent") # sort on entropy
-  for(p=1; p <= (n - i.best); p++) 
+  PolesDiverse(i, ps, n - best)
+}
+function PolesFarApartEnough(i,p,ps,lo,hi,    hi,p) {
+  if (ps[p].width < lo || ps[p].width > hi) 
+    delete ps[p]
+}
+function PolesSample(i,pole,d,n    j) {
+  for(j=1; j <= n; j++) 
+    PoleAdd( pole,anyi(d.rows),d )
+}
+function PolesDiverse(i,ps,n,    p,n) {
+  for(p=1; p <= n; p++) 
     delete ps[p]
 }
 function Poles(i) {
