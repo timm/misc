@@ -3,29 +3,38 @@
 
 @include "lib"
 @include "some"
+@include "rows"
+@include "num"
 
 #--------- --------- --------- --------- --------- ---------
 function Pole(i,a,b,d) {
   is(i,"Pole")
-  i.a = a
-  i.b = b
-  i.width = RowsDist(d,a,b)
-  has(i,"as")
-  has(i,"bs")
+  i.a   = a
+  i.b   = b
   i.ent = 0
-  return i.d
+  has(i,"_as")
+  has(i,"_bs")
+  i.width = RowsDist(d,a,b)
+  return i.width
 }
-function PoleAdd(i,r,d,  da,db) {
+function PoleAdd(i,r,d) {
+  if (PolePlace(i,r,d)) {
+    i.na++
+    i._as[r]=r
+  } else {
+    i.nb++
+    i._bs[r]=r
+  }
+  PoleEnt(i)
+}
+function PolePlace(i,r,d,  da,db) {
   da = RowsDist( d,r,i.a )
   db = RowsDist( d,r,i.b )
-  da < db ? push(i.as,r) : push(i.bs,r)
+  return da < db 
 }
-function PoleEnt(i,   na,nb,n,pa,pb) {
-  na    = length(i.as)
-  nb    = length(i.bs)
-  n     = na + nb
-  pa    = na/n
-  pb    = nb/n
+function PoleEnt(i,   pa,pb) {
+  pa = i.na/(i.na + i.nb)
+  pb = i.nb/(i.na + i.nb)
   i.ent = 0
   if (pa > 0) i.ent -= pa * log( pa ) / log(2)
   if (pb > 0) i.ent -= pb * log( pb ) / log(2)
@@ -34,44 +43,103 @@ function PoleEnt(i,   na,nb,n,pa,pb) {
 #--------- --------- --------- --------- --------- ---------
 function Poles(i) {
   is(i,"Poles")
+  has(i,"poles")
+  has(i,"grid")
   i.wait   = 128
   i.near   = 0.75
   i.far    = 0.95
-  i.nPoles = 256
-  i.top    = 20
-  i.search = 100
-  i.sample = 256
+  i.top    = 10
+  i.search = 128
+  i.sample = 128
 }
-function PolesRead(i,file,ps,   d,a) {
+
+#  1 374 0.159267 0.0323638
+#  2 433 0.206601 0.0397346
+#  3 450 0.245255 0.0427619
+#  4 273 0.266766 0.0374836
+#  5 248 0.281227 0.0385857
+#  6 217 0.297868 0.0367462
+#  7 350 0.291111 0.0472608
+#  8 700 0.266335 0.0482859
+#  9 741 0.27807  0.0515029
+# 10 323 0.333919 0.0493488
+# 11  86 0.331496 0.0408101
+# 12   6 0.311954 0.0358575
+
+function PolesRead(i,file,ps,   d,a,n,x,y,d1,r1,r2,pairs) {
   Rows(d)
   while(RowsDo(d,file,a)) {
     RowsAdd(d,a)
     if (--i.wait < 1) break
   }
-  print length(d.rows)
-  #PolesFind(i,d,ps)
+  PolesFind(i,d,i.poles)
+  for(x in d.rows)
+    PolesPlace(i,d,x)
+  _(pairs)
+  for(x in i.grid) 
+    for(y in i.grid)
+     if(x > y) {
+       d1 = CellDiff(i.grid[x], i.grid[y])
+       if(! (d1 in pairs))
+         has(pairs,d1,"Some")
+       for(r1 in i.grid[x]._a)
+         for(r2 in i.grid[y]._a)
+           if(r1 > r2)
+             Add( pairs[d1], RowsDist(d,r1,r2)+0) }
+  for(d1 in pairs) 
+    print d1, pairs[d1].n, Mid(pairs[d1]), SomeIQR(pairs[d1])
+}
+function PolesPlace(i,d,r,    p,n,m) {
+  m = 0
+  for(p in i.poles) 
+    n += (2^(m++))*PolePlace(i.poles[p],r,d)
+  if(!(n in i.grid))
+     hass(i.grid,n,"Cell",n)
+  CellAdd(i.grid[n], r)
 }
 function PolesFind(i,d,ps,     dists,n,near,far,p,j) {
-  _(ps)
   Some( dists )
   for(n=1; n <= i.search; n++)    
     SomeAdd(dists,
-            hassss(ps,0,"Pole",  
+            hassss(ps, 0, "Pole",  
                    anyi(d.rows),
                    anyi(d.rows),
-                   d))
+                   d));
   near = SomePer(dists, i.near)
   far  = SomePer(dists, i.far)
-  for(p in ps)
+  for(p in ps) 
     if (ps[p].width < near || ps[p].width > far) 
-      delete ps[p]
-  for(p in ps) {
+      delete ps[p];
+  for(p in ps) 
     for(j=1; j <= i.sample; j++) 
-      PoleAdd( ps[p], anyi(d.rows), d )
-    PoleEnt( ps[p] )
-  }
+      PoleAdd( ps[p], anyi(d.rows), d );
   n = keysort(ps, "ent") # sort on entropy
-  for(p=1; p <= n; p++) 
+  for(p=1; p <= n-i.top; p++) 
     delete ps[p]
 }
-BEGIN { rogues() }
+#--------- --------- --------- --------- --------- ---------
+function Cell(i,id,    j,k) {
+  has(i,"dim") 
+  has(i,"_a")
+  i.n     = 0
+  i.tag   = id
+  i.label = int2bitStr(id)
+  split(i.label, i.dim, "")
+  for(k in i.dim) i.dim[k] += 0
+}
+function CellAdd(i,r) {
+  i.n++
+  i._a[r] = r
+}
+function CellDiff(i,j,    k,n) {
+  for(k in i.dim) 
+    n += abs(i.dim[k] - j.dim[k])
+  return n
+}
+
+
+#--------- --------- --------- --------- --------- ---------
+BEGIN { 
+  srand(1)
+  rogues() 
+}

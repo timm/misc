@@ -115,6 +115,8 @@ function SomePer(i,p,j,k,   z)  {
   return i._a[int(z)] 
 }
 function SomeMid(i,j,k) { return SomePer(i,0.5,j,k) }
-function SomeVar(i,j,k) { 
+function SomeIQR(i,j,k) { 
+  return abs(SomePer(i,.75,j,k) - SomePer(i,.25,j,k))/i.magic 
+}function SomeVar(i,j,k) { 
   return abs(SomePer(i,.9,j,k) - SomePer(i,.1,j,k))/i.magic 
 }

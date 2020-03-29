@@ -10,7 +10,9 @@ function _lsh(f,    d,i,r) {
 }
 
 BEGIN { 
-  _lst("diabetes")
+  _lsh("diabetes")
+  print ""
+  _lsh("auto93")
 }
 
 

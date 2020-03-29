@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
-GOLDgh="https://raw.githubusercontent.com/timm/misc/master/gawk"
-GOLDbase="blank test object lib"
+#### begin config ####
+
+GOLDrepo="timm/misc/master/gawk"
+GOLDbase="my blank test object lib"
 
 GOLD=${GOLD:-/tmp/gold}
+
+#### end config ####
+
 mkdir -p $GOLD
 
 compile() {  gawk '
@@ -21,14 +26,16 @@ function shared(s,     f,args,   b,tmp) {
                          "[\"\\1\\2\"]","g",$0) }' 
 }
 
+chmod +x gold
 if [ "$(which wget)" ]; then
-   for f in ${GOLDbase}; do
-     if [ ! -f "${f}.gold" ]; then
-       wget -O ${f}.gold ${GOLDgh}/${f}.gold
-     fi
-   done
+  for f in ${GOLDbase}; do
+    if [ ! -f "${f}.gold" ]; then
+      wget -q -O ${f}.gold \
+        https://raw.githubusercontent.com/${GOLDrepo}/${f}.gold
+      chmod +x ${f}.gold
+    fi
+  done
 fi
-
 
 for f in *.gold; do
   g=$GOLD/$(basename $f .gold).awk
