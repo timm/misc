@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+GOLDgh="https://raw.githubusercontent.com/timm/misc/master/gawk"
+GOLDbase="blank test object lib"
+
 GOLD=${GOLD:-/tmp/gold}
 mkdir -p $GOLD
 
@@ -17,6 +20,15 @@ function shared(s,     f,args,   b,tmp) {
           { print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/, 
                          "[\"\\1\\2\"]","g",$0) }' 
 }
+
+if [ "$(which wget)" ]; then
+   for f in ${GOLDbase}; do
+     if [ ! -f "${f}.gold" ]; then
+       wget -O ${f}.gold ${GOLDgh}/${f}.gold
+     fi
+   done
+fi
+
 
 for f in *.gold; do
   g=$GOLD/$(basename $f .gold).awk

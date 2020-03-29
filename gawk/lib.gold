@@ -12,7 +12,7 @@ function keysort(a,k) {
   return asort(a,a,"__keysort")
 }
 function __keysort(i1,x,i2,y) {
-  return compare(x[ AU.keysort ] + 0)
+  return compare(x[ AU.keysort ] + 0,
                  y[ AU.keysort ] + 0)
 } 
 function copy(a,b,   j) { 

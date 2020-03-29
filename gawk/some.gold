@@ -57,7 +57,7 @@ function SomeCut(i,lo,hi,minSize,epsilon,trivial,lvl,
     i.trivial=trivial
     i.minSize=minSize
     i.epsilon=epsilon
-    print ns(lvl-1,"| ") lo,hi, "(" hi - lo + 1 ") *",x1
+    print ns(lvl-1,"| ") lo,hi, "(" hi - lo + 1 ") *"
   }
   if (lvl < 1) {
     i.sorted=asort(i._a) 
@@ -91,7 +91,7 @@ function SomeCut(i,lo,hi,minSize,epsilon,trivial,lvl,
     push(i.cuts, i._a[hi])
 }
 
-function SomeXpect(i,j,mid,k,   n) {
+function SomeXpect(i,j,mid,k,   v1,v2,n) {
   n  = k-j+1
   v1 = SomeVar(i,j,mid)
   v2 = SomeVar(i,mid+1,k)
@@ -105,7 +105,7 @@ function SomeAt(i,z)      { # get the zth item
   if(!i.sorted) i.sorted=asort(i._a)
   return i._a[int(z)] 
 }
-function SomePer(i,p,j,k)  {  
+function SomePer(i,p,j,k,   z)  {  
   # get the pth point between j and k
   j = j?j: 1
   k = k?k: length(i._a)

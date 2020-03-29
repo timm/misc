@@ -2,32 +2,24 @@
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
 @include "lib"
+@include "some"
 
-
-function _lsh(f,    d,i,r) {
-  d=AU.dot
-  Rows(i)
-  RowsRead(i, d d "/data/" f  d "csv")
-  #oo(i.cols[1])
-  RowsDivs(i)
-  #o(i.cuts)
-  for(r=1;r<=length(i.rows);r++)
-     o(i.rows[r].ranges) 
-}
+#--------- --------- --------- --------- --------- ---------
 function Pole(i,a,b,d) {
+  is(i,"Pole")
   i.a = a
   i.b = b
-  i.widthd = RowsDist(d,a,b)
+  i.width = RowsDist(d,a,b)
   has(i,"as")
   has(i,"bs")
   i.ent = 0
   return i.d
 }
-function PoleAdd(i,r,d) {
+function PoleAdd(i,r,d,  da,db) {
   da = RowsDist( d,r,i.a )
   db = RowsDist( d,r,i.b )
   da < db ? push(i.as,r) : push(i.bs,r)
-
+}
 function PoleEnt(i,   na,nb,n,pa,pb) {
   na    = length(i.as)
   nb    = length(i.bs)
@@ -35,76 +27,51 @@ function PoleEnt(i,   na,nb,n,pa,pb) {
   pa    = na/n
   pb    = nb/n
   i.ent = 0
-  if (pa > 0) i.ent -= p * log( p ) / log(2)
-  if (pb > 0) i.ent -= p * log( p ) / log(2)
+  if (pa > 0) i.ent -= pa * log( pa ) / log(2)
+  if (pb > 0) i.ent -= pb * log( pb ) / log(2)
   return i.ent
 }
-function PolesFind(i,d,ps,       count,ps,p) {
-  near   = 0.75
-  far    = 0.95
-  nPoles = 256
-  best   = 20
+#--------- --------- --------- --------- --------- ---------
+function Poles(i) {
+  is(i,"Poles")
+  i.wait   = 128
+  i.near   = 0.75
+  i.far    = 0.95
+  i.nPoles = 256
+  i.top    = 20
+  i.search = 100
+  i.sample = 256
+}
+function PolesRead(i,file,ps,   d,a) {
+  Rows(d)
+  while(RowsDo(d,file,a)) {
+    RowsAdd(d,a)
+    if (--i.wait < 1) break
+  }
+  print length(d.rows)
+  #PolesFind(i,d,ps)
+}
+function PolesFind(i,d,ps,     dists,n,near,far,p,j) {
   _(ps)
   Some( dists )
-  for(count=1; count <= i.rowSearch; count++)    
+  for(n=1; n <= i.search; n++)    
     SomeAdd(dists,
             hassss(ps,0,"Pole",  
                    anyi(d.rows),
                    anyi(d.rows),
                    d))
-  lo = SomePer(dists, near)
-  hi = SomePer(dists, far)
-  for(p in pos)
-    PolesFarAraryEnough(i,p,ps,lo,hi)
+  near = SomePer(dists, i.near)
+  far  = SomePer(dists, i.far)
+  for(p in ps)
+    if (ps[p].width < near || ps[p].width > far) 
+      delete ps[p]
   for(p in ps) {
-    PolesSample(i, ps[p],d,nPoles )
-    PoleEnt(i, ps[p])
+    for(j=1; j <= i.sample; j++) 
+      PoleAdd( ps[p], anyi(d.rows), d )
+    PoleEnt( ps[p] )
   }
   n = keysort(ps, "ent") # sort on entropy
-  PolesDiverse(i, ps, n - best)
-}
-function PolesFarApartEnough(i,p,ps,lo,hi,    hi,p) {
-  if (ps[p].width < lo || ps[p].width > hi) 
-    delete ps[p]
-}
-function PolesSample(i,pole,d,n    j) {
-  for(j=1; j <= n; j++) 
-    PoleAdd( pole,anyi(d.rows),d )
-}
-function PolesDiverse(i,ps,n,    p,n) {
   for(p=1; p <= n; p++) 
     delete ps[p]
 }
-function Poles(i) {
-  i.wait  = 128
-  i.poles = 20
-  i.rowSearch  = 100
-  i.poleSearch = 100
-}
-function PolesRead(i,file,wait,   d,a) {
-  Rows(d)
-  _(d)
-  while(RowsDo(d,file,a)) {
-    RowsAdd(d,a)
-    if (wait < 1) break
-  }
-  PolesFind(i,d)
-}
-  
-
- 
-function rows(d,file,a) {
-  status = csv(file,a)
-  if(status)
-    if 
-} 
- 
-
-BEGIN { 
-  srand()
-  #_divs("weather") 
-  _divs("auto93") 
-  #_divs("diabetes600012000")
-  #_divs("syms")
-  rogues()
-}
+BEGIN { rogues() }
