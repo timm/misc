@@ -1,0 +1,16 @@
+#!/usr/bin/env ./gold
+# vim: filetype=awk ts=2 sw=2 sts=2  et :
+
+@include "lsh"
+
+function _lsh(f,    d,i,r) {
+  d=AU.dot
+  Poles(i)
+  PolesRead(i, d d "/data/" f  d "csv")
+}
+
+BEGIN { 
+  _lst("diabetes")
+}
+
+
