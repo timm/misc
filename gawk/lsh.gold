@@ -75,6 +75,13 @@ function PolesRead(i,file,ps,   d,a,n,x,y,d1,r1,r2,pairs) {
   PolesFind(i,d,i.poles)
   for(x in d.rows)
     PolesPlace(i,d,x)
+  while(RowsDo(d,file,a)) {
+    RowsAdd(d,a)
+    x=length(d.rows)
+    PolesPlace(i,d,x)
+    print(1)
+  }
+  exit
   _(pairs)
   for(x in i.grid) 
     for(y in i.grid)
