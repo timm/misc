@@ -34,6 +34,18 @@ function SomeAdd(i,v) {
       i._a[ binChop(i._a,v) ] = v }
   return v
 }
+function SomeNorm(i,v,    lo,hi) {
+  SomeSorted(i)
+  lo = first(i._a)
+  hi = last(i._a)
+  return (v-lo)/(hi-lo+10^(-32))
+}
+function SomeNorms(i,norms,    lo,hi,j) {
+  _(norms)
+  Some(norms)
+  for(j in i._a) 
+    SomeAdd(norms, SomeNorm(i,i._a[j]))
+}
 function SomeDiff(a,b,  
                   n,la,lb,j,x,lo,hi,gt,lt) {
   la = SomeSorted(a)

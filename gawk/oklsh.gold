@@ -4,15 +4,26 @@
 @include "lsh"
 
 function _lsh(f,    d,i,r) {
+  print ""
+  print f
   d=AU.dot
   Poles(i)
   PolesRead(i, d d "/data/" f  d "csv")
 }
 
 BEGIN { 
+  _lsh("xerces-1"   AU.dot "4")
+  _lsh("xalan-2"    AU.dot "6")
+  _lsh("velocity-1" AU.dot "5")
+  _lsh("synapse-1"  AU.dot "2")
+  _lsh("ivy-1"      AU.dot "4")
+  #_lsh("camel-1"    AU.dot "4")
+  #_lsh("poi-3"      AU.dot "0")
   _lsh("diabetes")
-  print ""
-  _lsh("auto93")
+  #_lsh("auto93")
+  #_lsh("auto93")
+  #_lsh("camel-1" AU.dot "4")
+  #_lsh("poi-3"   AU.dot "0")
 }
 
 

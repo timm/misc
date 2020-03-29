@@ -46,7 +46,7 @@ function Poles(i) {
   has(i,"poles")
   has(i,"grid")
   i.wait   = 128
-  i.near   = 0.75
+  i.near   = 0.85
   i.far    = 0.95
   i.top    = 10
   i.search = 128
@@ -66,7 +66,7 @@ function Poles(i) {
 # 11  86 0.331496 0.0408101
 # 12   6 0.311954 0.0358575
 
-function PolesRead(i,file,ps,   d,a,n,x,y,d1,r1,r2,pairs) {
+function PolesRead(i,file,ps,   d,a,n,x,y,d1,r1,r2,pairs,norms) {
   Rows(d)
   while(RowsDo(d,file,a)) {
     RowsAdd(d,a)
@@ -91,8 +91,10 @@ function PolesRead(i,file,ps,   d,a,n,x,y,d1,r1,r2,pairs) {
          for(r2 in i.grid[y]._a)
            if(r1 > r2)
              Add( pairs[d1], RowsDist(d,r1,r2)+0) }
-  for(d1 in pairs) 
-    print  Mid(pairs[d1]), SomeIQR(pairs[d1]), pairs[d1].n
+  for(d1 in pairs)  {
+    SomeNorms(pairs[d1],norms)
+    print  Mid(norms), SomeIQR(norms), norms.n
+  }
 }
 function PolesPlace(i,d,r,    p,n,m) {
   m = 0
