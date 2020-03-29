@@ -79,9 +79,7 @@ function PolesRead(i,file,ps,   d,a,n,x,y,d1,r1,r2,pairs) {
     RowsAdd(d,a)
     x=length(d.rows)
     PolesPlace(i,d,x)
-    print(1)
   }
-  exit
   _(pairs)
   for(x in i.grid) 
     for(y in i.grid)
@@ -94,7 +92,7 @@ function PolesRead(i,file,ps,   d,a,n,x,y,d1,r1,r2,pairs) {
            if(r1 > r2)
              Add( pairs[d1], RowsDist(d,r1,r2)+0) }
   for(d1 in pairs) 
-    print d1, pairs[d1].n, Mid(pairs[d1]), SomeIQR(pairs[d1])
+    print  Mid(pairs[d1]), SomeIQR(pairs[d1]), pairs[d1].n
 }
 function PolesPlace(i,d,r,    p,n,m) {
   m = 0
