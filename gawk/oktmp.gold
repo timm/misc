@@ -8,4 +8,4 @@ function _go(n) {
 }
 
 BEGIN { _go(9) }
-
+k
