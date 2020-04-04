@@ -96,6 +96,8 @@ tmuxrc() { cat<<-'EOF'
 	EOF
 }
 vimrc() { cat<<-'EOF'
+        set list
+        set listchars=tab:>-
 	set backupdir-=.
 	set backupdir^=~/tmp,/tmp
 	set nocompatible              

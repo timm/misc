@@ -1,3 +1,4 @@
+# vim: ts=2 sw=2 sts=2  et :
 Stuff needed from elsewhere.
 
     readline  = require 'readline'
@@ -5,31 +6,44 @@ Stuff needed from elsewhere.
 
 My own config
 
-    magic =
-      num: '$'
-      more: '>'
-      less: '<'
-      klass: '!'
-      ignore: '?'
-
-    data = "../data/"
-    conf = 95
+    the =
+      id: 0
+      data: "../data/"
+      conf: 95
+      seed: 1
+      ch:
+        num: '$'
+        more: '>'
+        less: '<'
+        klass: '!'
+        ignore: '?'
     
 Standard constants
 
     ninf   = -1 * (Number.MAX_SAFE_INTEGER - 1)
     inf    = Number.MAX_SAFE_INTEGER
-    tiny   = 1 / @inf
+    tiny   = 10 ** (-32)
 
 Standard functions.
 
     same   = (x) -> x 
     ok     = (f,t) -> throw new Error t or "" if not f
     today  = () -> Date(Date.now()).toLocaleString().slice(0,25)
-    
+    sorter = (x,y) -> switch
+      when x <  y then -1
+      when x == y then  0
+      else 1
+
     String::last = -> this[ this.length - 1]
     String::n    = (m=40) -> Array(m+1).join(this)
-    
+
+    rand=  ->
+        x = Math.sin(the.seed++) * 10000
+        x - Math.floor(x)
+
+     d2= (n,f=2) ->  n.toFixed(f)
+     p2= (n,f=2) ->  Math.round(100*d2(n,f))
+
     say = (l...) ->
       sep=""
       for x in l
@@ -45,7 +59,17 @@ Standard functions.
       stream.on 'close',           -> done()
       stream.on 'error', ( error ) -> action error
       stream.on 'line',  ( line  ) -> action line 
-    
+
+    bsearch = (lst,val,f=((z) -> z)) ->
+      [lo,hi] = [0, lst.length - 1]
+      while lo <= hi
+        mid = Math.floor((lo+hi)/2)
+        if f( lst[mid] ) >= val
+          hi = mid - 1
+        else
+          lo = mid + 1
+      Math.min(lo,lst.length-1) 
+
 ## CSV files
 
     class Csv
@@ -66,7 +90,7 @@ Standard functions.
           @lines = []
       act: (cells) ->
         if cells.length
-          @use or= (i for c,i in cells when magic.ignore not in c)
+          @use or= (i for c,i in cells when the.ch.ignore not in c)
           @action (@prep cells[i] for i in @use)
       prep: (s) ->
         t = +s
@@ -77,11 +101,11 @@ Standard functions.
 Storing info about a column.
 
     class Col
-      constructor: (x,p,w=1) -> [@n,@w,@pos,@txt]=[0,w,p,x]
-      norm: (x) -> if x isnt magic.ignore then @norm1 x else x
+      constructor:(txt,pos,w=1) -> [@n,@w,@pos,@txt]=[0,w,pos,txt]
+      norm: (x) -> if x isnt the.ch.ignore then @norm1 x else x
       #---------------------
       add: (x) ->
-         if x isnt magic.ignore
+         if x isnt the.ch.ignore
            @n++
            @add1 x
          x
@@ -89,6 +113,10 @@ Storing info about a column.
       adds: (a,f=same) ->
          (@add f(x) for x in a)
          this
+      #---------------------
+      xpect: (that) ->
+        n = this.n + that.n
+        this.n/n * this.var() + that.n/n * that.var()
     
 Storing info about numeric columns.
 
@@ -101,7 +129,7 @@ Storing info about numeric columns.
       mid:    () -> @mu
       var:    () -> @sd
       norm1: (x) -> (x - @lo) / (@hi - @lo +  _.tiny)
-      toString:  -> " #{@n}:#{@lo}..#{@hi}"
+      toString:  -> "Num{#{@n}:#{@lo}..#{@hi}}"
       #-------------------------
       add1: (x) ->
         @lo = if x < @lo then x else @lo
@@ -115,6 +143,77 @@ Storing info about numeric columns.
         when  @n < 2  then 0
         when  @m2 < 0 then 0
         else (@m2 / (@n - 1))**0.5
+
+Storing info about numeric  columns (resevoir style):
+    
+    class Some extends Col
+      constructor: (args...) ->
+        super args...
+        @magic   = 2.56  # sd = (90th-10th)/@magic
+        @max     = 256   # keep no more than @max items
+        @small   = 0.147 # used in cliff's delta
+        @cohen   = 0.3   # epsilon = @var()*@cohem
+        @min     = 0.5   # usually, divide into sqrt(n) size bins
+        @puny    = 1.05  # ignore puny improvements
+        @_all    = []    # where to keep things
+        @good    = false # is @_all sorted?
+        @debug   = false # show debug information?
+      #----------------------
+      mid: (j,k) -> @per(.5,j,k)
+      var: (j,k) -> (@per(.9,j,k) - @per(.1,j,k)) / @magic
+      iqr: (j,l) -> @per(.75,j,k) - @per(.25,j,k)
+      #----------------------
+      all: ->
+        @_all.sort(sorter) if not @good
+        @good = true
+        @_all
+      #----------------------
+      add1: (x) ->
+        if @_all.length  < @max
+          @good = false
+          @_all.push(x)
+        else
+          @all()
+          if rand() < @max/@n
+            @_all[ bsearch(@_all,x) ] = x
+       #--------------------
+       per: (p=0.5,j=0,k=(@_all.length)) ->
+         @all()
+         x = Math.floor(j+p*(k-j))
+         @_all[x]
+       #-------------------
+       xpect: (j, mid, k) ->
+         n = k - j + 1
+         v1 = @var(j, mid)
+         v2 = @var(mid+1, k)
+         tiny + (mid - j)/n*v1 + (k - mid - 1)/n*v2
+       div: (lo   = 1,
+             hi   = @_all.length,
+             min  = Math.floor(@_all.length**@min),
+             e    = @var() * @cohen,
+             puny = @puny,
+             lvl  = 0,
+             out  = []) -> 
+         say "|.. ".n(lvl) + "#{@_all[lo]} 
+             to #{@_all[hi]}: #{hi-lo}" if @debug
+         @all()
+         min = @var(lo,hi)
+         cut = null
+         for j in [lo+min .. hi-min] 
+           j = Math.floor(j)
+           [ x, after ] = [ @_all[j], @_all[j+1] ]
+           if x isnt after
+             [ below, above ] = [ @per(0.5,lo,j), @per(0.5,j+1,hi) ]
+             if (above - below) > e
+               now = @xpect(lo,j,hi)
+               if now * puny < min
+                 [ min,cut ] = [ now,j ]
+         if cut isnt null
+           @div(lo,   cut, min, e, puny, lvl+1, out)
+           @div(cut+1, hi, min, e, puny, lvl+1, out)
+         else
+           out.push @_all[hi] 
+         out
     
 Storing info about symbolic  columns.
 
@@ -126,6 +225,7 @@ Storing info about symbolic  columns.
       mid:    () -> @mode
       var:    () -> @ent()
       norm1: (x) -> x
+      toString:  -> "Sym{#{@n}:#{@mode}}"
       #-------------------------
       add1: (x) ->
         @_ent = null
@@ -134,28 +234,68 @@ Storing info about symbolic  columns.
         [ @most,@mode ] = [ n,x ] if n > @most
       #-------------------------
       ent: (e=0)->
-        if @_ent == null
+        if @_ent==null
+          @_ent = 0
           for x,y of @counts
-            p  = y/@n
-            e -= p*Math.log2(p)
-          @_ent = e
+            p      = y/@n
+            @_ent -= p*Math.log2(p)
         @_ent
-    
+
+## Rows
+
+    class Row
+      constructor: (l) -> [ @cells,@id ]=[ l,++the.id ]
+
+## Table
+
+    class Table
+      constructor: (f) -> [ @cols,@x,@y,@rows ] = [[],[],[],[]]
+      #--------------------------------------------------
+      from: (file, after = ->) ->
+        new Csv file, ((row) => @add row), after
+      #--------------------------------------------------
+      add: (l) ->
+        if @cols.length then @addRow(l) else @addCols(l)
+      #--------------------------------------------------
+      addRow: (l) ->
+        l=(col.add( l[col.pos] ) for col in @cols)
+        @rows.push(new Row(l))
+      #--------------
+      addCols: (l, pos=0) ->
+        @cols = (@col(txt,pos++) for txt in l)
+      #--------------
+      col: (txt,pos) ->
+        what = Sym
+        what = Num if the.ch.num  in txt
+        what = Num if the.ch.less in txt
+        what = Num if the.ch.more in txt
+        c    = new what(txt,pos)
+        c.w  = -1 if the.ch.less in txt
+        also = @x
+        also = @y if the.ch.klass in txt
+        also = @y if the.ch.less  in txt
+        also = @y if the.ch.more  in txt
+        also.push(c)
+        say c.txt, c
+        c
+      #--------------------------------------------------
+      klass: -> @y[0]
+
 ## Tests
 
-    okLines = (f= data + 'weather3.csv') -> lines f,say 
+    okLines = (f= the.data + 'weather3.csv') -> lines f,say 
     
-    okCsv1 = (f = data + 'weather3.csv',n=0) ->
+    okCsv1 = (f = the.data + 'weather3.csv',n=0) ->
       new Csv f, (-> ++n), (->  say "rows: " + n)
     
-    okCsv2 = (f = data + 'weather3.csv',n=0) ->
+    okCsv2 = (f = the.data + 'weather3.csv',n=0) ->
       new Csv f, ((row)-> say row)
     
     okNum1 = ->
       n = new Num
       (n.add x for x in [9,2,5,4,12,7,8,11,9,
                           3,7,4,12,5,4,10,9,6,9,4])
-      say n.mu
+      say n
       ok n.mu==7
      
     okNum2 = ->
@@ -172,14 +312,53 @@ Storing info about symbolic  columns.
       s.adds ['a','b','b','c','c','c','c']
       console.log "egSym:",s.n, s.counts, s.ent().toFixed(3)
       ok s.ent().toFixed(3) == '1.379'
+
+    okSort = ->
+      x = [10000,-100,3,1,2,-10,30,15]
+      y = x.sort(sorter)
+      say x,y
+
+    okRandom = ->
+      l= (p2 rand() for _ in [1..100])
+      say l.sort(sorter)
     
-    say ("-".n())+"\n"+today()
-    okNum1()
+    okBsearch = ->
+      l= (d2(rand(),2) for _ in [1..100])
+      l.sort(sorter)
+      for i in [0.. l.length - 1] by 10
+         say i, l[i], bsearch(l,l[i])
+
+    okSome1 = ->
+      s = new Some
+      n = 100000
+      s.debug = true
+      for x in (d2(rand(),2) for _ in [1..n])
+        s.add x
+      say s.all()
+      say "var", s.var()
+      for x in [0..99] by 10
+        m = x/100
+        say  s.per(m) ,s.all()[Math.floor(s.max *m)]
+        say "???",m,s.per(m, s.max/2)
+      say "cuts", s.div()
+   
+    say ("^".n())+"\n"+today()
+    okSort()
+    okNum1() 
+    ###
     okNum2()
     okSym()
-    okLines()
-    okLines data+'weather2.csv'
+    okLines() 
+    okLines the.data+'weather2.csv'
     okCsv1()
-    okCsv1 data+'weather3.csv'
-    okCsv2 data+'weather3.csv'
-    
+    okCsv1 the.data+'weather3.csv'
+    okCsv2 the.data+'weather3.csv'
+    ###
+    t= new Table
+    the.seed=1
+    okRandom()
+    the.seed=1
+    okRandom()
+    t.from(the.data+'weather3.csv',(-> say ">>",t.cols))
+    okBsearch()
+    okSome1()
