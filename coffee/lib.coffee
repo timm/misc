@@ -15,6 +15,3 @@
 
 String::last = ->
   this[ this.length - 1]
-
-
-@div =  (x=(z) -> z[1], y=(z) -> z[2])
