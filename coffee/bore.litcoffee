@@ -32,11 +32,10 @@ Standard functions.
     
     say = (l...) ->
       sep=""
-      w = (s) -> process.stdout.write(s)
       for x in l
-        w(sep+ x)
+        process.stdout.write(sep+x)
         sep=", "
-      w("\n")
+      process.stdout.write("\n")
  
     lines = ( file, action, done = (-> ) ) ->  
       stream = readline.createInterface
@@ -173,14 +172,12 @@ Storing info about symbolic  columns.
       ok s.ent().toFixed(3) == '1.379'
     
     say ("-".n())+"\n"+today()
-    ###
     okNum1()
     okNum2()
     okSym()
     okLines()
     okLines data+'weather2.csv'
     okCsv1()
-    ###
     okCsv1 data+'weather3.csv'
     okCsv2 data+'weather3.csv'
     
