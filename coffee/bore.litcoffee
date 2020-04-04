@@ -33,9 +33,9 @@ Standard functions.
     say = (l...) ->
       sep=""
       for x in l
-        process.stdout.write(sep+x)
+        process.stdout.write sep+x
         sep=", "
-      process.stdout.write("\n")
+      process.stdout.write "\n" 
  
     lines = ( file, action, done = (-> ) ) ->  
       stream = readline.createInterface
