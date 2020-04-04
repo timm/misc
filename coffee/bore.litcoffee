@@ -153,7 +153,8 @@ Storing info about symbolic  columns.
     
     okNum1 = ->
       n = new Num
-      (n.add x for x in [9,2,5,4,12,7,8,11,9,3,7,4,12,5,4,10,9,6,9,4])
+      (n.add x for x in [9,2,5,4,12,7,8,11,9,
+                          3,7,4,12,5,4,10,9,6,9,4])
       say n.mu
       ok n.mu==7
      
@@ -161,7 +162,8 @@ Storing info about symbolic  columns.
       say 1
       n = new Num
       say 2
-      n.adds [9,2,5,4,12,7,8,11,9,3,7,4,12,5,4,10,9,6,9,4], (x) -> 0.1*x
+      n.adds [9,2,5,4,12,7,8,11,9,3,
+              7,4,12,5,4,10,9,6,9,4], (x) -> 0.1*x
       say  "eg1",n.mu,n.sd,n.sd.toFixed(3)
       ok n.mu==0.7
     
