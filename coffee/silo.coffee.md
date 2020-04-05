@@ -1,5 +1,19 @@
 # SILO
 
+Challenges:
+
+- Too much data. So use sumamries. Counts for symbols, resoveroir
+  sampling for numbers. The bsearch trick. Cluster, then keep jsut a few
+- Pravacy problem. dont track individuals. Track populations.
+- Certification problem. Track what was seen before. Complain if new
+  is alien
+- Heterogenous data (symbols and numbers). So work with entropy, not variance.
+- Parametric distributions may not occur in real world data.
+  Use the Some trick.
+- High dimensionality. So reduce space whenever can. Exploit that there
+  are usually far more "x" dimensions that "y" goals.
+- Labelling problems. SMO. not done yet.
+
 ## Stuff needed from elsewhere.
 
     readline  = require 'readline'
@@ -36,6 +50,9 @@ Misc
     today  = () -> Date(Date.now()).toLocaleString().slice(0,25)
 
 Lists
+
+    Array::first = -> @[0]
+    Array::last  = -> @[@length - 1]
 
     sorter = (x,y) -> switch
       when x <  y then -1
@@ -195,16 +212,19 @@ Storing info about numeric  columns (resevoir style):
     class Some extends Col
       constructor: (args...) ->
         super args...
+        @good  = false # is @_all sorted?
         @_all  = []    # where to keep things
         @max   = 256   # keep no more than @max items
         @small = 0.147 # used in cliff's delta
-        @magic = 2.56  # sd = (90th-10th)/@magic
-        @good  = false # is @_all sorted?
+        @magic = 2.564 # sd = (90th-10th)/@magic
+                       # since 90th z-curve percentile= 1.282
       #----------------------
       mid: (j,k) -> @per(.5,j,k)
       var: (j,k) -> (@per(.9,j,k) - @per(.1,j,k)) / @magic
       iqr: (j,l) -> @per(.75,j,k) - @per(.25,j,k)
       toString:  -> "Some{#{@txt}:#{@mid()}}"
+      norm1: (x) -> @all(); (x -  @_all[0])/
+                            (@_all.last() - @_all[0]+10**(-32)) 
       #--------------------
       per: (p=0.5,j=0,k=(@_all.length)) ->
          @all()[ Math.floor(j+p*(k-j)) ]
@@ -220,7 +240,7 @@ Storing info about numeric  columns (resevoir style):
         b.cuts(this)
       #----------------------
       add1: (x) ->
-        if @_all.length  < @max
+        if @_all.length  <= @max
           @good = false
           @_all.push(x)
         else
@@ -240,6 +260,7 @@ Unsupervised discretization.
         @maxDepth = 15
         @min      = Math.floor(s._all.length**@min)
         @e        = s.var() * @cohen
+        @entropy  = 0
         say "min #{@min} e #{@e} v #{s.var()}"
       #-----------------------------------------------------
       cuts: (s, lo=0, hi=s._all.length-1, lvl=0, out=[]) ->
@@ -251,6 +272,8 @@ Unsupervised discretization.
             @cuts(s, lo,   cut, lvl+1, out)
             @cuts(s, cut+1, hi, lvl+1, out)
           else
+            p = (hi - lo)/s._all.length
+            @entropy -= p*Math.log2(p)
             out.push s._all[hi] 
         out
       #------------------------------
@@ -311,10 +334,11 @@ Unsupervised discretization.
                  the.ch.more  in txt
 ## Silo
 
-    class Silo
+    class KOD # k-object-dimensional tree
       constructor: (t) ->
         @t = t
-        @tree()
+        @top = t.cols
+        @split(@rank())
       rank: (l) ->
         l1 = ([c.var(),c] for c in l)
         l2 = l1.sort(sorter).reverse()
@@ -407,10 +431,10 @@ Unsupervised discretization.
       okRandom()
       okBsearch()
       ###
-      #okSome1()
+      okSome1()
       #okSome2()
       t= new Table
-      t.from(the.data+'auto93.csv',(-> new Silo(t)))
+  #    t.from(the.data+'auto93.csv',(-> new KOD(t)))
 
     demos()
   
