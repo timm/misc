@@ -239,11 +239,12 @@ Unsupervised discretization.
         @maxDepth = 15
         @min      = Math.floor(s._all.length**@min)
         @e        = s.var() * @cohen
+        say "min #{@min} e #{@e} v #{s.var()}"
       #-----------------------------------------------------
       cuts: (s, lo=0, hi=s._all.length-1, lvl=0, out=[]) ->
         if lvl < @maxDepth 
           if @debug
-            say "| ".n(lvl)+"#{lo} to #{hi}: #{hi-lo+1}"
+            say "| ".n(lvl)+"#{s._all[lo]} to #{s._all[hi]}: #{hi-lo+1}"
           cut = @argmin(s,lo,hi)
           if cut isnt null
             @cuts(s, lo,   cut, lvl+1, out)
@@ -252,20 +253,20 @@ Unsupervised discretization.
             out.push s._all[hi] 
         out
       #------------------------------
-      argmin: (s,lo,hi) ->
-        cut  = null
-        best = s.var(lo,hi)
-        for j in [lo+@min .. hi-@min]
-          x     = s._all[j]
-          after = s._all[j+1]
-          if x isnt after
-            below = s.mid(lo,j)
-            above = s.mid(j+1,hi)
-            if (above - below) > @e
-              now = @xpect(s,lo,j,hi)
-              if now * @puny < best
-                best = now
-                cut  = j
+      argmin: (s,lo,hi,cut=null) ->
+        if hi - lo > 2*@min 
+          best = s.var(lo,hi)
+          for j in [lo+@min .. hi-@min]
+            x     = s._all[j]
+            after = s._all[j+1]
+            if x isnt after
+              below = s.mid(lo,j)
+              above = s.mid(j+1,hi)
+              if (above - below) > @e
+                now = @xpect(s,lo,j,hi)
+                if now * @puny < best
+                  best = now
+                  cut  = j
         cut
       #-------------------------------------------------------
       xpect: (s,j, m, k) ->
@@ -279,7 +280,7 @@ Unsupervised discretization.
 ## Table
 
     class Table
-      constructor:(f)   -> [ @cols,@x,@y,@rows ] = [[],[],[],[]]
+      constructor:      -> [ @cols,@x,@y,@rows ] = [[],[],[],[]]
       klass:            -> @y[0]
       from:(f,after=->) -> new Csv f,((row) => @add row),after
       add:          (l) -> @cols.length and @row(l) or @top(l)
@@ -290,18 +291,36 @@ Unsupervised discretization.
         @rows.push(new Row(l))
       #----------------
       col: (txt,pos) ->
-        what = Sym
-        what = Some if the.ch.num   in txt
-        what = Some if the.ch.less  in txt
-        what = Some if the.ch.more  in txt
-        also = @x
-        also = @y   if the.ch.klass in txt
-        also = @y   if the.ch.less  in txt
-        also = @y   if the.ch.more  in txt
+        what = if nump(txt) then Some else Sym
+        also = if yp(txt)   then @y   else @x
         c    = new what(txt,pos)
         c.w  = -1   if the.ch.less  in txt
         also.push(c)
         c
+      #---------------
+      xnums: -> (c for c in @x when     nump(c.txt))
+      xsyms: -> (c for c in @x when not nump(c.txt))
+
+    nump= (txt) -> the.ch.num  in txt or
+                   the.ch.less in txt or
+                   the.ch.more in txt
+
+    yp= (txt) -> the.ch.klass in txt or
+                 the.ch.less  in txt or
+                 the.ch.more  in txt
+## Silo
+
+    class Silo
+      constructor: (t) ->
+        @t = t
+        @tree()
+      rank: (l) ->
+        l1 = ([c.var(),c] for c in l)
+        l2 = l1.sort(sorter).reverse()
+        (one[1] for one in l2)
+      tree: () ->
+        for col in @rank(@t.y)
+          say col.txt, col.cuts()
 
 ## Tests
 
@@ -369,24 +388,28 @@ Unsupervised discretization.
       say "cuts", s.cuts(true)
 
     #--------------------------------------------------
-    say ("^".n())+"\n"+today()
-    ###
-    okSort()
-    okNum1() 
-    okNum2()
-    okSym()
-    okLines() 
-    okLines the.data+'weather2.csv'
-    okCsv1()
-    okCsv1 the.data+'weather3.csv'
-    okCsv2 the.data+'weather3.csv'
-    the.seed=1
-    okRandom()
-    the.seed=1
-    okRandom()
-    okBsearch()
-    ###
-    t= new Table
-    t.from(the.data+'weather3.csv',(-> say ">>",t.cols))
-    okSome1()
-    #okSome2()
+    demos= ->
+      say ("^".n())+"\n"+today()
+      ###
+      okSort()
+      okNum1() 
+      okNum2()
+      okSym()
+      okLines() 
+      okLines the.data+'weather2.csv'
+      okCsv1()
+      okCsv1 the.data+'weather3.csv'
+      okCsv2 the.data+'weather3.csv'
+      the.seed=1
+      okRandom()
+      the.seed=1
+      okRandom()
+      okBsearch()
+      ###
+      #okSome1()
+      #okSome2()
+      t= new Table
+      t.from(the.data+'auto93.csv',(-> new Silo(t)))
+
+    demos()
+  
