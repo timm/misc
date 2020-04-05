@@ -1,3 +1,5 @@
+# SILO
+
 ## Stuff needed from elsewhere.
 
     readline  = require 'readline'
@@ -27,13 +29,13 @@
 
 ### Standard functions.
 
-#### Misc
+Misc
 
     same   = (x) -> x 
     ok     = (f,t) -> throw new Error t or "" if not f
     today  = () -> Date(Date.now()).toLocaleString().slice(0,25)
 
-#### Lists
+Lists
 
     sorter = (x,y) -> switch
       when x <  y then -1
@@ -50,8 +52,7 @@
           lo = mid + 1
       Math.min(lo,lst.length-1) 
 
-
-#### Strings
+Strings
 
     String::last = -> this[ this.length - 1]
     String::n    = (m=40) -> Array(m+1).join(this)
@@ -63,7 +64,7 @@
         sep=", "
       process.stdout.write "\n" 
 
-#### Maths
+Maths
 
     rand=  ->
         x = Math.sin(the.seed++) * 10000
