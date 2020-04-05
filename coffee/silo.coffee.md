@@ -132,12 +132,12 @@ Storing info about numeric columns.
       toString:  -> "Num{#{@n}:#{@lo}..#{@hi}}"
       #-------------------------
       add1: (x) ->
-        @lo = if x < @lo then x else @lo
-        @hi = if x > @hi then x else @hi
+        @lo   = if x < @lo then x else @lo
+        @hi   = if x > @hi then x else @hi
         delta = x - @mu
-        @mu += delta / @n
-        @m2 += delta * (x - @mu)
-        @sd  = @sd0()
+        @mu  += delta / @n
+        @m2  += delta * (x - @mu)
+        @sd   = @sd0()
       #-------------------------
       sd0: () -> switch
         when  @n < 2  then 0
@@ -149,24 +149,28 @@ Storing info about numeric  columns (resevoir style):
     class Some extends Col
       constructor: (args...) ->
         super args...
-        @magic   = 2.56  # sd = (90th-10th)/@magic
-        @max     = 256   # keep no more than @max items
-        @small   = 0.147 # used in cliff's delta
-        @cohen   = 0.3   # epsilon = @var()*@cohem
-        @min     = 0.5   # usually, divide into sqrt(n) size bins
-        @puny    = 1.05  # ignore puny improvements
-        @_all    = []    # where to keep things
-        @good    = false # is @_all sorted?
-        @debug   = false # show debug information?
+        @_all  = []    # where to keep things
+        @max   = 256   # keep no more than @max items
+        @small = 0.147 # used in cliff's delta
+        @magic = 2.56  # sd = (90th-10th)/@magic
+        @good  = false # is @_all sorted?
       #----------------------
       mid: (j,k) -> @per(.5,j,k)
       var: (j,k) -> (@per(.9,j,k) - @per(.1,j,k)) / @magic
       iqr: (j,l) -> @per(.75,j,k) - @per(.25,j,k)
+      #--------------------
+      per: (p=0.5,j=0,k=(@_all.length)) ->
+         @all()[ Math.floor(j+p*(k-j)) ]
       #----------------------
       all: ->
         @_all.sort(sorter) if not @good
         @good = true
         @_all
+      #--------------------
+      cuts: (debug=false) -> 
+        b = new Bins(this)
+        b.debug = debug
+        b.cuts(this)
       #----------------------
       add1: (x) ->
         if @_all.length  < @max
@@ -176,45 +180,51 @@ Storing info about numeric  columns (resevoir style):
           @all()
           if rand() < @max/@n
             @_all[ bsearch(@_all,x) ] = x
-       #--------------------
-       per: (p=0.5,j=0,k=(@_all.length)) ->
-         @all()
-         x = Math.floor(j+p*(k-j))
-         @_all[x]
-       #-------------------
-       xpect: (j, mid, k) ->
-         n = k - j + 1
-         v1 = @var(j, mid)
-         v2 = @var(mid+1, k)
-         tiny + (mid - j)/n*v1 + (k - mid - 1)/n*v2
-       div: (lo   = 1,
-             hi   = @_all.length,
-             min  = Math.floor(@_all.length**@min),
-             e    = @var() * @cohen,
-             puny = @puny,
-             lvl  = 0,
-             out  = []) -> 
-         say "|.. ".n(lvl) + "#{@_all[lo]} 
-             to #{@_all[hi]}: #{hi-lo}" if @debug
-         @all()
-         min = @var(lo,hi)
-         cut = null
-         for j in [lo+min .. hi-min] 
-           j = Math.floor(j)
-           [ x, after ] = [ @_all[j], @_all[j+1] ]
-           if x isnt after
-             [ below, above ] = [ @per(0.5,lo,j), @per(0.5,j+1,hi) ]
-             if (above - below) > e
-               now = @xpect(lo,j,hi)
-               if now * puny < min
-                 [ min,cut ] = [ now,j ]
-         if cut isnt null
-           @div(lo,   cut, min, e, puny, lvl+1, out)
-           @div(cut+1, hi, min, e, puny, lvl+1, out)
-         else
-           out.push @_all[hi] 
-         out
-    
+
+Unsupervised discretization.
+
+    class Bins
+      constructor: (s) ->
+        s.all()
+        @debug    = false # show debug information?
+        @puny     =  1.05 # ignore puny improvements
+        @min      =  0.5  # usually, divide into sqrt(n) size bins
+        @cohen    =  0.3  # epsilon = @var()*@cohem
+        @maxDepth = 15
+        @min      = Math.floor(s._all.length**@min)
+        @e        = s.var() * @cohen
+      #-----------------------------------------------------
+      cuts: (s, lo=0, hi=s._all.length-1, lvl=0, out=[]) ->
+        if lvl < @maxDepth 
+          if @debug
+            say "| ".n(lvl)+"#{lo} to #{hi}: #{hi-lo+1}"
+          cut = @argmin(s,lo,hi)
+          if cut isnt null
+            @cuts(s, lo,   cut, lvl+1, out)
+            @cuts(s, cut+1, hi, lvl+1, out)
+          else
+            out.push s._all[hi] 
+        out
+      #------------------------------
+      argmin: (s,lo,hi) ->
+        best = s.var(lo,hi)
+        cut  = null
+        for j in [lo+@min .. hi-@min]
+          x     = s._all[j]
+          after = s._all[j+1]
+          if x isnt after
+            below = s.mid(lo,j)
+            above = s.mid(j+1,hi)
+            if (above - below) > @e
+              now = @xpect(s,lo,j,hi)
+              if now * @puny < best
+                best = now
+                cut  = j
+        cut
+      #-------------------------------------------------------
+      xpect: (s,j, m, k) ->
+        (tiny + (m-j)*s.var(j,m) + (k-m-1)*s.var(m+1,k))/(k-j+1)
+            
 Storing info about symbolic  columns.
 
     class Sym extends Col
@@ -331,7 +341,6 @@ Storing info about symbolic  columns.
     okSome1 = ->
       s = new Some
       n = 100000
-      s.debug = true
       for x in (d2(rand(),2) for _ in [1..n])
         s.add x
       say s.all()
@@ -340,8 +349,16 @@ Storing info about symbolic  columns.
         m = x/100
         say  s.per(m) ,s.all()[Math.floor(s.max *m)]
         say "???",m,s.per(m, s.max/2)
-      say "cuts", s.div()
-   
+      say s.cuts(true)
+
+    okSome2 = ->
+      s = new Some
+      for i in [1..10]
+        for j in [1..4]
+          s.add j
+      say "cuts", s.cuts(true)
+
+    #--------------------------------------------------
     say ("^".n())+"\n"+today()
     okSort()
     okNum1() 
@@ -362,3 +379,4 @@ Storing info about symbolic  columns.
     t.from(the.data+'weather3.csv',(-> say ">>",t.cols))
     okBsearch()
     okSome1()
+    okSome2()
