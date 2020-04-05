@@ -301,9 +301,9 @@ Unsupervised discretization.
         what = Some if the.ch.less  in txt
         what = Some if the.ch.more  in txt
         also = @x
-        also = @y  if the.ch.klass in txt
-        also = @y  if the.ch.less  in txt
-        also = @y  if the.ch.more  in txt
+        also = @y   if the.ch.klass in txt
+        also = @y   if the.ch.less  in txt
+        also = @y   if the.ch.more  in txt
         c    = new what(txt,pos)
         c.w  = -1  if the.ch.less in txt
         also.push(c)
