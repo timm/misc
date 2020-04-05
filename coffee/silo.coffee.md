@@ -279,19 +279,13 @@ Unsupervised discretization.
 ## Table
 
     class Table
-      constructor: (f) -> [ @cols,@x,@y,@rows ] = [[],[],[],[]]
-      klass: -> @y[0]
-      #-----------------------------------------
-      from: (file, after = ->) ->
-        new Csv file, ((row) => @add row), after
-      #-----------------------------------------
-      add: (l) ->
-        if @cols.length then @addRow(l) else @addCols(l)
-      #---------------------
-      addCols: (l, pos=0) ->
-        @cols = (@col(txt,pos++) for txt in l)
+      constructor:(f)   -> [ @cols,@x,@y,@rows ] = [[],[],[],[]]
+      klass:            -> @y[0]
+      from:(f,after=->) -> new Csv f,((row) => @add row),after
+      add:          (l) -> @cols.length and @row(l) or @top(l)
+      top:   (l, pos=0) -> @cols = (@col(txt,pos++) for txt in l)
       #-------------------------------------------
-      addRow: (l) ->
+      row: (l) -> 
         l=(col.add( l[col.pos] ) for col in @cols)
         @rows.push(new Row(l))
       #----------------
@@ -305,7 +299,7 @@ Unsupervised discretization.
         also = @y   if the.ch.less  in txt
         also = @y   if the.ch.more  in txt
         c    = new what(txt,pos)
-        c.w  = -1  if the.ch.less in txt
+        c.w  = -1   if the.ch.less  in txt
         also.push(c)
         c
 
@@ -386,13 +380,13 @@ Unsupervised discretization.
     okCsv1()
     okCsv1 the.data+'weather3.csv'
     okCsv2 the.data+'weather3.csv'
-    t= new Table
     the.seed=1
     okRandom()
     the.seed=1
     okRandom()
-    t.from(the.data+'weather3.csv',(-> say ">>",t.cols))
     okBsearch()
     ###
+    t= new Table
+    t.from(the.data+'weather3.csv',(-> say ">>",t.cols))
     okSome1()
     #okSome2()
