@@ -192,6 +192,10 @@ vimrc() { cat<<-'EOF'
 	hi NonText guibg=NONE ctermbg=NONE
         set fillchars=vert:\|
 	hi VertSplit cterm=NONE	
+        set ts=2 
+        set sw=2 
+        set sts=2  
+        set et 
 	EOF
 }
 bashrc() { cat<<-'EOF'

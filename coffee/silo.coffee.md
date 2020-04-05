@@ -1,4 +1,3 @@
-# vim: ts=2 sw=2 sts=2  et :
 Stuff needed from elsewhere.
 
     readline  = require 'readline'
@@ -362,7 +361,6 @@ Storing info about symbolic  columns.
     say ("^".n())+"\n"+today()
     okSort()
     okNum1() 
-    ###
     okNum2()
     okSym()
     okLines() 
@@ -370,7 +368,6 @@ Storing info about symbolic  columns.
     okCsv1()
     okCsv1 the.data+'weather3.csv'
     okCsv2 the.data+'weather3.csv'
-    ###
     t= new Table
     the.seed=1
     okRandom()
