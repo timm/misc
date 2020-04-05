@@ -415,7 +415,6 @@ Unsupervised discretization.
     #--------------------------------------------------
     demos= ->
       say ("^".n())+"\n"+today()
-      ###
       okSort()
       okNum1() 
       okNum2()
@@ -430,7 +429,6 @@ Unsupervised discretization.
       the.seed=1
       okRandom()
       okBsearch()
-      ###
       okSome1()
       #okSome2()
       t= new Table
