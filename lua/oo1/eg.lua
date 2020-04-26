@@ -4,32 +4,30 @@ class=require("ml").class
 local _id = 0
 function id() _id = _id+1; return _id end
 
-Object = class()
+Obj = class()
 
 --- conventional name for constructor --
-function Object:_init (name)
+function Obj:_init (name)
     self.id = id()
     self.name = name
 end
 
 -- can define metamethods as well as plain methods
-function Object:__tostring ()
+function Obj:__tostring ()
     return 'name '..self.name
 end
 
-function Object:__eq (other)
-    return self.id == other.id
-end
+function Obj:__eq (other) return self.id == other.id end
 
-c = Object('Jones')
+c = Obj('Jones')
 print(10,tostring(c) == 'name Jones')
 
 -- inherited classes inherit constructors and metamethods
-D = class(Object)
+D = class(Obj)
 
-d = Object('Jane')
+d = Obj('Jane')
 print(20,tostring(d) == 'name Jane')
-print(30,d == Object 'Jane')
+print(30,d == Obj 'Jane')
 
 -- if you do have a constructor, call the base constructor explicitly
 E = class(D)
