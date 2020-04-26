@@ -2,7 +2,8 @@
 
 Challenges:
 
-- Too much data. So use sumamries. Counts for symbols, resoveroir
+
+- Too much data. So use summaries. Counts for symbols, resoveroir
   sampling for numbers. The bsearch trick. Cluster, then keep jsut a few
 - Pravacy problem. dont track individuals. Track populations.
 - Certification problem. Track what was seen before. Complain if new
