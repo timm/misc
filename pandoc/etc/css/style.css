@@ -1,0 +1,6 @@
+body { background-color: #CCC;
+       font-family: 'Muli', sans-serif; }
+.wrapper { border: 2px solid black;
+           padding: 20px;
+           background-color: white;
+           margin:5px 5px 10px 10px; }

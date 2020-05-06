@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
+  <link href="https://fonts.googleapis.com/css2?family=Muli&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>lua2md</title>
   <style>
@@ -75,44 +76,39 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
+  <link rel="stylesheet" href="../etc/css/style.css" />
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
-  \usepackage{fancyhdr}
-  \usepackage{lastpage}
-  \pagestyle{fancy}
-  \renewcommand{\headrulewidth}{0pt}
-  \renewcommand{\footrulewidth}{1pt}
-  \fancyhead{}
-  \fancyfoot[L]{My name!}
-  \fancyfoot[R]{
-    \href{https://github.com/}{Go to GitHub}
-  }
-  \fancyfoot[C]{Page \thepage/\pageref{LastPage}}
 </head>
 <body>
+<div class=wrapper>
+
+<header id="title-block-header">
+<h1 class="title">lua2md</h1>
+</header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#lua2md"><span class="toc-section-number">1</span> lua2md</a>
+<li><a href="#lua2md">lua2md</a>
 <ul>
-<li><a href="#documenting-code"><span class="toc-section-number">1.1</span> Documenting Code</a></li>
-<li><a href="#usage"><span class="toc-section-number">1.2</span> Usage</a></li>
-<li><a href="#implementation"><span class="toc-section-number">1.3</span> Implementation</a>
+<li><a href="#documenting-code">Documenting Code</a></li>
+<li><a href="#usage">Usage</a></li>
+<li><a href="#implementation">Implementation</a>
 <ul>
-<li><a href="#docline"><span class="toc-section-number">1.3.1</span> doc(line)</a></li>
-<li><a href="#codeline"><span class="toc-section-number">1.3.2</span> code(line)</a></li>
-<li><a href="#is_blankline"><span class="toc-section-number">1.3.3</span> is_blank(line)</a></li>
-<li><a href="#parse_docline"><span class="toc-section-number">1.3.4</span> parse_doc(line)</a></li>
-<li><a href="#parse_codeline"><span class="toc-section-number">1.3.5</span> parse_code(line)</a></li>
-<li><a href="#initialization"><span class="toc-section-number">1.3.6</span> initialization</a></li>
+<li><a href="#docline">doc(line)</a></li>
+<li><a href="#codeline">code(line)</a></li>
+<li><a href="#is_blankline">is_blank(line)</a></li>
+<li><a href="#parse_docline">parse_doc(line)</a></li>
+<li><a href="#parse_codeline">parse_code(line)</a></li>
+<li><a href="#initialization">initialization</a></li>
 </ul></li>
-<li><a href="#license"><span class="toc-section-number">1.4</span> License</a></li>
+<li><a href="#license">License</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 data-number="1" id="lua2md"><span class="header-section-number">1</span> lua2md</h1>
+<h1 id="lua2md">lua2md</h1>
 <p>Fun and braindead code documentation. Reads in annotated <a href="http://www.lua.org/">lua</a> code and writes out <a href="http://daringfireball.net/projects/markdown/">markdown</a>-formatted documentation. lua2md is documented using itself ;p</p>
-<h2 data-number="1.1" id="documenting-code"><span class="header-section-number">1.1</span> Documenting Code</h2>
+<h2 id="documenting-code">Documenting Code</h2>
 <p>Documentation lines start with <code>---</code> followed by a space, except when they are blank lines, in which case you don’t need the space. Documentation lines are run through markdown and output directly. Code (everything that’s not documentation) is converted into markdown code blocks.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode lua"><code class="sourceCode lua"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">--- This is a documentation line and will be converted to markdown</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="co">--- paragraphs</span></span>
@@ -129,26 +125,26 @@
 <p>are omitted.</p>
 </blockquote>
 <p>Note that although the code block is not shown, the break in documentation still acts as a paragraph break.</p>
-<h2 data-number="1.2" id="usage"><span class="header-section-number">1.2</span> Usage</h2>
+<h2 id="usage">Usage</h2>
 <p>Currently lua2md always reads source code from standard input and writes documentation to standard output. As an example, lua2md’s own documentation can be generated with:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode lua"><code class="sourceCode lua"><span id="cb3-1"><a href="#cb3-1"></a>lua lua2md<span class="op">.</span>lua <span class="op">&lt;</span> lua2md<span class="op">.</span>lua <span class="op">&gt;</span> <span class="cn">README</span><span class="op">.</span>md</span></code></pre></div>
-<h2 data-number="1.3" id="implementation"><span class="header-section-number">1.3</span> Implementation</h2>
-<h3 data-number="1.3.1" id="docline"><span class="header-section-number">1.3.1</span> doc(line)</h3>
+<h2 id="implementation">Implementation</h2>
+<h3 id="docline">doc(line)</h3>
 <p>If <code>line</code> contains documentation, then returns the markdown to output, otherwise returns <code>false</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode lua"><code class="sourceCode lua"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">function</span> doc<span class="op">(</span>line<span class="op">)</span></span>
 <span id="cb4-2"><a href="#cb4-2"></a>  <span class="cf">return</span> line<span class="op">:</span><span class="fu">match</span><span class="op">(</span><span class="st">&#39;^%s*%-%-%- (.*)$&#39;</span><span class="op">)</span> <span class="kw">or</span> line<span class="op">:</span><span class="fu">match</span><span class="op">(</span><span class="st">&#39;^%s*%-%-%-$&#39;</span><span class="op">)</span> <span class="kw">and</span> <span class="st">&quot;&quot;</span></span>
 <span id="cb4-3"><a href="#cb4-3"></a><span class="kw">end</span></span></code></pre></div>
-<h3 data-number="1.3.2" id="codeline"><span class="header-section-number">1.3.2</span> code(line)</h3>
+<h3 id="codeline">code(line)</h3>
 <p>If <code>line</code> contains code, then returns the markdown to output, otherwise returns <code>false</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode lua"><code class="sourceCode lua"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">function</span> code<span class="op">(</span>line<span class="op">)</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a>  <span class="cf">return</span> <span class="kw">not</span> doc<span class="op">(</span>line<span class="op">)</span> <span class="kw">and</span> <span class="st">&#39;    &#39;</span> <span class="op">..</span> line</span>
 <span id="cb5-3"><a href="#cb5-3"></a><span class="kw">end</span></span></code></pre></div>
-<h3 data-number="1.3.3" id="is_blankline"><span class="header-section-number">1.3.3</span> is_blank(line)</h3>
+<h3 id="is_blankline">is_blank(line)</h3>
 <p>Returns <code>true</code> if <code>line</code> is a blank line, <code>false</code> otherwise.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode lua"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">function</span> is_blank<span class="op">(</span>line<span class="op">)</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a>  <span class="cf">return</span> line<span class="op">:</span><span class="fu">match</span><span class="op">(</span><span class="st">&#39;^%s*$&#39;</span><span class="op">)</span> <span class="kw">and</span> <span class="kw">true</span></span>
 <span id="cb6-3"><a href="#cb6-3"></a><span class="kw">end</span></span></code></pre></div>
-<h3 data-number="1.3.4" id="parse_docline"><span class="header-section-number">1.3.4</span> parse_doc(line)</h3>
+<h3 id="parse_docline">parse_doc(line)</h3>
 <p>Parses a documentation block.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode lua"><code class="sourceCode lua"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">function</span> parse_doc<span class="op">(</span>line<span class="op">)</span></span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="kw">local</span> docline <span class="op">=</span> doc<span class="op">(</span>line<span class="op">)</span></span>
@@ -161,7 +157,7 @@
 <span id="cb7-9"><a href="#cb7-9"></a>  <span class="fu">print</span><span class="op">()</span></span>
 <span id="cb7-10"><a href="#cb7-10"></a>  <span class="cf">return</span> parse_code<span class="op">(</span>line<span class="op">)</span></span>
 <span id="cb7-11"><a href="#cb7-11"></a><span class="kw">end</span></span></code></pre></div>
-<h3 data-number="1.3.5" id="parse_codeline"><span class="header-section-number">1.3.5</span> parse_code(line)</h3>
+<h3 id="parse_codeline">parse_code(line)</h3>
 <p>Parses a code block.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode lua"><code class="sourceCode lua"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">function</span> parse_code<span class="op">(</span>line<span class="op">)</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a>  <span class="cf">while</span> is_blank<span class="op">(</span>line<span class="op">)</span> <span class="cf">do</span></span>
@@ -189,7 +185,7 @@
 <span id="cb8-24"><a href="#cb8-24"></a>  <span class="fu">print</span><span class="op">()</span></span>
 <span id="cb8-25"><a href="#cb8-25"></a>  <span class="cf">return</span> parse_doc<span class="op">(</span>line<span class="op">)</span></span>
 <span id="cb8-26"><a href="#cb8-26"></a><span class="kw">end</span></span></code></pre></div>
-<h3 data-number="1.3.6" id="initialization"><span class="header-section-number">1.3.6</span> initialization</h3>
+<h3 id="initialization">initialization</h3>
 <p>Tests whether the lua document starts with documentation or code, then starts the corresponding parser.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode lua"><code class="sourceCode lua"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">local</span> line <span class="op">=</span> <span class="fu">io.read</span><span class="op">()</span></span>
 <span id="cb9-2"><a href="#cb9-2"></a><span class="cf">if</span> <span class="kw">not</span> line <span class="cf">then</span> <span class="cf">return</span> <span class="cf">end</span></span>
@@ -198,10 +194,11 @@
 <span id="cb9-5"><a href="#cb9-5"></a><span class="cf">else</span></span>
 <span id="cb9-6"><a href="#cb9-6"></a>  parse_code<span class="op">(</span>line<span class="op">)</span></span>
 <span id="cb9-7"><a href="#cb9-7"></a><span class="cf">end</span></span></code></pre></div>
-<h2 data-number="1.4" id="license"><span class="header-section-number">1.4</span> License</h2>
+<h2 id="license">License</h2>
 <p>Copyright (C) 2009 Henk Boom</p>
 <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
 <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
 <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+</div>
 </body>
 </html>
