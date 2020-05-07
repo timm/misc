@@ -1,14 +1,17 @@
 F=lua2md
 
 PANDOCFLAGS =                        \
-  -s \
+  -s                                 \
   --table-of-contents                \
   --from=markdown                    \
   --indented-code-classes=lua        \
   --highlight-style=pygments         \
   --template=templates/default.html5 \
   --metadata title="$F"              \
-  --css=../etc/css/style.css 
+  --metadata banner=../etc/img/banner.png  \
+  --include-before=menubar.md        \
+  --css=../etc/css/style.css  \
+  -V numberLines=true
 
 all : ok o/$F.html
 
