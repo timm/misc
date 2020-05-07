@@ -1,15 +1,23 @@
-body     { min-width: 600px;
-           background-color: #CCC;
-           font-family: 'Muli', sans-serif; }
 
-.wrapper { border: 2px solid black;
-           padding: 20px;
-           padding-top: 0px;
+h2    {   background: linear-gradient(to right,#b0c4de,white); }
+body  {   background-color:                    #b0c4de; }
+p     {   color: dimgray;}
+
+
+body  { margin: 20px; min-width: 600px;
+        font-size: small;
+        font-family: 'Muli', sans-serif; }
+
+h2    { padding-left: 5px; color:black; }
+p     {  color: dimgray;}
+
+.wrapper { border: 1px solid black;
+           padding-left: 15px;
+           padding-right: 15px;
            background-color: white;
-           margin:5px 5px 10px 10px;
-           margin-top: 0px; }
+         }
 
-.banner { width: 300px; float: right;  }
+.banner { width: 200px; float: right;  }
 a       { text-decoration: none; }
 a:hover { text-decoration: underline; }
 ul      { padding-left: 21px; }

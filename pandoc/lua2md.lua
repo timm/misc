@@ -1,6 +1,3 @@
---- lua2md
---- ======
----
 --- Fun and braindead code documentation. Reads in annotated [lua][1] code and
 --- writes out [markdown][2]-formatted documentation. lua2md is documented
 --- using itself ;p

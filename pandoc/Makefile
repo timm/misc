@@ -4,7 +4,7 @@ PANDOCFLAGS =                        \
   -s                                 \
   --table-of-contents                \
   --from=markdown                    \
-  --indented-code-classes=lua        \
+  --indented-code-classes=lua,numberLines        \
   --highlight-style=pygments         \
   --template=templates/default.html5 \
   --metadata title="$F"              \
@@ -12,6 +12,7 @@ PANDOCFLAGS =                        \
   --include-before=menubar.md        \
   --css=../etc/css/style.css  \
   -V numberLines=true
+
 
 all : ok o/$F.html
 
