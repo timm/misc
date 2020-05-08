@@ -11,4 +11,4 @@
 <img class=banner src="../etc/img/banner.png"> 
 <em>"Give me the fruitful error any time, full of seeds, bursting with its own corrections.
 You can keep your sterile truth for yourself."</em>
---  Vilfredo Pareto
+--&nbsp;Vilfredo Pareto
