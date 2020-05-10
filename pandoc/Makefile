@@ -6,7 +6,7 @@ PANDOCFLAGS =                        \
   --table-of-contents                \
   --from=markdown                    \
   --indented-code-classes=lua,numberLines        \
-  --highlight-style=pygments         \
+  --highlight-style=tango         \
   --metadata title="$F"              \
   --css=../etc/css/style.css  \
   --css='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css'    \
