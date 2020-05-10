@@ -5,25 +5,26 @@ function run(top,  # is this top of file?
 {
   if (getline <= 0) exit  # end of file
   if (/^[ \t]*$/) { 
-    if(!code) print  # skip blank lines inside code blocks
+    if (!code) # skip blank lines inside code blocks
+      print 
     return run(top,b4,loop,code) 
   }
-  if (sub(/^--\]\]/,"")) 
+  if (sub(/^--\]\]/,""))  # end looping over multi-line comments
     return run(0,1,0,1) 
-  if (sub(/^--\[\[/,"")) { 
-    if (top) {   # if top, then nothing before to be close
+  if (sub(/^--\[\[/,"")) {# loop over multi-line comments
+    if (top) { # if top, then nothing before to be close
       print
       return run(0,b4,1,1) 
-    } else {     # else, close what was seen before
+    } else {  # if not top, close what was seen before
       print b4 ? "```lua" : "```"
       return run(0,b4,1,1) 
     }
   }
-  if (loop) {  # loop over multi line commnts
+  if (loop) { # loop over multi line commnts
     print
     return run(0,b4,loop,0) 
   }
-  # handle jumping between in-line comments
+  # handle the transistion between comments and non-comments
   now = sub(/^-- /,"")
   if ( b4 && !now) {code=1; print "```lua" }
   if (!b4 &&  now) {code=0; print "```"}
