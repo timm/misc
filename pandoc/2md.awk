@@ -12,13 +12,9 @@ function run(top,  # is this top of file?
   if (sub(/^--\]\]/,""))  # end looping over multi-line comments
     return run(0,1,0,1) 
   if (sub(/^--\[\[/,"")) {# loop over multi-line comments
-    if (top) { # if top, then nothing before to be close
-      print
-      return run(0,b4,1,1) 
-    } else {  # if not top, close what was seen before
-      print b4 ? "```lua" : "```"
-      return run(0,b4,1,1) 
-    }
+    if (!top)             # if top, then nothing before to be close
+      print "```" 
+    return run(0,b4,1,0) 
   }
   if (loop) { # loop over multi line commnts
     print
