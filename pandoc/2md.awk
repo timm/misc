@@ -26,8 +26,8 @@ function run(top,  # is this top of file?
   }
   # handle the transistion between comments and non-comments
   now = sub(/^-- /,"")
-  if ( b4 && !now) {code=1; print "```lua" }
-  if (!b4 &&  now) {code=0; print "```"}
+  if ( b4 && !now) { code=1; print "```lua" }
+  if (!b4 &&  now) { code=0; print "```"    }
   print 
   run(0,now,0,code)
 }
