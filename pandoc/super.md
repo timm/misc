@@ -1,4 +1,14 @@
-# You're Just Super
+# Software Engineering for Super Heroes: An AI Approach
+
+superheroes save the world. fairness. energy exce..s technical debt.  seeking solutionshtat work quickly for all. champion of democracy
+
+now that under th hood, mayn thigns the say
+
+super heores are like scienitssts how 
+mistrust their systems and always
+test and monitor the. superheoes know that 
+the best ideas are those that surviced some
+ordeal.
 
 You know who you are, a super star of software engineering.
 You kow you are a "hero", one of the 10% of the project

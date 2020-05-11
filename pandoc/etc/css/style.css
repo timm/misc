@@ -1,35 +1,38 @@
 
-h2    {   background: linear-gradient(to right,#b0c4de,white); }
-h2    {   background: linear-gradient(to right,#CC0000,white); }
-h2    {   background: linear-gradient(to right,lightsteelblue,white); }
-body  {   background-color:                   #F5DEB3; }
-body  {   background-color:                   lightsteelblue; }
-p     {   color: dimgray;}
-
-
-body  { min-width: 200px; margin: 20px; 
+p     { color: dimgray;}
+h2    { background: linear-gradient(to right,  #778899 ,white); }
+xbody  { background: linear-gradient(to right,rgb(0,72,84),white); }
+body  { 
+        background-color: #e8e8e8;
+        background-color: #778899;
+         min-width: 200px; margin: 20px; 
         font-size: small;
-        font-family: 'Muli', sans-serif; }
-
-h2    { padding-left: 5px; color:black; }
+        font-family: 'Muli', sans-serif; 
+      }
+h2    { padding-left: 5px; color:white; }
 p     {  color: dimgray;}
-
-.wrapper { padding-top: 4px;border: 1px solid black;
-width: 600px;
-position: absolute;
+hr    { border-top: 1px solid #CCC; }
+.wrapper 
+      { padding-top: 4px;
+        border: 1px solid #ccc;
+	width: 600px;
+	position: absolute;
 	top:20;
 	bottom: 20;
 	left: 0;
 	right: 0;
-  	
 	margin: auto;
-
-           padding-left: 15px;
-           padding-right: 15px;
-           background-color: white;
-         }
-
-.banner { background-color: #e5ebf4; padding-top:20px; border: 1px solid #CCC; width: 200px; float: right;  }
+	padding-left: 15px;
+	padding-right: 15px;
+	background-color: white;
+}
+.banner 
+      { background-color: #e5ebf4; 
+	padding-top:20px; 
+	border: 1px solid #CCC; 
+	width: 200px; 
+        float: right;  
+}
 a       { text-decoration: none;  }
 a:hover { text-decoration: underline; }
 ul      { padding-left: 21px; }
