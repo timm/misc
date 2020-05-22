@@ -1,0 +1,56 @@
+set ts=2
+set backupdir-=.
+set backupdir^=~/tmp,/tmp
+set nocompatible
+"filetype plugin indent on
+set modelines=3
+set scrolloff=3
+set autoindent
+set hidden "remember ls
+set wildmenu
+set wildmode=list:longest
+set visualbell
+set ttyfast
+set backspace=indent,eol,start
+set laststatus=2
+set splitbelow
+set paste
+set mouse=a
+set title
+set number
+autocmd BufEnter * cd %:p:h
+set showmatch
+set matchtime=15
+set background=light
+set syntax=on
+syntax enable
+set ignorecase
+set incsearch
+set smartcase
+set showmatch
+set hlsearch
+set ts=2
+set sw=2
+set sts=2
+set et
+
+set rtp+=~/.vim/bundle/Vundle.vim/
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'ap/vim-buftabline'
+Plugin 'nanotech/jellybeans.vim'
+Plugin 'vimwiki/vimwiki'
+Plugin 'kchmck/vim-coffee-script'
+Plugin 'tpope/vim-markdown'
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+
+
+
+" Markdown
+let g:markdown_fenced_languages = ['awk','awk=awk']
+
