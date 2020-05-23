@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-Ext=md
-Etc=etc
-Lib="$HOME/tmp/md/lib"
-mkdir -p $Lib $Etc
+Ext=${Awk10Ext:-md}
+Lib=${Awk10Lib:-awk10/lib.awk}
+Bin=${Awk10Bin:-$HOME/tmp/md/lib}
+
+mkdir -p $Bin
 
 parse() { gawk '
   /^@include/              { print "CODE "$0; next }
@@ -11,9 +12,7 @@ parse() { gawk '
   /^(func|BEGIN|END)/,/^}/ { print "CODE "$0; next }
                            { print "DOC " $0} '
 }
-
-gen() {
-gawk '
+gen() { gawk '
   function prep(s) {
     print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/,
                   "[\"\\1\\2\"]","g",s) }
@@ -27,13 +26,13 @@ gawk '
 }
 
 for i in *.${Ext}; do
-  j=$Lib/${i%.*}.awk
-  if [ "$i" -nt "$j" ]; then
+  j=$Bin/${i%.*}.awk
+  if [ "$i" -nt "$j" ]; then 
     cat $i | parse | gen > $j
   fi
 done
 
-j=$Lib/${1%.*}.awk
+j=$Bin/${1%.*}.awk
 
 shift
-AWKPATH="$AWKPATH:$Lib" gawk -f $Etc/lib.awk -f $j
+AWKPATH="$AWKPATH:$Bin" gawk -f $Lib -f $j

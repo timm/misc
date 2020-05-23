@@ -45,9 +45,9 @@ function zap(i,k)  { k = k?k:length(i)+1; i[k][0]; List(i[k]); return k }
 function List(i)         { split("",i,"") }
 function Object(i)       { List(i); i["oid"]=++OID }
 
-function is( i,k,f)      { f=f?f:"List"; zap(i,k); @f(i[k]) }
-function isa(i,k,f,m)    {               zap(i,k); @f(i[k],m) }
-function isas(i,k,f,m,n) {              zap(i,k); @f(i[k],m,n) }
+function has( i,k,f)      { f=f?f:"List"; zap(i,k); @f(i[k]) }
+function have(i,k,f,m)    {               zap(i,k); @f(i[k],m) }
+function haves(i,k,f,m,n) {              zap(i,k); @f(i[k],m,n) }
 
 
 
