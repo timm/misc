@@ -8,11 +8,11 @@ banner() { cat<<'EOF'
    /    ""--_--""...:\    share
   /         |.........\    A
  /          |..........\     Programmer's
-/,         _'_........./:     Enviroment
-! -,    _-"   "-_... ,;;:
-\   -_-"         "-_/;;;;
- \   \             /;;;;'  timm@ieee.org
-  \   \           /;;;;    
+/,         _'_........./:    Enviroment
+! -,    _-"   "-_... ,;;:    
+\   -_-"         "-_/;;;;    timm@ieee.org
+ \   \             /;;;;'   
+  \   \           /;;;;     
    '.  \         /;;;'
      "-_\_______/;;'
 EOF
@@ -54,7 +54,6 @@ gitignore() { cat<<-'EOF'
 
 ##################################################
 Ape=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
-echo $Ape
 
 mkdir -p $Ape/.var
 mkdir -p $Ape/src
@@ -65,7 +64,7 @@ mkdir -p $Ape/test/data/cooked
 
 [ ! -f "$Ape/.gitignore"  ] && gitignore > "$Ape/.gitignore"
 
-for i in *.md $Ape/test/*.md $Ape/src/*.md; do doco $i; done
+for i in *.md $Ape/test/*.md $Ape/src/*.md; do doco $i;  done
 
 for i in $Ape/src/*.md $Ape/test/*.md;  do
   j=$Ape/.var/$(basename $i .md).awk
