@@ -3,18 +3,18 @@
 
 banner() { cat<<'EOF'
 
-shAPE = another           .="=.
-programmer's          _/.-.-.\_     _
-environment          ( ( o o ) )    ))
-                      |/  "  \|    //
-      .-------.        \'---'/    //
-     _|~~ ~~  |_       /`"""`\\  ((
-   =(_|_______|_)=    / /_,_\ \\  \\
-     |:::::::::|      \_\\_'__/ \  ))
-     |:::::::[]|       /`  /`~\  |//
-     |o=======.|      /   /    \  /
-jgs  `"""""""""`  ,--`,--'\/\    /
-                   '-- "--'  '--'
+     _----------_,
+    ,"__         _-:,   shAPE=
+   /    ""--_--""...:\    share
+  /         |.........\    A
+ /          |..........\     Programmer's
+/,         _'_........./:     Enviroment
+! -,    _-"   "-_... ,;;:
+\   -_-"         "-_/;;;;
+ \   \             /;;;;'  timm@ieee.org
+  \   \           /;;;;    
+   '.  \         /;;;'
+     "-_\_______/;;'
 EOF
 }
 
@@ -67,7 +67,7 @@ mkdir -p $Ape/test/data/cooked
 
 for i in *.md $Ape/test/*.md $Ape/src/*.md; do doco $i; done
 
-for i in $Ape/src/*.md; $Ape/test/*.md do
+for i in $Ape/src/*.md $Ape/test/*.md;  do
   j=$Ape/.var/$(basename $i .md).awk
   if [ "$i" -nt "$j" ]; then
     cat $i | transpile > $j
