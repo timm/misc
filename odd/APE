@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
+
 banner() { cat<<'EOF'
 
-APE = another           .="=.
+shAPE = another           .="=.
 programmer's          _/.-.-.\_     _
 environment          ( ( o o ) )    ))
                       |/  "  \|    //
@@ -33,9 +34,9 @@ transpile() { gawk '
 }
 
 doco() {
-  if [ "README.md" -nt "$1" ]; then
+  if [ "$Ape/README.md" -nt "$1" ]; then
     x=$(mktemp)
-    cat README.md | gawk '
+    cat $Ape/README.md | gawk '
         BEGIN { FS="\n"; RS="" } 
               { print; exit 0  }'  > $x
     cat $1 | gawk '
@@ -51,26 +52,35 @@ gitignore() { cat<<-'EOF'
 	EOF
 }
 
-[ ! -f .gitignore  ] && gitignore > .gitignore
-for i in *.md; do doco $i; done
+##################################################
+Ape=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+echo $Ape
 
-Code=".var"
-mkdir -p $Code
+mkdir -p $Ape/.var
+mkdir -p $Ape/src
+mkdir -p $Ape/test
+mkdir -p $Ape/test/data
+mkdir -p $Ape/test/data/raw
+mkdir -p $Ape/test/data/cooked
 
-for i in *.md; do
-  j=$Code/$(basename $i .md).awk
+[ ! -f "$Ape/.gitignore"  ] && gitignore > "$Ape/.gitignore"
+
+for i in *.md $Ape/test/*.md $Ape/src/*.md; do doco $i; done
+
+for i in $Ape/src/*.md; $Ape/test/*.md do
+  j=$Ape/.var/$(basename $i .md).awk
   if [ "$i" -nt "$j" ]; then
     cat $i | transpile > $j
   fi
 done
  
-j=$Code/$(basename $1 .md).awk
+j=$Ape/.var/$(basename $1 .md).awk
 
 if [ -f "$j" ]; then
   if [ -t 0 ]; then
-    AWKPATH="$Code:$AWKPATH"  gawk -f $j
+    AWKPATH="$Ape/.var:$AWKPATH"  gawk -f $j
   else
-    cat - | AWKPATH="$Code:$AWKPATH"  gawk -f $j
+    cat - | AWKPATH="$Ape/.var:$AWKPATH"  gawk -f $j
   fi 
 else
   banner

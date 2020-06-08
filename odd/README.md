@@ -1,5 +1,5 @@
 <a name=top>
-<h1 align=center><a href="/README.md#top">APE = another programmer's environment</a></h1>
+<h1 align=center><a href="/README.md#top">shAPE = another programmer's environment</a></h1>
 <p align=center> <a
 href="https://github.com/aiez/eg/blob/master/LICENSE">license</a> :: <a
 href="https://github.com/aiez/eg/blob/master/INSTALL.md#top">install</a> :: <a
@@ -20,6 +20,6 @@ src="https://zenodo.org/badge/263210595.svg" alt="DOI"></a><a
 src='https://coveralls.io/repos/github/aiez/eg/badge.svg?branch=master' 
 alt='Coverage Status' /></a></p>
 
-# `SH ape`: A tiny IDE
+# `sh APE`: A tiny IDE
 
 Have fun
