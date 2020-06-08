@@ -69,6 +69,7 @@ function distant(r1,Data,  a,n) {
   return a[n].row
 }
 function dist(r1,r2,Data,  x,y,d,n) {
+  n = 0.00001 # stop divide by zero errors
   for(c in w) {
     x= norm(c, data[r1][c], lo,hi)
     y= norm(c, data[r2][c], lo,hi)
