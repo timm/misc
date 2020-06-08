@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+transpile() { gawk '
+ BEGIN          { In=1 }
+ /```awk/       { In=0; print "# " $0; next }
+ /```($|[^a])/  { In=1; print "# " $0; next }
+      ! In { $0 = gensub(/\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
+                              "[\"\\1\\2\"]","g",$0) }
+                { print (In ? "# " : "")  $0 } '
+}
+
+for i in *.md; do
+  j = $(basename $i .md).awk
+  if [ "$i" -nt "$j" ]; then
+    cat $i | transpile > $j
+  fi
+done
+ 
+j = $(basename $1 .md).awk
+[ -f "$j" ] && gawk -f $j
