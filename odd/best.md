@@ -27,7 +27,7 @@ alt='Coverage Status' /></a></p>
 
 #define Data head,w,lo,hi,data
 
-function head1(c,x,Data) {
+function headers(c,x,Data) {
   head[c] = x
   if (x ~ /</)  w[c] = -1 
   if (x ~ />/)  w[c] =  1 
@@ -35,15 +35,14 @@ function head1(c,x,Data) {
      lo[c] =  10^32
      hi[c] = -10^32 }
 }
-function cell1(r,c,x,Data) {
+function cell(r,c,x,Data) {
   if (x ~ /\?/) return x
-  if (c in lo) {
+  if (c in lo) { # for all nums do
     if (x > hi[c]) hi[c] = x
     if (x < lo[c]) lo[c] = x 
   }
   data[r][c] = x
 }
-
 
 function read(f,Data,    r,c) {
   FS = ","
@@ -52,10 +51,10 @@ function read(f,Data,    r,c) {
     gsub(/[ \t\r]*/, "")
     if(r++ == 0)
       for(c=1;c<=NF;c++)  
-        head1(c,$c,Data)
+        headers(c,$c,Data)
     else
       for(c=1;c<=NF;c++)  
-        cell1(r,c,$c,Data) }
+        cell(r,c,$c,Data) }
 }
 ```
 ```awk
@@ -65,7 +64,7 @@ function distant(r1,Data,  a,n) {
       a[r2].row = r2
       a[r2].dist = dist(r1,r2,Data) }
   n = keysort(a,"dist")
-  n = int(n*the.distant.far)
+  n = int(n*the.distant.far)  
   return a[n].row
 }
 function dist(r1,r2,Data,  x,y,d,n) {

@@ -25,7 +25,7 @@ transpile() { gawk '
     return s
   }
   BEGIN            { In=1 }
-  !In && /^#define[ \t]/ { Pat[$2]= $3 }
+  !In && /^#define[ \t]/ { Pat["\\<" $2 "\\>"]= $3 }
   /```awk/         { In=0; print "# " $0; next }
   /```($|[^a])/    { In=1; print "# " $0; next }
   ! In             { $0 = transpile($0) }
