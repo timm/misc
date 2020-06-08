@@ -27,7 +27,19 @@ alt='Coverage Status' /></a></p>
 
 #define Data head,w,lo,hi,data
 
-function headers(c,x,Data) {
+function read(f,Data,    r,c) {
+  FS = ","
+  f  = f ? f : "-"
+  while((getline f) > 0)  { 
+    gsub(/[ \t\r]*/, "")
+    if(r++ == 0)
+      for(c=1;c<=NF;c++)  
+        readHeader(c,$c,Data)
+    else
+      for(c=1;c<=NF;c++)  
+        readCell(r,c,$c,Data) }
+}
+function readHeader(c,x,Data) {
   head[c] = x
   if (x ~ /</)  w[c] = -1 
   if (x ~ />/)  w[c] =  1 
@@ -35,7 +47,7 @@ function headers(c,x,Data) {
      lo[c] =  10^32
      hi[c] = -10^32 }
 }
-function cell(r,c,x,Data) {
+function readCell(r,c,x,Data) {
   if (x ~ /\?/) return x
   if (c in lo) { # for all nums do
     if (x > hi[c]) hi[c] = x
@@ -44,18 +56,6 @@ function cell(r,c,x,Data) {
   data[r][c] = x
 }
 
-function read(f,Data,    r,c) {
-  FS = ","
-  f  = f ? f : "-"
-  while((getline f) > 0)  { 
-    gsub(/[ \t\r]*/, "")
-    if(r++ == 0)
-      for(c=1;c<=NF;c++)  
-        headers(c,$c,Data)
-    else
-      for(c=1;c<=NF;c++)  
-        cell(r,c,$c,Data) }
-}
 ```
 ```awk
 function distant(r1,Data,  a,n) {
@@ -70,8 +70,8 @@ function distant(r1,Data,  a,n) {
 function dist(r1,r2,Data,  x,y,d,n) {
   n = 0.00001 # stop divide by zero errors
   for(c in w) {
-    x= norm(c, data[r1][c], lo,hi)
-    y= norm(c, data[r2][c], lo,hi)
+    x  = norm(c, data[r1][c], Data)
+    y  = norm(c, data[r2][c], Data)
     d += abs(x-y)^2
     n++
   }
