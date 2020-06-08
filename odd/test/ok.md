@@ -1,5 +1,5 @@
 <a name=top>
-<h1 align=center><a href="/README.md#top">sh ape = 'SH'aring 'A'  'P'rogrammer 'E'nvironment</a></h1>
+<h1 align=center><a href="/README.md#top">sh ape = sharing a  programmer environment</a></h1>
 <p align=center> <a
 href="https://github.com/aiez/eg/blob/master/LICENSE">license</a> :: <a
 href="https://github.com/aiez/eg/blob/master/INSTALL.md#top">install</a> :: <a
