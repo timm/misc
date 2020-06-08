@@ -20,33 +20,24 @@ src="https://zenodo.org/badge/263210595.svg" alt="DOI"></a><a
 src='https://coveralls.io/repos/github/aiez/eg/badge.svg?branch=master' 
 alt='Coverage Status' /></a></p>
 
-# Objects
+MIT License
 
-```awk
-BEGIN{  APE["oid"]  = 0
-        APE["dot"] = sprintf("%c",44)
-        APE["up"]   = APE["dot"] APE["dot"]
-}
-function List(i)    { split("",i,"") }
-function Object(i)  { List(i); i["is"] = "Object"; i["oid"] = ++APE["oid"] }
+Copyright (c) 2020 sh ell
 
-function zap(i,k)  { k = k?k:length(i)+1; i[k][0]; List(i[k]); return k } 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-function has( i,k,f,      s) { f=f?f:"List"; s=zap(i,k); @f(i[k]);     return s}
-function hass(i,k,f,m,    s) {               s=zap(i,k); @f(i[k],m);   return s}
-function hasss(i,k,f,m,n, s) {               s=zap(i,k); @f(i[k],m,n); return s}
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-function inherit(k,f,   g) {
-  while(k) {
-    g = k f
-    if (g in FUNCTAB) return g
-    k = APE["is"][k]
-  }
-  print "#E> failed method lookup: ["f"]"
-  exit 2
-}
-function is(i,x) {
-  if ("is" in i) { APE["is"][x] = i["is"] }
-  i["is"] = x
-}
-```
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

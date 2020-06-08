@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+banner() { cat<<'EOF'
+
+APE= another            .="=.
+programmer's          _/.-.-.\_     _
+environment          ( ( o o ) )    ))
+                      |/  "  \|    //
+      .-------.        \'---'/    //
+     _|~~ ~~  |_       /`"""`\\  ((
+   =(_|_______|_)=    / /_,_\ \\  \\
+     |:::::::::|      \_\\_'__/ \  ))
+     |:::::::[]|       /`  /`~\  |//
+     |o=======.|      /   /    \  /
+jgs  `"""""""""`  ,--`,--'\/\    /
+                   '-- "--'  '--'
+EOF
+}
+
+transpile() { gawk '
+  function transpile(s) {
+    s = gensub(/\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
+              "[\"\\1\\2\"]","g",s) 
+    for(i in Pat) gsub(i,Pat[i],s)
+    return s
+  }
+  BEGIN            { In=1 }
+  !In && /^#define[ \t]/ { Pat[$2]= $3 }
+  /```awk/         { In=0; print "# " $0; next }
+  /```($|[^a])/    { In=1; print "# " $0; next }
+  ! In             { $0 = transpile($0) }
+                   { print (In ? "# " : "")  $0 } '
+}
+
+doco() {
+  if [ "README.md" -nt "$1" ]; then
+    x=$(mktemp)
+    cat README.md | gawk '
+        BEGIN { FS="\n"; RS="" } 
+              { print; exit 0  }'  > $x
+    cat $1 | gawk '
+        BEGIN { FS="\n"; RS="" } 
+        NR==1 && $1~/name=top>/ { next }
+              { print ""; print }'  >> $x
+    mv $x $1
+  fi
+}
+gitignore() { cat<<-'EOF'
+	*.awk
+	.var/
+	EOF
+}
+
+[ ! -f .gitignore  ] && gitignore > .gitignore
+for i in *.md; do doco $i; done
+
+Code=".var"
+mkdir -p $Code
+
+for i in *.md; do
+  j=$Code/$(basename $i .md).awk
+  if [ "$i" -nt "$j" ]; then
+    cat $i | transpile > $j
+  fi
+done
+ 
+j=$Code/$(basename $1 .md).awk
+[ -f "$j" ] && AWKPATH="$Code:$AWKPATH"  gawk -f $j
