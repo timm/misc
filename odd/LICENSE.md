@@ -7,7 +7,7 @@ href="https://github.com/aiez/eg/blob/master/CODE_OF_CONDUCT.md#top">contribute<
 href="https://github.com/aiez/eg/issues">issues</a> :: <a
 href="https://github.com/aiez/eg/blob/master/CITATION.md#top">cite</a> :: <a
 href="https://github.com/aiez/eg/blob/master/CONTACT.md#top">contact</a> </p><p align=center>
-<img width=300 src="https://raw.githubusercontent.com/timm/misc/master/odd/etc/img/shape.jpg"></p><p 
+<img width=300 src="https://github.com/timm/misc/blob/master/etc/img/shape.jpg"></p><p 
 align=center><img
 src="https://img.shields.io/badge/language-lua-orange"> <img
 src="https://img.shields.io/badge/purpose-ai,se-blueviolet"> <img
