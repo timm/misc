@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+
+banner() { cat<<'EOF'
+
+     _----------_,
+    ,"__         _-:,   shAPE=
+   /    ""--_--""...:\    share
+  /         |.........\    A
+ /          |..........\     Programmer's
+/,         _'_........./:    Enviroment
+! -,    _-"   "-_... ,;;:    
+\   -_-"         "-_/;;;;    timm@ieee.org
+ \   \             /;;;;'   
+  \   \           /;;;;     
+   '.  \         /;;;'
+     "-_\_______/;;'
+EOF
+}
+
+transpile() { gawk '
+  function transpile(s) {
+    s = gensub(/\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
+              "[\"\\1\\2\"]","g",s) 
+    for(i in Pat) gsub(i,Pat[i],s)
+    return s
+  }
+  BEGIN                  { In=1 }
+  !In && /^#define[ \t]/ { Pat["\\<" $2 "\\>"]= $3   }
+  /```awk/               { In=0; print "# " $0; next }
+  /```($|[^a])/          { In=1; print "# " $0; next }
+  ! In                   { $0 = transpile($0) }
+                         { print (In ? "# " : "")  $0 } '
+}
+
+doco() {
+  if [ "$Ape/README.md" -nt "$1" ]; then
+    x=$(mktemp)
+    cat $Ape/README.md | gawk '
+        BEGIN { FS="\n"; RS="" } 
+              { print; exit 0  }'  > $x
+    cat $1 | gawk '
+        BEGIN { FS="\n"; RS="" } 
+        NR==1 && $1~/name=top>/ { next }
+              { print ""; print }'  >> $x
+    mv $x $1
+  fi
+}
+gitignore() { cat<<-'EOF'
+	*.awk
+	.var/
+	EOF
+}
+
+##################################################
+Ape=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+
+mkdir -p $Ape/.var
+mkdir -p $Ape/src
+mkdir -p $Ape/test
+mkdir -p $Ape/test/data
+mkdir -p $Ape/test/data/raw
+mkdir -p $Ape/test/data/cooked
+
+[ ! -f "$Ape/.gitignore"  ] && gitignore > "$Ape/.gitignore"
+
+for i in *.md $Ape/test/*.md $Ape/src/*.md; do doco $i;  done
+
+for i in $Ape/src/*.md $Ape/test/*.md;  do
+  j=$Ape/.var/$(basename $i .md).awk
+  if [ "$i" -nt "$j" ]; then
+    cat $i | transpile > $j
+  fi
+done
+ 
+j=$Ape/.var/$(basename $1 .md).awk
+
+if [ -f "$j" ]; then
+  if [ -t 0 ]; then
+    AWKPATH="$Ape/.var:$AWKPATH"  gawk -f $j
+  else
+    cat - | AWKPATH="$Ape/.var:$AWKPATH"  gawk -f $j
+  fi 
+else
+  banner
+fi
