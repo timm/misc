@@ -65,8 +65,13 @@ for i in *.md; do
 done
  
 j=$Code/$(basename $1 .md).awk
+
 if [ -f "$j" ]; then
-  AWKPATH="$Code:$AWKPATH"  gawk -f $j
+  if [ -t 0 ]; then
+    AWKPATH="$Code:$AWKPATH"  gawk -f $j
+  else
+    cat - | AWKPATH="$Code:$AWKPATH"  gawk -f $j
+  fi 
 else
   banner
 fi
