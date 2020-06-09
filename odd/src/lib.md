@@ -25,14 +25,14 @@ alt='Coverage Status' /></a></p>
 ## Maths
 
 ```awk
-function abs(x) { return x>=0? x: -1*x }
+function abs(x)  { return x>=0? x: -1*x }
 ```
 ## Lists
 
 Misc
 
 ```awk
-function any(a)    { return a[int(0.5 + rand()*length(a))] }
+function any(a)    { return int(0.5 + rand()*length(a)) }
 function push(a,x) { a[length(a)+1] = x; return x }
 ```
 
