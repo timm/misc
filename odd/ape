@@ -56,15 +56,21 @@ doc() {
 }
 here() { cd $1; basename `pwd`; }
 
+exists() { 
+  if [ ! -f "$Ape/$1"  ]; then
+    if  [ -f "$Ape/$2" ]; then
+      cp $Ape/$2 > $Ape/$1
+    fi
+  fi
+}
+
 ##################################################
 
 mkdir -p $Ape/.var
+mkdir -p $Ape/etc/dot
 
-if [ ! -f "$Ape/.gitignore"  ]; then
-  if  [ -f "$Ape/etc/dot/gitignore" ]; then
-    cp $Ape/etc/dot/gitignore > $Ape/.gitignore
-  fi
-fi
+exists .gitignore etc/dot/gitignore
+exists .travis.yml etc/dot/travisyml
 
 if ls      *.md >/dev/null 2>&1; then for i in *.md      ; do doc   $i; done fi
 if ls test/*.md >/dev/null 2>&1; then for i in test/*.md ; do doc   $i; done fi
