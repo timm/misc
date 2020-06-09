@@ -21,5 +21,5 @@ src='https://coveralls.io/repos/github/aiez/eg/badge.svg?branch=master'
 alt='Coverage Status' /></a></p>
 
 ```awk
-{print "X ", NR, $0}
+{print "X ", NR, $0} #--
 ```

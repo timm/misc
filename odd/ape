@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 
+Ape=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+
 banner() { cat<<'EOF'
 
      _----------_,
@@ -15,10 +17,11 @@ banner() { cat<<'EOF'
   \   \           /;;;;     
    '.  \         /;;;'
      "-_\_______/;;'
+
 EOF
 }
 
-transpile() { gawk '
+trans1() { gawk '
   function transpile(s) {
     s = gensub(/\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
               "[\"\\1\\2\"]","g",s) 
@@ -32,8 +35,13 @@ transpile() { gawk '
   ! In                   { $0 = transpile($0) }
                          { print (In ? "# " : "")  $0 } '
 }
-
-doco() {
+trans() {
+  local j=$Ape/.var/$(basename $1 .md).awk
+  if [ "$1" -nt "$j" ]; then
+    cat $1 | trans1 > $j
+  fi
+}
+doc() {
   if [ "$Ape/README.md" -nt "$1" ]; then
     x=$(mktemp)
     cat $Ape/README.md | gawk '
@@ -46,33 +54,25 @@ doco() {
     mv $x $1
   fi
 }
-gitignore() { cat<<-'EOF'
-	*.awk
-	.var/
-	EOF
-}
+here() { cd $1; basename `pwd`; }
 
 ##################################################
-Ape=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 
 mkdir -p $Ape/.var
-mkdir -p $Ape/src
-mkdir -p $Ape/test
-mkdir -p $Ape/test/data
-mkdir -p $Ape/test/data/raw
-mkdir -p $Ape/test/data/cooked
 
-[ ! -f "$Ape/.gitignore"  ] && gitignore > "$Ape/.gitignore"
-
-for i in *.md $Ape/test/*.md $Ape/src/*.md; do doco $i;  done
-
-for i in $Ape/src/*.md $Ape/test/*.md;  do
-  j=$Ape/.var/$(basename $i .md).awk
-  if [ "$i" -nt "$j" ]; then
-    cat $i | transpile > $j
+if [ ! -f "$Ape/.gitignore"  ]; then
+  if  [ -f "$Ape/etc/dot/gitignore" ]; then
+    cp $Ape/etc/dot/gitignore > $Ape/.gitignore
   fi
-done
- 
+fi
+
+if ls      *.md >/dev/null 2>&1; then for i in *.md      ; do doc   $i; done fi
+if ls test/*.md >/dev/null 2>&1; then for i in test/*.md ; do doc   $i; done fi
+if ls src/*.md  >/dev/null 2>&1; then for i in src/*.md ;  do doc   $i; done fi
+
+if ls test/*.md >/dev/null 2>&1; then for i in test/*.md ; do trans $i; done fi
+if ls src/*.md  >/dev/null 2>&1; then for i in src/*.md ;  do trans $i; done fi
+
 j=$Ape/.var/$(basename $1 .md).awk
 
 if [ -f "$j" ]; then
@@ -82,5 +82,30 @@ if [ -f "$j" ]; then
     cat - | AWKPATH="$Ape/.var:$AWKPATH"  gawk -f $j
   fi 
 else
+  _c0="\033[00m"     # white
+  _c1="\033[01;32m"  # green
+  _c2="\033[01;34m"  # blue
+  _c3="\033[31m"     # red
+  _c5="\033[35m"     # purple
+  _c6="\033[33m"     # yellow
+  _c7="\033[36m"     # turquoise 
+  _c8="\033[96m"     # magenta
+  bash -c "echo  -ne '\033[96m'"
   banner
+  bash -c "echo  -ne '\033[00m'"
+  PROMPT_COMMAND='echo -ne "${_c2}iSH:${_c6}$(git branch 2>/dev/null | grep '^*' | colrm 1 2) ";PS1="${_c1}$_c0$(here ../..)/$(here ..)/$(here .) ${_c3}\!>${_c0}\e[m "'
+  alias l='ls -G'
+  alias ..='cd ..'
+  alias gg="git pull"
+  alias gs="git status"
+  alias gp="git commit -am 'saving'; git push; git status"
+  alias vi="vim -u $Ape/etc/dot/vimrc "
+  alias tmux="tmux -f $Ape/etc/dot/tmuxrc "
+  for c in gawk git tmux vim ; do
+    if [ -z "$(which $c)" ]; then
+      echo "#WARNING:  missing: $c (better install it)"
+    fi
+  done
+  vim -E -s -u "$Ape/etc/dot/vimrc" +PluginInstall +qall
 fi
+
