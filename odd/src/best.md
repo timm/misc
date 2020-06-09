@@ -1,5 +1,5 @@
 <a name=top>
-<h1 align=center><a href="/README.md#top">sh ape = sharing a  programmer environment</a></h1>
+<h1 align=center><a href="/README.md#top">sh ape = <u>sh</u>aring <u>a</a>  <u>p</u>rogrammer <u>e</u>nvironment</a></h1>
 <p align=center> <a
 href="https://github.com/aiez/eg/blob/master/LICENSE">license</a> :: <a
 href="https://github.com/aiez/eg/blob/master/INSTALL.md#top">install</a> :: <a
@@ -23,6 +23,7 @@ alt='Coverage Status' /></a></p>
 # best
 
 ```awk
+@include "ape"
 @include "num"
 @include "sym"
 
@@ -88,12 +89,11 @@ function dom(i,r1,r2,
   for(col in t.dom) {
     x     = norm(t.nums[col], i.cells[col])
     y     = NumNorm(t.nums[col], j.cells[col])
-    sum1 -= e ^ ( t.dom[col] * (x - y)/n )
-    sum2 -= e ^ ( t.dom[col] * (y - x)/n )
+    s1 -= e ^ ( t.dom[col] * (x - y)/n )
+    s2 -= e ^ ( t.dom[col] * (y - x)/n )
   }
- return sum1/n < sum2/n
+ return s1/n < s2/n
 }
-
 
 ```
 
