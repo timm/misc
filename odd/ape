@@ -73,13 +73,18 @@ if ls src/*.md  >/dev/null 2>&1; then for i in src/*.md ;  do doc   $i; done fi
 if ls test/*.md >/dev/null 2>&1; then for i in test/*.md ; do trans $i; done fi
 if ls src/*.md  >/dev/null 2>&1; then for i in src/*.md ;  do trans $i; done fi
 
-j=$Ape/.var/$(basename $1 .md).awk
+for f in the lib obj; do
+  if [ -f "$Ape/.var/$f.awk" ]; then
+    j="$k -f $Ape/.var/$f.awk"
+  fi
+done
 
-if [ -f "$j" ]; then
+k=$Ape/.var/$(basename $1 .md).awk
+if [ -f "$k" ]; then
   if [ -t 0 ]; then
-    AWKPATH="$Ape/.var:$AWKPATH"  gawk -f $j
+    AWKPATH="$Ape/.var:$AWKPATH"  gawk $j -f $k
   else
-    cat - | AWKPATH="$Ape/.var:$AWKPATH"  gawk -f $j
+    cat - | AWKPATH="$Ape/.var:$AWKPATH"  gawk $j -f $k
   fi 
 else
   _c0="\033[00m"     # white

@@ -23,68 +23,82 @@ alt='Coverage Status' /></a></p>
 # best
 
 ```awk
-@include "lib"
+@include "num"
+@include "sym"
 
 #define Data head,w,lo,hi,data
 
-function read(f,Data,    r,c) {
+function add(i,x, f) { f=i.is "Add"; return @f(i,x) }
+
+function Table(i) {
+  Object(i)
+  is(i,"Table")
+  has(i,"cols")
+  has(i,"rows")
+}
+function what(s) { return s ~ /[\$<>]/ ? "Num" : "Sym" }
+
+function read(i,f,    f,r,c) {
   FS = ","
   f  = f ? f : "-"
+  r  = -1
   while((getline f) > 0)  { 
     gsub(/[ \t\r]*/, "")
-    if(r++ == 0)
-      for(c=1;c<=NF;c++)  
-        readHeader(c,$c,Data)
-    else
-      for(c=1;c<=NF;c++)  
-        readCell(r,c,$c,Data) }
+    if(++r == 0) {
+      for(c=1; c<=NF; c++) 
+        if ($c !~ /\?/)
+          hass(i.cols, c, what($c), $c, c) 
+    } else
+        for(c in i.cols)
+          i.rows[r][c] = add(i.cols[c], $c)
 }
-function readHeader(c,x,Data) {
-  head[c] = x
-  if (x ~ /</)  w[c] = -1 
-  if (x ~ />/)  w[c] =  1 
-  if (x ~ /[<>\$]/) {
-     lo[c] =  10^32
-     hi[c] = -10^32 }
-}
-function readCell(r,c,x,Data) {
-  if (x ~ /\?/) return x
-  if (c in lo) { # for all nums do
-    if (x > hi[c]) hi[c] = x
-    if (x < lo[c]) lo[c] = x 
-  }
-  data[r][c] = x
-}
-
 ```
+
 ```awk
-function distant(r1,Data,  a,n) {
+function distant(i,r1,  a,n) {
   for(r2 in data) 
     if(r1 != r2) {
       a[r2].row = r2
-      a[r2].dist = dist(r1,r2,Data) }
+      a[r2].dist = dist(i,r1,r2) }
   n = keysort(a,"dist")
   n = int(n*the.distant.far)  
   return a[n].row
 }
-function dist(r1,r2,Data,  x,y,d,n) {
+function dist(i,r1,r2,  x,y,d,n) {
   n = 0.00001 # stop divide by zero errors
   for(c in w) {
-    x  = norm(c, data[r1][c], Data)
-    y  = norm(c, data[r2][c], Data)
+    x  = norm(i, c, data[r1][c])
+    y  = norm(i, c, data[r2][c])
     d += abs(x-y)^2
     n++
   }
   return (d/n)^0.5
 }
-function norm(c,x,Data) {
+function norm(i,c,x,   lo,hi) {
   if (x ~ /\?/) return x
-  return (x - lo[c])/(hi[c] - lo[c] + 10^-32)
+  lo = i.cols[c].lo
+  hi = i.cols[c].hi
+  return (x - lo)/(hi - lo + 10^-32)
 }
+function dom(i,r1,r2,   
+                 e,n,col,x,y,sum1,sum2) {
+  # Idom= indicator domination
+  e = 2.71828
+  n = length(t.dom)
+  for(col in t.dom) {
+    x     = norm(t.nums[col], i.cells[col])
+    y     = NumNorm(t.nums[col], j.cells[col])
+    sum1 -= e ^ ( t.dom[col] * (x - y)/n )
+    sum2 -= e ^ ( t.dom[col] * (y - x)/n )
+  }
+ return sum1/n < sum2/n
+}
+
+
 ```
 
 ```awk
-function fastmap1(Data  some,r) {
+function fastmap1(Data  all,r) {
   for(r in data) some[r]=r
   fastmap1(Data,some)
 }
