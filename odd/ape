@@ -6,11 +6,11 @@ Ape=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 banner() { cat<<'EOF'
 
      _----------_,
-    ,"__         _-:,   shAPE=
-   /    ""--_--""...:\    share
-  /         |.........\    A
- /          |..........\     Programmer's
-/,         _'_........./:    Enviroment
+    ,"__         _-:,   shAPE = 
+   /    ""--_--""...:\   Sharing
+  /         |.........\   A
+ /          |..........\   Programmer
+/,         _'_........./:   Enviroment
 ! -,    _-"   "-_... ,;;:    
 \   -_-"         "-_/;;;;    timm@ieee.org
  \   \             /;;;;'   

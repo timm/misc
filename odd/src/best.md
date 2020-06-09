@@ -83,6 +83,32 @@ function norm(c,x,Data) {
 }
 ```
 
+```awk
+function fastmap1(Data  some,r) {
+  for(r in data) some[r]=r
+  fastmap1(Data,some)
+}
+ 
+function fastmap1(Data,all,left,right,
+                  one,two,three,c,r,a,b,c,x,xs,x1) {
+  one     = any(all)
+  two     = distant(one, Data)
+  three   = distant(two, Data)
+  c       = dist(   two, three, Data)
+  for(r in all) {
+    a     = dist(r, two)
+    b     = dist(r, three)
+    x     = (a^2+c^2 - b^2) / (2*c) 
+    if (x > 1) x = 1
+    if (x < 0) x = 0
+    xs   += x
+    at[r] = x
+  }
+  xs = xs / length(at) # halfway
+  for(r in at) 
+    at[r] < xs ? push(left,r) : push(right,r)
+}
+```
 ## Main
 
 ```awk
