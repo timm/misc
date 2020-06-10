@@ -1,0 +1,3 @@
+### for execution and testing
+gawk >= 5.1
+
