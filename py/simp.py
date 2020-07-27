@@ -5,6 +5,11 @@ Trying something simple.
 import unittest
 from random import random, seed
 from data import auto93
+import collections
+
+
+def Nested(): return collections.defaultdict(
+    lambda: collections.defaultdict(Nested))
 
 
 class o:
@@ -35,14 +40,17 @@ class Some(o):
   def add(i, x):
     if x != Tab.skip:
       if len(i._all) < Some.hi:
-        i.sorted = False
-        i.n += 1
-        i._all += [x]
+        i.update(i._all.append(x))
       elif random() < Some.hi / i.n:
-        i.sorted = False
-        i.n += 1
-        i._all[int(len(i._all) * random())] = x
+        i.update(i.replace(x))
     return x
+
+  def update(i, ignore):
+    i.sorted = False
+    i.n += 1
+
+  def replace(i, x):
+    i._all[int(len(i._all) * random())] = x
 
   def all(i):
     if not i.sorted:
@@ -60,17 +68,68 @@ class Some(o):
     return (i.per(.9, lo=lo, hi=hi) -
             i.per(.1, lo=lo, hi=hi)) / Some.magic
 
+  def nmusd(i):
+    return len(i._all), i.per(), i.sd()
 
-class Bins:
+  def same(i, j):
+    xn, xmu, xsd = i.nmusd()
+    yn, ymu, ysd = i.nmusd()
+    return Ttest(xn, xmu, xsd, yn, ymu, ysd)
+
+
+class Ttest(o):
+  small = 0.38  # medium = 1
+  d = {}
+  d[95] = [[3, 3.182], [6, 2.447], [12, 2.179],
+           [24, 2.064], [48, 2.011], [96, 1.985]]
+  d[99] = [[3, 5.841], [6, 3.707], [12, 3.055],
+           [24, 2.797], [48, 2.682], [96, 2.625]]
+
+  def __init__(i, *lst, conf=95):
+    xy = Ttest.d[conf]
+    i.result = i.hedges(Ttest.small, *lst) and i.ttest(xy, *lst)
+
+  def hedges(i, threshold, xn, xmu, xsd, yn, ymu, ysd):
+    # from https://goo.gl/w62iIL
+    print(10000, xn, xmu, xsd)
+    nom = (xn - 1) * xsd ** 2 + (yn - 1) * ysd ** 2
+    denom = (xn - 1) + (yn - 1)
+    sp = (nom / denom)**0.5
+    print("sp", sp, threshold)
+    g = abs(xmu - ymu) / sp
+    c = 1 - 3.0 / (4 * (xn + yn - 2) - 1)
+    return g * c > threshold
+
+  def ttest(i, xy, xn, xmu, xsd, yn, ymu, ysd, conf=95):
+    # debugged using https://goo.gl/CRl1Bz
+    t = (xmu - ymu) / sqrt(max(10 ** -64, xsd**2 / xn + ysd**2 / yn))
+    a = xsd ** 2 / xn
+    b = ysd ** 2 / y.n
+    df = (a + b)**2 / (10 ** -64 + a**2 / (xn - 1) + b**2 / (yn - 1))
+    c = i.critical(xf, int(df + 0.5))
+    return abs(t) > c
+
+  def critical(i, xy, df):
+    x1, y1 = xy[0]
+    if df < x1:
+      return y1
+    for x2, y2 in xy[1:]:
+      if x1 <= df < x2:
+        return y1 + (y2 - y1) * (df - x1) / (x2 - x1)
+      x1, y1 = x2, y2
+    return y2
+
+
+class Unsuper:
   cohen = 0.3  # trivial difference = cohen*sd
   enough = 0.5  # min size of each bin is size**enough
 
   def __init__(i, some):
-    i.some = some
-    i.enough = len(some._all)**Bins.enough
-    i.tiny = Bins.cohen * some.sd()
-    i.splits = i.split(some.all())
-    i.all = [some.all()[x] for x, _ in i.bins(i.splits)]
+    a = some.all()
+    i.enough = len(a)**Unsuper.enough
+    i.tiny = Unsuper.cohen * some.sd()
+    splits = i.split(a)
+    i.bins = [a[x] for x, _ in i.merge(i.split(a), some)]
 
   def split(i, a):
     n1, lst = 0, [[0, 0]]
@@ -83,27 +142,27 @@ class Bins:
       lst[-1][1] = n2 + 1
     return lst
 
-  def bins(i, b4):
+  def merge(i, b4, some):
     j, after = 0, []
     while j < len(b4):
       a = b4[j]
       if j < len(b4) - 1:
         b = b4[j + 1]
-        if i.bothIsBetter(a, b):
+        if i.bothIsBetter(a, b, some):
           a = [a[0], b[1]]
           j += 1
       after += [a]
       j += 1
-    return i.bins(after) if len(after) < len(b4) else after
+    return i.merge(after, some) if len(after) < len(b4) else after
 
-  def bothIsBetter(i, a, b):
-    mid1 = i.some.per(.5, a[0], a[1])
-    mid2 = i.some.per(.5, b[0], b[1])
+  def bothIsBetter(i, a, b, some):
+    mid1 = some.per(.5, a[0], a[1])
+    mid2 = some.per(.5, b[0], b[1])
     if abs(mid1 - mid2) < i.tiny:  # gap too small
       return True
-    sa = i.some.sd(a[0], a[1])
-    sb = i.some.sd(b[0], b[1])
-    sboth = i.some.sd(a[0], b[1])
+    sa = some.sd(a[0], a[1])
+    sb = some.sd(b[0], b[1])
+    sboth = some.sd(a[0], b[1])
     if (sboth < sa and sboth < sb):  # smaller gaps more confusing
       return True
 
@@ -143,7 +202,7 @@ class Tab(o):
 
   def discretize(i):
     for n in i.nums:
-      n.bins = Bins(n).all
+      n.bins = Unsuper(n).bins
       for row in i.rows:
         row.ranges[n.pos] = num2range(row.cells[n.pos], n.bins)
 
@@ -176,10 +235,9 @@ class TestSimp(unittest.TestCase):
     t = Tab(auto93)
     for x in t.x:
       if x.nump:
-        b = Bins(x)
+        b = Unsuper(x)
         print("\n" + x.txt, x.all()[0], x.all()[-1])
-        print("S", b.splits)
-        print("S", b.all)
+        print("S", b.bins)
 
   def test_ranges1(i):
     def y(x):
@@ -192,13 +250,23 @@ class TestSimp(unittest.TestCase):
     a = sorted([y(random()**2) for _ in range(10000)])
     print("range", a[0], a[-1])
     s = Some(inits=a)
-    print("bins", Bins(s).all)
+    print("bins", Unsuper(s).bins)
 
   def test_ranges(i):
     a = [10, 20, 30, 40]
     print("aa", 5, num2range(5, a))
     print("aa", 25, num2range(25, a))
     print("aa", 60, num2range(60, a))
+
+  def test_rtest(i):
+    a = [random() for _ in range(100)]
+    n = 0
+    while n < 1.2:
+      n += .05
+      b = [n * x for x in a]
+      sa = Some(inits=a)
+      sb = Some(inits=b)
+      print("!!!", n, sa.same(sb))
 
 
 if __name__ == '__main__':
