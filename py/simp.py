@@ -1,7 +1,3 @@
-"""
-Trying something simple.
-"""
-
 import unittest
 from random import random, seed
 from data import auto93
@@ -24,6 +20,12 @@ class o:
          for k in sorted(d.keys())
          if str(k)[0] != "_"
          ]) + "}"
+
+  def __add__(i, j):
+    a = i.__dict__
+    b = j.__dict__
+    for k in b:
+      a[k] = a.get(k, 0) + b[k]
 
 
 class Some(o):
@@ -73,7 +75,7 @@ class Some(o):
 
   def same(i, j):
     xn, xmu, xsd = i.nmusd()
-    yn, ymu, ysd = i.nmusd()
+    yn, ymu, ysd = j.nmusd()
     return Ttest(xn, xmu, xsd, yn, ymu, ysd)
 
 
@@ -91,22 +93,20 @@ class Ttest(o):
 
   def hedges(i, threshold, xn, xmu, xsd, yn, ymu, ysd):
     # from https://goo.gl/w62iIL
-    print(10000, xn, xmu, xsd)
     nom = (xn - 1) * xsd ** 2 + (yn - 1) * ysd ** 2
     denom = (xn - 1) + (yn - 1)
     sp = (nom / denom)**0.5
-    print("sp", sp, threshold)
     g = abs(xmu - ymu) / sp
     c = 1 - 3.0 / (4 * (xn + yn - 2) - 1)
     return g * c > threshold
 
   def ttest(i, xy, xn, xmu, xsd, yn, ymu, ysd, conf=95):
     # debugged using https://goo.gl/CRl1Bz
-    t = (xmu - ymu) / sqrt(max(10 ** -64, xsd**2 / xn + ysd**2 / yn))
+    t = (xmu - ymu) / max(10 ** -64, xsd**2 / xn + ysd**2 / yn)**0.5
     a = xsd ** 2 / xn
-    b = ysd ** 2 / y.n
+    b = ysd ** 2 / yn
     df = (a + b)**2 / (10 ** -64 + a**2 / (xn - 1) + b**2 / (yn - 1))
-    c = i.critical(xf, int(df + 0.5))
+    c = i.critical(xy, int(df + 0.5))
     return abs(t) > c
 
   def critical(i, xy, df):
@@ -124,8 +124,9 @@ class Unsuper:
   cohen = 0.3  # trivial difference = cohen*sd
   enough = 0.5  # min size of each bin is size**enough
 
-  def __init__(i, some):
+  def __init__(i, some, want=None):
     a = some.all()
+    i.want = want
     i.enough = len(a)**Unsuper.enough
     i.tiny = Unsuper.cohen * some.sd()
     splits = i.split(a)
@@ -217,7 +218,7 @@ def num2range(x, a):
   return (len(a) - 1) / len(a)
 
 
-class TestSimp(unittest.TestCase):
+class TestSimp(o):  # unittest.TestCase):
   def test_tab(i):
     t = Tab(auto93)
     assert(len(t.cols) == 8)
@@ -259,15 +260,14 @@ class TestSimp(unittest.TestCase):
     print("aa", 60, num2range(60, a))
 
   def test_rtest(i):
-    a = [random() for _ in range(100)]
-    n = 0
-    while n < 1.2:
+    a = [random() for _ in range(1000)]
+    n = 1
+    while n < 1.7:
       n += .05
       b = [n * x for x in a]
       sa = Some(inits=a)
       sb = Some(inits=b)
-      print("!!!", n, sa.same(sb))
+      print("!!!", f"{n: 0.2f}", sa.same(sb))
 
 
-if __name__ == '__main__':
-  unittest.main()
+#if __name__ == '__main__': unittest.main()
