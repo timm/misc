@@ -45,19 +45,55 @@ class o:
     return k
 
 
-class Sorted(o):
-  def __init__(i, a, x=0, y=-1):
-    i.x, i.y, i.has = x, y, sorted(
-        (z for z in a if z[x] != "?"), key=lambda z: z[x])
+Run = NamedTuple('xlo', 'xhi', 'x', 'xmid', 'ys', 'val')
 
-  def per(i, p=.5, lo=0, hi=None):
-    hi = hi or len(i.has) - 1
-    j = lo + (hi - lo) * p
-    return i.has[int(j)][i.x]
 
-  def sd(i, lo=None, hi=None):
-    return (i.per(.9, lo, hi) - i.per(.1, lo, hi)) / 2.54
+def runs(lst, xx=0, yy=-1, want=True, cohen=.3, enough=.5, epsilon=.05):
+  def run1(z):
+    return Run(z, z, xx, o(), 0, 0)
 
+  def ok(z, e=10**-32):
+    b = z.ys.get(1, 0) / (e + all.get(1, 0))
+    r = z.ys.get(0, 0) / (e + all.get(0, 0))
+    z.val = b**2 / (e + b + r) if b > r + epsilon else 0
+    z.xmid = (lst[z.xhi] + lst[z.xlo]) / 2
+    return z
+
+  def split(xlo=0, runs=[run1(0)]):
+    n = len(lst)**enough
+    while n < 10 and n < len(lst) / 2: n *= 1.333
+    for xhi, z in enumerate(lst):
+      if xhi - xlo >= n:
+        if len(lst) - xhi >= n:
+          if z[xx] != lst[xhi - 1][xx]:
+            runs += [run1(xhi)]
+            xlo = xhi
+      now = runs[-1]
+      now.xhi = xhi + 1
+      all.xhi = xhi + 1
+      now.ys.inc(z[yy] == want)
+      all.ys.inc(z[yy] == want)
+    return [ok(run) for run in runs]
+
+  def merge(runs, j=0, tmp=[]):
+    def add(z1, z2): return ok(Run(z1.xlo, z2.xhi, xx, 0, z1.ys + z2.ys, 0)
+    def per(z): return lst[int(len(lst) * z)][xx]
+    d = cohen * (per(.9) - per(.1)) / 2.54
+    while j < len(runs):
+      a = runs[j]
+      if j < len(runs) - 1:
+        b = runs[j + 1]
+        ab = add(a, b)
+        if abs(a.xmid - b.xmid) < d or ab.val > a.val and ab.val > b.val:
+           a = ab
+           j += 1
+       tmp += [a]
+       j += 1
+    return tmp if len(tmp) == len(runs) else merge(tmp, 0, [])
+  # --------------------------------------------------------------
+  lst = sorted((z for z in lst if z[x] != "?"), key=lambda z: z[x])
+  all = run1[0]
+  return merge(split())
 
 class Row(o):
   def __init__(i, tab, cells):
@@ -96,112 +132,6 @@ class Tab(o):
     for j in i.cols.nums:
       s = Sorted(rows, x=j, y=i.cols.klass)
       b = Bins(s, col=j)
-
-
- def bins(s,   
-         col=j,
-         cohen=0.3,  # trivial difference = cohen*sd
-         enough=0.5, # min size of each bin is size**enough
-         want=None):
-   want=want
-   enough=len(a)**enough
-   tiny=cohen * s.ad()
-   all=dict()
-   n1, lst=0, [[0, 0, o(), col, all]]
-   for n2, xy in enumerate(a):
-     if n2 - n1 >= i.enough:  # enough here
-       if len(a) - n2 >= i.enough:  # enough after
-         if fx(a[n2]) != fx(a[n2 - 1]):  # we can split here
-           lst += [[n2, n2, o(), col, all]]
-           n1=n2
-     lst[-1][1]=n2 + 1
-     if i.want:
-        lst[-1][2].inc(fy(a[n2]) == i.want)
-
-
-
-   splits=split(a)
-   i.bins=[a[x] for x, _ in
-               i.merge(i.split(a, col, fx, fy), some)]
-
-   def split(i, a, col, fx, fy):
-        return lst
-
-   def merge1(a, b):
-     return [a[0], b[1], a[2].add(b[2]), a[3], a[4]]
-
-   def merge(i, b4, some):
-     j, after=0, []
-     while j < len(b4):
-       a=b4[j]
-       if j < len(b4) - 1:
-         b=b4[j + 1]
-         c=a.add(b)
-         if i.bothIsBetter(a, b, some):
-           a=[a[0], b[1]]
-           j += 1
-       after += [a]
-       j += 1
-     return i.merge(after, some) if len(after) < len(b4) else after
-
-   def bothIsBetter(i, a, b, some):
-     mid1=some.per(.5, a[0], a[1])
-     mid2=some.per(.5, b[0], b[1])
-     if abs(mid1 - mid2) < i.tiny:  # gap too small
-       return True
-     sa=some.sd(a[0], a[1])
-     sb=some.sd(b[0], b[1])
-     sboth=some.sd(a[0], b[1])
-     if (sboth < sa and sboth < sb):  # smaller gaps more confusing
-       return True
-
-
-class Unsuper:
-  cohen = 0.3  # trivial difference = cohen*sd
-  enough = 0.5  # min size of each bin is size**enough
-
-  def __init__(i, some, want=None):
-    a = some.all()
-    i.want = want
-    i.enough = len(a)**Unsuper.enough
-    i.tiny = Unsuper.cohen * some.sd()
-    splits = i.split(a)
-    i.bins = [a[x] for x, _ in i.merge(i.split(a), some)]
-
-  def split(i, a):
-    n1, lst = 0, [[0, 0]]
-    for n2, x in enumerate(a):
-      if n2 - n1 >= i.enough:  # enough here
-        if len(a) - n2 >= i.enough:  # enough after
-          if a[n2] != a[n2 - 1]:  # we can split here
-            lst += [[n2, n2]]
-            n1 = n2
-      lst[-1][1] = n2 + 1
-    return lst
-
-  def merge(i, b4, some):
-    j, after = 0, []
-    while j < len(b4):
-      a = b4[j]
-      if j < len(b4) - 1:
-        b = b4[j + 1]
-        if i.bothIsBetter(a, b, some):
-          a = [a[0], b[1]]
-          j += 1
-      after += [a]
-      j += 1
-    return i.merge(after, some) if len(after) < len(b4) else after
-
-  def bothIsBetter(i, a, b, some):
-    mid1 = some.per(.5, a[0], a[1])
-    mid2 = some.per(.5, b[0], b[1])
-    if abs(mid1 - mid2) < i.tiny:  # gap too small
-      return True
-    sa = some.sd(a[0], a[1])
-    sb = some.sd(b[0], b[1])
-    sboth = some.sd(a[0], b[1])
-    if (sboth < sa and sboth < sb):  # smaller gaps more confusing
-      return True
 
 
 def num2range(x, a):
