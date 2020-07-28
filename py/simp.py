@@ -1,17 +1,19 @@
 import unittest
+import re
 from random import random, seed
 from data import auto93
 import copy
-from docopt import docopt as cli
+from docopt import docopt
 from collections import namedtuple
 
 usage = """Simp
 
 Usage: simp.py [options]
 
- -h  help
- -k [0.9]
-
+Options:
+  -h          Help.
+  --seed=<n>  Set random number seed [default: 1].
+  -k=<n>      Speed in knots [default: 10].
 """
 
 
@@ -45,7 +47,7 @@ class o:
     return k
 
 
-Run = NamedTuple('xlo', 'xhi', 'x', 'xmid', 'ys', 'val')
+Run = namedtuple('Run', 'xlo xhi x xmid ys val')
 
 
 def runs(lst, xx=0, yy=-1, want=True, cohen=.3, enough=.5, epsilon=.05):
@@ -61,7 +63,8 @@ def runs(lst, xx=0, yy=-1, want=True, cohen=.3, enough=.5, epsilon=.05):
 
   def split(xlo=0, runs=[run1(0)]):
     n = len(lst)**enough
-    while n < 10 and n < len(lst) / 2: n *= 1.333
+    while n < 10 and n < len(lst) / 2:
+      n *= 1.333
     for xhi, z in enumerate(lst):
       if xhi - xlo >= n:
         if len(lst) - xhi >= n:
@@ -76,7 +79,9 @@ def runs(lst, xx=0, yy=-1, want=True, cohen=.3, enough=.5, epsilon=.05):
     return [ok(run) for run in runs]
 
   def merge(runs, j=0, tmp=[]):
-    def add(z1, z2): return ok(Run(z1.xlo, z2.xhi, xx, 0, z1.ys + z2.ys, 0)
+    def add(z1, z2): return ok(
+        Run(z1.xlo, z2.xhi, xx, 0, z1.ys + z2.ys, 0))
+
     def per(z): return lst[int(len(lst) * z)][xx]
     d = cohen * (per(.9) - per(.1)) / 2.54
     while j < len(runs):
@@ -85,15 +90,16 @@ def runs(lst, xx=0, yy=-1, want=True, cohen=.3, enough=.5, epsilon=.05):
         b = runs[j + 1]
         ab = add(a, b)
         if abs(a.xmid - b.xmid) < d or ab.val > a.val and ab.val > b.val:
-           a = ab
-           j += 1
-       tmp += [a]
-       j += 1
+          a = ab
+          j += 1
+      tmp += [a]
+      j += 1
     return tmp if len(tmp) == len(runs) else merge(tmp, 0, [])
   # --------------------------------------------------------------
   lst = sorted((z for z in lst if z[x] != "?"), key=lambda z: z[x])
   all = run1[0]
   return merge(split())
+
 
 class Row(o):
   def __init__(i, tab, cells):
@@ -127,11 +133,6 @@ class Tab(o):
 
   def row(i, lst):
     i.rows += [Row(i, cells)]
-
-  def discretize(i):
-    for j in i.cols.nums:
-      s = Sorted(rows, x=j, y=i.cols.klass)
-      b = Bins(s, col=j)
 
 
 def num2range(x, a):
@@ -196,7 +197,20 @@ class TestSimp(unittest.TestCase):
       print("!!!", f"{n: 0.2f}", sa.same(sb))
 
 
+def atom(z):
+  try:
+    return int(z)
+  except:
+    try:
+      return float(z)
+    except:
+      return z
+
+
+def com(s):
+  return o(**{re.sub(r"^[-]+", "", k): atom(v) for k, v in docopt(s).items()})
+
+
 if __name__ == '__main__':
-  print(: w
-        cli(usage))  # unittest.main():1
-  : 1
+  print(com(usage).seed)
+  # unittest.main():1
