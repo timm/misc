@@ -1,17 +1,21 @@
-import unittest
 import re
-from random import random, seed
-from data import auto93
+import sys
 import copy
+import bisect
+import unittest
+from data import auto93
 from docopt import docopt
+from random import random, seed
 from collections import namedtuple
 
 usage = """Simp
 
-Usage: simp.py [options]
+Usage:
+  simp.py [options]
 
 Options:
   -h          Help.
+  -v          Verbose.
   --seed=<n>  Set random number seed [default: 1].
   -k=<n>      Speed in knots [default: 10].
 """
@@ -40,25 +44,71 @@ class o:
   def inc(i, x):
     i.__dict__[x] = i.__dict__.get(x, 0) + 1
 
-  def add(i, j):
+  def __add__(i, j):
     k = copy.deepcopy(i)
-    for x in j:
-      k.__dict__[x] = j[k] + k.__dict__.get(x, 0)
+    for x in j.__dict__:
+      k.__dict__[x] = j.__dict__[x] + k.__dict__.get(x, 0)
     return k
 
+  def get(i, x, default):
+    return i.__dict__.get(x, default)
 
-Run = namedtuple('Run', 'xlo xhi x xmid ys val')
+
+class Row(o):
+  def __init__(i, tab, cells):
+    i._tab = tab
+    i.cells = cells
+    i.bins = cells[:]
+
+  def __getitem__(i, k):
+    return i.cells[k]
 
 
-def runs(lst, xx=0, yy=-1, want=True, cohen=.3, enough=.5, epsilon=.05):
+class Tab(o):
+  ch = o(klass="!", num="$",
+         less="<", more=">", skip="?",
+         nums="><$", goal="<>!,")
+
+  def __init__(i, lst=[]):
+    i.rows = []
+    i.cols = o(all={}, w={}, klass=None, x={}, y={}, syms={}, nums={})
+    [i.add(row) for row in cols(rows(lst))]
+
+  def add(i, row):
+    i.row(row) if i.cols.all else i.header(row)
+
+  def header(i, lst):
+    c, ch = i.cols, Tab.ch
+    for pos, txt in enumerate(lst):
+      c.all[pos] = txt
+      (c.nums if txt[0] in ch.nums else c.syms)[pos] = txt
+      (c.x if txt[0] in ch.goal else c.y)[pos] = txt
+      c.w[pos] = -1 if ch.less in txt else 1
+      if ch.klass in txt:
+        c.klass = pos
+
+  def row(i, lst):
+    i.rows += [Row(i, lst)]
+
+  def bins(i):
+    for x in i.cols.nums:
+      print("")
+      for z in bins(i.rows, want=400, x=x, y=i.cols.klass):
+        print(z.xlo, z.xhi)
+
+
+def bins(lst, x=0, y=-1, want=True,
+         cohen=.3, enough=.5, epsilon=.05):
   def run1(z):
-    return Run(z, z, xx, o(), 0, 0)
+    return o(xlo=z, xhi=z, x=x, ys=o(), xmid=0, val=0)
+
+  def it(n): return lst[min(n, len(lst) - 1)]
 
   def ok(z, e=10**-32):
     b = z.ys.get(1, 0) / (e + all.get(1, 0))
     r = z.ys.get(0, 0) / (e + all.get(0, 0))
     z.val = b**2 / (e + b + r) if b > r + epsilon else 0
-    z.xmid = (lst[z.xhi] + lst[z.xlo]) / 2
+    z.xmid = (it(z.xhi)[x] + it(z.xlo)[x]) / 2
     return z
 
   def split(xlo=0, runs=[run1(0)]):
@@ -68,21 +118,23 @@ def runs(lst, xx=0, yy=-1, want=True, cohen=.3, enough=.5, epsilon=.05):
     for xhi, z in enumerate(lst):
       if xhi - xlo >= n:
         if len(lst) - xhi >= n:
-          if z[xx] != lst[xhi - 1][xx]:
+          if z[x] != lst[xhi - 1][x]:
             runs += [run1(xhi)]
             xlo = xhi
       now = runs[-1]
       now.xhi = xhi + 1
       all.xhi = xhi + 1
-      now.ys.inc(z[yy] == want)
-      all.ys.inc(z[yy] == want)
+      now.ys.inc(z[y] == want)
+      all.ys.inc(z[y] == want)
+      #print(xhi, y, z[y], want, z[y] == want)
     return [ok(run) for run in runs]
 
   def merge(runs, j=0, tmp=[]):
     def add(z1, z2): return ok(
-        Run(z1.xlo, z2.xhi, xx, 0, z1.ys + z2.ys, 0))
+        o(xlo=z1.xlo, xhi=z2.xhi, x=x, ys=z1.ys + z2.ys,
+          xmid=0, val=0))
 
-    def per(z): return lst[int(len(lst) * z)][xx]
+    def per(z): return lst[int(len(lst) * z)][x]
     d = cohen * (per(.9) - per(.1)) / 2.54
     while j < len(runs):
       a = runs[j]
@@ -97,77 +149,62 @@ def runs(lst, xx=0, yy=-1, want=True, cohen=.3, enough=.5, epsilon=.05):
     return tmp if len(tmp) == len(runs) else merge(tmp, 0, [])
   # --------------------------------------------------------------
   lst = sorted((z for z in lst if z[x] != "?"), key=lambda z: z[x])
-  all = run1[0]
+  all = run1(0)
   return merge(split())
 
 
-class Row(o):
-  def __init__(i, tab, cells):
-    i._tab = tab
-    i.cells = cells
-    i.ranges = cells[:]
+def rows(x=None, f=sys.stdin):
+  "Read from stdio or file or string or list. Kill whitespace or comments."
+  def items(z):
+    for y in z:
+      yield y
+
+  def strings(z):
+    for y in z.splitlines():
+      yield y
+
+  def csv(z):
+    with open(z) as fp:
+      for y in fp:
+        yield y
+
+  if x:
+    if isinstance(x, (list, tuple)):
+      f = items
+    elif x[-3:] == 'csv':
+      f = csv
+    else:
+      f = strings
+  for y in f(x):
+    if isinstance(y, str):
+      y = re.sub(r'([\n\t\r ]|#.*)', '', y).strip()
+      if y:
+        yield y.split()
+    else:
+      yield y
 
 
-class Tab(o):
-  num = "$"
-  less = "<"
-  more = ">"
-  skip = "?"
-  nums = "><$"
-  goal = "<>!"
-  klass = "!"
-
-  def __init__(i, lst):
-    i.rows = []
-    i.cols = o(all={}, klass=None, x={}, y={}, syms={}, nums={})
-    [i.row(row) if i.cols.all else i.header(row) for row in lst]
-
-  def header(i, lst):
-    c = i.cols
-    for pos, txt in enumerate(lst):
-      c.all[pos] = txt
-      (c.nums if txt[0] in Tab.nums else c.syms)[pos] = txt
-      (c.x if txt[0] in Tab.goal else c.y)[pos] = txt
-      if Tab.klass in txt:
-        c.klass = pos
-
-  def row(i, lst):
-    i.rows += [Row(i, cells)]
-
-
-def num2range(x, a):
-  if x == Tab.skip:
-    return x
-  n = len(a)
-  for j in range(1, len(a)):
-    if a[j - 1] <= x < a[j]:
-      return j / len(a)
-  return (len(a) - 1) / len(a)
+def cols(src):
+  "Ignore columns if, on line one, the name contains '?'."
+  todo = None
+  for a in src:
+    todo = todo or [n for n, s in enumerate(a) if "?" not in s]
+    yield [a[n] for n in todo]
 
 
 class TestSimp(unittest.TestCase):
   def test_tab(i):
     t = Tab(auto93)
-    assert(len(t.cols) == 8)
-
-  def test_some(i):
-    seed(1)
-    s = Some()
-    for j in range(246):
-      s.add(j)
-    print("p", s.per(.5))
-    assert(s.per(.5) == 123)
+    assert(len(t.cols.all) == 8)
+    print(len(t.rows))
+    print(t.rows[-1].cells)
 
   def test_bins(i):
     seed(1)
     t = Tab(auto93)
-    for x in t.x:
-      if x.nump:
-        b = Unsuper(x)
-        print("\n" + x.txt, x.all()[0], x.all()[-1])
-        print("S", b.bins)
+    t.bins()
 
-  def test_ranges1(i):
+  def rest_ranges1(i):
     def y(x):
       if x < 0.3:
         return 1 + random() / 2
@@ -180,37 +217,21 @@ class TestSimp(unittest.TestCase):
     s = Some(inits=a)
     print("bins", Unsuper(s).bins)
 
-  def test_ranges(i):
-    a = [10, 20, 30, 40]
-    print("aa", 5, num2range(5, a))
-    print("aa", 25, num2range(25, a))
-    print("aa", 60, num2range(60, a))
 
-  def test_rtest(i):
-    a = [random() for _ in range(1000)]
-    n = 1
-    while n < 1.7:
-      n += .05
-      b = [n * x for x in a]
-      sa = Some(inits=a)
-      sb = Some(inits=b)
-      print("!!!", f"{n: 0.2f}", sa.same(sb))
-
-
-def atom(z):
-  try:
-    return int(z)
-  except:
-    try:
-      return float(z)
-    except:
+def opt(d):
+  def val(z):
+    if isinstance(z, bool):
       return z
-
-
-def com(s):
-  return o(**{re.sub(r"^[-]+", "", k): atom(v) for k, v in docopt(s).items()})
+    try:
+      return int(z)
+    except:
+      try:
+        return float(z)
+      except:
+        return z
+  return o(**{re.sub(r"^[-]+", "", k): val(d[k]) for k in d})
 
 
 if __name__ == '__main__':
-  print(com(usage).seed)
-  # unittest.main():1
+  my = opt(docopt(usage))
+  unittest.main()
