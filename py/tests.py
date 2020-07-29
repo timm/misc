@@ -19,7 +19,7 @@ class TestSimp(unittest.TestCase):
 
   def test_dom(i, n=20):
     t = Tab(auto93)
-    t.bins(40)
+    t.bins(goal=40)
     for r1 in t.rows:
       r1.dom = 0
       for _ in range(n):

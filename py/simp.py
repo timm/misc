@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
 """
 Name:
-    simp    
+    simp
 
 Usage:
-    simp.py [options]   
+    simp.py [options]
 
 Options:
-    -h        Help.   
-    -v        Verbose.   
-    -s=n      Set random number seed [default: 1].   
-    -k=n      Speed in knots [default: 10].    
+
+    -h        Help.
+    -v        Verbose.
+    -s=n      Set random number seed [default: 1].
+    -k=n      Speed in knots [default: 10].
 
 Author:
    Tim Menzies
 
 Copyright:
-   (c) 2020 Tim Menzies, MIT license
-"""
+   (c) 2020 Tim Menzies, MMIT license,
+   https://opensource.org/licenses/MIT
 
+"""
 
 import re
 import sys
@@ -93,6 +95,21 @@ class Row(o):
       s2 -= math.e**(c.w[k] * (y - x) / n)
     return s1 / n < s2 / n
 
+  def dist(i, j, what="x"):
+    d, n = 0, 0
+    for c in i._tab.cols[what]:
+      a, b = i.cells[c], j.cells[c]
+      n += 1
+      if a == "?" and b == "?":
+        d = 1
+      else:
+        if a == "?":
+          a = 0 if b > 0.5 else 1
+        if b == "?":
+          b = 0 if a > 0.5 else 1
+      d += abs(a - b) ^ 2
+    return (d / (n + 0.001))**0.5
+
   def status(i):
     return [i[y] for y in i._tab.cols.y]
 
@@ -125,7 +142,8 @@ class Tab(o):
   def row(i, lst):
     i.rows += [Row(i, lst)]
 
-  def bins(i, want=None):
+  def bins(i, goal=None):
+    print("goal", goal)
     for x in i.cols.nums:
       i._bins[x] = bins = numbins(
           i.rows, want=want, x=x, y=i.cols.klass)
@@ -138,7 +156,7 @@ def place(runs, x):
     return x
   n = len(runs)
   for pos, run in enumerate(runs):
-    #print(x, run.xlo)
+    # print(x, run.xlo)
     if x < run.xlo:
       break
     if run.xlo <= x < run.xhi:
@@ -146,7 +164,7 @@ def place(runs, x):
   return round((pos + 1) / n, 2)
 
 
-def symbins(lst, x=0, y=-1, want=True, *_):
+def symbins(lst, x=0, y=-1, want=None, *_):
   def run1(z="__all__"):
     return o(xlo=z, xhi=z, x=x, ys=o(), xmid=z, val=0)
   all = run1()
@@ -171,7 +189,7 @@ def bore(z, all, e=0.00001):
   return z
 
 
-def numbins(lst, x=0, y=-1, want=True,
+def numbins(lst, x=0, y=-1, want=None,
             cohen=.2, enough=.2, trivial=.05):
   def run1(z="__all__"):
     return o(xlo=z, xhi=z, x=x, ys=o(), xmid=0, val=0)
@@ -212,7 +230,7 @@ def numbins(lst, x=0, y=-1, want=True,
       if j < len(runs) - 1:
         b = runs[j + 1]
         ab = add(a, b)
-        if abs(a.xmid - b.xmid) < d or ab.val >= a.val and ab.val >= b.val:
+        if abs(a.xmid - b.xmid) < d or want and ab.val >= a.val and ab.val >= b.val:
           a = ab
           j += 1
       tmp += [a]
