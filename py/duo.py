@@ -26,10 +26,10 @@ Examples:
 
 Notes:
     Simplest to tricky-est, this code divides 
-    into `LIB`,`BINS`,`TABLE`.
+    into `OTHER`,`BINS`,`TABLE`.
 
-    - `LIB` contains misc  utilities.
-    - `TABLE` manages sets of rows.
+    - `OTHER` contains misc  utilities.
+    - `ROW` manages sets of rows.
     - `BINS` does discretization.
 
 Author:
@@ -54,9 +54,9 @@ from random import shuffle as rshuffle
 
 
 # ---------------------------------------------
-# LIB
+# Other, misc, lib functions
 def opt(d, **types):
-  """LIB: coerce dictionaries into simple keys
+  """Coerce dictionaries into simple keys
   whose values are of known `types`."""
   d = {re.sub(r"^[-]+", "", k): v for k, v in d.items()}
   for k, f in types.items():
@@ -65,22 +65,22 @@ def opt(d, **types):
 
 
 def same(x):
-  "LIB: Return `x`, unaltered."
+  "Return `x`, unaltered."
   return x
 
 
 def first(a):
-  "LIB: Return first item in `a`."
+  "Return first item in `a`."
   return a[0]
 
 
 def last(a):
-  "LIB: Return last item in `a`."
+  "Return last item in `a`."
   return a[-1]
 
 
 def shuffle(a):
-  "LIB: return a randomly shuffled list."
+  "Return a randomly shuffled list."
   rshuffle(a)
   return a
 
@@ -167,7 +167,7 @@ class Row(o):
 
 class Tab(o):
   """
-  TABLE:  holds many examples in `rows`.  Also, `cols` stores
+  Holds many examples in `rows`.  Also, `cols` stores
   type descriptions for each column (and `cols` is built from the
   names in the first row).
   """
@@ -214,51 +214,49 @@ class Tab(o):
     `goal=None` then just divide into sqrt(N) bins, that differ
     by more than a small amount (at least `.2*sd`).
     """
-    def appy(runs, x):
+    def appy(lst, x):
       if x == "?":
         return x
-      n = len(runs)
-      for pos, run in enumerate(runs):
-        # print(x, run.xlo)
-        if x < run.xlo:
+      n = len(lst)
+      for pos, bin in enumerate(lst):
+        # print(x, bin.xlo)
+        if x < bin.xlo:
           break
-        if run.xlo <= x < run.xhi:
+        if bin.xlo <= x < bin.xhi:
           break
       return round((pos + 1) / n, 2)
     # ----------------
     for x in i.cols.nums:
       # find the bins
-      i._bins[x] = bins = numbins(
-          i.rows, want=want, x=x, goal=goal, cohen=cohen,
-          y=i.cols.klass)
+      i._bins[x] = bins = bins4nums(
+          i.rows, x=x, goal=goal, cohen=cohen, y=i.cols.klass)
       # apply the bins
       for row in i.rows:
         row.bins[x] = appy(bins, row[x])
 
 
-def symbins(lst, x=0, y=-1, want=None, *_):
-  "BINS: return ranges for columns of symbols."
-  def run1(z="__all__"):
-    return o(xlo=z, xhi=z, x=x, ys=o(), val=0)
-  all = run1()
+def bin0(z="__all__"):
+  return o(xlo=z, xhi=z, x=x, ys=o(), val=0)
+
+
+def bins4syms(lst, x=0, y=-1, goal=None, *_):
+  "Return ranges for columns of symbols."
+  all = bin0()
   bins = {}
   for z in lst:
     xx, yy = z[x], z[y]
     if xx != "?":
       if xx not in bins:
-        bins[xx] = run1(xx)
+        bins[xx] = bin0(xx)
       one = bins[xx]
-      klass = 1 if yy == want else 0
+      klass = 1 if yy == goal else 0
       one.ys.inc(klass)
       all.ys.inc(klass)
-  return [score(one, all) for one in bins.values()]
+  return [binsScore(one, all) for one in bins.values()]
 
 
-def score(z, all, e=0.00001):
-  """
-  Score a bin by prob*support that it selects for the goal.
-  If too small, set to zero.
-  """
+def binsScore(z, all, e=0.00001):
+  "Score a bin by prob*support that it selects for the goal."
   yes = z.ys.d.get(1, 0) / (all.ys.d.get(1, 0) + e)
   no = z.ys.d.get(0, 0) / (all.ys.d.get(0, 0) + e)
   tmp = yes**2 / (yes + no + e)
@@ -266,13 +264,9 @@ def score(z, all, e=0.00001):
   return z
 
 
-def numbins(lst, x=0, y=-1, want=None,
-            cohen=.2, enough=.2, trivial=.05):
-  "BINS: return ranges for columns of numbers."
-  def run1(z="__all__"):
-    "Splits have these slots."
-    return o(xlo=z, xhi=z, x=x, ys=o(), val=0)
-
+def bins4nums(lst, x=0, y=-1, goal=None,
+              cohen=.2, enough=.2, trivial=.05):
+  "Return ranges for columns of numbers."
   def split(xlo=0, runs=[run1(0)]):
     "Split a long list into a few bins."
     n = len(lst)**enough
@@ -282,42 +276,41 @@ def numbins(lst, x=0, y=-1, want=None,
       if xhi - xlo >= n:  # split when big enough
         if len(lst) - xhi >= n:  # split when enough remains after
           if z[x] != lst[xhi - 1][x]:  # split when values differ
-            runs += [run1(xhi)]
+            runs += [bin0(xhi)]
             xlo = xhi
       now = runs[-1]
       now.xhi = xhi + 1
       all.xhi = xhi + 1
-      klass = 1 if z[y] == want else 0
+      klass = 1 if z[y] == goal else 0
       now.ys.inc(klass)
       all.ys.inc(klass)
-    return [score(run) for run in runs]
+    return [binsScore(run) for run in runs]
 
-  def merge(runs, j=0, tmp=[]):
-    """Merge things that are too small to be difference
-    or, if we know the goal we want,  if the splits
-    aren't good ways to get to the goal."""
+  def merge(bins, j=0, tmp=[]):
+    "Merge dull splits"
     def add(z1, z2):
-      return score(o(xlo=z1.xlo, xhi=z2.xhi, x=x,
-                     ys=z1.ys + z2.ys, val=0))
+      return binsScore(o(xlo=z1.xlo, xhi=z2.xhi, x=x,
+                         ys=z1.ys + z2.ys, val=0))
 
     def per(z=0.5):
       return lst[int(len(lst) * z)][x]
     # --------------------------------------
     d = cohen * (per(.9) - per(.1)) / 2.54  # cohen*sd
-    while j < len(runs):
-      a = runs[j]
-      if j < len(runs) - 1:
-        b = runs[j + 1]
+    while j < len(bins):
+      a = bins[j]
+      if j < len(bins) - 1:
+        b = bins[j + 1]
         ab = add(a, b)
-        # split if the difference is too small or splits dont do better for `want`.
-        if(per(b) - per(a)) < d or want and ab.val >= a.val and ab.val >= b.val:
+        tooLittleDifference = (per(b) - per(a)) < d
+        notBetterForGoal = goal and ab.val >= a.val and ab.val >= b.val
+        if tooLittleDifference or notBetterForGoal:
           a = ab
           j += 1
       tmp += [a]
       j += 1
-    return tmp if len(tmp) == len(runs) else merge(tmp, 0, [])
+    return bins if len(tmp) == len(bins) else merge(tmp, 0, [])
 
-  def cleanup(z):
+  def clean(z):
     "Final clean up. Replace indexes with values at those indexes."
     def n(n0): return lst[min(len(lst) - 1, n0)][x]
     z.xlo, z.xhi = n(z.xlo), n(z.xhi)
@@ -326,7 +319,7 @@ def numbins(lst, x=0, y=-1, want=None,
   # --------------------------------------------------------------
   lst = sorted((z for z in lst if z[x] != "?"), key=lambda z: z[x])
   all = run1(0)
-  return [xplain(run) for run in merge(split())]
+  return [clean(bin) for bin in merge(split())]
 
 
 def smo(tab, n1=10):
