@@ -34,7 +34,7 @@ class TestSimp(unittest.TestCase):
 
   def test_dom(i):
     t = Tab(auto93)
-    t.bins()
+    t.bins(goal=40)
     for c, b in t._bins.items():
       print(c, t.cols.all[c], len(b))
 
