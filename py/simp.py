@@ -1,37 +1,38 @@
 #!/usr/bin/env python3
-""""
-asdas
 """
+Name:
+    simp    
+
+Usage:
+    simp.py [options]   
+
+Options:
+    -h        Help.   
+    -v        Verbose.   
+    -s=n      Set random number seed [default: 1].   
+    -k=n      Speed in knots [default: 10].    
+
+Author:
+   Tim Menzies
+
+Copyright:
+   (c) 2020 Tim Menzies, MIT license
+"""
+
 
 import re
 import sys
 import math
 import copy
 import bisect
-import unittest
-from tests import *
-from data import auto93
 from docopt import docopt
 from random import random, seed, choice
 from random import shuffle as rshuffle
 
-usage = """Simp
-
-Usage:
-    simp.py [options]
-
-Options:
-    -h          Help.
-    -v          Verbose.
-    --seed=<n>  Set random number seed [default: 1].
-    -k=<n>      Speed in knots [default: 10].
-
-"""
-
 
 def opt(d):
-  d = o(v="-v" in d,
-        seed=int(d["--seed"]),
+  d = o(v=d["-v"],
+        seed=int(d["-s"]),
         k=int(d["-k"]))
   seed(d.seed)
   return d
@@ -284,6 +285,5 @@ def cols(src):
 
 
 if __name__ == '__main__':
-  my = opt(docopt(usage))
+  my = opt(docopt(__doc__))
   print(my)
-  unittest.main()

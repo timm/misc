@@ -1,5 +1,5 @@
 import unittest
-from simp import Tab, pairs
+from simp import *
 from data import auto93, diabetes
 from random import seed, choice
 
@@ -37,3 +37,7 @@ class TestSimp(unittest.TestCase):
     t.bins()
     for c, b in t._bins.items():
       print(c, t.cols.all[c], len(b))
+
+
+if __name__ == '__main__':
+  unittest.main()
