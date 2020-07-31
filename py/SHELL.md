@@ -13,7 +13,7 @@ alias ok="pytest.py  $Ell/duo.py"
 alias spy="rerun 'pytest duo.py'"    
 alias doc="sh $Ell/DOC.md"  
 
-ok1() { pytest.py -s -k $1 $Ell/duo.py; }  
+ok1() { pytest -s -k $1 $Ell/duo.py; }  
 
 
 PROMPT_COMMAND='echo -ne "🔆 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'   
