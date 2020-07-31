@@ -10,19 +10,20 @@ Usage:
     duo [options]
 
 Options:
-    -h        Help.
-    -v        Verbose.
-    -s=n      Set random number seed [default: 1].
+
+    -h        Help.  
+    -v        Verbose.  
+    -s=n      Set random number seed [default: 1].  
     -k=n      Speed in knots [default: 10].
 
 Examples:
 
-    - Installation: `sh INSTALL.md`
-        - optionally installs some command line IDE tools
-    - Unit tests. 'pytest.py  duo.py'
-    - One Unit test. `pytest.py -s -k tion1 duo.py`
+    - Installation: `sh INSTALL.md`  
+    - Unit tests. 'pytest.py  duo.py'  
+    - One Unit test. `pytest.py -s -k tion1 duo.py` 
     - Continual tests: `rerun 'pytest duo.py'`
     - Documentation: `sh DOC.md`
+    - Add some shell tricks: `sh SHELL.md`
 
 Notes:
     Simplest to tricky-est, this code divides
@@ -54,7 +55,7 @@ from random import shuffle as rshuffle
 
 
 # ---------------------------------------------
-# Other, misc, lib functions
+# Misc, lib functions
 def opt(d, **types):
   """Coerce dictionaries into simple keys
   whose values are of known `types`."""
@@ -64,32 +65,16 @@ def opt(d, **types):
   return o(**d)
 
 
-def same(x):
-  "Return `x`, unaltered."
-  return x
-
-
-def first(a):
-  "Return first item in `a`."
-  return a[0]
-
-
-def last(a):
-  "Return last item in `a`."
-  return a[-1]
-
-
-def shuffle(a):
-  "Return a randomly shuffled list."
-  rshuffle(a)
-  return a
+def same(x): return x
+def first(a): return a[0]
+def last(a): return a[-1]
+def shuffle(a): rshuffle(a); return a
 
 
 class o:
   """LIB: Class that can pretty print; that
   can `inc`rement and `__add__` their values."""
   def __init__(i, **d):
-    "New item."
     i.__dict__.update(**d)
 
   def __repr__(i):
@@ -99,23 +84,6 @@ class o:
     return n + "{" + ', '.join(
         [(':%s %s' % (k, d[k])) for k in sorted(d.keys())
             if str(k)[0] != "_"]) + "}"
-
-  def inc(i, x):
-    "Increment `x` (starting at zero)"
-    d = i.__dict__
-    d[x] = d.get(x, 0) + 1
-
-  def __add__(i, j):
-    "Add together the numeric values in `i` and `j`."
-    k = o()
-    id = i.__dict__
-    jd = j.__dict__
-    kd = k.__dict__
-    for x, v in id.items():
-      kd[x] = v
-    for x, v in jd.items():
-      kd[x] = v + kd.get(x, 0)
-    return k
 
 # ---------------------------------
 
@@ -205,8 +173,10 @@ class Rows(o):
       if ch.klass in txt:
         c.klass = pos
 
-  def row(i, lst):
-    i.all += [Row(i, lst)]
+  def row(i, z):
+    "add a new row"
+    z = z.cells if isinstance(z, Row) else z
+    i.all += [Row(i, z)]
 
   def bins(i, goal=None, cohen=.2):
     """
@@ -214,7 +184,7 @@ class Rows(o):
     `goal=None` then just divide into sqrt(N) bins, that differ
     by more than a small amount (at least `.2*sd`).
     """
-    def appy(lst, x):
+    def apply(lst, x):
       if x == "?":
         return x
       n = len(lst)
@@ -228,54 +198,61 @@ class Rows(o):
     # ----------------
     for x in i.cols.nums:
       # find the bins
-      i._bins[x] = bins = bins4nums(
+      i._bins[x] = bins = Bins.nums(
           i.all, x=x, goal=goal, cohen=cohen, y=i.cols.klass)
       # apply the bins
       for row in i.all:
-        row.bins[x] = appy(bins, row[x])
+        row.bins[x] = apply(bins, row[x])
 
 
-class Bins(o):
-  """Bins is a farcade holding code to manage `bin`s.
-  A `bin` is a core data structure in DUO. It
+class Bin(o):
+  """A `bin` is a core data structure in DUO. It
   runs from some `lo` to `hi` value in a column, It is
   associated with some `ys` values. Some bins have higher
   `val`ue than others (i.e. better predict for any
   known goal."""
-  def __init__(i, lst, num=True, x=0, y=-1, goal=None,
-               cohen=0.3):
-    if num:
-      return Bins.nums(lst, x=x, y=y, goal=None, cohen=cohen)
-    else:
-      return Bins.syms(lst, x=x, y=y, goal=None)
+  def __init__(i, z="__alll__", x=0):
+    i.xlo = i.xhi = z
+    i.x, i.val = x, 0
+    i.ys = {}
 
-  def make(x, z="__all__"):
-    return o(xlo=z, xhi=z, x=x, ys=o(), val=0)
-
-  def selects(z, row):
+  def selects(i, row):
     """Bin`s know the `x` index of the column
     they come from (so `bin`s can be used to select rows
     whose `x` values fall in between `lo` and `hi`."""
-    tmp = row[z.x]
-    return tmp != "?" and z.xlo <= row[z.x] <= row[z.xhi]
+    tmp = row[i.x]
+    return tmp != "?" and i.xlo <= row[i.x] <= row[i.xhi]
 
-  def score(z, all, e=0.00001):
+  def score(i, all, e=0.00001):
     "Score a bin by prob*support that it selects for the goal."
-    yes = z.ys.__dict__.get(1, 0) / (all.ys.__dict__.get(1, 0) + e)
-    no = z.ys.__dict__.get(0, 0) / (all.ys.__dict__.get(0, 0) + e)
+    yes = i.ys.get(1, 0) / (all.ys.get(1, 0) + e)
+    no = i.ys.get(0, 0) / (all.ys.get(0, 0) + e)
     tmp = yes**2 / (yes + no + e)
-    z.val = tmp if tmp > 0.01 else 0
-    return z
+    i.val = tmp if tmp > 0.01 else 0
+    return i
 
-  def bins4syms(lst, x=0, y=-1, goal=None):
+  def __add__(i, j):
+    "Add together the numeric values in `i` and `j`."
+    k = Bin(x=i.x)
+    k.xlo, k.xhi = i.xlo, j.xhi
+    for x, v in i.ys.items():
+      k.ys[x] = v
+    for x, v in j.ys.items():
+      k.ys[x] = v + k.ys.get(x, 0)
+    return k
+
+
+class Bins:
+  "Bins is a farcade holding code to manage `bin`s."
+  def syms(lst, x=0, y=-1, goal=None):
     "Return bins for columns of symbols."
-    all = Bins.make(x)
+    all = Bin(x=x)
     bins = {}
     for z in lst:
       xx, yy = z[x], z[y]
       if xx != "?":
         if xx not in bins:
-          bins[xx] = Bins.bin0(x, xx)
+          bins[xx] = Bin(xx, x)
         one = bins[xx]
         klass = 1 if yy == goal else 0
         one.ys.inc(klass)
@@ -284,58 +261,56 @@ class Bins(o):
 
   def nums(lst, x=0, y=-1, goal=None, cohen=.2,
            enough=.2, trivial=.05):
-    """Return bins for columns of numbers. Combine two bins if
-    they are seperated by too small amount or if
-    they predict poorly for the goal."""
-    def add(z1, z2):
-      return Bins.score(
-          o(xlo=z1.xlo, xhi=z2.xhi, x=x, ys=z1.ys + z2.ys, val=0),
-          all)
-
-    def per(z=0.5): return lst[int(len(lst) * z)][x]
-
-    def finalize(z):
-      def n(n0): return lst[min(len(lst) - 1, n0)][x]
-      z.xlo, z.xhi = n(z.xlo), n(z.xhi)
-      return z
-
-    def split(xlo=0, bins=[Bins.make(x, 0)]):
-      n = len(lst)**enough
+    """
+    Return bins for columns of numbers. Combine two bins if
+    they are separated by too small amount or if
+    they predict poorly for the goal.
+    """
+    def split():
+      xlo, bins, n = 0, [Bin(0, x)], len(lst)**enough
       while n < 10 and n < len(lst) / 2:
         n *= 1.2
       for xhi, z in enumerate(lst):
         if xhi - xlo >= n:  # split when big enough
           if len(lst) - xhi >= n:  # split when enough remains after
             if z[x] != lst[xhi - 1][x]:  # split when values differ
-              bins += [Bins.make(x, xhi)]
+              bins += [Bin(xhi, x)]
               xlo = xhi
         now = bins[-1]
         now.xhi = xhi + 1
         all.xhi = xhi + 1
         klass = 1 if z[y] == goal else 0
-        now.ys.inc(klass)
-        all.ys.inc(klass)
-      return [Bins.core(bin, all) for bin in bins]
+        now.ys[klass] = now.ys.get(klass, 0) + 1
+        all.ys[klass] = all.ys.get(klass, 0) + 1
+      return [bin.score(all) for bin in bins]
 
-    def merge(bins, j=0, tmp=[]):
+    def merge(bins):
+      j, tmp = 0, []
       while j < len(bins):
         a = bins[j]
         if j < len(bins) - 1:
           b = bins[j + 1]
-          ab = add(a, b)
-          tooLittleDifference = (per(b) - per(a)) < cohen
+          ab = (a + b).score(all)
+          tooLittleDifference = (mid(b) - mid(a)) < cohen
           notBetterForGoal = goal and ab.val >= a.val and ab.val >= b.val
           if tooLittleDifference or notBetterForGoal:
             a = ab
             j += 1
         tmp += [a]
         j += 1
-      return bins if len(tmp) == len(bins) else merge(tmp, 0, [])
+      return bins if len(tmp) == len(bins) else merge(tmp)
+
+    def mid(z): return (n(z.xlo) + n(z.xhi)) / 2
+    def per(z=0.5): return lst[int(len(lst) * z)][x]
+    def n(z): return lst[min(len(lst) - 1, z)][x]
     # --------------------------------------------------------------
     lst = sorted((z for z in lst if z[x] != "?"), key=lambda z: z[x])
-    all = bin0(x, 0)
+    all = Bin(0, x)
     cohen = cohen * (per(.9) - per(.1)) / 2.54
-    return [finalize(bin) for bin in merge(split())]
+    out = merge(split())
+    for bin in out:
+      bin.xlo, bin.xhi = n(bin.xlo), n(bin.xhi)
+    return out
 
 
 def smo(tab, n1=10):
@@ -430,9 +405,9 @@ def test_rows():
 
 
 def test_tab2():
-  t = Rows(diabetes)
-  t.bins('tested_positive')
-  for row in t.rows:
+  rows = Rows(diabetes)
+  rows.bins('tested_positive')
+  for row in rows.all:
     print(row.bins)
 
 

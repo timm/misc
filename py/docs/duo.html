@@ -31,24 +31,24 @@ duo.py …" />
 <p>duo [options]</p>
 <h2 id="options">Options</h2>
 <p>-h
-Help.
+Help.<br>
 -v
-Verbose.
+Verbose.<br>
 -s=n
-Set random number seed [default: 1].
+Set random number seed [default: 1].<br>
 -k=n
 Speed in knots [default: 10].</p>
 <h2 id="examples">Examples</h2>
 <ul>
-<li>Installation: <code>sh INSTALL.md</code><ul>
-<li>optionally installs some command line IDE tools</li>
-</ul>
+<li>Installation: <code>sh INSTALL.md</code>
 </li>
 <li>Unit tests. 'pytest.py
-duo.py'</li>
-<li>One Unit test. <code>pytest.py -s -k tion1 duo.py</code></li>
+duo.py'
+</li>
+<li>One Unit test. <code>pytest.py -s -k tion1 duo.py</code> </li>
 <li>Continual tests: <code>rerun 'pytest duo.py'</code></li>
 <li>Documentation: <code>sh DOC.md</code></li>
+<li>Add some shell tricks: <code>sh SHELL.md</code></li>
 </ul>
 <h2 id="notes">Notes</h2>
 <p>Simplest to tricky-est, this code divides
@@ -82,19 +82,20 @@ Usage:
     duo [options]
 
 Options:
-    -h        Help.
-    -v        Verbose.
-    -s=n      Set random number seed [default: 1].
+
+    -h        Help.  
+    -v        Verbose.  
+    -s=n      Set random number seed [default: 1].  
     -k=n      Speed in knots [default: 10].
 
 Examples:
 
-    - Installation: `sh INSTALL.md`
-        - optionally installs some command line IDE tools
-    - Unit tests. &#39;pytest.py  duo.py&#39;
-    - One Unit test. `pytest.py -s -k tion1 duo.py`
+    - Installation: `sh INSTALL.md`  
+    - Unit tests. &#39;pytest.py  duo.py&#39;  
+    - One Unit test. `pytest.py -s -k tion1 duo.py` 
     - Continual tests: `rerun &#39;pytest duo.py&#39;`
     - Documentation: `sh DOC.md`
+    - Add some shell tricks: `sh SHELL.md`
 
 Notes:
     Simplest to tricky-est, this code divides
@@ -126,7 +127,7 @@ from random import shuffle as rshuffle
 
 
 # ---------------------------------------------
-# Other, misc, lib functions
+# Misc, lib functions
 def opt(d, **types):
   &#34;&#34;&#34;Coerce dictionaries into simple keys
   whose values are of known `types`.&#34;&#34;&#34;
@@ -136,32 +137,16 @@ def opt(d, **types):
   return o(**d)
 
 
-def same(x):
-  &#34;Return `x`, unaltered.&#34;
-  return x
-
-
-def first(a):
-  &#34;Return first item in `a`.&#34;
-  return a[0]
-
-
-def last(a):
-  &#34;Return last item in `a`.&#34;
-  return a[-1]
-
-
-def shuffle(a):
-  &#34;Return a randomly shuffled list.&#34;
-  rshuffle(a)
-  return a
+def same(x): return x
+def first(a): return a[0]
+def last(a): return a[-1]
+def shuffle(a): rshuffle(a); return a
 
 
 class o:
   &#34;&#34;&#34;LIB: Class that can pretty print; that
   can `inc`rement and `__add__` their values.&#34;&#34;&#34;
   def __init__(i, **d):
-    &#34;New item.&#34;
     i.__dict__.update(**d)
 
   def __repr__(i):
@@ -171,23 +156,6 @@ class o:
     return n + &#34;{&#34; + &#39;, &#39;.join(
         [(&#39;:%s %s&#39; % (k, d[k])) for k in sorted(d.keys())
             if str(k)[0] != &#34;_&#34;]) + &#34;}&#34;
-
-  def inc(i, x):
-    &#34;Increment `x` (starting at zero)&#34;
-    d = i.__dict__
-    d[x] = d.get(x, 0) + 1
-
-  def __add__(i, j):
-    &#34;Add together the numeric values in `i` and `j`.&#34;
-    k = o()
-    id = i.__dict__
-    jd = j.__dict__
-    kd = k.__dict__
-    for x, v in id.items():
-      kd[x] = v
-    for x, v in jd.items():
-      kd[x] = v + kd.get(x, 0)
-    return k
 
 # ---------------------------------
 
@@ -277,8 +245,10 @@ class Rows(o):
       if ch.klass in txt:
         c.klass = pos
 
-  def row(i, lst):
-    i.all += [Row(i, lst)]
+  def row(i, z):
+    &#34;add a new row&#34;
+    z = z.cells if isinstance(z, Row) else z
+    i.all += [Row(i, z)]
 
   def bins(i, goal=None, cohen=.2):
     &#34;&#34;&#34;
@@ -286,7 +256,7 @@ class Rows(o):
     `goal=None` then just divide into sqrt(N) bins, that differ
     by more than a small amount (at least `.2*sd`).
     &#34;&#34;&#34;
-    def appy(lst, x):
+    def apply(lst, x):
       if x == &#34;?&#34;:
         return x
       n = len(lst)
@@ -300,54 +270,63 @@ class Rows(o):
     # ----------------
     for x in i.cols.nums:
       # find the bins
-      i._bins[x] = bins = bins4nums(
+      i._bins[x] = bins = Bins.nums(
           i.all, x=x, goal=goal, cohen=cohen, y=i.cols.klass)
       # apply the bins
       for row in i.all:
         row.bins[x] = appy(bins, row[x])
 
 
-class Bins(o):
-  &#34;&#34;&#34;Bins is a farcade holding code to manage `bin`s.
-  A `bin` is a core data structure in DUO. It
+class Bin(o):
+  &#34;&#34;&#34;A `bin` is a core data structure in DUO. It
   runs from some `lo` to `hi` value in a column, It is
   associated with some `ys` values. Some bins have higher
   `val`ue than others (i.e. better predict for any
   known goal.&#34;&#34;&#34;
-  def __init__(i, lst, num=True, x=0, y=-1, goal=None,
-               cohen=0.3):
-    if num:
-      return Bins.nums(lst, x=x, y=y, goal=None, cohen=cohen)
-    else:
-      return Bins.syms(lst, x=x, y=y, goal=None)
+  def __init__(i, z=&#34;__alll__&#34;, x=0):
+    i.xlo = z
+    i, xhi = z
+    i.x = x
+    i.ys = {}
+    i.val = 0
 
-  def make(x, z=&#34;__all__&#34;):
-    return o(xlo=z, xhi=z, x=x, ys=o(), val=0)
-
-  def selects(z, row):
+  def selects(i, row):
     &#34;&#34;&#34;Bin`s know the `x` index of the column
     they come from (so `bin`s can be used to select rows
     whose `x` values fall in between `lo` and `hi`.&#34;&#34;&#34;
-    tmp = row[z.x]
-    return tmp != &#34;?&#34; and z.xlo &lt;= row[z.x] &lt;= row[z.xhi]
+    tmp = row[i.x]
+    return tmp != &#34;?&#34; and i.xlo &lt;= row[i.x] &lt;= row[i.xhi]
 
-  def score(z, all, e=0.00001):
+  def score(i, all, e=0.00001):
     &#34;Score a bin by prob*support that it selects for the goal.&#34;
-    yes = z.ys.__dict__.get(1, 0) / (all.ys.__dict__.get(1, 0) + e)
-    no = z.ys.__dict__.get(0, 0) / (all.ys.__dict__.get(0, 0) + e)
+    yes = i.ys.__dict__.get(1, 0) / (all.ys.__dict__.get(1, 0) + e)
+    no = i.ys.__dict__.get(0, 0) / (all.ys.__dict__.get(0, 0) + e)
     tmp = yes**2 / (yes + no + e)
-    z.val = tmp if tmp &gt; 0.01 else 0
-    return z
+    i.val = tmp if tmp &gt; 0.01 else 0
+    return i
 
-  def bins4syms(lst, x=0, y=-1, goal=None):
+  def __add__(i, j):
+    &#34;Add together the numeric values in `i` and `j`.&#34;
+    k = Bin(x=i.x)
+    k.xlo, k.xhi = i.xlo, j.xhi
+    for x, v in i.ys.items():
+      k.ys[x] = v
+    for x, v in j.ys.items():
+      k.ys[x] = v + k.ys.get(x, 0)
+    return k
+
+
+class Bins:
+  &#34;Bins is a farcade holding code to manage `bin`s.&#34;
+  def syms(lst, x=0, y=-1, goal=None):
     &#34;Return bins for columns of symbols.&#34;
-    all = Bins.make(x)
+    all = Bin(x=x)
     bins = {}
     for z in lst:
       xx, yy = z[x], z[y]
       if xx != &#34;?&#34;:
         if xx not in bins:
-          bins[xx] = Bins.bin0(x, xx)
+          bins[xx] = Bin(xx, x)
         one = bins[xx]
         klass = 1 if yy == goal else 0
         one.ys.inc(klass)
@@ -356,45 +335,36 @@ class Bins(o):
 
   def nums(lst, x=0, y=-1, goal=None, cohen=.2,
            enough=.2, trivial=.05):
-    &#34;&#34;&#34;Return bins for columns of numbers. Combine two bins if
-    they are seperated by too small amount or if
-    they predict poorly for the goal.&#34;&#34;&#34;
-    def add(z1, z2):
-      return Bins.score(
-          o(xlo=z1.xlo, xhi=z2.xhi, x=x, ys=z1.ys + z2.ys, val=0),
-          all)
-
-    def per(z=0.5): return lst[int(len(lst) * z)][x]
-
-    def finalize(z):
-      def n(n0): return lst[min(len(lst) - 1, n0)][x]
-      z.xlo, z.xhi = n(z.xlo), n(z.xhi)
-      return z
-
-    def split(xlo=0, bins=[Bins.make(x, 0)]):
-      n = len(lst)**enough
+    &#34;&#34;&#34;
+    Return bins for columns of numbers. Combine two bins if
+    they are separated by too small amount or if
+    they predict poorly for the goal.
+    &#34;&#34;&#34;
+    def split():
+      xlo, bins, n = 0, [Bin(xlo, x)], len(lst)**enough
       while n &lt; 10 and n &lt; len(lst) / 2:
         n *= 1.2
       for xhi, z in enumerate(lst):
         if xhi - xlo &gt;= n:  # split when big enough
           if len(lst) - xhi &gt;= n:  # split when enough remains after
             if z[x] != lst[xhi - 1][x]:  # split when values differ
-              bins += [Bins.make(x, xhi)]
+              bins += [Bin(xhi, x)]
               xlo = xhi
         now = bins[-1]
         now.xhi = xhi + 1
         all.xhi = xhi + 1
         klass = 1 if z[y] == goal else 0
-        now.ys.inc(klass)
-        all.ys.inc(klass)
-      return [Bins.core(bin, all) for bin in bins]
+        now.ys[klass] = now.ys.get(klass, 0) + 1
+        all.ys[klass] = all.ys.get(klass, 0) + 1
+      return [bin.score(all) for bin in bins]
 
-    def merge(bins, j=0, tmp=[]):
+    def merge(bins):
+      j, tmp = 0, []
       while j &lt; len(bins):
         a = bins[j]
         if j &lt; len(bins) - 1:
           b = bins[j + 1]
-          ab = add(a, b)
+          ab = (a + b).score(all)
           tooLittleDifference = (per(b) - per(a)) &lt; cohen
           notBetterForGoal = goal and ab.val &gt;= a.val and ab.val &gt;= b.val
           if tooLittleDifference or notBetterForGoal:
@@ -402,12 +372,18 @@ class Bins(o):
             j += 1
         tmp += [a]
         j += 1
-      return bins if len(tmp) == len(bins) else merge(tmp, 0, [])
+      return bins if len(tmp) == len(bins) else merge(tmp)
+
+    def per(z=0.5): return lst[int(len(lst) * z)][x]
+    def n(z): return lst[min(len(lst) - 1, z)][x]
     # --------------------------------------------------------------
     lst = sorted((z for z in lst if z[x] != &#34;?&#34;), key=lambda z: z[x])
     all = bin0(x, 0)
     cohen = cohen * (per(.9) - per(.1)) / 2.54
-    return [finalize(bin) for bin in merge(split())]
+    out = merge(split())
+    for bin in out:
+      bin.xlo, bin.xhi = n(bin.xlo), n(bin.xhi)
+    return out
 
 
 def smo(tab, n1=10):
@@ -1792,28 +1768,24 @@ on line one, the name contains '?'.</p></div>
 <span>def <span class="ident">first</span></span>(<span>a)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return first item in <code>a</code>.</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def first(a):
-  &#34;Return first item in `a`.&#34;
-  return a[0]</code></pre>
+<pre><code class="python">def first(a): return a[0]</code></pre>
 </details>
 </dd>
 <dt id="duo.last"><code class="name flex">
 <span>def <span class="ident">last</span></span>(<span>a)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return last item in <code>a</code>.</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def last(a):
-  &#34;Return last item in `a`.&#34;
-  return a[-1]</code></pre>
+<pre><code class="python">def last(a): return a[-1]</code></pre>
 </details>
 </dd>
 <dt id="duo.opt"><code class="name flex">
@@ -1875,29 +1847,24 @@ whose values are of known <code>types</code>.</p></div>
 <span>def <span class="ident">same</span></span>(<span>x)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return <code>x</code>, unaltered.</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def same(x):
-  &#34;Return `x`, unaltered.&#34;
-  return x</code></pre>
+<pre><code class="python">def same(x): return x</code></pre>
 </details>
 </dd>
 <dt id="duo.shuffle"><code class="name flex">
 <span>def <span class="ident">shuffle</span></span>(<span>a)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return a randomly shuffled list.</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def shuffle(a):
-  &#34;Return a randomly shuffled list.&#34;
-  rshuffle(a)
-  return a</code></pre>
+<pre><code class="python">def shuffle(a): rshuffle(a); return a</code></pre>
 </details>
 </dd>
 <dt id="duo.smo"><code class="name flex">
@@ -1994,123 +1961,57 @@ whose values are of known <code>types</code>.</p></div>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="duo.Bins"><code class="flex name class">
-<span>class <span class="ident">Bins</span></span>
-<span>(</span><span>lst, num=True, x=0, y=-1, goal=None, cohen=0.3)</span>
+<dt id="duo.Bin"><code class="flex name class">
+<span>class <span class="ident">Bin</span></span>
+<span>(</span><span>z='__alll__', x=0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Bins is a farcade holding code to manage <code>bin</code>s.
-A <code>bin</code> is a core data structure in DUO. It
+<div class="desc"><p>A <code>bin</code> is a core data structure in DUO. It
 runs from some <code>lo</code> to <code>hi</code> value in a column, It is
 associated with some <code>ys</code> values. Some bins have higher
 <code>val</code>ue than others (i.e. better predict for any
-known goal.</p>
-<p>New item.</p></div>
+known goal.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Bins(o):
-  &#34;&#34;&#34;Bins is a farcade holding code to manage `bin`s.
-  A `bin` is a core data structure in DUO. It
+<pre><code class="python">class Bin(o):
+  &#34;&#34;&#34;A `bin` is a core data structure in DUO. It
   runs from some `lo` to `hi` value in a column, It is
   associated with some `ys` values. Some bins have higher
   `val`ue than others (i.e. better predict for any
   known goal.&#34;&#34;&#34;
-  def __init__(i, lst, num=True, x=0, y=-1, goal=None,
-               cohen=0.3):
-    if num:
-      return Bins.nums(lst, x=x, y=y, goal=None, cohen=cohen)
-    else:
-      return Bins.syms(lst, x=x, y=y, goal=None)
+  def __init__(i, z=&#34;__alll__&#34;, x=0):
+    i.xlo = z
+    i, xhi = z
+    i.x = x
+    i.ys = {}
+    i.val = 0
 
-  def make(x, z=&#34;__all__&#34;):
-    return o(xlo=z, xhi=z, x=x, ys=o(), val=0)
-
-  def selects(z, row):
+  def selects(i, row):
     &#34;&#34;&#34;Bin`s know the `x` index of the column
     they come from (so `bin`s can be used to select rows
     whose `x` values fall in between `lo` and `hi`.&#34;&#34;&#34;
-    tmp = row[z.x]
-    return tmp != &#34;?&#34; and z.xlo &lt;= row[z.x] &lt;= row[z.xhi]
+    tmp = row[i.x]
+    return tmp != &#34;?&#34; and i.xlo &lt;= row[i.x] &lt;= row[i.xhi]
 
-  def score(z, all, e=0.00001):
+  def score(i, all, e=0.00001):
     &#34;Score a bin by prob*support that it selects for the goal.&#34;
-    yes = z.ys.__dict__.get(1, 0) / (all.ys.__dict__.get(1, 0) + e)
-    no = z.ys.__dict__.get(0, 0) / (all.ys.__dict__.get(0, 0) + e)
+    yes = i.ys.__dict__.get(1, 0) / (all.ys.__dict__.get(1, 0) + e)
+    no = i.ys.__dict__.get(0, 0) / (all.ys.__dict__.get(0, 0) + e)
     tmp = yes**2 / (yes + no + e)
-    z.val = tmp if tmp &gt; 0.01 else 0
-    return z
+    i.val = tmp if tmp &gt; 0.01 else 0
+    return i
 
-  def bins4syms(lst, x=0, y=-1, goal=None):
-    &#34;Return bins for columns of symbols.&#34;
-    all = Bins.make(x)
-    bins = {}
-    for z in lst:
-      xx, yy = z[x], z[y]
-      if xx != &#34;?&#34;:
-        if xx not in bins:
-          bins[xx] = Bins.bin0(x, xx)
-        one = bins[xx]
-        klass = 1 if yy == goal else 0
-        one.ys.inc(klass)
-        all.ys.inc(klass)
-    return [Bins.score(one, all) for one in bins.values()]
-
-  def nums(lst, x=0, y=-1, goal=None, cohen=.2,
-           enough=.2, trivial=.05):
-    &#34;&#34;&#34;Return bins for columns of numbers. Combine two bins if
-    they are seperated by too small amount or if
-    they predict poorly for the goal.&#34;&#34;&#34;
-    def add(z1, z2):
-      return Bins.score(
-          o(xlo=z1.xlo, xhi=z2.xhi, x=x, ys=z1.ys + z2.ys, val=0),
-          all)
-
-    def per(z=0.5): return lst[int(len(lst) * z)][x]
-
-    def finalize(z):
-      def n(n0): return lst[min(len(lst) - 1, n0)][x]
-      z.xlo, z.xhi = n(z.xlo), n(z.xhi)
-      return z
-
-    def split(xlo=0, bins=[Bins.make(x, 0)]):
-      n = len(lst)**enough
-      while n &lt; 10 and n &lt; len(lst) / 2:
-        n *= 1.2
-      for xhi, z in enumerate(lst):
-        if xhi - xlo &gt;= n:  # split when big enough
-          if len(lst) - xhi &gt;= n:  # split when enough remains after
-            if z[x] != lst[xhi - 1][x]:  # split when values differ
-              bins += [Bins.make(x, xhi)]
-              xlo = xhi
-        now = bins[-1]
-        now.xhi = xhi + 1
-        all.xhi = xhi + 1
-        klass = 1 if z[y] == goal else 0
-        now.ys.inc(klass)
-        all.ys.inc(klass)
-      return [Bins.core(bin, all) for bin in bins]
-
-    def merge(bins, j=0, tmp=[]):
-      while j &lt; len(bins):
-        a = bins[j]
-        if j &lt; len(bins) - 1:
-          b = bins[j + 1]
-          ab = add(a, b)
-          tooLittleDifference = (per(b) - per(a)) &lt; cohen
-          notBetterForGoal = goal and ab.val &gt;= a.val and ab.val &gt;= b.val
-          if tooLittleDifference or notBetterForGoal:
-            a = ab
-            j += 1
-        tmp += [a]
-        j += 1
-      return bins if len(tmp) == len(bins) else merge(tmp, 0, [])
-    # --------------------------------------------------------------
-    lst = sorted((z for z in lst if z[x] != &#34;?&#34;), key=lambda z: z[x])
-    all = bin0(x, 0)
-    cohen = cohen * (per(.9) - per(.1)) / 2.54
-    return [finalize(bin) for bin in merge(split())]</code></pre>
+  def __add__(i, j):
+    &#34;Add together the numeric values in `i` and `j`.&#34;
+    k = Bin(x=i.x)
+    k.xlo, k.xhi = i.xlo, j.xhi
+    for x, v in i.ys.items():
+      k.ys[x] = v
+    for x, v in j.ys.items():
+      k.ys[x] = v + k.ys.get(x, 0)
+    return k</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2118,113 +2019,8 @@ known goal.</p>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="duo.Bins.bins4syms"><code class="name flex">
-<span>def <span class="ident">bins4syms</span></span>(<span>lst, x=0, y=-1, goal=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return bins for columns of symbols.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def bins4syms(lst, x=0, y=-1, goal=None):
-  &#34;Return bins for columns of symbols.&#34;
-  all = Bins.make(x)
-  bins = {}
-  for z in lst:
-    xx, yy = z[x], z[y]
-    if xx != &#34;?&#34;:
-      if xx not in bins:
-        bins[xx] = Bins.bin0(x, xx)
-      one = bins[xx]
-      klass = 1 if yy == goal else 0
-      one.ys.inc(klass)
-      all.ys.inc(klass)
-  return [Bins.score(one, all) for one in bins.values()]</code></pre>
-</details>
-</dd>
-<dt id="duo.Bins.make"><code class="name flex">
-<span>def <span class="ident">make</span></span>(<span>x, z='__all__')</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def make(x, z=&#34;__all__&#34;):
-  return o(xlo=z, xhi=z, x=x, ys=o(), val=0)</code></pre>
-</details>
-</dd>
-<dt id="duo.Bins.nums"><code class="name flex">
-<span>def <span class="ident">nums</span></span>(<span>lst, x=0, y=-1, goal=None, cohen=0.2, enough=0.2, trivial=0.05)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return bins for columns of numbers. Combine two bins if
-they are seperated by too small amount or if
-they predict poorly for the goal.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def nums(lst, x=0, y=-1, goal=None, cohen=.2,
-         enough=.2, trivial=.05):
-  &#34;&#34;&#34;Return bins for columns of numbers. Combine two bins if
-  they are seperated by too small amount or if
-  they predict poorly for the goal.&#34;&#34;&#34;
-  def add(z1, z2):
-    return Bins.score(
-        o(xlo=z1.xlo, xhi=z2.xhi, x=x, ys=z1.ys + z2.ys, val=0),
-        all)
-
-  def per(z=0.5): return lst[int(len(lst) * z)][x]
-
-  def finalize(z):
-    def n(n0): return lst[min(len(lst) - 1, n0)][x]
-    z.xlo, z.xhi = n(z.xlo), n(z.xhi)
-    return z
-
-  def split(xlo=0, bins=[Bins.make(x, 0)]):
-    n = len(lst)**enough
-    while n &lt; 10 and n &lt; len(lst) / 2:
-      n *= 1.2
-    for xhi, z in enumerate(lst):
-      if xhi - xlo &gt;= n:  # split when big enough
-        if len(lst) - xhi &gt;= n:  # split when enough remains after
-          if z[x] != lst[xhi - 1][x]:  # split when values differ
-            bins += [Bins.make(x, xhi)]
-            xlo = xhi
-      now = bins[-1]
-      now.xhi = xhi + 1
-      all.xhi = xhi + 1
-      klass = 1 if z[y] == goal else 0
-      now.ys.inc(klass)
-      all.ys.inc(klass)
-    return [Bins.core(bin, all) for bin in bins]
-
-  def merge(bins, j=0, tmp=[]):
-    while j &lt; len(bins):
-      a = bins[j]
-      if j &lt; len(bins) - 1:
-        b = bins[j + 1]
-        ab = add(a, b)
-        tooLittleDifference = (per(b) - per(a)) &lt; cohen
-        notBetterForGoal = goal and ab.val &gt;= a.val and ab.val &gt;= b.val
-        if tooLittleDifference or notBetterForGoal:
-          a = ab
-          j += 1
-      tmp += [a]
-      j += 1
-    return bins if len(tmp) == len(bins) else merge(tmp, 0, [])
-  # --------------------------------------------------------------
-  lst = sorted((z for z in lst if z[x] != &#34;?&#34;), key=lambda z: z[x])
-  all = bin0(x, 0)
-  cohen = cohen * (per(.9) - per(.1)) / 2.54
-  return [finalize(bin) for bin in merge(split())]</code></pre>
-</details>
-</dd>
-<dt id="duo.Bins.score"><code class="name flex">
-<span>def <span class="ident">score</span></span>(<span>z, all, e=1e-05)</span>
+<dt id="duo.Bin.score"><code class="name flex">
+<span>def <span class="ident">score</span></span>(<span>i, all, e=1e-05)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Score a bin by prob*support that it selects for the goal.</p></div>
@@ -2232,17 +2028,17 @@ they predict poorly for the goal.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def score(z, all, e=0.00001):
+<pre><code class="python">def score(i, all, e=0.00001):
   &#34;Score a bin by prob*support that it selects for the goal.&#34;
-  yes = z.ys.__dict__.get(1, 0) / (all.ys.__dict__.get(1, 0) + e)
-  no = z.ys.__dict__.get(0, 0) / (all.ys.__dict__.get(0, 0) + e)
+  yes = i.ys.__dict__.get(1, 0) / (all.ys.__dict__.get(1, 0) + e)
+  no = i.ys.__dict__.get(0, 0) / (all.ys.__dict__.get(0, 0) + e)
   tmp = yes**2 / (yes + no + e)
-  z.val = tmp if tmp &gt; 0.01 else 0
-  return z</code></pre>
+  i.val = tmp if tmp &gt; 0.01 else 0
+  return i</code></pre>
 </details>
 </dd>
-<dt id="duo.Bins.selects"><code class="name flex">
-<span>def <span class="ident">selects</span></span>(<span>z, row)</span>
+<dt id="duo.Bin.selects"><code class="name flex">
+<span>def <span class="ident">selects</span></span>(<span>i, row)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Bin<code>s know the </code>x` index of the column
@@ -2252,23 +2048,186 @@ whose <code>x</code> values fall in between <code>lo</code> and <code>hi</code>.
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def selects(z, row):
+<pre><code class="python">def selects(i, row):
   &#34;&#34;&#34;Bin`s know the `x` index of the column
   they come from (so `bin`s can be used to select rows
   whose `x` values fall in between `lo` and `hi`.&#34;&#34;&#34;
-  tmp = row[z.x]
-  return tmp != &#34;?&#34; and z.xlo &lt;= row[z.x] &lt;= row[z.xhi]</code></pre>
+  tmp = row[i.x]
+  return tmp != &#34;?&#34; and i.xlo &lt;= row[i.x] &lt;= row[i.xhi]</code></pre>
 </details>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="duo.o" href="#duo.o">o</a></b></code>:
-<ul class="hlist">
-<li><code><a title="duo.o.inc" href="#duo.o.inc">inc</a></code></li>
-</ul>
-</li>
-</ul>
+</dd>
+<dt id="duo.Bins"><code class="flex name class">
+<span>class <span class="ident">Bins</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Bins is a farcade holding code to manage <code>bin</code>s.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Bins:
+  &#34;Bins is a farcade holding code to manage `bin`s.&#34;
+  def syms(lst, x=0, y=-1, goal=None):
+    &#34;Return bins for columns of symbols.&#34;
+    all = Bin(x=x)
+    bins = {}
+    for z in lst:
+      xx, yy = z[x], z[y]
+      if xx != &#34;?&#34;:
+        if xx not in bins:
+          bins[xx] = Bin(xx, x)
+        one = bins[xx]
+        klass = 1 if yy == goal else 0
+        one.ys.inc(klass)
+        all.ys.inc(klass)
+    return [Bins.score(one, all) for one in bins.values()]
+
+  def nums(lst, x=0, y=-1, goal=None, cohen=.2,
+           enough=.2, trivial=.05):
+    &#34;&#34;&#34;
+    Return bins for columns of numbers. Combine two bins if
+    they are separated by too small amount or if
+    they predict poorly for the goal.
+    &#34;&#34;&#34;
+    def split():
+      xlo, bins, n = 0, [Bin(xlo, x)], len(lst)**enough
+      while n &lt; 10 and n &lt; len(lst) / 2:
+        n *= 1.2
+      for xhi, z in enumerate(lst):
+        if xhi - xlo &gt;= n:  # split when big enough
+          if len(lst) - xhi &gt;= n:  # split when enough remains after
+            if z[x] != lst[xhi - 1][x]:  # split when values differ
+              bins += [Bin(xhi, x)]
+              xlo = xhi
+        now = bins[-1]
+        now.xhi = xhi + 1
+        all.xhi = xhi + 1
+        klass = 1 if z[y] == goal else 0
+        now.ys[klass] = now.ys.get(klass, 0) + 1
+        all.ys[klass] = all.ys.get(klass, 0) + 1
+      return [bin.score(all) for bin in bins]
+
+    def merge(bins):
+      j, tmp = 0, []
+      while j &lt; len(bins):
+        a = bins[j]
+        if j &lt; len(bins) - 1:
+          b = bins[j + 1]
+          ab = (a + b).score(all)
+          tooLittleDifference = (per(b) - per(a)) &lt; cohen
+          notBetterForGoal = goal and ab.val &gt;= a.val and ab.val &gt;= b.val
+          if tooLittleDifference or notBetterForGoal:
+            a = ab
+            j += 1
+        tmp += [a]
+        j += 1
+      return bins if len(tmp) == len(bins) else merge(tmp)
+
+    def per(z=0.5): return lst[int(len(lst) * z)][x]
+    def n(z): return lst[min(len(lst) - 1, z)][x]
+    # --------------------------------------------------------------
+    lst = sorted((z for z in lst if z[x] != &#34;?&#34;), key=lambda z: z[x])
+    all = bin0(x, 0)
+    cohen = cohen * (per(.9) - per(.1)) / 2.54
+    out = merge(split())
+    for bin in out:
+      bin.xlo, bin.xhi = n(bin.xlo), n(bin.xhi)
+    return out</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="duo.Bins.nums"><code class="name flex">
+<span>def <span class="ident">nums</span></span>(<span>lst, x=0, y=-1, goal=None, cohen=0.2, enough=0.2, trivial=0.05)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return bins for columns of numbers. Combine two bins if
+they are separated by too small amount or if
+they predict poorly for the goal.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def nums(lst, x=0, y=-1, goal=None, cohen=.2,
+         enough=.2, trivial=.05):
+  &#34;&#34;&#34;
+  Return bins for columns of numbers. Combine two bins if
+  they are separated by too small amount or if
+  they predict poorly for the goal.
+  &#34;&#34;&#34;
+  def split():
+    xlo, bins, n = 0, [Bin(xlo, x)], len(lst)**enough
+    while n &lt; 10 and n &lt; len(lst) / 2:
+      n *= 1.2
+    for xhi, z in enumerate(lst):
+      if xhi - xlo &gt;= n:  # split when big enough
+        if len(lst) - xhi &gt;= n:  # split when enough remains after
+          if z[x] != lst[xhi - 1][x]:  # split when values differ
+            bins += [Bin(xhi, x)]
+            xlo = xhi
+      now = bins[-1]
+      now.xhi = xhi + 1
+      all.xhi = xhi + 1
+      klass = 1 if z[y] == goal else 0
+      now.ys[klass] = now.ys.get(klass, 0) + 1
+      all.ys[klass] = all.ys.get(klass, 0) + 1
+    return [bin.score(all) for bin in bins]
+
+  def merge(bins):
+    j, tmp = 0, []
+    while j &lt; len(bins):
+      a = bins[j]
+      if j &lt; len(bins) - 1:
+        b = bins[j + 1]
+        ab = (a + b).score(all)
+        tooLittleDifference = (per(b) - per(a)) &lt; cohen
+        notBetterForGoal = goal and ab.val &gt;= a.val and ab.val &gt;= b.val
+        if tooLittleDifference or notBetterForGoal:
+          a = ab
+          j += 1
+      tmp += [a]
+      j += 1
+    return bins if len(tmp) == len(bins) else merge(tmp)
+
+  def per(z=0.5): return lst[int(len(lst) * z)][x]
+  def n(z): return lst[min(len(lst) - 1, z)][x]
+  # --------------------------------------------------------------
+  lst = sorted((z for z in lst if z[x] != &#34;?&#34;), key=lambda z: z[x])
+  all = bin0(x, 0)
+  cohen = cohen * (per(.9) - per(.1)) / 2.54
+  out = merge(split())
+  for bin in out:
+    bin.xlo, bin.xhi = n(bin.xlo), n(bin.xhi)
+  return out</code></pre>
+</details>
+</dd>
+<dt id="duo.Bins.syms"><code class="name flex">
+<span>def <span class="ident">syms</span></span>(<span>lst, x=0, y=-1, goal=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return bins for columns of symbols.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def syms(lst, x=0, y=-1, goal=None):
+  &#34;Return bins for columns of symbols.&#34;
+  all = Bin(x=x)
+  bins = {}
+  for z in lst:
+    xx, yy = z[x], z[y]
+    if xx != &#34;?&#34;:
+      if xx not in bins:
+        bins[xx] = Bin(xx, x)
+      one = bins[xx]
+      klass = 1 if yy == goal else 0
+      one.ys.inc(klass)
+      all.ys.inc(klass)
+  return [Bins.score(one, all) for one in bins.values()]</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 <dt id="duo.Row"><code class="flex name class">
 <span>class <span class="ident">Row</span></span>
@@ -2277,8 +2236,7 @@ whose <code>x</code> values fall in between <code>lo</code> and <code>hi</code>.
 <dd>
 <div class="desc"><p>Holds one example from a set of <code>rows</code>
 in 'cells' (and, if the row has been descretized,
-in 'bins').</p>
-<p>New item.</p></div>
+in 'bins').</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2392,14 +2350,6 @@ in 'bins').</p>
 </details>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="duo.o" href="#duo.o">o</a></b></code>:
-<ul class="hlist">
-<li><code><a title="duo.o.inc" href="#duo.o.inc">inc</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 <dt id="duo.Rows"><code class="flex name class">
 <span>class <span class="ident">Rows</span></span>
@@ -2456,8 +2406,10 @@ a <code>.<a title="duo.csv" href="#duo.csv">csv()</a></code> file name, or a str
       if ch.klass in txt:
         c.klass = pos
 
-  def row(i, lst):
-    i.all += [Row(i, lst)]
+  def row(i, z):
+    &#34;add a new row&#34;
+    z = z.cells if isinstance(z, Row) else z
+    i.all += [Row(i, z)]
 
   def bins(i, goal=None, cohen=.2):
     &#34;&#34;&#34;
@@ -2465,7 +2417,7 @@ a <code>.<a title="duo.csv" href="#duo.csv">csv()</a></code> file name, or a str
     `goal=None` then just divide into sqrt(N) bins, that differ
     by more than a small amount (at least `.2*sd`).
     &#34;&#34;&#34;
-    def appy(lst, x):
+    def apply(lst, x):
       if x == &#34;?&#34;:
         return x
       n = len(lst)
@@ -2479,7 +2431,7 @@ a <code>.<a title="duo.csv" href="#duo.csv">csv()</a></code> file name, or a str
     # ----------------
     for x in i.cols.nums:
       # find the bins
-      i._bins[x] = bins = bins4nums(
+      i._bins[x] = bins = Bins.nums(
           i.all, x=x, goal=goal, cohen=cohen, y=i.cols.klass)
       # apply the bins
       for row in i.all:
@@ -2531,7 +2483,7 @@ by more than a small amount (at least <code>.2*sd</code>).</p></div>
   `goal=None` then just divide into sqrt(N) bins, that differ
   by more than a small amount (at least `.2*sd`).
   &#34;&#34;&#34;
-  def appy(lst, x):
+  def apply(lst, x):
     if x == &#34;?&#34;:
       return x
     n = len(lst)
@@ -2545,7 +2497,7 @@ by more than a small amount (at least <code>.2*sd</code>).</p></div>
   # ----------------
   for x in i.cols.nums:
     # find the bins
-    i._bins[x] = bins = bins4nums(
+    i._bins[x] = bins = Bins.nums(
         i.all, x=x, goal=goal, cohen=cohen, y=i.cols.klass)
     # apply the bins
     for row in i.all:
@@ -2581,27 +2533,21 @@ klass col. Also, store them all in the <code>all</code> list.</p></div>
 </details>
 </dd>
 <dt id="duo.Rows.row"><code class="name flex">
-<span>def <span class="ident">row</span></span>(<span>i, lst)</span>
+<span>def <span class="ident">row</span></span>(<span>i, z)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>add a new row</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def row(i, lst):
-  i.all += [Row(i, lst)]</code></pre>
+<pre><code class="python">def row(i, z):
+  &#34;add a new row&#34;
+  z = z.cells if isinstance(z, Row) else z
+  i.all += [Row(i, z)]</code></pre>
 </details>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="duo.o" href="#duo.o">o</a></b></code>:
-<ul class="hlist">
-<li><code><a title="duo.o.inc" href="#duo.o.inc">inc</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 <dt id="duo.o"><code class="flex name class">
 <span>class <span class="ident">o</span></span>
@@ -2609,8 +2555,7 @@ klass col. Also, store them all in the <code>all</code> list.</p></div>
 </code></dt>
 <dd>
 <div class="desc"><p>LIB: Class that can pretty print; that
-can <code>inc</code>rement and <code>__add__</code> their values.</p>
-<p>New item.</p></div>
+can <code>inc</code>rement and <code>__add__</code> their values.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2619,7 +2564,6 @@ can <code>inc</code>rement and <code>__add__</code> their values.</p>
   &#34;&#34;&#34;LIB: Class that can pretty print; that
   can `inc`rement and `__add__` their values.&#34;&#34;&#34;
   def __init__(i, **d):
-    &#34;New item.&#34;
     i.__dict__.update(**d)
 
   def __repr__(i):
@@ -2628,56 +2572,21 @@ can <code>inc</code>rement and <code>__add__</code> their values.</p>
     n = i.__class__.__name__
     return n + &#34;{&#34; + &#39;, &#39;.join(
         [(&#39;:%s %s&#39; % (k, d[k])) for k in sorted(d.keys())
-            if str(k)[0] != &#34;_&#34;]) + &#34;}&#34;
-
-  def inc(i, x):
-    &#34;Increment `x` (starting at zero)&#34;
-    d = i.__dict__
-    d[x] = d.get(x, 0) + 1
-
-  def __add__(i, j):
-    &#34;Add together the numeric values in `i` and `j`.&#34;
-    k = o()
-    id = i.__dict__
-    jd = j.__dict__
-    kd = k.__dict__
-    for x, v in id.items():
-      kd[x] = v
-    for x, v in jd.items():
-      kd[x] = v + kd.get(x, 0)
-    return k</code></pre>
+            if str(k)[0] != &#34;_&#34;]) + &#34;}&#34;</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="duo.Bins" href="#duo.Bins">Bins</a></li>
+<li><a title="duo.Bin" href="#duo.Bin">Bin</a></li>
 <li><a title="duo.Row" href="#duo.Row">Row</a></li>
 <li><a title="duo.Rows" href="#duo.Rows">Rows</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="duo.o.inc"><code class="name flex">
-<span>def <span class="ident">inc</span></span>(<span>i, x)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Increment <code>x</code> (starting at zero)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def inc(i, x):
-  &#34;Increment `x` (starting at zero)&#34;
-  d = i.__dict__
-  d[x] = d.get(x, 0) + 1</code></pre>
-</details>
-</dd>
-</dl>
 </dd>
 </dl>
 </section>
 </article>
 <nav id="sidebar">
 <center>
-<img src="pair.png" width=500
+<img src="search.gif" width=500
 <p><a href="LICENSE.md">&copy; 2020</a>, Tim Menzies<br>
 <a href="mailto:timm@ieee.org">timm@ieee.org</a><br>
 <a href="http://menzies.us">http://menzies.us</a>
@@ -2729,13 +2638,17 @@ alt="License" src="https://img.shields.io/badge/license-mit-red"></a>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="duo.Bin" href="#duo.Bin">Bin</a></code></h4>
+<ul class="">
+<li><code><a title="duo.Bin.score" href="#duo.Bin.score">score</a></code></li>
+<li><code><a title="duo.Bin.selects" href="#duo.Bin.selects">selects</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="duo.Bins" href="#duo.Bins">Bins</a></code></h4>
 <ul class="">
-<li><code><a title="duo.Bins.bins4syms" href="#duo.Bins.bins4syms">bins4syms</a></code></li>
-<li><code><a title="duo.Bins.make" href="#duo.Bins.make">make</a></code></li>
 <li><code><a title="duo.Bins.nums" href="#duo.Bins.nums">nums</a></code></li>
-<li><code><a title="duo.Bins.score" href="#duo.Bins.score">score</a></code></li>
-<li><code><a title="duo.Bins.selects" href="#duo.Bins.selects">selects</a></code></li>
+<li><code><a title="duo.Bins.syms" href="#duo.Bins.syms">syms</a></code></li>
 </ul>
 </li>
 <li>
@@ -2758,9 +2671,6 @@ alt="License" src="https://img.shields.io/badge/license-mit-red"></a>
 </li>
 <li>
 <h4><code><a title="duo.o" href="#duo.o">o</a></code></h4>
-<ul class="">
-<li><code><a title="duo.o.inc" href="#duo.o.inc">inc</a></code></li>
-</ul>
 </li>
 </ul>
 </li>
