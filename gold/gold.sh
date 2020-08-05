@@ -1,30 +1,5 @@
 #!/usr/bin/env bash
-
-Sh=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
-chmod +x $Sh
-mkdir -p $Sh/.var $Sh/src $Sh/tests
-
-transpiles() {
-  if [ -n "$*" ]; then
-    for i in $*; do 
-      j=$(basename $i .md)
-      k=$Sh/.var/$j.awk
-      cat $i |
-      gawk -f $Sh/gold.awk --source '{use=md2awk(use) }' > $k
-    done
-  fi
-} 
-
-go() {
-  j=$Sh/.var/${2%.gold}.awk
-  shift; shift;
-  AWKPATH="$Sh/.var:$AWKPATH"
-  Com="gawk -f $Sh/gold.awk -f $j $*"
-  if  [ -t 0 ]; then AWKPATH="$AWKPATH" $Com
-  else       cat - | AWKPATH="$AWKPATH" $Com
-  fi
-}
-banner() { tput bold; tput setaf 6; cat<<"EOF"
+hello() { tput bold; tput setaf 6; cat<<"EOF"
    ________      __      
   /\_____  \   /'_ `\   GOLD v0.4
   \/___//'/'  /\ \L\ \   a Gawk object layer
@@ -37,9 +12,8 @@ EOF
 tput sgr0
 }
 
-
 if [ "$1" == "--help" ]; then 
-        banner
+        hello
         cat<<-'EOF'
 	Usage:
 	   sh gold.sh [options]
@@ -55,7 +29,7 @@ if [ "$1" == "--help" ]; then
 	the following commands are avaialble:
 
 	   gold    = sh gold.sh
-	   awk     = gold --all; AWKPATH='$Sh/.var' gawk -f $Sh/gold.awk 
+	   awk -f x     = gold --all; AWKPATH='$Sh/.var' gawk -f $Sh/gold.awk -f x 
 	   gg	   = git pull
 	   gp      = git commit -am saving; git push; git status
 	   gs	   = git status
@@ -67,31 +41,66 @@ if [ "$1" == "--help" ]; then
    exit 0
 fi
 
+Sh=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+chmod +x $Sh
+mkdir -p $Sh/.var $Sh/src $Sh/tests
+
+transpiles() {
+  dot=$1; shift
+  if [ -n "$*" ]; then
+    for i in $*; do 
+      j=$(basename $i .gold).awk
+      k=$Sh/.var/$j
+      echo -n $dot >&2
+      cat $i |
+      gawk -f $Sh/gold.awk --source '{use=gold2awk(use) }' > $k
+    done
+  fi
+} 
+
+go() {
+  j=$Sh/.var/${2%.gold}.awk
+  shift; shift;
+  AWKPATH="$Sh/.var:$AWKPATH"
+  Com="gawk -f $Sh/gold.awk -f $j $*"
+  if  [ -t 0 ]; then AWKPATH="$AWKPATH" $Com
+  else       cat - | AWKPATH="$AWKPATH" $Com
+  fi
+}
+
+
 if [ "$1" == "--all" ]; then
-  transpiles $Sh/src/*.gold $Sh/tests/*.gold
+  transpiles "." $Sh/src/*.gold 
+  transpiles "," $Sh/tests/*.gold
   exit 0
 fi
 
 if [ "$1" == "-f"   ]; then
-  transpiles $Sh/src/*.gold $Sh/tests/*.gold
+  transpiles "." $Sh/src/*.gold 
+  transpiles "," $Sh/tests/*.gold
   go $*
   exit $?
 fi
 
 if [ "$1" != "--install"   ]; then
   if [ -f "$Sh/.var/bashrc" ]; then
-    banner
+    hello
     Sh="$Sh"   bash --init-file $Sh/.var/bashrc -i  
   else
     echo "Missing config files. Try running sh gold.sh --install"
   fi
-
   exit 0
 fi
 
 echo "Installing tricks..."
 want=$Sh/.var/bashrc
 [ -f "$want" ] || cat<<'EOF'>$want
+reload() {
+  rm $Sh/.var/*rc
+  sh $Sh/gold.sh --install
+  . $Sh/.var/bashrc
+}
+
 
 alias awk="gold --all; AWKPATH='$Sh/.var:$AWKPATH'  gawk -f $Sh/gold.awk "
 alias gold="bash $Sh/gold.sh "
@@ -100,7 +109,6 @@ alias gs="git status"
 alias gp="git commit -am 'saving'; git push; git status"    
 
 matrix() { nice -20 cmatrix -b -C cyan;   }
-reload() { . $Sh/.var//bashrc;     }
 vims()   { vim -u $Sh/.var/vimrc +PluginInstall +qall; }
 
 alias vi="vim    -u $Sh/.var/vimrc"

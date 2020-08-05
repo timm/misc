@@ -1,4 +1,4 @@
-function md2awk(use) {
+function gold2awk(use) {
   if (gsub(/^```awk/,"")) use= 1
   if (gsub(/^```/,  "")) use= 0
   if (use) 
