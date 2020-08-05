@@ -4,19 +4,27 @@
 Sh=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 chmod +x $Sh
 mkdir -p $Sh/.var
- 
-if [ "$1" == "-f"   ]; then
+
+transpiles() {
   for i in *.md; do
     j=$Sh/.var/${i%.md}.awk
     cat $i |
     gawk -f $Sh/gold.awk --source '{use=md2awk(use) }' > $j
   done
+} 
+
+go() {
   j=$Sh/.var/${2%.md}.awk
   AWKPATH="$Sh/.var:$AWKPATH"
   Com="gawk -f $Sh/gold.awk -f $j"
   if  [ -t 0 ]; then AWKPATH="$AWKPATH" $Com
   else       cat - | AWKPATH="$AWKPATH" $Com
   fi
+}
+
+if [ "$1" == "-f"   ]; then
+  transpiles
+  go $*
   exit $?
 fi
 
