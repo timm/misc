@@ -2,7 +2,7 @@
 
 Sh=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 chmod +x $Sh
-mkdir -p $Sh/.var
+mkdir -p $Sh/.var $Sh/docs $Sh/tests
 
 transpiles() {
   if [ -n "$*" ]; then
@@ -25,16 +25,13 @@ go() {
   fi
 }
 banner() { tput bold; tput setaf 6; cat<<"EOF"
-
-                  ___        __  An object laer
-                 /\_ \      /\ \  for Gawk
-   __       ___  \//\ \     \_\ \  v3.0
- /'_ `\    / __`\  \ \ \    /'_` \  
-/\ \L\ \  /\ \L\ \  \_\ \_ /\ \L\ \  
-\ \____ \ \ \____/  /\____\\ \___,_\  (ↄ) 2020  
- \/___L\ \ \/___/   \/____/ \/__,_ /  Tim Menzies 
-   /\____/                            timm@ieee.org  
-   \_/__/               http://github.com/timm/gold
+   ________      __      
+  /\_____  \   /'_ `\   GOLD v0.4
+  \/___//'/'  /\ \L\ \   a Gawk object layer
+      /' /'   \ \___, \   (ↄ) 2020 Tim Menzies
+    /' /'      \/__,/\ \   timm@ieee.org
+   /\_/             \ \_\
+   \//               \/_/
 
 EOF
 tput sgr0
@@ -50,7 +47,7 @@ if [ "$1" == "--help" ]; then
 	Options:
 	
 	   --help      show help
-	   --all       transpiles to awk any src/*.md tests/*.md files
+	   --all       transpiles to awk any docs/*.md tests/*.md files
 	   -f x.md $*  transpiles, then runs gawk -f gold.awk -f x.awk $*
 	   --install   adds config files for bash, vim, git, tmux to ./.var
 	
@@ -71,12 +68,12 @@ if [ "$1" == "--help" ]; then
 fi
 
 if [ "$1" == "--all" ]; then
-  transpiles $Sh/src/*.md $Sh/tests/*.md
+  transpiles $Sh/docs/*.md $Sh/tests/*.md
   exit 0
 fi
 
 if [ "$1" == "-f"   ]; then
-  transpiles $Sh/src/*.md $Sh/tests/*.md
+  transpiles $Sh/docs/*.md $Sh/tests/*.md
   go $*
   exit $?
 fi
@@ -95,7 +92,6 @@ fi
 echo "Installing tricks..."
 want=$Sh/.var/bashrc
 [ -f "$want" ] || cat<<'EOF'>$want
-f=$Sh/therepy/there  
 
 alias awk="gold --all; AWKPATH='$Sh/.var:$AWKPATH'  gawk -f $Sh/gold.awk "
 alias gold="bash $Sh/gold.sh "
@@ -112,7 +108,7 @@ alias tmux="tmux -f $Sh/.var/tmuxrc"
 
 here()  { cd $1; basename `pwd`; }    
 
-PROMPT_COMMAND='echo -ne "🔆 GOLD $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'     
+PROMPT_COMMAND='echo -ne "🔆 79º $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'     
 EOF
 
 want=$Sh/.var/vimrc;
