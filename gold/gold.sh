@@ -14,7 +14,7 @@ if [ "$1" == "-f"   ]; then
   j=$Sh/.var/${2%.md}.awk
   AWKPATH="$Sh/.var:$AWKPATH"
   Com="gawk -f $Sh/gold.awk -f $j"
-  if  [ -t 0 ]; then AWKPATH="$AWKPATH" $COM
+  if  [ -t 0 ]; then AWKPATH="$AWKPATH" $Com
   else       cat - | AWKPATH="$AWKPATH" $Com
   fi
   exit $?
