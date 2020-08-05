@@ -2,7 +2,7 @@
 
 Sh=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 chmod +x $Sh
-mkdir -p $Sh/.var $Sh/docs $Sh/tests
+mkdir -p $Sh/.var $Sh/src $Sh/tests
 
 transpiles() {
   if [ -n "$*" ]; then
@@ -16,7 +16,7 @@ transpiles() {
 } 
 
 go() {
-  j=$Sh/.var/${2%.md}.awk
+  j=$Sh/.var/${2%.gold}.awk
   shift; shift;
   AWKPATH="$Sh/.var:$AWKPATH"
   Com="gawk -f $Sh/gold.awk -f $j $*"
@@ -46,10 +46,10 @@ if [ "$1" == "--help" ]; then
 	
 	Options:
 	
-	   --help      show help
-	   --all       transpiles to awk any docs/*.md tests/*.md files
-	   -f x.md $*  transpiles, then runs gawk -f gold.awk -f x.awk $*
-	   --install   adds config files for bash, vim, git, tmux to ./.var
+	   --help        show help
+	   --all         transpiles to awk any src/*.gold tests/*.gold files
+	   -f x.gold $*  transpiles, then runs gawk -f gold.awk -f x.awk $*
+	   --install     adds config files for bash, vim, git, tmux to ./.var
 	
 	If run with no options, drops the user into a shell where
 	the following commands are avaialble:
@@ -68,12 +68,12 @@ if [ "$1" == "--help" ]; then
 fi
 
 if [ "$1" == "--all" ]; then
-  transpiles $Sh/docs/*.md $Sh/tests/*.md
+  transpiles $Sh/src/*.gold $Sh/tests/*.gold
   exit 0
 fi
 
 if [ "$1" == "-f"   ]; then
-  transpiles $Sh/docs/*.md $Sh/tests/*.md
+  transpiles $Sh/src/*.gold $Sh/tests/*.gold
   go $*
   exit $?
 fi
