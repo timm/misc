@@ -104,7 +104,7 @@ fi
 
 exists() {
   [ -f "$1" ] || wget --queit -O $1 \
-  https://raw.githubusercontent.com/txt/se20/master/$2
+  https://raw.githubusercontent.com/timm/misc/txt/se20/master/$2
 }
 
 exists $Sh/.var/bashrc etc/bashrc
