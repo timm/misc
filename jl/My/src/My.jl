@@ -126,9 +126,9 @@ Base.show(io::IO, i::Range) = say(i)
 "assumes lst is sorted"
 function div(lst::Array,key=same)
   the = THE.some
-  x(z)          = key(lst[int(z)])
-  val(y,z,p=0.5)= x(y+(z-y)*p)
-  var(y,z)      = (val(y,z,0.9) - val(y,z,0.1))/2.7
+  x(z)           = key(lst[int(z)])
+  val(y,z,p=0.5) = x(y+(z-y)*p)
+  var(y,z)       = (val(y,z,0.9) - val(y,z,0.1))/2.7
   function xchop(lo,hi,out=nothing)
     best = var(lo,hi)
     for j = lo+step:hi-step
