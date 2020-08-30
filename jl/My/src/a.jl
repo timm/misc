@@ -1,11 +1,12 @@
 using Parameters
 using Random
+using BenchmarkTools
 
 @with_kw mutable struct Config
   char = (skip='?',less='>',more='<',num='$',klass='!')
   str  = (skip="?",)
   some = (max=32,)
-  div  = (divs=16, cohen=0.3, trivial=1.05)
+  div  = (few=1024,divs=16, cohen=0.3, trivial=1.05)
   seed = 1
 end
 
@@ -15,6 +16,7 @@ Random.seed!(the.seed)
 same(s) = s
 int(x)  = floor(Int,x)
 any(a)  = a[ int(length(a) * rand()) + 1]
+few(a,n=the.divs.few) = length(a) < n  ? a : [any(a)  for _ in 1:n]
 
 function say(i)
   s,pre="$(typeof(i)){",""
@@ -61,6 +63,7 @@ function inc!(i,x)
   x
 end
 
+
 function inc1!(i::Some, x)
   m = length(i._all)
   if m < i.max
@@ -87,6 +90,7 @@ function inc1!(i::Num,x)
 end
 
 function div(lst, x, y)
+  lst       = few(lst,the.div.few)
   lst       = sort([z for z in lst if x(z) != the.str.skip], by=x)
   sd(a,f=x) = var(incs!(Num(), [f(z) for z in a]))
   mid(a,f=x) = f( a[ int(length(a)/2) ] )
@@ -95,16 +99,13 @@ function div(lst, x, y)
     m = length(a)
     tmp, out, n = [], [], m / the.div.divs
     last=nothing
-    n=Num()
     for (i,one) in enumerate(a)
       if length(tmp)>=n && m - i > n && x(one) != x(last) 
         if x(one) - x(tmp[1]) > eps
-          push!(out, [n,tmp])
+          push!(out, tmp)
           tmp = [] 
-          n=Num()
       end end
       push!(tmp,one)
-      inc!(n,y(one))
       last = one
     end
     if length(tmp) > 0 push!(out,tmp) end
@@ -116,12 +117,9 @@ function div(lst, x, y)
       one = a[j]
       if j < m
         two       = a[j+1]
-        n1, n2    = one[1].n, two[1].n
-        n3        = n1+n2
-        sd1,sd2   = var(one[1]), var(two[1])
-        tmp       = [ one[2];two[2] ]
-        three     = [incs!(Num(), [y(z) for z in tmp]), tmp]
-        sd3       = var(three[1])
+        three     = [ one ; two ]
+        n1, n2, n3= length(one), length(two), length(three)
+        sd1,sd2,sd3= sd(one,y), sd(two,y), sd(three,y)
         sd12      = n1/n3*sd1 + n2/n3*sd2
         if abs(sd1 - sd2) < 0.01 || sd12*the.div.trivial >sd3
           one = three
@@ -137,12 +135,15 @@ function div(lst, x, y)
 end
 
 function main()  
-  lst = [int(100*round(rand()^.5,digits=2)) for _ in 1:10^4]
-  lst = [[x, x<30 ? 1 : 0] for x in lst]
+  two(r) = if r<0.2 0 elseif r<0.4 1 elseif r<0.6 0 elseif r<0.8 1 else 0 end
+  one(r) = [int(100*r), two(r)]
+  lst = sort([rand() for _ in 1:10^8])
+  lst = [one(r) for r in lst]
   first(z)  = z[1] 
   second(z) = z[2]
+  println(100)
   for (i,one) in enumerate(div(lst,first,second))
-    println(i," ",length(one)," ", one[2][1]," ",last(one[2]))
+    println(i," ",length(one)," ", one[1]," ",last(one))
   end
 end
 
