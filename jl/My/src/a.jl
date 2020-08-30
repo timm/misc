@@ -5,7 +5,7 @@ using Random
   char = (skip='?',less='>',more='<',num='$',klass='!')
   str  = (skip="?",)
   some = (max=32,)
-  div  = (divs=32, cohen=0.3, trivial=1.05)
+  div  = (divs=16, cohen=0.3, trivial=1.05)
   seed = 1
 end
 
@@ -63,10 +63,24 @@ function inc!(i::Some, x)
     i._all[ int(m*rand()) + 1 ] = x end 
 end
 
-function div(lst, x=same)
-  lst     = sort([y for y in lst if x(y) != the.str.skip], by=x)
-  at(z,a) = x( a[ int(z)+1 ] )
-  var(a)  = (at(.9*length(a),a) - at(.1*length(a),a)) / 2.7
+function var(i::Num)
+  if     i.m2 < 0  0 
+  elseif i.n  < 2  0 
+  else             (i.m2 / (i.n - 1 + 10^-32))^0.5 
+  end
+end
+
+function inc!(i::Num,x)
+  i.lo  = min(i.lo, x)
+  i.hi  = max(i.hi, x)
+  d     = x - i.mu
+  i.mu += d / i.n
+  i.m2 += d * (x - i.mu)
+end
+
+function div(lst, x, y)
+  lst     = sort([z for z in lst if x(z) != the.str.skip], by=x)
+  sd(a,f=x) = var( incs!( Num(), [f(z) for z in a]))
   function chop(a, eps)
     m = length(a)
     tmp, out, n = [], [], m / the.div.divs
@@ -91,7 +105,7 @@ function div(lst, x=same)
         two   = a[j+1]
         three = [ one;two ]
         n1, n2, n3 = length(one), length(two), length(three)
-        v12, v3    = n1/n3*var(one) + n2/n3*var(two), var(three)
+        v12, v3    = n1/n3*sd(one,y) + n2/n3*sd(two,y), sd(three,y)
         if v3*the.div.trivial < v12
           one = three
           j += 1
@@ -102,12 +116,16 @@ function div(lst, x=same)
     end 
     return length(tmp) < length(a) ? merge(tmp) : a
   end
-  merge( chop(lst, the.div.cohen * var(lst)) )
+  merge( chop(lst, the.div.cohen * sd(lst,x)) )
 end
 
 function main()  
   lst = [int(100*round(rand()^.5,digits=2)) for _ in 1:256]
-  for (n,one) in enumerate(div(lst))
+  lst = [[x, x<30 ? 1 : 0] for x in lst]
+  print(lst)
+  first(z)  = z[1]
+  second(z) = z[2]
+  for (n,one) in enumerate(div(lst,first,second))
      println("\n",n,") ", length(one), " ",one) 
   end
 end
