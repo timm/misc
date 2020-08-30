@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# vim: ft=lua :
+md() { cat <<-'EOF'
+
+# Based
+
+I Ads lake _stuff_ longer hills
+
+```lua
+function a() return 1+1 end
+
+function Num() return {
+  n=1,all={},dd={},isa="Num"}
+end
+
+How["Num"].add= NumAdd
+How["Sym"].add= SymAdd
+
+function add(x,a) { return poly[x.isa].add(x,a)  }
+```
+
+EOF
+}
+src2code() { cat - | gawk '
+ BEGIN      { print "\n\n"               }
+ /^[a-z]/   { In = 1                     }
+ /^$/       { In = 0                     }
+ $0~/^$/    { print; next                }
+            { print (In ? "" : "-- ") $0 }'
+}
+
+src2md() { cat - | gawk '
+ BEGIN      { print "\n\n"      }
+ /^[a-z]/   { In = 1            }
+ /^$/       { In = 0            }
+ $0~/^$/    { print; next       }
+ B4  && !In { print "```"       } 
+ !B4 && In  { print "```lua"    } 
+            { print  $0; B4= In }
+  END       { if(B4) print "```"}'
+}
+
+#src | src2code
+
+src | src2md
