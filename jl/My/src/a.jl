@@ -53,7 +53,15 @@ function all(i::Some)
   return i._all
 end
 
-function inc!(i::Some, x)
+function inc!(i,x)
+  if x != the.char.skip
+    i.n += 1
+    inc1!(i,x)
+  end
+  x
+end
+
+function inc1!(i::Some, x)
   m = length(i._all)
   if m < i.max
     i.stale=true
@@ -70,7 +78,7 @@ function var(i::Num)
   end
 end
 
-function inc!(i::Num,x)
+function inc1!(i::Num,x)
   i.lo  = min(i.lo, x)
   i.hi  = max(i.hi, x)
   d     = x - i.mu
@@ -79,19 +87,24 @@ function inc!(i::Num,x)
 end
 
 function div(lst, x, y)
-  lst     = sort([z for z in lst if x(z) != the.str.skip], by=x)
-  sd(a,f=x) = var( incs!( Num(), [f(z) for z in a]))
-  function chop(a, eps)
+  lst       = sort([z for z in lst if x(z) != the.str.skip], by=x)
+  sd(a,f=x) = var(incs!(Num(), [f(z) for z in a]))
+  mid(a,f=x) = f( a[ int(length(a)/2) ] )
+  eps = the.div.cohen * sd(lst,x)
+  function chop(a)
     m = length(a)
     tmp, out, n = [], [], m / the.div.divs
     last=nothing
+    n=Num()
     for (i,one) in enumerate(a)
-      if m - i > n && x(one) != x(last) 
-        if length(tmp) >= n  && x(one) - x(tmp[1]) > eps
-          push!(out, tmp)
+      if length(tmp)>=n && m - i > n && x(one) != x(last) 
+        if x(one) - x(tmp[1]) > eps
+          push!(out, [n,tmp])
           tmp = [] 
+          n=Num()
       end end
       push!(tmp,one)
+      inc!(n,y(one))
       last = one
     end
     if length(tmp) > 0 push!(out,tmp) end
@@ -102,11 +115,15 @@ function div(lst, x, y)
     while j <= m
       one = a[j]
       if j < m
-        two   = a[j+1]
-        three = [ one;two ]
-        n1, n2, n3 = length(one), length(two), length(three)
-        v12, v3    = n1/n3*sd(one,y) + n2/n3*sd(two,y), sd(three,y)
-        if v3*the.div.trivial < v12
+        two       = a[j+1]
+        n1, n2    = one[1].n, two[1].n
+        n3        = n1+n2
+        sd1,sd2   = var(one[1]), var(two[1])
+        tmp       = [ one[2];two[2] ]
+        three     = [incs!(Num(), [y(z) for z in tmp]), tmp]
+        sd3       = var(three[1])
+        sd12      = n1/n3*sd1 + n2/n3*sd2
+        if abs(sd1 - sd2) < 0.01 || sd12*the.div.trivial >sd3
           one = three
           j += 1
         end 
@@ -116,26 +133,25 @@ function div(lst, x, y)
     end 
     return length(tmp) < length(a) ? merge(tmp) : a
   end
-  merge( chop(lst, the.div.cohen * sd(lst,x)) )
+  merge( chop(lst))
 end
 
 function main()  
-  lst = [int(100*round(rand()^.5,digits=2)) for _ in 1:256]
+  lst = [int(100*round(rand()^.5,digits=2)) for _ in 1:10^4]
   lst = [[x, x<30 ? 1 : 0] for x in lst]
-  print(lst)
-  first(z)  = z[1]
+  first(z)  = z[1] 
   second(z) = z[2]
-  for (n,one) in enumerate(div(lst,first,second))
-     println("\n",n,") ", length(one), " ",one) 
+  for (i,one) in enumerate(div(lst,first,second))
+    println(i," ",length(one)," ", one[2][1]," ",last(one[2]))
   end
 end
 
 main1() = for _ in 1:10; print(any([1,2,3])) end
+
 
 try
   println("\n--| ",int(time() % 1000)," |----------------")
   main()
 catch e
    showerror(stdout, e, catch_backtrace()[1:10])
-   exit(1)
 end

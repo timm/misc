@@ -8,6 +8,8 @@ let
     end
 end
 
+println("go!")
+
 Pkg.activate(".")
 using Revise
 using OhMyREPL
