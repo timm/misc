@@ -187,7 +187,7 @@ end
 function nok(t) return true end
 
 do 
-  local  yes,no = 0,0
+  local  yes,no = 0,0 
   function tests(t,      t1,t2, passed,err)
     for s,x in pairs(_G) do  
       if s:match("^ok_") then
