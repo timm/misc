@@ -29,10 +29,11 @@ tput sgr0
 tput bold; tput setaf 0; cat <<'EOF'
 
 Usage:
-  sh ell -I   install
-  sh ell -R   run code in $File
-  sh ell -h   help
-  sh ell -E   enter a tmux dev environment
+  sh ell -I      install
+  sh ell -R      run code in $File
+  sh ell -T [X]  run test X (and if X is missing, run all tests)
+  sh ell -h      help
+  sh ell -E      enter a tmux dev environment
 
 Inside tmux:
   reload     . $Ell/ell
@@ -51,6 +52,11 @@ alias gp='git add *; git commit -am saving; git push; git status'
 alias ls='ls -G'
 alias reload='. $Ell/ell'
 
+color() { gawk '
+/FAIL/ {print "\033[31m" $0 "\033[0m";next}
+/PASS/ {print "\033[32m" $0 "\033[0m";next}
+       {print}'
+}
 here() { cd $1; basename `pwd`; }    
 PROMPT_COMMAND='echo -ne " 💫 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'     
 
@@ -70,7 +76,7 @@ elif [ "$1" = "-R" ]; then
   lua /tmp/$$$File
 elif [ "$1" = "-T" ]; then
   sh $Ell/ell -C > /tmp/$$$File
-  lua   /tmp/$$$File  -T 
+  lua   /tmp/$$$File  -T  $2 | color
 elif [ "$1" = "-C" ]; then
   cat $File | md2code
 elif [ "$1" = "-E" ]; then
