@@ -23,39 +23,40 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
 
 ## About the code
 
+- [About the code](#about-the-code) : 
+    - [Printing a Table](#printing-a-table) : 
+
+
 This is a _one file_ system where all the code
 is in a markdown file and extraced using
 
     sh ell --code
 
 ```lua
-
 function classes()
 end
+
 do
   local id=0
   function id (x)
     if not x._id then id= id + 1; x._id= id end
-    return x._id
-  end
+    return x._id end 
 end
 
-function c(s,k) return string.sub(s,1,1)==k end
-
+function c(s,k)   return string.sub(s,1,1)==k end
 function klass(x) return c(x,"!")  end 
 function less(x)  return c(x,"<")  end
 function goal(x)  return c(x,">")  or less(x) end
 function num(x)   return c(x,"$")  or goal(x) end
-function y(x)     return klass(x)or goal(x) end
+function y(x)     return klass(x)  or goal(x) end
 function x(x)     return not y(x)   end
 function sym(x)   return not num(x) end
-function xsym(z)  return x(z)    and sym(z) end
-function xnum(z)  return x(z)    and num(z) end
+function xsym(z)  return x(z) and  sym(z) end
+function xnum(z)  return x(z) and  num(z) end
 
 function cols(all,f)
   return select(all, function(z) return f(z.txt) end)
 end
-
 
 function round(num, places)
   local mult = 10^(places or 0)
@@ -211,7 +212,6 @@ do
 end
 
 function ok_test()
-  assert(1/0)
   assert(1==2)
 end
 
