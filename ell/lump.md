@@ -207,16 +207,21 @@ do
     end end
   end
   rogues()
+  return yes - no == 1
 end
 
 function ok_test()
   assert(1/0)
-  assert(1==1)
+  assert(1==2)
 end
 
 function ok_test2()
   assert(1==1)
 end
 
-if arg[1] == "-T" then tests(arg[2]); rogues() end
+if arg[1] == "-T" then 
+  local status = tests(arg[2])
+  rogues() 
+  os.exit(status)
+end
 ```
