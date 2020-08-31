@@ -1,8 +1,8 @@
 # vim:ft=sh:
 Ell=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 
-Com="-- "
-File="$Ell/lump.md"
+Comment="-- "
+File="lump.md"
 
 hello() {
 clear
@@ -23,13 +23,16 @@ for c in lua gawk; do
 done
 
 usage() { 
+tput bold; tput setaf 3; 
+echo; echo sh ell [options]
+tput sgr0
 tput bold; tput setaf 0; cat <<'EOF'
 
 Usage:
   sh ell -I   install
   sh ell -R   run code in $File
   sh ell -h   help
-  sh ell -T   enter a tmux dev environment
+  sh ell -E   enter a tmux dev environment
 
 Inside tmux:
   reload     . $Ell/ell
@@ -53,7 +56,7 @@ PROMPT_COMMAND='echo -ne " 💫 $(git branch 2>/dev/null | grep '^*' | colrm 1 2
 
 vims() { vim +PluginInstall +qall; }
 
-md2code() { gawk -v com="$Com" '
+md2code() { gawk -v com="$Comment" '
 sub(/```.+$/,"") { In = 1 }
 sub(/```/,   "") { In = 0 }
                  { print (In?"":com) $0 }
@@ -63,12 +66,14 @@ sub(/```/,   "") { In = 0 }
 if [ "$1" = "-h" ]; then 
   usage
 elif [ "$1" = "-R" ]; then
-  f=$(basename $File)
-  sh $Ell/ell -C > /tmp/$$$f
-  lua /tmp/$$$f
+  sh $Ell/ell -C > /tmp/$$$File
+  lua /tmp/$$$File
+elif [ "$1" = "-T" ]; then
+  sh $Ell/ell -C > /tmp/$$$File
+  lua   /tmp/$$$File  -T 
 elif [ "$1" = "-C" ]; then
   cat $File | md2code
-elif [ "$1" = "-T" ]; then
+elif [ "$1" = "-E" ]; then
   session=$RANDOM
   tmux start-server
   tmux new-session -d -s $session  

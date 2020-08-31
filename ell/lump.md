@@ -30,6 +30,8 @@ is in a markdown file and extraced using
 
 ```lua
 
+function classes()
+end
 do
   local id=0
   function id (x)
@@ -186,29 +188,34 @@ function nok(t) return true end
 
 do 
   local yes,no = 0,0
-  function ok(t,      t1,t2, passed,err)
-    for s,x in pairs(t) do  
-      yes = yes + 1
-      t1 = os.clock()
-      math.randomseed(1)
-      passed,err = pcall(x) 
-      if passed then
-         t2= os.clock()
-         print(string.format(s.." : %8.6f secs", t2-t1))
-      else
-        no = no + 1
-        print(string.format(s.." FAILED! %s %.0f %%",
-                            err,100*yes/(yes+no))) end 
-    end 
+  function tests(t,      t1,t2, passed,err)
+    for s,x in pairs(_G) do  
+      if s:match("^ok_") then
+        if t and not s:match("^ok_"..t) then break end
+        yes = yes + 1
+        t1 = os.clock()
+        math.randomseed(1)
+        passed,err = pcall(x) 
+        if passed then
+           t2= os.clock()
+           print(string.format(s.." : %8.6f secs", t2-t1))
+        else
+          no = no + 1
+          print(string.format(s.." FAILED! %s %.0f %%",
+                              err,100*yes/(yes+no))) end 
+    end end
   end
+  rogues()
 end
 
-ok{what=function() 
+function ok_test()
   assert(1/"a")
   assert(1==2)
-end}
-ok{how=function() 
+end
+
+function ok_test2()
   assert(1==2)
-end}
-rogues()
+end
+
+if arg[1] == "-T" then tests(arg[2]); rogues() end
 ```
