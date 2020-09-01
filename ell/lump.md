@@ -28,15 +28,27 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
 - [Lib](#lib) 
     - [Maths](#maths) 
     - [Strings](#strings) 
-    - [Printing a Table](#printing-a-table) 
+        - [o(t,pre) : return `t` as a string, with `pre`fix](#otpre--return-t-as-a-string-with-prefix) 
+        - [oo(t,pre) : print `t` as a string, with `pre`fix](#ootpre--print-t-as-a-string-with-prefix) 
+        - [ooo(t,pre) :ireturn a string representing `t`'s recursive contents.](#oootpre-ireturn-a-string-representing-ts-recursive-contents) 
     - [Meta](#meta) 
         - [same(z) : return z](#samez--return-z) 
         - [map(t,f) : apply `f` to everything in `t` and return the result](#maptf--apply-f-to-everything-in-t-and-return-the-result) 
         - [copy(t) : return a deep copy of `t`](#copyt--return-a-deep-copy-of-t) 
+        - [select(t,f) : return a table of items in `t` that satisfy function `f`](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) 
     - [Lists](#lists) 
         - [any(a) : sample 1 item from `a`](#anya--sample-1-item-from-a) 
         - [anys(a,n) : sample `n` items from `a`](#anysan--sample-n-items-from-a) 
         - [keys(t): iterate over key,values (sorted by key)](#keyst-iterate-over-keyvalues-sorted-by-key) 
+    - [Files](#files) 
+        - [csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) 
+- [Testing](#testing) 
+    - [Support code](#support-code) 
+        - [within(x,y,z): `y` is between `x` and `z`.](#withinxyz-y-is-between-x-and-z) 
+        - [rogues(): report escaped local variables](#rogues-report-escaped-local-variables) 
+        - [egs(x): run the test function `eg_x` or, if `x` is nil, run all.](#egsx-run-the-test-function-egx-or-if-x-is-nil-run-all) 
+    - [Unit tests](#unit-tests) 
+- [Main](#main) 
 
 
 This is a _one file_ system where all the code
@@ -47,15 +59,17 @@ is in a markdown file and extraced using
 ## Config
 ```lua
 My = {aka={},
-      id=0
+      id=0,
+      seed=1,
+      test= {yes=0,no=0}
 }
 
 function id (x)
-	if not x._id then my.id=my.id+1; x._id= my.id end
+	if not x._id then My.id=My.id+1; x._id= My.id end
 	return x._id 
 end
 
-function eg_id(x, a) a={}; id(a); print(a._id) end
+function eg_id(x, a) a={}; id(a); id(a); assert(1==a._id) end
 
 function c(s,k)   return string.sub(s,1,1)==k end
 function klass(x) return c(x,"!")  end 
@@ -72,11 +86,7 @@ function cols(all,f)
   return select(all, function(z) return f(z.txt) end)
 end
 ```
-
 ## Lib
-
-<img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
-
 ### Maths
 ```lua
 function round(num, places)
@@ -84,9 +94,6 @@ function round(num, places)
   return math.floor(num * mult + 0.5) / mult
 end
 ```
-
-<img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
-
 ### Strings
 
 Support string interpolation with "_%_":
@@ -98,25 +105,21 @@ getmetatable("").__mod = function(a, b)
   local f, u = string.format, table.unpack
   return (b and type(b)=="table" and f(a, u(b)) or f(a,b)) or a
 end
-
 ```
-#### Printing a Table
-
-- For flat tables
-  - `o` generates, but does not print, a print string.
-  - `oo` generates a prints a string.
-- For nested tables
-  - `ooo` generates and prints a nested string
-
+#### o(t,pre) : return `t` as a string, with `pre`fix
 ```lua
 function o(z,pre,   s,sep) 
   s, sep = (pre or "")..'{', ""
   for _,v in pairs(z or {}) do s = s..sep..tostring(v); sep=", " end
   return s..'}'
 end
-
+```
+#### oo(t,pre) : print `t` as a string, with `pre`fix
+```lua
 function oo(z,pre) print(o(z,pre)) end
-
+```
+#### ooo(t,pre) :ireturn a string representing `t`'s recursive contents.
+```lua
 function ooo(t,pre,    indent,fmt)
   pre=pre or ""
   indent = indent or 0
@@ -131,9 +134,6 @@ function ooo(t,pre,    indent,fmt)
   print(fmt .. tostring(v)) end end end end
 end
 ```
-
-<img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
-
 ### Meta
 #### same(z) : return z
 ```lua
@@ -161,9 +161,6 @@ function select(t,f,     g,u)
   return u
 end
 ```
-
-<img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
-
 ### Lists
 #### any(a) : sample 1 item from `a`
 ```lua
@@ -188,7 +185,10 @@ function keys(t)
       i = i+1
       return u[i], t[u[i]] end end 
 end
-
+```
+### Files
+#### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
+```lua
 function csv(file,     stream,tmp,row)
   function s2t(s,     sep,t)
     t, sep = {}, sep or ","
@@ -208,14 +208,17 @@ function csv(file,     stream,tmp,row)
     else
   io.close(stream) end end   
 end
-for row in csv("data/weather4.csv") do
-  oo(row)
-end
-
+```
+## Testing
+### Support code
+#### within(x,y,z): `y` is between `x` and `z`.
+```lua
 function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
-
+```
+#### rogues(): report escaped local variables
+```lua
 function rogues(   no)
   no = {the=true, TESTING=true,
               jit=true, utf8=true, math=true, package=true,
@@ -227,44 +230,38 @@ function rogues(   no)
       if k:match("^[^A-Z]") then
         print("-- ROGUE ["..k.."]") end end end
 end
-
-function nok(t) return true end
-
-do 
-  local  yes,no = 0,0 
-  function egs(t,      t1,t2, passed,err)
-    for s,x in pairs(_G) do  
-      if s:match("^eg_") then
-        if t and not s:match("^eg_"..t) then break end
-        yes = yes + 1
-        t1 = os.clock()
-        math.randomseed(1)
-        passed,err = pcall(x) 
-        if passed then
-           t2= os.clock()
-           print(string.format(s.." PASS! %8.6f secs", t2-t1))
-        else
-          no = no + 1
-          print(string.format(s.." FAILED! : %s [%.0f] %%",
-                              err:gsub("^.*: ",""), 
-                              100*yes/(yes+no))) end 
-    end end
-  end
-  rogues()
-  return yes - no == 1
-end
-
-function eg_test()
-  assert(1==2)
-end
-
-function eg_test2()
-  assert(1==1)
-end
-
+```
+#### egs(x): run the test function `eg_x` or, if `x` is nil, run all.
+```lua
+function egs(t,      t1,t2, passed,err,y,n)
+  for s,x in keys(_G) do  
+    if s:match("^eg_") then
+      if t and not s:match("^eg_"..t) then break end
+      My.test.yes = My.test.yes + 1
+      t1 = os.clock()
+      math.randomseed(My.seed)
+      passed,err = pcall(x) 
+      if passed then
+         t2= os.clock()
+         print(string.format("PASS! "..s.." \t: %8.6f secs", t2-t1))
+      else
+        My.test.no = My.test.no + 1
+        y,n = My.test.yes,  My.test.no
+        print(string.format("FAIL! "..s.." \t: %s [%.0f] %%",
+                            err:gsub("^.*: ",""), 
+                            100*y/(y+n))) end 
+end end end
+```
+### Unit tests
+```lua 
+function eg_test() assert(1==2) end
+function eg_test2() assert(1==1) end
+```
+## Main
+```lua
 if arg[1] == "-T" then 
-  local status = tests(arg[2])
+  local status = egs(arg[2])
   rogues() 
-  os.exit(status)
+  os.exit((My.test.yes - My.test.no == 1) and 0 or 1)
 end
 ```
