@@ -203,23 +203,18 @@ end
 #### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
 ```lua
 function csv(file,     stream,tmp,row)
-  function s2t(s,     sep,t)
-    t, sep = {}, sep or ","
-    for y in string.gmatch(s,"([^"..sep.."]+)") do 
-       t[#t+1] = tonumber(y) or y 
-    end
-    return t
-  end
   stream = file and io.input(file) or io.input()
   tmp    = io.read()
   return function()
     if tmp then
       tmp= tmp:gsub("[\t\r ]*","") -- no whitespace
-      row= s2t(tmp)
+      row={}
+      for y in string.gmatch(tmp,"([^,]+)") do 
+         row[#row+1] = tonumber(y) or y 
       tmp= io.read()
       if #row > 0 then return row end
     else
-  io.close(stream) end end   
+    io.close(stream) end end   
 end
 ```
 ## Testing
