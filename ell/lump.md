@@ -21,7 +21,6 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
    src="https://travis-ci.org/timm/lump.svg?branch=master"></a>
 </p> 
 
-## About the code
 
 - [About the code](#about-the-code) : 
 - [Config](#config) : 
@@ -73,6 +72,7 @@ My = {aka={},
 ```
 ## Data
 ### Columns
+#### Define column types
 ```lua
 function c(s,k)   return string.sub(s,1,1)==k end
 function klass(x) return c(x,"!")  end 
@@ -122,7 +122,7 @@ end
 ```lua
 function oo(z,pre) print(o(z,pre)) end
 ```
-#### ooo(t,pre) :ireturn a string representing `t`'s recursive contents.
+#### ooo(t,pre) : return a string representing `t`'s recursive contents.
 ```lua
 function ooo(t,pre,    indent,fmt)
   pre=pre or ""
