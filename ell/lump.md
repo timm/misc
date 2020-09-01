@@ -3,13 +3,13 @@
 <a href="https://github.com/timm/lump/blob/master/READ.md#top">home</a> ::
 <a href="https://github.com/timm/lump/blob/master/READE.md#contribute">contribute</a> ::
 <a href="https://github.com/timm/lump/issues">issues</a> ::
-<a href="https://github.com/timm/lump/blob/master/LICENSE.md">&copy;2020<a> by <a href="http://menzies.us">Tim nzies</a>
+<a href="https://github.com/timm/lump/blob/master/LICENSE.md">&copy;2020<a> by <a href="http://menzies.us">Tim Menzies</a>
 </p>
 
-<h1 align=center> LU v0.1<br>(print (list (of (some :LISP "tricks")))) </h1>
+<h1 align=center> LUMP v0.1<br>cluster and contrast</h1>
 
 <p align=center>
-<img src="https://imgs.xkcd.com/comics/lisp_cycles.png"><br>
+<img src="https://i0.wp.com/studentwork.prattsi.org/infovis/wp-content/uploads/sites/3/2019/04/image-44.png?w=758&ssl=1"><br>
 <img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet"> <a 
 href="https://github.com/timm/lump/blob/master/LICENSE.md"> <img  
    alt="License" src="https://img.shields.io/badge/license-mit-red"></a> <a 
