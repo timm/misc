@@ -74,7 +74,9 @@ end
 ```
 
 ## Lib
+
 <img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
+
 ### Maths
 ```lua
 function round(num, places)
@@ -82,7 +84,9 @@ function round(num, places)
   return math.floor(num * mult + 0.5) / mult
 end
 ```
+
 <img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
+
 ### Strings
 
 Support string interpolation with "_%_":
@@ -129,6 +133,7 @@ end
 ```
 
 <img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
+
 ### Meta
 #### same(z) : return z
 ```lua
@@ -158,6 +163,7 @@ end
 ```
 
 <img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
+
 ### Lists
 #### any(a) : sample 1 item from `a`
 ```lua
