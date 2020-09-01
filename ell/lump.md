@@ -52,7 +52,6 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
         - [within(x,y,z)](#withinxyz-y-is-between-x-and-z) : `y` is between `x` and `z`.
         - [rogues()](#rogues-report-escaped-local-variables) : report escaped local variables
         - [egs(x)](#egsx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
-    - [Unit tests](#unit-tests) : 
 - [Main](#main) : 
 
 
@@ -97,6 +96,7 @@ function round(num, places)
   local mult = 10^(places or 0)
   return math.floor(num * mult + 0.5) / mult
 end
+
 ```
 ### Strings
 #### Interpolation
@@ -145,8 +145,6 @@ function id (x)
 	if not x._id then My.id=My.id+1; x._id= My.id end
 	return x._id 
 end
-
-function eg_id(x, a) a={}; id(a); id(a); assert(1==a._id) end
 ```
 #### same(z) : return z
 ```lua
@@ -267,8 +265,14 @@ end end end
 ```
 ### Unit tests
 ```lua 
-function eg_test() assert(1==2) end
-function eg_test2() assert(1==1) end
+function eg_test()   assert(1==2) end
+function eg_rnf()    assert(3.2==round(3.2222,1)) end
+function eg_intrp()  assert("3.14" == (("%4.2f" % math.pi))) end
+function eg_o()      assert("{1, aa, 3}" == o({1,"aa",3})) end
+function eg_id(  a)  a={}; id(a); id(a); assert(1==a._id) end
+function eg_map( t)
+	assert(30 == map({1,2,3}, function (z) return z*10 end)[3])
+end
 ```
 ## Main
 ```lua
