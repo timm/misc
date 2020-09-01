@@ -23,32 +23,32 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
 
 ## About the code
 
-- [About the code](#about-the-code) 
-- [Config](#config) 
-- [Lib](#lib) 
-    - [Maths](#maths) 
-    - [Strings](#strings) 
-        - [o(t,pre) : return `t` as a string, with `pre`fix](#otpre--return-t-as-a-string-with-prefix) 
-        - [oo(t,pre) : print `t` as a string, with `pre`fix](#ootpre--print-t-as-a-string-with-prefix) 
-        - [ooo(t,pre) :ireturn a string representing `t`'s recursive contents.](#oootpre-ireturn-a-string-representing-ts-recursive-contents) 
-    - [Meta](#meta) 
-        - [same(z) : return z](#samez--return-z) 
-        - [map(t,f) : apply `f` to everything in `t` and return the result](#maptf--apply-f-to-everything-in-t-and-return-the-result) 
-        - [copy(t) : return a deep copy of `t`](#copyt--return-a-deep-copy-of-t) 
-        - [select(t,f) : return a table of items in `t` that satisfy function `f`](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) 
-    - [Lists](#lists) 
-        - [any(a) : sample 1 item from `a`](#anya--sample-1-item-from-a) 
-        - [anys(a,n) : sample `n` items from `a`](#anysan--sample-n-items-from-a) 
-        - [keys(t): iterate over key,values (sorted by key)](#keyst-iterate-over-keyvalues-sorted-by-key) 
-    - [Files](#files) 
-        - [csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) 
-- [Testing](#testing) 
-    - [Support code](#support-code) 
-        - [within(x,y,z): `y` is between `x` and `z`.](#withinxyz-y-is-between-x-and-z) 
-        - [rogues(): report escaped local variables](#rogues-report-escaped-local-variables) 
-        - [egs(x): run the test function `eg_x` or, if `x` is nil, run all.](#egsx-run-the-test-function-egx-or-if-x-is-nil-run-all) 
-    - [Unit tests](#unit-tests) 
-- [Main](#main) 
+- [About the code](#about-the-code) : 
+- [Config](#config) : 
+- [Lib](#lib) : 
+    - [Maths](#maths) : 
+    - [Strings](#strings) : 
+        - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
+        - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
+        - [ooo(t,pre) :ireturn a string representing `t`'s recursive contents.](#oootpre-ireturn-a-string-representing-ts-recursive-contents) : 
+    - [Meta](#meta) : 
+        - [same(z)](#samez--return-z) : return z
+        - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
+        - [copy(t)](#copyt--return-a-deep-copy-of-t) : return a deep copy of `t`
+        - [select(t,f)](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) : return a table of items in `t` that satisfy function `f`
+    - [Lists](#lists) : 
+        - [any(a)](#anya--sample-1-item-from-a) : sample 1 item from `a`
+        - [anys(a,n)](#anysan--sample-n-items-from-a) : sample `n` items from `a`
+        - [keys(t)](#keyst-iterate-over-keyvalues-sorted-by-key) : iterate over key,values (sorted by key)
+    - [Files](#files) : 
+        - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
+- [Testing](#testing) : 
+    - [Support code](#support-code) : 
+        - [within(x,y,z)](#withinxyz-y-is-between-x-and-z) : `y` is between `x` and `z`.
+        - [rogues()](#rogues-report-escaped-local-variables) : report escaped local variables
+        - [egs(x)](#egsx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
+    - [Unit tests](#unit-tests) : 
+- [Main](#main) : 
 
 
 This is a _one file_ system where all the code
