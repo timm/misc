@@ -25,6 +25,9 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
 
 - [About the code](#about-the-code) : 
 - [Config](#config) : 
+    - [My](#my--global-with-all-settings) : global with all settings
+- [Data](#data) : 
+    - [Columns](#columns) : 
 - [Lib](#lib) : 
     - [Maths](#maths) : 
     - [Strings](#strings) : 
@@ -32,6 +35,7 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
         - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
         - [ooo(t,pre) :ireturn a string representing `t`'s recursive contents.](#oootpre-ireturn-a-string-representing-ts-recursive-contents) : 
     - [Meta](#meta) : 
+        - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
         - [same(z)](#samez--return-z) : return z
         - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
         - [copy(t)](#copyt--return-a-deep-copy-of-t) : return a deep copy of `t`
@@ -57,20 +61,17 @@ is in a markdown file and extraced using
     sh ell --code
 
 ## Config
+### My : global with all settings
 ```lua
 My = {aka={},
       id=0,
       seed=1,
       test= {yes=0,no=0}
 }
-
-function id (x)
-	if not x._id then My.id=My.id+1; x._id= My.id end
-	return x._id 
-end
-
-function eg_id(x, a) a={}; id(a); id(a); assert(1==a._id) end
-
+```
+## Data
+### Columns
+```lua
 function c(s,k)   return string.sub(s,1,1)==k end
 function klass(x) return c(x,"!")  end 
 function less(x)  return c(x,"<")  end
@@ -135,6 +136,15 @@ function ooo(t,pre,    indent,fmt)
 end
 ```
 ### Meta
+#### id(x) : ensure `x` has a unique if
+```lua
+function id (x)
+	if not x._id then My.id=My.id+1; x._id= My.id end
+	return x._id 
+end
+
+function eg_id(x, a) a={}; id(a); id(a); assert(1==a._id) end
+```
 #### same(z) : return z
 ```lua
 function same(z) return z end
