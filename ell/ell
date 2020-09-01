@@ -32,6 +32,7 @@ Usage:
   sh ell -I      install
   sh ell -R      run code in $File
   sh ell -T [X]  run test X (and if X is missing, run all tests)
+  sh ell -X      extract table of contents for $File
   sh ell -h      help
   sh ell -E      enter a tmux dev environment
 
@@ -73,31 +74,21 @@ function ns(n,    s) {
    while(n-- > 0) s= s "    "
    return s
 }
-function trim(s) {
-  gsub(/^[ \t]*/,"",s)
-  gsub(/[ \t]*$/,"",s)
-  return s
-}
 /^#[#]+[ \t]/ { 
-     new = split($1,a,"#") - 3
      s = $0
-     gsub(/^[#]+[ \t]*/,"",s) #asada() : asdadsa
-     s = trim(s)
+     gsub(/^[#]+[ \t]*/,"",s) 
+     gsub(/^[ \t]*/,"",s)
+     gsub(/[ \t]*$/,"",s)
      link = s
      gsub(/[^a-zA-Z0-9\- ]/,"",link)
      gsub(/[ \t]/,"-",link)
-     split(s,a,/[ \t]*:[ \t]/)
-     a[1] = trim( a[1] )
-     a[2] = trim( a[2] )
-     if (length(a) == 1)
-          print ns(new) "- [" s    "](#" tolower(link) ") " 
-     else print ns(new) "- [" a[1] "](#" tolower(link) ") : " a[2] 
-}
+     new = split($1,a,"#") - 3
+     print ns(new) "- [" s    "](#" tolower(link) ") " }
 END {print ""}'
 }
 if [ "$1" = "-h" ]; then 
   usage
-elif [ "$1" = "-M" ]; then
+elif [ "$1" = "-X" ]; then
   cat $File | toc 
 elif [ "$1" = "-R" ]; then
   sh $Ell/ell -C > /tmp/$$$File
@@ -393,8 +384,6 @@ elif [ "$1" = "-I" ]; then
 	setw -g monitor-activity on
 	set -g visual-activity on
 	EOF
-elif [ "$1" = "-X" ]; then
-	echo xx
 else
   usage
 fi
