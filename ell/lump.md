@@ -144,13 +144,15 @@ end
 function copy(t)  
   return type(t) ~= 'table' and t or map(t,copy)
 end
-
+```
+#### select(t,f) : return a table of items in `t` that satisfy function `f`
+```lua
 function select(t,f,     g,u)
   u, f = {}, f or same
   for _,v in pairs(t) do if f(v) then u[#u+1] = v  end end
   return u
 end
-
+```
 
 ### Lists
 #### any(a) : sample 1 item from `a`
