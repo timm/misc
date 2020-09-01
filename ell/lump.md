@@ -74,6 +74,7 @@ end
 ```
 
 ## Lib
+<img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
 ### Maths
 ```lua
 function round(num, places)
@@ -81,6 +82,7 @@ function round(num, places)
   return math.floor(num * mult + 0.5) / mult
 end
 ```
+<img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
 ### Strings
 
 Support string interpolation with "_%_":
@@ -94,7 +96,7 @@ getmetatable("").__mod = function(a, b)
 end
 
 ```
-### Printing a Table
+#### Printing a Table
 
 - For flat tables
   - `o` generates, but does not print, a print string.
@@ -126,6 +128,7 @@ function ooo(t,pre,    indent,fmt)
 end
 ```
 
+<img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
 ### Meta
 #### same(z) : return z
 ```lua
@@ -154,6 +157,7 @@ function select(t,f,     g,u)
 end
 ```
 
+<img align=right width=150 src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Lua-Logo.svg">
 ### Lists
 #### any(a) : sample 1 item from `a`
 ```lua
