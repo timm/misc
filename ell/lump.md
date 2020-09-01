@@ -22,11 +22,11 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
 </p> 
 
 
-- [About the code](#about-the-code) : 
 - [Config](#config) : 
     - [My](#my--global-with-all-settings) : global with all settings
 - [Data](#data) : 
     - [Columns](#columns) : 
+        - [Define column types](#define-column-types) : 
 - [Lib](#lib) : 
     - [Maths](#maths) : 
         - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
@@ -34,7 +34,7 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
         - [Interpolation](#interpolation) : 
         - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
         - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
-        - [ooo(t,pre) :ireturn a string representing `t`'s recursive contents.](#oootpre-ireturn-a-string-representing-ts-recursive-contents) : 
+        - [ooo(t,pre)](#oootpre--return-a-string-representing-ts-recursive-contents) : return a string representing `t`'s recursive contents.
     - [Meta](#meta) : 
         - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
         - [same(z)](#samez--return-z) : return z
@@ -52,7 +52,9 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
         - [within(x,y,z)](#withinxyz-y-is-between-x-and-z) : `y` is between `x` and `z`.
         - [rogues()](#rogues-report-escaped-local-variables) : report escaped local variables
         - [egs(x)](#egsx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
+    - [Unit tests](#unit-tests) : 
 - [Main](#main) : 
+
 
 
 This is a _one file_ system where all the code
