@@ -30,7 +30,9 @@ alt="lisp" src="https://img.shields.io/badge/language-sbcl,clisp-blue"> <a
     - [Columns](#columns) : 
 - [Lib](#lib) : 
     - [Maths](#maths) : 
+        - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
     - [Strings](#strings) : 
+        - [Interpolation](#interpolation) : 
         - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
         - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
         - [ooo(t,pre) :ireturn a string representing `t`'s recursive contents.](#oootpre-ireturn-a-string-representing-ts-recursive-contents) : 
@@ -89,6 +91,7 @@ end
 ```
 ## Lib
 ### Maths
+#### round(n,places) : round `n` to some decimal `places`.
 ```lua
 function round(num, places)
   local mult = 10^(places or 0)
@@ -96,7 +99,7 @@ function round(num, places)
 end
 ```
 ### Strings
-
+#### Interpolation
 Support string interpolation with "_%_":
 - e.g. `print( "%5.2f" % math.pi )`
 - e.g. `print( "%-10.10s %04d" % { "test", 123 } )`
