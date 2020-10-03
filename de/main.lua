@@ -1,12 +1,5 @@
--- vim: ft=markdown ts=2 sw=2 et:
---[[
-
-# asdas
-
-asdasdasdasasaasasd asda asd as dasdas
-asd asdas
-
---]]
+-- vim: ft=lua ts=2 sw=2 et:
+-- (c) tim menzies, 202  bsd 2-clause license
 
 require "lib"
 local c=require "cocomo"
