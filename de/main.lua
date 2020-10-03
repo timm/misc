@@ -1,5 +1,5 @@
 -- vim: ft=lua ts=2 sw=2 et:
--- (c) tim menzies, 202  bsd 2-clause license
+-- (c) Tim Menzies, timm@ieee.org 2020,BSD 2-clause license
 
 require "lib"
 local c=require "cocomo"
