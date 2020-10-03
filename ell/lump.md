@@ -116,7 +116,7 @@ end
 ```lua
 function o(z,pre,   s,sep) 
   s, sep = (pre or "")..'{', ""
-  for _,v in pairs(z or {}) do s = s..sep..tostring(v); sep=", " end
+  for _,v in keys(z or {}) do s = s..sep..tostring(v); sep=", " end
   return s..'}'
 end
 ```
@@ -130,7 +130,7 @@ function ooo(t,pre,    indent,fmt)
   pre=pre or ""
   indent = indent or 0
   if indent < 10 then
-    for k, v in pairs(t or {}) do
+    for k, v in keys(t or {}) do
       if not (type(k)=='string' and k:match("^_")) then
         fmt= pre..string.rep("|  ",indent)..tostring(k)..": "
         if type(v) == "table" then
@@ -138,6 +138,31 @@ function ooo(t,pre,    indent,fmt)
           ooo(v, pre, indent+1)
         else
   print(fmt .. tostring(v)) end end end end
+end
+```
+### Lists
+#### any(a) : sample 1 item from `a`
+```lua
+function any(a) return a[1 + math.floor(#a*math.random())] end
+```
+#### anys(a,n) : sample `n` items from `a`
+```lua
+function anys(a,n,   t) 
+  t={}
+  for i=1,n do t[#t+1] = any(a) end
+  return t
+end
+```
+#### keys(t): iterate over key,values (sorted by key)
+```lua
+function keys(t)
+  local i,u = 0,{}
+  for k,_ in pairs(t) do u[#u+1] = k end
+  table.sort(u)
+  return function () 
+    if i < #u then 
+      i = i+1
+      return u[i], t[u[i]] end end 
 end
 ```
 ### Meta
@@ -174,30 +199,17 @@ function select(t,f,     g,u)
   return u
 end
 ```
-### Lists
-#### any(a) : sample 1 item from `a`
+#### isa(class,also) : create a new object. if `also` exists, add some slots.
 ```lua
-function any(a) return a[1 + math.floor(#a*math.random())] end
-```
-#### anys(a,n) : sample `n` items from `a`
-```lua
-function anys(a,n,   t) 
-  t={}
-  for i=1,n do t[#t+1] = any(a) end
-  return t
+function isa(class,also,  new)
+  new = copy(class or {})
+  for k,v in pairs(also or {}) do new[k] = v end
+  setmetatable(new,class)
+  class.__index = class
+  class.__tostring = o
+  return new
 end
-```
-#### keys(t): iterate over key,values (sorted by key)
-```lua
-function keys(t)
-  local i,u = 0,{}
-  for k,_ in pairs(t) do u[#u+1] = k end
-  table.sort(u)
-  return function () 
-    if i < #u then 
-      i = i+1
-      return u[i], t[u[i]] end end 
-end
+
 ```
 ### Files
 #### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
@@ -211,6 +223,7 @@ function csv(file,     stream,tmp,row)
       row={}
       for y in string.gmatch(tmp,"([^,]+)") do 
          row[#row+1] = tonumber(y) or y 
+      end
       tmp= io.read()
       if #row > 0 then return row end
     else
@@ -270,6 +283,16 @@ function eg_id(  a)  a={}; id(a); id(a); assert(1==a._id) end
 function eg_map( t)
 	assert(30 == map({1,2,3}, function (z) return z*10 end)[3])
 end
+Emp={name="",age=21,address=23}
+
+function Emp:pr() print(self.age) end
+
+function emp(t) return isa(Emp,t) end
+
+e = emp {name="sarah"}
+
+e:pr()
+print(e)
 ```
 ## Main
 ```lua
