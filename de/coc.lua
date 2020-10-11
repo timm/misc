@@ -1,8 +1,9 @@
 -- vim : ft=lua ts=2 sw=2 et:
---[[
-coco
---]]
 
+-------
+-- Return valid ranges in Cocomo
+
+--- @export
 local p,n,s="+","-","*"
 return {
   acap= {n}, cplx={p,1,6}, prec={s,1,6},

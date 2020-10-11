@@ -1,19 +1,24 @@
 -- vim : ft=lua ts=2 sw=2 et:
+
+--- Mutatble objects, pairs of `{x,y}`
+-- Ensures that `y` is up to date with the `x` variables.
+---
+
 require "lib"
 local risk0= require "risk"
 local coc0 =  require "coc"
 
-return function(i,coc,risk,       
-                y,effort,risk,ready,lo,hi)
+return  function(i,coc,risk,       
+                 y,effort,risk,ready,lo,hi)
   i = i or {x={}, y={}}
-  coc=coc or coc0
-  risk=risk  or risk0
-
+  coc = coc or coc0
+  risk = risk  or risk0
+  i.about = i.about or coc
+  ------------------------
   function y(w,z)
     if w=="+" then return (z-3)*from( 0.073,  0.21 ) end
     if w=="-" then return (z-3)*from(-0.187, -0.078) end
-    return                (z-6)*from(-1.58,  -1.014) 
-  end
+    return                (z-6)*from(-1.58,  -1.014) end
   
   function effort()
     local em,sf=1,0
@@ -22,16 +27,14 @@ return function(i,coc,risk,
       elseif t[1] == n then em = em * i.y[k] 
       else                  sf = sf + i.y[k] end
     end 
-    return i.y.a*i.y.loc^(i.y.b + 0.01*sf) * em
-  end
+    return i.y.a*i.y.loc^(i.y.b + 0.01*sf) * em end
   
   function risks()
     local n=0
     for a1,t in pairs(risk) do
       for a2,m in pairs(t) do
         n  = n  + m[i.x[a1]][i.x[a2]] end end
-    return n/108
-  end
+    return n/108 end
   
   for k,t in pairs(coc) do 
     lo = t[2] or 1
