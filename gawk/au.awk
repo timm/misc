@@ -1,13 +1,10 @@
+function has(i,f,k)  { return has0(i, f?f:"List", k?k:1+length(i[k])) }
+function has0(i,f,k  { i[k][0]; @f(i[k]); delete i[k][0]; return k }
 function List(i)     { split("",i,"") }
-function has0(i,k,f) { i[k]["\t"]; @f(i[k]); return k }
-function has(i,k,f)  { return has0(i, k?k:length(i[k]), f?f:"List") }
 function is(i,x)     { if("is" in i) i.super=x; i.is=x; ++i.id }
 
 function Num(i) { 
   Col(i)
   is(i,"Num")
-  has(i,"all","fred")
-  
-
+  has(i,"fred","all")
 }
-BEGIN { def("aa","bb=0,c=fred","d=bb") }
