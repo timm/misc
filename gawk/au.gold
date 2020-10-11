@@ -1,0 +1,11 @@
+#!/usr/bin/env ./au
+# vim:ft=awk:
+@include "../lib/oo"
+function add(i,x,f) { f=i.is"Add"; return @f(i,x) }
+
+function Num(i) { 
+  Col(i)
+  is(i,"Num")
+  has(i,"fred","all")
+}
+BEGIN {print 1}

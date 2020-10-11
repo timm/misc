@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+here=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+
+top=$here/../../
+want=$top/lib/oo.gold
+mkdir -p $(dirname $want)
+[ -f "$want" ] || cat <<EOF>$want
+function has(i,f,k)  { return has0(i, f?f:"List", k?k:1+length(i[k])) }
+function has0(i,f,k) { i[k][0]; @f(i[k]); delete i[k][0]; return k }
+function List(i)     { split("",i,"") }
+function is(i,x)     { if("is" in i) i.super=x; i.is=x; ++i.id }
+EOF
+
+for f in $(ls $top/*/*/*.gold); do
+  g=$(dirname $f)/$(basename $f .gold).awk
+  if [ "$f" -nt "$g" ]; then
+    cat $f | 
+    gawk '{print gensub(
+            /\.([a-zA-Z_])([a-zA-Z0-9_]*)/,
+            "[\"\\1\\2\"]","g",$0)}
+    ' > $g
+    chmod +x $g
+  fi
+done
+
+if [ -n "$1" ]; then
+  g=$(basename $1 .gold).awk
+  shift
+  echo "g $g"
+  echo "args $*"
+  if [ -t 1 ]; then
+    gawk -f $g $*
+  else
+    cat - | gawk -f $g $*
+  fi
+fi
