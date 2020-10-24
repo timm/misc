@@ -4,7 +4,7 @@
 function add(i,x,f) { f=i.is"Add"; return @f(i,x) }
 
 function Num(i) { 
-  Col(i)
+  Col(i) 
   is(i,"Num")
   has(i,"fred","all")
 }
