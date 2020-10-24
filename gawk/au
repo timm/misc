@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 here=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
-there=$here/*/*.gold
+there=$here/docs/*/*.gold
 
 want=$here/lib/oo.gold
 mkdir -p $(dirname $want)
@@ -14,8 +14,19 @@ EOF
 for f in $(ls $there); do
   g=${f%.*}.awk
   if [ "$f" -nt "$g" ]; then
-    cat $f | gawk ' {print gensub(/\.([a-zA-Z_])([a-zA-Z0-9_]*)/,
-                                   "[\"\\1\\2\"]","g",$0)} ' > $g
+    cat $f | gawk '
+      BEGIN            { Pre="#" }
+      sub(/```awk/,"") { Pre=""  ; print; next}
+      sub(/```/,"")    { Pre="# "; print; next}
+      !Pre && /^function[ \t]+[A-Z][^\(]*\(/ {
+             split($0,a,/[ \t\(]/)
+             PREFIX = a[2]
+      }
+      !Pre { gsub(/ _/," " PREFIX "_",$0)
+             gsub(/DOT/,".",$0)
+             print Pre gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/,
+                             "[\"\\1\\2\"]","g", $0)
+       }' > $g
   fi
 done
 
