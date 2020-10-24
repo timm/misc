@@ -3,7 +3,7 @@
       <meta charset="utf-8">
       <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
       <style>
-           body        {  min-width:600px; padding-top: 20px; font-size: small;
+           body        {  min-width:600px; padding-top: 5px; font-size: small;
                          font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;  }
            .details td { border-left: 1px solid #d7dee3; padding-left: 5px; padding-right: 5px; font-size: small; vertical-align: top; }
            .details li { margin-left:1px; }
@@ -13,8 +13,8 @@
            .details summary { padding: 5px; background-color: #B1E3E0; font-weight: bold; font-size: small; }
            .d1      summary { padding: 5px; xbackground-color: #aaa; font-weight: bold; xcolor: white;font-size: small; }
 
-           .details summary { padding: 5px; background-color:#CC0000; color:white; font-weight: bold; font-size: small; }
-           .d1      summary { padding: 5px; xbackground-color: #aaa; font-weight: bold; xcolor: white;font-size: small; }
+           .details summary { padding: 5px; background-color:#cc1b00; font-weight: normal; color: white; font-weight: bold; font-size: small; }
+           .d1      summary { padding: 5px; xbackground-color: #aaa;  xcolor: white;font-size: small; }
 
            .d1 td { border-left: 1px solid #d7dee3; padding-left: 5px; padding-right: 5px; font-size: small; vertical-align: top; }
            .details li { color: black; padding-left:1px; }
@@ -22,10 +22,10 @@
            .details li:nth-child(odd) { background-color: #e6e6e6; }
            .details li:nth-child(odd) { background-color: #eee; }
 
-           a:link { text-decoration: none; }
-           a:visited { text-decoration: none; }
-           a:hover { text-decoration: underline; }
-           a:active { text-decoration: underline; }
+           a:link { color: #CC0000; text-decoration: none; font-weight:bold;}
+           a:visited { color: #CC0000; text-decoration: none; font-weight:bold;}
+           a:hover { color: #CC0000; text-decoration: underline;font-weight:bold; }
+           a:active { color: #CC0000; text-decoration: underline;font-weight:bold; }
            hr
            {
                background-color: #d7dee3;
@@ -33,25 +33,62 @@
                        color: #fff;
                            height: 1px;
                            }
-      </style>
+     header p    { margin-bottom: 0px;  padding-top:0px; padding-bottom:0px;
+              margin-top:0px; }
+header h1   { padding-top: 6px; padding-bottom: 5px; margin-top: 0px; margin-bottom:2px;
+              color: #fff;  
+  background-image: -ms-linear-gradient(left, #CC0000 0%, #FFFFFF 100%);
+  background-image: -moz-linear-gradient(left, #CC0000 0%, #FFFFFF 100%);
+  background-image: -o-linear-gradient(left, #CC0000 0%, #FFFFFF 100%);
+  background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #CC0000), color-stop(100, #FFFFFF));
+  background-image: -webkit-linear-gradient(left, #CC0000 0%, #FFFFFF 100%);
+  background-image: linear-gradient(to right, #CC0000 0%, #FFFFFF 100%);            
+}
+header      { margin-top:0px; margin-bottom:30px; padding-top:0px;}
+.alignleft  { margin-top:0px; padding-top:0px; float: left; }
+.alignright { margin-top:0px; padding-top:0px; float: right; }
+     table { font-size: small; {
+/* Sortable tables */
+table.sortable thead {
+    background-color:green;
+        color:#666666;
+            font-weight: bold;
+                cursor: default;
+                }
+
+ </style>
+<script src="sorttable.js"></script>
   </head>
   <body>
-     <table width="100%" class="details">
+  <header>
+    <p class="alignleft">&nbsp;  <a href="http://menzies.us">home</a> ::
+    <a href="http://tiny.cc/menzies">pre-prints</a> ::
+    <a href="https://scholar.google.com/citations?user=7htTUTgmLtUC&hl=en">papers</a> ::
+    <a href="http://ai4se.net">lab</a>   :: 
+    <a href="bio.html">bio</a>  
+    </p>
+    <p class="alignright"> <img width=120   src="http://menzies.us/img/CSClogo.gif"> </p>   
+    <br clear=all>
+    <h1>&nbsp; 
+      <p class="alignleft">&nbsp;Tim Menzies</p>
+      <p class="alignright" style="padding-top: 2px; color:#CC0000;
+                text-align: right; font-size: x-small;
+                font-weight: bold;">
+      Professor (full), Phd, CS,     IEEE Fellow
+      <br>
+      SE, AI, data mining, prog languages 
+      </p>
+    </h1>
+    <p class="alignleft">&nbsp;	<a href="mailto:timm@ieee.org">
+      <i class="fa fa-envelope"
+         style="xpadding-right:5px;  color:#CC0000; font-size: 15px;"></i> timm@ieee.org</a>&nbsp;
+    </p>
+  </header>
+   <table width="100%" class="details">
           <tr>  
-            <td style="border: none;" width=300 align=center valign=top>
-              <p><a href="http://menzies.us">home</a> :: <a 
-                    href="http://tiny.cc/menzies">pre-prints</a> :: <a 
-                    href="https://scholar.google.com/citations?user=7htTUTgmLtUC&amp;hl=en">papers</a> :: <a 
-                    href="http://ai4se.net">lab</a> :: <a 
-                    href="bio.html">bio</a>  
-              </p>
+            <td style="border: none;" align=center valign=top>
               <img src="http://menzies.us/timm.png">
-              <h1>Tim Menzies</h1>
-              <a href="mailto:timm@ieee.org"> <i class="fa fa-envelope" font-size: "15px;"></i> timm@ieee.org</a>
-              <p><em>Professor (full), IEEE Fellow, CS, NC State<br>
-                SE, AI, data mining, prog languages</em><br>
-              </p>
-<p style="color:#cc0000;"><b>AI is easy. SE for AI is easy. AI for SE is easy.<br>Please, let me
+<p style="ccolor:#cc0000;"><b>AI is easy.<br>SE for AI is easy.<br>AI for SE is easy.<br>Please, let me
        show you how.<b>
 </p>
 
@@ -99,7 +136,7 @@
    </b>
           </td></tr>
         </table>
-        <hr>
+        &nbsp;
         <center>
         <table xwidth="100%" class=details>
 
@@ -245,105 +282,57 @@ Graduated:<br>
               <i class="fa   fa-paper-plane-o" style="color:#b1cde3; font-size: 50px;"></i>
             </td></tr>
             </table>
+</center>
 <hr>
-            </center>
 
+<!-- b= bad smell<br>
+c= cloud<br>
+d= defect  prediction<br>
+l= lit.review<br>
+n= nutrition<br>
+p= product  line<br>
+pig= pig farming<br>
+P= privacy<br>
+h= project health<br>
+s= security<br>
+S= spacecraft<br>
+t= testing<br>
+<td><b>technology</b><br>
+m= data miner <br>
+d= deep learning <br>
+i= incremental <br>
+o= optimize <br>
+p= process  <br>
+t= text  mining <br>
+T= theorem proving <br>
+TL= transfer learning</td --->
 
-
-<table>
-<h3>Recent Work</h3>
-<table xclass=details>
-<tr><td style="border:none">
-<details><summary>Science 4.0</summary>
-2019
-Humans and AI can learn together to which tests will fail sooner.
-2018
-AI can learn what matters most to to a human operator.
-2018
-Humans can train and AI what documents to they need to read.
-</summary>
-</td></tr><tr><td>
-<details><summary>Software Quality</summary>
-2019
-We can learn plans on what to change to most improve quality.
-2018
-By looking at many projects, we can find very simple predictors of next month's bugs.
-2017
-Intelligent defect predictors can stop developers wasting time while they are fixing bad smells.
-2015
-A simple feature and instance selectors let software projects share privatized data, without missing important patterns.
-2012
-Very simple social metrics can generate near-optimal predictors for software quality.
-2010
-Static code defect predictors have inherent limitations. But these limits can fixed via a new learner, very simple learner, that better understand the business goals.
-2007
-Surprisingly effective defect predictors can be built from simple static code attributes.
-</summary>
-</td></tr><tr><td>
-
-<details><summary>Auto Decision Making</summary>
-2019
-Security bugs can be uncovered even when hidden deep inside software data.
-2018
-Search-based methods can be 500 times faster than deep learners.
-2017
-Very simple optimizers can out perform overly complex deep learners.
-2016
-Very simple optimizers can dramatically improve the performance of data miners learning software quality predictors.
-2013
-active learners can simplify and reduce the cost of search-based se by orders of magnitude.
-2002
-Search-based SE methods can easily and readily and critically assess long held SE truisms.
-<summary>
-</td></tr><tr><td>
-
-<details><summary>Generality in SE</summary>
-2019
-We can find general lessons from 100s of software projects.
-2018
-The bellwether effect teaches us much about generality in SE.
-2017
-Even when project data collects data using different labels, we can still transfer lessons learned between them.
-2016
-Ultra-simple transfer learning methods (called "bellwethers") enable effective transfer of lessons learned.
-2013
-How to transfer lessons learned from past projects? Easy! Clustering tools enable transferring lessons learned between software projects.
-2009
-A simple nearest neighbor relevancy filtering resulted in one of the first general results in software analytics: defect predictor learned from Turkish toasters could be successfully applied to NASA flight software (and vice versa).
-</summary>
-</td></tr><tr><td>
-
-<details><summary>Requirements</summary>
-2017
-Seemingly complex, conflicting models can be tamed and controlled via some simple stochastic probing.
-2003
-Contrast set learners can explain enormous decision trees (6000 node) learned from complex requirements models just 6 rules.
-2002
-Contrast set learners find simple controllers in requirements models.
-</details>
-</td></tr><tr><td>
-
-<details><summary>Effort estimation</summary>
-2016
-The effort to build complex software can be estimated by very simple equations.
-2013
-Active learners can easily estimate large software projects after just a few samples.
-</summary>
-</td></tr><tr><td>
-
-<details><summary>Other </summary>
-2018
-To tame cloud computing, use next generation algorithms
-2016
-Text miners can succinctly summarize thousands of technical papers about SE.
-2015
-Data miners can greatly simplify and reduce the effort involved in data collection for community health studies.
-2010
-Simple contrast-set learners out-perform state-of-the-art optimizers for spacecraft control;
-1990
-The lesson of decades of expert systems research is that, for specific domains, human expertise can be readily captured in just a few rules.
-</summary>
-</td></tr></table>
+<table class="sortable">
+  <thead>
+    <tr>
+      <th>year </th>
+      <th >algorithm </th>
+      <th >application </th>
+      <th >notes </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr> 
+      <td> 2019 </td>
+      <td> Terminator </td>
+      <td> testing </td>
+      <td>Humans and AI can learn together to which tests will fail sooner
+      </td>
+    </tr>
+  <tr> 
+      <td> 2019 </td>
+      <td> </td>
+      <td> Software 4.0 </td>
+      <td>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
   </body>
 </html>
