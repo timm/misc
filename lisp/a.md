@@ -1,7 +1,7 @@
 # lisp
   
 ```lisp
-(load "/asdas")
+(load "/lib")
 
 (defvar -> t)
 (defmethod bb ((a number)) -> t
