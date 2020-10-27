@@ -3,19 +3,25 @@ here=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 chmod +x $here/ONE
 chmod +x $here/ALL
 
-for f in $(find ./*  -type f  -name "[[:lower:]]*.md"); do
+for f in $(find $here/docs -type f  -name "[[:lower:]]*.md"); do
   g=${f%.*}.lisp
   if [ "$f" -nt "$g" ]; then
     echo "f $f g $g"
     cat $f | gawk -v Slash="$here" '
-      BEGIN                                { Comment="; " }
-      sub(/load "\//,"load \"" Slash "/") { print $0; next }
-      sub(/```lisp/,"")                    { Comment=""  ; print; next }
-      sub(/```/,"")                        { Comment="; "; print; next }
-                                           { print Comment $0 }
+      BEGIN                               { Comment="; " }
+      sub(/load "\//,"load \"" Slash "/") {               print $0; next }
+      sub(/```lisp/,"")                   { Comment=""  ; print   ; next }
+      sub(/```/,"")                       { Comment="; "; print   ; next }
+                                          {               print Comment $0 }
       ' > $g
   fi
 done
+
+want=$here/.gitignore
+[ -f "$want" ] || cat<<'EOF'>$want
+*.lisp
+*~
+EOF
 
 if [ -n "$1" ]; then
   g=${1%.*}.lisp
