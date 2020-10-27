@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+here=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+chmod +x $here/ONE
+chmod +x $here/ALL
+
+for f in $(find ./*  -type f  -name "[[:lower:]]*.md"); do
+  g=${f%.*}.lisp
+  if [ "$f" -nt "$g" ]; then
+    echo "f $f g $g"
+    cat $f | gawk -v Slash="$here" '
+      BEGIN                                { Comment="; " }
+      sub(/load "\//,"load \"" Slash "/") { print $0; next }
+      sub(/```lisp/,"")                    { Comment=""  ; print; next }
+      sub(/```/,"")                        { Comment="; "; print; next }
+                                           { print Comment $0 }
+      ' > $g
+  fi
+done
+
+if [ -n "$1" ]; then
+  g=${1%.*}.lisp
+  shift
+  if [ -t 1 ]
+  then         sbcl --script $g $* 2> >(gawk '1 {print} /^5:/ {exit}') 
+  #else cat - | sbcl --script $g $* 2> >(gawk '1 {print} /^5:/ {exit}')
+  fi
+fi

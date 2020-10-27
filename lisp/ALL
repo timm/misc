@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+here=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+chmod +x $here/ONE
+chmod +x $here/ALL
+
+######################################
+banner() { cat <<'EOF'
+       .-""""-.    
+      /        \  Made with   
+     /_        _\  secret alien
+    // \      / \\   technology
+    |\__\    /__/|
+     \    ||    / 
+      \        /  
+       \  __  /   
+        '.__.'    
+         |  |    
+jgs      |  |   
+
+EOF
+}
+
+hello() {
+  clear
+  tput bold; tput setaf 32
+  banner
+  tput sgr0; tput bold; tput setaf 0
+  awk '/^alias/ {print $0} ' $here/ALL | sort
+  echo ""
+  tput sgr0
+}
+#---------------------------------------------#---------
+alias ALL="bash $here/ALL "                     # all
+alias ONE="bash $here/ONE "                     # one
+alias bye="tmux kill-session"                 # exit
+alias ga="git add *"                          # add to local repo
+alias gg="git pull"                           # update code from web
+alias gp="ga;git commit -am save;git push;gs" # end-of-day actions
+alias gs="git status"                         # status
+alias reload='. $here/ALL'                    # reload these tools
+alias vims="vim +PluginInstall +qall"         # install vim plugins
+alias ok="ell --ok "                          # run eone test
+alias oks="ell --oks"                         # run all tests once
+alias okspy="rerun 'sh $here/ELL --oks'"      # keep running all tests
+alias ls="ls -G "                             # colorful ls
+
+doc1() {
+  cat $here/README.md | gawk '
+        BEGIN { FS="\n"; RS="" }
+              { print; exit 0  }'
+  cat $1 | gawk '
+        BEGIN { FS="\n"; RS="" }
+        NR==1 && $1~/name=top/ { next }
+              { print ""; print }'
+}
+docs() {
+  f=$(find $here  -type f -newer $here/README.md -name '*.md')
+  for g in $f;  do
+    h=$(mktemp)
+    echo "# updating $g ..."
+    doc1 $g > $h
+    mv $h $g
+  done
+}
+
+

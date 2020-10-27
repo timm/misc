@@ -1,7 +1,7 @@
-; # lisp
-;   
-
-(load "/Users/timm/gits/timm/misc/lisp/asdas")
+# lisp
+  
+```lisp
+(load "/asdas")
 
 (defvar -> t)
 (defmethod bb ((a number)) -> t
