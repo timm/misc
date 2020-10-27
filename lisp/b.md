@@ -5,14 +5,7 @@
 - asdas 
 
 
-```lisp
 "
 
 (print 1)
 
-"
-```
-
-- asdas
--  asdas
-"
