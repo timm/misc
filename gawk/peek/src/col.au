@@ -1,23 +1,37 @@
 # vim: ft=awk ts=2 sw=2 et :
-#| ## Col: Summarize Columns
-THings
+#| Summarize Columns
 |#
 
 @include "lib"
 
-# ### add: polymorphic update function for columns.
+# ## Functions
+
+### adds
+## Polymorphic update function for columns.
+## - i:Col
+## - x:string or number
 function add(i,x,  f) { f=i.is "Add"; return @f(i,x) }
 
-# ### Column: abstract class for all columns
+# ## Classes
+### Col
+##  abstract class for all columns
+## - i:untyped
+## - s:string (name of column)
+## - n:posint (index of column)
 function Col(i,s,n) { 
   Object(i); i.is="Col"
   i.txt=s; i.pos=n }
 
-# ### Info: class for columns we do not summarize
+###  Info
+## Class  for columns we do not summarize.
+## - i:untyped
+## - s:string (name of column)
+## - n:posint (index of column)
 function Info(i,s,n)  { Col(i,s,n); i.is="Info" }
 function _Add(i,x) { return x }
 
-# ### Sym: class for symbolic values
+### Sym
+## Class for symbolic values.
 function Sym(i,s,n) { 
   Col(i,s,n); i.is="Sym"
   i.mode= i.most= "" }

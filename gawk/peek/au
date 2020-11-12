@@ -2,6 +2,9 @@
 # vim: ft=sh ts=2 sw=2 et :
 
 here=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+chmod +x $here/au
+
+mkdir -p $here/docs
 
 want=$here/.gitignore
 [ -f "$want" ] || cat<<EOF>$want
@@ -9,10 +12,12 @@ want=$here/.gitignore
 EOF
 
 for f in *.au; do
-  g=${f%.*}.md
-  if [ "$f" -nt "$g" ]; then cat $f | gawk '
-  BEGIN { print "#  '$f'\n" 
-          Comment = "" 
+  g=$here/docs/${f%.*}.md
+  if [ "$f" -nt "$g" ]; then 
+  echo "# $f"
+  echo
+  cat $f | gawk '
+  BEGIN { Comment = "" 
         }
   sub(/^\|#/,"")       { Comment=0; print; next}
   sub(/^#\|[ \t]*/,"") { Comment=1; print; next}
@@ -21,7 +26,7 @@ for f in *.au; do
   sub(/^# ## /  ,"")   { print "\n## "   $0; Pre="### "  ; next}
   sub(/^# ### /, "")   { print "\n### "  $0; Pre="#### " ; next}
   sub(/^# #### /,"")   { print "\n#### " $0; Pre="##### "; next}
-  sub(/^### /,   "")   { print "\n"Pre $0 ; next }
+  sub(/^### /,   "")   { Preamble=1; print "\n"Pre $0 ; next }
   sub(/^## /,    "")   { Preamble=1 ; print $0 ; next}
   Preamble && /^function/{ 
     Preamble=0
@@ -32,8 +37,25 @@ for f in *.au; do
       getline}
     print "```"
     print "\n</details>\n\n" }
-   ' > $g 
-  fi
+   '  
+  fi | gawk '
+  function ns(n,    s) { while(n-- > 0) s= s "  "      ; return s}
+  function trim(s)     { gsub(/(^[ \t]*|[ \t]*$)/,"",s); return s}
+       { Body = Body "\n" $0 }
+  /^#/ { 
+   prefix = ns(length($1)-1 )
+   $1=""
+   $0= trim($0)
+   split($0,a,":")
+   text = a[1]; help=a[2]
+   gsub(/[^[:alpha:]]/,"",$0)
+   if (help)
+      print(prefix "- ["text"](#"tolower($0)") : " help)
+   else
+      print(prefix "- ["text"](#"tolower($0)") " )
+  }
+  END { print Body}
+  '  > $g
 done
 
 for f in *.au; do
