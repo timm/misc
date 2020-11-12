@@ -17,7 +17,7 @@ function List(i)        { split("",i,"") }
 function Object(i)      { List(i); i.id = ++Au.id }
 
 ### has 
-## Create something of class `f` inside `i` at position `k`
+## Create something of class `f` inside of `i` at position `k`
 ## - i:array
 ## - k:atom  (string or number)
 ## - f:?function name  (defaults to `List`).
