@@ -1,0 +1,41 @@
+# vim: ft=awk ts=2 sw=2 et :
+@include "lib"
+
+function tabs(   a) {
+  Tab(a)
+  oo(a)
+}
+function Tab(i) {
+  Object(i); i.is = "tab"
+  i.klass
+  has(i,"rows");   has(i,"cols"); 
+  has(i,"others"); has(i,"xs"); has(i,"ys")
+}
+function tabAdd(i,a) {
+  if ("cells" in a) return tabAdd(i, a.cells)
+  length(i.cols) ?  tabData(i,a) : tabHeader(i,a)
+}
+function tabHeader(i,a,   where, what, j) {
+  for(j=1; j<=length(a); j++) {
+    if (a[j] ! /\?/) {
+      what="Other"
+      where="others"
+    } else {
+      what = a[j] ~ /[:<>]/ ?  "Num" : "Sym"
+      where= a[j] ~ /[!<>]/ ?  "ys"  : "xs"
+    }
+    hAS(i.cols, j, what, a[j],j)   
+    i[where][j]
+    if (a[j]~/!/) i.klass = j
+}}
+function tabHeder(i,a, b,   r,j) {
+  r = new(i.rows, "Row")
+  for(j=1; j<=length(a); j++) 
+    i.rows.cells[j] = add(i.cols[j], a[j])
+}
+function Row(i) {
+  Object(i)
+  has(i,"cells")
+  has(i,"ranges")
+}
+

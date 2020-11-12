@@ -1,0 +1,40 @@
+# vim: ft=awk ts=2 sw=2 et :
+@include "lib"
+
+function add(i,x,  f) { f=i.is "Add"; return @f(i,x) }
+
+function Col(i,s,n) { 
+  List(i); i.is="Col"
+  i.txt=s; i.pos=n; 
+}
+function Other(i,s,n)  { Col(i,s,n); i.is="Other" }
+function OtherAdd(i,x) { return x }
+
+function Sym(i,s,n) { 
+  Col(i,s,n); i.is="Sym"
+  i.mode= i.most= "" 
+}
+function SymAdd(i,x,   n) {
+  if(x=="?") return x
+  i.n++
+  n= ++i.seen[x]
+  if (n> i.most) { i.mode=x; i.most=n}
+  return x
+}  
+function Num(i,s,n) { 
+  Col(i,s,n); i.is="Num"
+  i.hi = -1E32
+  i.lo =  1E32
+  i.mu= i.m2= i.n= i.sd=0
+}
+function NumAdd(i,x,   d) {
+  if(x=="?") return x
+  i.n++
+  if(x > i.hi) i.hi = x
+  if(x < i.lo) i.lo = x
+  d        = x - i.mu
+  i.mu += d / i.n
+  i.m2 += d * (x - i.mu) 
+  i.sd = i.n<2 ? 0 : ((i.m2<=0) ? 0 : (i.m2/(i.n-1))^0.5)
+  return x
+}
