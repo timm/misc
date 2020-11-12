@@ -1,0 +1,16 @@
+# vim: ft=awk ts=2 sw=2 et :
+@include "tab"
+
+BEGIN{ 
+  #_tab1() 
+  _tab2()
+}
+
+function _tab0(  f,t) {
+  Tab(t)
+  TabRead(t,"data/" f Au.dot "csv")
+  oo(t)
+}
+function _tab1(t) { _tab0("weather")}
+function _tab2(t) { _tab0("auto93")}
+

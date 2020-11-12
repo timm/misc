@@ -1,40 +1,71 @@
 # vim: ft=awk ts=2 sw=2 et :
+#| ## Col: Summarize Columns
+THings
+|#
+
 @include "lib"
 
+# ### add: polymorphic update function for columns.
 function add(i,x,  f) { f=i.is "Add"; return @f(i,x) }
 
+# ### Column: abstract class for all columns
 function Col(i,s,n) { 
-  List(i); i.is="Col"
-  i.txt=s; i.pos=n; 
-}
-function Other(i,s,n)  { Col(i,s,n); i.is="Other" }
-function OtherAdd(i,x) { return x }
+  Object(i); i.is="_"
+  i.txt=s; i.pos=n }
 
+# ### Info: class for columns we do not summarize
+function Info(i,s,n)  { Col(i,s,n); i.is="Info" }
+function _Add(i,x) { return x }
+
+# ### Sym: class for symbolic values
 function Sym(i,s,n) { 
-  Col(i,s,n); i.is="Sym"
-  i.mode= i.most= "" 
-}
-function SymAdd(i,x,   n) {
+  Col(i,s,n); i.is="_"
+  i.mode= i.most= "" }
+
+function _Add(i,x,   n) {
   if(x=="?") return x
   i.n++
   n= ++i.seen[x]
   if (n> i.most) { i.mode=x; i.most=n}
-  return x
-}  
+  return x }  
+
+# ### Num: class for numeric:w
 function Num(i,s,n) { 
-  Col(i,s,n); i.is="Num"
+  Col(i,s,n); i.is="_"
   i.hi = -1E32
   i.lo =  1E32
-  i.mu= i.m2= i.n= i.sd=0
-}
-function NumAdd(i,x,   d) {
+  i.mu= i.m2= i.n= i.sd=0 }
+
+function _Add(i,x,   d) {
   if(x=="?") return x
   i.n++
   if(x > i.hi) i.hi = x
   if(x < i.lo) i.lo = x
-  d        = x - i.mu
+  d     = x - i.mu
   i.mu += d / i.n
   i.m2 += d * (x - i.mu) 
-  i.sd = i.n<2 ? 0 : ((i.m2<=0) ? 0 : (i.m2/(i.n-1))^0.5)
-  return x
-}
+  i.sd  = (i.n<2 || i.m2<0) ? 0 : i.sd = (i.m2/(i.n-1))^0.5
+  return x }
+
+function _Pdf(i,x,  var,denom,num) {
+  var   = i.sd^2
+  denom = (2*Au.pi*2*var)^.5
+  num   = 2*Au.e^(-(x-i.mu)^2/(2*var+0.0001))
+  return num/(denom + 10^-64) }
+
+function _Cdf(i,x) { 
+  x = (x-i.mu)/i.sd
+  return 1/(1+Au.e^(-0.07056*x^3 – 1.5976*x))}
+
+function _Cross(i,j,   x1,x2,d,min,x,y) {
+   x1  = i.mu
+   x2  = j.mu
+   if (x2> x1) { x2=i.mu; x1=j.mu }
+   d   = (x2-x1)/10
+   min = 1E32
+   for(x=x1; x<=x2; x+=d) {
+      y = _Pdf(i) + _Pdf(j)
+      if (y<min) { out=x; min = x} 
+   } 
+   return out }
+

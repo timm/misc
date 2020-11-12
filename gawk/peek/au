@@ -11,7 +11,17 @@ EOF
 for f in *.au; do
   g=${f%.*}.awk
   if [ "$f" -nt "$g" ]; then
-    gawk ' {print gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
+    gawk '
+      BEGIN            { Comment="" }
+      sub(/^\|#/,"")   { Comment=""  ; print; next}
+      sub(/^#\|[ \t]*/,"")   { Comment="# "; print; next}
+
+     /^func(tion)?[ \t]+[A-Z][^\(]*\(/ {
+          split($0,a,/[ \t\(]/)
+          PREFIX = a[2]
+    }
+    { gsub(/ _/," " PREFIX,$0)
+      print Comment  gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
                           "[\"\\1\\2\"]","g", $0)}' $f > $g
   fi
 done
