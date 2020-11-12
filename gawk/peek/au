@@ -9,9 +9,36 @@ want=$here/.gitignore
 EOF
 
 for f in *.au; do
+  g=${f%.*}.md
+  if [ "$f" -nt "$g" ]; then cat $f | gawk '
+  BEGIN { print "#  '$f'\n" 
+          Comment = "" 
+        }
+  sub(/^\|#/,"")       { Comment=0; print; next}
+  sub(/^#\|[ \t]*/,"") { Comment=1; print; next}
+  Comment              { print $0; next }
+  sub(/^# # /,   "")   { print "\n# "    $0; Pre="## "   ; next}
+  sub(/^# ## /  ,"")   { print "\n## "   $0; Pre="### "  ; next}
+  sub(/^# ### /, "")   { print "\n### "  $0; Pre="#### " ; next}
+  sub(/^# #### /,"")   { print "\n#### " $0; Pre="##### "; next}
+  sub(/^### /,   "")   { print "\n"Pre $0 ; next }
+  sub(/^## /,    "")   { Preamble=1 ; print $0 ; next}
+  Preamble && /^function/{ 
+    Preamble=0
+    print "\n<details><summary>...</summary>"
+    print "\n```awk"
+    while($0 !~ /^[ \t]*$/)  {
+      print $0
+      getline}
+    print "```"
+    print "\n</details>\n\n" }
+   ' > $g 
+  fi
+done
+
+for f in *.au; do
   g=${f%.*}.awk
-  if [ "$f" -nt "$g" ]; then
-    gawk '
+  if [ "$f" -nt "$g" ]; then cat $f | gawk '
       BEGIN            { Comment="" }
       sub(/^\|#/,"")   { Comment=""  ; print; next}
       sub(/^#\|[ \t]*/,"")   { Comment="# "; print; next}
@@ -22,7 +49,8 @@ for f in *.au; do
     }
     { gsub(/ _/," " PREFIX,$0)
       print Comment  gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
-                          "[\"\\1\\2\"]","g", $0)}' $f > $g
+                          "[\"\\1\\2\"]","g", $0)}
+   ' > $g
   fi
 done
 
@@ -39,6 +67,6 @@ elif [[ "$1" =~ ^.*au$ ]] ; then
   then         gawk -f $g $*
   else cat - | gawk -f $g $*
   fi
-else
+elif [ -n "$1" ]; then
   echo "?"
 fi
