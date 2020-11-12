@@ -1,0 +1,34 @@
+# vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
+#--------- --------- --------- --------- --------- ---------
+
+@include "gold"
+@include "list"
+@include "meta"
+
+function _push(f,   lst,i) {
+  new(lst)
+  for(i=1; i<=10; i++) push(lst, i*10)
+  is(f, top(lst), 100)
+  is(f, length(lst), 10)
+}
+function _med(f,  lst1,lst2,i) {
+  new(lst1)
+  for(i=1; i<=6; i++) 
+    push(lst1, i*10)
+  new(lst2)
+  for(i=1; i<=7; i++) 
+    push(lst2, i*10)
+  is(f, median(lst1), 35)
+  is(f, median(lst2), 40)
+}
+function _bs(f,  lst,i) {
+  new(lst)
+  for(i=1; i<=1000; i++) push(lst, i*10)
+  is(f, bsearch(lst,550.1,1), 55)
+  is(f, bsearch(lst,550), 55)
+}
+
+BEGIN {
+  srand(1)
+  tests("lists", "_push,_med,_bs")
+}

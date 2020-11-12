@@ -1,0 +1,56 @@
+# vim: nospell filetype=awk ts=2 sw=2 sts=2  et :
+#--------- --------- --------- --------- --------- ---------
+
+@include "gold"
+@include "math"
+
+"""
+# list 
+`push(lst,x)` : add `x` to the end of `lst`.
+"""
+
+function push(i,v) { i[length(i) + 1] = v }
+
+"""
+`top(lst)` : return last item in `lst`.
+"""
+
+function top(i)    { return i[ length(i) ] }
+
+"""
+`median(lst)` : return middle number of lst (assumes it is sorted).
+"""
+
+function median(l,    m,n,l1) {
+  n = length(l)
+  m = int(n/2)
+  l1 = l[m+1]
+  return (n % 2) ? l1 : (l[m] + l1)/2
+}
+
+"""
+`bsearch(lst,goal,[approx,lt,gt])` :
+By default, `lst` contains numbers but this function can handle
+arbitray strcures (by adjustung the `lt` and `gt` functions).
+- finds the index of `goal` in `lst`;
+- `approx` is a boolean. If `1` then if there is no exact match,
+  then return the nearest item.
+- `lt` and `gt` are the _less than_ and _greater than_ functions
+  that guide the binary search.  They accept two arguments.
+"""
+
+function bsearch(lst,x,approx,lt,gt,
+                 lo,mid,hi,val) {
+  lo = 1
+  hi = length(lst)
+  lt = either(lt,"lt")
+  gt = either(gt,"gt")
+  while (lo <= hi) {
+    mid = int(lo + (hi - lo) / 2)
+    val = lst[mid]
+    if     (@gt(val,x)) hi = mid - 1
+    else if(@lt(val,x)) lo = mid + 1  
+    else return mid
+  }
+  return approx ? mid : error("bsearch: ["x"] not found")
+}

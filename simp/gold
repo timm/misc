@@ -1,0 +1,15 @@
+gawk '{ print gensub(/\.([^0-9])([a-zA-Z0-9_]*)/, 
+                  "[\"\\1\\2\"]","g",$0) } 
+
+   9.    i.n++
+  10.    m = length(i.cache)
+  11.    if (m < i.most) {  # the cache is not full, add something
+  12.      i.sorted = 0
+  13.      return push(i.cache,v)
+  14.    }
+  15.    if (rand() < m/i.n) {   # else, sometimes, add "v"
+  16.      i.sorted = 0
+  17.      return i.cache[ int(m*rand()) + 1 ] = v
+  18.    }
+  19.  }
+
