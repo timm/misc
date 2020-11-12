@@ -32,11 +32,13 @@ if [ "$1" == "push" ]; then
   git commit -am saving
   git push
   git status
-elif [ -n "$1" ]; then
+elif [[ "$1" =~ ^.*au$ ]] ; then
   g=${1%.*}.awk
   shift
   if [ -t 1 ]
   then         gawk -f $g $*
   else cat - | gawk -f $g $*
   fi
+else
+  echo "?"
 fi
