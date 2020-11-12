@@ -17,7 +17,7 @@ for f in *.au; do
 done
 
 if [ -n "$1" ]; then
-  g=${1%.*}.au
+  g=${1%.*}.awk
   shift
   if [ -t 1 ]
   then         gawk -f $g $*
