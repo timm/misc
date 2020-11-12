@@ -56,7 +56,7 @@ function Col(i,s,n) {
 
 ### Info :columns we do not summarize
 
-####  Info(i:untyped, s:string,i n:posint)
+####  `Info(i:untyped, s:string,i n:posint)`
 Constructor. 
 `s` is the name of a column appearing in positive `n`.
 
