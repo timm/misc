@@ -10,7 +10,7 @@ function add(i,x,  f) { f=i.is "Add"; return @f(i,x) }
 
 # ### Column: abstract class for all columns
 function Col(i,s,n) { 
-  Object(i); i.is="_"
+  Object(i); i.is="Col"
   i.txt=s; i.pos=n }
 
 # ### Info: class for columns we do not summarize
@@ -19,7 +19,7 @@ function _Add(i,x) { return x }
 
 # ### Sym: class for symbolic values
 function Sym(i,s,n) { 
-  Col(i,s,n); i.is="_"
+  Col(i,s,n); i.is="Sym"
   i.mode= i.most= "" }
 
 function _Add(i,x,   n) {
@@ -31,7 +31,7 @@ function _Add(i,x,   n) {
 
 # ### Num: class for numeric:w
 function Num(i,s,n) { 
-  Col(i,s,n); i.is="_"
+  Col(i,s,n); i.is="Num"
   i.hi = -1E32
   i.lo =  1E32
   i.mu= i.m2= i.n= i.sd=0 }
@@ -63,7 +63,7 @@ function _Pdf(i,x,    var,denom,num) {
 ## - x:number
 function _Cdf(i,x) { 
   x = (x-i.mu)/i.sd
-  return (x<-3 || x>3) ? 0 : 1/(1+Au.e^(-0.07056*x^3 – 1.5976*x))}
+  return (x<-3 || x>3) ? 0 : 1/(1+Au.e^(-0.07056*x^3 - 1.5976*x))}
 
 ### _Crossover
 ## Return where two Gaussians cross in-between their means.

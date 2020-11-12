@@ -1,16 +1,34 @@
 # vim: ft=awk ts=2 sw=2 et :
 @include "tab"
 
-BEGIN{ 
-  #_tab1() 
-  _tab2()
+BEGIN { AU.test.epsilon = 0.0001 }
+
+function ok(f,got,want,   epsilon,     good) {
+  epsilon = epsilon ? epsilon : AU.test.epsilon
+  if (typeof(want) == "number") 
+    good = abs(want - got)/(want + 10^-32)  < epsilon
+  else
+    good = want == got;
+  print "#TEST:\t"(good?"PASSED":"FAILED") "\t" f "\t" want "\t" got 
 }
 
-function _tab0(  f,t) {
+function tests(s,a,i,f)
+  split(s,a,",") 
+  for(i in a) {
+     f=a[i]
+     if(f in FUNCTAB)
+        @f(i) }}
+
+BEGIN{ 
+  tests("_tab1,_tab2")
+}
+
+function _tab0(i,rows, f,t) {
   Tab(t)
   TabRead(t,"data/" f Au.dot "csv")
+  oj
   oo(t)
 }
-function _tab1(t) { _tab0("weather")}
-function _tab2(t) { _tab0("auto93")}
+function _tab1(i,t) { _tab0(i,"weather")}
+function _tab2(i,t) { _tab0(i,398, "auto93")}
 
