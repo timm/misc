@@ -1,2 +1,2 @@
-#  tests.au
+#  tests.gold
 

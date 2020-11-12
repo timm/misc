@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # vim: ft=sh ts=2 sw=2 et :
-
+ext=gold
 here=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
-chmod +x $here/au
 
+chmod +x $here/$ext
 mkdir -p $here/docs
 
 want=$here/.gitignore
@@ -51,31 +51,30 @@ toc() { gawk '
   }
   END {print Body} '
 } 
-for f in *.au; do
+transpile() { gawk  '
+  BEGIN            { Comment="" }
+  sub(/^\|#/,"")   { Comment=""  ; print; next}
+  sub(/^#\|[ \t]*/,"")   { Comment="# "; print; next}
+
+  /^func(tion)?[ \t]+[A-Z][^\(]*\(/ {
+      split($0,a,/[ \t\(]/)
+      PREFIX = a[2]
+  }
+  { gsub(/ _/," " PREFIX,$0)
+    print Comment  gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
+                      "[\"\\1\\2\"]","g", $0)} '
+} 
+for f in *.$ext; do
+  g=${f%.*}.awk
+  if [ "$f" -nt "$g" ]; then 
+    cat $f | transpile> $g
+  fi
   g=$here/docs/${f%.*}.md
   if [ "$f" -nt "$g" ]; then 
      echo "# " $f > $g
      cat $f | body | toc >> $g
   fi  
-done
-
-for f in *.au; do
-  g=${f%.*}.awk
-  if [ "$f" -nt "$g" ]; then cat $f | gawk '
-      BEGIN            { Comment="" }
-      sub(/^\|#/,"")   { Comment=""  ; print; next}
-      sub(/^#\|[ \t]*/,"")   { Comment="# "; print; next}
-
-     /^func(tion)?[ \t]+[A-Z][^\(]*\(/ {
-          split($0,a,/[ \t\(]/)
-          PREFIX = a[2]
-    }
-    { gsub(/ _/," " PREFIX,$0)
-      print Comment  gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
-                          "[\"\\1\\2\"]","g", $0)}
-   ' > $g
-  fi
-done
+ done
 
 if [ "$1" == "push" ]; then
   git config advice.addIgnoredFile false
@@ -83,7 +82,7 @@ if [ "$1" == "push" ]; then
   git commit -am saving
   git push
   git status
-elif [[ "$1" =~ ^.*au$ ]] ; then
+elif [[ "$1" =~ ^.*$ext$ ]] ; then
   g=${1%.*}.awk
   shift
   if [ -t 1 ]

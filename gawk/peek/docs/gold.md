@@ -1,2 +1,2 @@
-#  gold.au
+#  gold.gold
 
