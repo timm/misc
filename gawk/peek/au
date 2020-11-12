@@ -11,12 +11,7 @@ want=$here/.gitignore
 *.awk
 EOF
 
-for f in *.au; do
-  g=$here/docs/${f%.*}.md
-  if [ "$f" -nt "$g" ]; then 
-  echo "# $f"
-  echo
-  cat $f | gawk '
+body() { gawk '
   BEGIN { Comment = "" 
         }
   sub(/^\|#/,"")       { Comment=0; print; next}
@@ -36,9 +31,9 @@ for f in *.au; do
       print $0
       getline}
     print "```"
-    print "\n</details>\n\n" }
-   '  
-  fi | gawk '
+    print "\n</details>\n\n" } '
+}
+toc() { gawk '
   function ns(n,    s) { while(n-- > 0) s= s "  "      ; return s}
   function trim(s)     { gsub(/(^[ \t]*|[ \t]*$)/,"",s); return s}
        { Body = Body "\n" $0 }
@@ -54,8 +49,14 @@ for f in *.au; do
    else
       print(prefix "- ["text"](#"tolower($0)") " )
   }
-  END { print Body}
-  '  > $g
+  END {print Body} '
+} 
+for f in *.au; do
+  g=$here/docs/${f%.*}.md
+  if [ "$f" -nt "$g" ]; then 
+     echo "# " $f > $g
+     cat $f | body | toc >> $g
+  fi  
 done
 
 for f in *.au; do
