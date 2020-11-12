@@ -1,11 +1,17 @@
 #  col.gold
   - [Functions](#functions) 
-    - [adds](#adds) 
+    - [adds(i](#addsicolxstring) : Col, x
   - [Classes](#classes) 
-    - [Col](#col) 
-    - [Info](#info) 
-    - [Sym](#sym) 
-    - [Num](#numclassfornumericw) :  class for numeric
+    - [Col ](#colabstractclassforallcolumns) :  Abstract class for all columns.
+      - [Col(i](#coliuntypedsstringnposint) : untyped, s
+    - [Info ](#infocolumnswedonotsummarize) : columns we do not summarize
+      - [Info(i](#infoiuntypedsstringinposint) : untyped, s
+      - [Add(i](#addisymxatomatom) : Sym, x
+    - [Sym ](#symmaintainssummariesofsymboliccolumns) :  maintains summaries of symbolic columns
+      - [Sym(i](#symiuntypedsstringinposint) : untyped, s
+      - [Add(i](#addisymxatomatom) : Sym, x
+    - [Num](#nummaintainsummariesofnumericcolumns) :  maintain summaries of numeric columns,
+      - [Num(i](#numiuntypedsstringnposint) : untyped, s
       - [_Pdf](#pdf) 
       - [_Cdf](#cdf) 
       - [_Crossover](#crossover) 
@@ -15,10 +21,8 @@ Summarize Columns
 
 ## Functions
 
-### adds
+### adds(i:Col, x:string)
 Polymorphic update function for columns.
-- i:Col
-- x:string or number
 
 <details><summary>...</summary>
 
@@ -32,11 +36,11 @@ function add(i,x,  f) { f=i.is "Add"; return @f(i,x) }
 
 ## Classes
 
-### Col
- abstract class for all columns
-- i:untyped
-- s:string (name of column)
-- n:posint (index of column)
+### Col : Abstract class for all columns.
+
+#### Col(i:untyped, s:string, n:posint)
+ Abstract constructor.
+`s` is the name of a column appearing in positive `n`.
 
 <details><summary>...</summary>
 
@@ -50,16 +54,28 @@ function Col(i,s,n) {
 
 
 
-###  Info
-Class  for columns we do not summarize.
-- i:untyped
-- s:string (name of column)
-- n:posint (index of column)
+### Info :columns we do not summarize
+
+####  Info(i:untyped, s:string,i n:posint)
+Constructor. 
+`s` is the name of a column appearing in positive `n`.
 
 <details><summary>...</summary>
 
 ```awk
 function Info(i,s,n)  { Col(i,s,n); i.is="Info" }
+```
+
+</details>
+
+
+
+#### Add(i:Sym, x:atom): atom
+Do nothing.
+
+<details><summary>...</summary>
+
+```awk
 function _Add(i,x) { return x }
 ```
 
@@ -67,8 +83,11 @@ function _Add(i,x) { return x }
 
 
 
-### Sym
-Class for symbolic values.
+### Sym : maintains summaries of symbolic columns
+
+####  Sym(i:untyped, s:string,i n:posint)
+Constructor.
+`s` is the name of a column appearing in positive `n`.
 
 <details><summary>...</summary>
 
@@ -82,7 +101,42 @@ function Sym(i,s,n) {
 
 
 
-### Num: class for numeric:w
+#### Add(i:Sym, x:atom): atom
+Update frequency counts, and `mode`.
+
+<details><summary>...</summary>
+
+```awk
+function _Add(i,x,   n) {
+  if(x=="?") return x
+  i.n++
+  n= ++i.seen[x]
+  if (n> i.most) { i.mode=x; i.most=n}
+  return x }  
+```
+
+</details>
+
+
+
+### Num: maintain summaries of numeric columns,
+
+####  Num(i:untyped, s:string, n:posint)
+Constructor.
+
+<details><summary>...</summary>
+
+```awk
+function Num(i,s,n) { 
+  Col(i,s,n); i.is="Num"
+  i.hi = -1E32
+  i.lo =  1E32
+  i.mu= i.m2= i.n= i.sd=0 }
+```
+
+</details>
+
+
 
 #### _Pdf
 return height of the Gaussian at `x`

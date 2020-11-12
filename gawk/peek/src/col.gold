@@ -6,36 +6,39 @@
 
 # ## Functions
 
-### adds
+### adds(i:Col, x:string)
 ## Polymorphic update function for columns.
-## - i:Col
-## - x:string or number
 function add(i,x,  f) { f=i.is "Add"; return @f(i,x) }
 
 # ## Classes
-### Col
-##  abstract class for all columns
-## - i:untyped
-## - s:string (name of column)
-## - n:posint (index of column)
+# ### Col : Abstract class for all columns.
+### Col(i:untyped, s:string, n:posint)
+##  Abstract constructor.
+## `s` is the name of a column appearing in positive `n`.
 function Col(i,s,n) { 
   Object(i); i.is="Col"
   i.txt=s; i.pos=n }
 
-###  Info
-## Class  for columns we do not summarize.
-## - i:untyped
-## - s:string (name of column)
-## - n:posint (index of column)
+# ### Info :columns we do not summarize
+###  Info(i:untyped, s:string,i n:posint)
+## Constructor. 
+## `s` is the name of a column appearing in positive `n`.
 function Info(i,s,n)  { Col(i,s,n); i.is="Info" }
+
+### Add(i:Sym, x:atom): atom
+## Do nothing.
 function _Add(i,x) { return x }
 
-### Sym
-## Class for symbolic values.
+# ### Sym : maintains summaries of symbolic columns
+###  Sym(i:untyped, s:string,i n:posint)
+## Constructor.
+## `s` is the name of a column appearing in positive `n`.
 function Sym(i,s,n) { 
   Col(i,s,n); i.is="Sym"
   i.mode= i.most= "" }
 
+### Add(i:Sym, x:atom): atom
+## Update frequency counts, and `mode`.
 function _Add(i,x,   n) {
   if(x=="?") return x
   i.n++
@@ -43,7 +46,9 @@ function _Add(i,x,   n) {
   if (n> i.most) { i.mode=x; i.most=n}
   return x }  
 
-# ### Num: class for numeric:w
+# ### Num: maintain summaries of numeric columns,
+###  Num(i:untyped, s:string, n:posint)
+## Constructor.
 function Num(i,s,n) { 
   Col(i,s,n); i.is="Num"
   i.hi = -1E32
