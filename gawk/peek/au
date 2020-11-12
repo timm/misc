@@ -27,10 +27,10 @@ for f in *.au; do
 done
 
 if [ "$1" == "push" ]; then
-  git add *
+  git -q add  *
   git commit -am saving
   git push
-  git satus
+  git status
 elif [ -n "$1" ]; then
   g=${1%.*}.awk
   shift
