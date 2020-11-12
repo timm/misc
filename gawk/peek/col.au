@@ -47,17 +47,29 @@ function _Add(i,x,   d) {
   i.sd  = (i.n<2 || i.m2<0) ? 0 : i.sd = (i.m2/(i.n-1))^0.5
   return x }
 
-function _Pdf(i,x,  var,denom,num) {
+### _Pdf
+## return height of the Gaussian at `x`
+## - i:Num
+## - x:number
+function _Pdf(i,x,    var,denom,num) {
   var   = i.sd^2
   denom = (2*Au.pi*2*var)^.5
   num   = 2*Au.e^(-(x-i.mu)^2/(2*var+0.0001))
   return num/(denom + 10^-64) }
 
+### _Cdf
+## Return the area under the Gaussian from negative infinity to `x`.
+## - i:Num
+## - x:number
 function _Cdf(i,x) { 
   x = (x-i.mu)/i.sd
-  return 1/(1+Au.e^(-0.07056*x^3 – 1.5976*x))}
+  return (x<-3 || x>3) ? 0 : 1/(1+Au.e^(-0.07056*x^3 – 1.5976*x))}
 
-function _Cross(i,j,   x1,x2,d,min,x,y) {
+### _Crossover
+## Return where two Gaussians cross in-between their means.
+## - i:Num
+## - j:Num
+function _Crossover(i,j,   x1,x2,d,min,x,y) {
    x1  = i.mu
    x2  = j.mu
    if (x2> x1) { x2=i.mu; x1=j.mu }
