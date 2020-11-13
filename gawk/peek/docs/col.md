@@ -24,13 +24,13 @@ Summarize Columns
 ### adds(i:Col, x:string)
 Polymorphic update function for columns.
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function add(i,x,  f) { f=i.is "Add"; return @f(i,x) }
 ```
 
-</details>
+</details></ul>
 
 
 
@@ -42,7 +42,7 @@ function add(i,x,  f) { f=i.is "Add"; return @f(i,x) }
  Abstract constructor.
 `s` is the name of a column appearing in positive `n`.
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function Col(i,s,n) { 
@@ -50,7 +50,7 @@ function Col(i,s,n) {
   i.txt=s; i.pos=n }
 ```
 
-</details>
+</details></ul>
 
 
 
@@ -60,26 +60,26 @@ function Col(i,s,n) {
 Constructor. 
 `s` is the name of a column appearing in positive `n`.
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function Info(i,s,n)  { Col(i,s,n); i.is="Info" }
 ```
 
-</details>
+</details></ul>
 
 
 
 #### Add(i:Sym, x:atom): atom
 Do nothing.
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function _Add(i,x) { return x }
 ```
 
-</details>
+</details></ul>
 
 
 
@@ -89,7 +89,7 @@ function _Add(i,x) { return x }
 Constructor.
 `s` is the name of a column appearing in positive `n`.
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function Sym(i,s,n) { 
@@ -97,14 +97,14 @@ function Sym(i,s,n) {
   i.mode= i.most= "" }
 ```
 
-</details>
+</details></ul>
 
 
 
 #### Add(i:Sym, x:atom): atom
 Update frequency counts, and `mode`.
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function _Add(i,x,   n) {
@@ -115,7 +115,7 @@ function _Add(i,x,   n) {
   return x }  
 ```
 
-</details>
+</details></ul>
 
 
 
@@ -124,7 +124,7 @@ function _Add(i,x,   n) {
 ####  Num(i:untyped, s:string, n:posint)
 Constructor.
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function Num(i,s,n) { 
@@ -134,7 +134,7 @@ function Num(i,s,n) {
   i.mu= i.m2= i.n= i.sd=0 }
 ```
 
-</details>
+</details></ul>
 
 
 
@@ -143,7 +143,7 @@ return height of the Gaussian at `x`
 - i:Num
 - x:number
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function _Pdf(i,x,    var,denom,num) {
@@ -153,7 +153,7 @@ function _Pdf(i,x,    var,denom,num) {
   return num/(denom + 10^-64) }
 ```
 
-</details>
+</details></ul>
 
 
 
@@ -162,7 +162,7 @@ Return the area under the Gaussian from negative infinity to `x`.
 - i:Num
 - x:number
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function _Cdf(i,x) { 
@@ -170,7 +170,7 @@ function _Cdf(i,x) {
   return (x<-3 || x>3) ? 0 : 1/(1+Au.e^(-0.07056*x^3 - 1.5976*x))}
 ```
 
-</details>
+</details></ul>
 
 
 
@@ -179,7 +179,7 @@ Return where two Gaussians cross in-between their means.
 - i:Num
 - j:Num
 
-<details><summary>...</summary>
+<ul><details><summary>...</summary>
 
 ```awk
 function _Crossover(i,j,   x1,x2,d,min,x,y) {
@@ -195,6 +195,6 @@ function _Crossover(i,j,   x1,x2,d,min,x,y) {
    return out }
 ```
 
-</details>
+</details></ul>
 
 
