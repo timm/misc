@@ -13,15 +13,15 @@ EOF
 body() { gawk '
   BEGIN { Comment = "" 
         }
-  sub(/^\|#/,"")       { Comment=0; print; next}
-  sub(/^#\|[ \t]*/,"") { Comment=1; print; next}
-  Comment              { print $0; next }
+  sub(/^\|#/,"")       { Comment=0; print "# " $0        ; next}
+  sub(/^#\|[ \t]*/,"") { Comment=1; print "# " $0        ; next}
+  Comment              { print $0                        ; next}
   sub(/^# # /,   "")   { print "\n# "    $0; Pre="## "   ; next}
   sub(/^# ## /  ,"")   { print "\n## "   $0; Pre="### "  ; next}
   sub(/^# ### /, "")   { print "\n### "  $0; Pre="#### " ; next}
   sub(/^# #### /,"")   { print "\n#### " $0; Pre="##### "; next}
-  sub(/^### /,   "")   { Preamble=1; print "\n"Pre $0 ; next }
-  sub(/^## /,    "")   { Preamble=1 ; print $0 ; next}
+  sub(/^### /,   "")   { Preamble=1; print "\n"Pre $0    ; next}
+  sub(/^## /,    "")   { Preamble=1; print $0            ; next}
   Preamble && /^function/{ 
     Preamble=0
     print "\n<ul><details><summary>...</summary>"

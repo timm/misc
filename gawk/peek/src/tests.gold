@@ -2,33 +2,25 @@
 @include "lib"
 @include "tab"
 
-BEGIN { AU.test.epsilon = 0.0001 }
-
-function ok(f,got,want,   epsilon,     good) {
-  epsilon = epsilon ? epsilon : AU.test.epsilon
-  if (typeof(want) == "number") 
-    good = abs(want - got)/(want + 10^-32)  < epsilon
-  else
-    good = want == got;
-  print "#TEST:\t"(good?"PASSED":"FAILED") "\t" f "\t" want "\t" got 
-}
-
-function tests(s,a,i,f)
-  split(s,a,",") 
-  for(i in a) {
-     f=a[i]
-     if(f in FUNCTAB)
-        @f(i) }}
-
 BEGIN{ 
-  tests("_tab1,_tab2")
+  tests("_csv1")
+  #tests("_tab1,_xtab2")
 }
 
-function _tab0(s,rows, f,t) {
+function _csv1(s,    f,d,a) {
+  print("-- " s)
+  d = Gold.dot 
+  f = d d "/data/" "weather" d "csv"
+  print(f)
+  while(csv(a, f)) print 22; #o(a)
+}
+
+function _tab0(s,rows, d,f,t) {
+  d = Gold.dot 
   Tab(t)
-  TabRead(t,"data/" f Au.dot "csv")
+  TabRead(t,d d "/data/" f d "csv")
   ok(s,rows,length(t.rows))
 }
-function _tab1(i,t) { _tab0(i,14,"weather")}
-function _tab2(i,t) { _tab0(i,398, "auto93")}
+function _tab1(i,t) { print(10); _tab0(i,14,  "weather")}
+function _tab2(i,t) { _tab0(i,398, "auto93" )}
 

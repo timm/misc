@@ -10,7 +10,8 @@ function Tab(i) {
   has(i,"info"); has(i,"xs"); has(i,"ys") }
 
 function _Read(i,f) {
-  while(csv(record,f)) add(i,record) }
+  print(41)
+  while(csv(record,f)) { print (23); add(i,record)} }
 
 function _Add(i,a) {
   if ("cells" in a) return TabAdd(i, a.cells)
@@ -55,8 +56,7 @@ function _Data(i,a,    r,j) {
 ## - j : untyped
 function _Clone(i,j) {
   Tab(j)
-  TabHeader(j, i.names)
-}
+  TabHeader(j, i.names) }
 
 # ## Row
 # ### Constructor

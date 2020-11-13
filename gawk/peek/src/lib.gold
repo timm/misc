@@ -23,7 +23,7 @@ function Object(i) { List(i); i.id = ++Gold.id }
 ## Create something of class `f` inside of `i` at position `k`
 ## - i : array
 ## - k : atom  (string or number)
-## - f? : function name  (defaults to `List`).
+## - ?f : function name  (defaults to `List`).
 function has(i,k,f) { 
    f=f?f:"List";i[k][0]; @f(i[k]); delete i[k][0]; return k}
 
@@ -61,12 +61,14 @@ function rogues(   s) { f
 ### tests
 ## Run the functions names in the comma-separated string `s`.
 ## -  s : string; command separated function names.
-function tests(s,     a,i,f)
+function tests(s,     a,i,f) {
   split(s,a,",") 
+  o(a)
   for(i in a) {
      f=a[i]
+     print "||" f
      if(f in FUNCTAB)
-        @f(i) }}
+        @f(s) }}
 
 ### ok
 ## Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
@@ -98,12 +100,19 @@ function z(mu,sd) {
 
 # ## Printing
 
+### o
+## Simple array printing.
+## - a : array
+function o(a,    i,sep,s) {
+  for(i in a) {s = s sep a[i]; sep=","}
+  print s }
+
 ### oo
 ## Print arrays, recursively. 
 ## Show keys in sorted order.
 ## - x : anything; what to print.
 ## - p : string; something to print before each item
-function oo(x,p,i   pre,      j,txt) {
+function oo(x,p,   pre,      j,txt) {
   txt = pre ? pre : (p Gold.dot)
   ooSortOrder(x)
   for(j in x)  
@@ -129,7 +138,7 @@ function ooSortOrder(x, j) {
 ## line (and end in a comma) concat that line to the next.
 ## Coerce numeric strings to numbers.
 ## - a : array; containing the next record. 
-## - f? : filename; defaults to standard input.
+## - ?f : filename; defaults to standard input.
 function csv(a,f,     b4, g,txt,i,old,new) {
   f = f ? f : "-"             
   g = getline < f
@@ -137,9 +146,9 @@ function csv(a,f,     b4, g,txt,i,old,new) {
   if (g==0) { close(f) ; return 0 }       # end of file                   
   txt = b4 $0                             # combine with prior
   gsub(/[ \t]+/,"",txt)
-  if (txt ~ /,$/) { return csv(f,a,txt) } # continue txt into next
+  if (txt ~ /,$/) { return csv(a,f,txt) } # continue txt into next
   sub(/#.*/, "", txt)                    # kill whitespace,comments    
-  if (!txt)       { return csv(f,a,txt) } # skip blanks
+  if (!txt)       { return csv(a,f,txt) } # skip blanks
   split(txt, a, ",")                      # split on "," into "a"
   for(i in a) {
      old = a[i]
