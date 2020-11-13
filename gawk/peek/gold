@@ -24,13 +24,13 @@ body() { gawk '
   sub(/^## /,    "")   { Preamble=1 ; print $0 ; next}
   Preamble && /^function/{ 
     Preamble=0
-    print "\n<details><summary>...</summary>"
+    print "\n<ul><details><summary>...</summary>"
     print "\n```awk"
     while($0 !~ /^[ \t]*$/)  {
       print $0
       getline}
     print "```"
-    print "\n</details>\n\n" } '
+    print "\n</details></ul>\n\n" } '
 }
 toc() { gawk '
   function ns(n,    s) { while(n-- > 0) s= s "  "      ; return s}
