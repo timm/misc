@@ -1,20 +1,20 @@
 #  col.gold
-  - [Functions](#functions) 
-    - [adds(i](#addsicolxstring) : Col, x
-  - [Classes](#classes) 
-    - [Col ](#colabstractclassforallcolumns) :  Abstract class for all columns.
-      - [Col(i](#coliuntypedsstringnposint) : untyped, s
-    - [Info ](#infocolumnswedonotsummarize) : columns we do not summarize
-      - [Info(i](#infoiuntypedsstringinposint) : untyped, s
-      - [Add(i](#addisymxatomatom) : Sym, x
-    - [Sym ](#symmaintainssummariesofsymboliccolumns) :  maintains summaries of symbolic columns
-      - [Sym(i](#symiuntypedsstringinposint) : untyped, s
-      - [Add(i](#addisymxatomatom) : Sym, x
-    - [Num](#nummaintainsummariesofnumericcolumns) :  maintain summaries of numeric columns,
-      - [Num(i](#numiuntypedsstringnposint) : untyped, s
-      - [_Pdf](#pdf) 
-      - [_Cdf](#cdf) 
-      - [_Crossover](#crossover) 
+  - [Functions)](#functions) 
+    - [adds(i:Col, x:string)](#addsicolxstring) 
+  - [Classes)](#classes) 
+    - [Col : Abstract class for all columns.)](#colabstractclassforallcolumns) 
+      - [Col(i:untyped, s:string, n:posint)](#coliuntypedsstringnposint) 
+    - [Info :columns we do not summarize)](#infocolumnswedonotsummarize) 
+      - [Info(i:untyped, s:string,i n:posint)](#infoiuntypedsstringinposint) 
+      - [Add(i:Sym, x:atom)](#addisymxatomatom) : : atom
+    - [Sym : maintains summaries of symbolic columns)](#symmaintainssummariesofsymboliccolumns) 
+      - [Sym(i:untyped, s:string,i n:posint)](#symiuntypedsstringinposint) 
+      - [Add(i:Sym, x:atom)](#addisymxatomatom) : : atom
+    - [Num: maintain summaries of numeric columns,)](#nummaintainsummariesofnumericcolumns) 
+      - [Num(i:untyped, s:string, n:posint)](#numiuntypedsstringnposint) 
+      - [_Pdf)](#pdf) 
+      - [_Cdf)](#cdf) 
+      - [_Crossover)](#crossover) 
 
 Summarize Columns
 
@@ -56,7 +56,7 @@ function Col(i,s,n) {
 
 ### Info :columns we do not summarize
 
-####  `Info(i:untyped, s:string,i n:posint)`
+####  Info(i:untyped, s:string,i n:posint)
 Constructor. 
 `s` is the name of a column appearing in positive `n`.
 

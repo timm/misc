@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # vim: ft=sh ts=2 sw=2 et :
-ext=gold
 here=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 
-chmod +x $here/$ext
+chmod +x $here/gold
 mkdir -p $here/docs
 
 want=$here/.gitignore
@@ -41,8 +40,8 @@ toc() { gawk '
    prefix = ns(length($1)-1 )
    $1=""
    $0= trim($0)
-   split($0,a,":")
-   text = a[1]; help=a[2]
+   split($0,a,")")
+   text = a[1]")"; help=a[2]
    gsub(/[^[:alpha:]]/,"",$0)
    if (help)
       print(prefix "- ["text"](#"tolower($0)") : " help)
@@ -64,25 +63,29 @@ transpile() { gawk  '
     print Comment  gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
                       "[\"\\1\\2\"]","g", $0)} '
 } 
-for f in *.$ext; do
+for f in *.gold; do
   g=${f%.*}.awk
   if [ "$f" -nt "$g" ]; then 
     cat $f | transpile> $g
   fi
-  g=$here/docs/${f%.*}.md
-  if [ "$f" -nt "$g" ]; then 
-     echo "# " $f > $g
-     cat $f | body | toc >> $g
-  fi  
- done
+done
 
-if [ "$1" == "push" ]; then
+if [ "$1" == "docs" ]; then
+   for f in *.gold; do
+     g=$here/docs/${f%.*}.md
+     if [ "$f" -nt "$g" ]; then 
+       echo "# $f"
+       echo "# " $f > $g
+       cat $f | body | toc >> $g
+     fi
+   done
+elif [ "$1" == "push" ]; then
   git config advice.addIgnoredFile false
   git add *
   git commit -am saving
   git push
   git status
-elif [[ "$1" =~ ^.*$ext$ ]] ; then
+elif [[ "$1" =~ ^.*gold$ ]] ; then
   g=${1%.*}.awk
   shift
   if [ -t 1 ]
