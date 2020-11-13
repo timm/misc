@@ -51,9 +51,10 @@ function _Add(i,x,   n) {
 ## Constructor.
 function Num(i,s,n) { 
   Col(i,s,n); i.is="Num"
+  i.w  = (s ~ /</) ? -1 : 1 
   i.hi = -1E32
   i.lo =  1E32
-  i.mu= i.m2= i.n= i.sd=0 }
+  i.mu = i.m2= i.n= i.sd=0 }
 
 function _Add(i,x,   d) {
   if(x=="?") return x
@@ -99,4 +100,3 @@ function _Crossover(i,j,   x1,x2,d,min,x,y) {
       if (y<min) { out=x; min = x} 
    } 
    return out }
-
