@@ -63,12 +63,10 @@ function rogues(   s) { f
 ## -  s : string; command separated function names.
 function tests(s,     a,i,f) {
   split(s,a,",") 
-  o(a)
   for(i in a) {
      f=a[i]
-     print "||" f
      if(f in FUNCTAB)
-        @f(s) }}
+       @f(s) }}
 
 ### ok
 ## Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
@@ -89,6 +87,11 @@ function green(x) { return "\033[32m"x"\033[0m" }
 
 # ## Maths
 
+### abs
+## Return absolute value of `x`.
+## - x : number
+function abs(x) { return x>=0 ? x : -1*x}
+
 ### z
 ## Sample from a Gaussian.
 ## - ?mu : number; defaults to 0.
@@ -103,9 +106,10 @@ function z(mu,sd) {
 ### o
 ## Simple array printing.
 ## - a : array
-function o(a,    i,sep,s) {
+## - ?p : optional prefix
+function o(a,p,     i,sep,s) {
   for(i in a) {s = s sep a[i]; sep=","}
-  print s }
+  print p s }
 
 ### oo
 ## Print arrays, recursively. 
