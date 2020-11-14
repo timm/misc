@@ -28,7 +28,7 @@ body() { gawk '
   }
   Preamble && /^function/ { 
     if ($0 ~ /^function/) {
-      n=split($0, a, /[ \t(),]/) 
+      n=split($0, a, /[ \t\(\),]/) 
       for(i=3;i<=n;i++) {
         if (a[i] !~ /:/) break
         Sig = Sig Sep a[i]
