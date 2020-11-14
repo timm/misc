@@ -1,29 +1,13 @@
 #  lib.gold
   - [OO Support](#oosupport) : initialize an empty list
-    - [List](#list) : initialize an empty list
-    - [Object](#object) : initialize an empty list
-    - [has](#has) : initialize an empty list
-    - [haS](#has) : initialize an empty list
-    - [hAS](#has) : initialize an empty list
-    - [new](#new) : initialize an empty list
   - [Testing](#testing) : Print local variables, escaped from functions
-    - [rogues](#rogues) : initialize an empty list
-    - [tests](#tests) : initialize an empty list
-    - [ok](#ok) : initialize an empty list
   - [Maths](#maths) : Return absolute value of `x`.
-    - [abs](#abs) : initialize an empty list
-    - [z](#z) : initialize an empty list
   - [Printing](#printing) : Simple array printing.
-    - [o](#o) : initialize an empty list
-    - [oo](#oo) : initialize an empty list
   - [Reading](#reading) : Loop over a csv file `f`, setting the array `a` to the next record.
-    - [csv](#csv) : initialize an empty list
 
 ## OO Support
-initialize an empty list
 - i : untyped
-### List
-initialize an empty list
+===### List??
 - i : untyped
 
 <ul><details><summary><tt>List()</tt></summary>
@@ -37,10 +21,7 @@ function List(i) { split("",i,"") }
 
  Initialize a new object, give it a unique id (in `i.id`)
 - i : untyped
-### Object
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
+===### Object??
 - i : untyped
 
 <ul><details><summary><tt>Object()</tt></summary>
@@ -56,14 +37,7 @@ Create something of class `f` inside of `i` at position `k`
 - i : array
 - k : atom  (string or number)
 - ?f : function name  (defaults to `List`).
-### has
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
+===### has??
 - ?f : function name  (defaults to `List`).
 
 <ul><details><summary><tt>has()</tt></summary>
@@ -81,19 +55,7 @@ Like `has`, but accepts one constructor argument `x`.
 - k : atom  (string or number)
 - f : function name  (defaults to `List`).
 - x : any (something to be passed as `f(i,x)`)
-### haS
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
+===### haS??
 - x : any (something to be passed as `f(i,x)`)
 
 <ul><details><summary><tt>haS()</tt></summary>
@@ -111,25 +73,7 @@ Like `has`, but accepts two constructor arguments `x` and `y`..
 - f : function name  (defaults to `List`).
 - x : any (something to be passes as `f(i,x,y)`)
 - y : any (something to be passed as `f(i,x,y)`)
-### hAS
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
+===### hAS??
 - y : any (something to be passed as `f(i,x,y)`)
 
 <ul><details><summary><tt>hAS()</tt></summary>
@@ -144,28 +88,7 @@ function hAS(i,k,f,x,y) { i[k][0]; @f(i[k],x,y); delete i[k][0] }
 Add a new instances of class `f` at the end of `i`.
 - i : array
 - f : constructor function
-### new
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
-- y : any (something to be passed as `f(i,x,y)`)
-Add a new instances of class `f` at the end of `i`.
-- i : array
+===### new??
 - f : constructor function
 
 <ul><details><summary><tt>new()</tt></summary>
@@ -178,30 +101,7 @@ function new(i,f,    k) { k=length(i)+1; has(i,k,f); return k }
 
 
 ## Testing
-Print local variables, escaped from functions
-### rogues
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
-- y : any (something to be passed as `f(i,x,y)`)
-Add a new instances of class `f` at the end of `i`.
-- i : array
-- f : constructor function
+===### rogues??
 Print local variables, escaped from functions
 
 <ul><details><summary><tt>rogues()</tt></summary>
@@ -217,31 +117,7 @@ function rogues(   s) { f
 
 Run the functions names in the comma-separated string `s`.
 -  s : string; command separated function names.
-### tests
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
-- y : any (something to be passed as `f(i,x,y)`)
-Add a new instances of class `f` at the end of `i`.
-- i : array
-- f : constructor function
-Print local variables, escaped from functions
-Run the functions names in the comma-separated string `s`.
+===### tests??
 -  s : string; command separated function names.
 
 <ul><details><summary><tt>tests()</tt></summary>
@@ -262,35 +138,7 @@ Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
 - what : string; some id tag
 - got : value1
 - want : value2
-### ok
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
-- y : any (something to be passed as `f(i,x,y)`)
-Add a new instances of class `f` at the end of `i`.
-- i : array
-- f : constructor function
-Print local variables, escaped from functions
-Run the functions names in the comma-separated string `s`.
--  s : string; command separated function names.
-Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
-- what : string; some id tag
-- got : value1
+===### ok??
 - want : value2
 
 <ul><details><summary><tt>ok()</tt></summary>
@@ -310,39 +158,8 @@ function ok(f,got,want,   epsilon,     good,s) {
 
 
 ## Maths
-Return absolute value of `x`.
 - x : number
-### abs
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
-- y : any (something to be passed as `f(i,x,y)`)
-Add a new instances of class `f` at the end of `i`.
-- i : array
-- f : constructor function
-Print local variables, escaped from functions
-Run the functions names in the comma-separated string `s`.
--  s : string; command separated function names.
-Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
-- what : string; some id tag
-- got : value1
-- want : value2
-Return absolute value of `x`.
+===### abs??
 - x : number
 
 <ul><details><summary><tt>abs()</tt></summary>
@@ -357,40 +174,7 @@ function abs(x) { return x>=0 ? x : -1*x}
 Sample from a Gaussian.
 - ?mu : number; defaults to 0.
 - ?sd : number; defaults to 1.
-### z
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
-- y : any (something to be passed as `f(i,x,y)`)
-Add a new instances of class `f` at the end of `i`.
-- i : array
-- f : constructor function
-Print local variables, escaped from functions
-Run the functions names in the comma-separated string `s`.
--  s : string; command separated function names.
-Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
-- what : string; some id tag
-- got : value1
-- want : value2
-Return absolute value of `x`.
-- x : number
-Sample from a Gaussian.
-- ?mu : number; defaults to 0.
+===### z??
 - ?sd : number; defaults to 1.
 
 <ul><details><summary><tt>z()</tt></summary>
@@ -406,46 +190,9 @@ function z(mu,sd) {
 
 
 ## Printing
-Simple array printing.
 - a : array
 - ?p : optional prefix
-### o
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
-- y : any (something to be passed as `f(i,x,y)`)
-Add a new instances of class `f` at the end of `i`.
-- i : array
-- f : constructor function
-Print local variables, escaped from functions
-Run the functions names in the comma-separated string `s`.
--  s : string; command separated function names.
-Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
-- what : string; some id tag
-- got : value1
-- want : value2
-Return absolute value of `x`.
-- x : number
-Sample from a Gaussian.
-- ?mu : number; defaults to 0.
-- ?sd : number; defaults to 1.
-Simple array printing.
-- a : array
+===### o??
 - ?p : optional prefix
 
 <ul><details><summary><tt>o()</tt></summary>
@@ -463,47 +210,7 @@ Print arrays, recursively.
 Show keys in sorted order.
 - x : anything; what to print.
 - p : string; something to print before each item
-### oo
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
-- y : any (something to be passed as `f(i,x,y)`)
-Add a new instances of class `f` at the end of `i`.
-- i : array
-- f : constructor function
-Print local variables, escaped from functions
-Run the functions names in the comma-separated string `s`.
--  s : string; command separated function names.
-Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
-- what : string; some id tag
-- got : value1
-- want : value2
-Return absolute value of `x`.
-- x : number
-Sample from a Gaussian.
-- ?mu : number; defaults to 0.
-- ?sd : number; defaults to 1.
-Simple array printing.
-- a : array
-- ?p : optional prefix
-Print arrays, recursively. 
-Show keys in sorted order.
-- x : anything; what to print.
+===### oo??
 - p : string; something to print before each item
 
 <ul><details><summary><tt>oo()</tt></summary>
@@ -525,7 +232,6 @@ function oo(x,p,   pre,      j,txt) {
 
 
 ## Reading
-Loop over a csv file `f`, setting the array `a` to the next record.
 Returns zero at end of files.
 Complain if file is missing. Kill comments `#` and spaces.
 Split lines on commas. If records split over more than one 
@@ -533,55 +239,7 @@ line (and end in a comma) concat that line to the next.
 Coerce numeric strings to numbers.
 - a : array; containing the next record. 
 - ?f : filename; defaults to standard input.
-### csv
-initialize an empty list
-- i : untyped
- Initialize a new object, give it a unique id (in `i.id`)
-- i : untyped
-Create something of class `f` inside of `i` at position `k`
-- i : array
-- k : atom  (string or number)
-- ?f : function name  (defaults to `List`).
-Like `has`, but accepts one constructor argument `x`.
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passed as `f(i,x)`)
-Like `has`, but accepts two constructor arguments `x` and `y`..
-- i : array
-- k : atom  (string or number)
-- f : function name  (defaults to `List`).
-- x : any (something to be passes as `f(i,x,y)`)
-- y : any (something to be passed as `f(i,x,y)`)
-Add a new instances of class `f` at the end of `i`.
-- i : array
-- f : constructor function
-Print local variables, escaped from functions
-Run the functions names in the comma-separated string `s`.
--  s : string; command separated function names.
-Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
-- what : string; some id tag
-- got : value1
-- want : value2
-Return absolute value of `x`.
-- x : number
-Sample from a Gaussian.
-- ?mu : number; defaults to 0.
-- ?sd : number; defaults to 1.
-Simple array printing.
-- a : array
-- ?p : optional prefix
-Print arrays, recursively. 
-Show keys in sorted order.
-- x : anything; what to print.
-- p : string; something to print before each item
-Loop over a csv file `f`, setting the array `a` to the next record.
-Returns zero at end of files.
-Complain if file is missing. Kill comments `#` and spaces.
-Split lines on commas. If records split over more than one 
-line (and end in a comma) concat that line to the next.
-Coerce numeric strings to numbers.
-- a : array; containing the next record. 
+===### csv??
 - ?f : filename; defaults to standard input.
 
 <ul><details><summary><tt>csv()</tt></summary>
@@ -605,3 +263,6 @@ function csv(a,f,     b4, g,txt,i,old,new) {
   }
   return 1 } 
 ```
+
+
+

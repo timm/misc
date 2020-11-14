@@ -1,6 +1,5 @@
 #  tab.gold
   - [Row](#row) : ### Constructor
-      - [Row](#row) : Initialize columns in a table.
 
 Initialize columns in a table.
 Column names containing `?` become `Info` columns.
@@ -10,14 +9,7 @@ and all other are independent variables (stored in `xs`).
 Klass names are marked in `!`.
 - i : Tab
 - a : array of column names.
-_Header
-Initialize columns in a table.
-Column names containing `?` become `Info` columns.
-Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
-Dependent variables (stored in `ys`) are marked with `<>!` 
-and all other are independent variables (stored in `xs`).
-Klass names are marked in `!`.
-- i : Tab
+===_Header??
 - a : array of column names.
 
 <ul><details><summary><tt>_Header()</tt></summary>
@@ -44,17 +36,7 @@ function _Header(i,a,   where, what, j) {
 Add an row at some random index within `rows`.
 - i : Tab; table of data.
 - a : array of data, to be read into the row.
-_Data
-Initialize columns in a table.
-Column names containing `?` become `Info` columns.
-Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
-Dependent variables (stored in `ys`) are marked with `<>!` 
-and all other are independent variables (stored in `xs`).
-Klass names are marked in `!`.
-- i : Tab
-- a : array of column names.
-Add an row at some random index within `rows`.
-- i : Tab; table of data.
+===_Data??
 - a : array of data, to be read into the row.
 
 <ul><details><summary><tt>_Data()</tt></summary>
@@ -73,20 +55,7 @@ function _Data(i,a,    r,j) {
 Copy the structure of `i` into a new table `j`.
 - i : Tab
 - j : untyped
-_Clone
-Initialize columns in a table.
-Column names containing `?` become `Info` columns.
-Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
-Dependent variables (stored in `ys`) are marked with `<>!` 
-and all other are independent variables (stored in `xs`).
-Klass names are marked in `!`.
-- i : Tab
-- a : array of column names.
-Add an row at some random index within `rows`.
-- i : Tab; table of data.
-- a : array of data, to be read into the row.
-Copy the structure of `i` into a new table `j`.
-- i : Tab
+===_Clone??
 - j : untyped
 
 <ul><details><summary><tt>_Clone()</tt></summary>
@@ -101,23 +70,8 @@ function _Clone(i,j) {
 
 
 ## Row
-### Constructor
 - i : untype
-#### Row
-Initialize columns in a table.
-Column names containing `?` become `Info` columns.
-Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
-Dependent variables (stored in `ys`) are marked with `<>!` 
-and all other are independent variables (stored in `xs`).
-Klass names are marked in `!`.
-- i : Tab
-- a : array of column names.
-Add an row at some random index within `rows`.
-- i : Tab; table of data.
-- a : array of data, to be read into the row.
-Copy the structure of `i` into a new table `j`.
-- i : Tab
-- j : untyped
+===#### Row??
 - i : untype
 
 <ul><details><summary><tt>Row()</tt></summary>
@@ -130,5 +84,8 @@ function Row(i) {
 ```
 
 </details></ul>
+
+
+
 
 

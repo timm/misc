@@ -12,16 +12,17 @@ EOF
 
 body() { gawk '
   BEGIN { Comment = "" }
-  #sub(/^\|#/,"")        { Comment=0; print "# " $0 ; next}
-  #sub(/^#\|[ \t]*/,"")  { Comment=1; print "# " $0 ; next}
-  #Comment               { print $0                 ; next}
+  sub(/^\|#/,"")        { Comment=0; print "# " $0 ; next}
+  sub(/^#\|[ \t]*/,"")  { Comment=1; print "# " $0 ; next}
+  Comment               { print $0                 ; next}
   sub(/^# # /,   "")     { print "# " $0   ; Pre="## "   ; next}
   sub(/^# ## /,   "")    { print "## " $0  ; Pre="### "  ; next}
   sub(/^# ### /,   "")   { print "### " $0 ; Pre="#### " ; next}
   sub(/^# #### /,   "")  { print "#### " $0; Pre="##### "; next}
   /^## /   { 
+    Body=""
     while(sub(/^## /,"")) {
-      Body = Body ? Body "\n" $0 : $0
+      Body = Body ? (Body "\n" $0) : $0
       if(getline<1) break
     }
     Preamble=1
@@ -35,18 +36,19 @@ body() { gawk '
         Sig = Sig Sep a[i]
         Sep = ", "
       }
-      print Pre a[2] 
+      print "===" Pre a[2]  "??"
       print Body
+      Body=0
       print "\n<ul><details><summary><tt>"a[2]"("Sig")</tt></summary>" 
       print "\n```awk" 
   }}
-  Preamble &&  $0  { print }
-  Preamble && !$0  {   
+  Preamble && $0 !~ /^[ \t]*$/ { print }
+  Preamble && $0 ~  /^[ \t]*$/ {   
       Preamble = 0
       print "```"
       print "\n</details></ul>\n\n" 
   }
-  END { if(Preamble) print "```" }
+  END { if(Preamble) print "```"; print "\n\n" }
   '
 }
 toc() { gawk '
@@ -59,9 +61,9 @@ toc() { gawk '
          gsub(/[^[:alpha:]]/,"",link)
          link=tolower(link)
          getline
-         Body= Body "\n" $0
          help= ($0 ~ /^[ \t]*$/) ? "" : (" : " $0 )
          print(prefix "- ["text"](#"link")" help )
+         help=text=link=""
   }
   END {print Body} '
 } 
