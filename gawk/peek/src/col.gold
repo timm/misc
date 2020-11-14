@@ -1,16 +1,10 @@
 # vim: ft=awk ts=2 sw=2 et :
-#| 
-Summarize Columns
-|#
-
 @include "lib"
 
-# ## Functions1
+# ## Functions
 
 ## Polymorphic update function for columns.
-function add(i:Col,x:string,  f) { 
-  f=i.is "Add"; return @f(i,x) 
-}
+function add(i:Col,x:string,  f) { f=i.is "Add"; return @f(i,x) }
 
 # ## Classes
 # ### Col : Abstract class for all columns.
@@ -21,7 +15,8 @@ function Col(i:untyped, s:string, n:posint) {
   Object(i); i.is="Col"
   i.txt=s; i.pos=n }
 
-# ### Info :columns we do not summarize
+# ### Info 
+# Columns we do not summarize.
 
 ## Constructor. 
 ## `s` is the name of a column appearing in positive `n`.
@@ -31,7 +26,8 @@ function Info(i:untyped, s:string, n:posint)  {
 ## Do nothing.
 function _Add(i:Sym, x:any) {return x}
 
-# ### Sym : maintains summaries of symbolic columns
+# ### Sym 
+# Maintains summaries of symbolic columns
 
 ## Constructor.
 ## `s` is the name of a column appearing in positive `n`.
@@ -47,7 +43,8 @@ function _Add(i:Sym, x:atom,    n) {
   if (n> i.most) { i.mode=x; i.most=n}
   return x }  
 
-# ### Num: maintain summaries of numeric columns,
+# ### Num
+# Maintain summaries of numeric columns.
 
 ## Constructor.
 function Num(i:untyped, s:string, n:posint) { 

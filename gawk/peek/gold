@@ -11,39 +11,43 @@ want=$here/.gitignore
 EOF
 
 body() { gawk '
-  BEGIN { Comment = "" 
-        }
-  sub(/^\|#/,"")       { Comment=0; print "# " $0        ; next}
-  sub(/^#\|[ \t]*/,"") { Comment=1; print "# " $0        ; next}
-  Comment              { print $0                        ; next}
-  sub(/^# # /,   "")   { print "\n# "    $0; Pre="## "   ; next}
-  sub(/^# ## /  ,"")   { print "\n## "   $0; Pre="### "  ; next}
-  sub(/^# ### /, "")   { print "\n### "  $0; Pre="#### " ; next}
-  sub(/^# #### /,"")   { print "\n#### " $0; Pre="##### "; next}
-  sub(/^## /,    "")   { 
-    Body=Sep=Sig=""
-    while(1) {
-      if (/^[ \t]*$]/) break
-      if (sub(/^## /,"")) {Body = Body "\n" $0; getline; continue}  
-      if (/^function/) {
-        n=split($0, a, /[ \t(),]/) 
-        for(i=3;i<=n;i++) {
-          if (a[i] !~ /:/) break
-          Sig = Sig Sep a[i]
-          Sep = ","
-        }
-        gsub(/:[A-Za-z0-9\?\|\*]+/,"")
-        print Pre a[2] "\n`"a[2]"("Sig")`\n"
-        print Body
-        Body=""
-        print"<ul><details><summary>...</summary>" 
-        print \n```awk\n"$0
-        while($0 !~ /^[ \t]*$/)  {
-           print $0
-           getline}
-       print "```"
-       print "\n</details></ul>\n\n" } '
-   }
+  BEGIN { Comment = "" }
+  #sub(/^\|#/,"")        { Comment=0; print "# " $0 ; next}
+  #sub(/^#\|[ \t]*/,"")  { Comment=1; print "# " $0 ; next}
+  #Comment               { print $0                 ; next}
+  sub(/^# # /,   "")     { print "# " $0   ; Pre="## "   ; next}
+  sub(/^# ## /,   "")    { print "## " $0  ; Pre="### "  ; next}
+  sub(/^# ### /,   "")   { print "### " $0 ; Pre="#### " ; next}
+  sub(/^# #### /,   "")  { print "#### " $0; Pre="##### "; next}
+  /^## /   { 
+    while(sub(/^## /,"")) {
+      Body = Body "\n" $0
+      if(getline<1) break
+    }
+    Preamble=1
+  }
+  Preamble && /^function/ { 
+    if ($0 ~ /^function/) {
+      n=split($0, a, /[ \t(),]/) 
+      for(i=3;i<=n;i++) {
+        if (a[i] !~ /:/) break
+        Sig = Sig Sep a[i]
+        Sep = ", "
+      }
+      print Pre a[2] "\n`"a[2]"("Sig")`"
+      print Body
+      print "\n<ul><details><summary>...</summary>" 
+      print "\n```awk" 
+  }}
+  Preamble &&  $0  { print }
+  Preamble && !$0  {   
+      Preamble = 0
+      Body=Sep=Sig=""
+      print "```"
+      print "\n</details></ul>\n\n" 
+  }
+  END { if(Preamble) print "```" }
+  '
 }
 toc() { gawk '
   function ns(n,    s) { while(n-- > 0) s= s "  "      ; return s}
