@@ -21,28 +21,28 @@ body() { gawk '
   sub(/^# #### /,   "")  { print "#### " $0; Pre="##### "; next}
   /^## /   { 
     while(sub(/^## /,"")) {
-      Body = Body "\n" $0
+      Body = Body ? Body "\n" $0 : $0
       if(getline<1) break
     }
     Preamble=1
   }
   Preamble && /^function/ { 
     if ($0 ~ /^function/) {
-      n=split($0, a, /[ \t\(\),]/) 
+      Sig=Sep=""
+      n=split($0, a, /[ \t\(\),]*/) 
       for(i=3;i<=n;i++) {
         if (a[i] !~ /:/) break
         Sig = Sig Sep a[i]
         Sep = ", "
       }
-      print Pre a[2] "\n`"a[2]"("Sig")`"
+      print Pre a[2] 
       print Body
-      print "\n<ul><details><summary>...</summary>" 
+      print "\n<ul><details><summary><tt>"a[2]"("Sig")</tt></summary>" 
       print "\n```awk" 
   }}
   Preamble &&  $0  { print }
   Preamble && !$0  {   
       Preamble = 0
-      Body=Sep=Sig=""
       print "```"
       print "\n</details></ul>\n\n" 
   }
@@ -55,14 +55,13 @@ toc() { gawk '
        { Body = Body "\n" $0 }
   /^#/ { prefix = ns(length($1)-1 )
          $1=""
-         $0= trim($0)
-         split($0,a,")")
-         text = a[1]")"; help=a[2]
-         gsub(/[^[:alpha:]]/,"",$0)
-         if (help)
-           print(prefix "- ["text"](#"tolower($0)") : " help)
-         else
-           print(prefix "- ["text"](#"tolower($0)") " )
+         link= text = $0= trim($0)
+         gsub(/[^[:alpha:]]/,"",link)
+         link=tolower(link)
+         getline
+         Body= Body "\n" $0
+         help= ($0 ~ /^[ \t]*$/) ? "" : (" : " $0 )
+         print(prefix "- ["text"](#"link")" help )
   }
   END {print Body} '
 } 

@@ -1,7 +1,6 @@
 #  tab.gold
-  - [Row)](#row) 
-    - [Constructor)](#constructor) 
-      - [Row)](#row) 
+  - [Row](#row) : ### Constructor
+      - [Row](#row) : Initialize columns in a table.
 
 Initialize columns in a table.
 Column names containing `?` become `Info` columns.
@@ -12,8 +11,6 @@ Klass names are marked in `!`.
 - i : Tab
 - a : array of column names.
 _Header
-`_Header()`
-
 Initialize columns in a table.
 Column names containing `?` become `Info` columns.
 Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
@@ -23,7 +20,7 @@ Klass names are marked in `!`.
 - i : Tab
 - a : array of column names.
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>_Header()</tt></summary>
 
 ```awk
 function _Header(i,a,   where, what, j) {
@@ -48,13 +45,19 @@ Add an row at some random index within `rows`.
 - i : Tab; table of data.
 - a : array of data, to be read into the row.
 _Data
-`_Data()`
-
+Initialize columns in a table.
+Column names containing `?` become `Info` columns.
+Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
+Dependent variables (stored in `ys`) are marked with `<>!` 
+and all other are independent variables (stored in `xs`).
+Klass names are marked in `!`.
+- i : Tab
+- a : array of column names.
 Add an row at some random index within `rows`.
 - i : Tab; table of data.
 - a : array of data, to be read into the row.
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>_Data()</tt></summary>
 
 ```awk
 function _Data(i,a,    r,j) {
@@ -71,13 +74,22 @@ Copy the structure of `i` into a new table `j`.
 - i : Tab
 - j : untyped
 _Clone
-`_Clone()`
-
+Initialize columns in a table.
+Column names containing `?` become `Info` columns.
+Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
+Dependent variables (stored in `ys`) are marked with `<>!` 
+and all other are independent variables (stored in `xs`).
+Klass names are marked in `!`.
+- i : Tab
+- a : array of column names.
+Add an row at some random index within `rows`.
+- i : Tab; table of data.
+- a : array of data, to be read into the row.
 Copy the structure of `i` into a new table `j`.
 - i : Tab
 - j : untyped
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>_Clone()</tt></summary>
 
 ```awk
 function _Clone(i,j) {
@@ -92,11 +104,23 @@ function _Clone(i,j) {
 ### Constructor
 - i : untype
 #### Row
-`Row()`
-
+Initialize columns in a table.
+Column names containing `?` become `Info` columns.
+Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
+Dependent variables (stored in `ys`) are marked with `<>!` 
+and all other are independent variables (stored in `xs`).
+Klass names are marked in `!`.
+- i : Tab
+- a : array of column names.
+Add an row at some random index within `rows`.
+- i : Tab; table of data.
+- a : array of data, to be read into the row.
+Copy the structure of `i` into a new table `j`.
+- i : Tab
+- j : untyped
 - i : untype
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>Row()</tt></summary>
 
 ```awk
 function Row(i) {

@@ -1,34 +1,32 @@
 #  lib.gold
-  - [OO Support)](#oosupport) 
-    - [List)](#list) 
-    - [Object)](#object) 
-    - [has)](#has) 
-    - [haS)](#has) 
-    - [hAS)](#has) 
-    - [new)](#new) 
-  - [Testing)](#testing) 
-    - [rogues)](#rogues) 
-    - [tests)](#tests) 
-    - [ok)](#ok) 
-  - [Maths)](#maths) 
-    - [abs)](#abs) 
-    - [z)](#z) 
-  - [Printing)](#printing) 
-    - [o)](#o) 
-    - [oo)](#oo) 
-  - [Reading)](#reading) 
-    - [csv)](#csv) 
+  - [OO Support](#oosupport) : initialize an empty list
+    - [List](#list) : initialize an empty list
+    - [Object](#object) : initialize an empty list
+    - [has](#has) : initialize an empty list
+    - [haS](#has) : initialize an empty list
+    - [hAS](#has) : initialize an empty list
+    - [new](#new) : initialize an empty list
+  - [Testing](#testing) : Print local variables, escaped from functions
+    - [rogues](#rogues) : initialize an empty list
+    - [tests](#tests) : initialize an empty list
+    - [ok](#ok) : initialize an empty list
+  - [Maths](#maths) : Return absolute value of `x`.
+    - [abs](#abs) : initialize an empty list
+    - [z](#z) : initialize an empty list
+  - [Printing](#printing) : Simple array printing.
+    - [o](#o) : initialize an empty list
+    - [oo](#oo) : initialize an empty list
+  - [Reading](#reading) : Loop over a csv file `f`, setting the array `a` to the next record.
+    - [csv](#csv) : initialize an empty list
 
 ## OO Support
 initialize an empty list
 - i : untyped
 ### List
-`List()`
-
 initialize an empty list
 - i : untyped
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>List()</tt></summary>
 
 ```awk
 function List(i) { split("",i,"") }
@@ -40,12 +38,12 @@ function List(i) { split("",i,"") }
  Initialize a new object, give it a unique id (in `i.id`)
 - i : untyped
 ### Object
-`Object()`
-
+initialize an empty list
+- i : untyped
  Initialize a new object, give it a unique id (in `i.id`)
 - i : untyped
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>Object()</tt></summary>
 
 ```awk
 function Object(i) { List(i); i.id = ++Gold.id }
@@ -59,14 +57,16 @@ Create something of class `f` inside of `i` at position `k`
 - k : atom  (string or number)
 - ?f : function name  (defaults to `List`).
 ### has
-`has()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
 Create something of class `f` inside of `i` at position `k`
 - i : array
 - k : atom  (string or number)
 - ?f : function name  (defaults to `List`).
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>has()</tt></summary>
 
 ```awk
 function has(i,k,f) { 
@@ -82,15 +82,21 @@ Like `has`, but accepts one constructor argument `x`.
 - f : function name  (defaults to `List`).
 - x : any (something to be passed as `f(i,x)`)
 ### haS
-`haS()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
 Like `has`, but accepts one constructor argument `x`.
 - i : array
 - k : atom  (string or number)
 - f : function name  (defaults to `List`).
 - x : any (something to be passed as `f(i,x)`)
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>haS()</tt></summary>
 
 ```awk
 function haS(i,k,f,x)  { i[k][0]; @f(i[k],x); delete i[k][0] }
@@ -106,8 +112,19 @@ Like `has`, but accepts two constructor arguments `x` and `y`..
 - x : any (something to be passes as `f(i,x,y)`)
 - y : any (something to be passed as `f(i,x,y)`)
 ### hAS
-`hAS()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
 Like `has`, but accepts two constructor arguments `x` and `y`..
 - i : array
 - k : atom  (string or number)
@@ -115,7 +132,7 @@ Like `has`, but accepts two constructor arguments `x` and `y`..
 - x : any (something to be passes as `f(i,x,y)`)
 - y : any (something to be passed as `f(i,x,y)`)
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>hAS()</tt></summary>
 
 ```awk
 function hAS(i,k,f,x,y) { i[k][0]; @f(i[k],x,y); delete i[k][0] }
@@ -128,13 +145,30 @@ Add a new instances of class `f` at the end of `i`.
 - i : array
 - f : constructor function
 ### new
-`new()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
+Like `has`, but accepts two constructor arguments `x` and `y`..
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passes as `f(i,x,y)`)
+- y : any (something to be passed as `f(i,x,y)`)
 Add a new instances of class `f` at the end of `i`.
 - i : array
 - f : constructor function
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>new()</tt></summary>
 
 ```awk
 function new(i,f,    k) { k=length(i)+1; has(i,k,f); return k }
@@ -146,11 +180,31 @@ function new(i,f,    k) { k=length(i)+1; has(i,k,f); return k }
 ## Testing
 Print local variables, escaped from functions
 ### rogues
-`rogues()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
+Like `has`, but accepts two constructor arguments `x` and `y`..
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passes as `f(i,x,y)`)
+- y : any (something to be passed as `f(i,x,y)`)
+Add a new instances of class `f` at the end of `i`.
+- i : array
+- f : constructor function
 Print local variables, escaped from functions
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>rogues()</tt></summary>
 
 ```awk
 function rogues(   s) { f
@@ -164,12 +218,33 @@ function rogues(   s) { f
 Run the functions names in the comma-separated string `s`.
 -  s : string; command separated function names.
 ### tests
-`tests()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
+Like `has`, but accepts two constructor arguments `x` and `y`..
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passes as `f(i,x,y)`)
+- y : any (something to be passed as `f(i,x,y)`)
+Add a new instances of class `f` at the end of `i`.
+- i : array
+- f : constructor function
+Print local variables, escaped from functions
 Run the functions names in the comma-separated string `s`.
 -  s : string; command separated function names.
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>tests()</tt></summary>
 
 ```awk
 function tests(s,     a,i,f) {
@@ -188,14 +263,37 @@ Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
 - got : value1
 - want : value2
 ### ok
-`ok()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
+Like `has`, but accepts two constructor arguments `x` and `y`..
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passes as `f(i,x,y)`)
+- y : any (something to be passed as `f(i,x,y)`)
+Add a new instances of class `f` at the end of `i`.
+- i : array
+- f : constructor function
+Print local variables, escaped from functions
+Run the functions names in the comma-separated string `s`.
+-  s : string; command separated function names.
 Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
 - what : string; some id tag
 - got : value1
 - want : value2
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>ok()</tt></summary>
 
 ```awk
 function ok(f,got,want,   epsilon,     good,s) {
@@ -215,12 +313,39 @@ function ok(f,got,want,   epsilon,     good,s) {
 Return absolute value of `x`.
 - x : number
 ### abs
-`abs()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
+Like `has`, but accepts two constructor arguments `x` and `y`..
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passes as `f(i,x,y)`)
+- y : any (something to be passed as `f(i,x,y)`)
+Add a new instances of class `f` at the end of `i`.
+- i : array
+- f : constructor function
+Print local variables, escaped from functions
+Run the functions names in the comma-separated string `s`.
+-  s : string; command separated function names.
+Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
+- what : string; some id tag
+- got : value1
+- want : value2
 Return absolute value of `x`.
 - x : number
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>abs()</tt></summary>
 
 ```awk
 function abs(x) { return x>=0 ? x : -1*x}
@@ -233,13 +358,42 @@ Sample from a Gaussian.
 - ?mu : number; defaults to 0.
 - ?sd : number; defaults to 1.
 ### z
-`z()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
+Like `has`, but accepts two constructor arguments `x` and `y`..
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passes as `f(i,x,y)`)
+- y : any (something to be passed as `f(i,x,y)`)
+Add a new instances of class `f` at the end of `i`.
+- i : array
+- f : constructor function
+Print local variables, escaped from functions
+Run the functions names in the comma-separated string `s`.
+-  s : string; command separated function names.
+Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
+- what : string; some id tag
+- got : value1
+- want : value2
+Return absolute value of `x`.
+- x : number
 Sample from a Gaussian.
 - ?mu : number; defaults to 0.
 - ?sd : number; defaults to 1.
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>z()</tt></summary>
 
 ```awk
 function z(mu,sd) {
@@ -256,13 +410,45 @@ Simple array printing.
 - a : array
 - ?p : optional prefix
 ### o
-`o()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
+Like `has`, but accepts two constructor arguments `x` and `y`..
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passes as `f(i,x,y)`)
+- y : any (something to be passed as `f(i,x,y)`)
+Add a new instances of class `f` at the end of `i`.
+- i : array
+- f : constructor function
+Print local variables, escaped from functions
+Run the functions names in the comma-separated string `s`.
+-  s : string; command separated function names.
+Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
+- what : string; some id tag
+- got : value1
+- want : value2
+Return absolute value of `x`.
+- x : number
+Sample from a Gaussian.
+- ?mu : number; defaults to 0.
+- ?sd : number; defaults to 1.
 Simple array printing.
 - a : array
 - ?p : optional prefix
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>o()</tt></summary>
 
 ```awk
 function o(a,p,     i,sep,s) {
@@ -278,14 +464,49 @@ Show keys in sorted order.
 - x : anything; what to print.
 - p : string; something to print before each item
 ### oo
-`oo()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
+Like `has`, but accepts two constructor arguments `x` and `y`..
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passes as `f(i,x,y)`)
+- y : any (something to be passed as `f(i,x,y)`)
+Add a new instances of class `f` at the end of `i`.
+- i : array
+- f : constructor function
+Print local variables, escaped from functions
+Run the functions names in the comma-separated string `s`.
+-  s : string; command separated function names.
+Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
+- what : string; some id tag
+- got : value1
+- want : value2
+Return absolute value of `x`.
+- x : number
+Sample from a Gaussian.
+- ?mu : number; defaults to 0.
+- ?sd : number; defaults to 1.
+Simple array printing.
+- a : array
+- ?p : optional prefix
 Print arrays, recursively. 
 Show keys in sorted order.
 - x : anything; what to print.
 - p : string; something to print before each item
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>oo()</tt></summary>
 
 ```awk
 function oo(x,p,   pre,      j,txt) {
@@ -313,8 +534,47 @@ Coerce numeric strings to numbers.
 - a : array; containing the next record. 
 - ?f : filename; defaults to standard input.
 ### csv
-`csv()`
-
+initialize an empty list
+- i : untyped
+ Initialize a new object, give it a unique id (in `i.id`)
+- i : untyped
+Create something of class `f` inside of `i` at position `k`
+- i : array
+- k : atom  (string or number)
+- ?f : function name  (defaults to `List`).
+Like `has`, but accepts one constructor argument `x`.
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passed as `f(i,x)`)
+Like `has`, but accepts two constructor arguments `x` and `y`..
+- i : array
+- k : atom  (string or number)
+- f : function name  (defaults to `List`).
+- x : any (something to be passes as `f(i,x,y)`)
+- y : any (something to be passed as `f(i,x,y)`)
+Add a new instances of class `f` at the end of `i`.
+- i : array
+- f : constructor function
+Print local variables, escaped from functions
+Run the functions names in the comma-separated string `s`.
+-  s : string; command separated function names.
+Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
+- what : string; some id tag
+- got : value1
+- want : value2
+Return absolute value of `x`.
+- x : number
+Sample from a Gaussian.
+- ?mu : number; defaults to 0.
+- ?sd : number; defaults to 1.
+Simple array printing.
+- a : array
+- ?p : optional prefix
+Print arrays, recursively. 
+Show keys in sorted order.
+- x : anything; what to print.
+- p : string; something to print before each item
 Loop over a csv file `f`, setting the array `a` to the next record.
 Returns zero at end of files.
 Complain if file is missing. Kill comments `#` and spaces.
@@ -324,7 +584,7 @@ Coerce numeric strings to numbers.
 - a : array; containing the next record. 
 - ?f : filename; defaults to standard input.
 
-<ul><details><summary>...</summary>
+<ul><details><summary><tt>csv()</tt></summary>
 
 ```awk
 function csv(a,f,     b4, g,txt,i,old,new) {
