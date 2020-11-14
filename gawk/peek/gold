@@ -28,7 +28,6 @@ body() { gawk '
     Preamble=1
   }
   Preamble && /^function/ { 
-    if ($0 ~ /^function/) {
       Sig=Sep=""
       n=split($0, a, /[ \t\(\),]*/) 
       for(i=3;i<=n;i++) {
@@ -41,7 +40,7 @@ body() { gawk '
       Body=0
       print "\n<ul><details><summary><tt>"a[2]"("Sig")</tt></summary>" 
       print "\n```awk" 
-  }}
+  }
   Preamble && $0 !~ /^[ \t]*$/ { print }
   Preamble && $0 ~  /^[ \t]*$/ {   
       Preamble = 0
