@@ -74,6 +74,7 @@ transpile() { gawk  '
   /^func(tion)?[ \t]+[A-Z][^\(]*\(/ {
       split($0,a,/[ \t\(]/)
       PREFIX = a[2]
+      gsub(/:[A-Z0-9a-z\*\:\|]*/,"")
   }
   { gsub(/ _/," " PREFIX,$0)
     print Comment  gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
