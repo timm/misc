@@ -283,5 +283,10 @@ function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
       y = _Pdf(i) + _Pdf(j)
       if (y<min) { out=x; min = x} 
    } 
-   return out }
+   return out 
+}
 ```
+
+</details></ul>
+
+
