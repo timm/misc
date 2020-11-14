@@ -15,10 +15,10 @@ body() { gawk '
   sub(/^\|#/,"")        { Comment=0; print "# " $0 ; next}
   sub(/^#\|[ \t]*/,"")  { Comment=1; print "# " $0 ; next}
   Comment               { print $0                 ; next}
-  sub(/^# # /,   "")     { print "# " $0   ; Pre="## "   ; next}
-  sub(/^# ## /,   "")    { print "## " $0  ; Pre="### "  ; next}
-  sub(/^# ### /,   "")   { print "### " $0 ; Pre="#### " ; next}
-  sub(/^# #### /,   "")  { print "#### " $0; Pre="##### "; next}
+  sub(/^# # /,   "")    { print "# " $0   ; Pre="## "   ; next}
+  sub(/^# ## /,   "")   { print "## " $0  ; Pre="### "  ; next}
+  sub(/^# ### /,   "")  { print "### " $0 ; Pre="#### " ; next}
+  sub(/^# #### /,   "") { print "#### " $0; Pre="##### "; next}
   /^## /   { 
     Body=""
     while(sub(/^## /,"")) {
