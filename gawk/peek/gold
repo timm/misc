@@ -20,17 +20,30 @@ body() { gawk '
   sub(/^# ## /  ,"")   { print "\n## "   $0; Pre="### "  ; next}
   sub(/^# ### /, "")   { print "\n### "  $0; Pre="#### " ; next}
   sub(/^# #### /,"")   { print "\n#### " $0; Pre="##### "; next}
-  sub(/^### /,   "")   { Preamble=1; print "\n"Pre $0    ; next}
-  sub(/^## /,    "")   { Preamble=1; print $0            ; next}
-  Preamble && /^function/{ 
-    Preamble=0
-    print "\n<ul><details><summary>...</summary>"
-    print "\n```awk"
-    while($0 !~ /^[ \t]*$/)  {
-      print $0
-      getline}
-    print "```"
-    print "\n</details></ul>\n\n" } '
+  sub(/^## /,    "")   { 
+    Body=Sep=Sig=""
+    while(1) {
+      if (/^[ \t]*$]/) break
+      if (sub(/^## /,"")) {Body = Body "\n" $0; getline; continue}  
+      if (/^function/) {
+        n=split($0, a, /[ \t(),]/) 
+        for(i=3;i<=n;i++) {
+          if (a[i] !~ /:/) break
+          Sig = Sig Sep a[i]
+          Sep = ","
+        }
+        gsub(/:[A-Za-z0-9\?\|\*]+/,"")
+        print Pre a[2] "\n`"a[2]"("Sig")`\n"
+        print Body
+        Body=""
+        print"<ul><details><summary>...</summary>" 
+        print \n```awk\n"$0
+        while($0 !~ /^[ \t]*$/)  {
+           print $0
+           getline}
+       print "```"
+       print "\n</details></ul>\n\n" } '
+   }
 }
 toc() { gawk '
   function ns(n,    s) { while(n-- > 0) s= s "  "      ; return s}
