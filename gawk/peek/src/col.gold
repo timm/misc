@@ -3,10 +3,14 @@
 @include "lib"
 
 ## Polymorphic update function for columns.
-## cool. 
 function add(i:Col,x:string,  f) { 
   f=i.is "Add"; 
   return @f(i,x) }
+
+# Add many things
+function adds(c,a,i) {
+  for(i in a) add(c, a[i] )
+}
 
 ### Col #################################################
 

@@ -35,6 +35,11 @@ function hAS(i:untyped, k:atom, f:fname, x:any, y:any) {
 ## Add a new instances of class `f` at the end of `i`.
 function new(i:array, f:fname, k) { k=length(i)+1; has(i,k,f); return k }
 
+## If `x` can be coerced number, return that. Else return `x`.
+function asNum(x:atom,    y) {
+  y = x+0
+  return x==y ? x : y }
+
 ### Testing stuff ############################################
 
 ## Print local variables, escaped from functions
