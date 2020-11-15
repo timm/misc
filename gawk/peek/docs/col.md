@@ -13,7 +13,7 @@
 - [_Cdf](#_cdf) 
 - [_Crossover](#_crossover) 
 
-add
+## add
 Polymorphic update function for columns.
 cool. 
 
@@ -29,7 +29,7 @@ function add(i:Col,x:string,  f) {
 
 
 
-Col
+## Col
 Abstract constructor for our colums.
 `s` is the name of a column appearing in positive `n`.
 
@@ -45,7 +45,7 @@ function Col(i:untyped, s:string, n:posint) {
 
 
 
-Info
+## Info
 Constructor for columns we will not summarize. 
 `s` is the name of a column appearing in positive `n`.
 
@@ -60,7 +60,7 @@ function Info(i:untyped, s:string, n:posint)  {
 
 
 
-_Add
+## _Add
 Do nothing.
 
 <ul><details><summary><tt><tt>_Add(i:Sym)</tt></tt></summary>
@@ -73,7 +73,7 @@ function _Add(i:Sym, x:any) {return x}
 
 
 
-Sym
+## Sym
 Constrctor for summary of symbolic columns.
 `s` is the name of a column appearing in positive `n`.
 
@@ -89,7 +89,7 @@ function Sym(i:untyped, s:string, n:posint) {
 
 
 
-_Add
+## _Add
 Update frequency counts, and `mode`.
 
 <ul><details><summary><tt><tt>_Add(i:Sym)</tt></tt></summary>
@@ -107,7 +107,7 @@ function _Add(i:Sym, x:atom,    n) {
 
 
 
-Num
+## Num
 Constructor of summary of numeric columms
 
 <ul><details><summary><tt><tt>Num(i:untyped)</tt></tt></summary>
@@ -125,7 +125,7 @@ function Num(i:untyped, s:string, n:posint) {
 
 
 
-_Add
+## _Add
 Update self, return `x`.
 
 <ul><details><summary><tt><tt>_Add(i:Num)</tt></tt></summary>
@@ -147,7 +147,7 @@ function _Add(i:Num, x:number,    d) {
 
 
 
-_Pdf
+## _Pdf
 Return height of the Gaussian at `x`.
 
 <ul><details><summary><tt><tt>_Pdf(i:Num)</tt></tt></summary>
@@ -164,7 +164,7 @@ function _Pdf(i:Num, x:any,    var,denom,num) {
 
 
 
-_Cdf
+## _Cdf
 Return the area under the Gaussian from negative infinity to `x`.
 
 <ul><details><summary><tt><tt>_Cdf(i:Num)</tt></tt></summary>
@@ -179,7 +179,7 @@ function _Cdf(i:Num, x:number) {
 
 
 
-_Crossover
+## _Crossover
 Return where two Gaussians cross in-between their means.
 
 <ul><details><summary><tt><tt>_Crossover(i:Num, j:Num)</tt></tt></summary>
