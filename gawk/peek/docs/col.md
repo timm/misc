@@ -1,23 +1,23 @@
 #  col.gold
 
 
-  - [Functions](#Functions)
-   - [Polymorphic update function for columns.](#polymorphic update function for columns.) cool. 
-  - [Classes](#Classes)
-    - [Col : Abstract class for all columns.](#Col : Abstract class for all columns.)
-      - [ Abstract constructor.](# abstract constructor.) `s` is the name of a column appearing in positive `n`.
-    - [Info ](#Info )
-      - [Constructor. ](#constructor. ) `s` is the name of a column appearing in positive `n`.
-      - [Do nothing.](#do nothing.) 
-    - [Sym ](#Sym )
-      - [Constructor.](#constructor.) `s` is the name of a column appearing in positive `n`.
-      - [Update frequency counts, and `mode`.](#update frequency counts, and `mode`.) 
-    - [Num](#Num)
-      - [Constructor.](#constructor.) 
-      - [Update self, return `x`.](#update self, return `x`.) 
-      - [Return height of the Gaussian at `x`.](#return height of the gaussian at `x`.) 
-      - [Return the area under the Gaussian from negative infinity to `x`.](#return the area under the gaussian from negative infinity to `x`.) 
-      - [Return where two Gaussians cross in-between their means.](#return where two gaussians cross in-between their means.) 
+  - c[Functions](#Functions)
+   - a[Polymorphic update function for columns.](#polymorphic update function for columns.) cool. 
+  - c[Classes](#Classes)
+    - d[Col : Abstract class for all columns.](#Col : Abstract class for all columns.)
+      - a[ Abstract constructor.](# abstract constructor.) `s` is the name of a column appearing in positive `n`.
+    - d[Info ](#Info )
+      - a[Constructor. ](#constructor. ) `s` is the name of a column appearing in positive `n`.
+      - a[Do nothing.](#do nothing.) 
+    - d[Sym ](#Sym )
+      - a[Constructor.](#constructor.) `s` is the name of a column appearing in positive `n`.
+      - a[Update frequency counts, and `mode`.](#update frequency counts, and `mode`.) 
+    - d[Num](#Num)
+      - a[Constructor.](#constructor.) 
+      - a[Update self, return `x`.](#update self, return `x`.) 
+      - a[Return height of the Gaussian at `x`.](#return height of the gaussian at `x`.) 
+      - a[Return the area under the Gaussian from negative infinity to `x`.](#return the area under the gaussian from negative infinity to `x`.) 
+      - a[Return where two Gaussians cross in-between their means.](#return where two gaussians cross in-between their means.) 
 
  
 asd saadsd
