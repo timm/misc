@@ -25,8 +25,8 @@ transpile() { gawk  '
                       "[\"\\1\\2\"]","g", $0)} '
 } 
 toc() { gawk '
-               { Part2? (Hi=Hi"\n"$0) : (Lo=Lo"\n"$0) }
   /^=========/ { Part2=1; next  }
+               { Part2? (Hi=Hi"\n"$0) : (Lo=Lo"\n"$0) }
            END { print Hi"\n"Lo }'
 }
 for f in *.gold; do

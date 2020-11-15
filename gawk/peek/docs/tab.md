@@ -1,5 +1,13 @@
 #  tab.gold
 
+
+- [Initialize columns in a table.](#initialize columns in a table.) Column names containing `?` become `Info` columns.
+- [Add an row at some random index within `rows`.](#add an row at some random index within `rows`.) - i : Tab; table of data.
+- [Copy the structure of `i` into a new table `j`.](#copy the structure of `i` into a new table `j`.) - i : Tab
+## Row
+### Constructor
+      - [- i : untype](#- i : untype) 
+
 _Header
 Initialize columns in a table.
 Column names containing `?` become `Info` columns.
@@ -31,7 +39,62 @@ function _Header(i,a,   where, what, j) {
 </details></ul>
 
 
-=============================
+
+_Data
+Add an row at some random index within `rows`.
+- i : Tab; table of data.
+- a : array of data, to be read into the row.
+
+<ul><details><summary><tt><tt>_Data()</tt></tt></summary>
+
+```awk
+function _Data(i,a,    r,j) {
+  r = rand()
+  has(i.rows, r, "Row")
+  for(j=1; j<=length(a); j++) 
+    i.rows[r].cells[j] = add(i.cols[j], a[j]) }
+```
+
+</details></ul>
 
 
-- [Initialize columns in a table.](#initialize columns in a table.) Column names containing `?` become `Info` columns.
+
+_Clone
+Copy the structure of `i` into a new table `j`.
+- i : Tab
+- j : untyped
+
+<ul><details><summary><tt><tt>_Clone()</tt></tt></summary>
+
+```awk
+function _Clone(i,j) {
+  Tab(j)
+  TabHeader(j, i.names) }
+```
+
+</details></ul>
+
+
+
+
+## Row
+
+### Constructor
+
+#### Row
+- i : untype
+
+<ul><details><summary><tt><tt>Row()</tt></tt></summary>
+
+```awk
+function Row(i) {
+  Object(i)
+  has(i,"cells")
+  has(i,"ranges") }
+```
+
+</details></ul>
+
+
+
+

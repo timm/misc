@@ -19,7 +19,7 @@
       - [Return the area under the Gaussian from negative infinity to `x`.](#return the area under the gaussian from negative infinity to `x`.) 
       - [Return where two Gaussians cross in-between their means.](#return where two gaussians cross in-between their means.) 
 
-
+ 
 asd saadsd
 as
 four
@@ -238,4 +238,3 @@ function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
 
 
 
-=============================
