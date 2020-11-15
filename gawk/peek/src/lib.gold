@@ -2,11 +2,15 @@
 
 # Miscellaneous support code.
 
+### Globals #################################################
+# There is only one global.
 BEGIN { List(Gold); 
-        Gold.test.epsilon=0.00001
-        Gold.pi= 3.141592653
-        Gold.e = 2.718281828
-        Gold.dot=sprintf("%c",46)  }
+  Gold.test.epsilon=0.00001
+  Gold.pi= 3.141592653
+  Gold.e = 2.718281828
+  Gold.dot=sprintf("%c",46)  }
+
+### Object stuff ############################################
 
 ## Initialize an empty list
 function List(i:untyped) { 
@@ -30,6 +34,8 @@ function hAS(i:untyped, k:atom, f:fname, x:any, y:any) {
 
 ## Add a new instances of class `f` at the end of `i`.
 function new(i:array, f:fname, k) { k=length(i)+1; has(i,k,f); return k }
+
+### Testing stuff ############################################
 
 ## Print local variables, escaped from functions
 function rogues(   s) { f
@@ -57,6 +63,8 @@ function ok(s:string, got:atom, want:atom,   epsilon:number,       good) {
 function red(x)   { return "\033[31m"x"\033[0m" }
 function green(x) { return "\033[32m"x"\033[0m" }
 
+### Maths stuff ############################################
+
 ## Return absolute value of `x`.
 function abs(x:number) { 
   return x>=0 ? x : -1*x }
@@ -66,6 +74,8 @@ function z(mu:nummber|0, sd:number|0) {
   mu = mu?mu:0
   sd = sd?sd:1  
   return mu + sd*sqrt(-2*log(rand()))*cos(2*Gold.pi*rand())}
+
+### Printing stuff #########################################
 
 ## Simple printing of a flat array
 function o(a:array, prefix:string|"",     i,sep,s) {
@@ -88,6 +98,8 @@ function ooSortOrder(x, j) {
   for (j in x)
     return PROCINFO["sorted_in"] = \
       typeof(j + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" }
+
+### File stuff #########################################
 
 ## Loop over a csv file `f`, setting the array `a` to the next record.
 ## Returns zero at end of files.
