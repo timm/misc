@@ -15,7 +15,7 @@ transpile() { gawk  '
   sub(/^\|#/,"")   { Comment=""  ; print; next}
   sub(/^#\|[ \t]*/,"")   { Comment="# "; print; next}
 
-  /^function/ { gsub(/:[A-Z0-9a-z\*:\|]*/,"") }
+  /^function/ { gsub(/:[\?"A-Z0-9a-z\*:\|]*/,"") }
   /^func(tion)?[ \t]+[A-Z][^\(]*\(/ {
       split($0,a,/[ \t\(]/)
       PREFIX = a[2]

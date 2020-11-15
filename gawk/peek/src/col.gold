@@ -8,6 +8,8 @@ function add(i:Col,x:string,  f) {
   f=i.is "Add"; 
   return @f(i,x) }
 
+### Col #################################################
+
 ## Abstract constructor for our colums.
 ## `s` is the name of a column appearing in positive `n`.
 function Col(i:untyped, s:string, n:posint) { 
@@ -22,6 +24,8 @@ function Info(i:untyped, s:string, n:posint)  {
 ## Do nothing.
 function _Add(i:Sym, x:any) {return x}
 
+### Sym #################################################
+
 ## Constrctor for summary of symbolic columns.
 ## `s` is the name of a column appearing in positive `n`.
 function Sym(i:untyped, s:string, n:posint) { 
@@ -35,6 +39,8 @@ function _Add(i:Sym, x:atom,    n) {
   n= ++i.seen[x]
   if (n> i.most) { i.mode=x; i.most=n}
   return x }  
+
+### Num #################################################
 
 ## Constructor of summary of numeric columms
 function Num(i:untyped, s:string, n:posint) { 

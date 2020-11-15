@@ -8,123 +8,79 @@ BEGIN { List(Gold);
         Gold.e = 2.718281828
         Gold.dot=sprintf("%c",46)  }
 
-# ## OO Support
-### List 
-## initialize an empty list
-## - i : untyped
-function List(i) { split("",i,"") }
+## Initialize an empty list
+function List(i:untyped) { 
+  split("",i,"") }
 
-### Object 
-##  Initialize a new object, give it a unique id (in `i.id`)
-## - i : untyped
-function Object(i) { List(i); i.id = ++Gold.id }
+## Initialize a new object, give it a unique id (in `i.id`)
+function Object(i:untyped) { 
+  List(i); i.id = ++Gold.id }
 
-### has 
 ## Create something of class `f` inside of `i` at position `k`
-## - i : array
-## - k : atom  (string or number)
-## - ?f : function name  (defaults to `List`).
-function has(i,k,f) { 
+function has(i:untyped, k:atom, f:?fname) { 
    f=f?f:"List";i[k][0]; @f(i[k]); delete i[k][0]; return k}
 
-### haS
 ## Like `has`, but accepts one constructor argument `x`.
-## - i : array
-## - k : atom  (string or number)
-## - f : function name  (defaults to `List`).
-## - x : any (something to be passed as `f(i,x)`)
-function haS(i,k,f,x)  { i[k][0]; @f(i[k],x); delete i[k][0] }
+function haS(i:untyped, k:atom, f:?fname, x:any)  { 
+  i[k][0]; @f(i[k],x); delete i[k][0] }
 
-### hAS
 ## Like `has`, but accepts two constructor arguments `x` and `y`..
-## - i : array
-## - k : atom  (string or number)
-## - f : function name  (defaults to `List`).
-## - x : any (something to be passes as `f(i,x,y)`)
-## - y : any (something to be passed as `f(i,x,y)`)
-function hAS(i,k,f,x,y) { i[k][0]; @f(i[k],x,y); delete i[k][0] }
+function hAS(i:untyped, k:atom, f:fname, x:any, y:any) { 
+  i[k][0]; @f(i[k],x,y); delete i[k][0] }
 
-### new
 ## Add a new instances of class `f` at the end of `i`.
-## - i : array
-## - f : constructor function
-function new(i,f,    k) { k=length(i)+1; has(i,k,f); return k }
+function new(i:array, f:fname, k) { k=length(i)+1; has(i,k,f); return k }
 
-# ## Testing
-
-### rogues
 ## Print local variables, escaped from functions
 function rogues(   s) { f
   for(s in SYMTAB) if (s ~ /^[A-Z]/)  print "#W> Global: " s>"/dev/stderr" 
-  for(s in SYMTAB) if (s ~ /^[_a-z]/) print "#W> Rogue: " s>"/dev/stderr" }
+  for(s in SYMTAB) if (s ~ /^[_a-z]/) print "#W> Rogue: "  s>"/dev/stderr" }
 
-### tests
 ## Run the functions names in the comma-separated string `s`.
-## -  s : string; command separated function names.
-function tests(s,     a,i,f) {
+function tests(s:string,     a,i,f) {
   split(s,a,",") 
   for(i in a) {
      f=a[i]
      if(f in FUNCTAB)
        @f(s) }}
 
-### ok
 ## Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
-## - what : string; some id tag
-## - got : value1
-## - want : value2
-function ok(f,got,want,   epsilon,     good,s) {
+function ok(s:string, got:atom, want:atom,   epsilon:number,       good) {
   epsilon = epsilon ? epsilon : Gold.test.epsilon
   if (typeof(want) == "number") 
     good = abs(want - got)/(want + 10^-32)  < epsilon
   else
     good = want == got;
-  s= "#TEST:\t"(good?"PASSED":"FAILED") "\t" i "\t" want "\t" got 
+  s= "#TEST:\t"(good?"PASSED":"FAILED") "\t" i "\t" want "\t" got " : " s
   print(good ? green(s) : red(s)) }
 
 function red(x)   { return "\033[31m"x"\033[0m" }
 function green(x) { return "\033[32m"x"\033[0m" }
 
-# ## Maths
-
-### abs
 ## Return absolute value of `x`.
-## - x : number
-function abs(x) { 
-  return x>=0 ? x : -1*x}
+function abs(x:number) { 
+  return x>=0 ? x : -1*x }
 
-### z
 ## Sample from a Gaussian.
-## - ?mu : number; defaults to 0.
-## - ?sd : number; defaults to 1.
-function z(mu,sd) {
+function z(mu:nummber|0, sd:number|0) {
   mu = mu?mu:0
   sd = sd?sd:1  
   return mu + sd*sqrt(-2*log(rand()))*cos(2*Gold.pi*rand())}
 
-# ## Printing
-
-### o
-## Simple array printing.
-## - a : array
-## - ?p : optional prefix
-function o(a,p,     i,sep,s) {
-  for(i in a) {s = s sep a[i]; sep=","}
+## Simple printing of a flat array
+function o(a:array, prefix:string|"",     i,sep,s) {
+  for(i in a) {s = s sep prefix a[i]; sep=","}
   print p s }
 
-### oo
-## Print arrays, recursively. 
-## Show keys in sorted order.
-## - x : anything; what to print.
-## - p : string; something to print before each item
-function oo(x,p,   pre,      j,txt) {
-  txt = pre ? pre : (p Gold.dot)
+## Print arrays, recursively, shows in sorted array, prepend with `prefix`.
+function oo(x:array, prefix:string,   indent,      j,txt) {
+  txt = prefix ? prefix : (prefix Gold.dot)
   ooSortOrder(x)
   for(j in x)  
     if (j !~ /^_/) {
       if (isarray(x[j]))   {
         print(txt j"" )
-        oo(x[j],"","|  " pre)
+        oo(x[j],"","|  " prefix)
       } else
         print(txt j (x[j]==""?"": ": " x[j])) } }
 
@@ -133,18 +89,13 @@ function ooSortOrder(x, j) {
     return PROCINFO["sorted_in"] = \
       typeof(j + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" }
 
-# ## Reading
-
-### csv
 ## Loop over a csv file `f`, setting the array `a` to the next record.
 ## Returns zero at end of files.
 ## Complain if file is missing. Kill comments `#` and spaces.
 ## Split lines on commas. If records split over more than one 
 ## line (and end in a comma) concat that line to the next.
 ## Coerce numeric strings to numbers.
-## - a : array; containing the next record. 
-## - ?f : filename; defaults to standard input.
-function csv(a,f,     b4, g,txt,i,old,new) {
+function csv(a:array, f:string|"",       b4, g,txt,i,old,new) {
   f = f ? f : "-"             
   g = getline < f
   if (g< 0) { print "#E> Missing f ["f"]"; exit 1 } # file missing

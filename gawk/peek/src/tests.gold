@@ -16,9 +16,18 @@ function tab0(s,rows,f,  d,t) {
 }
 function tab1(i,t) { print(10); tab0(i,14,  "weather")}
 function tab2(i,t) { tab0(i,398, "auto93" )}
+
+function zs(    n,a,i) {
+   n=10^4
+   while(--n > 0) a[n]=z(10,1)
+   asort(a)
+   for(i=0;i<=length(a);i = int(i+ length(a)/20))
+      print(i,a[i])
+}
+
 BEGIN{ 
-  tests("csv1")
-  tests("tab2")
+  #tests("csv1"); tests("tab2")
+  zs()
 }
 
 
