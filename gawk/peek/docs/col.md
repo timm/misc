@@ -1,23 +1,23 @@
 #  col.gold
 
 
-  - c[Functions](#Functions)
-   - a[Polymorphic update function for columns.](#polymorphic update function for columns.) cool. 
-  - c[Classes](#Classes)
-    - d[Col : Abstract class for all columns.](#Col : Abstract class for all columns.)
-      - a[ Abstract constructor.](# abstract constructor.) `s` is the name of a column appearing in positive `n`.
-    - d[Info ](#Info )
-      - a[Constructor. ](#constructor. ) `s` is the name of a column appearing in positive `n`.
-      - a[Do nothing.](#do nothing.) 
-    - d[Sym ](#Sym )
-      - a[Constructor.](#constructor.) `s` is the name of a column appearing in positive `n`.
-      - a[Update frequency counts, and `mode`.](#update frequency counts, and `mode`.) 
-    - d[Num](#Num)
-      - a[Constructor.](#constructor.) 
-      - a[Update self, return `x`.](#update self, return `x`.) 
-      - a[Return height of the Gaussian at `x`.](#return height of the gaussian at `x`.) 
-      - a[Return the area under the Gaussian from negative infinity to `x`.](#return the area under the gaussian from negative infinity to `x`.) 
-      - a[Return where two Gaussians cross in-between their means.](#return where two gaussians cross in-between their means.) 
+  - [Functions](#Functions)
+   - [add](#add) cool. 
+  - [Classes](#Classes)
+    - [Col : Abstract class for all columns.](#Col : Abstract class for all columns.)
+      - [Col](#col) `s` is the name of a column appearing in positive `n`.
+    - [Info ](#Info )
+      - [Info](#info) `s` is the name of a column appearing in positive `n`.
+      - [_Add](#_add) 
+    - [Sym ](#Sym )
+      - [Sym](#sym) `s` is the name of a column appearing in positive `n`.
+      - [_Add](#_add) 
+    - [Num](#Num)
+      - [Num](#num) 
+      - [_Add](#_add) 
+      - [_Pdf](#_pdf) 
+      - [_Cdf](#_cdf) 
+      - [_Crossover](#_crossover) 
 
  
 asd saadsd
