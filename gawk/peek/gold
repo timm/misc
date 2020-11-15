@@ -10,62 +10,6 @@ want=$here/.gitignore
 *.awk
 EOF
 
-body() { gawk '
-  BEGIN { Comment = "" }
-  sub(/^\|#/,"")        { Comment=0; print "# " $0 ; next}
-  sub(/^#\|[ \t]*/,"")  { Comment=1; print "# " $0 ; next}
-  Comment               { print $0                 ; next}
-  sub(/^# # /,   "")    { print "# " $0   ; Pre="## "   ; next}
-  sub(/^# ## /,   "")   { print "## " $0  ; Pre="### "  ; next}
-  sub(/^# ### /,   "")  { print "### " $0 ; Pre="#### " ; next}
-  sub(/^# #### /,   "") { print "#### " $0; Pre="##### "; next}
-  /^## /   { 
-    Body=""
-    while(sub(/^## /,"")) {
-      Body = Body ? (Body "\n" $0) : $0
-      if(getline<1) break
-    }
-    Preamble=1
-  }
-  Preamble && /^function/ { 
-      Sig=Sep=""
-      n=split($0, a, /[ \t\(\),]*/) 
-      for(i=3;i<=n;i++) {
-        if (a[i] !~ /:/) break
-        Sig = Sig Sep a[i]
-        Sep = ", "
-      }
-      print "===" Pre a[2]  "??"
-      print Body
-      Body=0
-      print "\n<ul><details><summary><tt>"a[2]"("Sig")</tt></summary>" 
-      print "\n```awk" 
-  }
-  Preamble && $0 !~ /^[ \t]*$/ { print }
-  Preamble && $0 ~  /^[ \t]*$/ {   
-      Preamble = 0
-      print "```"
-      print "\n</details></ul>\n\n" 
-  }
-  END { if(Preamble) print "```"; print "\n\n" }
-  '
-}
-toc() { gawk '
-  function ns(n,    s) { while(n-- > 0) s= s "  "      ; return s}
-  function trim(s)     { gsub(/(^[ \t]*|[ \t]*$)/,"",s); return s}
-       { Body = Body "\n" $0 }
-  /^#/ { prefix = ns(length($1)-1 )
-         $1=""
-         link= text = $0= trim($0)
-         gsub(/[^[:alpha:]]/,"",link)
-         link=tolower(link)
-         getline
-         help= ($0 ~ /^[ \t]*$/) ? "" : (" : " $0 )
-         print(prefix "- ["text"](#"link")" help )
-         help=text=link=""
-  }
-  END {print Body} '
-} 
 transpile() { gawk  '
   BEGIN            { Comment="" }
   sub(/^\|#/,"")   { Comment=""  ; print; next}
@@ -80,6 +24,11 @@ transpile() { gawk  '
     print Comment  gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
                       "[\"\\1\\2\"]","g", $0)} '
 } 
+toc() { gawk '
+               { Part2? (Hi=Hi"\n"$0) : (Lo=Lo"\n"$0) }
+  /^=========/ { Part2=1; next  }
+           END { print Lo"\n"Hi }'
+}
 for f in *.gold; do
   g=${f%.*}.awk
   if [ "$f" -nt "$g" ]; then 
@@ -93,7 +42,7 @@ if [ "$1" == "docs" ]; then
      if [ "$f" -nt "$g" ]; then 
        echo "# $f"
        echo "# " $f > $g
-       cat $f | body | toc >> $g
+       cat $f | gawk -f $here/body.awk | toc >> $g
      fi
    done
 elif [ "$1" == "push" ]; then

@@ -74,7 +74,7 @@ function tests(s,     a,i,f) {
 ## - got : value1
 ## - want : value2
 function ok(f,got,want,   epsilon,     good,s) {
-  epsilon = epsilon ? epsilon : AU.test.epsilon
+  epsilon = epsilon ? epsilon : Gold.test.epsilon
   if (typeof(want) == "number") 
     good = abs(want - got)/(want + 10^-32)  < epsilon
   else
@@ -90,7 +90,8 @@ function green(x) { return "\033[32m"x"\033[0m" }
 ### abs
 ## Return absolute value of `x`.
 ## - x : number
-function abs(x) { return x>=0 ? x : -1*x}
+function abs(x) { 
+  return x>=0 ? x : -1*x}
 
 ### z
 ## Sample from a Gaussian.

@@ -1,10 +1,19 @@
 # vim: ft=awk ts=2 sw=2 et :
+#: # asd saadsd
+as
+four
+asda
+:# 
+
 @include "lib"
 
 # ## Functions
 
 ## Polymorphic update function for columns.
-function add(i:Col,x:string,  f) { f=i.is "Add"; return @f(i,x) }
+## cool. 
+function add(i:Col,x:string,  f) { 
+  f=i.is "Add"; 
+  return @f(i,x) }
 
 # ## Classes
 # ### Col : Abstract class for all columns.

@@ -18,7 +18,7 @@ function tab1(i,t) { print(10); tab0(i,14,  "weather")}
 function tab2(i,t) { tab0(i,398, "auto93" )}
 BEGIN{ 
   tests("csv1")
-  tests("tab1")
+  tests("tab2")
 }
 
 
