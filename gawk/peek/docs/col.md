@@ -1,18 +1,18 @@
 #  col.gold
 
 
-## Functions
+  - [Functions](#Functions)
    - [Polymorphic update function for columns.](#polymorphic update function for columns.) cool. 
-## Classes
-### Col : Abstract class for all columns.
+  - [Classes](#Classes)
+    - [Col : Abstract class for all columns.](#Col : Abstract class for all columns.)
       - [ Abstract constructor.](# abstract constructor.) `s` is the name of a column appearing in positive `n`.
-### Info 
+    - [Info ](#Info )
       - [Constructor. ](#constructor. ) `s` is the name of a column appearing in positive `n`.
       - [Do nothing.](#do nothing.) 
-### Sym 
+    - [Sym ](#Sym )
       - [Constructor.](#constructor.) `s` is the name of a column appearing in positive `n`.
       - [Update frequency counts, and `mode`.](#update frequency counts, and `mode`.) 
-### Num
+    - [Num](#Num)
       - [Constructor.](#constructor.) 
       - [Update self, return `x`.](#update self, return `x`.) 
       - [Return height of the Gaussian at `x`.](#return height of the gaussian at `x`.) 
