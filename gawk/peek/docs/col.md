@@ -1,33 +1,19 @@
 #  col.gold
 
 
-  - [Functions](#Functions)
-   - [add](#add) cool. 
-  - [Classes](#Classes)
-    - [Col : Abstract class for all columns.](#Col : Abstract class for all columns.)
-      - [Col](#col) `s` is the name of a column appearing in positive `n`.
-    - [Info ](#Info )
-      - [Info](#info) `s` is the name of a column appearing in positive `n`.
-      - [_Add](#_add) 
-    - [Sym ](#Sym )
-      - [Sym](#sym) `s` is the name of a column appearing in positive `n`.
-      - [_Add](#_add) 
-    - [Num](#Num)
-      - [Num](#num) 
-      - [_Add](#_add) 
-      - [_Pdf](#_pdf) 
-      - [_Cdf](#_cdf) 
-      - [_Crossover](#_crossover) 
+- [add](#add) cool. 
+- [Col](#col) `s` is the name of a column appearing in positive `n`.
+- [Info](#info) `s` is the name of a column appearing in positive `n`.
+- [_Add](#_add) 
+- [Sym](#sym) `s` is the name of a column appearing in positive `n`.
+- [_Add](#_add) 
+- [Num](#num) 
+- [_Add](#_add) 
+- [_Pdf](#_pdf) 
+- [_Cdf](#_cdf) 
+- [_Crossover](#_crossover) 
 
- 
-asd saadsd
-as
-four
-asda
-
-## Functions
-
-### add
+add
 Polymorphic update function for columns.
 cool. 
 
@@ -43,13 +29,8 @@ function add(i:Col,x:string,  f) {
 
 
 
-
-## Classes
-
-### Col : Abstract class for all columns.
-
-#### Col
- Abstract constructor.
+Col
+Abstract constructor for our colums.
 `s` is the name of a column appearing in positive `n`.
 
 <ul><details><summary><tt><tt>Col(i:untyped)</tt></tt></summary>
@@ -64,11 +45,8 @@ function Col(i:untyped, s:string, n:posint) {
 
 
 
-
-### Info 
-
-#### Info
-Constructor. 
+Info
+Constructor for columns we will not summarize. 
 `s` is the name of a column appearing in positive `n`.
 
 <ul><details><summary><tt><tt>Info(i:untyped)</tt></tt></summary>
@@ -82,8 +60,7 @@ function Info(i:untyped, s:string, n:posint)  {
 
 
 
-
-#### _Add
+_Add
 Do nothing.
 
 <ul><details><summary><tt><tt>_Add(i:Sym)</tt></tt></summary>
@@ -96,11 +73,8 @@ function _Add(i:Sym, x:any) {return x}
 
 
 
-
-### Sym 
-
-#### Sym
-Constructor.
+Sym
+Constrctor for summary of symbolic columns.
 `s` is the name of a column appearing in positive `n`.
 
 <ul><details><summary><tt><tt>Sym(i:untyped)</tt></tt></summary>
@@ -115,8 +89,7 @@ function Sym(i:untyped, s:string, n:posint) {
 
 
 
-
-#### _Add
+_Add
 Update frequency counts, and `mode`.
 
 <ul><details><summary><tt><tt>_Add(i:Sym)</tt></tt></summary>
@@ -134,11 +107,8 @@ function _Add(i:Sym, x:atom,    n) {
 
 
 
-
-### Num
-
-#### Num
-Constructor.
+Num
+Constructor of summary of numeric columms
 
 <ul><details><summary><tt><tt>Num(i:untyped)</tt></tt></summary>
 
@@ -155,8 +125,7 @@ function Num(i:untyped, s:string, n:posint) {
 
 
 
-
-#### _Add
+_Add
 Update self, return `x`.
 
 <ul><details><summary><tt><tt>_Add(i:Num)</tt></tt></summary>
@@ -178,8 +147,7 @@ function _Add(i:Num, x:number,    d) {
 
 
 
-
-#### _Pdf
+_Pdf
 Return height of the Gaussian at `x`.
 
 <ul><details><summary><tt><tt>_Pdf(i:Num)</tt></tt></summary>
@@ -196,8 +164,7 @@ function _Pdf(i:Num, x:any,    var,denom,num) {
 
 
 
-
-#### _Cdf
+_Cdf
 Return the area under the Gaussian from negative infinity to `x`.
 
 <ul><details><summary><tt><tt>_Cdf(i:Num)</tt></tt></summary>
@@ -212,8 +179,7 @@ function _Cdf(i:Num, x:number) {
 
 
 
-
-#### _Crossover
+_Crossover
 Return where two Gaussians cross in-between their means.
 
 <ul><details><summary><tt><tt>_Crossover(i:Num, j:Num)</tt></tt></summary>

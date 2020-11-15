@@ -1,14 +1,6 @@
 # vim: ft=awk ts=2 sw=2 et :
-#: 
-# asd saadsd
-as
-four
-asda
-:# 
 
 @include "lib"
-
-# ## Functions
 
 ## Polymorphic update function for columns.
 ## cool. 
@@ -16,19 +8,13 @@ function add(i:Col,x:string,  f) {
   f=i.is "Add"; 
   return @f(i,x) }
 
-# ## Classes
-# ### Col : Abstract class for all columns.
-
-##  Abstract constructor.
+## Abstract constructor for our colums.
 ## `s` is the name of a column appearing in positive `n`.
 function Col(i:untyped, s:string, n:posint) { 
   Object(i); i.is="Col"
   i.txt=s; i.pos=n }
 
-# ### Info 
-# Columns we do not summarize.
-
-## Constructor. 
+## Constructor for columns we will not summarize. 
 ## `s` is the name of a column appearing in positive `n`.
 function Info(i:untyped, s:string, n:posint)  { 
    Col(i,s,n); i.is="Info" }
@@ -36,10 +22,7 @@ function Info(i:untyped, s:string, n:posint)  {
 ## Do nothing.
 function _Add(i:Sym, x:any) {return x}
 
-# ### Sym 
-# Maintains summaries of symbolic columns
-
-## Constructor.
+## Constrctor for summary of symbolic columns.
 ## `s` is the name of a column appearing in positive `n`.
 function Sym(i:untyped, s:string, n:posint) { 
   Col(i,s,n); i.is="Sym"
@@ -53,10 +36,7 @@ function _Add(i:Sym, x:atom,    n) {
   if (n> i.most) { i.mode=x; i.most=n}
   return x }  
 
-# ### Num
-# Maintain summaries of numeric columns.
-
-## Constructor.
+## Constructor of summary of numeric columms
 function Num(i:untyped, s:string, n:posint) { 
   Col(i,s,n); i.is="Num"
   i.w  = (s ~ /</) ? -1 : 1 
@@ -101,6 +81,4 @@ function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
    } 
    return out 
 }
-
-
 
