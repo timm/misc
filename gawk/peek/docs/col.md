@@ -1,6 +1,19 @@
 #  col.gold
 
 
+     - [Polymorphic update function for columns.](#polymorphic update function for columns.) cool. 
+        - [ Abstract constructor.](# abstract constructor.) `s` is the name of a column appearing in positive `n`.
+        - [Constructor. ](#constructor. ) `s` is the name of a column appearing in positive `n`.
+        - [Do nothing.](#do nothing.) 
+        - [Constructor.](#constructor.) `s` is the name of a column appearing in positive `n`.
+        - [Update frequency counts, and `mode`.](#update frequency counts, and `mode`.) 
+        - [Constructor.](#constructor.) 
+        - [Update self, return `x`.](#update self, return `x`.) 
+        - [Return height of the Gaussian at `x`.](#return height of the gaussian at `x`.) 
+        - [Return the area under the Gaussian from negative infinity to `x`.](#return the area under the gaussian from negative infinity to `x`.) 
+        - [Return where two Gaussians cross in-between their means.](#return where two gaussians cross in-between their means.) 
+
+
 asd saadsd
 as
 four
@@ -219,16 +232,3 @@ function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
 
 
 =============================
-
-
-     - [Polymorphic update function for columns.](#polymorphic update function for columns.) cool. 
-        - [ Abstract constructor.](# abstract constructor.) `s` is the name of a column appearing in positive `n`.
-        - [Constructor. ](#constructor. ) `s` is the name of a column appearing in positive `n`.
-        - [Do nothing.](#do nothing.) 
-        - [Constructor.](#constructor.) `s` is the name of a column appearing in positive `n`.
-        - [Update frequency counts, and `mode`.](#update frequency counts, and `mode`.) 
-        - [Constructor.](#constructor.) 
-        - [Update self, return `x`.](#update self, return `x`.) 
-        - [Return height of the Gaussian at `x`.](#return height of the gaussian at `x`.) 
-        - [Return the area under the Gaussian from negative infinity to `x`.](#return the area under the gaussian from negative infinity to `x`.) 
-        - [Return where two Gaussians cross in-between their means.](#return where two gaussians cross in-between their means.) 

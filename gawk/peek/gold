@@ -27,7 +27,7 @@ transpile() { gawk  '
 toc() { gawk '
                { Part2? (Hi=Hi"\n"$0) : (Lo=Lo"\n"$0) }
   /^=========/ { Part2=1; next  }
-           END { print Lo"\n"Hi }'
+           END { print Hi"\n"Lo }'
 }
 for f in *.gold; do
   g=${f%.*}.awk
