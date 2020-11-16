@@ -29,9 +29,8 @@ function Tab(i:untyped) {
   Object(i); i.is = "Tab"
   i.klass   = ""
   i.use     = "xs"
-  i.above   = i.below = ""
-  i.cluster = 64
-  has(i,"parts","Cluster")
+  i.far     = 0.9
+  has(i,"tree","TreeNode")
   has(i,"rows"); has(i,"cols"); has(i,"names")
   has(i,"info"); has(i,"xs");   has(i,"ys") }
 
@@ -72,28 +71,72 @@ function _Data(i:Tab, a:array,    r,j) {
   r = 1E6*rand()
   has(i.rows, r, "Row")
   for(j=1; j<=length(a); j++) 
-    i.rows[r].cells[j] = add(i.cols[j], a[j]) }
-  if (i.cluster) && (length(i.rows) >= i.cluster)) 
-     add(i.parts, a) }
+    i.rows[r].cells[j] = add(i.cols[j], a[j]) 
+  TreeNodeAdd(i.tree, i, r) }
+
+function _Dist(i,r1,r2) {
+  return  dist(i.rows[r1], i.rows[r2], i[i.use]) }
+
+function _Far(i,r1,     n,all1 {
+  n= _Around(i,r1,all) out) 
+  return out[int(n*i.far)].row }
+
+function _Around(i,r1,out,   r2) {
+  for(r2 in i.rows) 
+    if(r1 != r2) {
+       out.row = r2
+       out.d   = _Dist(r1, r2) }
+  return keysort(out,"d") }
 
 ## Copy the structure of `i` into a new table `j`.
 function _Clone(i:Tab, j:Tab) {
   Tab(j)
   TabHeader(j, i.names) }
 
-### Cluster ########################################
+### Dendogram ########################################
 
-## Constructor
-function Cluster(i) {
+# notes should be created in the tree;
+## Constructor for a tree of clusters
+function TreeNode(i) {
   Object(i)
-  i.is = "Cluster"
-  i.c=i.lo=i.hi=i.mid = 0
-  has(i,"upper","Tab")
-  has(i,"lower","Tab")
-  has(i,"clusters")
+  i.enough=64
+  i.is = "TreeNode"
+  i.c=i.lo=i.hi=i.mid = ""
+  has(i,"all")
+  has(i,"upper")
+  has(i,"lower")
 }
-function add(i:Cluster, a:array) {
-  if (!i.c) _Init(i)
-  add1(i,a) 
-}
+function _X(i,t, r     a,b,x) {
+   a= TabDist(t,r,i.lo)
+   b= TabDist(t,r,i.hi)
+   x= (a^2 + i.c^2 - b^2)/(2*i.c)
+   return max(0, min(1, x)) }
 
+function _Descend(i,t,d,r) {
+  return _Add(i[ d < i.mid ? "lower" : "upper" ], 
+              t, r) }
+
+function _Add(i, t, r.   n,one,x,tmp) {
+  push(i.all,  r)
+  if (length(i.all) == i.enough)  {
+    i.lo = TabFar(t, r)
+    i.hi = TabFar(t, i.lo )
+    i.c  = TabDist(t, i.lo, i.hi)
+    for(one in i.all) {
+      tmp[one]  = x = _X(i,t,one)
+      i.mid    += x/2 
+    }
+    has(i,"upper","TreeNode")
+    has(i,"lower","TreeNode")
+    for (one in tmp) 
+      _Descend(i,t, tmp[one], one) 
+  }
+  if (length(i.all)>i.enough) 
+    return _Descend(i,t, _X(i,t,r),r)
+  return i.id
+}
+ function _Print(i,         lvl,pre) {
+   print pre length(i.all)
+   if (length(i.lower)) _Print(i.lower, lvl+1, "|.. " pre)
+   if (length(i.upper)) _Print(i.upper, lvl+1, "|.. " pre)
+}
