@@ -1,4 +1,10 @@
-# vim: ft=awk ts=2 sw=2 et :
+#- vim: ft=awk ts=2 sw=2 et :
+# # Col.gold
+# Tools for summarizing columns of data.
+
+#- Copyright (c) 2020, Tim Menzies.
+#- Licensed under the MIT license 
+#- (for full license info, see LICENSE.md in the project root)
 
 @include "lib"
 
@@ -56,8 +62,11 @@ function _Dist(i:Sym, x:atom, y:atom) {
   ## Distance calcs for `Sym`bols.
   return x == y ? 0 : 1 }
 
-# -----------------------------------------------------
-# ## Num 
+#: -----------------------------------------------------
+## Num 
+
+
+:#
 
 function Num(i:untyped, s:string, n:posint) { 
   ## Constructor of summary of numeric columms
@@ -95,20 +104,18 @@ function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
    ## Return where two Gaussians cross in-between their means.
    x1  = i.mu
    x2  = j.mu
-   if (x2> x1) { x2=i.mu; x1=j.mu }
+   if (x2 < x1) { x2=i.mu; x1=j.mu }
    d   = (x2-x1)/10
    min = 1E32
    for(x=x1; x<=x2; x+=d) {
       y = _Pdf(i) + _Pdf(j)
       if (y<min) { out=x; min = x} 
    } 
-   return out 
-}
+   return out }
 
 function _Norm(i:Num, x:number) {
   ## Distance calcs for `Num`bols.
-  return  (x-i.lo) / (i.hi - i.lo + 1E-32) 
-}
+  return  (x-i.lo) / (i.hi - i.lo + 1E-32) }
 
 function _Dist(i:Num, x:atom, y:atom) {
   ## Distance calcs for `Num`bols.
