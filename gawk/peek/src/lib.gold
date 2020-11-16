@@ -72,7 +72,7 @@ function green(x) { return "\033[32m"x"\033[0m" }
 
 ## Return absolute value of `x`.
 function abs(x:number) { 
-  return x>=0 ? x : -1*x }
+   return x>0 ? x : -1*x }
 
 ## Sample from a Gaussian.
 function z(mu:nummber|0, sd:number|0) {
@@ -85,7 +85,7 @@ function z(mu:nummber|0, sd:number|0) {
 ## Simple printing of a flat array
 function o(a:array, prefix:string|"",     i,sep,s) {
   for(i in a) {s = s sep prefix a[i]; sep=","}
-  print p s }
+  return  s }
 
 ## Print arrays, recursively, shows in sorted array, prepend with `prefix`.
 function oo(x:array, prefix:string,   indent,      j,txt) {

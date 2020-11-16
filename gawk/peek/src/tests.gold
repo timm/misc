@@ -1,5 +1,6 @@
 # vim: ft=awk ts=2 sw=2 et :
 @include "lib"
+@include "col"
 @include "tab"
 
 function csv1(s,    f,d,a) {
@@ -11,7 +12,7 @@ function csv1(s,    f,d,a) {
 function tab0(s,rows,f,  d,t) {
   d = Gold.dot 
   Tab(t)
-  TabRead(t,d d "/data/" f d "csv")
+  TabLoad(t,d d "/data/" f d "csv")
   ok(s,rows,length(t.rows))
 }
 function tab1(i,t) { print(10); tab0(i,14,  "weather")}
@@ -24,10 +25,33 @@ function zs(    n,a,i) {
    for(i=0;i<=length(a);i = int(i+ length(a)/20))
       print(i,a[i])
 }
+function num1(s, n,a,i) {
+  Num(n)
+  split("11,21,10,42,53",a,/,/)
+  for(i in a) add(n, asNum(a[i]))
+  ok(s, 19.243, 19.244, 0.01) }
+
+function dists1a(f,   d,t) {
+  d = Gold.dot 
+  Tab(t)
+  TabLoad(t,d d "/data/" f d "csv")
+  n=50
+  for(r1 in t.rows)
+    for(r2 in t.rows) 
+      if(r1>r2) { #&& r1==924046 && r2==332195) {
+        if(--n <0) return 1
+        print(r1,r2,RowDist(t.rows[r1], t.rows[r2], t, t.xs),
+             o(t.rows[r1].cells),
+             o(t.rows[r2].cells))
+}}
 
 BEGIN{ 
-  #tests("csv1"); tests("tab2")
-  zs()
+  srand(1)
+  #tests("csv1"); 
+  #tests("tab2")
+  #zs()
+  #tests("num1")
+  dists1a("weather")
 }
 
 

@@ -2,17 +2,45 @@
 @include "lib"
 @include "col"
 
-#---------- ---------- ---------- ---------- ---------- ----------
-function Tab(i) {
-  Object(i); i.is = "Tab"
-  i.klass
-  has(i,"rows");   has(i,"cols");  has(i,"names")
-  has(i,"info"); has(i,"xs"); has(i,"ys") }
+### Row #################################################
 
-function _Read(i,f) {
+## Constructor
+function Row(i:untyped) {
+  Object(i)
+  i.p=2
+  has(i,"cells")
+  has(i,"ranges") }
+
+## Distance between two rows
+function _Dist(i:Row,j:Row, tab, cols,  c,pos,x,y,d,d1,n) {
+  for(c in cols) {
+    pos = tab.cols[c].pos
+    x   = i.cells[pos]
+    y   = j.cells[pos]
+    d1  = (x=="?" && y=="?") ? 1 : dist(tab.cols[c], x,y)
+    d  += d1^i.p
+    n++ }
+  return (d/n)^(1/i.p) }
+
+### Table ########################################
+
+## Constructor
+function Tab(i:untyped) {
+  Object(i); i.is = "Tab"
+  i.klass   = ""
+  i.use     = "xs"
+  i.above   = i.below = ""
+  i.cluster = 64
+  has(i,"parts","Cluster")
+  has(i,"rows"); has(i,"cols"); has(i,"names")
+  has(i,"info"); has(i,"xs");   has(i,"ys") }
+
+## Load a csv file `f` into the table `i`
+function _Load(i:Tab, f:fname) {
   while(csv(record,f)) {  add(i,record)} }
 
-function _Add(i,a) {
+## Update `i` with `a`. First update creates the column headers.
+function _Add(i:Tab, a:array) {
   if ("cells" in a) return TabAdd(i, a.cells)
   length(i.cols) ?  TabData(i,a) : TabHeader(i,a) }
 
@@ -39,30 +67,33 @@ function _Header(i,a,   where, what, j) {
     i[where][j]
     if (a[j]~/!/) i.klass = j }}
 
-### _Data
 ## Add an row at some random index within `rows`.
-## - i : Tab; table of data.
-## - a : array of data, to be read into the row.
-function _Data(i,a,    r,j) {
-  r = rand()
+function _Data(i:Tab, a:array,    r,j) {
+  r = 1E6*rand()
   has(i.rows, r, "Row")
   for(j=1; j<=length(a); j++) 
     i.rows[r].cells[j] = add(i.cols[j], a[j]) }
+  if (i.cluster) && (length(i.rows) >= i.cluster)) 
+     add(i.parts, a) }
 
-### _Clone
 ## Copy the structure of `i` into a new table `j`.
-## - i : Tab
-## - j : untyped
-function _Clone(i,j) {
+function _Clone(i:Tab, j:Tab) {
   Tab(j)
   TabHeader(j, i.names) }
 
-# ## Row
-# ### Constructor
-### Row
-## - i : untype
-function Row(i) {
+### Cluster ########################################
+
+## Constructor
+function Cluster(i) {
   Object(i)
-  has(i,"cells")
-  has(i,"ranges") }
+  i.is = "Cluster"
+  i.c=i.lo=i.hi=i.mid = 0
+  has(i,"upper","Tab")
+  has(i,"lower","Tab")
+  has(i,"clusters")
+}
+function add(i:Cluster, a:array) {
+  if (!i.c) _Init(i)
+  add1(i,a) 
+}
 

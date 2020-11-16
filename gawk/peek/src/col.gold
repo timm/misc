@@ -2,26 +2,28 @@
 
 @include "lib"
 
+### Col #################################################
+
 ## Polymorphic update function for columns.
 function add(i:Col,x:string,  f) { 
   f=i.is "Add"; 
   return @f(i,x) }
 
-# Add many things
-function adds(c,a,i) {
-  for(i in a) add(c, a[i] )
-}
+## Add many things
+function adds(c:Col, a:array,   i) {for(i in a) add(c,a[i])}
 
-### Col #################################################
+## Add many things
+function dist(c:Col, x,y,  f) {f=c.is "Dist"; return @f(c,x,y) }
 
-## Abstract constructor for our colums.
+## Abstract constructor for our column.
 ## `s` is the name of a column appearing in positive `n`.
 function Col(i:untyped, s:string, n:posint) { 
   Object(i); i.is="Col"
   i.txt=s; i.pos=n }
 
+### Info  #################################################
+
 ## Constructor for columns we will not summarize. 
-## `s` is the name of a column appearing in positive `n`.
 function Info(i:untyped, s:string, n:posint)  { 
    Col(i,s,n); i.is="Info" }
 
@@ -30,7 +32,7 @@ function _Add(i:Sym, x:any) {return x}
 
 ### Sym #################################################
 
-## Constrctor for summary of symbolic columns.
+## Constructor for summary of symbolic columns.
 ## `s` is the name of a column appearing in positive `n`.
 function Sym(i:untyped, s:string, n:posint) { 
   Col(i,s,n); i.is="Sym"
@@ -43,6 +45,10 @@ function _Add(i:Sym, x:atom,    n) {
   n= ++i.seen[x]
   if (n> i.most) { i.mode=x; i.most=n}
   return x }  
+
+## Distance calcs for `Sym`bols.
+function _Dist(i:Sym, x:atom, y:atom) {
+  return x == y ? 0 : 1 }
 
 ### Num #################################################
 
@@ -92,3 +98,15 @@ function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
    return out 
 }
 
+## Distance calcs for `Num`bols.
+function _Norm(i:Num, x:number) {
+  return  (x-i.lo) / (i.hi - i.lo + 1E-32) 
+}
+
+## Distance calcs for `Num`bols.
+function _Dist(i:Num, x:atom, y:atom) {
+  if      (x=="?") { y= _Norm(i,y); x=y>0.5? 0:1}
+  else if (y=="?") { x= _Norm(i,x); y=x>0.5? 0:1}
+  else             { x= _Norm(i,x)
+                     y= _Norm(i,y) }
+  return abs(x- y) }
