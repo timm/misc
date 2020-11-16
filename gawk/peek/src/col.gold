@@ -2,7 +2,8 @@
 
 @include "lib"
 
-### Col #################################################
+# ------------------------------------------------------
+# ## Col
 
 function add(i:Col,x:string,  f)  {
   ## Polymorphic update function for columns.
@@ -23,7 +24,8 @@ function Col(i:untyped, s:string, n:posint) {
   Object(i); i.is="Col"
   i.txt=s; i.pos=n }
 
-### Info  #################################################
+# ------------------------------------------------------
+# ## Info  
 
 function Info(i:untyped, s:string, n:posint)  { 
   ## Constructor for columns we will not summarize. 
@@ -33,7 +35,8 @@ function _Add(i:Info, x:any) {
   ## Do nothing.
   return x}
 
-### Sym #################################################
+# ------------------------------------------------------
+# ## Sym 
 
 function Sym(i:untyped, s:string, n:posint) { 
   ## Constructor for summary of symbolic columns.
@@ -53,7 +56,8 @@ function _Dist(i:Sym, x:atom, y:atom) {
   ## Distance calcs for `Sym`bols.
   return x == y ? 0 : 1 }
 
-### Num #################################################
+# -----------------------------------------------------
+# ## Num 
 
 function Num(i:untyped, s:string, n:posint) { 
   ## Constructor of summary of numeric columms
