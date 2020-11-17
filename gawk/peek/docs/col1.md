@@ -7,19 +7,19 @@
     - [Col](#col) : Abstract constructor for our column.
   - [Info](#info) : Columns to be ignored.  
     - [Info](#info) : Constructor for columns we will not summarize. 
-    - [_Add](#add) : Do nothing.
+    - [_Add](#_add) : Do nothing.
   - [Sym](#sym) : Summaries of columns of symbols.
     - [Sym](#sym) : Constructor for summary of symbolic columns.
-    - [_Add](#add) : Update frequency counts, and `mode`.
-    - [_Dist](#dist) : Distance calcs for `Sym`bols.
+    - [_Add](#_add) : Update frequency counts, and `mode`.
+    - [_Dist](#_dist) : Distance calcs for `Sym`bols.
   - [Num](#num) : Summaries of columns of numbers.
     - [Num](#num) : Constructor of summary of numeric columms
-    - [_Add](#add) : Update self, return `x`.
-    - [_Pdf](#pdf) : Return height of the Gaussian at `x`.
-    - [_Cdf](#cdf) : Return the area under the Gaussian from negative infinity to `x`.
-    - [_Crossover](#crossover) : Return where two Gaussians cross in-between their means.
-    - [_Norm](#norm) : Distance calcs for `Num`bols.
-    - [_Dist](#dist) : Distance between two numbers `x` and `y`.
+    - [_Add](#_add) : Update self, return `x`.
+    - [_Pdf](#_pdf) : Return height of the Gaussian at `x`.
+    - [_Cdf](#_cdf) : Return the area under the Gaussian from negative infinity to `x`.
+    - [_Crossover](#_crossover) : Return where two Gaussians cross in-between their means.
+    - [_Norm](#_norm) : Distance calcs for `Num`bols.
+    - [_Dist](#_dist) : Distance between two numbers `x` and `y`.
   - [asdas](#asdas) : ## asdas
 
 
