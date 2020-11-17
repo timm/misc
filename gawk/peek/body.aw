@@ -5,12 +5,12 @@ BEGIN {
   RS=""; FS="\n";OFS=""
 }
 /^#-/              { next }
-sub(/^# # /   ,"") { $1=trim($1); In="- ";      Pre="\n## "  ; print In,"["$1"](#"$1")"; next}
-sub(/^# ## /  ,"") { $1=trim($1); In="  - ";    Pre="\n### " ; print In,"["$1"](#"$1")"; next}
-sub(/^# ### / ,"") { $1=trim($1); In="    -";   Pre="\n#### " ; print In,"["$1"](#"$1")"; next}
-sub(/^# #### /,"") { $1=trim($1); In="      -"; Pre="\n##### "; print In,"["$1"](#"$1")"; next}
+sub(/^# # /   ,"") { $1=trim($1); R[++N]=$0; In="- ";      Pre="\n## "  ; print In,"["$1"](#"$1")"; next}
+sub(/^# ## /  ,"") { $1=trim($1); R[++N]=$0; In="  - ";    Pre="\n### " ; print In,"["$1"](#"$1")"; next}
+sub(/^# ### / ,"") { $1=trim($1); R[++N]=$0; In="    -";   Pre="\n#### " ; print In,"["$1"](#"$1")"; next}
+sub(/^# #### /,"") { $1=trim($1); R[++N]=$0; In="      -"; Pre="\n##### "; print In,"["$1"](#"$1")"; next}
 /^function/        { print toc($1,$2); R[++N] = code($0); next}
-                   { sub(/^# /,"")    
+                   { sub(/^# /,"x")    
                      R[++N] = $0 }
 END                { for(I in R) print "\n"R[I] 
                      rogues() }
