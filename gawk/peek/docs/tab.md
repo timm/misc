@@ -1,50 +1,41 @@
 #  tab.gold
-- [vim: ft=awk ts=2 sw=2 et :](#vimftawktsswet) : @include "lib"
-    - [Row #################################################](#row)
-    - [## Constructor](#constructor)
-  - [Constructor](#constructor) : function Row(i:untyped) {
-    - [## Distance between two rows](#distancebetweentworows)
-  - [Distance between two rows](#distancebetweentworows) : function _Dist(i:Row,j:Row, tab, cols,  c,pos,x,y,d,d1,n) {
-    - [Table ########################################](#table)
-    - [## Constructor](#constructor)
-  - [Constructor](#constructor) : function Tab(i:untyped) {
-    - [## Load a csv file `f` into the table `i`](#loadacsvfilefintothetablei)
-  - [Load a csv file `f` into the table `i`](#loadacsvfilefintothetablei) : function _Load(i:Tab, f:fname) {
-    - [## Update `i` with `a`. First update creates the column headers.](#updateiwithafirstupdatecreatesthecolumnheaders)
-  - [Update `i` with `a`. First update creates the column headers.](#updateiwithafirstupdatecreatesthecolumnheaders) : function _Add(i:Tab, a:array) {
-      - [### _Header](#header)
-    - [_Header](#header) : ## Initialize columns in a table.
-  - [Column names containing `?` become `Info` columns.](#columnnamescontainingbecomeinfocolumns) : ## Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
-  - [Dependent variables (stored in `ys`) are marked with `<>!`](#dependentvariablesstoredinysaremarkedwith) : ## and all other are independent variables (stored in `xs`).
-  - [Klass names are marked in `!`.](#klassnamesaremarkedin) : ## - i : Tab
-  - [- a : array of column names.](#aarrayofcolumnnames) : function _Header(i,a,   where, what, j) {
-    - [## Add an row at some random index within `rows`.](#addanrowatsomerandomindexwithinrows)
-  - [Add an row at some random index within `rows`.](#addanrowatsomerandomindexwithinrows) : function _Data(i:Tab, a:array,    r,j) {
-    - [_Dist](#dist)
-    - [_Far](#far)
-    - [_Around](#around)
-    - [## Copy the structure of `i` into a new table `j`.](#copythestructureofiintoanewtablej)
-  - [Copy the structure of `i` into a new table `j`.](#copythestructureofiintoanewtablej) : function _Clone(i:Tab, j:Tab) {
-    - [Dendogram ########################################](#dendogram)
-  - [# notes should be created in the tree;](#notesshouldbecreatedinthetree)
-- [notes should be created in the tree;](#notesshouldbecreatedinthetree) : ## Constructor for a tree of clusters
-  - [Constructor for a tree of clusters](#constructorforatreeofclusters) : function TreeNode(i) {
-  - [_Descend](#descend)
-  - [_Add](#add)
+  - [Row](#row) : Storage for one row of data.
+    - [Row](#row) : Constructor
+    - [_Dist](#_dist) : Distance between two rows
+  - [Table](#table) : Storage for many rows of data, with summaries of the columns.
+    - [Tab](#tab) : Constructor
+    - [_Load](#_load) : Load a csv file `f` into the table `i`
+    - [_Add](#_add) : Update `i` with `a`. First update creates the column headers.
+    - [_Header](#_header) : Initialize columns in a table.
+    - [_Data](#_data) : Add an row at some random index within `rows`.
+    - [_Dist](#_dist) : Distance between two rows.
+    - [_Far](#_far) : Return something quite far way from `r` (ignoring outliers).
+    - [_Around](#_around) : Compute `out`; i.e.  pairs <row,d> listing neighbors of `r1`.
+    - [_Clone](#_clone) : Copy the structure of table `i` into a new table `j`.
+  - [TreeNode](#treenode)
+    - [TreeNode](#treenode) : notes should be created in the tree;
+    - [_X](#_x)
+    - [_Add](#_add)
+    - [_Print](#_print)
 
 
-# vim: ft=awk ts=2 sw=2 et :
+Tools for summarizing columns of data.
+ 
+Copyright (c) 2020, Tim Menzies.  Licensed under the MIT license.
+For full license info, see LICENSE.md in the project root
+
 @include "lib"
 @include "col"
 
-### Row #################################################
+## Row 
+Storage for one row of data.
 
-### ## Constructor
+### Row
+Constructor
 
-<ul><details><summary><tt>## Constructor()</tt></summary>
+<ul><details><summary><tt>Row(i:untyped)</tt></summary>
 
 ```awk
-## Constructor
 function Row(i:untyped) {
   Object(i)
   i.p=2
@@ -54,12 +45,12 @@ function Row(i:untyped) {
 
 </details></ul>
 
-### ## Distance between two rows
+### _Dist
+Distance between two rows
 
-<ul><details><summary><tt>## Distance between two rows()</tt></summary>
+<ul><details><summary><tt>_Dist(i:Row, j:Row)</tt></summary>
 
 ```awk
-## Distance between two rows
 function _Dist(i:Row,j:Row, tab, cols,  c,pos,x,y,d,d1,n) {
   for(c in cols) {
     pos = tab.cols[c].pos
@@ -73,14 +64,23 @@ function _Dist(i:Row,j:Row, tab, cols,  c,pos,x,y,d,d1,n) {
 
 </details></ul>
 
-### Table ########################################
+## Table 
+Storage for many rows of data, with summaries of the columns.
+The first row passed to the `Tab`le initializes the column summary objects.
+The other rows are data.  In that first row:
 
-### ## Constructor
+- Column names containing `?` become `Info` columns.
+- Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
+- Dependent variables (stored in `ys`) are marked with `<>!` 
+  and all other are independent variables (stored in `xs`).
+- Klass names are marked in `!`.
 
-<ul><details><summary><tt>## Constructor()</tt></summary>
+### Tab
+Constructor
+
+<ul><details><summary><tt>Tab(i:untyped)</tt></summary>
 
 ```awk
-## Constructor
 function Tab(i:untyped) {
   Object(i); i.is = "Tab"
   i.klass   = ""
@@ -93,24 +93,24 @@ function Tab(i:untyped) {
 
 </details></ul>
 
-### ## Load a csv file `f` into the table `i`
+### _Load
+Load a csv file `f` into the table `i`
 
-<ul><details><summary><tt>## Load a csv file `f` into the table `i`()</tt></summary>
+<ul><details><summary><tt>_Load(i:Tab, f:fname)</tt></summary>
 
 ```awk
-## Load a csv file `f` into the table `i`
 function _Load(i:Tab, f:fname) {
   while(csv(record,f)) {  add(i,record)} }
 ```
 
 </details></ul>
 
-### ## Update `i` with `a`. First update creates the column headers.
+### _Add
+Update `i` with `a`. First update creates the column headers.
 
-<ul><details><summary><tt>## Update `i` with `a`. First update creates the column headers.()</tt></summary>
+<ul><details><summary><tt>_Add(i:Tab, a:array)</tt></summary>
 
 ```awk
-## Update `i` with `a`. First update creates the column headers.
 function _Add(i:Tab, a:array) {
   if ("cells" in a) return TabAdd(i, a.cells)
   length(i.cols) ?  TabData(i,a) : TabHeader(i,a) }
@@ -118,20 +118,12 @@ function _Add(i:Tab, a:array) {
 
 </details></ul>
 
-#### ### _Header
+### _Header
+Initialize columns in a table.
 
-<ul><details><summary><tt>### _Header()</tt></summary>
+<ul><details><summary><tt>_Header()</tt></summary>
 
 ```awk
-### _Header
-## Initialize columns in a table.
-## Column names containing `?` become `Info` columns.
-## Column names containing `<>:` are `Num`bers (and all others are `Sym`s).
-## Dependent variables (stored in `ys`) are marked with `<>!` 
-## and all other are independent variables (stored in `xs`).
-## Klass names are marked in `!`.
-## - i : Tab
-## - a : array of column names.
 function _Header(i,a,   where, what, j) {
   for(j=1; j<=length(a); j++) {
     i.names[j] = a[j]
@@ -149,12 +141,12 @@ function _Header(i,a,   where, what, j) {
 
 </details></ul>
 
-### ## Add an row at some random index within `rows`.
+### _Data
+Add an row at some random index within `rows`.
 
-<ul><details><summary><tt>## Add an row at some random index within `rows`.()</tt></summary>
+<ul><details><summary><tt>_Data(i:Tab, a:array)</tt></summary>
 
 ```awk
-## Add an row at some random index within `rows`.
 function _Data(i:Tab, a:array,    r,j) {
   r = 1E6*rand()
   has(i.rows, r, "Row")
@@ -166,29 +158,33 @@ function _Data(i:Tab, a:array,    r,j) {
 </details></ul>
 
 ### _Dist
+Distance between two rows.
 
-<ul><details><summary><tt>_Dist()</tt></summary>
+<ul><details><summary><tt>_Dist(i:Tab, r1:posint, r2:posint)</tt></summary>
 
 ```awk
-function _Dist(i,r1,r2) {
+function _Dist(i:Tab, r1:posint, r2:posint) {
   return  dist(i.rows[r1], i.rows[r2], i[i.use]) }
 ```
 
 </details></ul>
 
 ### _Far
+Return something quite far way from `r` (ignoring outliers).
 
-<ul><details><summary><tt>_Far()</tt></summary>
+<ul><details><summary><tt>_Far(i:Tab, r:posint)</tt></summary>
 
 ```awk
-function _Far(i,r1,     n,all1 {
-  n= _Around(i,r1,all) out) 
+function _Far(i:Tab, r:posint,     n,all) {
+  n= _Around(i,r,all) out) 
   return out[int(n*i.far)].row }
 ```
 
 </details></ul>
 
 ### _Around
+Compute `out`; i.e.  pairs <row,d> listing neighbors of `r1`.
+Sorted by distance `d`.
 
 <ul><details><summary><tt>_Around()</tt></summary>
 
@@ -203,12 +199,12 @@ function _Around(i,r1,out,   r2) {
 
 </details></ul>
 
-### ## Copy the structure of `i` into a new table `j`.
+### _Clone
+Copy the structure of table `i` into a new table `j`.
 
-<ul><details><summary><tt>## Copy the structure of `i` into a new table `j`.()</tt></summary>
+<ul><details><summary><tt>_Clone(i:Tab, j:Tab)</tt></summary>
 
 ```awk
-## Copy the structure of `i` into a new table `j`.
 function _Clone(i:Tab, j:Tab) {
   Tab(j)
   TabHeader(j, i.names) }
@@ -216,15 +212,15 @@ function _Clone(i:Tab, j:Tab) {
 
 </details></ul>
 
-### Dendogram ########################################
+## TreeNode
 
-## # notes should be created in the tree;
+### TreeNode
+notes should be created in the tree;
+Constructor for a tree of clusters
 
-<ul><details><summary><tt># notes should be created in the tree;()</tt></summary>
+<ul><details><summary><tt>TreeNode()</tt></summary>
 
 ```awk
-# notes should be created in the tree;
-## Constructor for a tree of clusters
 function TreeNode(i) {
   Object(i)
   i.enough=64
@@ -232,8 +228,16 @@ function TreeNode(i) {
   i.c=i.lo=i.hi=i.mid = ""
   has(i,"all")
   has(i,"upper")
-  has(i,"lower")
-}
+  has(i,"lower") }
+```
+
+</details></ul>
+
+### _X
+
+<ul><details><summary><tt>_X()</tt></summary>
+
+```awk
 function _X(i,t, r     a,b,x) {
    a= TabDist(t,r,i.lo)
    b= TabDist(t,r,i.hi)
@@ -243,19 +247,11 @@ function _X(i,t, r     a,b,x) {
 
 </details></ul>
 
-## _Descend
+function _Descend(i,t,d,r,   where) {
+  where =  d < i.mid ? "lower" : "upper" 
+  return _Add(i[where], t, t)
 
-<ul><details><summary><tt>_Descend()</tt></summary>
-
-```awk
-function _Descend(i,t,d,r) {
-  return _Add(i[ d < i.mid ? "lower" : "upper" ], 
-              t, r) }
-```
-
-</details></ul>
-
-## _Add
+### _Add
 
 <ul><details><summary><tt>_Add()</tt></summary>
 
@@ -277,13 +273,20 @@ function _Add(i, t, r.   n,one,x,tmp) {
   }
   if (length(i.all)>i.enough) 
     return _Descend(i,t, _X(i,t,r),r)
-  return i.id
-}
+  return i.id }
+```
+
+</details></ul>
+
+###  _Print
+
+<ul><details><summary><tt> _Print()</tt></summary>
+
+```awk
  function _Print(i,         lvl,pre) {
    print pre length(i.all)
    if (length(i.lower)) _Print(i.lower, lvl+1, "|.. " pre)
-   if (length(i.upper)) _Print(i.upper, lvl+1, "|.. " pre)
-}
+   if (length(i.upper)) _Print(i.upper, lvl+1, "|.. " pre) }
 ```
 
 </details></ul>

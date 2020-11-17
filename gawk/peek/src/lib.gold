@@ -1,6 +1,6 @@
-# vim: ft=awk ts=2 sw=2 et :
+#- vim: ft=awk ts=2 sw=2 et :
 
-Miscellaneous support code.
+General support code.
  
 Copyright (c) 2020, Tim Menzies.   
 Licensed under the MIT license 

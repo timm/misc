@@ -1,6 +1,4 @@
 #  lib.gold
-- [vim: ft=awk ts=2 sw=2 et :](#vimftawkts2sw2et)
-  - [BEGIN { List](#beginlist)
   - [Object stuff](#objectstuff) : Methods for handling objects.
     - [List](#list) : Initialize an empty list
     - [Object](#object) : Initialize a new object, give it a unique id (in `i.id`)
@@ -33,9 +31,7 @@
       - [csv](#csv) : Loop over a csv file `f`, setting the array `a` to the next record.
 
 
-# vim: ft=awk ts=2 sw=2 et :
-
-Miscellaneous support code.
+General support code.
  
 Copyright (c) 2020, Tim Menzies.   
 Licensed under the MIT license 
@@ -43,7 +39,7 @@ for full license info, see LICENSE.md in the project root
 
 There is only one global.
 
-## BEGIN { List
+BEGIN { List
 
 <ul><details><summary><tt>BEGIN { List()</tt></summary>
 

@@ -21,15 +21,11 @@
     - [_Dist](#_dist) : Distance between two numbers `x` and `y`.
   - [asdas](#asdas) : ## asdas
 
-<div class="text-purple">
-  This text is purple, <a href="#" class="text-inherit">including the link</a>
-</div>
 
 Tools for summarizing columns of data.
  
-Copyright (c) 2020, Tim Menzies.   
-Licensed under the MIT license 
-for full license info, see LICENSE.md in the project root
+Copyright (c) 2020, Tim Menzies.  Licensed under the MIT license.
+For full license info, see LICENSE.md in the project root
 
 @include "lib"
 
