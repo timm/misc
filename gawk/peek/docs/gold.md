@@ -1,6 +1,1 @@
 #  gold.gold
-
-
-
-------
-## asdasdaasasd

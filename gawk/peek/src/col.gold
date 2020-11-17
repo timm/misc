@@ -1,15 +1,15 @@
-#- vim: ft=awk ts=2 sw=2 et :
+#- vim: ft=awk ts=2 sw=2 et formatoptions+=cro :
 # # Col.gold
 # Tools for summarizing columns of data.
-
+ 
 #- Copyright (c) 2020, Tim Menzies.
 #- Licensed under the MIT license 
 #- (for full license info, see LICENSE.md in the project root)
 
 @include "lib"
 
-# ------------------------------------------------------
-# ## Col
+# ## Col -----------------------------------------
+# Abstract class: parent of all column.
 
 function add(i:Col,x:string,  f)  {
   ## Polymorphic update function for columns.
@@ -21,7 +21,7 @@ function adds(c:Col, a:array,   i) {
   for(i in a) add(c,a[i])}
 
 function dist(c:Col, x,y,  f) {
-  ## Add many things
+  ## Distance between things.
   f=c.is "Dist"; return @f(c,x,y) }
 
 function Col(i:untyped, s:string, n:posint) { 
@@ -30,8 +30,8 @@ function Col(i:untyped, s:string, n:posint) {
   Object(i); i.is="Col"
   i.txt=s; i.pos=n }
 
-# ------------------------------------------------------
-# ## Info  
+# ## Info ----------------------------------------
+# Columns to be ignored.
 
 function Info(i:untyped, s:string, n:posint)  { 
   ## Constructor for columns we will not summarize. 
@@ -41,8 +41,8 @@ function _Add(i:Info, x:any) {
   ## Do nothing.
   return x}
 
-# ------------------------------------------------------
-# ## Sym 
+# ## Sym  ----------------------------------------
+# Summaries of columns of symbols.
 
 function Sym(i:untyped, s:string, n:posint) { 
   ## Constructor for summary of symbolic columns.
@@ -62,11 +62,8 @@ function _Dist(i:Sym, x:atom, y:atom) {
   ## Distance calcs for `Sym`bols.
   return x == y ? 0 : 1 }
 
-#: -----------------------------------------------------
-## Num 
-
-
-:#
+# ## Num ------------------------------------------ 
+# Summaries of columns of numbers.
 
 function Num(i:untyped, s:string, n:posint) { 
   ## Constructor of summary of numeric columms
@@ -118,7 +115,8 @@ function _Norm(i:Num, x:number) {
   return  (x-i.lo) / (i.hi - i.lo + 1E-32) }
 
 function _Dist(i:Num, x:atom, y:atom) {
-  ## Distance calcs for `Num`bols.
+  ## Distance between two numbers `x` and `y`.
+  ## ok?
   if      (x=="?") { y= _Norm(i,y); x=y>0.5? 0:1}
   else if (y=="?") { x= _Norm(i,x); y=x>0.5? 0:1}
   else             { x= _Norm(i,x)

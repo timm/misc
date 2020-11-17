@@ -1,26 +1,35 @@
 #  col.gold
+  - [Col](#Col)
+   - [add](#add) :  Polymorphic update function for columns.
+   - [adds](#adds) :  Add many things
+   - [dist](#dist) :  Distance between things.
+   - [Col](#Col) :  Abstract constructor for our column.
+  - [Info](#Info)
+   - [Info](#Info) :  Constructor for columns we will not summarize. 
+   - [_Add](#_Add) :  Do nothing.
+  - [Sym](#Sym)
+   - [Sym](#Sym) :  Constructor for summary of symbolic columns.
+   - [_Add](#_Add) :  Update frequency counts, and `mode`.
+   - [_Dist](#_Dist) :  Distance calcs for `Sym`bols.
+  - [Num](#Num)
+   - [Num](#Num) :  Constructor of summary of numeric columms
+   - [_Add](#_Add) :  Update self, return `x`.
+   - [_Pdf](#_Pdf) :  Return height of the Gaussian at `x`.
+   - [_Cdf](#_Cdf) :  Return the area under the Gaussian from negative infinity to `x`.
+   - [_Crossover](#_Crossover) :  Return where two Gaussians cross in-between their means.
+   - [_Norm](#_Norm) :  Distance calcs for `Num`bols.
+   - [_Dist](#_Dist) :  Distance between two numbers `x` and `y`.
+
+@include "lib"
 
 
-- [add](#add) cool. 
-- [Col](#col) `s` is the name of a column appearing in positive `n`.
-- [Info](#info) `s` is the name of a column appearing in positive `n`.
-- [_Add](#_add) 
-- [Sym](#sym) `s` is the name of a column appearing in positive `n`.
-- [_Add](#_add) 
-- [Num](#num) 
-- [_Add](#_add) 
-- [_Pdf](#_pdf) 
-- [_Cdf](#_cdf) 
-- [_Crossover](#_crossover) 
+###  add
+ Polymorphic update function for columns.
 
-## add
-Polymorphic update function for columns.
-cool. 
-
-<ul><details><summary><tt><tt>add(i:Col, x:string)</tt></tt></summary>
+<ul><details><summary><tt> add(i:Col, x:string)</tt></summary>
 
 ```awk
-function add(i:Col,x:string,  f) { 
+function add(i:Col,x:string,  f)  {
   f=i.is "Add"; 
   return @f(i,x) }
 ```
@@ -28,12 +37,37 @@ function add(i:Col,x:string,  f) {
 </details></ul>
 
 
+###  adds
+ Add many things
 
-## Col
-Abstract constructor for our colums.
-`s` is the name of a column appearing in positive `n`.
+<ul><details><summary><tt> adds(c:Col, a:array)</tt></summary>
 
-<ul><details><summary><tt><tt>Col(i:untyped)</tt></tt></summary>
+```awk
+function adds(c:Col, a:array,   i) {
+  for(i in a) add(c,a[i])}
+```
+
+</details></ul>
+
+
+###  dist
+ Distance between things.
+
+<ul><details><summary><tt> dist(c:Col)</tt></summary>
+
+```awk
+function dist(c:Col, x,y,  f) {
+  f=c.is "Dist"; return @f(c,x,y) }
+```
+
+</details></ul>
+
+
+###  Col
+ Abstract constructor for our column.
+ `s` is the name of a column appearing in positive `n`.
+
+<ul><details><summary><tt> Col(i:untyped, s:string, n:posint)</tt></summary>
 
 ```awk
 function Col(i:untyped, s:string, n:posint) { 
@@ -44,40 +78,37 @@ function Col(i:untyped, s:string, n:posint) {
 </details></ul>
 
 
+###  Info
+ Constructor for columns we will not summarize. 
 
-## Info
-Constructor for columns we will not summarize. 
-`s` is the name of a column appearing in positive `n`.
-
-<ul><details><summary><tt><tt>Info(i:untyped)</tt></tt></summary>
+<ul><details><summary><tt> Info(i:untyped, s:string, n:posint)</tt></summary>
 
 ```awk
 function Info(i:untyped, s:string, n:posint)  { 
-   Col(i,s,n); i.is="Info" }
+  Col(i,s,n); i.is="Info" }
 ```
 
 </details></ul>
 
 
+###  _Add
+ Do nothing.
 
-## _Add
-Do nothing.
-
-<ul><details><summary><tt><tt>_Add(i:Sym)</tt></tt></summary>
+<ul><details><summary><tt> _Add(i:Info, x:any)</tt></summary>
 
 ```awk
-function _Add(i:Sym, x:any) {return x}
+function _Add(i:Info, x:any) {
+  return x}
 ```
 
 </details></ul>
 
 
+###  Sym
+ Constructor for summary of symbolic columns.
+ `s` is the name of a column appearing in positive `n`.
 
-## Sym
-Constrctor for summary of symbolic columns.
-`s` is the name of a column appearing in positive `n`.
-
-<ul><details><summary><tt><tt>Sym(i:untyped)</tt></tt></summary>
+<ul><details><summary><tt> Sym(i:untyped, s:string, n:posint)</tt></summary>
 
 ```awk
 function Sym(i:untyped, s:string, n:posint) { 
@@ -88,11 +119,10 @@ function Sym(i:untyped, s:string, n:posint) {
 </details></ul>
 
 
+###  _Add
+ Update frequency counts, and `mode`.
 
-## _Add
-Update frequency counts, and `mode`.
-
-<ul><details><summary><tt><tt>_Add(i:Sym)</tt></tt></summary>
+<ul><details><summary><tt> _Add(i:Sym, x:atom)</tt></summary>
 
 ```awk
 function _Add(i:Sym, x:atom,    n) {
@@ -106,11 +136,23 @@ function _Add(i:Sym, x:atom,    n) {
 </details></ul>
 
 
+###  _Dist
+ Distance calcs for `Sym`bols.
 
-## Num
-Constructor of summary of numeric columms
+<ul><details><summary><tt> _Dist(i:Sym, x:atom, y:atom)</tt></summary>
 
-<ul><details><summary><tt><tt>Num(i:untyped)</tt></tt></summary>
+```awk
+function _Dist(i:Sym, x:atom, y:atom) {
+  return x == y ? 0 : 1 }
+```
+
+</details></ul>
+
+
+###  Num
+ Constructor of summary of numeric columms
+
+<ul><details><summary><tt> Num(i:untyped, s:string, n:posint)</tt></summary>
 
 ```awk
 function Num(i:untyped, s:string, n:posint) { 
@@ -124,11 +166,10 @@ function Num(i:untyped, s:string, n:posint) {
 </details></ul>
 
 
+###  _Add
+ Update self, return `x`.
 
-## _Add
-Update self, return `x`.
-
-<ul><details><summary><tt><tt>_Add(i:Num)</tt></tt></summary>
+<ul><details><summary><tt> _Add(i:Num, x:number)</tt></summary>
 
 ```awk
 function _Add(i:Num, x:number,    d) {
@@ -146,11 +187,10 @@ function _Add(i:Num, x:number,    d) {
 </details></ul>
 
 
+###  _Pdf
+ Return height of the Gaussian at `x`.
 
-## _Pdf
-Return height of the Gaussian at `x`.
-
-<ul><details><summary><tt><tt>_Pdf(i:Num)</tt></tt></summary>
+<ul><details><summary><tt> _Pdf(i:Num, x:any)</tt></summary>
 
 ```awk
 function _Pdf(i:Num, x:any,    var,denom,num) {
@@ -163,11 +203,10 @@ function _Pdf(i:Num, x:any,    var,denom,num) {
 </details></ul>
 
 
+###  _Cdf
+ Return the area under the Gaussian from negative infinity to `x`.
 
-## _Cdf
-Return the area under the Gaussian from negative infinity to `x`.
-
-<ul><details><summary><tt><tt>_Cdf(i:Num)</tt></tt></summary>
+<ul><details><summary><tt> _Cdf(i:Num, x:number)</tt></summary>
 
 ```awk
 function _Cdf(i:Num, x:number) { 
@@ -178,29 +217,54 @@ function _Cdf(i:Num, x:number) {
 </details></ul>
 
 
+###  _Crossover
+ Return where two Gaussians cross in-between their means.
 
-## _Crossover
-Return where two Gaussians cross in-between their means.
-
-<ul><details><summary><tt><tt>_Crossover(i:Num, j:Num)</tt></tt></summary>
+<ul><details><summary><tt> _Crossover(i:Num, j:Num)</tt></summary>
 
 ```awk
 function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
    x1  = i.mu
    x2  = j.mu
-   if (x2> x1) { x2=i.mu; x1=j.mu }
+   if (x2 < x1) { x2=i.mu; x1=j.mu }
    d   = (x2-x1)/10
    min = 1E32
    for(x=x1; x<=x2; x+=d) {
       y = _Pdf(i) + _Pdf(j)
       if (y<min) { out=x; min = x} 
    } 
-   return out 
-}
+   return out }
 ```
 
 </details></ul>
 
 
+###  _Norm
+ Distance calcs for `Num`bols.
+
+<ul><details><summary><tt> _Norm(i:Num, x:number)</tt></summary>
+
+```awk
+function _Norm(i:Num, x:number) {
+  return  (x-i.lo) / (i.hi - i.lo + 1E-32) }
+```
+
+</details></ul>
 
 
+###  _Dist
+ Distance between two numbers `x` and `y`.
+ ok?
+
+<ul><details><summary><tt> _Dist(i:Num, x:atom, y:atom)</tt></summary>
+
+```awk
+function _Dist(i:Num, x:atom, y:atom) {
+  if      (x=="?") { y= _Norm(i,y); x=y>0.5? 0:1}
+  else if (y=="?") { x= _Norm(i,x); y=x>0.5? 0:1}
+  else             { x= _Norm(i,x)
+                     y= _Norm(i,y) }
+  return abs(x- y) }
+```
+
+</details></ul>

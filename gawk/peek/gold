@@ -49,7 +49,7 @@ if [ "$1" == "docs" ]; then
      if [ "$f" -nt "$g" ]; then 
        echo "# $f"
        echo "# " $f > $g
-       cat $f | gawk -f $here/body.awk | toc >> $g
+       cat $f | gawk -f $here/body.aw  >> $g
      fi
    done
 elif [ "$1" == "push" ]; then
