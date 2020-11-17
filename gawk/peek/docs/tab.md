@@ -27,6 +27,8 @@ For full license info, see LICENSE.md in the project root
 @include "lib"
 @include "col"
 
+-----------------------------------------------------------
+
 ## Row 
 Storage for one row of data.
 
@@ -63,6 +65,8 @@ function _Dist(i:Row,j:Row, tab, cols,  c,pos,x,y,d,d1,n) {
 ```
 
 </details></ul>
+
+-----------------------------------------------------------
 
 ## Table 
 Storage for many rows of data, with summaries of the columns.
@@ -211,6 +215,8 @@ function _Clone(i:Tab, j:Tab) {
 ```
 
 </details></ul>
+
+-----------------------------------------------------------
 
 ## TreeNode
 
