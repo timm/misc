@@ -1,62 +1,69 @@
 # vim: ft=awk ts=2 sw=2 et :
 
-# Miscellaneous support code.
+Miscellaneous support code.
+ 
+Copyright (c) 2020, Tim Menzies.   
+Licensed under the MIT license 
+for full license info, see LICENSE.md in the project root
 
-### Globals #################################################
-# There is only one global.
+There is only one global.
+
 BEGIN { List(Gold); 
   Gold.test.epsilon=0.00001
   Gold.pi= 3.141592653
   Gold.e = 2.718281828
   Gold.dot=sprintf("%c",46)  }
 
-### Object stuff ############################################
+##  Object stuff 
+Methods for handling objects.
 
-## Initialize an empty list
 function List(i:untyped) { 
+  ## Initialize an empty list
   split("",i,"") }
 
-## Initialize a new object, give it a unique id (in `i.id`)
 function Object(i:untyped) { 
+  ## Initialize a new object, give it a unique id (in `i.id`)
   List(i); i.id = ++Gold.id }
 
-## Create something of class `f` inside of `i` at position `k`
 function has(i:untyped, k:atom, f:?fname) { 
-   f=f?f:"List";i[k][0]; @f(i[k]); delete i[k][0]; return k}
+  ## Create something of class `f` inside of `i` at position `k`
+  f=f?f:"List";i[k][0]; @f(i[k]); delete i[k][0]; return k}
 
-## Like `has`, but accepts one constructor argument `x`.
 function haS(i:untyped, k:atom, f:?fname, x:any)  { 
+  ## Like `has`, but accepts one constructor argument `x`.
   i[k][0]; @f(i[k],x); delete i[k][0] }
 
-## Like `has`, but accepts two constructor arguments `x` and `y`..
 function hAS(i:untyped, k:atom, f:fname, x:any, y:any) { 
+  ## Like `has`, but accepts two constructor arguments `x` and `y`..
   i[k][0]; @f(i[k],x,y); delete i[k][0] }
 
-## Add a new instances of class `f` at the end of `i`.
-function new(i:array, f:fname, k) { k=length(i)+1; has(i,k,f); return k }
+function new(i:array, f:fname, k) { 
+  ## Add a new instances of class `f` at the end of `i`.
+  k=length(i)+1; has(i,k,f); return k }
 
-## If `x` can be coerced number, return that. Else return `x`.
 function asNum(x:atom,    y) {
+  ## If `x` can be coerced number, return that. Else return `x`.
   y = x+0
   return x==y ? x : y }
 
-### Testing stuff ############################################
+## Testing stuff 
+Support for unit testing.
 
-## Print local variables, escaped from functions
 function rogues(   s) { f
+  ## Print local variables, escaped from functions
   for(s in SYMTAB) if (s ~ /^[A-Z]/)  print "#W> Global: " s>"/dev/stderr" 
   for(s in SYMTAB) if (s ~ /^[_a-z]/) print "#W> Rogue: "  s>"/dev/stderr" }
 
-## Run the functions names in the comma-separated string `s`.
 function tests(s:string,     a,i,f) {
+  ## Run the functions names in the comma-separated string `s`.
   split(s,a,",") 
   for(i in a) {
      f=a[i]
      if(f in FUNCTAB)
        @f(s) }}
 
-## Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
 function ok(s:string, got:atom, want:atom,   epsilon:number,       good) {
+  ## Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
   epsilon = epsilon ? epsilon : Gold.test.epsilon
   if (typeof(want) == "number") 
     good = abs(want - got)/(want + 10^-32)  < epsilon
@@ -68,11 +75,15 @@ function ok(s:string, got:atom, want:atom,   epsilon:number,       good) {
 function red(x)   { return "\033[31m"x"\033[0m" }
 function green(x) { return "\033[32m"x"\033[0m" }
 
-### Array stuff ############################################
+## Array stuff 
+Support for managing arrays.
 
-function push(a,i,x) { a[length(a)+1] = x; return x }
+function push(a:array, x: atom) { 
+  ## Return `x` after adding to the end of `a`.
+  a[length(a)+1] = x; return x }
 
 function keysort(a,k) { 
+  ## Sort `a` by field `k`.
   Gold["keysort"]=k; return asort(a,a,"__keysort") }
 
 function __keysort(i1,x,i2,y) {
@@ -81,37 +92,47 @@ function __keysort(i1,x,i2,y) {
 
 function sortCompare(x,y) { return x<y ? -1 : (x==y?0:1) }
 
-function copy(a,b,   j) { 
+function copy(a:array,b:array,   j) { 
+  ## `b` is set to a recursively copy of `a`.
   for(j in a) 
     if(isarray(a[j]))  {
-      has(b,j)
+      b[j][0]
+      delete b[j][0]
       copy(a[j], b[j]) 
     } else
       b[j] = a[j] 
 }
 
-### Maths stuff ############################################
+## Maths stuff 
+Some mathematical details.
 
-## Return absolute value of `x`.
-function abs(x:number)           { return x>0 ? x : -1*x }
-function max(x:number, y:number) { return x>y ? x : y }
-function min(x:number, y:number) { return x>y ? y : x }
+function abs(x:number)           { 
+  ## Return absolute value of `x`.
+  return x>0 ? x : -1*x }
 
-## Sample from a Gaussian.
+function max(x:number, y:number) { 
+  ## Return max of `x` and `y.
+  return x>y ? x : y }
+
+function min(x:number, y:number) { 
+  ## Return min of `x` and `y.
+  return x>y ? y : x }
+
 function z(mu:nummber|0, sd:number|0) {
+  ## Sample from a Gaussian.
   mu = mu?mu:0
   sd = sd?sd:1  
   return mu + sd*sqrt(-2*log(rand()))*cos(2*Gold.pi*rand())}
 
-### Printing stuff #########################################
+### Printing stuff 
 
-## Simple printing of a flat array
 function o(a:array, prefix:string|"",     i,sep,s) {
+  ## Simple printing of a flat array
   for(i in a) {s = s sep prefix a[i]; sep=","}
   return  s }
 
-## Print arrays, recursively, shows in sorted array, prepend with `prefix`.
 function oo(x:array, prefix:string,   indent,      j,txt) {
+  ## Print arrays, recursively, shows in sorted array, prepend with `prefix`.
   txt = prefix ? prefix : (prefix Gold.dot)
   ooSortOrder(x)
   for(j in x)  
@@ -129,13 +150,13 @@ function ooSortOrder(x, j) {
 
 ### File stuff #########################################
 
-## Loop over a csv file `f`, setting the array `a` to the next record.
-## Returns zero at end of files.
-## Complain if file is missing. Kill comments `#` and spaces.
-## Split lines on commas. If records split over more than one 
-## line (and end in a comma) concat that line to the next.
-## Coerce numeric strings to numbers.
 function csv(a:array, f:string|"",       b4, g,txt,i,old,new) {
+  ## Loop over a csv file `f`, setting the array `a` to the next record.
+  ## Returns zero at end of files.
+  ## Complain if file is missing. Kill comments `#` and spaces.
+  ## Split lines on commas. If records split over more than one 
+  ## line (and end in a comma) concat that line to the next.
+  ## Coerce numeric strings to numbers.
   f = f ? f : "-"             
   g = getline < f
   if (g< 0) { print "#E> Missing f ["f"]"; exit 1 } # file missing

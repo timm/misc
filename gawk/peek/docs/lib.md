@@ -1,66 +1,53 @@
 #  lib.gold
-- [vim: ft=awk ts=2 sw=2 et :](#vimftawktsswet)
-- [Miscellaneous support code.](#miscellaneoussupportcode)
-      - [### Globals #################################################](#globals)
-    - [Globals #################################################](#globals) : # There is only one global.
-    - [Object stuff ############################################](#objectstuff)
-    - [## Initialize an empty list](#initializeanemptylist)
-  - [Initialize an empty list](#initializeanemptylist) : function List(i:untyped) { 
-    - [## Initialize a new object, give it a unique id](#initializeanewobjectgiveitauniqueid)
-  - [Initialize a new object, give it a unique id (in `i.id`)](#initializeanewobjectgiveitauniqueidiniid) : function Object(i:untyped) { 
-    - [## Create something of class `f` inside of `i` at position `k`](#createsomethingofclassfinsideofiatpositionk)
-  - [Create something of class `f` inside of `i` at position `k`](#createsomethingofclassfinsideofiatpositionk) : function has(i:untyped, k:atom, f:?fname) { 
-    - [## Like `has`, but accepts one constructor argument `x`.](#likehasbutacceptsoneconstructorargumentx)
-  - [Like `has`, but accepts one constructor argument `x`.](#likehasbutacceptsoneconstructorargumentx) : function haS(i:untyped, k:atom, f:?fname, x:any)  { 
-    - [## Like `has`, but accepts two constructor arguments `x` and `y`..](#likehasbutacceptstwoconstructorargumentsxandy)
-  - [Like `has`, but accepts two constructor arguments `x` and `y`..](#likehasbutacceptstwoconstructorargumentsxandy) : function hAS(i:untyped, k:atom, f:fname, x:any, y:any) { 
-    - [## Add a new instances of class `f` at the end of `i`.](#addanewinstancesofclassfattheendofi)
-  - [Add a new instances of class `f` at the end of `i`.](#addanewinstancesofclassfattheendofi) : function new(i:array, f:fname, k) { k=length(i)+1; has(i,k,f); return k }
-    - [## If `x` can be coerced number, return that. Else return `x`.](#ifxcanbecoercednumberreturnthatelsereturnx)
-  - [If `x` can be coerced number, return that. Else return `x`.](#ifxcanbecoercednumberreturnthatelsereturnx) : function asNum(x:atom,    y) {
-    - [Testing stuff ############################################](#testingstuff)
-    - [## Print local variables, escaped from s](#printlocalvariablesescapedfroms)
-  - [Print local variables, escaped from functions](#printlocalvariablesescapedfromfunctions) : function rogues(   s) { f
-    - [## Run the s names in the comma-separated string `s`.](#runthesnamesinthecommaseparatedstrings)
-  - [Run the functions names in the comma-separated string `s`.](#runthefunctionsnamesinthecommaseparatedstrings) : function tests(s:string,     a,i,f) {
-    - [## Print "PASS" if `got` same as `want1`](#printpassifgotsameaswant)
-  - [Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).](#printpassifgotsameaswantandprintfailotherwise) : function ok(s:string, got:atom, want:atom,   epsilon:number,       good) {
+- [vim: ft=awk ts=2 sw=2 et :](#vimftawkts2sw2et)
+  - [BEGIN { List](#beginlist)
+  - [Object stuff](#objectstuff) : Methods for handling objects.
+    - [List](#list) : Initialize an empty list
+    - [Object](#object) : Initialize a new object, give it a unique id (in `i.id`)
+    - [has](#has) : Create something of class `f` inside of `i` at position `k`
+    - [haS](#has) : Like `has`, but accepts one constructor argument `x`.
+    - [hAS](#has) : Like `has`, but accepts two constructor arguments `x` and `y`..
+    - [new](#new) : Add a new instances of class `f` at the end of `i`.
+    - [asNum](#asnum) : If `x` can be coerced number, return that. Else return `x`.
+  - [Testing stuff](#testingstuff) : Support for unit testing.
+    - [rogues](#rogues) : Print local variables, escaped from functions
+    - [tests](#tests) : Run the functions names in the comma-separated string `s`.
+    - [ok](#ok) : Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
     - [red](#red)
-    - [Array stuff ############################################](#arraystuff)
-      - [push](#push)
-      - [keysort](#keysort)
-      - [__keysort](#keysort)
-      - [sortCompare](#sortcompare)
-      - [copy](#copy)
-    - [Maths stuff ############################################](#mathsstuff)
-    - [## Return absolute value of `x`.](#returnabsolutevalueofx)
-  - [Return absolute value of `x`.](#returnabsolutevalueofx) : function abs(x:number)           { return x>0 ? x : -1*x }
-    - [## Sample from a Gaussian.](#samplefromagaussian)
-  - [Sample from a Gaussian.](#samplefromagaussian) : function z(mu:nummber|0, sd:number|0) {
-    - [Printing stuff #########################################](#printingstuff)
-    - [## Simple printing of a flat array](#simpleprintingofaflatarray)
-  - [Simple printing of a flat array](#simpleprintingofaflatarray) : function o(a:array, prefix:string|"",     i,sep,s) {
-    - [## Print arrays, recursively, shows in sorted array, prepend with `prefix`.](#printarraysrecursivelyshowsinsortedarrayprependwithprefix)
-  - [Print arrays, recursively, shows in sorted array, prepend with `prefix`.](#printarraysrecursivelyshowsinsortedarrayprependwithprefix) : function oo(x:array, prefix:string,   indent,      j,txt) {
-    - [ooSortOrder](#oosortorder)
+  - [Array stuff](#arraystuff) : Support for managing arrays.
+    - [push](#push) : Return `x` after adding to the end of `a`.
+    - [keysort](#keysort) : Sort `a` by field `k`.
+    - [__keysort](#__keysort)
+    - [sortCompare](#sortcompare)
+    - [copy](#copy) : `b` is set to a recursively copy of `a`.
+  - [Maths stuff](#mathsstuff) : Some mathematical details.
+    - [abs](#abs) : Return absolute value of `x`.
+    - [max](#max) : Return max of `x` and `y.
+    - [min](#min) : Return min of `x` and `y.
+    - [z](#z) : Sample from a Gaussian.
+    - [Printing stuff](#printingstuff)
+      - [o](#o) : Simple printing of a flat array
+      - [oo](#oo) : Print arrays, recursively, shows in sorted array, prepend with `prefix`.
+      - [ooSortOrder](#oosortorder)
     - [File stuff #########################################](#filestuff)
-    - [## Loop over a csv file `f`, setting the array `a` to the next record.](#loopoveracsvfilefsettingthearrayatothenextrecord)
-  - [Loop over a csv file `f`, setting the array `a` to the next record.](#loopoveracsvfilefsettingthearrayatothenextrecord) : ## Returns zero at end of files.
-  - [Complain if file is missing. Kill comments `#` and spaces.](#complainiffileismissingkillcommentsandspaces) : ## Split lines on commas. If records split over more than one 
-  - [line (and end in a comma) concat that line to the next.](#lineandendinacommaconcatthatlinetothenext) : ## Coerce numeric strings to numbers.
+      - [csv](#csv) : Loop over a csv file `f`, setting the array `a` to the next record.
 
 
 # vim: ft=awk ts=2 sw=2 et :
 
-# Miscellaneous support code.
+Miscellaneous support code.
+ 
+Copyright (c) 2020, Tim Menzies.   
+Licensed under the MIT license 
+for full license info, see LICENSE.md in the project root
 
-#### ### Globals #################################################
+There is only one global.
 
-<ul><details><summary><tt>### Globals #################################################()</tt></summary>
+## BEGIN { List
+
+<ul><details><summary><tt>BEGIN { List()</tt></summary>
 
 ```awk
-### Globals #################################################
-# There is only one global.
 BEGIN { List(Gold); 
   Gold.test.epsilon=0.00001
   Gold.pi= 3.141592653
@@ -70,85 +57,87 @@ BEGIN { List(Gold);
 
 </details></ul>
 
-### Object stuff ############################################
+##  Object stuff 
+Methods for handling objects.
 
-### ## Initialize an empty list
+### List
+Initialize an empty list
 
-<ul><details><summary><tt>## Initialize an empty list()</tt></summary>
+<ul><details><summary><tt>List(i:untyped)</tt></summary>
 
 ```awk
-## Initialize an empty list
 function List(i:untyped) { 
   split("",i,"") }
 ```
 
 </details></ul>
 
-### ## Initialize a new object, give it a unique id 
+### Object
+Initialize a new object, give it a unique id (in `i.id`)
 
-<ul><details><summary><tt>## Initialize a new object, give it a unique id ()</tt></summary>
+<ul><details><summary><tt>Object(i:untyped)</tt></summary>
 
 ```awk
-## Initialize a new object, give it a unique id (in `i.id`)
 function Object(i:untyped) { 
   List(i); i.id = ++Gold.id }
 ```
 
 </details></ul>
 
-### ## Create something of class `f` inside of `i` at position `k`
+### has
+Create something of class `f` inside of `i` at position `k`
 
-<ul><details><summary><tt>## Create something of class `f` inside of `i` at position `k`()</tt></summary>
+<ul><details><summary><tt>has(i:untyped, k:atom, f:?fname)</tt></summary>
 
 ```awk
-## Create something of class `f` inside of `i` at position `k`
 function has(i:untyped, k:atom, f:?fname) { 
-   f=f?f:"List";i[k][0]; @f(i[k]); delete i[k][0]; return k}
+  f=f?f:"List";i[k][0]; @f(i[k]); delete i[k][0]; return k}
 ```
 
 </details></ul>
 
-### ## Like `has`, but accepts one constructor argument `x`.
+### haS
+Like `has`, but accepts one constructor argument `x`.
 
-<ul><details><summary><tt>## Like `has`, but accepts one constructor argument `x`.()</tt></summary>
+<ul><details><summary><tt>haS(i:untyped, k:atom, f:?fname, x:any)</tt></summary>
 
 ```awk
-## Like `has`, but accepts one constructor argument `x`.
 function haS(i:untyped, k:atom, f:?fname, x:any)  { 
   i[k][0]; @f(i[k],x); delete i[k][0] }
 ```
 
 </details></ul>
 
-### ## Like `has`, but accepts two constructor arguments `x` and `y`..
+### hAS
+Like `has`, but accepts two constructor arguments `x` and `y`..
 
-<ul><details><summary><tt>## Like `has`, but accepts two constructor arguments `x` and `y`..()</tt></summary>
+<ul><details><summary><tt>hAS(i:untyped, k:atom, f:fname, x:any, y:any)</tt></summary>
 
 ```awk
-## Like `has`, but accepts two constructor arguments `x` and `y`..
 function hAS(i:untyped, k:atom, f:fname, x:any, y:any) { 
   i[k][0]; @f(i[k],x,y); delete i[k][0] }
 ```
 
 </details></ul>
 
-### ## Add a new instances of class `f` at the end of `i`.
+### new
+Add a new instances of class `f` at the end of `i`.
 
-<ul><details><summary><tt>## Add a new instances of class `f` at the end of `i`.()</tt></summary>
+<ul><details><summary><tt>new(i:array, f:fname)</tt></summary>
 
 ```awk
-## Add a new instances of class `f` at the end of `i`.
-function new(i:array, f:fname, k) { k=length(i)+1; has(i,k,f); return k }
+function new(i:array, f:fname, k) { 
+  k=length(i)+1; has(i,k,f); return k }
 ```
 
 </details></ul>
 
-### ## If `x` can be coerced number, return that. Else return `x`.
+### asNum
+If `x` can be coerced number, return that. Else return `x`.
 
-<ul><details><summary><tt>## If `x` can be coerced number, return that. Else return `x`.()</tt></summary>
+<ul><details><summary><tt>asNum(x:atom)</tt></summary>
 
 ```awk
-## If `x` can be coerced number, return that. Else return `x`.
 function asNum(x:atom,    y) {
   y = x+0
   return x==y ? x : y }
@@ -156,14 +145,15 @@ function asNum(x:atom,    y) {
 
 </details></ul>
 
-### Testing stuff ############################################
+## Testing stuff 
+Support for unit testing.
 
-### ## Print local variables, escaped from s
+### rogues
+Print local variables, escaped from functions
 
-<ul><details><summary><tt>## Print local variables, escaped from s()</tt></summary>
+<ul><details><summary><tt>rogues()</tt></summary>
 
 ```awk
-## Print local variables, escaped from functions
 function rogues(   s) { f
   for(s in SYMTAB) if (s ~ /^[A-Z]/)  print "#W> Global: " s>"/dev/stderr" 
   for(s in SYMTAB) if (s ~ /^[_a-z]/) print "#W> Rogue: "  s>"/dev/stderr" }
@@ -171,12 +161,12 @@ function rogues(   s) { f
 
 </details></ul>
 
-### ## Run the s names in the comma-separated string `s`.
+### tests
+Run the functions names in the comma-separated string `s`.
 
-<ul><details><summary><tt>## Run the s names in the comma-separated string `s`.()</tt></summary>
+<ul><details><summary><tt>tests(s:string)</tt></summary>
 
 ```awk
-## Run the functions names in the comma-separated string `s`.
 function tests(s:string,     a,i,f) {
   split(s,a,",") 
   for(i in a) {
@@ -187,12 +177,12 @@ function tests(s:string,     a,i,f) {
 
 </details></ul>
 
-### ## Print "PASS" if `got` same as `want1` 
+### ok
+Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
 
-<ul><details><summary><tt>## Print "PASS" if `got` same as `want1` ()</tt></summary>
+<ul><details><summary><tt>ok(s:string, got:atom, want:atom, epsilon:number)</tt></summary>
 
 ```awk
-## Print "PASS" if `got` same as `want1` (and print "FAIL" otherwise).
 function ok(s:string, got:atom, want:atom,   epsilon:number,       good) {
   epsilon = epsilon ? epsilon : Gold.test.epsilon
   if (typeof(want) == "number") 
@@ -216,19 +206,23 @@ function green(x) { return "\033[32m"x"\033[0m" }
 
 </details></ul>
 
-### Array stuff ############################################
+## Array stuff 
+Support for managing arrays.
 
-#### push
+### push
+Return `x` after adding to the end of `a`.
 
-<ul><details><summary><tt>push()</tt></summary>
+<ul><details><summary><tt>push(a:array, x:)</tt></summary>
 
 ```awk
-function push(a,i,x) { a[length(a)+1] = x; return x }
+function push(a:array, x: atom) { 
+  a[length(a)+1] = x; return x }
 ```
 
 </details></ul>
 
-#### keysort
+### keysort
+Sort `a` by field `k`.
 
 <ul><details><summary><tt>keysort()</tt></summary>
 
@@ -239,7 +233,7 @@ function keysort(a,k) {
 
 </details></ul>
 
-#### __keysort
+### __keysort
 
 <ul><details><summary><tt>__keysort()</tt></summary>
 
@@ -251,7 +245,7 @@ function __keysort(i1,x,i2,y) {
 
 </details></ul>
 
-#### sortCompare
+### sortCompare
 
 <ul><details><summary><tt>sortCompare()</tt></summary>
 
@@ -261,15 +255,17 @@ function sortCompare(x,y) { return x<y ? -1 : (x==y?0:1) }
 
 </details></ul>
 
-#### copy
+### copy
+`b` is set to a recursively copy of `a`.
 
-<ul><details><summary><tt>copy()</tt></summary>
+<ul><details><summary><tt>copy(a:array, b:array)</tt></summary>
 
 ```awk
-function copy(a,b,   j) { 
+function copy(a:array,b:array,   j) { 
   for(j in a) 
     if(isarray(a[j]))  {
-      has(b,j)
+      b[j][0]
+      delete b[j][0]
       copy(a[j], b[j]) 
     } else
       b[j] = a[j] 
@@ -278,27 +274,51 @@ function copy(a,b,   j) {
 
 </details></ul>
 
-### Maths stuff ############################################
+## Maths stuff 
+Some mathematical details.
 
-### ## Return absolute value of `x`.
+### abs
+Return absolute value of `x`.
 
-<ul><details><summary><tt>## Return absolute value of `x`.()</tt></summary>
+<ul><details><summary><tt>abs(x:number)</tt></summary>
 
 ```awk
-## Return absolute value of `x`.
-function abs(x:number)           { return x>0 ? x : -1*x }
-function max(x:number, y:number) { return x>y ? x : y }
-function min(x:number, y:number) { return x>y ? y : x }
+function abs(x:number)           { 
+  return x>0 ? x : -1*x }
 ```
 
 </details></ul>
 
-### ## Sample from a Gaussian.
+### max
+Return max of `x` and `y.
 
-<ul><details><summary><tt>## Sample from a Gaussian.()</tt></summary>
+<ul><details><summary><tt>max(x:number, y:number)</tt></summary>
 
 ```awk
-## Sample from a Gaussian.
+function max(x:number, y:number) { 
+  return x>y ? x : y }
+```
+
+</details></ul>
+
+### min
+Return min of `x` and `y.
+
+<ul><details><summary><tt>min(x:number, y:number)</tt></summary>
+
+```awk
+function min(x:number, y:number) { 
+  return x>y ? y : x }
+```
+
+</details></ul>
+
+### z
+Sample from a Gaussian.
+
+<ul><details><summary><tt>z(mu:nummber|0, sd:number|0)</tt></summary>
+
+```awk
 function z(mu:nummber|0, sd:number|0) {
   mu = mu?mu:0
   sd = sd?sd:1  
@@ -307,14 +327,14 @@ function z(mu:nummber|0, sd:number|0) {
 
 </details></ul>
 
-### Printing stuff #########################################
+### Printing stuff 
 
-### ## Simple printing of a flat array
+#### o
+Simple printing of a flat array
 
-<ul><details><summary><tt>## Simple printing of a flat array()</tt></summary>
+<ul><details><summary><tt>o(a:array, prefix:string|"")</tt></summary>
 
 ```awk
-## Simple printing of a flat array
 function o(a:array, prefix:string|"",     i,sep,s) {
   for(i in a) {s = s sep prefix a[i]; sep=","}
   return  s }
@@ -322,12 +342,12 @@ function o(a:array, prefix:string|"",     i,sep,s) {
 
 </details></ul>
 
-### ## Print arrays, recursively, shows in sorted array, prepend with `prefix`.
+#### oo
+Print arrays, recursively, shows in sorted array, prepend with `prefix`.
 
-<ul><details><summary><tt>## Print arrays, recursively, shows in sorted array, prepend with `prefix`.()</tt></summary>
+<ul><details><summary><tt>oo(x:array, prefix:string)</tt></summary>
 
 ```awk
-## Print arrays, recursively, shows in sorted array, prepend with `prefix`.
 function oo(x:array, prefix:string,   indent,      j,txt) {
   txt = prefix ? prefix : (prefix Gold.dot)
   ooSortOrder(x)
@@ -342,7 +362,7 @@ function oo(x:array, prefix:string,   indent,      j,txt) {
 
 </details></ul>
 
-### ooSortOrder
+#### ooSortOrder
 
 <ul><details><summary><tt>ooSortOrder()</tt></summary>
 
@@ -357,17 +377,17 @@ function ooSortOrder(x, j) {
 
 ### File stuff #########################################
 
-### ## Loop over a csv file `f`, setting the array `a` to the next record.
+#### csv
+Loop over a csv file `f`, setting the array `a` to the next record.
+Returns zero at end of files.
+Complain if file is missing. Kill comments `#` and spaces.
+Split lines on commas. If records split over more than one 
+line (and end in a comma) concat that line to the next.
+Coerce numeric strings to numbers.
 
-<ul><details><summary><tt>## Loop over a csv file `f`, setting the array `a` to the next record.()</tt></summary>
+<ul><details><summary><tt>csv(a:array, f:string|"")</tt></summary>
 
 ```awk
-## Loop over a csv file `f`, setting the array `a` to the next record.
-## Returns zero at end of files.
-## Complain if file is missing. Kill comments `#` and spaces.
-## Split lines on commas. If records split over more than one 
-## line (and end in a comma) concat that line to the next.
-## Coerce numeric strings to numbers.
 function csv(a:array, f:string|"",       b4, g,txt,i,old,new) {
   f = f ? f : "-"             
   g = getline < f

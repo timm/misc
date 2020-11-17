@@ -1,42 +1,39 @@
 #  col.gold
-- [Col.gold](#colgold)
-  - [Col](#col) : #Abstract class: parent of all column.
+  - [Col](#col) : Abstract class: parent of all column.
     - [add](#add) : Polymorphic update function for columns.
     - [adds](#adds) : Add many things
     - [dist](#dist) : Distance between things.
     - [Col](#col) : Abstract constructor for our column.
-- [-----------------------------------------------](#)
-  - [Info](#info) : # Columns to be ignored.  
+  - [Info](#info) : Columns to be ignored.  
     - [Info](#info) : Constructor for columns we will not summarize. 
-    - [_Add](#add) : Do nothing.
-- [-----------------------------------------------](#)
-- [## Sym](#sym) : # Summaries of columns of symbols.
-  - [Sym](#sym) : Constructor for summary of symbolic columns.
-  - [_Add](#add) : Update frequency counts, and `mode`.
-  - [_Dist](#dist) : Distance calcs for `Sym`bols.
-- [-----------------------------------------------](#)
-- [## Num](#num) : # Summaries of columns of numbers.
-  - [Num](#num) : Constructor of summary of numeric columms
-  - [_Add](#add) : Update self, return `x`.
-  - [_Pdf](#pdf) : Return height of the Gaussian at `x`.
-  - [_Cdf](#cdf) : Return the area under the Gaussian from negative infinity to `x`.
-  - [_Crossover](#crossover) : Return where two Gaussians cross in-between their means.
-  - [_Norm](#norm) : Distance calcs for `Num`bols.
-  - [_Dist](#dist) : Distance between two numbers `x` and `y`.
+    - [_Add](#_add) : Do nothing.
+  - [Sym](#sym) : Summaries of columns of symbols.
+    - [Sym](#sym) : Constructor for summary of symbolic columns.
+    - [_Add](#_add) : Update frequency counts, and `mode`.
+    - [_Dist](#_dist) : Distance calcs for `Sym`bols.
+  - [Num](#num) : Summaries of columns of numbers.
+    - [Num](#num) : Constructor of summary of numeric columms
+    - [_Add](#_add) : Update self, return `x`.
+    - [_Pdf](#_pdf) : Return height of the Gaussian at `x`.
+    - [_Cdf](#_cdf) : Return the area under the Gaussian from negative infinity to `x`.
+    - [_Crossover](#_crossover) : Return where two Gaussians cross in-between their means.
+    - [_Norm](#_norm) : Distance calcs for `Num`bols.
+    - [_Dist](#_dist) : Distance between two numbers `x` and `y`.
+  - [asdas](#asdas) : ## asdas
 
 
-# Col.gold
-
-#Tools for summarizing columns of data.
+Tools for summarizing columns of data.
  
-#Copyright (c) 2020, Tim Menzies. 
-#Licensed under the MIT license 
-#for full license info, see LICENSE.md in the project root)
+Copyright (c) 2020, Tim Menzies.   
+Licensed under the MIT license 
+for full license info, see LICENSE.md in the project root
 
 @include "lib"
 
+-----------------------------------------------
+
 ## Col 
-#Abstract class: parent of all column.
+Abstract class: parent of all column.
 
 ### add
 Polymorphic update function for columns.
@@ -89,10 +86,10 @@ function Col(i:untyped, s:string, n:posint) {
 
 </details></ul>
 
-# -----------------------------------------------
+-----------------------------------------------
 
 ## Info 
-# Columns to be ignored.  
+Columns to be ignored.  
 
 ### Info
 Constructor for columns we will not summarize. 
@@ -118,12 +115,12 @@ function _Add(i:Info, x:any) {
 
 </details></ul>
 
-# -----------------------------------------------
+-----------------------------------------------
 
-# ## Sym  
-# Summaries of columns of symbols.
+## Sym 
+Summaries of columns of symbols.
 
-## Sym
+### Sym
 Constructor for summary of symbolic columns.
 `s` is the name of a column appearing in positive `n`.
 
@@ -137,7 +134,7 @@ function Sym(i:untyped, s:string, n:posint) {
 
 </details></ul>
 
-## _Add
+### _Add
 Update frequency counts, and `mode`.
 
 <ul><details><summary><tt>_Add(i:Sym, x:atom)</tt></summary>
@@ -153,7 +150,7 @@ function _Add(i:Sym, x:atom,    n) {
 
 </details></ul>
 
-## _Dist
+### _Dist
 Distance calcs for `Sym`bols.
 
 <ul><details><summary><tt>_Dist(i:Sym, x:atom, y:atom)</tt></summary>
@@ -165,12 +162,12 @@ function _Dist(i:Sym, x:atom, y:atom) {
 
 </details></ul>
 
-# -----------------------------------------------
+-----------------------------------------------
 
-# ## Num 
-# Summaries of columns of numbers.
+## Num 
+Summaries of columns of numbers.
 
-## Num
+### Num
 Constructor of summary of numeric columms
 
 <ul><details><summary><tt>Num(i:untyped, s:string, n:posint)</tt></summary>
@@ -186,7 +183,7 @@ function Num(i:untyped, s:string, n:posint) {
 
 </details></ul>
 
-## _Add
+### _Add
 Update self, return `x`.
 
 <ul><details><summary><tt>_Add(i:Num, x:number)</tt></summary>
@@ -206,7 +203,7 @@ function _Add(i:Num, x:number,    d) {
 
 </details></ul>
 
-## _Pdf
+### _Pdf
 Return height of the Gaussian at `x`.
 
 <ul><details><summary><tt>_Pdf(i:Num, x:any)</tt></summary>
@@ -221,7 +218,7 @@ function _Pdf(i:Num, x:any,    var,denom,num) {
 
 </details></ul>
 
-## _Cdf
+### _Cdf
 Return the area under the Gaussian from negative infinity to `x`.
 
 <ul><details><summary><tt>_Cdf(i:Num, x:number)</tt></summary>
@@ -234,7 +231,7 @@ function _Cdf(i:Num, x:number) {
 
 </details></ul>
 
-## _Crossover
+### _Crossover
 Return where two Gaussians cross in-between their means.
 
 <ul><details><summary><tt>_Crossover(i:Num, j:Num)</tt></summary>
@@ -255,7 +252,7 @@ function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
 
 </details></ul>
 
-## _Norm
+### _Norm
 Distance calcs for `Num`bols.
 
 <ul><details><summary><tt>_Norm(i:Num, x:number)</tt></summary>
@@ -267,14 +264,14 @@ function _Norm(i:Num, x:number) {
 
 </details></ul>
 
-## _Dist
+### _Dist
 Distance between two numbers `x` and `y`.
 ok?
 
-<ul><details><summary><tt>_Dist(i:Num, x:atom, y:atom)</tt></summary>
+<ul><details><summary><tt>_Dist(i:Num, x:atom, y:atom|20)</tt></summary>
 
 ```awk
-function _Dist(i:Num, x:atom, y:atom) {
+function _Dist(i:Num, x:atom, y:atom|20) {
   if      (x=="?") { y= _Norm(i,y); x=y>0.5? 0:1}
   else if (y=="?") { x= _Norm(i,x); y=x>0.5? 0:1}
   else             { x= _Norm(i,x)
@@ -283,3 +280,6 @@ function _Dist(i:Num, x:atom, y:atom) {
 ```
 
 </details></ul>
+
+## asdas
+## asdas
