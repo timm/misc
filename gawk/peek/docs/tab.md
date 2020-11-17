@@ -1,9 +1,9 @@
 #  tab.gold
-- [_Dist](#_Dist)
-- [_Far](#_Far)
-- [_Around](#_Around)
-- [_Descend](#_Descend)
-- [_Add](#_Add)
+      - [_Dist](#_Dist)
+      - [_Far](#_Far)
+      - [_Around](#_Around)
+      - [_Descend](#_Descend)
+      - [_Add](#_Add)
 
 vim: ft=awk ts=2 sw=2 et :
 @include "lib"

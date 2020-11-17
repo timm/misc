@@ -1,8 +1,8 @@
 #  tests.gold
-- [csv1](#csv1)
-- [tab0](#tab0)
-- [zs](#zs)
-- [dists1a](#dists1a)
+      - [csv1](#csv1)
+      - [tab0](#tab0)
+      - [zs](#zs)
+      - [dists1a](#dists1a)
 
 vim: ft=awk ts=2 sw=2 et :
 @include "lib"

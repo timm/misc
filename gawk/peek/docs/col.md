@@ -1,24 +1,24 @@
 #  col.gold
   - [Col](#Col)
-   - [add](#add) :  Polymorphic update function for columns.
-   - [adds](#adds) :  Add many things
-   - [dist](#dist) :  Distance between things.
-   - [Col](#Col) :  Abstract constructor for our column.
+      - [add](#add) :  Polymorphic update function for columns.
+      - [adds](#adds) :  Add many things
+      - [dist](#dist) :  Distance between things.
+      - [Col](#Col) :  Abstract constructor for our column.
   - [Info](#Info)
-   - [Info](#Info) :  Constructor for columns we will not summarize. 
-   - [_Add](#_Add) :  Do nothing.
+      - [Info](#Info) :  Constructor for columns we will not summarize. 
+      - [_Add](#_Add) :  Do nothing.
   - [Sym](#Sym)
-   - [Sym](#Sym) :  Constructor for summary of symbolic columns.
-   - [_Add](#_Add) :  Update frequency counts, and `mode`.
-   - [_Dist](#_Dist) :  Distance calcs for `Sym`bols.
+      - [Sym](#Sym) :  Constructor for summary of symbolic columns.
+      - [_Add](#_Add) :  Update frequency counts, and `mode`.
+      - [_Dist](#_Dist) :  Distance calcs for `Sym`bols.
   - [Num](#Num)
-   - [Num](#Num) :  Constructor of summary of numeric columms
-   - [_Add](#_Add) :  Update self, return `x`.
-   - [_Pdf](#_Pdf) :  Return height of the Gaussian at `x`.
-   - [_Cdf](#_Cdf) :  Return the area under the Gaussian from negative infinity to `x`.
-   - [_Crossover](#_Crossover) :  Return where two Gaussians cross in-between their means.
-   - [_Norm](#_Norm) :  Distance calcs for `Num`bols.
-   - [_Dist](#_Dist) :  Distance between two numbers `x` and `y`.
+      - [Num](#Num) :  Constructor of summary of numeric columms
+      - [_Add](#_Add) :  Update self, return `x`.
+      - [_Pdf](#_Pdf) :  Return height of the Gaussian at `x`.
+      - [_Cdf](#_Cdf) :  Return the area under the Gaussian from negative infinity to `x`.
+      - [_Crossover](#_Crossover) :  Return where two Gaussians cross in-between their means.
+      - [_Norm](#_Norm) :  Distance calcs for `Num`bols.
+      - [_Dist](#_Dist) :  Distance between two numbers `x` and `y`.
 
 @include "lib"
 

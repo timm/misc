@@ -1,11 +1,11 @@
 #  lib.gold
-- [red](#red)
-- [push](#push)
-- [keysort](#keysort)
-- [__keysort](#__keysort)
-- [sortCompare](#sortCompare)
-- [copy](#copy)
-- [ooSortOrder](#ooSortOrder)
+      - [red](#red)
+      - [push](#push)
+      - [keysort](#keysort)
+      - [__keysort](#__keysort)
+      - [sortCompare](#sortCompare)
+      - [copy](#copy)
+      - [ooSortOrder](#ooSortOrder)
 
 vim: ft=awk ts=2 sw=2 et :
 

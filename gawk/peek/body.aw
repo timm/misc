@@ -2,14 +2,14 @@ BEGIN {
   Code1= "\n\n<ul><details><summary><tt>"
   Code2= "</tt></summary>\n\n```awk\n"
   Code3= "\n```\n\n</details></ul>"
-  RS=""; FS="\n"
+  RS=""; FS="\n";OFS=""
 }
-/# /               { gsub(/----[-]*/,"") }
+/# /               { gsub(/----[-]+/,"") }
 /^#-/              { next }
-sub(/^# # /   ,"") { $1=trim($1); In="";         Pre="\n## "   ; print "- ["$1"](#"$1")"; next}
-sub(/^# ## /  ,"") { $1=trim($1); In="   ";      Pre="\n### "  ; print "  - ["$1"](#"$1")"; next}
-sub(/^# ### / ,"") { $1=trim($1); In="      ";   Pre="\n#### " ; print "     - ["$1"](#"$1")"; next}
-sub(/^# #### /,"") { $1=trim($1); In="        "; Pre="\n##### "; print "        - ["$1"](#"$1")"; next}
+sub(/^# # /   ,"") { $1=trim($1); In="- ";      Pre="\n## "  ; print In,"["$1"](#"$1")"; next}
+sub(/^# ## /  ,"") { $1=trim($1); In="  - ";    Pre="\n### " ; print In,"["$1"](#"$1")"; next}
+sub(/^# ### / ,"") { $1=trim($1); In="    -";   Pre="\n#### " ; print In,"["$1"](#"$1")"; next}
+sub(/^# #### /,"") { $1=trim($1); In="      -"; Pre="\n##### "; print In,"["$1"](#"$1")"; next}
 /^function/        { print toc($1,$2); R[++N] = code($0); next}
                    { sub(/^# /,"")    
                      R[++N] = $0 }
@@ -18,7 +18,7 @@ END                { for(I in R) print "\n"R[I]
 
 function toc(head,comment,   a,out) {
   split(head, a, /[ \(]/)
-  out = In "- [" a[2] "](#" a[2] ")"
+  out = "      - [" a[2] "](#" a[2] ")"
   return out (gsub(/^[ \t]*##/,"",comment) ? " : " comment : "") }
 
 function code(x,    i,src,txt,sig,a,n,b,sep,name) { 
