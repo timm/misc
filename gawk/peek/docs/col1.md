@@ -270,10 +270,10 @@ function _Norm(i:Num, x:number) {
 Distance between two numbers `x` and `y`.
 ok?
 
-<ul><details><summary><tt>_Dist(i:Num, x:atom, y:atom)</tt></summary>
+<ul><details><summary><tt>_Dist(i:Num, x:atom, y:atom|20)</tt></summary>
 
 ```awk
-function _Dist(i:Num, x:atom, y:atom) {
+function _Dist(i:Num, x:atom, y:atom|20) {
   if      (x=="?") { y= _Norm(i,y); x=y>0.5? 0:1}
   else if (y=="?") { x= _Norm(i,x); y=x>0.5? 0:1}
   else             { x= _Norm(i,x)

@@ -123,7 +123,7 @@ function _Norm(i:Num, x:number) {
   ## Distance calcs for `Num`bols.
   return  (x-i.lo) / (i.hi - i.lo + 1E-32) }
 
-function _Dist(i:Num, x:atom, y:atom) {
+function _Dist(i:Num, x:atom, y:atom|20) {
   ## Distance between two numbers `x` and `y`.
   ## ok?
   if      (x=="?") { y= _Norm(i,y); x=y>0.5? 0:1}
