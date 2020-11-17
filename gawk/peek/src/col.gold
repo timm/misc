@@ -35,7 +35,7 @@ function Col(i:untyped, s:string, n:posint) {
 # -----------------------------------------------
 
 # ## Info 
-# Columns to be ignored.
+# Columns to be ignored.  
 
 function Info(i:untyped, s:string, n:posint)  { 
   ## Constructor for columns we will not summarize. 

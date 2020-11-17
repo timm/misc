@@ -4,7 +4,6 @@ BEGIN {
   Code3= "\n```\n\n</details></ul>"
   RS=""; FS="\n";OFS=""
 }
-/# /               { gsub(/----[-]+/,"") }
 /^#-/              { next }
 sub(/^# # /   ,"") { $1=trim($1); In="- ";      Pre="\n## "  ; print In,"["$1"](#"$1")"; next}
 sub(/^# ## /  ,"") { $1=trim($1); In="  - ";    Pre="\n### " ; print In,"["$1"](#"$1")"; next}
