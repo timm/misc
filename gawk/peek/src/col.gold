@@ -8,7 +8,9 @@
 
 @include "lib"
 
-# ## Col -----------------------------------------
+# -----------------------------------------------
+
+# ## Col 
 # Abstract class: parent of all column.
 
 function add(i:Col,x:string,  f)  {
@@ -30,7 +32,9 @@ function Col(i:untyped, s:string, n:posint) {
   Object(i); i.is="Col"
   i.txt=s; i.pos=n }
 
-# ## Info ----------------------------------------
+# -----------------------------------------------
+
+# ## Info 
 # Columns to be ignored.
 
 function Info(i:untyped, s:string, n:posint)  { 
@@ -41,7 +45,9 @@ function _Add(i:Info, x:any) {
   ## Do nothing.
   return x}
 
-# ## Sym  ----------------------------------------
+# -----------------------------------------------
+
+# ## Sym  
 # Summaries of columns of symbols.
 
 function Sym(i:untyped, s:string, n:posint) { 
@@ -62,7 +68,9 @@ function _Dist(i:Sym, x:atom, y:atom) {
   ## Distance calcs for `Sym`bols.
   return x == y ? 0 : 1 }
 
-# ## Num ------------------------------------------ 
+# -----------------------------------------------
+
+# ## Num 
 # Summaries of columns of numbers.
 
 function Num(i:untyped, s:string, n:posint) { 

@@ -23,6 +23,8 @@
 @include "lib"
 
 
+
+
 ###  add
  Polymorphic update function for columns.
 
@@ -78,6 +80,8 @@ function Col(i:untyped, s:string, n:posint) {
 </details></ul>
 
 
+
+
 ###  Info
  Constructor for columns we will not summarize. 
 
@@ -102,6 +106,8 @@ function _Add(i:Info, x:any) {
 ```
 
 </details></ul>
+
+
 
 
 ###  Sym
@@ -147,6 +153,8 @@ function _Dist(i:Sym, x:atom, y:atom) {
 ```
 
 </details></ul>
+
+
 
 
 ###  Num
