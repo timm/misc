@@ -1,12 +1,11 @@
 #- vim: ft=awk ts=2 sw=2 et formatoptions+=cro :
 
 # Col.gold
-
 Tools for summarizing columns of data.
  
 Copyright (c) 2020, Tim Menzies.   
 Licensed under the MIT license 
-for full license info, see LICENSE.md in the project root)
+for full license info, see LICENSE.md in the project root
 
 @include "lib"
 
@@ -49,7 +48,7 @@ function _Add(i:Info, x:any) {
 
 -----------------------------------------------
 
-## Sym  
+## Sym 
 Summaries of columns of symbols.
 
 function Sym(i:untyped, s:string, n:posint) { 
@@ -132,3 +131,5 @@ function _Dist(i:Num, x:atom, y:atom) {
   else             { x= _Norm(i,x)
                      y= _Norm(i,y) }
   return abs(x- y) }
+
+## asdas

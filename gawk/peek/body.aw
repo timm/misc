@@ -2,9 +2,11 @@ BEGIN {
   Code1= "\n\n<ul><details><summary><tt>"
   Code2= "</tt></summary>\n\n```awk\n"
   Code3= "\n```\n\n</details></ul>"
-  RS=""; FS="\n";OFS=""
+  RS=""; FS="\n"
 }
 /^#-/              { next }
+$NF ~ /}[ \t]+$/   { print "CODE " $0}
+
 sub(/^# # /   ,"") { $1=trim($1); R[++N]=$0; In="- ";      Pre="\n## "  ; print In,"["$1"](#"$1")"; next}
 sub(/^# ## /  ,"") { $1=trim($1); R[++N]=$0; In="  - ";    Pre="\n### " ; print In,"["$1"](#"$1")"; next}
 sub(/^# ### / ,"") { $1=trim($1); R[++N]=$0; In="    -";   Pre="\n#### " ; print In,"["$1"](#"$1")"; next}

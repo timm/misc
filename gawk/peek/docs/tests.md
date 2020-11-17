@@ -1,17 +1,20 @@
 #  tests.gold
-      - [csv1](#csv1)
-      - [tab0](#tab0)
-      - [zs](#zs)
-      - [dists1a](#dists1a)
+- [vim: ft=awk ts=2 sw=2 et :](#vimftawktsswet) : @include "lib"
+  - [csv1](#csv)
+  - [tab0](#tab)
+  - [zs](#zs)
+  - [dists1a](#distsa)
+  - [BEGIN{](#begin)
 
-vim: ft=awk ts=2 sw=2 et :
+
+# vim: ft=awk ts=2 sw=2 et :
 @include "lib"
 @include "col"
 @include "tab"
 
- csv1
+## csv1
 
-<ul><details><summary><tt> csv1()</tt></summary>
+<ul><details><summary><tt>csv1()</tt></summary>
 
 ```awk
 function csv1(s,    f,d,a) {
@@ -23,9 +26,9 @@ function csv1(s,    f,d,a) {
 
 </details></ul>
 
- tab0
+## tab0
 
-<ul><details><summary><tt> tab0()</tt></summary>
+<ul><details><summary><tt>tab0()</tt></summary>
 
 ```awk
 function tab0(s,rows,f,  d,t) {
@@ -40,9 +43,9 @@ function tab2(i,t) { tab0(i,398, "auto93" )}
 
 </details></ul>
 
- zs
+## zs
 
-<ul><details><summary><tt> zs()</tt></summary>
+<ul><details><summary><tt>zs()</tt></summary>
 
 ```awk
 function zs(    n,a,i) {
@@ -61,9 +64,9 @@ function num1(s, n,a,i) {
 
 </details></ul>
 
- dists1a
+## dists1a
 
-<ul><details><summary><tt> dists1a()</tt></summary>
+<ul><details><summary><tt>dists1a()</tt></summary>
 
 ```awk
 function dists1a(f,   d,t) {
@@ -83,6 +86,11 @@ function dists1a(f,   d,t) {
 
 </details></ul>
 
+## BEGIN{ 
+
+<ul><details><summary><tt>BEGIN{ ()</tt></summary>
+
+```awk
 BEGIN{ 
   srand(1)
   #tests("csv1"); 
@@ -91,3 +99,6 @@ BEGIN{
   #tests("num1")
   dists1a("weather")
 }
+```
+
+</details></ul>
