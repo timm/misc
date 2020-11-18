@@ -1,9 +1,10 @@
 #  tests.gold
-- [vim: ft=awk ts=2 sw=2 et :](#vimftawktsswet) : @include "lib"
-  - [csv1](#csv)
-  - [tab0](#tab)
+- [vim: ft=awk ts=2 sw=2 et :](#vimftawkts2sw2et) : @include "lib"
+  - [csv1](#csv1)
+  - [tab0](#tab0)
+  - [tab1](#tab1)
   - [zs](#zs)
-  - [dists1a](#distsa)
+  - [dists1a](#dists1a)
   - [BEGIN{](#begin)
 
 
@@ -37,6 +38,15 @@ function tab0(s,rows,f,  d,t) {
   TabLoad(t,d d "/data/" f d "csv")
   ok(s,rows,length(t.rows))
 }
+```
+
+</details></ul>
+
+## tab1
+
+<ul><details><summary><tt>tab1()</tt></summary>
+
+```awk
 function tab1(i,t) { print(10); tab0(i,14,  "weather")}
 function tab2(i,t) { tab0(i,398, "auto93" )}
 ```
