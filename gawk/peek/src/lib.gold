@@ -1,18 +1,24 @@
 #- vim: ft=awk ts=2 sw=2 et :
 
+------------------------------------------
 General support code.
  
 Copyright (c) 2020, Tim Menzies.   
 Licensed under the MIT license 
 for full license info, see LICENSE.md in the project root
 
-There is only one global.
+------------------------------------------
+
+## Globals
+There is only one.
 
 BEGIN { List(Gold); 
   Gold.test.epsilon=0.00001
   Gold.pi= 3.141592653
   Gold.e = 2.718281828
   Gold.dot=sprintf("%c",46)  }
+
+------------------------------------------
 
 ##  Object stuff 
 Methods for handling objects.
@@ -46,6 +52,8 @@ function asNum(x:atom,    y) {
   y = x+0
   return x==y ? x : y }
 
+------------------------------------------
+
 ## Testing stuff 
 Support for unit testing.
 
@@ -75,6 +83,8 @@ function ok(s:string, got:atom, want:atom,   epsilon:number,       good) {
 function red(x)   { return "\033[31m"x"\033[0m" }
 function green(x) { return "\033[32m"x"\033[0m" }
 
+------------------------------------------
+
 ## Array stuff 
 Support for managing arrays.
 
@@ -103,6 +113,8 @@ function copy(a:array,b:array,   j) {
       b[j] = a[j] 
 }
 
+------------------------------------------
+
 ## Maths stuff 
 Some mathematical details.
 
@@ -123,6 +135,8 @@ function z(mu:nummber|0, sd:number|0) {
   mu = mu?mu:0
   sd = sd?sd:1  
   return mu + sd*sqrt(-2*log(rand()))*cos(2*Gold.pi*rand())}
+
+------------------------------------------
 
 ### Printing stuff 
 
@@ -148,7 +162,9 @@ function ooSortOrder(x, j) {
     return PROCINFO["sorted_in"] = \
       typeof(j + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" }
 
-### File stuff #########################################
+------------------------------------------
+
+## File stuff 
 
 function csv(a:array, f:string|"",       b4, g,txt,i,old,new) {
   ## Loop over a csv file `f`, setting the array `a` to the next record.

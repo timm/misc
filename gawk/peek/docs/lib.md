@@ -1,4 +1,6 @@
 #  lib.gold
+  - [Globals](#globals) : There is only one.
+    - [BEGIN { List](#beginlist)
   - [Object stuff](#objectstuff) : Methods for handling objects.
     - [List](#list) : Initialize an empty list
     - [Object](#object) : Initialize a new object, give it a unique id (in `i.id`)
@@ -27,19 +29,23 @@
       - [o](#o) : Simple printing of a flat array
       - [oo](#oo) : Print arrays, recursively, shows in sorted array, prepend with `prefix`.
       - [ooSortOrder](#oosortorder)
-    - [File stuff #########################################](#filestuff)
-      - [csv](#csv) : Loop over a csv file `f`, setting the array `a` to the next record.
+  - [File stuff](#filestuff)
+    - [csv](#csv) : Loop over a csv file `f`, setting the array `a` to the next record.
 
 
+------------------------------------------
 General support code.
  
 Copyright (c) 2020, Tim Menzies.   
 Licensed under the MIT license 
 for full license info, see LICENSE.md in the project root
 
-There is only one global.
+------------------------------------------
 
-BEGIN { List
+## Globals
+There is only one.
+
+### BEGIN { List
 
 <ul><details><summary><tt>BEGIN { List()</tt></summary>
 
@@ -52,6 +58,8 @@ BEGIN { List(Gold);
 ```
 
 </details></ul>
+
+------------------------------------------
 
 ##  Object stuff 
 Methods for handling objects.
@@ -141,6 +149,8 @@ function asNum(x:atom,    y) {
 
 </details></ul>
 
+------------------------------------------
+
 ## Testing stuff 
 Support for unit testing.
 
@@ -201,6 +211,8 @@ function green(x) { return "\033[32m"x"\033[0m" }
 ```
 
 </details></ul>
+
+------------------------------------------
 
 ## Array stuff 
 Support for managing arrays.
@@ -270,6 +282,8 @@ function copy(a:array,b:array,   j) {
 
 </details></ul>
 
+------------------------------------------
+
 ## Maths stuff 
 Some mathematical details.
 
@@ -323,6 +337,8 @@ function z(mu:nummber|0, sd:number|0) {
 
 </details></ul>
 
+------------------------------------------
+
 ### Printing stuff 
 
 #### o
@@ -371,9 +387,11 @@ function ooSortOrder(x, j) {
 
 </details></ul>
 
-### File stuff #########################################
+------------------------------------------
 
-#### csv
+## File stuff 
+
+### csv
 Loop over a csv file `f`, setting the array `a` to the next record.
 Returns zero at end of files.
 Complain if file is missing. Kill comments `#` and spaces.
