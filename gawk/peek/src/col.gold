@@ -10,9 +10,13 @@ For full license info, see LICENSE.md in the project root
 
 @include "lib"
 
+## Abstract class: parent of all column.
 
-## Col 
-Abstract class: parent of all column.
+function Col(i:untyped, s:string, n:posint) { 
+  ## Abstract constructor for our column.
+  ## `s` is the name of a column appearing in positive `n`.
+  Object(i); i.is="Col"
+  i.txt=s; i.pos=n }
 
 function add(i:Col,x:string,  f)  {
   ## Polymorphic update function for columns.
@@ -27,16 +31,9 @@ function dist(c:Col, x,y,  f) {
   ## Distance between things.
   f=c.is "Dist"; return @f(c,x,y) }
 
-function Col(i:untyped, s:string, n:posint) { 
-  ## Abstract constructor for our column.
-  ## `s` is the name of a column appearing in positive `n`.
-  Object(i); i.is="Col"
-  i.txt=s; i.pos=n }
-
 -----------------------------------------------
 
-## Info 
-Columns to be ignored.  
+## Columns to be ignored.  
 
 function Info(i:untyped, s:string, n:posint)  { 
   ## Constructor for columns we will not summarize. 
@@ -48,8 +45,7 @@ function _Add(i:Info, x:any) {
 
 -----------------------------------------------
 
-## Sym 
-Summaries of columns of symbols.
+## Summaries of columns of symbols.
 
 function Sym(i:untyped, s:string, n:posint) { 
   ## Constructor for summary of symbolic columns.
@@ -71,8 +67,7 @@ function _Dist(i:Sym, x:atom, y:atom) {
 
 -----------------------------------------------
 
-## Num 
-Summaries of columns of numbers.
+##  Summaries of columns of numbers.
 
 function Num(i:untyped, s:string, n:posint) { 
   ## Constructor of summary of numeric columms
@@ -131,5 +126,3 @@ function _Dist(i:Num, x:atom, y:atom|20) {
   else             { x= _Norm(i,x)
                      y= _Norm(i,y) }
   return abs(x- y) }
-
-## asdas

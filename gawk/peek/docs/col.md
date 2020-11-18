@@ -1,17 +1,17 @@
 #  col.gold
-  - [Col](#col) : Abstract class: parent of all column.
+  - [Abstract class: parent of all column.](#abstractclassparentofallcolumn)
+    - [Col](#col) : Abstract constructor for our column.
     - [add](#add) : Polymorphic update function for columns.
     - [adds](#adds) : Add many things
     - [dist](#dist) : Distance between things.
-    - [Col](#col) : Abstract constructor for our column.
-  - [Info](#info) : Columns to be ignored.  
+  - [Columns to be ignored.](#columnstobeignored)
     - [Info](#info) : Constructor for columns we will not summarize. 
     - [_Add](#_add) : Do nothing.
-  - [Sym](#sym) : Summaries of columns of symbols.
+  - [Summaries of columns of symbols.](#summariesofcolumnsofsymbols)
     - [Sym](#sym) : Constructor for summary of symbolic columns.
     - [_Add](#_add) : Update frequency counts, and `mode`.
     - [_Dist](#_dist) : Distance calcs for `Sym`bols.
-  - [Num](#num) : Summaries of columns of numbers.
+  - [Summaries of columns of numbers.](#summariesofcolumnsofnumbers)
     - [Num](#num) : Constructor of summary of numeric columms
     - [_Add](#_add) : Update self, return `x`.
     - [_Pdf](#_pdf) : Return height of the Gaussian at `x`.
@@ -19,7 +19,6 @@
     - [_Crossover](#_crossover) : Return where two Gaussians cross in-between their means.
     - [_Norm](#_norm) : Distance calcs for `Num`bols.
     - [_Dist](#_dist) : Distance between two numbers `x` and `y`.
-  - [asdas](#asdas) : ## asdas
 
 
 -----------------------------------------------
@@ -32,8 +31,21 @@ For full license info, see LICENSE.md in the project root
 
 @include "lib"
 
-## Col 
-Abstract class: parent of all column.
+## Abstract class: parent of all column.
+
+### Col
+Abstract constructor for our column.
+`s` is the name of a column appearing in positive `n`.
+
+<ul><details><summary><tt>Col(i:untyped, s:string, n:posint)</tt></summary>
+
+```awk
+function Col(i:untyped, s:string, n:posint) { 
+  Object(i); i.is="Col"
+  i.txt=s; i.pos=n }
+```
+
+</details></ul>
 
 ### add
 Polymorphic update function for columns.
@@ -72,24 +84,9 @@ function dist(c:Col, x,y,  f) {
 
 </details></ul>
 
-### Col
-Abstract constructor for our column.
-`s` is the name of a column appearing in positive `n`.
-
-<ul><details><summary><tt>Col(i:untyped, s:string, n:posint)</tt></summary>
-
-```awk
-function Col(i:untyped, s:string, n:posint) { 
-  Object(i); i.is="Col"
-  i.txt=s; i.pos=n }
-```
-
-</details></ul>
-
 -----------------------------------------------
 
-## Info 
-Columns to be ignored.  
+## Columns to be ignored.  
 
 ### Info
 Constructor for columns we will not summarize. 
@@ -117,8 +114,7 @@ function _Add(i:Info, x:any) {
 
 -----------------------------------------------
 
-## Sym 
-Summaries of columns of symbols.
+## Summaries of columns of symbols.
 
 ### Sym
 Constructor for summary of symbolic columns.
@@ -164,8 +160,7 @@ function _Dist(i:Sym, x:atom, y:atom) {
 
 -----------------------------------------------
 
-## Num 
-Summaries of columns of numbers.
+##  Summaries of columns of numbers.
 
 ### Num
 Constructor of summary of numeric columms
@@ -280,6 +275,3 @@ function _Dist(i:Num, x:atom, y:atom|20) {
 ```
 
 </details></ul>
-
-## asdas
-## asdas
