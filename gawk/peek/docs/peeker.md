@@ -1,5 +1,5 @@
 #  peeker.gold
-- [vim: ft=awk ts=2 sw=2 et :](#vimftawktsswet)
+- [vim: ft=awk ts=2 sw=2 et :](#vimftawkts2sw2et)
   - [BEGIN {tabs](#begintabs)
   - [BEGIN { rogues](#beginrogues)
 
