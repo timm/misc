@@ -11,26 +11,28 @@ want=$here/.gitignore
 EOF
 
 transpile() { gawk  '
-  BEGIN            { Comment="" }
-  sub(/^\|#/,"")   { Comment=""  ; print; next}
-  sub(/^#\|[ \t]*/,"")   { Comment="# "; print; next}
-
-  /^function/ { 
-    if ($0 ~ /{/) {
-      split($0,a,/{/)
-      gsub(/:[\?"A-Z0-9a-z\*:\|]*/,"", a[1])
-      $0 = a[1] "{" a[2] 
-    } else
-      gsub(/:[\?"A-Z0-9a-z\*:\|]*/,"")
-   }
+  BEGIN             { RS=""; FS="\n"} 
+  /@include/        { print $0 "\n"; next}
+  $NF !~ /}[ \t]*$/ { for(i=1;i<=NF;i++) print "#" $i 
+                      print ""; next }
   /^func(tion)?[ \t]+[A-Z][^\(]*\(/ {
-      split($0,a,/[ \t\(]/)
+      split($1,a,/[ \t\(]/)
       PREFIX = a[2]
   }
   { gsub(/ _/," " PREFIX,$0)
-    print Comment  gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
-                      "[\"\\1\\2\"]","g", $0)} '
-} 
+    if ($1 ~ /{/) {
+        split($1,a,/{/)
+        gsub(/:[\?"A-Z0-9a-z\*:\|]*/,"", a[1])
+        $1 = a[1] "{" a[2] 
+    } else
+        gsub(/:[\?"A-Z0-9a-z\*:\|]*/,"");
+   for(i=1;i<=NF;i++)
+      print gensub(/\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
+                   "[\"\\1\\2\"]","g", $i);
+   print ""
+   }
+'; }
+
 toc() { gawk '
                 { Body=Body "\n" $0 }
     END         { print Body }

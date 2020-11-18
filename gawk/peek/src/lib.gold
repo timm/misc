@@ -88,15 +88,15 @@ function green(x) { return "\033[32m"x"\033[0m" }
 ## Array stuff 
 Support for managing arrays.
 
-function push(a:array, x: atom) { 
+function push(a:array, x:atom) { 
   ## Return `x` after adding to the end of `a`.
   a[length(a)+1] = x; return x }
 
 function keysort(a,k) { 
   ## Sort `a` by field `k`.
-  Gold["keysort"]=k; return asort(a,a,"__keysort") }
+  Gold["keysort"]=k; return asort(a,a,"keysort1") }
 
-function __keysort(i1,x,i2,y) {
+function keysort1(i1,x,i2,y) {
   return sortCompare(x[ Gold["keysort"] ] + 0,
                      y[ Gold["keysort"] ] + 0) } 
 
