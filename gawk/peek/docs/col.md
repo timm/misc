@@ -1,5 +1,5 @@
 #  col.gold
-  - [Abstract class: parent of all column.](#abstractclassparentofallcolumn)
+  - [Abstract class: parent of all column](#abstractclassparentofallcolumn)
     - [Col](#col) : Abstract constructor for our column.
     - [add](#add) : Polymorphic update function for columns.
     - [adds](#adds) : Add many things
@@ -7,11 +7,11 @@
   - [Columns to be ignored.](#columnstobeignored)
     - [Info](#info) : Constructor for columns we will not summarize. 
     - [_Add](#_add) : Do nothing.
-  - [Summaries of columns of symbols.](#summariesofcolumnsofsymbols)
+  - [Summaries of columns of symbols](#summariesofcolumnsofsymbols)
     - [Sym](#sym) : Constructor for summary of symbolic columns.
     - [_Add](#_add) : Update frequency counts, and `mode`.
     - [_Dist](#_dist) : Distance calcs for `Sym`bols.
-  - [Summaries of columns of numbers.](#summariesofcolumnsofnumbers)
+  - [Summaries of columns of numbers](#summariesofcolumnsofnumbers)
     - [Num](#num) : Constructor of summary of numeric columms
     - [_Add](#_add) : Update self, return `x`.
     - [_Pdf](#_pdf) : Return height of the Gaussian at `x`.
@@ -31,7 +31,7 @@ For full license info, see LICENSE.md in the project root
 
 @include "lib"
 
-## Abstract class: parent of all column.
+## Abstract class: parent of all column
 
 ### Col
 Abstract constructor for our column.
@@ -86,7 +86,7 @@ function dist(c:Col, x,y,  f) {
 
 -----------------------------------------------
 
-## Columns to be ignored.  
+## Columns to be ignored. 
 
 ### Info
 Constructor for columns we will not summarize. 
@@ -114,7 +114,7 @@ function _Add(i:Info, x:any) {
 
 -----------------------------------------------
 
-## Summaries of columns of symbols.
+## Summaries of columns of symbols
 
 ### Sym
 Constructor for summary of symbolic columns.
@@ -160,7 +160,7 @@ function _Dist(i:Sym, x:atom, y:atom) {
 
 -----------------------------------------------
 
-##  Summaries of columns of numbers.
+##  Summaries of columns of numbers
 
 ### Num
 Constructor of summary of numeric columms

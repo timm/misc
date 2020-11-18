@@ -10,7 +10,7 @@ For full license info, see LICENSE.md in the project root
 
 @include "lib"
 
-## Abstract class: parent of all column.
+## Abstract class: parent of all column
 
 function Col(i:untyped, s:string, n:posint) { 
   ## Abstract constructor for our column.
@@ -33,7 +33,7 @@ function dist(c:Col, x,y,  f) {
 
 -----------------------------------------------
 
-## Columns to be ignored.  
+## Columns to be ignored. 
 
 function Info(i:untyped, s:string, n:posint)  { 
   ## Constructor for columns we will not summarize. 
@@ -45,7 +45,7 @@ function _Add(i:Info, x:any) {
 
 -----------------------------------------------
 
-## Summaries of columns of symbols.
+## Summaries of columns of symbols
 
 function Sym(i:untyped, s:string, n:posint) { 
   ## Constructor for summary of symbolic columns.
@@ -67,7 +67,7 @@ function _Dist(i:Sym, x:atom, y:atom) {
 
 -----------------------------------------------
 
-##  Summaries of columns of numbers.
+##  Summaries of columns of numbers
 
 function Num(i:untyped, s:string, n:posint) { 
   ## Constructor of summary of numeric columms
