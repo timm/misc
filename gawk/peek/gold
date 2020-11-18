@@ -2,12 +2,31 @@
 # vim: ft=sh ts=2 sw=2 et :
 here=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 
+alias gold="$here/gold "
 chmod +x $here/gold
 mkdir -p $here/docs
 
 want=$here/.gitignore
 [ -f "$want" ] || cat<<EOF>$want
 *.awk
+EOF
+
+want=$here/.travis.yml
+[ -f "$want" ] || cat<<EOF>$want
+language: C
+
+sudo: true
+
+install:
+  - wget -O gawk.tar.gz https://ftp.gnu.org/gnu/gawk/gawk-5.1.0.tar.gz
+  - tar xzf gawk.tar.gz
+  - cd gawk-5.1.0
+  - ./configure; sudo make; sudo make install
+  - cd ..
+
+
+script:
+  - bash gold -t
 EOF
 
 transpile() { gawk  '
@@ -102,7 +121,7 @@ for f in *.gold; do
   fi
 done
 
-if [ "$1" == "docs" ]; then
+if [ "$1" == "-d" ]; then
    for f in *.gold; do
      g=$here/docs/${f%.*}.md
      if [ "$f" -nt "$g" ]; then 
@@ -111,13 +130,18 @@ if [ "$1" == "docs" ]; then
        cat $f | body  | toc >> $g
      fi
    done
-elif [ "$1" == "push" ]; then
+elif [ "$1" == "-t" ]; then
+  if [ -f "$src/tests.gold" ]; then
+    cd $here/src
+    $here/gold tests.gold
+  fi
+elif [ "$1" == "-p" ]; then
   git config advice.addIgnoredFile false
   git add *
   git commit -am saving
   git push
   git status
-elif [[ "$1" =~ ^.*gold$ ]] ; then
+elif [[ -n "$1" ]] ; then
   g=${1%.*}.awk
   shift
   if [ -t 1 ]

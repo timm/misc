@@ -5,7 +5,8 @@
   - [tab1](#tab1)
   - [zs](#zs)
   - [dists1a](#dists1a)
-  - [BEGIN{](#begin)
+  - [far1](#far1)
+  - [oo1](#oo1)
 
 
 # vim: ft=awk ts=2 sw=2 et :
@@ -79,7 +80,7 @@ function num1(s, n,a,i) {
 <ul><details><summary><tt>dists1a()</tt></summary>
 
 ```awk
-function dists1a(f,   d,t) {
+function dists1a(f,   d,t,r1,r2,n) {
   d = Gold.dot 
   Tab(t)
   TabLoad(t,d d "/data/" f d "csv")
@@ -90,24 +91,56 @@ function dists1a(f,   d,t) {
         if(--n <0) return 1
         print(r1,r2,RowDist(t.rows[r1], t.rows[r2], t, t.xs),
              o(t.rows[r1].cells),
-             o(t.rows[r2].cells))
-}}
+             o(t.rows[r2].cells)) }}
 ```
 
 </details></ul>
 
-## BEGIN{ 
+## far1
 
-<ul><details><summary><tt>BEGIN{ ()</tt></summary>
+<ul><details><summary><tt>far1()</tt></summary>
 
 ```awk
+function far1(f,   d,t,n,far,r1,r2) {
+  d = Gold.dot 
+  Tab(t)
+  TabLoad(t,d d "/data/" f d "csv")
+  oo(t); exit
+  n=10
+  for(r1 in t.rows) {
+     if(--n < 0) break
+     far = TabFar(t,r1)
+     print(far)
+     print(r1,far, TabDist(t,r1,far),
+             o(t.rows[r1].cells),
+             o(t.rows[far].cells)) }}
+```
+
+</details></ul>
+
+## oo1
+
+<ul><details><summary><tt>oo1()</tt></summary>
+
+```awk
+function oo1(f,   a) {
+  a[10][100]=10
+  a[10][200]=20
+  a[10][300]=30
+  a[10][400][4] = 40 
+  a[20][1][2]=20
+  oo(a,"|")
+}
 BEGIN{ 
   srand(1)
   #tests("csv1"); 
   #tests("tab2")
   #zs()
   #tests("num1")
-  dists1a("weather")
+  #dists1a("weather")
+  #far1("weather")
+  oo1("11")
+  rogues()
 }
 ```
 

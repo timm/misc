@@ -59,7 +59,7 @@ function Tab(i:untyped) {
   has(i,"rows"); has(i,"cols"); has(i,"names")
   has(i,"info"); has(i,"xs");   has(i,"ys") }
 
-function _Load(i:Tab, f:fname) {
+function _Load(i:Tab, f:fname,     record) {
   ## Load a csv file `f` into the table `i`
   while(csv(record,f)) {  add(i,record)} }
 
@@ -95,10 +95,9 @@ function _Dist(i:Tab, r1:posint, r2:posint) {
   print o(i[i.use],">")
   return  RowDist(i.rows[r1], i.rows[r2], i[i.use]) }
 
-function _Far(i:Tab, r:posint,     n,all) {
+function _Far(i:Tab, r:posint,     n,out) {
   ## Return something quite far way from `r` (ignoring outliers).
   n= _Around(i,r, out) 
-  print(1,n)
   return out[int(n*i.far)].row }
 
 function _Around(i,r1,out,   r2) {
@@ -164,3 +163,4 @@ function _Clone(i:Tab, j:Tab) {
 #    print pre length(i.all)
 #    if (length(i.lower)) _Print(i.lower, lvl+1, "|.. " pre)
 #    if (length(i.upper)) _Print(i.upper, lvl+1, "|.. " pre) }
+

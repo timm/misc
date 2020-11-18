@@ -17,7 +17,7 @@
   - [Array stuff](#arraystuff) : Support for managing arrays.
     - [push](#push) : Return `x` after adding to the end of `a`.
     - [keysort](#keysort) : Sort `a` by field `k`.
-    - [__keysort](#__keysort)
+    - [keysort1](#keysort1)
     - [sortCompare](#sortcompare)
     - [copy](#copy) : `b` is set to a recursively copy of `a`.
   - [Maths stuff](#mathsstuff) : Some mathematical details.
@@ -27,7 +27,7 @@
     - [z](#z) : Sample from a Gaussian.
     - [Printing stuff](#printingstuff)
       - [o](#o) : Simple printing of a flat array
-      - [oo](#oo) : Print arrays, recursively, shows in sorted array, prepend with `prefix`.
+      - [oo](#oo)
       - [ooSortOrder](#oosortorder)
   - [File stuff](#filestuff)
     - [csv](#csv) : Loop over a csv file `f`, setting the array `a` to the next record.
@@ -160,9 +160,19 @@ Print local variables, escaped from functions
 <ul><details><summary><tt>rogues()</tt></summary>
 
 ```awk
-function rogues(   s) { f
-  for(s in SYMTAB) if (s ~ /^[A-Z]/)  print "#W> Global: " s>"/dev/stderr" 
-  for(s in SYMTAB) if (s ~ /^[_a-z]/) print "#W> Rogue: "  s>"/dev/stderr" }
+function rogues(   s,ignore) { 
+  ignore=       "(ARGV|ROUNDMODE|ORS|OFS|LINT|FNR"
+  ignore=ignore "|ERRNO|NR|IGNORECASE|TEXTDOMAIN|NF|ARGIND"
+  ignore=ignore "|ARGC|PROCINFO|FIELDWIDTHS|CONVFMT|SUBSEP"
+  ignore=ignore "|PREC|ENVIRON|RS|FPAT|RT|RLENGTH|OFMT"
+  ignore=ignore "|FS|RSTART|FILENAME|BINMODE)"
+  for(s in SYMTAB) 
+    if (s ~ /^[A-Z]/)  
+      if (s !~ ignore)
+         print "#W> Global: " s>"/dev/stderr" 
+  for(s in SYMTAB) 
+    if (s ~ /^[_a-z]/) 
+      print "#W> Rogue: "  s>"/dev/stderr" }
 ```
 
 </details></ul>
@@ -195,8 +205,8 @@ function ok(s:string, got:atom, want:atom,   epsilon:number,       good) {
     good = abs(want - got)/(want + 10^-32)  < epsilon
   else
     good = want == got;
-  s= "#TEST:\t"(good?"PASSED":"FAILED") "\t" i "\t" want "\t" got " : " s
-  print(good ? green(s) : red(s)) }
+  s= "#TEST:\t"(good?"PASSED":"FAILED") "\t" want "\t" got " : " s
+  rint(good ? green(s) : red(s)) }
 ```
 
 </details></ul>
@@ -220,10 +230,10 @@ Support for managing arrays.
 ### push
 Return `x` after adding to the end of `a`.
 
-<ul><details><summary><tt>push(a:array, x:)</tt></summary>
+<ul><details><summary><tt>push(a:array, x:atom)</tt></summary>
 
 ```awk
-function push(a:array, x: atom) { 
+function push(a:array, x:atom) { 
   a[length(a)+1] = x; return x }
 ```
 
@@ -236,17 +246,17 @@ Sort `a` by field `k`.
 
 ```awk
 function keysort(a,k) { 
-  Gold["keysort"]=k; return asort(a,a,"__keysort") }
+  Gold["keysort"]=k; return asort(a,a,"keysort1") }
 ```
 
 </details></ul>
 
-### __keysort
+### keysort1
 
-<ul><details><summary><tt>__keysort()</tt></summary>
+<ul><details><summary><tt>keysort1()</tt></summary>
 
 ```awk
-function __keysort(i1,x,i2,y) {
+function keysort1(i1,x,i2,y) {
   return sortCompare(x[ Gold["keysort"] ] + 0,
                      y[ Gold["keysort"] ] + 0) } 
 ```
@@ -355,21 +365,20 @@ function o(a:array, prefix:string|"",     i,sep,s) {
 </details></ul>
 
 #### oo
-Print arrays, recursively, shows in sorted array, prepend with `prefix`.
 
-<ul><details><summary><tt>oo(x:array, prefix:string)</tt></summary>
+<ul><details><summary><tt>oo()</tt></summary>
 
 ```awk
-function oo(x:array, prefix:string,   indent,      j,txt) {
-  txt = prefix ? prefix : (prefix Gold.dot)
-  ooSortOrder(x)
-  for(j in x)  
-    if (j !~ /^_/) {
-      if (isarray(x[j]))   {
-        print(txt j"" )
-        oo(x[j],"","|  " prefix)
-      } else
-        print(txt j (x[j]==""?"": ": " x[j])) } }
+function oo(a,prefix,    indent,   i,txt) {
+  txt = indent ? indent : (prefix Gold.dot )
+  if (!isarray(a)) {print(a); return a}
+  ooSortOrder(a)
+  for(i in a)  {
+    if (isarray(a[i]))   {
+      print(txt i"" )
+      oo(a[i],"","|  " indent)
+    } else
+      print(txt i (a[i]==""?"": ": " a[i])) }}
 ```
 
 </details></ul>
@@ -379,10 +388,10 @@ function oo(x:array, prefix:string,   indent,      j,txt) {
 <ul><details><summary><tt>ooSortOrder()</tt></summary>
 
 ```awk
-function ooSortOrder(x, j) {
-  for (j in x)
-    return PROCINFO["sorted_in"] = \
-      typeof(j + 1)=="number" ? "@ind_num_asc" : "@ind_str_asc" }
+function ooSortOrder(a, i) {
+  for (i in a)
+   return PROCINFO["sorted_in"] =\
+     typeof(i+1)=="number" ? "@ind_num_asc" : "@ind_str_asc" }
 ```
 
 </details></ul>

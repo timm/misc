@@ -18,7 +18,7 @@
     - [_Cdf](#_cdf) : Return the area under the Gaussian from negative infinity to `x`.
     - [_Crossover](#_crossover) : Return where two Gaussians cross in-between their means.
     - [_Norm](#_norm) : Distance calcs for `Num`bols.
-    - [_Dist](#_dist) : Distance between two numbers `x` and `y`.
+    - [_Dist](#_dist) : Return normalized distance 0..1 between two numbers `x` and `y`.
 
 
 -----------------------------------------------
@@ -206,8 +206,8 @@ Return height of the Gaussian at `x`.
 ```awk
 function _Pdf(i:Num, x:any,    var,denom,num) {
   var   = i.sd^2
-  denom = (2*Au.pi*2*var)^.5
-  num   = 2*Au.e^(-(x-i.mu)^2/(2*var+0.0001))
+  denom = (2*Gold.pi*2*var)^.5
+  num   = 2*Gold.e^(-(x-i.mu)^2/(2*var+0.0001))
   return num/(denom + 10^-64) }
 ```
 
@@ -221,7 +221,7 @@ Return the area under the Gaussian from negative infinity to `x`.
 ```awk
 function _Cdf(i:Num, x:number) { 
   x = (x-i.mu)/i.sd
-  return (x<-3 || x>3) ? 0 : 1/(1+Au.e^(-0.07056*x^3 - 1.5976*x))}
+  return (x<-3 || x>3) ? 0 : 1/(1+Gold.e^(-0.07056*x^3 - 1.5976*x))}
 ```
 
 </details></ul>
@@ -232,7 +232,7 @@ Return where two Gaussians cross in-between their means.
 <ul><details><summary><tt>_Crossover(i:Num, j:Num)</tt></summary>
 
 ```awk
-function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
+function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y,out) {
    x1  = i.mu
    x2  = j.mu
    if (x2 < x1) { x2=i.mu; x1=j.mu }
@@ -240,8 +240,7 @@ function _Crossover(i:Num,j:Num,   x1,x2,d,min,x,y) {
    min = 1E32
    for(x=x1; x<=x2; x+=d) {
       y = _Pdf(i) + _Pdf(j)
-      if (y<min) { out=x; min = x} 
-   } 
+      if (y<min) { out=x; min = x }} 
    return out }
 ```
 
@@ -254,14 +253,13 @@ Distance calcs for `Num`bols.
 
 ```awk
 function _Norm(i:Num, x:number) {
-  return  (x-i.lo) / (i.hi - i.lo + 1E-32) }
+  return  (x - i.lo) / (i.hi - i.lo + 1E-32) }
 ```
 
 </details></ul>
 
 ### _Dist
-Distance between two numbers `x` and `y`.
-ok?
+Return normalized distance 0..1 between two numbers `x` and `y`.
 
 <ul><details><summary><tt>_Dist(i:Num, x:atom, y:atom|20)</tt></summary>
 
