@@ -1,3 +1,4 @@
+#!/usr/bin/env ./auk
 #- vim: ft=awk ts=2 sw=2 et :
 
 BEGIN { go()
@@ -15,7 +16,7 @@ function Col(i,pos,txt) {
   Obj(i)
   i.pos = pos
   i.txt = txt
-  i.w   = txt ~ /</ ? -1 : 1  }
+  i.w   = (txt ~ /</) ? -1 : 1  }
 
 # Handles symbolic columns
 function Sym(i,pos,txt) { 
@@ -43,7 +44,7 @@ function head(i,a,   j) {
 # Add a new row
 function data(i,a,  r,j) { 
   r= length(i.rows) + 1
-  for(j in a) 
+  for(j in a)  
     i.rows[r][j] = a[j] }
 
 function eg1(f,   i) {
