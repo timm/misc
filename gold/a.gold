@@ -1,6 +1,6 @@
 #- vim: ft=awk ts=2 sw=2 et :
 
-BEGIN { start()
+BEGIN { go()
         eg1( "weather")
         stop() }
 
@@ -52,7 +52,7 @@ function eg1(f,   i) {
   oo(i) }
 
 #--- misc function
-function start() { D=sprintf("%c",46)  }
+function go() { D=sprintf("%c",46)  }
 function stop()  { rogues() }
 
 function Obj(i) { i[0]; delete i[0] }
