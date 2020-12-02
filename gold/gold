@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+
+transpile() { gawk '
+BEGIN               { RS=""; FS="\n"
+                      Gold["dot"] = sprintf("%c",42) 
+                    } 
+  /@include/        { print $0 "\n"; next}
+  $NF !~ /}[ \t]*$/ { for(i=1;i<=NF;i++) print "#" $i 
+                      print ""; next }
+  /^func(tion)?[ \t]+[A-Z][^\(]*\(/ {
+      split($1,a,/[ \t\(]/)
+      PREFIX = a[2]
+  }
+  { gsub(/ _/," " PREFIX,$0)
+    if ($1 ~ /{/) {
+        split($1,a,/{/)
+        gsub(/:[\?"A-Z0-9a-z\*:\|\.]*/,"", a[1])
+        $1 = a[1] "{" a[2] 
+    } else
+        gsub(/:[\?"A-Z0-9a-z\*:\|\.]*/,"");
+   for(i=1;i<=NF;i++)
+      print gensub(/\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
+                   "[\"\\1\\2\"]","g", $i);
+   print ""
+   } '
+}
+
+cat $1 | transpile > ~/tmp/tmp.awk
+shift
+if [ -t 0 ]
+then         gawk -f ~/tmp/tmp.awk $*
+else cat - | gawk -f ~/tmp/tmp.awk $*
+fi

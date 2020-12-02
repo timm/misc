@@ -1,0 +1,9 @@
+-- vim : ft=lua :
+
+lib = require "gate"
+
+lib.oo { a=2,b={cc=10,dd={kk=1,mll=2}}}
+
+for t in lib.csv("data/weather.csv") do
+   lib.oo(t)
+end
