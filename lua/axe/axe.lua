@@ -20,7 +20,7 @@ do local id=0
 -- ## Verbs
 local function add(i, ...) return i.It.add(i, ...) end
 
--- ## Summaries
+-- ## Column summaries
 _ = col
 function _.new(pos,txt,    i)  
   i = thing.new()
@@ -29,6 +29,11 @@ function _.new(pos,txt,    i)
   i.txt=txt
   i.w  = txt:find(of.ch.less) and -1 or 1
   return i end
+
+function _.what(n,s) 
+  local tmp = s:find(of.ch.skip) and skip or (
+              s:find(of.ch.sym)  and sym or num) 
+  return tmp.new(n,s) end
 
 _=sym
 function _.new(pos,txt,    i) 
@@ -78,6 +83,9 @@ function _.new(cols,     i)
     i.bins[c]  = i.cells[c] end 
   return i end
 
+-- ## Container for many rows
+-- Summaries in columns (see `i.cols`).
+
 _=rows
 function _.new(i)    
   i    = thing.new()
@@ -91,14 +99,10 @@ function _.add(i, t)
 
 function _.data(i,t) 
   i.n = i.n + 1
-  i.rows[math.floor(10^9 * math.random())] = row.new(i.cols) end
+  i.rows[math.floor(10^9 * math.random())] = row.new(t,cols) end
   
-function _.what(i, s)
-  return s:find(of.ch.skip) and skip or (
-         s:find(of.ch.sym)  and sym or num) end
- 
 function _.head(i,t)
-  for n,s in pairs(t) do i.cols[j] = _.what(s).new(n,s) end end
+  for n,s in pairs(t) do i.cols[j] = col.what(n,s) end end
 
 function _.read(i,f) 
   for row in lib.csv(f) do _.add(i, row) end
