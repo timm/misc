@@ -17,7 +17,7 @@ do local id=0
 
 -----
 -- ## Summaries
-function col.new(txt,pos,    i)  -- (str,int) --> col
+function col.new(txt,pos,    i)  
   i = thing.new()
   i.Is = col
   i.pos=pos
@@ -25,7 +25,6 @@ function col.new(txt,pos,    i)  -- (str,int) --> col
   i.w  = txt:find(of.ch.less) and -1 or 1
   return i end
 
--- (str,int) --> new
 function sym.new(txt,pos,    i) 
   i = col.new(txt,pos)
   i.Is = sym
