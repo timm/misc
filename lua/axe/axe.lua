@@ -1,33 +1,31 @@
-local this = {
+local of = {
   synopois="axe: optimization = cluster + contrast",
   author  ="Tim Menzies, timm@ieee.org",
   license ="MIT",
-  year    = 2020}
+  year    = 2020,
+  ch      = {skip="?", more=">", less="<"}
+}
 
 -----
 -- ## Things
 local thing, col  = {ako="thing"},{ako="col"}
-local lib,num,sym = {ako="lib"},{ako="num"},  {ako="sym"}
-local all         = {ako="all"}
+local lib,num,sym = {ako="lib"},  {ako="num"},  {ako="sym"}
 
-do  local id=0
-    function thing.new() id=id+1; return {Is=thing,Id=id} end
-end
-
------
--- ## Verbs
-function all.add(i, ...) return i.Is.add(i, ...) end
+-- All `thing`s have a unique id.
+do local id=0
+   function thing.new() id=id+1; return {Is=thing,Id=id} end end
 
 -----
 -- ## Summaries
-function col.new(txt,pos,    i) 
+function col.new(txt,pos,    i)  -- (str,int) --> col
   i = thing.new()
   i.Is = col
   i.pos=pos
   i.txt=txt
-  i.w  = txt:find("<") and -1 or 1
+  i.w  = txt:find(of.ch.less) and -1 or 1
   return i end
 
+-- (str,int) --> new
 function sym.new(txt,pos,    i) 
   i = col.new(txt,pos)
   i.Is = sym
@@ -36,8 +34,8 @@ function sym.new(txt,pos,    i)
   i.mu=0
   return i end
 
-function sym.add(i, x,y)
-  if (x ~= "?") then
+function sym.add(i, x)
+  if (x ~= of.ch.skip) then
     i.seen[x] = (i.seen[x] or 0) + 1
     if i.seen[x] > i.most then i.most, i.mode = i.seen[x], x end end
   return x end 
@@ -51,13 +49,16 @@ function num.new(txt,pos,    i)
   return i end
 
 function num.add(i,x)
-  if (x ~= "?") then
+  if (x ~= of.ch.skip) then
     i.lo = math.min(i.lo,x)
     i.hi = math.max(i.hi,x) end
   return x end
 
 ---------
 -- ## Lib
+
+-- Polymorphism (one ring to rule them all)
+function lib.go(i,f, ...) return i.Is[f](i, ...) end
 
 -- Iterate on keys in sorted order
 function lib.order(t,  i,keys)
@@ -72,22 +73,20 @@ function lib.order(t,  i,keys)
 function lib.o(z,pre,   s,c) 
   s, c = (pre or "")..'{', ""
   for _,v in lib.order(z or {}) do s= s..c..tostring(v); c=", " end
-  return s..'}'
-end
+  return s..'}' end
 
 -- Nested print of tables. 
--- - Don't show private slots (those that start with "_"),
--- - Show slots in sorted order.  If `pre` is specified, 
---   then  use that as a prefix.
--- - Don't loop if we  hit the same object more than once 
---   (instead,  print "...").
+--
+-- - Don't show private slots (those that start upper case),
+-- - Show slots in sorted order.  
+-- - If `pre` is specified, then  print that as a prefix.
 function lib.oo(t,pre,    indent,fmt)
   pre    = pre or ""
   indent = indent or 0
   if(indent==0) then print("") end
   if indent < 10 then
     for k, v in lib.order(t or {}) do
-      if not (type(k)=='string' and k:match("^_")) then
+      if not (type(k)=='string' and k:match("^[A-Z]")) then
         if not (type(v)=='function') then
           fmt = pre..string.rep("|  ",indent)..tostring(k)..": "
           if type(v) == "table" then
@@ -106,10 +105,8 @@ function lib.rogues(    ignore,match)
   for k,v in pairs( _G ) do
     if type(v) ~= "function" and not ignore[k] then
        if k:match("^[^A-Z]") then
-         print("-- warning, rogue local ["..k.."]") 
-  end end end 
-end 
+         print("-- warning, rogue local ["..k.."]") end end end end 
 
 -------
 -- ## Return
-return {this=this, lib=lib,all=all, num=num, sym=sym}
+return {of=of, lib=lib,num=num, sym=sym}
