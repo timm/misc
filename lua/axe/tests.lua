@@ -1,7 +1,7 @@
 local m=require("axe")
 
 local o ,oo, go = m.lib.o, m.lib.oo, m.lib.go
-local num, sym,rows  = m.num, m.sym, m.rows
+local num, sym,tbl  = m.num, m.sym, m.tbl
 
 local function going(      x,y) 
   x = sym.new(1,"names")
@@ -28,8 +28,8 @@ local function csving()
     print(o(row)) end end
 
 local function rowsreading( i)
-  i = rows.new()
-  rows.read(i,"data/weather.csv")
+  i = tbl.new()
+  tbl.read(i,"data/weather.csv")
   oo(i) end 
 
 math.randomseed(m.of.seed)

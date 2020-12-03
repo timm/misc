@@ -11,7 +11,7 @@ local of = {
 local thing, col   = {ako="thing"}, {ako="col"}
 local lib, num,sym = {ako="lib"}, {ako="num"}, {ako="sym"}
 local skip         = {ako="skip"}
-local row, rows    = {ako="row"}, {ako="rows"}
+local row, tbl    = {ako="row"}, {ako="tbl"}
 
 -- All `thing`s have a unique id.
 do local id=0
@@ -32,11 +32,9 @@ function col.new(pos,txt,    i)
 function col.what(n,s) 
   local tmp = s:find(of.ch.skip) and skip or (
               s:find(of.ch.sym)  and sym or num) 
-  print("nn",n,"ss",s)
   return tmp.new(n,s) end
 
 function sym.new(pos,txt,    i) 
-  print("p",pos,txt)
   i = col.new(pos,txt)
   i.Is = sym
   i.seen={}
@@ -81,34 +79,31 @@ function row.new(t,cols,     i)
     i.bins[pos]  = i.cells[pos] end 
   return i end
 
--- ## Container for many rows
+-- ## Tables hold rows.
 -- Summaries in columns (see `i.cols`).
-function rows.new(i)    
+function tbl.new(i)    
   i    = thing.new()
-  i.Is = rows
+  i.Is = tbl
   i.cols, i.rows = {},{} 
   return i end
 
-function rows.add(i, t)
-  return rows[#i.cols==0 and "head" or "data"](i,t)  end
+function tbl.add(i, t)
+  return #i.cols==0 and tbl.head(i,t) or tbl.data(i,t) end
 
-function rows.data(i,t) 
-  oo(t)
+function tbl.data(i,t) 
   i.rows[#i.rows+1] = row.new(t,i.cols) end
   
-function rows.head(i,t)
-  for n,s in pairs(t) do i.cols[j] = col.what(n,s) end 
-  oo(i.cols)
-end
+function tbl.head(i,t)
+  for n,s in pairs(t) do i.cols[j] = col.what(n,s) end end
 
-function rows.read(i,f) 
-  for row in lib.csv(f) do rows.add(i, row) end
+function tbl.read(i,f) 
+  for t in lib.csv(f) do tbl.add(i, t) end
   return i end
 
 -- ## Lib
 
 -- Polymorphism (one ring to rule them all)
-function lib.go(i,f, ...) lib.oo(i); print("f",f); return i.Is[f](i, ...) end
+function lib.go(i,f, ...) return i.Is[f](i, ...) end
 
 -- Iterate on keys in sorted order
 function lib.order(t,  i,keys)
@@ -179,4 +174,4 @@ function lib.split(s,     c,t)
 
 
 -- ## Return
-return {of=of, lib=lib,num=num, sym=sym,rows=row}
+return {of=of, lib=lib, num=num, sym=sym, tbl=tbl}

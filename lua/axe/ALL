@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 Src=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 
 alias ls="ls -G"
@@ -9,4 +11,18 @@ docs() {
   cd $Src
   pycco -i *.lua
   cp etc/pycco.css docs/
+}
+
+reformat() {
+  lua-format  --keep-simple-function-one-line \
+      --keep-simple-control-block-one-line \
+       --indent-width=2 --tab-width=2 --column-limit=70 $1 | ends
+}
+
+ends() { gawk '
+     { gsub(/[ \t]*$/,"") } 
+   /^[ \t]*end[ \t]*$/{ b4=b4 " end"; next }
+                     { print b4
+                       b4 = $0 }
+                 END { print b4 } '
 }
