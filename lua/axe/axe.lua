@@ -1,23 +1,28 @@
 local of = {
-  synopois="axe: optimization = cluster + contrast",
-  author  ="Tim Menzies, timm@ieee.org",
-  license ="MIT",
+  synopois= "axe: optimization = cluster + contrast",
+  author  = "Tim Menzies, timm@ieee.org",
+  license = "MIT",
   year    = 2020,
+  seed    = 1,
   ch      = {skip="?", more=">", less="<"}
 }
 
------
 -- ## Things
 local thing, col  = {ako="thing"},{ako="col"}
-local lib,num,sym = {ako="lib"},  {ako="num"},  {ako="sym"}
-
+local lib,num,sym = {ako="lib"}, {ako="num"},  {ako="sym"}
+local skip        = {ako="skip"}
+local row,rows    = {ako="row"},  {ako="rows"}
+local _
 -- All `thing`s have a unique id.
 do local id=0
    function thing.new() id=id+1; return {Is=thing,Id=id} end end
 
------
+-- ## Verbs
+local function add(i, ...) return i.It.add(i, ...) end
+
 -- ## Summaries
-function col.new(txt,pos,    i)  
+_ = col
+function _.new(pos,txt,    i)  
   i = thing.new()
   i.Is = col
   i.pos=pos
@@ -25,35 +30,80 @@ function col.new(txt,pos,    i)
   i.w  = txt:find(of.ch.less) and -1 or 1
   return i end
 
-function sym.new(txt,pos,    i) 
-  i = col.new(txt,pos)
-  i.Is = sym
+_=sym
+function _.new(pos,txt,    i) 
+  i = col.new(pos,txt)
+  i.Is = col
   i.seen={}
   i.most, i.mode = 0, nil
   i.mu=0
   return i end
 
-function sym.add(i, x)
+function _.add(i, x)
   if (x ~= of.ch.skip) then
     i.seen[x] = (i.seen[x] or 0) + 1
     if i.seen[x] > i.most then i.most, i.mode = i.seen[x], x end end
   return x end 
 
-function num.new(txt,pos,    i) 
-  i = col.new(txt,pos)
+_=skip
+function _.new(pos,txt,    i) 
+  i    = col.new(pos,txt)
+  i.Is = skip 
+  return i end
+
+function _.add(i, x) return x end
+
+_=num
+function _.new(pos,txt,    i) 
+  i = col.new(pos,txt)
   i.Is = num
   i.mu,i.m2=0,0 
   i.lo = math.maxinteger
   i.hi = math.mininteger
   return i end
 
-function num.add(i,x)
+function _.add(i,x)
   if (x ~= of.ch.skip) then
     i.lo = math.min(i.lo,x)
     i.hi = math.max(i.hi,x) end
   return x end
 
----------
+_=num
+function _.new(cols,     i)
+  i    = thing.new()
+  i.Is = num
+  i.cells, i.bins ={}, {}
+  for _,c in pairs(cols) do 
+    i.cells[c] = add(t[c.pos],t[c]) 
+    i.bins[c]  = i.cells[c] end 
+  return i end
+
+_=rows
+function _.new(i)    
+  i    = thing.new()
+  s.Is = rows
+  i.n  = 0
+  i.cols, i.rows = {},{} 
+  return i end
+
+function _.add(i, t)
+  return #i.cols==0 and _.head(i,t) or _.data(i,t) end
+
+function _.data(i,t) 
+  i.n = i.n + 1
+  i.rows[math.floor(10^9 * math.random())] = row.new(i.cols) end
+  
+function _.what(i, s)
+  return s:find(of.ch.skip) and skip or (
+         s:find(of.ch.sym)  and sym or num) end
+ 
+function _.head(i,t)
+  for n,s in pairs(t) do i.cols[j] = _.what(s).new(n,s) end end
+
+function _.read(i,f) 
+  for row in lib.csv(f) do _.add(i, row) end
+  return i end
+
 -- ## Lib
 
 -- Polymorphism (one ring to rule them all)
@@ -75,10 +125,9 @@ function lib.o(z,pre,   s,c)
   return s..'}' end
 
 -- Nested print of tables. 
---
--- - Don't show private slots (those that start upper case),
--- - Show slots in sorted order.  
--- - If `pre` is specified, then  print that as a prefix.
+-- Don't show private slots (those that start upper case),
+-- Show slots in sorted order.
+-- If `pre` is specified, then  print that as a prefix.
 function lib.oo(t,pre,    indent,fmt)
   pre    = pre or ""
   indent = indent or 0
@@ -106,6 +155,27 @@ function lib.rogues(    ignore,match)
        if k:match("^[^A-Z]") then
          print("-- warning, rogue local ["..k.."]") end end end end 
 
--------
+-- Return each row, split on ",", numstrings coerced to numbers,
+-- kills comments and whitespace.
+function lib.csv(file,     stream,tmp,t)
+  stream = file and io.input(file) or io.input()
+  tmp    = io.read()
+  return function()
+    if tmp then
+      t   = lib.split(tmp:gsub("([\t\r ]*|#.*)","")) -- no whitespace
+      tmp = io.read()
+      if #t > 0 then 
+        for j,x in pairs(t) do t[j] = tonumber(t[j]) or t[j] end
+        return t end
+    else
+      io.close(stream) end end end
+
+--  Split the string `s` on separator `c`, defaults to "." 
+function lib.split(s,     c,t)
+  t, c = {}, c or ","
+  for y in string.gmatch(s, "([^" ..c.. "]+)") do t[#t+1] = y end
+  return t end
+
+
 -- ## Return
-return {of=of, lib=lib,num=num, sym=sym}
+return {of=of, lib=lib,num=num, sym=sym,rows=row}
