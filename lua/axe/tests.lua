@@ -1,18 +1,18 @@
 local m=require("axe")
 
 local o ,oo, go = m.lib.o, m.lib.oo, m.lib.go
-local num, sym  = m.num, m.sym
+local num, sym,rows  = m.num, m.sym, m.rows
 
 local function going(      x,y) 
-  x = sym.new("addss",1)
-  y = num.new("adds",1)
+  x = sym.new(1,"names")
+  y = num.new(1,"door")
   go(x,"add","asdas")
   go(y,"add",23)
   oo(x)
   oo(y) end
 
 local function fastgoing(    y,n,t1,t2,t3) 
-  y = num.new("adds",1)
+  y = num.new(1,"adds")
   n  = 10^6
   t1 = os.time()
   for i=1,n do go(y,"add",23) end

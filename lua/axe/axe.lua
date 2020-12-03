@@ -8,11 +8,11 @@ local of = {
 }
 
 -- ## Things
-local thing, col  = {ako="thing"},{ako="col"}
-local lib,num,sym = {ako="lib"}, {ako="num"},  {ako="sym"}
-local skip        = {ako="skip"}
-local row,rows    = {ako="row"},  {ako="rows"}
-local _
+local thing, col   = {ako="thing"}, {ako="col"}
+local lib, num,sym = {ako="lib"}, {ako="num"}, {ako="sym"}
+local skip         = {ako="skip"}
+local row, rows    = {ako="row"}, {ako="rows"}
+
 -- All `thing`s have a unique id.
 do local id=0
    function thing.new() id=id+1; return {Is=thing,Id=id} end end
@@ -21,45 +21,43 @@ do local id=0
 local function add(i, ...) return i.It.add(i, ...) end
 
 -- ## Column summaries
-_ = col
-function _.new(pos,txt,    i)  
-  i = thing.new()
-  i.Is = col
-  i.pos=pos
-  i.txt=txt
-  i.w  = txt:find(of.ch.less) and -1 or 1
+function col.new(pos,txt,    i)  
+  i     = thing.new()
+  i.Is  = col
+  i.pos = pos or 0
+  i.txt = txt or ""
+  i.w   = i.txt:find(of.ch.less) and -1 or 1
   return i end
 
-function _.what(n,s) 
+function col.what(n,s) 
   local tmp = s:find(of.ch.skip) and skip or (
               s:find(of.ch.sym)  and sym or num) 
+  print("nn",n,"ss",s)
   return tmp.new(n,s) end
 
-_=sym
-function _.new(pos,txt,    i) 
+function sym.new(pos,txt,    i) 
+  print("p",pos,txt)
   i = col.new(pos,txt)
-  i.Is = col
+  i.Is = sym
   i.seen={}
   i.most, i.mode = 0, nil
   i.mu=0
   return i end
 
-function _.add(i, x)
+function sym.add(i, x)
   if (x ~= of.ch.skip) then
     i.seen[x] = (i.seen[x] or 0) + 1
-    if i.seen[x] > i.most then i.most, i.mode = i.seen[x], x end end
+    if i.seen[x] > i.most then i.most,i.mode = i.seen[x],x end end
   return x end 
 
-_=skip
-function _.new(pos,txt,    i) 
+function skip.new(pos,txt,    i) 
   i    = col.new(pos,txt)
   i.Is = skip 
   return i end
 
-function _.add(i, x) return x end
+function skip.add(i, x) return x end
 
-_=num
-function _.new(pos,txt,    i) 
+function num.new(pos,txt,    i) 
   i = col.new(pos,txt)
   i.Is = num
   i.mu,i.m2=0,0 
@@ -67,51 +65,50 @@ function _.new(pos,txt,    i)
   i.hi = math.mininteger
   return i end
 
-function _.add(i,x)
+function num.add(i,x)
   if (x ~= of.ch.skip) then
     i.lo = math.min(i.lo,x)
     i.hi = math.max(i.hi,x) end
   return x end
 
-_=num
-function _.new(cols,     i)
+function row.new(t,cols,     i)
   i    = thing.new()
   i.Is = num
   i.cells, i.bins ={}, {}
-  for _,c in pairs(cols) do 
-    i.cells[c] = add(t[c.pos],t[c]) 
-    i.bins[c]  = i.cells[c] end 
+  for pos,txt in pairs(t) do 
+    oo(cols)
+    i.cells[pos] = add(cols[pos], pos,txt)
+    i.bins[pos]  = i.cells[pos] end 
   return i end
 
 -- ## Container for many rows
 -- Summaries in columns (see `i.cols`).
-
-_=rows
-function _.new(i)    
+function rows.new(i)    
   i    = thing.new()
-  s.Is = rows
-  i.n  = 0
+  i.Is = rows
   i.cols, i.rows = {},{} 
   return i end
 
-function _.add(i, t)
-  return #i.cols==0 and _.head(i,t) or _.data(i,t) end
+function rows.add(i, t)
+  return rows[#i.cols==0 and "head" or "data"](i,t)  end
 
-function _.data(i,t) 
-  i.n = i.n + 1
-  i.rows[math.floor(10^9 * math.random())] = row.new(t,cols) end
+function rows.data(i,t) 
+  oo(t)
+  i.rows[#i.rows+1] = row.new(t,i.cols) end
   
-function _.head(i,t)
-  for n,s in pairs(t) do i.cols[j] = col.what(n,s) end end
+function rows.head(i,t)
+  for n,s in pairs(t) do i.cols[j] = col.what(n,s) end 
+  oo(i.cols)
+end
 
-function _.read(i,f) 
-  for row in lib.csv(f) do _.add(i, row) end
+function rows.read(i,f) 
+  for row in lib.csv(f) do rows.add(i, row) end
   return i end
 
 -- ## Lib
 
 -- Polymorphism (one ring to rule them all)
-function lib.go(i,f, ...) return i.Is[f](i, ...) end
+function lib.go(i,f, ...) lib.oo(i); print("f",f); return i.Is[f](i, ...) end
 
 -- Iterate on keys in sorted order
 function lib.order(t,  i,keys)
@@ -138,7 +135,7 @@ function lib.oo(t,pre,    indent,fmt)
   if(indent==0) then print("") end
   if indent < 10 then
     for k, v in lib.order(t or {}) do
-      if not (type(k)=='string' and k:match("^[A-Z]")) then
+      if not (type(k)=='string' and k:match("^x[A-Z]")) then
         if not (type(v)=='function') then
           fmt = pre..string.rep("|  ",indent)..tostring(k)..": "
           if type(v) == "table" then
