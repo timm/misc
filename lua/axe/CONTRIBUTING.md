@@ -8,8 +8,8 @@
 - Max line length = 70
   - So use `i`, not `self` for self-reference
   - So do not use ":" (which demands we use `self`). 
-- Create objects by cascaded calls to `thing.new()`
-  - Create classes via `local xx = {ako="xx"}`
+- Create classes by cascaded calls to `thing.new()`
+  - Create instances classes via `local xx = {ako="xx"}`
   - And in constructors, set `i.Is` to a pointer
     to the class.
 - Minimize function length

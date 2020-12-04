@@ -1,4 +1,5 @@
 local m=require("axe")
+math.randomseed(m.of.seed)
 
 local o ,oo, go = m.lib.o, m.lib.oo, m.lib.go
 local num, sym,tbl  = m.num, m.sym, m.tbl
@@ -25,16 +26,16 @@ local function fastgoing(    y,n,t1,t2,t3)
 
 local function csving()
   for row in m.lib.csv("data/weather.csv") do 
-    print(o(row)) end end
+    print(#row); o(row) end end
 
 local function rowsreading( i)
   i = tbl.new()
-  tbl.read(i,"data/weather.csv")
-  oo(i) end 
+  tbl.read(i,"data/auto93.csv")
+  oo(i.cols)
+  end 
 
-math.randomseed(m.of.seed)
-going()
+-- going()
 -- fastgoing()
-csving()
+--csving()
 rowsreading()
 m.lib.rogues()
