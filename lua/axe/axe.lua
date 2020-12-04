@@ -31,9 +31,8 @@ local of  = {
   license = "MIT",
   year    = 2020,
   seed    = 1,
-  ch      = {skip="?", klass="!",sym="_", num=":", more=">", less="<"}
-  keys    = {c=20, n=100, x=20, z=2}
-}
+  ch      = {skip="?", klass="!",sym="_", num=":", more=">", less="<"},
+  keys    = {c=20, n=100, x=20, z=2} }
 
 ----------------------
 -- ## Things
@@ -61,8 +60,7 @@ function col.factory(j,s,t)
   if s:find(of.ch.sym) then tmp = sym  end
   if s:find(of.ch.skip) then tmp = skip end
   t.cols[j] = tmp.new(j,s)
-  if s:find(of.ch.klass) then t.class = t.cols[j] end 
-  end
+  if s:find(of.ch.klass) then t.class = t.cols[j] end end
 
 -- Generic columns
 function col.new(pos,txt,    i) 
@@ -74,6 +72,7 @@ function col.new(pos,txt,    i)
   return i end
 
 -- Numeric columns
+
 function num.new(pos,txt,    i)  -- contractor
   i = col.new(pos,txt)
   i.Is, i.mu, i.m2, i.sd, i.n = num, 0, 0, 0, 0
