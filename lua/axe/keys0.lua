@@ -65,13 +65,21 @@ function Col.factory(j,s,t)
   t.cols[j] = tmp.new(j,s)
   if s:find(Of.ch.klass) then t.class = t.cols[j] end end
 
-function Col.w(x)
+function Skip.new(n,s) return isa(Skip,{txt=s, pos=n}) end 
+function Sym.new(n,s)  return isa(Sym, {txt=s, pos=n}) end
+function Num.new(n,s) 
+  local  x=isa(Num, {txt=s, pos=n})
   x.w = x.txt:find(Of.ch.less) and -1 or 1
   return x end
 
-function Num.new(n,s) return Col.w(isa(Num, {txt=s, pos=n})) end
-function Sym.new(n,s) return Col.w(isa(Sym, {txt=s, pos=n})) end
-function Skip.new(n,s) return Col.w(isa(Skip,{txt=s, pos=n})) end 
+function Skip:add(x) return x end 
+
+function Sym:add(x) 
+  if cell(x) then
+    self.seen[x] = (self.seen[x] or 0) + 1
+    if self.seen[x] > self.most then 
+      self.most, self.mode = self.seen[x], x end end
+  return x end 
 
 function Num:add(x) 
   if cell(x) then
@@ -85,15 +93,6 @@ function Num:add(x)
     self.lo = math.min(self.lo,x)
     self.hi = math.max(self.hi,x) end
   return x end
-
-function Skip:add(x) return x end 
-
-function Sym:add(x) 
-  if cell(x) then
-    self.seen[x] = (self.seen[x] or 0) + 1
-    if self.seen[x] > self.most then 
-      self.most, self.mode = self.seen[x], x end end
-  return x end 
 
 ---------------------
 -- ## Row
