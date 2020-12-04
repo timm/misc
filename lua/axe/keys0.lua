@@ -50,8 +50,8 @@ local Tbl   = {ako="Tbl",  rows={}, cols={}}
 
 ---------------------
 -- ## Shortcuts
-local function cell(x) return not(type(x)=="string" and x=="?") end
 local isa
+local function cell(x) return not(type(x)=="string" and x=="?") end
 
 ---------------------
 -- ## Column summaries

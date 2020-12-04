@@ -20,10 +20,10 @@ local function csving()
     print(#row); o(row) end end
 
 local function rowsreading()
-  oo(Tbl.read("data/weather.csv"))
+  Tbl.read("data/auto93.csv")
 end 
 
-going()
-csving()
+--going()
+--=csving()
 rowsreading()
 m.Lib.rogues()
