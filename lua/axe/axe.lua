@@ -36,18 +36,17 @@ local Of  = {
   row     = {p=2,cols="ys"},
   keys    = {c=20, n=100, x=20, z=2}}
 
-----------------------
--- ## Things
+--- ## Things
 
-local Lib   = {} 
-local Col   = {}
-local Num   = {ako="Num", pos=0,txt="",n=0, 
-               mu=0, m2=0, sd=0, lo=math.huge, hi= -math.huge}
-local Sym   = {ako="Sym", pos=0,txt="",n=0, 
-               seen={}, most=0,mode=true}
-local Skip  = {ako="Skip"}
-local Row   = {ako="Row",  cells={}, bins={}}
-local Tbl   = {ako="Tbl",  rows={}, cols={},ys={},xs={}, dist={}}
+local Lib  = {} 
+local Col  = {}
+local Num  = {ako="Num", pos=0,txt="",n=0, 
+              mu=0, m2=0, sd=0, lo=math.huge, hi= -math.huge}
+local Sym  = {ako="Sym", pos=0,txt="",n=0, 
+              seen={}, most=0,mode=true}
+local Skip = {ako="Skip"}
+local Row  = {ako="Row",  cells={}, bins={}}
+local Tbl  = {ako="Tbl",  rows={}, cols={},ys={},xs={}, dist={}}
 
 ---------------------
 -- ## Shortcuts
@@ -58,11 +57,11 @@ local function cell(x) return not(type(x)=="string" and x=="?") end
 -- ## Column summaries
 function Col.factory(j,s,t) 
   local tmp,aka = Sym, t.xs
-  if s:find(Of.ch.num)   then tmp     = Num  end
-  if s:find(Of.ch.less)  then tmp,aka = Num, t.ys  end
-  if s:find(Of.ch.more)  then tmp,aka = Num, t.ys  end
-  if s:find(Of.ch.sym)   then tmp     = Sym  end
-  if s:find(Of.ch.skip)  then tmp,aka = Skip,{} end
+  if s:find(Of.ch.num)  then tmp     = Num        end
+  if s:find(Of.ch.less) then tmp,aka = Num, t.ys  end
+  if s:find(Of.ch.more) then tmp,aka = Num, t.ys  end
+  if s:find(Of.ch.sym)  then tmp     = Sym        end
+  if s:find(Of.ch.skip) then tmp,aka = Skip,{}    end
   local x = tmp.new(j,s)
   if s:find(Of.ch.klass) then t.class,aka = x,t.ys end 
   t.cols[j] = x

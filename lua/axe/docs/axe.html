@@ -54,6 +54,7 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
   <span class="n">seed</span>    <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
   <span class="n">ch</span>      <span class="o">=</span> <span class="p">{</span><span class="n">skip</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">klass</span><span class="o">=</span><span class="s2">&quot;!&quot;</span><span class="p">,</span><span class="n">sym</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> 
              <span class="n">num</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">more</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">less</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">},</span>
+  <span class="n">row</span>     <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">cols</span><span class="o">=</span><span class="s2">&quot;ys&quot;</span><span class="p">},</span>
   <span class="n">keys</span>    <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">2</span><span class="p">}}</span></pre></div>
     </div>
   </div>
@@ -63,19 +64,22 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
       <div class='octowrap'>
         <a class='octothorpe' href='#section-1'>#</a>
       </div>
-      <hr />
+      <ul>
+<li>
 <h2>Things</h2>
+</li>
+</ul>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="kd">local</span> <span class="n">Lib</span>   <span class="o">=</span> <span class="p">{}</span> 
-<span class="kd">local</span> <span class="n">Col</span>   <span class="o">=</span> <span class="p">{}</span>
-<span class="kd">local</span> <span class="n">Num</span>   <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Num&quot;</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">txt</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
-               <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">m2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="nb">math.huge</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span> <span class="o">-</span><span class="nb">math.huge</span><span class="p">}</span>
-<span class="kd">local</span> <span class="n">Sym</span>   <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Sym&quot;</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">txt</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
-               <span class="n">seen</span><span class="o">=</span><span class="p">{},</span> <span class="n">most</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="kc">true</span><span class="p">}</span>
-<span class="kd">local</span> <span class="n">Skip</span>  <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Skip&quot;</span><span class="p">}</span>
-<span class="kd">local</span> <span class="n">Row</span>   <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Row&quot;</span><span class="p">,</span>  <span class="n">cells</span><span class="o">=</span><span class="p">{},</span> <span class="n">bins</span><span class="o">=</span><span class="p">{}}</span>
-<span class="kd">local</span> <span class="n">Tbl</span>   <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Tbl&quot;</span><span class="p">,</span>  <span class="n">rows</span><span class="o">=</span><span class="p">{},</span> <span class="n">cols</span><span class="o">=</span><span class="p">{}}</span></pre></div>
+      <div class="highlight"><pre><span class="kd">local</span> <span class="n">Lib</span>  <span class="o">=</span> <span class="p">{}</span> 
+<span class="kd">local</span> <span class="n">Col</span>  <span class="o">=</span> <span class="p">{}</span>
+<span class="kd">local</span> <span class="n">Num</span>  <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Num&quot;</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">txt</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+              <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">m2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">lo</span><span class="o">=</span><span class="nb">math.huge</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span> <span class="o">-</span><span class="nb">math.huge</span><span class="p">}</span>
+<span class="kd">local</span> <span class="n">Sym</span>  <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Sym&quot;</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">txt</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+              <span class="n">seen</span><span class="o">=</span><span class="p">{},</span> <span class="n">most</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="kc">true</span><span class="p">}</span>
+<span class="kd">local</span> <span class="n">Skip</span> <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Skip&quot;</span><span class="p">}</span>
+<span class="kd">local</span> <span class="n">Row</span>  <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Row&quot;</span><span class="p">,</span>  <span class="n">cells</span><span class="o">=</span><span class="p">{},</span> <span class="n">bins</span><span class="o">=</span><span class="p">{}}</span>
+<span class="kd">local</span> <span class="n">Tbl</span>  <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;Tbl&quot;</span><span class="p">,</span>  <span class="n">rows</span><span class="o">=</span><span class="p">{},</span> <span class="n">cols</span><span class="o">=</span><span class="p">{},</span><span class="n">ys</span><span class="o">=</span><span class="p">{},</span><span class="n">xs</span><span class="o">=</span><span class="p">{},</span> <span class="n">dist</span><span class="o">=</span><span class="p">{}}</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -103,14 +107,16 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="kr">function</span> <span class="nc">Col</span><span class="p">.</span><span class="nf">factory</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">t</span><span class="p">)</span> 
-  <span class="kd">local</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">Sym</span>
-  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">num</span><span class="p">)</span>   <span class="kr">then</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">Num</span>  <span class="kr">end</span>
-  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">less</span><span class="p">)</span>  <span class="kr">then</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">Num</span>  <span class="kr">end</span>
-  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">more</span><span class="p">)</span>  <span class="kr">then</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">Num</span>  <span class="kr">end</span>
-  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">sym</span><span class="p">)</span>   <span class="kr">then</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">Sym</span>  <span class="kr">end</span>
-  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">skip</span><span class="p">)</span>  <span class="kr">then</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">Skip</span> <span class="kr">end</span>
-  <span class="n">t</span><span class="p">.</span><span class="n">cols</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">s</span><span class="p">)</span>
-  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">klass</span><span class="p">)</span> <span class="kr">then</span> <span class="n">t</span><span class="p">.</span><span class="n">class</span> <span class="o">=</span> <span class="n">t</span><span class="p">.</span><span class="n">cols</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="kr">end</span> <span class="kr">end</span>
+  <span class="kd">local</span> <span class="n">tmp</span><span class="p">,</span><span class="n">aka</span> <span class="o">=</span> <span class="n">Sym</span><span class="p">,</span> <span class="n">t</span><span class="p">.</span><span class="n">xs</span>
+  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">num</span><span class="p">)</span>  <span class="kr">then</span> <span class="n">tmp</span>     <span class="o">=</span> <span class="n">Num</span>        <span class="kr">end</span>
+  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">less</span><span class="p">)</span> <span class="kr">then</span> <span class="n">tmp</span><span class="p">,</span><span class="n">aka</span> <span class="o">=</span> <span class="n">Num</span><span class="p">,</span> <span class="n">t</span><span class="p">.</span><span class="n">ys</span>  <span class="kr">end</span>
+  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">more</span><span class="p">)</span> <span class="kr">then</span> <span class="n">tmp</span><span class="p">,</span><span class="n">aka</span> <span class="o">=</span> <span class="n">Num</span><span class="p">,</span> <span class="n">t</span><span class="p">.</span><span class="n">ys</span>  <span class="kr">end</span>
+  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">sym</span><span class="p">)</span>  <span class="kr">then</span> <span class="n">tmp</span>     <span class="o">=</span> <span class="n">Sym</span>        <span class="kr">end</span>
+  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">skip</span><span class="p">)</span> <span class="kr">then</span> <span class="n">tmp</span><span class="p">,</span><span class="n">aka</span> <span class="o">=</span> <span class="n">Skip</span><span class="p">,{}</span>    <span class="kr">end</span>
+  <span class="kd">local</span> <span class="n">x</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">s</span><span class="p">)</span>
+  <span class="kr">if</span> <span class="n">s</span><span class="p">:</span><span class="n">find</span><span class="p">(</span><span class="n">Of</span><span class="p">.</span><span class="n">ch</span><span class="p">.</span><span class="n">klass</span><span class="p">)</span> <span class="kr">then</span> <span class="n">t</span><span class="p">.</span><span class="n">class</span><span class="p">,</span><span class="n">aka</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">.</span><span class="n">ys</span> <span class="kr">end</span> 
+  <span class="n">t</span><span class="p">.</span><span class="n">cols</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+  <span class="n">aka</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">=</span> <span class="n">x</span> <span class="kr">end</span>
 
 <span class="kr">function</span> <span class="nc">Skip</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">s</span><span class="p">)</span> <span class="kr">return</span> <span class="n">isa</span><span class="p">(</span><span class="n">Skip</span><span class="p">,{</span><span class="n">txt</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">n</span><span class="p">})</span> <span class="kr">end</span> 
 <span class="kr">function</span> <span class="nc">Sym</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">s</span><span class="p">)</span>  <span class="kr">return</span> <span class="n">isa</span><span class="p">(</span><span class="n">Sym</span><span class="p">,</span> <span class="p">{</span><span class="n">txt</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">n</span><span class="p">})</span> <span class="kr">end</span>
@@ -128,6 +134,8 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
       <span class="n">self</span><span class="p">.</span><span class="n">most</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">seen</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="kr">end</span> <span class="kr">end</span>
   <span class="kr">return</span> <span class="n">x</span> <span class="kr">end</span> 
 
+<span class="kr">function</span> <span class="nc">Sym</span><span class="p">:</span><span class="nf">dist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="kr">return</span> <span class="n">x</span><span class="o">==</span><span class="n">y</span> <span class="ow">and</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mi">1</span> <span class="kr">end</span>
+
 <span class="kr">function</span> <span class="nc">Num</span><span class="p">:</span><span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> 
   <span class="kr">if</span> <span class="n">cell</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="kr">then</span>
     <span class="n">self</span><span class="p">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span>
@@ -139,7 +147,14 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
               <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">m2</span><span class="o">/</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">n</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">^</span><span class="mf">0.5</span><span class="p">))</span>
     <span class="n">self</span><span class="p">.</span><span class="n">lo</span> <span class="o">=</span> <span class="nb">math.min</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">lo</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
     <span class="n">self</span><span class="p">.</span><span class="n">hi</span> <span class="o">=</span> <span class="nb">math.max</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">hi</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> <span class="kr">end</span>
-  <span class="kr">return</span> <span class="n">x</span> <span class="kr">end</span></pre></div>
+  <span class="kr">return</span> <span class="n">x</span> <span class="kr">end</span>
+
+<span class="kr">function</span> <span class="nc">Num</span><span class="p">:</span><span class="nf">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="kr">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">self</span><span class="p">.</span><span class="n">lo</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">hi</span> <span class="o">-</span> <span class="n">self</span><span class="p">.</span><span class="n">lo</span> <span class="o">+</span> <span class="mf">1E-32</span><span class="p">)</span> <span class="kr">end</span>
+<span class="kr">function</span> <span class="nc">Num</span><span class="p">:</span><span class="nf">dist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+  <span class="kr">if</span>      <span class="ow">not</span> <span class="n">cell</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="kr">then</span> <span class="n">y</span>   <span class="o">=</span> <span class="n">self</span><span class="p">:</span><span class="n">norm</span><span class="p">(</span><span class="n">y</span><span class="p">);</span> <span class="n">x</span><span class="o">=</span><span class="n">y</span><span class="o">&gt;</span><span class="mf">0.5</span> <span class="ow">and</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mi">1</span> 
+  <span class="kr">else</span> <span class="kr">if</span> <span class="ow">not</span> <span class="n">cell</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="kr">then</span> <span class="n">y</span>   <span class="o">=</span> <span class="n">self</span><span class="p">:</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="n">y</span><span class="o">=</span><span class="n">x</span><span class="o">&gt;</span><span class="mf">0.5</span> <span class="ow">and</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mi">1</span> 
+  <span class="kr">else</span>                     <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">self</span><span class="p">:</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">self</span><span class="p">:</span><span class="n">norm</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="kr">end</span> <span class="kr">end</span>
+  <span class="kr">return</span> <span class="nb">math.abs</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">y</span><span class="p">)</span> <span class="kr">end</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -157,7 +172,17 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
   <span class="kr">for</span> <span class="n">_</span><span class="p">,</span><span class="n">col</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tbl</span><span class="p">.</span><span class="n">cols</span><span class="p">)</span> <span class="kr">do</span> 
     <span class="n">i</span><span class="p">.</span><span class="n">cells</span><span class="p">[</span><span class="n">col</span><span class="p">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span><span class="p">:</span><span class="n">add</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">.</span><span class="n">pos</span><span class="p">])</span>
     <span class="n">i</span><span class="p">.</span><span class="n">bins</span><span class="p">[</span><span class="n">col</span><span class="p">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">cells</span><span class="p">[</span><span class="n">col</span><span class="p">.</span><span class="n">pos</span><span class="p">]</span> <span class="kr">end</span> 
-  <span class="kr">return</span> <span class="n">i</span> <span class="kr">end</span></pre></div>
+  <span class="kr">return</span> <span class="n">i</span> <span class="kr">end</span>
+
+<span class="kr">function</span> <span class="nc">Row</span><span class="p">:</span><span class="nf">dist</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">tbl</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span>      <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">d1</span><span class="p">)</span>
+  <span class="kd">local</span> <span class="n">d</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">p</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mf">1E-32</span><span class="p">,</span><span class="n">Of</span><span class="p">.</span><span class="n">row</span><span class="p">.</span><span class="n">p</span>
+  <span class="kr">for</span> <span class="n">_</span><span class="p">,</span><span class="n">col</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tbl</span><span class="p">[</span><span class="n">cols</span> <span class="ow">or</span> <span class="n">Of</span><span class="p">.</span><span class="n">row</span><span class="p">.</span><span class="n">cols</span><span class="p">])</span> <span class="kr">do</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">cells</span><span class="p">[</span><span class="n">col</span><span class="p">.</span><span class="n">pos</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">other</span><span class="p">.</span><span class="n">cells</span><span class="p">[</span><span class="n">col</span><span class="p">.</span><span class="n">pos</span><span class="p">]</span>
+    <span class="n">d1</span><span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="n">cell</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cell</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="ow">and</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">col</span><span class="p">:</span><span class="n">dist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">+</span><span class="n">d1</span><span class="o">^</span><span class="n">p</span> 
+    <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="kr">end</span>
+  <span class="kr">return</span> <span class="p">(</span><span class="n">d</span><span class="o">/</span><span class="n">n</span><span class="p">)</span><span class="o">^</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">p</span><span class="p">)</span> <span class="kr">end</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -200,6 +225,20 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
         <a class='octothorpe' href='#section-7'>#</a>
       </div>
       <hr />
+<h2>Cluster</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="kd">local</span> <span class="n">Cluster</span><span class="o">=</span><span class="p">{</span><span class="n">enough</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span><span class="n">lvl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">leaves</span><span class="o">=</span><span class="p">{},</span><span class="n">hi</span><span class="o">=</span><span class="kc">nil</span><span class="p">,</span><span class="n">lo</span><span class="o">=</span><span class="kc">nil</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="p">{},</span><span class="n">lower</span><span class="o">=</span><span class="p">{},</span><span class="n">c</span><span class="o">=</span><span class="mi">0</span><span class="p">}</span>
+<span class="kr">function</span> <span class="nc">Cluster</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="kr">return</span> <span class="n">isa</span><span class="p">(</span><span class="n">Cluster</span><span class="p">,{</span><span class="n">tbl</span><span class="o">=</span><span class="n">t</span><span class="p">})</span> <span class="kr">end</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      <hr />
 <h2>Lib</h2>
     </div>
     <div class='code'>
@@ -226,10 +265,10 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-8'>
+  <div class='section' id='section-9'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-8'>#</a>
+        <a class='octothorpe' href='#section-9'>#</a>
       </div>
       <p>Iterate on keys in sorted order</p>
     </div>
@@ -244,10 +283,10 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-9'>
+  <div class='section' id='section-10'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-9'>#</a>
+        <a class='octothorpe' href='#section-10'>#</a>
       </div>
       <p>Simple print of a flat table</p>
     </div>
@@ -259,10 +298,10 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-10'>
+  <div class='section' id='section-11'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-10'>#</a>
+        <a class='octothorpe' href='#section-11'>#</a>
       </div>
       <p>Print nested tables. 
 Don&rsquo;t show private slots (those that start with <code>_</code>);
@@ -287,10 +326,10 @@ if <code>pre</code> is specified, then  print that as a prefix.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-11'>
+  <div class='section' id='section-12'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-11'>#</a>
+        <a class='octothorpe' href='#section-12'>#</a>
       </div>
       <p>Warn about locals that have escaped into the global space</p>
     </div>
@@ -308,10 +347,10 @@ if <code>pre</code> is specified, then  print that as a prefix.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-12'>
+  <div class='section' id='section-13'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-12'>#</a>
+        <a class='octothorpe' href='#section-13'>#</a>
       </div>
       <p>Return each row, split on &ldquo;,&rdquo;, numstrings coerced to numbers,
 kills comments and whitespace.</p>
@@ -334,10 +373,10 @@ kills comments and whitespace.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-13'>
+  <div class='section' id='section-14'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-13'>#</a>
+        <a class='octothorpe' href='#section-14'>#</a>
       </div>
       <p>Split the string <code>s</code> on separator <code>c</code>, defaults to &ldquo;.&rdquo; </p>
     </div>
@@ -349,10 +388,22 @@ kills comments and whitespace.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-14'>
+  <div class='section' id='section-15'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-14'>#</a>
+        <a class='octothorpe' href='#section-15'>#</a>
+      </div>
+      <p>return any item in a list</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="kr">function</span> <span class="nc">Lib</span><span class="p">.</span><span class="nf">any</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="kr">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">math.floor</span><span class="p">(</span><span class="o">#</span><span class="n">a</span><span class="o">*</span><span class="nb">math.random</span><span class="p">())]</span> <span class="kr">end</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-16'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-16'>#</a>
       </div>
       <h2>Return</h2>
     </div>
