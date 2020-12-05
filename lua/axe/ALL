@@ -5,24 +5,12 @@ Src=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 alias ls="ls -G"
 alias gp="git add *; git commit -am saving; git push; git status"
 alias axe="lua axe.lua"
-alias ok="lua tests.lua"
+alias ok="(cd $Src/tests; lua tests.lua)"
 
 docs() {
-  cd $Src
-  pycco -i *.lua
-  cp etc/pycco.css docs/
+  mkdir -p $Src/docs
+  cd $Src/src
+  pycco  -d $Src/docs *.lua
+  cp $Src/etc/pycco.css $Src/docs
 }
 
-reformat() {
-  lua-format  --keep-simple-function-one-line \
-      --keep-simple-control-block-one-line \
-       --indent-width=2 --tab-width=2 --column-limit=70 $1 | ends
-}
-
-ends() { gawk '
-     { gsub(/[ \t]*$/,"") } 
-   /^[ \t]*end[ \t]*$/{ b4=b4 " end"; next }
-                     { print b4
-                       b4 = $0 }
-                 END { print b4 } '
-}
