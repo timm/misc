@@ -76,8 +76,8 @@ function col.new(pos,txt,    i)
 function num.new(pos,txt,    i)  -- contractor
   i = col.new(pos,txt)
   i.Is, i.mu, i.m2, i.sd, i.n = num, 0, 0, 0, 0
-  i.lo = math.maxinteger
-  i.hi = math.mininteger
+  i.lo = math.huge
+  i.hi = -math.huge
   return i end
 
 function num.add(i,x) -- update
