@@ -1,3 +1,12 @@
+-- <img src="https://www.iconexperience.com/_img/v_collection_png/256x256/shadow/keys.png">  
+-- "Keys = cluster, discretize, contrast"
+-- ![](https://img.shields.io/badge/platform-osx%20,%20linux-lightgrey?style=flat-square)  
+-- ![](https://img.shields.io/badge/language-lua,bash-blue?style=flat-square)  
+-- ![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet?style=flat-square)  
+-- ![](https://img.shields.io/badge/language-lua-red?style=flat-square)  
+-- ![](https://img.shields.io/badge/license-mit-green?style=flat-square)  
+-- [lib](docs/lib.html) :: [tbl](docstbl.html)   
+
 
 
 ## Keys 1010
@@ -20,7 +29,7 @@ Useful defaults for this algorithm are C,N,X,Z=20,100,20,2.
      Normalize those counts  as follows: #B=#B/(N*X/100) and #W=#W/(N*Y/100)
 -  Discard unpromising ranges; i.e. if  #W >= #B.    
      Sort the remaining ranges by #B^2/(#B+#W) into a list L of size S
--  Generate N’ new inputs by,  N times, using inputs L[0:max(1,int(S*rand()^Z))]  
+-  Generate N’ new inputs by,  N times, using inputs L[0:max(1,int(S\*rand()<sup>Z</sup>))]  
      (and randomly selected items for everything else).  To create the new output 
      scores either ask some oracle or re-run the simulator (if it exists) or 
      interpolate between nearest neighbors in the database. 

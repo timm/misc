@@ -1,10 +1,11 @@
--- "Cluster, then sample, then contrast."
+-- <img src="https://image.flaticon.com/icons/png/512/264/264745.png" width=75">   
 -- <a href="http://github.com/tomm/keys"><img src="https://github.blog/wp-content/uploads/2008/12/forkme_left_red_aa0000.png?resize=149%2C149" align=left></a>  
--- ![](https://img.shields.io/badge/platform-osx%20,%20linux-lightgrey?style=flat-square&logo=appveyor)   
--- ![](https://img.shields.io/badge/language-lua,bash-blue?style=flat-square&logo=appveyor)   
--- ![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet?style=flat-square&logo=appveyor)   
--- ![](https://img.shields.io/badge/language-lua-red?style=flat-square&logo=appveyor)   
--- ![](https://img.shields.io/badge/license-mit-red?style=flat-square&logo=appveyor)    
+-- "Keys = cluster, discretize, contrast"
+-- ![](https://img.shields.io/badge/platform-osx%20,%20linux-lightgrey?style=flat-square)  
+-- ![](https://img.shields.io/badge/language-lua,bash-blue?style=flat-square)  
+-- ![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet?style=flat-square)  
+-- ![](https://img.shields.io/badge/language-lua-red?style=flat-square)  
+-- ![](https://img.shields.io/badge/license-mit-green?style=flat-square)  
 -- [lib](lib.html) :: [tbl](tbl.html)   
 --------------------
 local Of  ={
@@ -105,7 +106,8 @@ function csv(file,     stream,tmp,t)
     else
       io.close(stream) end end end
 
--- Return
+-----
+-- Any finally...
 return {any=any, split=split, copy=copy, rogues=rogues,
         csv=csv, isa=isa, order=order, o=o, oo=oo}
 

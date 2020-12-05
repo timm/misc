@@ -1,10 +1,11 @@
--- "Cluster, then sample, then contrast."
+-- <img width=75 src="https://cdn0.iconfinder.com/data/icons/data-charts/110/TableDataGridThickLines-512.png">    
 -- <a href="http://github.com/tomm/keys"><img src="https://github.blog/wp-content/uploads/2008/12/forkme_left_red_aa0000.png?resize=149%2C149" align=left></a>  
--- ![](https://img.shields.io/badge/platform-osx%20,%20linux-lightgrey?style=flat-square&logo=appveyor)   
--- ![](https://img.shields.io/badge/language-lua,bash-blue?style=flat-square&logo=appveyor)   
--- ![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet?style=flat-square&logo=appveyor)   
--- ![](https://img.shields.io/badge/language-lua-red?style=flat-square&logo=appveyor)   
--- ![](https://img.shields.io/badge/license-mit-red?style=flat-square&logo=appveyor)    
+-- "Keys = cluster, discretize, contrast"
+-- ![](https://img.shields.io/badge/platform-osx%20,%20linux-lightgrey?style=flat-square)  
+-- ![](https://img.shields.io/badge/language-lua,bash-blue?style=flat-square)  
+-- ![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet?style=flat-square)  
+-- ![](https://img.shields.io/badge/language-lua-red?style=flat-square)  
+-- ![](https://img.shields.io/badge/license-mit-green?style=flat-square)  
 -- [lib](lib.html) :: [tbl](tbl.html)   
 --------------------
 local Of  = {
@@ -121,7 +122,6 @@ function Tbl.read(f,    t)
   for row in Lib.csv(f) do t:add(row) end
   return t end
 
----------------------
+------
 -- And finally...
-
 return {Tbl=Tbl,Row=Row,Sym=Sym,Num=Num}
