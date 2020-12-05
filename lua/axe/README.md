@@ -1,11 +1,11 @@
--- <img src="https://www.iconexperience.com/_img/v_collection_png/256x256/shadow/keys.png">  
--- "Keys = cluster, discretize, contrast"
--- ![](https://img.shields.io/badge/platform-osx%20,%20linux-lightgrey?style=flat-square)  
--- ![](https://img.shields.io/badge/language-lua,bash-blue?style=flat-square)  
--- ![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet?style=flat-square)  
--- ![](https://img.shields.io/badge/language-lua-red?style=flat-square)  
--- ![](https://img.shields.io/badge/license-mit-green?style=flat-square)  
--- [lib](docs/lib.html) :: [tbl](docstbl.html)   
+<img src="https://www.iconexperience.com/_img/v_collection_png/256x256/shadow/keys.png">    
+"Keys = cluster, discretize, contrast"   
+![](https://img.shields.io/badge/platform-osx%20,%20linux-lightgrey?style=flat-square)    
+![](https://img.shields.io/badge/language-lua,bash-blue?style=flat-square)  
+![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet?style=flat-square)  
+![](https://img.shields.io/badge/language-lua-red?style=flat-square)  
+![](https://img.shields.io/badge/license-mit-green?style=flat-square)  
+[lib](docs/lib.html) :: [tbl](docstbl.html)   
 
 
 
