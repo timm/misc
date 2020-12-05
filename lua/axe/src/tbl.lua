@@ -1,3 +1,12 @@
+-- "Cluster, then sample, then contrast."
+-- <a href="http://github.com/tomm/keys"><img src="https://github.blog/wp-content/uploads/2008/12/forkme_left_red_aa0000.png?resize=149%2C149" align=left></a>  
+-- ![](https://img.shields.io/badge/platform-osx%20,%20linux-lightgrey?style=flat-square&logo=appveyor)   
+-- ![](https://img.shields.io/badge/language-lua,bash-blue?style=flat-square&logo=appveyor)   
+-- ![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet?style=flat-square&logo=appveyor)   
+-- ![](https://img.shields.io/badge/language-lua-red?style=flat-square&logo=appveyor)   
+-- ![](https://img.shields.io/badge/license-mit-red?style=flat-square&logo=appveyor)    
+-- [lib](lib.html) :: [tbl](tbl.html)   
+--------------------
 local Of  = {
   synopois= "tables with rows, summarized in column headers",
   author  = "Tim Menzies, timm@ieee.org",
@@ -8,8 +17,7 @@ local Of  = {
              num=":", more=">", less="<"},
   row     = {p=2,cols="ys"}}
 
---- ## Things
-
+-- ## Objects 
 local Lib  = require "lib" 
 local Col  = {}
 local Num  = {ako="Num", pos=0,txt="",n=0, 
@@ -50,6 +58,7 @@ function Skip:add(x) return x end
 
 function Sym:add(x) 
   if cell(x) then
+    self.n = self.n + 1
     self.seen[x] = (self.seen[x] or 0) + 1
     if self.seen[x] > self.most then 
       self.most, self.mode = self.seen[x], x end end
@@ -96,6 +105,7 @@ function Row:dist(other,cols,      x,y,d1)
     n = n+1 end
   return (d/n)^(1/p) end
 
+---------------------
 -- ## Tables 
 function Tbl.new() return isa(Tbl) end
 
@@ -110,5 +120,8 @@ function Tbl.read(f,    t)
   t=Tbl.new()
   for row in Lib.csv(f) do t:add(row) end
   return t end
+
+---------------------
+-- And finally...
 
 return {Tbl=Tbl,Row=Row,Sym=Sym,Num=Num}
