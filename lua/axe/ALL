@@ -5,12 +5,11 @@ Src=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 alias ls="ls -G"
 alias gp="git add *; git commit -am saving; git push; git status"
 alias axe="lua axe.lua"
-alias ok="(cd $Src/tests; lua tests.lua)"
+alias ok="(cd $Src/tests; ls *.lua | lua all.lua)"
 
 docs() {
   mkdir -p $Src/docs
-  cd $Src/src
-  pycco  -d $Src/docs *.lua
+  (cd $Src/src; pycco -d $Src/docs *.lua)
   cp $Src/etc/pycco.css $Src/docs
 }
 
