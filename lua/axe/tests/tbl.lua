@@ -40,14 +40,29 @@ local function rowsreading()
 
 local function rowsdist()
   local tbl = Tbl.read("../data/weather.csv")
+    local r1,r2 = tbl.rows[3], tbl.rows[4]
+    o(r1.cells); o(r2.cells)
+    print( r1:dist(r2,tbl.xs) ) end
+
+local function rowsdists()
+  local tbl = Tbl.read("../data/auto93.csv")
+  local all={}
   for i=1,10 do
     local r1,r2 = any(tbl.rows), any(tbl.rows)
-    assert(0== r1:dist(r1,tbl.xs),"sane distance "..i)
-    print(r1:dist(r2,tbl.xs)) end end
+    local one ={r1=r1.cells, r2=r2.cells}
+    one.d = r1:dist(r2,tbl.xs) 
+    all[#all+1] = one
+    assert(0== r1:dist(r1,tbl.xs),"sane distance "..i) end
+  table.sort(all, function(x,y) return x.d < y.d end)
+  for _,one in pairs(tbl.xs) do
+     print(one.pos) end
+  for _,one in pairs(all) do
+     print(""); print(one.d); o(one.r1); o(one.r2) end end
 
-going()
-csving()
-rowsreading()
+--going()
+--csving()
+--rowsreading()
 --rowsdist()
+rowsdists()
 l.rogues()
 

@@ -73,7 +73,7 @@ function Num:add(x)
 function Num:norm(x) return (x - self.lo) / (self.hi - self.lo + 1E-32) end
 function Num:dist(x,y)
   if      not cell(x) then y   = self:norm(y); x=y>0.5 and 0 or 1 
-  else if not cell(y) then y   = self:norm(x); y=x>0.5 and 0 or 1 
+  else if not cell(y) then y   = self:norm(y); y=x>0.5 and 0 or 1 
   else                     x,y = self:norm(x), self:norm(y) end end
   return math.abs(x-y) end 
 
