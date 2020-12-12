@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+#         .-"-.
+#        /  ,~a\_
+#        \  \__))>  a little auk (awk)
+#        ,) ." \    goes a long way
+#       /  (    \
+#      /   )    ;
+#     /   /     /
+#   ,/_."`  _.-`
+#    /_/`"\\___
+#         `~~~`
+
+prep() { gawk '
+  /^function[ \t]+[A-Z][^\(]*\(/ {
+      split($0,a,/[ \t\(]/)
+      PREFIX = a[2] }
+  { gsub(/ _/," " PREFIX,$0)
+    print Pre gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
+                      "[\"\\1\\2\"]","g", $0) }' 
+}
+mkdir -p $HOME/opt/gawk
+f=$1
+g=$HOME/opt/gawk/$(basename $f)
+cat $f | prep > $g
+shift
+
+if [ -t 0 ]
+  then         gawk -f $g $*
+  else cat - | gawk -f $g $*
+fi
+
