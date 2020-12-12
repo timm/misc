@@ -1,7 +1,6 @@
 BEGIN {
    Gold["dot"] = sprintf("%c",46) 
-   Gold["id"] = 0
-}
+   Gold["id"] = 0 }
 
 function List(i)      { split("",i,"");  }
 function Obj(i)       { List(i); i["id"] = ++Gold["id"] }
@@ -21,7 +20,7 @@ function rogues(   s,ignore) {
       print "#W> Rogue: "  s>"/dev/stderr" }
 
 function oo(a,prefix,    indent,   i,txt) {
-  txt = indent ? indent : (prefix Gold["dot"] )
+  txt = indent ? indent : (prefix ? prefix Gold["dot"] : "")
   if (!isarray(a)) {print(a); return a}
   ooSortOrder(a)
   for(i in a)  {

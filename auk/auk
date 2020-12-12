@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+Auk=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+Lib=$HOME/opt/gawk
 
 #         .-"-.
 #        /  ,~a\_
@@ -12,6 +14,11 @@
 #         `~~~`
 
 prep() { gawk '
+  /^#</ { 
+    print $0; 
+    while(getline) {
+       print "# "$0
+       if(/^#>/) break} }
   /^function[ \t]+[A-Z][^\(]*\(/ {
       split($0,a,/[ \t\(]/)
       PREFIX = a[2] }
@@ -19,14 +26,27 @@ prep() { gawk '
     print Pre gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
                       "[\"\\1\\2\"]","g", $0) }' 
 }
-mkdir -p $HOME/opt/gawk
-f=$1
-g=$HOME/opt/gawk/$(basename $f)
-cat $f | prep > $g
-shift
+mkdir -p $Lib
+for i in *.awk; do
+  f=$i
+  g=$(basename $f)
+  g=$Lib/${g%.*}.awk
+  if [ "$f" -nt "$g" ]; then cat $f | prep > $g; fi
+done
 
-if [ -t 0 ]
-  then         gawk -f $g $*
-  else cat - | gawk -f $g $*
+if [ -n "$1" ]; then
+  f=$1
+  g=$(basename $f)
+  g=$Lib/${g%.*}.awk
+  shift
+  AWKPATH="$Lib:./:$AWKPATH"
+  if [ -t 0 ]
+    then         AWKPATH="$AWKPATH" gawk -f $g $*
+    else cat - | AWKPATH="$AWKPATH" gawk -f $g $*
+  fi
+else
+  alias gp='ga;git commit -am save;git push;gs' # end-of-day actions
+  alias gs='git status'                         # status 
+  alias ls='ls -G'                              # ls
+  alias reload='. $Auk/auk'                     # reload these tools
 fi
-
