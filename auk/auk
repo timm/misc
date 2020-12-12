@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
-Auk=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
-Lib=$HOME/opt/gawk
+# AUK: Preprocessor for AWK code
+# (c) 2020 MIT License, Tim Menzies timm@ieee.org
+# Generated code is written to $HOME/opt/share/gawk.
+# Adds polymorphism, encapsulation, objects, 
+#      attributes, methods, multi-line comments.
+
+# usage:
+#   ./auk               # generates code, written  share dir.
+#   ./awk aa.awk        # as above,  then runs it
+#   Com | ./auk aal.awk # as above, taking input from Com
+#   . auk               # defines some useful bash short cuts
+
+# configuration: where to write the generated code
+Lib=$HOME/opt/share/gawk
 
 #         .-"-.
 #        /  ,~a\_
@@ -26,6 +38,9 @@ prep() { gawk '
     print Pre gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
                       "[\"\\1\\2\"]","g", $0) }' 
 }
+
+Auk=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+
 mkdir -p $Lib
 for i in *.awk; do
   f=$i
@@ -49,4 +64,8 @@ else
   alias gs='git status'                         # status 
   alias ls='ls -G'                              # ls
   alias reload='. $Auk/auk'                     # reload these tools
+  tput bold; tput setaf 0
+  echo ""
+  gawk 'sub(/^[ \t]*alias/,"alias") {print $0}' $Auk/auk
+  tput sgr0
 fi
