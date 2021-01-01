@@ -2,22 +2,23 @@
 
 # misc convenient shortcuts
 
-Src=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )/..
-chmod +x $Src/etc/sh
-mkdir -p $Src/src $Src/docs
+My=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )/..
+chmod +x $My/etc/my
+mkdir -p $My/src $My/docs
 
 test1() { lua -e "x=require('${1%.*}').tests()"; }
 
 alias ls="ls -G"
 alias gp="git add *; git commit -am saving; git push; git status"
+alias my="$My/etc/my "
 alias ok="test1"
-alias oks="$Src/etc/sh -t"
-alias okspy="(rerun '$Src/etc/sh -t')"
+alias oks="my -t"
+alias okspy="(rerun '$My/etc/my -t')"
 
 docs() {
-  (cd $Src/src; pycco -d $Src/docs *.lua)
-  markdown $Src/README.md > $Src/docs/index.html
-  cp $Src/etc/pycco.css $Src/docs
+  (cd $My/src; pycco -d $My/docs *.lua)
+  markdown $My/README.md > $My/docs/index.html
+  cp $My/etc/pycco.css $My/docs
 }
 
 art() { cat<<'EOF'
@@ -150,8 +151,8 @@ EOF
 }
 redgreen() { gawk '
      /^---/ {        $0="\033[01;36m"$0"\033[0m" }
-     /FAIL/ { bad++; $0="\033[31m"$0"\033[0m" }
-     /PASS/ {        $0="\033[32m"$0"\033[0m" }
+     /FAIL/ { bad++; $NF="\033[31m"$NF"\033[0m" }
+     /PASS/ {        $NF="\033[32m"$NF"\033[0m" }
             { print  $0                 }
      END    { exit bad!=0 }'
 }
@@ -164,7 +165,7 @@ if [ "$1" == "-t" ]; then
          {N[rand()] = $0}
    END   {for(i in N) { print N[i]; break}}'
   echo -e "\033[0m" 
-  cd $Src/src
+  cd $My/src
   for f in *.lua; do
     echo "------------- $f"
     test1 $f
