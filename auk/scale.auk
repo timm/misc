@@ -1,11 +1,11 @@
-#!/usr/bin/env ./auk
+#!/usr/bin/env ./auk.sh
 # vim: filetype=awk ts=2 sw=2 sts=2  et :
 
-# SCALE: StoChAstic LandscapE analysis
-# (c) 2020 MIT License, Tim Menzies timm@ieee.org
-# Optimization via discretization and contrast sets.
-
-@include "auklib"
+#<
+SCALE: StoChAstic LandscapE analysis
+(c) 2020 MIT License, Tim Menzies timm@ieee.org
+Optimization via discretization and contrast sets.
+#>
 
 ### shortcuts
 function add(i,x,  f) { f= i.is"Add"; return @f(i,x) }
