@@ -59,7 +59,7 @@ function asserteq (v1,v2)
 
 class=lib.class
 
-C = class()
+local C = class()
 
 --- conventional name for constructor --
 function C:_init (name) self.name = name end
