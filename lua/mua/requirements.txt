@@ -1,3 +1,4 @@
 lua >= 5.4
 pycco
 markdown
+rerun >= 1.0.30
