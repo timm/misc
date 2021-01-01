@@ -8,29 +8,31 @@ local it  ={
 
 local lib={}
 
-local function update (t,...)
-  for i = 1,select('#',...) do
-  for k,v in pairs(select(i,...)) do t[k] = v end end
-  return t end
-
-local function import(t,...)
-  local other
-  t = t or _ENV or getfenv(2)
-  local libs = {}
-  if select('#',...)==0 then libs[1] = ml
-  else for i = 1,select('#',...) do
-      local lib = select(i,...)
-      if type(lib) == 'string' then
-        local value = _G[lib]
-        if not value then -- lazy require!
-          value = require (lib)
-          lib = lib:match '[%w_]+$' end
-        lib = {[lib]=value} 
-      end
-      libs[i] = lib end end
-  return update(t,table.unpack(libs)) end
-
+-- lib.class
 function lib.class(base)
+  -- From microlight
+  local function update (t,...)
+    for i = 1,select('#',...) do
+    for k,v in pairs(select(i,...)) do t[k] = v end end
+    return t end
+  -------------------------------------
+  local function import(t,...)
+    local other
+    t = t or _ENV or getfenv(2)
+    local libs = {}
+    if select('#',...)==0 then libs[1] = ml
+    else for i = 1,select('#',...) do
+        local lib = select(i,...)
+        if type(lib) == 'string' then
+          local value = _G[lib]
+          if not value then -- lazy require!
+            value = require (lib)
+            lib = lib:match '[%w_]+$' end
+          lib = {[lib]=value} 
+        end
+        libs[i] = lib end end
+    return update(t,table.unpack(libs)) end
+  -------------------------------------
   local klass, base_ctor = {}
   if base then
     import(klass,base)
