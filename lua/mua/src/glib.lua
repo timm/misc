@@ -1,5 +1,11 @@
 -- vim: filetype=lua:ts=2:sw=2:sts=2:et:
 
+local my  ={
+  synopois= "Misc lua routines",
+  author  = "Tim Menzies, timm@ieee.org",
+  license = "MIT",
+  year    = 2020 }
+
 local lib={}
 
 local function update (t,...)
@@ -53,45 +59,35 @@ function lib.class(base)
         return obj end })
   return klass end
 
-function asserteq (v1,v2)
-  if v1 ~= v2 then
-    error("failed\nA "..tostring(v1).."\nB "..tostring(v2),2) end end
+function ok (v1,v2,txt)
+  txt = txt and txt or ""
+  print(txt.."? ".. (v1 == v2 and "PASS" or "FAIL"))  
+end
+    
+local function objecttests() 
+  local class=lib.class
+  local C = class()
+  function C:_init (name) self.name = name end
+  function C:__tostring () return 'name '..self.name end
+  function C:__eq (other) return self.name == other.name end
+  local c = C('Jones')
+  assert(tostring(c) == 'name Jones')
+  local D = class(C)
+  local d = C('Jane')
+  assert(tostring(d) == 'name Jane')
+  assert(d == C 'Jane')
+  local E = class(D)
+  function E:_init (name,nick)
+    self:super(name)
+    self.nick = nick 
+  end
+  function E:__tostring () 
+    return D.__tostring(self)..' nick '..self.nick 
+  end
+  ok(tostring(E('Jones','jj')),'name Jones nick jj',"objects")
+end
 
-class=lib.class
+local function tests() objecttests() ; end
 
-local C = class()
+return {tests=tests}
 
---- conventional name for constructor --
-function C:_init (name) self.name = name end
-
--- can define metamethods as well as plain methods
-function C:__tostring () return 'name '..self.name end
-
-function C:__eq (other) return self.name == other.name end
-
-c = C('Jones')
-assert(tostring(c) == 'name Jones')
-
--- inherited classes inherit constructors and metamethods
-D = class(C)
-
-d = C('Jane')
-assert(tostring(d) == 'name Jane')
-assert(d == C 'Jane')
-
--- if you do have a constructor, call the base constructor explicitly
-E = class(D)
-
-function E:_init (name,nick)
-  self:super(name)
-  self.nick = nick end
-
--- call methods of base class explicitly
--- (you can also use `self._class`)
-
-function E:__tostring () 
-  return D.__tostring(self)..' nick '..self.nick end
-
-asserteq(tostring(E('Jones','jj')),'name Jones nick jj')
-
-print(E('Jones','jj'))
