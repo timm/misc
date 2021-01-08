@@ -10,6 +10,6 @@ end
 
 println("go!")
 
-Pkg.activate(".")
-using Revise
-using OhMyREPL
+#Pkg.activate(".")
+#using Revise
+#using OhMyREPL

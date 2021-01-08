@@ -73,3 +73,5 @@ function demo()
   end
 end 
 end
+
+demo()
