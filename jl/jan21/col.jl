@@ -7,9 +7,9 @@
   pos=0; txt=""; w=1; n=0; seen=Dict();  
   mode=nothing; ent=nothing end
 
-incs!(i,lst)     = begin [inc!(i,x) for x in lst]; i end
-nump(s, c=it.ch) = c.less in s || c.more in s || c.num in s
-goalp(s,c=it.ch) = c.less in s || c.more in s || c.klass in s
+incs!(i,lst)    = begin [inc!(i,x) for x in lst]; i end
+nump(s, c=it.ch)= c.less in s || c.more in s || c.num in s
+goalp(s,c=it.ch)= c.less in s || c.more in s || c.klass in s
 
 function col(txt,pos)
   x = nump(txt) ? Some : Sym
@@ -27,7 +27,6 @@ function per(i::Some;lo,hi)
   hi = hi==nothing ? length(lst) : hi
   lst[ int(.5*(hi - lo +1)) ] end
 
-
 function inc!(i,x)
   if x != it.char.skip
     i.n += 1
@@ -42,3 +41,23 @@ function inc1!(i::Some, x)
   elseif rand() < m/i.n
     i.stale=true
     i._all[int(m*rand())+1]=x end end
+
+function _cols()
+  @testset "trigonometric identities" begin
+           θ = 2/3*π
+           @test sin(-θ) ≈ -sin(θ)
+           @test cos(-θ) ≈ cos(θ)
+           @test sin(2θ) ≈ 2*sin(θ)*cos(θ)
+           @test cos(2θ) ≈ cos(θ)^2 - sin(θ)^2
+       end
+end
+
+function _cols1()
+  @testset "other identities" begin
+           θ = 2/3*π
+           @test sin(-θ) ≈ -sin(θ)
+           @test cos(-θ) ≈ cos(θ)
+           @test sin(2θ) ≈ 2*sin(θ)*cos(θ)
+           @test cos(2θ) ≈ cos(θ)^2 - sin(θ)^2
+       end
+end

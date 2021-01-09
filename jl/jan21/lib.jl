@@ -18,7 +18,6 @@ function say(i)
   print(s * "}")
 end
 
-
 @resumable function csv(file;zap=r"(\s+|#.*)")
   b4=""
   for line in eachline(file)

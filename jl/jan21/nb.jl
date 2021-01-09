@@ -4,25 +4,30 @@ using Parameters
 using Random
 using ResumableFunctions
 
-function sys(files= ["it","lib","col"])
-  [println("# ",include("./"*x*".jl")) for x in files] end
+function go1(files...)
+  go1(x) = begin println("# ",x); include(x) end
+  [go1("./"*x*".jl") for x in files]; 1 end
 
-sys()
+go() = go1("it", "lib", "col", "tests")
 
-@resumable function two()
-  for i in 1:10^8
-    if iseven(i) @yield i end end end
-
-onex() = sum(x for x in 1:10^8 if iseven(x))
-twox() = sum(x for x in two())
-
-@time onex()
-@time twox()
-#print(onex() == twox())
-
-#for ln in eachline("nb.jl") println("$(length(ln)), $(ln)") end
+go()
 
 it = It()
 Random.seed!(it.seed)
 
-say(Some(w=2))
+# @resumable function two()
+#   for i in 1:10^8
+#     if iseven(i) @yield i end end end
+#
+# onex() = sum(x for x in 1:10^8 if iseven(x))
+# twox() = sum(x for x in two())
+#
+# @time onex()
+# @time twox()
+# #print(onex() == twox())
+#
+# #for ln in eachline("nb.jl") println("$(length(ln)), $(ln)") end
+#
+#
+# say(Some(w=2))
+1
