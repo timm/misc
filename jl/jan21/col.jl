@@ -27,7 +27,6 @@ function per(i::Some;lo,hi)
   hi = hi==nothing ? length(lst) : hi
   lst[ int(.5*(hi - lo +1)) ] end
 
-function mid(i::some;lo=1,hi=nothing) 
 
 function inc!(i,x)
   if x != it.char.skip
