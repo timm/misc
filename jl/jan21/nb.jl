@@ -3,9 +3,11 @@
 using Parameters
 using Random
 using ResumableFunctions
-files=["it","lib","col"]
 
-map((x) -> println("# ",include("./" *x *".jl")), files)
+function sys(files= ["it","lib","col"])
+  [println("# ",include("./"*x*".jl")) for x in files] end
+
+sys()
 
 @resumable function two()
   for i in 1:10^8
