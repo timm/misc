@@ -3,11 +3,9 @@
 using Parameters
 using Random
 using ResumableFunctions
+files=["it","lib","col"]
 
-for f in ["it", "lib", "col"]
-  println("# ./" * f * ".jl") 
-  include("./" * f * ".jl") 
-end
+map((x) -> println("# ",include("./" *x *".jl")), files)
 
 @resumable function two()
   for i in 1:10^8
@@ -18,11 +16,9 @@ twox() = sum(x for x in two())
 
 @time onex()
 @time twox()
-print(onex() == twox())
+#print(onex() == twox())
 
-for ln in eachline("nb.jl")
-        println("$(length(ln)), $(ln)")
-end
+#for ln in eachline("nb.jl") println("$(length(ln)), $(ln)") end
 
 it = It()
 Random.seed!(it.seed)
