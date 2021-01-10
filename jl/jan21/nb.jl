@@ -4,7 +4,7 @@ using Random
 using Parameters
 using ResumableFunctions
 
-nil = nothing
+no = nothing
 
 want(x) = begin println("# ",x); 
                 include("./"*x*".jl") end

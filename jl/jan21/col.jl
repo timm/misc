@@ -6,13 +6,13 @@
 
 @with_kw mutable struct Sym
   pos=0; txt=""; w=1; n=0; seen=Dict();  
-  mode=nil; most=0 end
+  mode=no; most=0 end
 
 @with_kw mutable struct Table
   ys=[]; xs=[]; rows=[]; cols=[] end
 
 @with_kw mutable struct Row
-  cells=[]; dom=0; y=nil end
+  cells=[]; dom=0; y=no end
 
 incs!(i,lst)     = begin [inc!(i,x) for x in lst]; i end
 nump(s, c=it.char) = c.less in s || c.more in s || c.num   in s
@@ -28,11 +28,11 @@ function all(i::Some)
     i._all = sort(i._all) end
   return i._all end
 
-mid(i::Some;lo=nil,hi=nil) = per(i,p=.5,lo=lo,hi=hi)
-sd(i::Some;lo=nil,hi=nil)  = 
+mid(i::Some;lo=no,hi=no) = per(i,p=.5,lo=lo,hi=hi)
+sd(i::Some;lo=no,hi=no)  = 
   (per(i,p=.9,lo=lo,hi=hi) - per(i,p=.1,lo=lo,hi=hi))/2.54
 
-function per(i::Some;p=.5,lo=nil,hi=nil)
+function per(i::Some;p=.5,lo=no,hi=no)
   lst=all(i)
   hi = isnothing(hi) ? length(lst) : hi
   lo = isnothing(lo) ? 1           : lo
