@@ -1,19 +1,18 @@
 # vim: set et ts=2 sw=2:
 
 function ok()
-    @testset "ALL      " begin
-      @testset "trig      " begin
-        θ = 2/3*π
-        @test_skip sin(-θ) ≈ -sin(θ)
-        @test cos(-θ) ≈ cos(θ)
-        @test 1 == 2
-        @test sin(2θ) != 2*sin(θ)*cos(θ)
-        @test cos(2θ) ≈ cos(θ)^2 - sin(θ)^2
-      end
-
-      @testset "other     " begin
-        θ = 2/3*π
-        @test sin(-θ) ≈ -sin(θ)
-        @test cos(-θ) ≈ cos(θ)
-        @test sin(2θ) != 2*sin(θ)*cos(θ)
-        @test cos(2θ) ≈ cos(θ)^2 - sin(θ)^2 end end end 
+  r0() = begin Random.seed!(it.seed); true end
+  r0()
+  @testset "ALL      " begin
+    @testset "lib       " begin
+      @test r0() && few("abcdefgh",2) == ['b','c'] 
+      @test thing("string") == "string"
+      @test thing(11.5) == 11.5
+      all = [row for row in csv("data/weather.csv")] 
+      @test 5       == length(all[1])
+      @test 15      == length(all)
+      @test Float64 == typeof(all[2][2])
+    end 
+  end
+  1
+end 

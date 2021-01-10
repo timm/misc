@@ -1,7 +1,8 @@
 #!/usr/bin/env julia
 
-using Parameters
+using Test
 using Random
+using Parameters
 using ResumableFunctions
 
 function go1(files...)
