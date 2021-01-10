@@ -18,5 +18,5 @@ want("lib")
 want("col")
 want("tests")
 
-main() = want("nb")
+go() = want("nb")
 # say(Some(w=2))

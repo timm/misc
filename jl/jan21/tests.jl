@@ -1,7 +1,7 @@
 # vim: set et ts=2 sw=2:
 r0() = begin Random.seed!(it.seed); true end
 
-function _tests()
+function ok()
   @testset "ALL" begin 
     _lib(); _some(); _sym() end end
 
@@ -38,5 +38,6 @@ function _some()
     @test mid(s,lo=16) == 69
     @test 32.6 < sd(s) < 32.7
     @test s.w == -1
+    @test .78 < norm!(s,75) < .79
   end 
 end 
