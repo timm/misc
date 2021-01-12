@@ -4,8 +4,8 @@
   _all=[]; max=it.some.max; stale=false end
 
 @with_kw mutable struct Sym
-  pos=0; txt=""; w=1; n=0; seen=Dict();  
-  mode=no; most=0 end
+  pos=0; txt=""; w=1; n=0; 
+  seen=Dict(); mode=no; most=0 end
 
 #---- Create -----------------------------------------------
 function col(;txt="",pos=0, c=it.char)
@@ -37,8 +37,8 @@ norm!(i::Some,x, a=all(i), skip=x==it.char.skip) =
 
 mid(i::Some;lo=no,hi=no) = per(i,p=.5,lo=lo,hi=hi)
 
-sd(i::Some;lo=no,hi=no) = 
-  (per(i,p=.9,lo=lo,hi=hi) - per(i,p=.1,lo=lo,hi=hi))/2.54
+sd(i::Some;lo=no,hi=no)  = (per(i,p=.9,lo=lo,hi=hi) - 
+                            per(i,p=.1,lo=lo,hi=hi)) / 2.564
 
 function per(i::Some;p=.5,lo=no,hi=no, lst=all(i))
   hi = hi==no ? length(lst) : hi

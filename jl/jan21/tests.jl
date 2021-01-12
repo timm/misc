@@ -1,13 +1,14 @@
 # vim: set et ts=2 sw=2:
-r0() = begin Random.seed!(it.seed); true end
+r0() = Random.seed!(it.seed)
 
 function ok()
   @testset "ALL" begin 
     _lib(); _some(); _sym() end end
 
 function _lib()
+  r0()
   @testset "lib" begin
-    @test r0() && few("abcdefgh",2) == ['b','c'] 
+    @test few("abcdefgh",2) == ['b','c'] 
     @test thing("string") == "string"
     @test thing(11.5) == 11.5
     all = [row for row in csv("data/weather.csv")] 
@@ -28,6 +29,7 @@ function _sym()
 end 
 
 function _some()
+  r0()
   @testset "some" begin
     s=  col(txt="<a") 
     @test typeof(s)==Some
@@ -36,7 +38,7 @@ function _some()
     lst = all(s)
     @test lst[1] < lst[end]
     @test mid(s,lo=16) == 69
-    @test 32.6 < sd(s) < 32.7
+    @test 32.37 < sd(s) < 32.38
     @test s.w == -1
     @test .78 < norm!(s,75) < .79
   end 
