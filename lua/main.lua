@@ -1,17 +1,15 @@
-function loadz(f)
-  sep,ss,s,fp = "",{},"",io.open(f)
+function loadz(f,    s,code,fp)
+  s,sep,code = "","",false
+  fp = io.input(f)
   for l in fp:lines() do
-    if   l=="" 
-    then s=""
-    else if #s==0 then ss[#ss+1]=""  end  
-         s = s .. l .. sep; sep="\n"
-         ss[#ss] = s
-    end
+    if   l:sub(1,3)=="```"  
+    then s = s..sep
+         code = not code
+    else s = s..sep..(code and "" or "-- ") ..l end
+    sep = "\n"
   end
-  io.close(fp)
-  return ss
-end
+  io.close(fp) 
+  return s end
 
-for _,x in pairs(loadz("f.lua")) do
-  print("----",x)
-end
+x=load(loadz("f.md"))()
+print(type(x))

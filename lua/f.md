@@ -1,7 +1,11 @@
+```lua
 the={}
-
 local Num   = {}
+```
 
+There is noland but the land
+
+```lua
 function Num:_init(txt,pos)
   self:super(txt,pos)
   self.mu  = 0
@@ -10,16 +14,23 @@ function Num:_init(txt,pos)
   self.hi  = math.mininteger
   self.lo  = math.maxinteger
 end
+```
 
-function Num:mid() return self.mu end
+```lua
+function Num:mid() return self.mu end 
+
 function Num:var() return self.sd end
 function Num:show() 
   return (self.w<0 and"<"or">")..self:mid() end
+```
 
+```lua
 function Num:__tostring()
   return string.format("Num(%s,%s)", self.mu, self.sd)
 end
+```
 
+```lua
 function Num:add (x,    d)
   if x ~= the.ch.skip then 
     self.n  = self.n + 1
@@ -33,7 +44,9 @@ function Num:add (x,    d)
   end
   return x
 end
+```
 
+```lua
 function Num:sub (x,     d)
   if x ~= the.ch.skip then 
     self.n  = self.n - 1
@@ -45,13 +58,17 @@ function Num:sub (x,     d)
   end
   return x
 end
+```
 
+```lua
 function Num:sd0()
   if self.n  < 2 then return 0 end
   if self.m2 < 0 then return 0 end
   return (self.m2 / (self.n - 1))^0.5 
 end
+```
 
+```lua
 function Num:dist(x,y)
   if x == the.ch.skip and y == the.ch.skip then
     return 1
@@ -66,30 +83,37 @@ function Num:dist(x,y)
   end
   return math.abs(x - y)
 end
+```
 
+```lua
 function Num:norm(x)
   if x ~= the.ch.skip then
     x= (x - self.lo) / (self.hi - self.lo + the.tiny)
   end
   return x
 end
+```
 
+```lua
 function Num:strange(x,  z)
   z = Num.z(x, self.mu, self.sd) 
   return z< self.odd or z >= 1-self.odd
-end
+end 
+```
 
--- ---------------------------
--- ## Z-curve
--- The `z-curve` is a normal curve with mean of 0 and  standard 
--- deviation of 1. To convery any normal curve into a `z-curve`
--- then subtract `mu` and divide by `sd`.
+---------------------------
+## Z-curve
 
--- For the same of effeciency, Pre-compute and cache the area under
---  the normal curve from -4\*`sd` to +4\*`sd` (why this
--- range? Well, outside of that range, the y-value of
--- the normal curve is effectively zero).
+The `z-curve` is a normal curve with mean of 0 and  standard 
+deviation of 1. To convery any normal curve into a `z-curve`
+then subtract `mu` and divide by `sd`.
 
+For the same of effeciency, Pre-compute and cache the area under
+ the normal curve from -4\*`sd` to +4\*`sd` (why this
+range? Well, outside of that range, the y-value of
+the normal curve is effectively zero).
+
+```lua
 do
   local zs = {0}  -- zs[1] = 0
   local zn = 512  -- cache "zn" number of entries
@@ -104,7 +128,9 @@ do
     elseif i < 1  then return 0 
     else          return zs[i] end end
 end
+```
 
+```lua
 function Num:like(x,   z,denom,num)
   return lib.norm(x, self.mu, self.sd)
 end
@@ -118,7 +144,8 @@ function Num:div(rows,y,   lst)
   end
   return Super(lst,Num,Sym,self):div(lst)
 end
+```
 
-
+```lua
 return Num
 
