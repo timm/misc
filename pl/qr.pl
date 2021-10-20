@@ -38,7 +38,7 @@ bulb(ok,light,+,+).
 bulb(ok,light,-,-).
 bulb(ok,dark,0,0).
 
-sum(+,+,+).
+sum(+,+,+). % %%%%
 sum(+,0,+).
 sum(+,-,_).
 sum(0,+,+).
