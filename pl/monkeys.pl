@@ -18,7 +18,7 @@
 
 % goal
 
-goal(state(_,_,_,has)).
+goal(state(_,_,_,has)). % comemnt for leonardo
 
 % legal actions
 
