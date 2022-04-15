@@ -1,0 +1,54 @@
+
+# vim: filetype=sh ts=2 sw=2 sts=2 et :
+###     __                             __                 
+###    /\ \__           __            /\ \                
+###    \ \ ,_\   _ __  /\_\     ___   \ \ \/'\      ____  
+###     \ \ \/  /\`'__\\/\ \   /'___\  \ \ , <     /',__\ 
+###      \ \ \_ \ \ \/  \ \ \ /\ \__/   \ \ \\`\  /\__, `\
+###       \ \__\ \ \_\   \ \_\\ \____\   \ \_\ \_\\/\____/
+###        \/__/  \/_/    \/_/ \/____/    \/_/\/_/ \/___/ 
+
+if [ -z "$1" ]; then
+clear
+tput bold; tput setaf 5
+cat<<-'EOF'
+
+            /\  / __>0
+       /\  /  |/' /
+      /  \/   `  ,`'--.
+     / /(___________)_ \    Weclome to LearnBOT v1
+     |/ //.-.   .-.\\ \ \   (BOT = box of tricks)
+     0 // :@ ___ @: \\ \/
+       ( o ^(___)^ o ) 0
+        \ \_______/ /
+    /\   '._______.'--.
+    \ /|  |<_____>    |
+      \____<_____>_______/
+          :<_____>____:
+         / <_____>   /|
+        /  <_____>  / |
+       /___________/  |
+       |           | _|__
+       |           | ---||_
+       |   |L\/|/  |  | [__]
+       |  \|||\|\  |  /
+   jgs |           | /
+       |___________|/
+
+USAGE:
+  . tricks     : load the tricks into the current shell
+  . tricks -s  : ditto, but wihtout any splash screen
+  make         : get a list of available functions
+
+EOF
+tput bold; tput setaf 241
+echo "Short cuts:"
+alias | sed 's/alias /  /'
+echo ""
+tput sgr0
+fi
+
+alias gp="git add *;git commit -am save;git push;git status"
+alias ls="ls -G"
+
+py() { python3 $1.py $* ; }

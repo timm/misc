@@ -1,5 +1,13 @@
+###  ___                                         ____       _____      ______   
+### /\_ \                                       /\  _`\    /\  __`\   /\__  _\  
+### \//\ \       __      __      _ __    ___    \ \ \L\ \  \ \ \/\ \  \/_/\ \/  
+###   \ \ \    /'__`\  /'__`\   /\`'__\/' _ `\   \ \  _ <'  \ \ \ \ \    \ \ \  
+###    \_\ \_ /\  __/ /\ \L\.\_ \ \ \/ /\ \/\ \   \ \ \L\ \  \ \ \_\ \    \ \ \ 
+###     /\____\\ \____\\ \__/.\_\ \ \_\ \ \_\ \_\   \ \____/   \ \_____\    \ \_\
+###     \/____/ \/____/ \/__/\/_/  \/_/  \/_/\/_/    \/___/     \/_____/     \/_/
+
 define BSD_TXT
-pipette: a tiny data mining tool cut built from pipes
+learnBOT: (BOT = box of tricks). A tiny data minging workbench.
 Copyright (c) 2022, Tim Menzies, timm@ieee.org
 
 Redistribution and use in source and binary forms, with or without
@@ -35,8 +43,8 @@ copyright: ## show copyright
 	@echo "$$BSD_TXT"
 
 ####---------------------------------------------------------------------------
-COMMENT= 'BEGIN {d="----------" print d d d d d d d d}\
-              /^[ \t]*$$/ {next} {print "###    "$$0} END{print""}'
+COMMENT= gawk 'BEGIN {"-------------------------------------------------------------------"} \
+                 /^[ \t]*$$/ {next} {print "\#\#\#    "$$0} END{print""}'
 
 h1:; @figlet -W -flarry3d     $t | $(COMMENT)
 h4:; @figlet -W -fmini $${t%%.*}  | $(COMMENT)
@@ -44,19 +52,19 @@ h3:; @figlet -W -fsmall  $${t%%.*}  | $(COMMENT)
 h2:; @figlet -W -fcybermedium $t | $(COMMENT)
 
 ####---------------------------------------------------------------------------
-COLORS = 'BEGIN           {fails=0; \
+COLORS = gawk 'BEGIN      {fails=0; print 1;\
                            GREEN= sprintf("%c[1;32m",27); \
                            RED=   sprintf("%c[1;31m",27); \
                            NORM=  sprintf("%c[0m",27) } \
           gsub(/PASS/,"") {$$0 = GREEN "PASS" NORM $$0 } \
-          gsub(/FAIL/,"") {$$0 = RED   "PASS" NORM $$0; fails++ } \
+          gsub(/FAIL/,"") {$$0 = RED   "FAIL" NORM $$0; fails++ } \
                           {print} \
           END             {print "\n" RED "ERRORS ==> " fails " " NORM;\
                            exit(fails)}' 
 
 tests:
-	#(MAKE) testsgo | gawk $$COMMENT
+	@$(MAKE) testsgo |  $(COLORS)
 
 testsgo:
-	echo "PASS asdas"
-	echo "FAIL asdas"
+	@echo "PASS asdas"
+	@echo "FAIL asdas"
