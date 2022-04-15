@@ -1,3 +1,24 @@
+---
+title:
+- type: main
+  text: My Book
+- type: subtitle
+  text: An investigation of metadata
+creator:
+- role: author
+  text: John Smith
+- role: editor
+  text: Sarah Jones
+identifier:
+- scheme: DOI
+  text: doi:10.234234.234/33
+cover-image: /Users/timm/gits/timm/misc/odd/etc/img/shape.jpg 
+publisher:  My Press
+rights: © 2007 John Smith, CC BY-NC
+ibooks:
+  version: 1.3.4
+---
+
 #  lib.gold
   - [Globals](#globals) : There is only one.
     - [BEGIN { List](#beginlist)
