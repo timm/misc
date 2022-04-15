@@ -8,12 +8,12 @@ Optimization via discretization and contrast sets.
 #>
 
 ### shortcuts
-function add(i,x,  f) { f= i.is"Add"; return @f(i,x) }
-function dom(i,x,  f) { f= i.is"Dom"; return @f(i,x) }
+function add(i,x,  f) {print(2,i.is); f= i.is"Add"; return @f(i,x) }
+function dom(i,x,  f) { print(3,i.is);f= i.is"Dom"; return @f(i,x) }
 
 #-------------------------------------------
 ### generic column
-function Col(i,pos,txt) {
+function Col(i,pos,txt) {  
   Obj(i)
   i.is="Col"
   i.pos=pos

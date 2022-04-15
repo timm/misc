@@ -41,8 +41,8 @@ chmod +x xx.auk and add the top line:
 
 If called via ". auk.sh" then the following alias are defined:
 EOF
-  tput setaf 9; echo ""
-  gawk 'sub(/^[ \t]*alias/,"alias") {print $0}' $Auk/auk.sh
+  tput setaf 3; echo ""
+  gawk 'sub(/^[ \t]*alias/,"alias") {print $0}' $Auk/auk.sh; echo ""
   tput sgr0
 }
 
