@@ -55,4 +55,8 @@ COLORS = 'BEGIN           {fails=0; \
                            exit(fails)}' 
 
 tests:
-  #(MAKE) testsgo | gawk $$COMMENT
+	#(MAKE) testsgo | gawk $$COMMENT
+
+testsgo:
+	echo "PASS asdas"
+	echo "FAIL asdas"
