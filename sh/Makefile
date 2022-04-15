@@ -39,6 +39,9 @@ help: ## show help
 	| awk 'BEGIN {FS = ":.*?## "}; \
                {printf "make \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
+bye:	## save to github
+	git add *;git commit -am save;git push;git status
+
 copyright: ## show copyright
 	@echo "$$BSD_TXT"
 
