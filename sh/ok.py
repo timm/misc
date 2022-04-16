@@ -24,11 +24,8 @@ OPTIONS:
 import re,ako,sys,tricks,warnings
 the = tricks.cli(__doc__)
 
-print(the)
-
 def main(the):
-  def header(row): 
-    expects = [ako.nump(s) for s in row]
+  def header(row): expects = [ako.nump(s) for s in row]
   def good(row):
     if len(expects) != len(row):
       return print( f"#E> row {n}: expected {len(expects)} cells")
@@ -40,11 +37,9 @@ def main(the):
     return True
   expects=None
   for n,row in enumerate(tricks.csv()): 
-    if not expects: 
-      expects = [ako.nump(s) for s in row]
+    if not expects: expects = [ako.nump(s) for s in row]
     else:
-      if good(row): 
-        print(', '.join(row))
+      if good(row): print(', '.join(row))
       else:         
         the.warn -= 1
         if the.warn < 0: print(f"E> too many warnings")
