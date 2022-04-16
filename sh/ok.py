@@ -24,24 +24,25 @@ OPTIONS:
 import re,ako,sys,tricks,warnings
 the = tricks.cli(__doc__)
 
+def warn(the, msg):
+  print(msg)
+  the.warn -= 1
+  if the.warn < 0: 
+    print("E> too many warnings")
+
 def main(the):
-  def header(row): expects = [ako.nump(s) for s in row]
   def good(row):
     if len(expects) != len(row):
-      return print( f"#E> row {n}: expected {len(expects)} cells")
+      return warn(the, f"#E> row {n}: expected {len(expects)} cells")
     else:
       if the.strict:
         for cell,nump in zip(row,expects): 
           if not ako.good(ako.make(cell, nump), nump):
-            return print(f"#E> row {n}: wrong type {cell}")
+            return warn(the, f"#E> row {n}: wrong type {cell}")
     return True
   expects=None
   for n,row in enumerate(tricks.csv()): 
-    if not expects: expects = [ako.nump(s) for s in row]
-    else:
-      if good(row): print(', '.join(row))
-      else:         
-        the.warn -= 1
-        if the.warn < 0: print(f"E> too many warnings")
+    if not expects : expects = [ako.nump(s) for s in row]
+    else           : good(row); print(', '.join(row))
 
 if __name__ == "__main__": main(the)
