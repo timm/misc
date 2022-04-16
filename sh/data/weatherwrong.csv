@@ -1,7 +1,7 @@
 outlook,Temp,Humid,windy,play!
 sunny,85,85,FALSE,no
 sunny,80,90,TRUE,no
-aa,overcast,83,86,FALSE,yes
+overcast,eight,86,FALSE,yes
 rainy,70,96,FALSE,yes
 68,80,FALSE,yes
 rainy,65,70,TRUE,no

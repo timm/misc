@@ -31,12 +31,12 @@ def main(the):
     expects = [ako.nump(s) for s in row]
   def good(row):
     if len(expects) != len(row):
-      return warnings.warn( f"Error row {n}: expected #(len(expect) cells")
+      return print( f"#E> row {n}: expected {len(expects)} cells")
     else:
       if the.strict:
         for cell,nump in zip(row,expects): 
           if not ako.good(ako.make(cell, nump), nump):
-            return warnings.warn(f"Error row {n}: wrong type {cell}")
+            return print(f"#E> row {n}: wrong type {cell}")
     return True
   expects=None
   for n,row in enumerate(tricks.csv()): 
@@ -47,6 +47,6 @@ def main(the):
         print(', '.join(row))
       else:         
         the.warn -= 1
-        if the.warn < 0: warnings.warn(f"too many warnings")
+        if the.warn < 0: print(f"E> too many warnings")
 
 if __name__ == "__main__": main(the)

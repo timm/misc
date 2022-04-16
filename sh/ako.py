@@ -9,7 +9,7 @@
 import re,tricks
 
 def good(x, nump): 
-  return (type(x)==int or type(x)== float) if nump else (type(x)==string)
+  return (type(x)==int or type(x)== float) if nump else (type(x)==str)
 
 def make(x,nump):
   return (tricks.atom(x) if nump else x)
