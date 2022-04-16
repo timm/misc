@@ -21,31 +21,32 @@ OPTIONS:
   --help -h       show help                                = False
   --copy -C       show copyright                           = False
 """
-import re,ako,sys,lib,warnings
+import re,ako,sys,tricks,warnings
+the = tricks.cli(__doc__)
 
-def main():
+print(the)
+
+def main(the):
+  def header(row): 
+    expects = [ako.nump(s) for s in row]
+  def good(row):
+    if len(expects) != len(row):
+      return warnings.warn( f"Error row {n}: expected #(len(expect) cells")
+    else:
+      if the.strict:
+        for cell,nump in zip(row,expects): 
+          if not ako.good(ako.make(cell, nump), nump):
+            return warnings.warn(f"Error row {n}: wrong type {cell}")
+    return True
   expects=None
-  for n,row in enumerate(csv(the.file)): 
-    if not expects:
+  for n,row in enumerate(tricks.csv()): 
+    if not expects: 
       expects = [ako.nump(s) for s in row]
     else:
-      oops=False
-      if  len(expect)!=len(row):
-         warnings.warn( f"Error row {n}: expected #(len(expect) cells")
-         the.warn -= 1
-         oops=True
-      else:
-         if the.strict:
-           for cell,nump in zip(row,expects): 
-             if not good(make(cell, nump), nump):
-               warnings.warn( f"Error row {n}: wrong type {cell}")
-               the.warn -= 1
-               oops=True
-      assert(the.warn > 0, "too many warnings")
-      if not oops:
+      if good(row): 
         print(', '.join(row))
+      else:         
+        the.warn -= 1
+        if the.warn < 0: warnings.warn(f"too many warnings")
 
-if __name__ == "__main__":
-  the=cli(__doc__)
-  main()
- 
+if __name__ == "__main__": main(the)
