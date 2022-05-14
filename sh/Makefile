@@ -45,6 +45,9 @@ bye:	## save to github
 copyright: ## show copyright
 	@echo "$$BSD_TXT"
 
+egok: ## example of "ok"
+	 cat data/weatherwrong.csv | python3 ok.py -s
+
 ####---------------------------------------------------------------------------
 COMMENT= gawk 'BEGIN {"-------------------------------------------------------------------"} \
                  /^[ \t]*$$/ {next} {print "\#\#\#    "$$0} END{print""}'

@@ -77,7 +77,7 @@ def csv(file=None, sep=",", dull=r'([\n\t\r ]|#.*)'):
        s=re.sub(dull,"",s)
        if s: yield s.split(sep)
   else:
-     for line in sys.stdin: 
+     for s in sys.stdin: 
        s=re.sub(dull,"",s)
        if s: yield s.split(sep)
 
@@ -89,8 +89,8 @@ def cli(s):
   [5] If help requested, print help and exit.  
   [6] If copyright requested, print copyright and exit. """  
   d={}
-  pattern=r"\n  (--(\S+))[\s]+(-[\S]+)[\s]+[^\n]*\s([\S]+)"
-  for (want1,key,want2,x) in re.findall(pattern,__doc__):  #... [1]
+  pattern = r"  (--(\S+))[\s]+(-[\S]+)[\s]+[^\n]*\s([\S]+)"
+  for (want1,key,want2,x) in re.findall(pattern,s):  #... [1]
      for at,flag in enumerate(sys.argv):                   #... [2]
        if flag==want1 or flag==want2:
          x= "True"  if x=="False" else (                   #... [3]
