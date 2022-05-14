@@ -21,6 +21,8 @@ a {
     color: rgb(61, 146, 201);
     color: #CC0000;
 }
+
+
 a:hover,
 a:focus {
     text-decoration: underline;
@@ -184,9 +186,11 @@ hr {
     background: none;
 }
 .h1 { size: 50px;}
+
 .posts h2 {
-  size: 60px; 
-  color:#CC0000; }
+  size: 70px; 
+  color:  #CC0000; }
+
 
 @media (min-width: 64em) {
     .content {
@@ -204,6 +208,9 @@ hr {
         top: 0;
         bottom: 0;
     }
+
+a  {color: green; }
+
 
     .footer {
         text-align: center;
