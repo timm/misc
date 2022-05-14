@@ -21,8 +21,9 @@ OPTIONS:
   --help -h       show help                                = False
   --copy -C       show copyright                           = False
 """
-import re,ako,sys,tricks,warnings
-the = tricks.cli(__doc__)
+import re,ako,sys,warnings
+import lib
+the = lib.cli(__doc__)
 
 def warn(the, msg):
   print(msg)
@@ -41,7 +42,7 @@ def main(the):
             return warn(the, f"#E> row {n}: wrong type {cell}")
     return True
   expects=None
-  for n,row in enumerate(tricks.csv()): 
+  for n,row in enumerate(lib.csv()): 
     if not expects : expects = [ako.nump(s) for s in row]
     else           : good(row); print(', '.join(row))
 

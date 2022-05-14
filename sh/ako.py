@@ -6,7 +6,8 @@
 ###    \ \__/.\_\   \ \_\ \_\\ \____/
 ###     \/__/\/_/    \/_/\/_/ \/___/ 
 
-import re,tricks
+import re
+import lib
 
 def good(x, nump): 
   return (type(x)==int or type(x)== float) if nump else (type(x)==str)

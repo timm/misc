@@ -58,7 +58,7 @@ h3 {
 
 .brand-title,
 .brand-tagline {
-    font-size: 20px;
+    font-size: 15px;
     margin: 0;
 }
 .brand-title {
@@ -188,14 +188,20 @@ hr {
 .h1 { size: 50px;}
 
 .posts h2 {
-  size: 70px; 
+  margin-top: 50px;
+  font-size: 30px; 
   color:  #CC0000; }
+
+hr { margin-top:  20px;}
 
 
 @media (min-width: 64em) {
     .content {
         padding: 2em 3em 0;
         margin-left: 25%;
+    }
+
+    hr { margin-top:  500px;
     }
 
     .header {
@@ -205,12 +211,9 @@ hr {
 
     .sidebar {
         position: fixed;
-        top: 0;
+        top: 0; background-color: #CC0000;
         bottom: 0;
     }
-
-a  {color: green; }
-
 
     .footer {
         text-align: center;
