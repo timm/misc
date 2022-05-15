@@ -1,0 +1,130 @@
+line 22 column 9 - Warning: replacing unexpected h2 by </h2>
+line 24 column 56 - Warning: discarding unexpected </h2>
+line 26 column 41 - Error: <nav> is not recognized!
+line 26 column 41 - Warning: discarding unexpected <nav>
+line 33 column 127 - Warning: unescaped & or unknown entity "&hl"
+line 33 column 134 - Warning: unescaped & or unknown entity "&authuser"
+line 35 column 49 - Warning: discarding unexpected </nav>
+line 73 column 94 - Warning: adjacent hyphens within comment
+line 76 column 102 - Warning: adjacent hyphens within comment
+line 78 column 79 - Warning: <img> unexpected or duplicate quote mark
+line 78 column 79 - Warning: <img> unexpected '=', expected attribute name
+line 78 column 79 - Warning: <img> unexpected or duplicate quote mark
+line 78 column 79 - Warning: <img> unexpected or duplicate quote mark
+line 80 column 78 - Warning: <img> unexpected or duplicate quote mark
+line 80 column 78 - Warning: <img> unexpected '=', expected attribute name
+line 80 column 78 - Warning: <img> unexpected or duplicate quote mark
+line 80 column 78 - Warning: <img> unexpected or duplicate quote mark
+line 82 column 175 - Warning: unescaped & or unknown entity "&v"
+line 82 column 183 - Warning: unescaped & or unknown entity "&t"
+line 81 column 159 - Warning: <img> missing '>' for end of tag
+line 83 column 74 - Warning: <img> unexpected or duplicate quote mark
+line 83 column 74 - Warning: <img> unexpected '=', expected attribute name
+line 83 column 74 - Warning: <img> unexpected or duplicate quote mark
+line 83 column 74 - Warning: <img> unexpected or duplicate quote mark
+line 98 column 46 - Warning: <img> unexpected or duplicate quote mark
+line 98 column 46 - Warning: <img> unexpected '=', expected attribute name
+line 98 column 46 - Warning: <img> unexpected or duplicate quote mark
+line 98 column 46 - Warning: <img> unexpected or duplicate quote mark
+line 99 column 200 - Warning: <img> unexpected or duplicate quote mark
+line 99 column 200 - Warning: <img> unexpected '=', expected attribute name
+line 99 column 200 - Warning: <img> unexpected or duplicate quote mark
+line 99 column 200 - Warning: <img> unexpected or duplicate quote mark
+line 100 column 184 - Warning: <img> unexpected or duplicate quote mark
+line 100 column 184 - Warning: <img> unexpected '=', expected attribute name
+line 100 column 184 - Warning: <img> unexpected or duplicate quote mark
+line 100 column 184 - Warning: <img> unexpected or duplicate quote mark
+line 101 column 189 - Warning: <img> unexpected or duplicate quote mark
+line 101 column 189 - Warning: <img> unexpected '=', expected attribute name
+line 101 column 189 - Warning: <img> unexpected or duplicate quote mark
+line 101 column 189 - Warning: <img> unexpected or duplicate quote mark
+line 103 column 189 - Warning: <img> unexpected or duplicate quote mark
+line 103 column 189 - Warning: <img> unexpected '=', expected attribute name
+line 103 column 189 - Warning: <img> unexpected or duplicate quote mark
+line 103 column 189 - Warning: <img> unexpected or duplicate quote mark
+line 162 column 105 - Warning: inserting implicit <a>
+line 162 column 122 - Warning: discarding unexpected </button>
+line 164 column 15 - Warning: missing </p> before <a>
+line 172 column 29 - Warning: discarding unexpected </dt>
+line 181 column 15 - Warning: inserting implicit <p>
+line 195 column 62 - Warning: replacing invalid character code 128
+line 195 column 63 - Warning: replacing invalid character code 153
+line 199 column 29 - Warning: discarding unexpected </dd>
+line 217 column 9 - Warning: missing </a> before <h2>
+line 217 column 40 - Warning: inserting implicit <a>
+line 162 column 60 - Warning: missing </button>
+line 231 column 317 - Warning: replacing invalid character code 128
+line 231 column 318 - Warning: replacing invalid character code 153
+line 238 column 497 - Warning: replacing invalid character code 128
+line 240 column 55 - Warning: replacing invalid character code 128
+line 240 column 56 - Warning: replacing invalid character code 153
+line 240 column 157 - Warning: replacing invalid character code 128
+line 240 column 158 - Warning: replacing invalid character code 153
+line 246 column 68 - Warning: replacing invalid character code 128
+line 246 column 69 - Warning: replacing invalid character code 156
+line 246 column 133 - Warning: replacing invalid character code 128
+line 246 column 134 - Warning: discarding invalid character code 157
+line 249 column 88 - Warning: replacing invalid character code 128
+line 249 column 89 - Warning: replacing invalid character code 148
+line 261 column 56 - Warning: replacing invalid character code 128
+line 261 column 57 - Warning: replacing invalid character code 156
+line 261 column 119 - Warning: replacing invalid character code 128
+line 261 column 120 - Warning: discarding invalid character code 157
+line 4 column 17 - Warning: <meta> proprietary attribute "charset"
+line 4 column 17 - Warning: <meta> lacks "content" attribute
+line 9 column 5 - Warning: <link> inserting "type" attribute
+line 10 column 17 - Warning: <link> inserting "type" attribute
+line 11 column 17 - Warning: <link> inserting "type" attribute
+line 12 column 17 - Warning: <link> inserting "type" attribute
+line 25 column 10 - Warning: <img> lacks "alt" attribute
+line 45 column 6 - Warning: <img> lacks "alt" attribute
+line 47 column 1 - Warning: <a> attribute "href" lacks value
+line 53 column 1 - Warning: <li> anchor "class1" already defined
+line 54 column 1 - Warning: <li> anchor "class0" already defined
+line 55 column 1 - Warning: <li> anchor "class1" already defined
+line 56 column 1 - Warning: <li> anchor "class0" already defined
+line 57 column 1 - Warning: <li> anchor "class1" already defined
+line 58 column 1 - Warning: <li> anchor "class0" already defined
+line 59 column 1 - Warning: <li> anchor "class1" already defined
+line 81 column 159 - Warning: <img> proprietary attribute "hieght"
+line 163 column 15 - Warning: <img> lacks "alt" attribute
+line 182 column 15 - Warning: <img> lacks "alt" attribute
+line 184 column 15 - Warning: <img> lacks "alt" attribute
+line 184 column 107 - Warning: <img> lacks "alt" attribute
+line 185 column 67 - Warning: <img> lacks "alt" attribute
+line 187 column 14 - Warning: <img> lacks "alt" attribute
+line 190 column 34 - Warning: <img> lacks "alt" attribute
+line 219 column 1 - Warning: <img> lacks "alt" attribute
+line 21 column 26 - Warning: trimming empty <p>
+line 49 column 7 - Warning: trimming empty <i>
+line 62 column 42 - Warning: trimming empty <i>
+line 89 column 23 - Warning: trimming empty <dt>
+line 136 column 35 - Warning: trimming empty <i>
+line 161 column 32 - Warning: trimming empty <i>
+line 181 column 15 - Warning: trimming empty <p>
+line 217 column 42 - Warning: trimming empty <i>
+Info: Document content looks like HTML Proprietary
+104 warnings, 1 error were found!
+
+This document has errors that must be fixed before
+using HTML Tidy to generate a tidied up version.
+
+Character codes 128 to 159 (U+0080 to U+009F) are not allowed in HTML;
+even if they were, they would likely be unprintable control characters.
+Tidy assumed you wanted to refer to a character with the same byte value in the 
+specified encoding and replaced that reference with the Unicode equivalent.
+
+The alt attribute should be used to give a short description
+of an image; longer descriptions should be given with the
+longdesc attribute which takes a URL linked to the description.
+These measures are needed for people using non-graphical browsers.
+
+For further advice on how to make your pages accessible
+see http://www.w3.org/WAI/GL. You may also want to try
+"http://www.cast.org/bobby/" which is a free Web-based
+service for checking URLs for accessibility.
+
+To learn more about HTML Tidy see http://tidy.sourceforge.net
+Please send bug reports to html-tidy@w3.org
+HTML and CSS specifications are available from http://www.w3.org/
+Lobby your company to join W3C, see http://www.w3.org/Consortium
