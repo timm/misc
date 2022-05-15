@@ -105,7 +105,7 @@ hr {
     list-style: none;
 }
 .nav-item {
-     font-size: 80%;
+     font-size: 60%;
     display: inline-block;
     *display: inline;
     zoom: 1;
@@ -211,27 +211,31 @@ hr {
   font-size: 30px; 
   color:  #CC0000; }
 
-hr { margin-top:  20px;}
+hr { margin-top:  10px; margin-bottom: 0px;}
 
 
-@media (min-width: 64em) {
+@media (min-width: 48em) {
     .content {
         padding: 2em 3em 0;
         margin-left: 25%;
     }
 
-    hr { margin-top:  600px;
+    .posts hr { margin-top:  1000px;
     }
 
     .header {
         margin: 80% 2em 0;
+        margin-top: 40px;
         text-align: right;
     }
 
     .sidebar {
+        padding: 5px;
         position: fixed;
         top: 0; background-color: #CC0000;
         bottom: 0;
+        height: 100%;
+        margin: 0%;
     }
 
     .footer {
