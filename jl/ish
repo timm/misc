@@ -203,6 +203,7 @@ bashrc() { cat<<-'EOF'
 	alias matrix="$(which cmatrix) -bs  -C blue"
 	alias rain="$(which rain) -d 60 "
 	alias julia="$(which julia) -qL $root/jl/My/start.jl "
+  alias julia="julia -O0 --compile=min --startup=no "
 	alias tree="$(which tree) -C "
 	alias mc="$(which mc) -x "
 	alias zap='rm -rf $root/raised/\.*.swp $root/raised/*.pyc $root/raised/__pycache__'
@@ -262,7 +263,7 @@ bashrc() { cat<<-'EOF'
 AFTER=1
 #brew install bsdgames-osx
 
-for c in python3 git tmux vim pandoc pdoc3 mc tree cmatrix rain; do
+for c in python3 git tmux vim pandoc  mc tree cmatrix rain; do
   if [ -z "$(which $c)" ]; then
     AFTER=""
     echo "#E> missing: $c"
