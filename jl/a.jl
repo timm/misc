@@ -21,27 +21,16 @@ end
 Config(at=0,txt="aaa")= Config(
                         some=at,w=match(r"-$",txt)==nothing ? 1 : -1 ,name=txt) 
 															 
-
-x=Config(0,"asdas-")
-println(x)
-
+ 
 the=Config()
 Random.seed!(the.seed)
 
- 
-x=y=1
-println(x,y)
+  
 same(s) = s
 int(x)  = floor(Int,x)
- 
 any(a)  = a[ int(length(a) * rand()) + 1]
-few(a,n=the.divs.few) = length(a) < n  ? a : [any(a)  for _ in 1:n]
-
-
-a=[]
-b=push!(a,1)
-println(a)
-println(b)
+many(a,n=the.divs.few) = length(a) < n  ? a : [any(a)  for _ in 1:n]
+ 
 
 
 function say(i)
@@ -55,14 +44,13 @@ function say(i)
 end
 
 @with_kw mutable struct Num  
-  pos=0; txt=""; w=1; n=0; lo=10^32; hi=-1*10^32; mu=0; m2=0; sd=nothing 
-end
+  pos=0; txt=""; w=1; n=0; lo=10^32; hi=-1*10^32; mu=0; m2=0; sd=nothing  end
+	
 @with_kw mutable struct Some 
-  pos=0; txt=""; w=1; n=0; _all=[]; max=the.some.max; stale=false 
-end
+  pos=0; txt=""; w=1; n=0; _all=[]; max=the.some.max; stale=false  end
+	
 @with_kw mutable struct Sym  
-  os=0; txt=""; w=1; n=0; seen=Dict();  mode=nothing; ent=nothing  
-end 
+  os=0; txt=""; w=1; n=0; seen=Dict();  mode=nothing; ent=nothing   end 
 
 incs!(i,inits)      = begin [inc!(i,x) for x in inits]; i end
 nump(s,c=the.char)  = c.less in s || c.more in s || c.num in s
@@ -70,25 +58,19 @@ goalp(s,c=the.char) = c.less in s || c.more in s || c.klass in s
 
 function col(txt,pos)
    x = nump(txt) ? Num : Sym
-   x(txt=txt, pos=pos, w= the.char.less in txt ? -1 : 1)
-end
+   x(txt=txt, pos=pos, w= the.char.less in txt ? -1 : 1) end
 
 function all(i::Some)
-  if i.stale
-    i._all = sort(i._all)
-    i.stale=false
-  end
-  return i._all
-end
+  if i.stale 
+		i._all = sort(i._all) end
+  i.stale=false
+  i._all end
 
 function inc!(i,x)
   if x != the.char.skip
     i.n += 1
-    inc1!(i,x)
-  end
-  x
-end
-
+    inc1!(i,x) end
+  x end
 
 function inc1!(i::Some, x)
   m = length(i._all)
@@ -116,7 +98,7 @@ function inc1!(i::Num,x)
 end
 
 function div(lst, x, y)
-  lst       = few(lst,the.div.few)
+  lst       = many(lst,the.div.few)
   lst       = sort([z for z in lst if x(z) != the.str.skip], by=x)
   sd(a,f=x) = var(incs!(Num(), [f(z) for z in a]))
   mid(a,f=x) = f( a[ int(length(a)/2) ] )
