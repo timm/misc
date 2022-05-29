@@ -263,13 +263,13 @@ bashrc() { cat<<-'EOF'
 AFTER=1
 #brew install bsdgames-osx
 
-for c in python3 git tmux vim pandoc  mc tree cmatrix rain; do
-  if [ -z "$(which $c)" ]; then
-    AFTER=""
-    echo "#E> missing: $c"
-  fi
-done
-
+# for c in python3 git tmux vim pandoc  mc tree cmatrix rain; do
+#   if [ -z "$(which $c)" ]; then
+#     AFTER=""
+#     echo "#E> missing: $c"
+#   fi
+# done
+#
 if [ "$AFTER" == "1" ]; then
   if [ "$1" == "0" ]; then
     rm -rf $HOME/tmp/ish
