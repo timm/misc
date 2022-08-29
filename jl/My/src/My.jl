@@ -265,7 +265,7 @@ id=0
   rows=[]; cols=Cols() end
 
 @with_kw mutable struct Row
-  cells=[]; cooked=[]; id=global id+= 1
+  cells::Array=[]; cooked=[]; id=global id+= 1
 end
 
 say(Row())

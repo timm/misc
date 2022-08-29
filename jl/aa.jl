@@ -1,15 +1,5 @@
-using Pkg
-Pkg.add(["Printf", "ResumableFunctions","Parameters", "Random" ])
-
-tryusing(pkgsym) = try
-    @eval using $pkgsym
-    return true
-catch e
-    Pkg.add(pkgsym)
-end
-tryusing(:Printf);tryusing(:ResumableFunctions); tryusing("Parameters"); tryusing("Random")
-
-
+# ime julia -O0 --compile=min --startup=no aa.jl
+# using Pkg
 using Printf, ResumableFunctions,Parameters,Random
 # function to calculate the volume of a sphere
 function sphere_vol(r)
@@ -45,15 +35,11 @@ println("result 1: ", quad1)
 println("result 2:: ", quad2)
 
 
-
 @resumable function fibonacci(n::Int) :: Int
-	a = 0
-	b = 1
+	a,b = 0,1
 	for i in 1:n
 		@yield a
-		a, b = b, a+b
-	end
-end
+		a, b = b, a+b; end end
 
 for fib in fibonacci(10)
 	println(fib)
