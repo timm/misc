@@ -1,8 +1,9 @@
+#=
 
-# Single line comments start with a hash (pound) symbol.
-#- Multiline comments can be written
-   by putting '#=' before the text  and '=#'
-   after the text. They can also be nested.
+Multiline comments can be written
+by putting '#=' before the text  and '=#'
+after the text. They can also be nested.
+
 =#
 
 ####################################################
@@ -11,7 +12,7 @@
 
 # Everything in Julia is an expression.
 
-There are several basic types of numbers.
+There are several basic types of numbers. asdas asd as
 ```julia
 typeof(3)       # => Int64
 typeof(3.2)     # => Float64
