@@ -12,16 +12,13 @@
 # Everything in Julia is an expression.
 
 There are several basic types of numbers.
-
 ```julia
 typeof(3)       # => Int64
 typeof(3.2)     # => Float64
 typeof(2 + 1im) # => Complex{Int64}
 typeof(2 // 3)  # => Rational{Int64}
 ```
-
 # All of the normal infix operators are available.
-
 ```julia
 1 + 1      # => 2
 8 - 1      # => 7
@@ -33,7 +30,6 @@ div(5, 2)  # => 2    # for a truncated result, use div
 2^2        # => 4    # power, not bitwise xor
 12 % 10    # => 2
 ```
-
 # Enforce precedence with parentheses
 (1 + 3) * 2  # => 8
 
