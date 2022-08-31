@@ -1,7 +1,7 @@
 module VegaGraphs
 # Example of function inside ./src/VegaGraphs.jl
 """
-    MyFunction(x,y)
+MyFunction(x,y)
 This is an example of Docstring. This function receives two 
 numbers x and y and returns the sum of the squares.
 ```math
