@@ -1,5 +1,20 @@
+<<<<<<< HEAD
 # ime julia -O0 --compile=min --startup=no aa.jl
 # using Pkg
+=======
+# using Pkg
+# Pkg.add(["Printf", "ResumableFunctions","Parameters", "Random" ])
+#
+# tryusing(pkgsym) = try
+#     @eval using $pkgsym
+#     return true
+# catch e
+#     Pkg.add(pkgsym)
+# end
+# tryusing(:Printf);tryusing(:ResumableFunctions); tryusing("Parameters"); tryusing("Random")
+#
+
+>>>>>>> 925713e0671fa8b996b6bd98682a578f82037ffd
 using Printf, ResumableFunctions,Parameters,Random
 # function to calculate the volume of a sphere
 function sphere_vol(r)
@@ -23,7 +38,7 @@ function quadratic2(a::Float64, b::Float64, c::Float64)
     r1, r2
 end
 
-vol = sphere_vol(4)
+vol = sphere_vol(10)
 # @printf allows number formatting but does not automatically append the \n to statements, see below
 using Printf
 @printf "volume = %0.3f\n" vol 
@@ -41,10 +56,9 @@ println("result 2:: ", quad2)
 		@yield a
 		a, b = b, a+b; end end
 
-for fib in fibonacci(10)
+for fib in fibonacci(100)
 	println(fib)
 end
-
 
 @with_kw mutable struct Config
   char = (skip='?',less='>',more='<',num='$',klass='!')
