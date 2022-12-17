@@ -12,7 +12,7 @@ OPTIONS:
   -f  --file  csv file                   = ../etc/data/repgrid1.csv
   -F  --Far   where to find far things   = 1
   -g  --go    start-up action            = data
-  -h  --help  show help                  = false
+  -h  --help  show help                  = false  
   -m  --min   min size for leaf clusters = .5
   -p  --p     distance coefficient       = 2
   -s  --seed  random number seed         = 937162211
