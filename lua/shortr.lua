@@ -86,7 +86,7 @@ COLS=obj"COL"
 function _.new(i,t)
   i.all,i.x,i.y,i.klass = {},{},{}
   for n,s in pairs(t) do
-    local col= s:find"^[A-Z]+" and NUM(n,s) or SYM(n,s)
+    local col= new(s:find"^[A-Z]+" and NUM or SYM, n,s)
     push(i.all, col)
     if not col.isIgnored then
       if col.isKlass then i.klass = col end
