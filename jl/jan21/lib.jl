@@ -14,8 +14,7 @@ function thing(x)
   x= try parse(Float64,x)  catch _ x end
   x=="true" ? true : (x=="false" ? false : x) end
 
-function sayln(i)  
-  say(i); println("") end
+sayln(i) = begin say(i); println("") end
 
 function say(i) 
   s,pre="$(typeof(i)){",""
