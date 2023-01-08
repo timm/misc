@@ -468,13 +468,13 @@ end
 defaults('h', 'g')  # => "h g and 5 6"
 defaults('h', 'g', 'j')  # => "h g and j 6"
 defaults('h', 'g', 'j', 'k')  # => "h g and j k"
-try
-    defaults('h')  # => ERROR: MethodError: no method matching defaults(::Char)
-    defaults()  # => ERROR: MethodError: no method matching defaults()
-catch e
-    println(e)
-end
-
+#try
+#    defaults('h')  # => ERROR: MethodError: no method matching defaults(::Char)
+#    defaults()  # => ERROR: MethodError: no method matching defaults()
+#catch e
+#    println(e)
+#end
+#
 # You can define functions that take keyword arguments
 function keyword_args(;k1=4, name2="hello")  # note the ;
     return Dict("k1" => k1, "name2" => name2)
@@ -585,18 +585,18 @@ abstract type Cat end  # just a name and point in the type hierarchy
 
 # Abstract types cannot be instantiated, but can have subtypes.
 # For example, Number is an abstract type
-subtypes(Number)  # => 2-element Array{Any,1}:
-                  # =>  Complex
-                  # =>  Real
-subtypes(Cat)  # => 0-element Array{Any,1}
-
-# AbstractString, as the name implies, is also an abstract type
-subtypes(AbstractString)  # => 4-element Array{Any,1}:
-                          # =>  String
-                          # =>  SubString
-                          # =>  SubstitutionString
-                          # =>  Test.GenericString
-
+#subtypes(Number)  # => 2-element Array{Any,1}:
+#                  # =>  Complex
+#                  # =>  Real
+#subtypes(Cat)  # => 0-element Array{Any,1}
+#
+## AbstractString, as the name implies, is also an abstract type
+#subtypes(AbstractString)  # => 4-element Array{Any,1}:
+#                          # =>  String
+#                          # =>  SubString
+#                          # =>  SubstitutionString
+#                          # =>  Test.GenericString
+#
 # Every type has a super type; use the `supertype` function to get it.
 typeof(5) # => Int64
 supertype(Int64)    # => Signed
@@ -747,7 +747,7 @@ square_area(l) = l * l  # square_area (generic function with 1 method)
 square_area(5)  # => 25
 
 # What happens when we feed square_area an integer?
-code_native(square_area, (Int32,), syntax = :intel)
+#code_native(square_area, (Int32,), syntax = :intel)
 	#         .text
 	# ; Function square_area {
 	# ; Location: REPL[116]:1       # Prologue
@@ -763,7 +763,7 @@ code_native(square_area, (Int32,), syntax = :intel)
 	#         nop     dword ptr [rax + rax]
 	# ;}
 
-code_native(square_area, (Float32,), syntax = :intel)
+#code_native(square_area, (Float32,), syntax = :intel)
     #         .text
     # ; Function square_area {
     # ; Location: REPL[116]:1
@@ -778,7 +778,7 @@ code_native(square_area, (Float32,), syntax = :intel)
     #         nop     word ptr [rax + rax]
     # ;}
 
-code_native(square_area, (Float64,), syntax = :intel)
+#code_native(square_area, (Float64,), syntax = :intel)
     #         .text
     # ; Function square_area {
     # ; Location: REPL[116]:1
@@ -799,7 +799,7 @@ code_native(square_area, (Float64,), syntax = :intel)
 circle_area(r) = pi * r * r     # circle_area (generic function with 1 method)
 circle_area(5)  # 78.53981633974483
 
-code_native(circle_area, (Int32,), syntax = :intel)
+#code_native(circle_area, (Int32,), syntax = :intel)
     #         .text
     # ; Function circle_area {
     # ; Location: REPL[121]:1
@@ -830,7 +830,7 @@ code_native(circle_area, (Int32,), syntax = :intel)
     #         nop     dword ptr [rax]
     # ;}
 
-code_native(circle_area, (Float64,), syntax = :intel)
+#code_native(circle_area, (Float64,), syntax = :intel)
     #         .text
     # ; Function circle_area {
     # ; Location: REPL[121]:1

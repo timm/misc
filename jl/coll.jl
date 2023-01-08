@@ -48,8 +48,8 @@ pop!(x)                             # Returns last element and remove it from ar
 push!(x, 12)                        # Append value to end of array.
 append!(x, 1:3)                     # Append one array to the end of another array.
 #
-shift!(x)                           # Returns first element and remove it from array.
-unshift!(x, 0)                      # Prepend value to front of array.
+#shift!(x)                           # Returns first element and remove it from array.
+#unshift!(x, 0)                      # Prepend value to front of array.
 #
 splice!(y, 2)                       # Remove an element from an array.
 

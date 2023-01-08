@@ -1,4 +1,5 @@
 #!/usr/bin/env julia
+module NB
 using Test
 using Random
 using Parameters
@@ -19,4 +20,7 @@ want("col")
 want("tests")
 
 go() = want("nb")
+ok()
+print(typeof(thing("true")))
 # say(Some(w=2))
+end
