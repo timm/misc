@@ -1,6 +1,7 @@
 
 # nb.jl
 
+```julia
 #!/usr/bin/env julia
 using Test
 using Random
@@ -23,3 +24,4 @@ want("tests")
 
 go() = want("nb")
 say(Some(w=2))
+```
