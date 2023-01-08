@@ -1,12 +1,11 @@
 # vim: set et ts=2 sw=2:
-r0() = Random.seed!(it.seed)
 
 ok() = begin
+  run(fun) = begin Random.seed!(it.seed); fun() end
   @testset "ALL" begin 
-    _lib(); _some(); _sym() end end
+    run(_lib); run(_some); run(_sym) end end
 
 _lib() = begin
-  r0()
   @testset "lib" begin
     @test few("abcdefgh",2) == ['a','c'] 
     @test thing("string") == "string"
@@ -25,7 +24,6 @@ _sym() = begin
     @test s.most == 4 end end 
 
 _some() = begin
-  r0()
   @testset "some" begin
     s=  col(txt="<a") 
     @test typeof(s)==Some
@@ -37,3 +35,5 @@ _some() = begin
     @test 31.2 < sd(s) < 31.3
     @test s.w == -1
     @test .75 < norm!(s,75) < .76 end end 
+
+

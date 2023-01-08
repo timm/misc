@@ -25,11 +25,9 @@ function inc1!(i::Sym, x)
 function inc1!(i::Some, x::Number) 
   m = length(i._all)
   if m < i.max 
-    i.stale=true
-    push!(i._all,x) 
+    i.stale=true; push!(i._all,x) 
   elseif rand() < m/i.n
-    i.stale=true
-    i._all[ int(m*rand())+1 ]=x end end
+    i.stale=true; i._all[ int(m*rand())+1 ]=x end end
 
 #---- Query ------------------------------------------------
 norm!(i::Some,x, a=all(i), skip=x==it.char.skip) =
@@ -37,8 +35,8 @@ norm!(i::Some,x, a=all(i), skip=x==it.char.skip) =
 
 mid(i::Some;lo=no,hi=no) = per(i,p=.5,lo=lo,hi=hi)
 
-sd(i::Some;lo=no,hi=no)  = (per(i,p=.9,lo=lo,hi=hi) - 
-                            per(i,p=.1,lo=lo,hi=hi)) / 2.564
+sd(i::Some;lo=no,hi=no)  = 
+  (per(i,p=.9,lo=lo,hi=hi) - per(i,p=.1,lo=lo,hi=hi)) / 2.564
 
 function per(i::Some;p=.5,lo=no,hi=no, lst=all(i)) 
   hi = hi==no ? length(lst) : hi
