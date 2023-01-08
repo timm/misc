@@ -10,20 +10,29 @@ few(a,n=it.divs.few) = length(a)<n ? a : [any(a) for _ in 1:n]
 
 # ## Strings
 function thing(x)
-  x= string(x)
-  x= try parse(Float64,x)  catch _ x end
-  x=="true" ? true : (x=="false" ? false : x) end
+  for t in [Int64,Float64,Bool] 
+    try return parse(t,x) catch _ nothing end end
+  strip(x) end  
 
-sayln(i) = begin say(i); println("") end
+oo(i) = println(o(i)) 
 
-function say(i) 
+function o(i) 
   s,pre="$(typeof(i)){",""
   for f in sort!([x for x in fieldnames(typeof(i)) 
                  if !("$x"[1] == '_')])
     g = getfield(i,f)
     s = s * pre * "$f=$g"
     pre=", " end
-  print(s * "}") end
+  s * "}" end
+
+function cli(x) 
+  for f in fieldnames(typeof(x))
+    v = string(getfield(x,f))
+    for (j,a) in enumerate(ARGS)
+      if a == "-"*(String(f))[1]
+        v= v=="true" ? false : (v=="false" ? true : ARGS[j+1]) end  end
+    setfield!(x,f,  thing(v)) end
+  x end 
 
 # ## Files
 @resumable function csv(file;zap=r"(\s+|#.*)")

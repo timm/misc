@@ -1,29 +1,29 @@
 # vim: set et ts=2 sw=2:
 
-ok() = begin
+function ok() 
   run(fun) = begin Random.seed!(it.seed); fun() end
   @testset "ALL" begin 
-    run(_lib); run(_some); run(_sym) end end
+    run(_lib); run(_some); run(_sym) end end 
 
-_lib() = begin
+function _lib() 
   @testset "lib" begin
     @test few("abcdefgh",2) == ['a','c'] 
     @test thing("string") == "string"
-    @test thing(11.5) == 11.5
+    @test thing("11.5") == 11.5
     all = [row for row in csv("data/weather.csv")] 
     @test 5       == length(all[1])
     @test 15      == length(all)
-    @test Float64 == typeof(all[2][2]) end end 
+    @test Int64 == typeof(all[2][2]) end end  
 
-_sym() = begin
+function _sym() 
   @testset "some" begin
     s=  col(txt="a") 
     @test typeof(s)==Sym
     for i in "aaaabbc" inc!(s,i) end
     @test s.mode == 'a'
-    @test s.most == 4 end end 
+    @test s.most == 4 end end  
 
-_some() = begin
+function _some() 
   @testset "some" begin
     s=  col(txt="<a") 
     @test typeof(s)==Some
@@ -34,6 +34,6 @@ _some() = begin
     @test mid(s,lo=16) == 79
     @test 31.2 < sd(s) < 31.3
     @test s.w == -1
-    @test .75 < norm!(s,75) < .76 end end 
+    @test .75 < norm!(s,75) < .76 end end  
 
 
