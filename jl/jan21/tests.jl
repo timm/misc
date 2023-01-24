@@ -1,7 +1,7 @@
 # vim: set et ts=2 sw=2:
 
 function ok() 
-  run(fun) = begin Random.seed!(it.seed); fun() end
+  run(fun) = begin Random.seed!(it.seed); fun(); return true end
   @testset "ALL" begin 
     run(_lib); run(_some); run(_sym) end end 
 
@@ -11,8 +11,8 @@ function _lib()
     @test thing("string") == "string"
     @test thing("11.5") == 11.5
     all = [row for row in csv("data/weather.csv")] 
-    @test 5       == length(all[1])
-    @test 15      == length(all)
+    @test 5     == length(all[1])
+    @test 15    == length(all)
     @test Int64 == typeof(all[2][2]) end end  
 
 function _sym() 

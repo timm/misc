@@ -10,7 +10,7 @@
 #---- Create -----------------------------------------------
 char = (skip='?',less='<',more='>',num='$',klass='!')
 
-col(;txt="",pos=0, c=char) = begin
+function col(;txt="",pos=0, c=char) 
   x= c.less in txt||c.more in txt||c.num in txt ? Some : Sym  
   w= char.less in txt ? -1 : 1
   x(txt=txt, pos=pos, w=w) end
@@ -32,13 +32,14 @@ function inc1!(i::Some, x::Number)
     i.stale=true; i._all[ int(m*rand())+1 ]=x end end
 
 #---- Query ------------------------------------------------
-norm!(i::Some,x, a=all(i), skip=x==char.skip) =
-  skip ? x : max(0,min(1, (x-a[1]) / (a[end] - a[1]+1E-31))) 
+function norm!(i::Some,x, a=all(i), skip=x==char.skip) 
+  skip ? x : max(0,min(1, (x-a[1]) / (a[end] - a[1]+1E-31))) end 
 
-mid(i::Some;lo=no,hi=no) = per(i,p=.5,lo=lo,hi=hi)
+function mid(i::Some;lo=no,hi=no)  
+  per(i,p=.5,lo=lo,hi=hi) end
 
-sd(i::Some;lo=no,hi=no)  = 
-  (per(i,p=.9,lo=lo,hi=hi) - per(i,p=.1,lo=lo,hi=hi)) / 2.564
+function sd(i::Some;lo=no,hi=no)  
+  (per(i,p=.9,lo=lo,hi=hi) - per(i,p=.1,lo=lo,hi=hi)) / 2.564 end
 
 function per(i::Some;p=.5,lo=no,hi=no, lst=all(i)) 
   hi = hi==no ? length(lst) : hi

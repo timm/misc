@@ -29,7 +29,7 @@ function cli(x)
   for f in fieldnames(typeof(x))
     v = string(getfield(x,f))
     for (j,a) in enumerate(ARGS)
-      if a == "-"*(String(f))[1]
+      if a == "-"*(string(f)[1])
         v= v=="true" ? false : (v=="false" ? true : ARGS[j+1]) end  end
     setfield!(x,f,  thing(v)) end
   x end 

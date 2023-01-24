@@ -18,6 +18,7 @@ module NB
   no = nothing
   map(include, ["lib.jl","col.jl","tests.jl"])
   it=cli(it)
-  oo(it)
+  show(it)
   ok()
+  print(isdefined(NB,:ok) && isa(eval(:ok),Function))
 end
