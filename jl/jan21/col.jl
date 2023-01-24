@@ -16,8 +16,8 @@ col(;txt="",pos=0, c=char) = begin
   x(txt=txt, pos=pos, w=w) end
 
 #---- Update -----------------------------------------------
-inc!(i,x)=
-  x==char.skip ? x : begin i.n += 1; inc1!(i,x); x end
+function inc!(i,x)
+  x==char.skip ? x : begin i.n += 1; inc1!(i,x); x end end
 
 function inc1!(i::Sym, x) 
   new = i.seen[x] = 1 + get(i.seen,x,0)
