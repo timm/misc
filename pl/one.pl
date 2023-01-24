@@ -31,6 +31,6 @@ new(num,At,Txt) -->
 
 sym=[at,txt,mode,most,seen].
 
-inc([H,V, [],        [H=V |T]).
-inc([H,V, [H=V0|T],  [H=V1|T]):- !,V1 is V0+V.
-inc([H,V, [H   |T0], [H   |T]):- inc(H,V,T0,T).
+inc([H, V, [],        [H=V |T]).
+inc([H, V, [H=V0|T],  [H=V1|T]):- !,V1 is V0+V.
+inc([H, V, [H   |T0], [H   |T]):- inc(H,V,T0,T).
