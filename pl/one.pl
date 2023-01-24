@@ -32,11 +32,12 @@ num(At,Txt) -->
   hi = -1E31,
   lo =  1E31.
 
+
 def(sym,[at,txt,mode,most,seen]).
 
 inc(H, V, [],        [H=V]).
-inc(H, V, [H=V0|T],  [H=V1|T]):- !,V1 is V0+V.
-inc(H, V, [H   |T0], [H   |T]):- inc(H,V,T0,T).
+inc(H, V, [H=V0|T],  [H=V1|T]) :- !,V1 is V0+V.
+inc(H, V, [H   |T0], [H   |T]) :- inc(H,V,T0,T).
 
-:- listing(slot).
+:- listing(num).
 :- halt.
