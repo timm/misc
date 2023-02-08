@@ -19,19 +19,19 @@ xpand1([V|Xs],[V|Ys],[_|Ss],S,X,Y) :- xpand1(Xs,Ys,Ss,S, X,Y).
 :=(Slot,Val,T0,T) :- slot(_,Slot,_  ,Val,T0,T).
 is(Slot,Is,T0,T) :- Val is Is, slot(_,Slot,_  ,Val,T0,T).
 
-new(F,T) :- slot(F,_,_,_,_,T).
+new(F,_,T) :- slot(F,_,_,_,_,T).
 oo(X,Y,X,Y).
 
-def(num,[at,txt,mu,m2,lo,hi]).
-three(F,T) :- append(Args,[Return],T), append(Args,[_,Return],T1]), G =.. [F|T1], call(G).
-
+def(num,[n,at,txt,mu,m2,lo,hi]).
+%three(F,T) :- append(Args,[Return],T), append(Args,[_,Return],T1]), G =.. [F|T1], call(G).
 
 num(At,Txt) -->
-  new(num,T),
+  new(num),
   n  = 0,
   n  = 0,
   at = At,
   txt= Txt,
+  mu = 0,
   m2 = 0,
   hi = -1E31,
   lo =  1E31.
@@ -42,4 +42,4 @@ inc(H, V, [],        [H=V]).
 inc(H, V, [H=V0|T],  [H=V1|T]) :- !, V1 is V0+V.
 inc(H, V, [H   |T0], [H   |T]) :- inc(H,V,T0,T).
 
-:- halt.
+%:- halt.
