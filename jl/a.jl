@@ -9,8 +9,7 @@ using Random
   div  = (few=1024,divs=16, cohen=0.3, trivial=1.05)
   seed = 1
 	w    = 1
-	name = ""
-end
+  name = "" end
 
 
 #Config(at,txt) = w=match(r'-$,txt)==nothing ? - 1 : 1; Config(w=100)
@@ -20,28 +19,22 @@ end
 															 
 Config(at=0,txt="aaa")= Config(
                         some=at,w=match(r"-$",txt)==nothing ? 1 : -1 ,name=txt) 
-															 
  
 the=Config()
 Random.seed!(the.seed)
-
   
 same(s) = s
 int(x)  = floor(Int,x)
 any(a)  = a[ int(length(a) * rand()) + 1]
 many(a,n=the.divs.few) = length(a) < n  ? a : [any(a)  for _ in 1:n]
  
-
-
 function say(i)
   s,pre="$(typeof(i)){",""
   for f in sort!([x for x in fieldnames(typeof(i)) if !("$x"[1] == '_')])
     g = getfield(i,f)
     s = s * pre * "$f=$g" 
-    pre=", "
-  end
-  print(s * "}")
-end
+    pre=", " end
+  print(s * "}") end
 
 @with_kw mutable struct Num  
   pos=0; txt=""; w=1; n=0; lo=10^32; hi=-1*10^32; mu=0; m2=0; sd=nothing  end
@@ -79,31 +72,24 @@ function inc1!(i::Some, x)
     push!(i._all,x)
   elseif rand() < m/i.n
     i.stale=true
-    i._all[ int(m*rand()) + 1 ] = x end 
-end
+    i._all[ int(m*rand()) + 1 ] = x end end
 
 function var(i::Num)
   if     i.m2 < 0  0 
   elseif i.n  < 2  0 
-  else             (i.m2 / (i.n - 1 + 10^-32))^0.5 
-  end
-end
+  else   (i.m2 / (i.n - 1 + 10^-32))^0.5  end end
 
 function inc1!(i::Num,x)
   i.lo  = min(i.lo, x)
   i.hi  = max(i.hi, x)
   d     = x - i.mu
   i.mu += d / i.n
-  i.m2 += d * (x - i.mu)
-end
+  i.m2 += d * (x - i.mu) end
 
 function div(lst, x, y)
-  lst       = many(lst,the.div.few)
-  lst       = sort([z for z in lst if x(z) != the.str.skip], by=x)
-  sd(a,f=x) = var(incs!(Num(), [f(z) for z in a]))
-  mid(a,f=x) = f( a[ int(length(a)/2) ] )
-  eps = the.div.cohen * sd(lst,x)
-  function chop(a)
+  function sd(a,f=x)  var(incs!(Num(), [f(z) for z in a])) end
+  function mid(a,f=x) f( a[ int(length(a)/2) ] ) end
+  function xchop(a)
     m = length(a)
     tmp, out, n = [], [], m / the.div.divs
     last=nothing
@@ -111,15 +97,13 @@ function div(lst, x, y)
       if length(tmp)>=n && m - i > n && x(one) != x(last) 
         if x(one) - x(tmp[1]) > eps
           push!(out, tmp)
-          tmp = [] 
-      end end
+          tmp = [] end end
       push!(tmp,one)
-      last = one
-    end
+      last = one end
     if length(tmp) > 0 push!(out,tmp) end
-    out
-  end
-  function merge(a)
+    out end
+  #----------------
+  function ymerge(a)
     tmp, out, j, m = [], [], 1, length(a)
     while j <= m
       one = a[j]
@@ -131,32 +115,33 @@ function div(lst, x, y)
         sd12      = n1/n3*sd1 + n2/n3*sd2
         if abs(sd1 - sd2) < 0.01 || sd12*the.div.trivial >sd3
           one = three
-          j += 1
-        end 
-      end
+	  j += 1 end end
       push!(tmp,one)
-      j += 1
-    end 
-    return length(tmp) < length(a) ? merge(tmp) : a
-  end
-  merge( chop(lst))
-end
+      j += 1 end
+    return length(tmp) < length(a) ? ymerge(tmp) : a end
+  #--------------------------
+  lst = many(lst,the.div.few)
+  lst = sort([z for z in lst if x(z) != the.str.skip], by=x)
+  eps = the.div.cohen * sd(lst,x)
+  ymerge(xchop(lst)) end
 
-function main()  
+function main(top)  
   two(r) = if r<0.2 0 elseif r<0.4 1 elseif r<0.6 0 elseif r<0.8 1 else 0 end
   one(r) = [int(100*r), two(r)]
-  lst = sort([rand() for _ in 1:10^8])
+  lst = sort([rand() for _ in 1:top])
   lst = [one(r) for r in lst]
   first(z)  = z[1] 
   second(z) = z[2]
-  println(100)
-  for (i,one) in enumerate(div(lst,first,second))
-    println(i," ",length(one)," ", one[1]," ",last(one))
+  for (i,one) in enumerate(div(lst,first,second))  true end #println(i," ",length(one)," ", one[1]," ",last(one)) end 
   end
-end
 
 main1() = for _ in 1:10; print(any([1,2,3])) end
 
+@time begin print(2); for _ in 1:20 main(10^2) end end
+@time begin print(3); for _ in 1:20 main(10^3) end end
+@time begin print(4); for _ in 1:20 main(10^4) end end
+@time begin print(5);  for _ in 1:20 main(10^5) end end
+@time begin print(6);  for _ in 1:20 main(10^6) end end
 
 # try
 #   println("\n--| ",int(time() % 1000)," |----------------")
