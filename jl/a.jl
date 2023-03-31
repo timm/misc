@@ -144,8 +144,10 @@ end
 
 function main()  
   two(r) = if r<0.2 0 elseif r<0.4 1 elseif r<0.6 0 elseif r<0.8 1 else 0 end
+  println(101)
   one(r) = [int(100*r), two(r)]
-  lst = sort([rand() for _ in 1:10^8])
+  println(101)
+  lst = sort([rand() for _ in 1:10^6])
   lst = [one(r) for r in lst]
   first(z)  = z[1] 
   second(z) = z[2]
