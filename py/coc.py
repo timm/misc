@@ -54,7 +54,7 @@ def add(c,x,inc=1):
       col.has[x] = col.has.get(x,0) + inc
   return x
 
-def merge(col1,col2)
+def merge(col1,col2):
   out = deepcopy(col1)
   if out.of == NUM:
     for x in col2.has: add(out,x)
@@ -63,12 +63,12 @@ def merge(col1,col2)
   return out 
 #-------------------------------------------------------------------
 def nums(col,rows):
-  seen = Num()
+  seen = NUM()
   for row in rows: add(seen, row.cells[col.at])
   return sorted(seen.has)
 
 def syms(col,rows):
-  seen = Sym()
+  seen = SYM()
   for row in rows: add(seen, row.cells[col.at])
   return seen.has
 
@@ -134,7 +134,7 @@ def bins(rows,x,y):
   if tmp: out += [o(rows=tmp,seen=seen)]
   return merges(out, small)
 
-def merges(bins, small)
+def merges(bins, small):
   tmp,i = [],0
   while i < len(bins):
     one = bins[i]
@@ -142,9 +142,9 @@ def merges(bins, small)
       two = bins[i+1]
       onetwo = merge(one.seen, two.seen)
       n1,n2  = len(one.rows), len(two.rows)
-      if n1 < small or n2 < small or 
-         div(onetwo) <= (n1*div(one) + n2*div(two))/(n1+n2)
-         a = o(rows = (one.rows += two.rows),
+      if n1 < small or n2 < small or  (
+         div(onetwo) <= (n1*div(one) + n2*div(two))/(n1+n2)):
+         a = o(rows = (one.rows + two.rows),
                seen = onetwo)
          j = j + 1
     tmp += [a]
