@@ -20,7 +20,7 @@ def SYM(at=0, txt=""):
   return o(at=0, txt=txt, of=SYM, has={})
 
 def ROW(cells):
-  return o(cells=cells,klass=None,cooked=[])
+  return o(cells=cells,klass=None,cooked=[], of=ROW)
 
 D=DATA()
 #---------------------------------------------------------------
