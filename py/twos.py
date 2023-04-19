@@ -1,16 +1,22 @@
-# vim: set filetype=python ts=2 sw=2 et:
+#!/usr/bin/env python3 -B
+# vim: set ts=2 sw=2 et:
 """
-  -a --aaa asdas = 23
-  -h --help  asass = False
+twos.py: multi-objective explanation, optimization
+(c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
+
+USAGE:
+   ./twos.py [OPTIONS] [-g ACTION]
+
+OPTIONS:
+  -g --go    start up action    = nothing
+  -h --help  show help          = False
+  -s --seed  random number seed = 1234567891
 """
-import re
-import sys
-import ast
-import math
-import random
-from copy import deepcopy
 from dataclasses import dataclass as rec
 from typing import Dict,Any,List
+from termcolor import colored
+from copy import deepcopy
+import random,math,ast,sys,re
 
 the= {m[1]:m[2] for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)}
 
@@ -82,7 +88,7 @@ def COL(at=0,txt=" "):
 
 @rec
 class ROW:
-  cells: list = None 
+  cells: list = None
 
 @rec
 class DATA:
@@ -92,24 +98,24 @@ class DATA:
   names = []
   rows  = []
   #-------------
-  def clone(i,rows=[]): 
+  def clone(i,rows=[]):
     return DATA().add(i.names + rows)
   def read(i,file):
     with open(file) as fp:
       for line in fp:
         line = re.sub(r'([\n\t\r"\' ]|#.*)', '', line)
         if line:
-          i.add(ROW(cells= [coerce(cell.strip()) for cell in line.split(",")]))
+          i.add(ROW(cells= [coerce(s.strip()) for s in line.split(",")]))
     return i
   def add(i,row):
-    if i.x: 
+    if i.x:
       [col.add(row.cells[col.at]) for cols in [i.x, i.y] for col in cols]
       i.rows += [row]
-    else: 
+    else:
       i.names = row.cells
       i.cols = [COL(at=i,txt=s) for i,s in enumerate(i.names)]
       for col in i.cols:
-        if col.txt[-1] != "X": 
+        if col.txt[-1] != "X":
            (i.x if col.txt[-1] in "+-" else i.y).append(col)
     return i
 
@@ -118,30 +124,42 @@ class DICT(dict):
   __getattr__ = dict.get
   __setattr__ = dict.__setitem__
 
+def yell(c,*s):
+  print(colored(''.join(s),"light_"+c,attrs=["bold"]),end="")
+
 def coerce(x):
   try   : x = ast.literal_eval(x)
   except: pass
   return x
 
+def egs(the):
+  for k,v in the.items(): the[k] = cli(k,v)
+  print(the.seed)
+  sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (the.go=="." or the.go==s)]))
+
+def cli(k,v):
+  v = str(v)
+  for i,x in enumerate(sys.argv):
+    if ("-"+k[0]) == x:
+      v= "False" if v=="True" else ("True" if v=="False" else sys.argv[i+1])
+  return coerce(v)
+
 def eg(name, the):
-  b4 = deepcopy(the)
-  f = getattr(Egs,name)
-  print("#>",name,end=" ")
+  b4 = {k:v for k,v in the.items()}
+  f  = getattr(Egs,name," ")
+  yell("yellow","# ",name," ")
   random.seed(the.seed)
   tmp = f()
-  print("FAIL" if tmp==False else "PASS")
+  yell("red","FAIL\n") if tmp==False else yell("green", "PASS\n")
   for k,v in b4.items(): the[k]=v
   return 1 if tmp==False else 0
 
-def egs(want,the):
-  sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (want=="." or want==s)]))
 #-------------------------
 class Egs:
   def aa(): print(1,end=" ")
 
-  def they(): print(the,end=" ")
+  def they(): print(str(the)[:30],"...",end=" ")
 #-------------------------
 the = DICT(**{k:coerce(v) for k,v in the.items()})
 
-if __name__ == "__main__":
-  egs(sys.argv[1],the) if len(sys.argv) == 2 else print(__doc__)
+if __name__ == "__main__": egs(the)
