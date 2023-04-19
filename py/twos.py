@@ -1,7 +1,18 @@
+import sys
 import ast
 import math
 from dataclasses import dataclass as rec
-from typing import Dict,Any
+from typing import Dict,Any,List
+
+@rec
+class BIN():
+  lo =  1E60
+  hi = -1E60
+  ys =  {}
+  def add(i,x,y):
+    i.lo = min(i.lo,x)
+    i.hi = max(i.hi,x)
+    i.ys[y] = 1 + i.ys.get(y,0)
 
 @rec
 class col():
@@ -13,6 +24,7 @@ class col():
     if x=="?": return x
     i.n += inc
     i.add1(x,inc)
+  def bin(i,x,y):
     k = i.bin1(x)
     if not k in i.bins: i.bins[k] = BIN(i.at,i.txt,x)
     i.bins[k].add(x)
@@ -47,12 +59,9 @@ def COL(at=0,txt=" "):
   w = -1 if txt[-1] == "-" else 1
   return NUM(at,txt,w=w) if txt[0].isupper() else SYM(at,txt)
 
-def COLS(names):
-  x,y,cols = [],[],[COL(at=i,txt=s) for i,s in enumerate(names)]
-  for col in cols:
-    if col.txt[-1] != "X":
-       (x if col.txt[-1] in "+-" else y).append(col)
-  return names,cols,x,y
+@rec
+class ROW:
+  cells: list = None 
 
 @rec
 class DATA:
@@ -61,33 +70,33 @@ class DATA:
   cols  = []
   names = []
   rows  = []
-  def clone(i): 
-    return DATA().add(i.names)
+  def clone(i): return DATA().add(i.names)
   def read(i,file):
     with open(file) as fp:
       for line in fp:
         line = re.sub(r'([\n\t\r"\' ]|#.*)', '', line)
         if line:
-          i.all([coerce(cell.strip()) for cell in line.split(",")])
+          i.add(ROW(cells= [coerce(cell.strip()) for cell in line.split(",")]))
+    return i
   def add(i,row):
     if x: 
-      [col.add(row[col.at]) for cols in [i.x, i.y] for col in cols]
+      [col.add(row.cells[col.at]) for cols in [i.x, i.y] for col in cols]
     else: 
-      i.names,i.cols,i.x, i.y = COLS(row)
+      i.names = row.cells
+      i.cols = [COL(at=i,txt=s) for i,s in enumerate(i.names)]
+      for col in i.cols:
+        if col.txt[-1] != "X": (i.x if col.txt[-1] in "+-" else ii.y).append(col)
     return i
-
-@rec
-class BIN():
-  lo =  1E60
-  hi = -1E60
-  ys = SYM()
-  def add(i,x):
-    i.lo = min(i.lo,x)
-    i.hi = max(i.hi,x)
-    i.ys[x] = 1 + i.ys.get(x,0)
 
 def coerce(x):
   if x=="?": return x
   try: return ast.literal_eval(x)
   except: return x
 
+#-------------------------
+def aa(): print(1)
+
+if __name__ == "__main__":
+  if len(sys.argv) == 2: 
+    todo = locals().get(sys.argv[1], lambda:print("?"))
+    todo()
