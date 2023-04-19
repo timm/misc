@@ -94,9 +94,14 @@ def coerce(x):
   except: return x
 
 #-------------------------
-def aa(): print(1)
+def okAA(): print(1)
+
+def runs(todo):
+  fails=0
+  for k,fun in locals().items():
+    if k[:2]=="ok" and (todo==k[2:] or todo=="."):
+      fails += 1 if fun()==False else 0
+  sys.exit(fails)
 
 if __name__ == "__main__":
-  if len(sys.argv) == 2: 
-    todo = locals().get(sys.argv[1], lambda:print("?"))
-    todo()
+  runs(sys.argv[1] if len(sys.argv) == 2 else "nothing")
