@@ -1,4 +1,4 @@
-# vim: set ts=2 sw=2 et:
+# vim: set filetype=python ts=2 sw=2 et:
 """
   -a --aaa asdas = 23
   -h --help  asass = False
