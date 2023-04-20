@@ -16,32 +16,42 @@ OPTIONS:
   -s  --seed  random number seed                  = 1234567891
 """
 from functools import cmp_to_key as cmp2key
-from dataclasses import dataclass as rec
 from typing import Dict, Any, List
 from termcolor import colored
 from copy import deepcopy
 import random, math, ast, sys, re
 
 the= {m[1]:m[2] for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)}
-#-----------------------------------------------------------------------------
+
 class obj(object):
   id=0
   def __init__(i, **d): i.__dict__.update(**i.slots(**d)); i.id = obj.id = obj.id+1
   def slots(i,**d)    : return d
   def __repr__(i)     : return i.__class__.__name__+showd(i.__dict__)
-  def __hash__(i)     : return hash(i.id)
-
+  def __hash__(i)     : return i.id
+#-----------------------------------------------------------------------------
 class BIN(obj):
-  def slots(i,hi=None,lo=1E60): return dict(lo=lo, hi= hi or lo, n=0, ys={})
-  def add(i,x,y):
+  def slots(i,lo=1E60,hi=None): return dict(lo=lo,hi= hi or lo,n=0,rows=[],ys={})
+  def add(i,x,row):
     i.n += 1
     i.lo = min(i.lo,x)
     i.hi = max(i.hi,x)
-    i.ys[y] = 1 + i.ys.get(y,0)
+    i.rows += [row]
+    i.ys[row.y] = 1 + i.ys.get(row.y,0)
 #-----------------------------------------------------------------------------
-@rec
+def COLS(names):
+  cols,x,y = [COL(at=i,txt=s) for i,s in enumerate(names)], [], []
+  for col in cols:
+    if col.txt[-1] != "X":
+       (y if col.txt[-1] in "+-" else x).append(col)
+  return names,cols,x,y
+
+def COL(at=0,txt=" "):
+  w = -1 if txt[-1] == "-" else 1
+  return NUM(at,txt,w=w) if txt[0].isupper() else SYM(at,txt)
+
 class col(obj):
-  def slots(i,at=0,txt=" "): return dict(at=at, txt=txt,bins={},  n=0)
+  def slots(i,at=0,txt=" "): return dict(at=at, txt=txt, bins={}, n=0)
   def adds(i,lst): [i.add(x) for x in lst]; return i
 
   def add(i,x,inc=1):
@@ -54,27 +64,11 @@ class col(obj):
     if not k in i.bins: i.bins[k] = BIN(i.at,i.txt,x)
     i.bins[k].add(x)
 
-def COL(at=0,txt=" "):
-  w = -1 if txt[-1] == "-" else 1
-  return NUM(at,txt,w=w) if txt[0].isupper() else SYM(at,txt)
-
-def COLS(names):
-  x,y,cols = [],[],[COL(at=i,txt=s) for i,s in enumerate(names)]
-  for col in cols:
-    if col.txt[-1] != "X":
-       (y if col.txt[-1] in "+-" else x).append(col)
-  return names,cols,x,y
-
 #-----------------------------------------------------------------------------
 @rec
 class NUM(col):
-  w:int    =  1
-  mu:float =  0
-  m2:float =  0
-  sd:float =  0
-  lo:float =  1E60
-  hi:float = -1E60
-  #-------------
+  def slots(i,**d) : 
+     return super().slots(**d) | dict(w=1,mu=0,m2=0,sd=0,lo=1E60,hi=-1E60)
   def mid(i): return i.mu
   def div(i): return i.sd
   def norm(i,x): return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1E-60)
@@ -96,10 +90,7 @@ class NUM(col):
 #-----------------------------------------------------------------------------
 @rec
 class SYM(col):
-  has:dict= None
-  mode:Any = None
-  most:int = 0
-  #-------------
+  def slots(i,**d): return super().slots(**d) | dict(has={},mode=None,most=0)
   def mid(i): return i.mode
   def div(i): return -sum((n/i.n*math.log(n/i.n,2) for n in i.has.values() if n > 0))
   def stats(i, div=False, **_) : return i.div() if div else i.mid() 
@@ -113,8 +104,7 @@ class SYM(col):
 #-----------------------------------------------------------------------------
 @rec
 class ROW(object):
-  cells: list = None
-  #-----------------
+  def slots(i,rows): return dict(cells=rows)
   def better(i,j,data):
     s1, s2, cols, n = 0, 0, data.y, len(data.y)
     for col in cols:
