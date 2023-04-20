@@ -48,7 +48,7 @@ def COLS(names):
 
 def COL(at=0,txt=" "):
   w = -1 if txt[-1] == "-" else 1
-  return NUM(at,txt,w=w) if txt[0].isupper() else SYM(at,txt)
+  return NUM(at=at,txt=txt,w=w) if txt[0].isupper() else SYM(at=at,txt=txt)
 
 class col(obj):
   def slots(i,at=0,txt=" "): return dict(at=at, txt=txt, bins={}, n=0)
@@ -63,12 +63,10 @@ class col(obj):
     k = i.bin1(x)
     if not k in i.bins: i.bins[k] = BIN(i.at,i.txt,x)
     i.bins[k].add(x)
-
 #-----------------------------------------------------------------------------
-@rec
 class NUM(col):
-  def slots(i,**d) : 
-     return super().slots(**d) | dict(w=1,mu=0,m2=0,sd=0,lo=1E60,hi=-1E60)
+  def slots(i,at=0,txt=" ",w=1) : 
+     return super().slots(at=at,txt=txt) | dict(w=2, mu=0,m2=0,sd=0,lo=1E60,hi=-1E60)
   def mid(i): return i.mu
   def div(i): return i.sd
   def norm(i,x): return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1E-60)
@@ -88,7 +86,6 @@ class NUM(col):
     i.m2 += d*(x - i.mu)
     i.sd  = 0 if i.n<2 else (i.m2/(i.n - 1))**.5
 #-----------------------------------------------------------------------------
-@rec
 class SYM(col):
   def slots(i,**d): return super().slots(**d) | dict(has={},mode=None,most=0)
   def mid(i): return i.mode
@@ -100,11 +97,9 @@ class SYM(col):
     i.has = i.has or {}
     tmp = i.has[x] = inc + i.has.get(x,0)
     if tmp > i.most: i.most,i.mode = tmp,x
-
 #-----------------------------------------------------------------------------
-@rec
-class ROW(object):
-  def slots(i,rows): return dict(cells=rows)
+class ROW(obj):
+  def slots(i,cells=[]): return dict(cells=cells)
   def better(i,j,data):
     s1, s2, cols, n = 0, 0, data.y, len(data.y)
     for col in cols:
@@ -113,20 +108,12 @@ class ROW(object):
       s2  -= math.exp(col.w * (b - a) / n)
     return s1 / n < s2 / n
 #-----------------------------------------------------------------------------
-@rec
-class DATA(object):
-  x     = []
-  y     = []
-  cols  = []
-  names = []
-  rows:list = None
-  #-------------------
+class DATA(obj):
+  def slots(i):  return dict(x=[], y=[], cols=[], names=[], rows=[])
   def clone(i,rows=[]):
     d= DATA()
-    print("??", len(rows), len(d.rows))
     d.names, d.cols, d.x, d.y = COLS(i.names)
     [d.add(row) for row in rows]
-    print("!!!", len(rows), len(d.rows))
     return d
 
   def read(i,file):
@@ -146,7 +133,6 @@ class DATA(object):
     return i
 
   def stats(i, cols=None, div=False, rnd=2):
-    print(len(i.rows))
     return DICT(N=len(i.rows), **{col.txt: col.stats(div=div, rnd=rnd) 
                                   for col in (cols or i.y)})  
 
@@ -157,7 +143,6 @@ class DATA(object):
     for j,row in enumerate(rows):
       row.y = j > cut
       (best if j > cut else rest).append(row)
-    print(cut,len(rows), len(best), len(rest), the.rest)
     return i.clone(best), i.clone(random.sample(rest, len(best)*the.rest)) 
 #-----------------------------------------------------------------------------
 def showd(d): return "{"+(" ".join([f":{k} {show(v)}"
@@ -186,6 +171,7 @@ def coerce(x):
 
 def egs(the):
   for k,v in the.items(): the[k] = cli(k,v)
+  if the.help: return yell("cyan",__doc__)
   sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (the.go=="." or the.go==s)]))
 
 def cli(k,v):
@@ -211,6 +197,7 @@ class Egs(object):
   
   def num():
     num = NUM().adds(random.random() for _ in range(10**3))
+    print(num)
     return .28 < num.div() < .3 and .49 < num.mid() < .51
 
   def sym():
@@ -222,7 +209,7 @@ class Egs(object):
 
   def betters():
     data = DATA().read(the.file)
-    best,rest = data.betters()
+    best,rest = data.betters(); print("")
     print(data.stats())
     print(best.stats())
     prin(rest.stats())
