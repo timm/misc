@@ -31,7 +31,8 @@ class obj(object):
   def __hash__(i)     : return i.id
 #-----------------------------------------------------------------------------
 class BIN(obj):
-  def slots(i,lo=1E60,hi=None): return dict(lo=lo,hi= hi or lo,n=0,rows=[],ys={})
+  def slots(i,lo=1E60,hi=None): 
+    return dict(lo=lo,hi= hi or lo,n=0,rows=[],ys={})
   def add(i,x,row):
     i.n += 1
     i.lo = min(i.lo,x)
@@ -66,7 +67,7 @@ class col(obj):
 #-------------------------------------------------------------------------------
 class NUM(col):
   def slots(i,at=0,txt=" ",w=1) : 
-     return super().slots(at=at,txt=txt) | dict(w=2, mu=0,m2=0,sd=0,lo=1E60,hi=-1E60)
+     return super().slots(at=at,txt=txt) | dict(w=1, mu=0,m2=0,sd=0,lo=1E60,hi=-1E60)
   def mid(i): return i.mu
   def div(i): return i.sd
   def norm(i,x): return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1E-60)
