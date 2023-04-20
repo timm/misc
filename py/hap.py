@@ -63,7 +63,7 @@ class col(obj):
     k = i.bin1(x)
     if not k in i.bins: i.bins[k] = BIN(i.at,i.txt,x)
     i.bins[k].add(x)
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 class NUM(col):
   def slots(i,at=0,txt=" ",w=1) : 
      return super().slots(at=at,txt=txt) | dict(w=2, mu=0,m2=0,sd=0,lo=1E60,hi=-1E60)
@@ -85,7 +85,7 @@ class NUM(col):
     i.mu += d/i.n
     i.m2 += d*(x - i.mu)
     i.sd  = 0 if i.n<2 else (i.m2/(i.n - 1))**.5
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 class SYM(col):
   def slots(i,**d): return super().slots(**d) | dict(has={},mode=None,most=0)
   def mid(i): return i.mode
@@ -97,7 +97,7 @@ class SYM(col):
     i.has = i.has or {}
     tmp = i.has[x] = inc + i.has.get(x,0)
     if tmp > i.most: i.most,i.mode = tmp,x
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 class ROW(obj):
   def slots(i,cells=[]): return dict(cells=cells)
   def better(i,j,data):
@@ -107,7 +107,7 @@ class ROW(obj):
       s1  -= math.exp(col.w * (a - b) / n)
       s2  -= math.exp(col.w * (b - a) / n)
     return s1 / n < s2 / n
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 class DATA(obj):
   def slots(i):  return dict(x=[], y=[], cols=[], names=[], rows=[])
   def clone(i,rows=[]):
@@ -144,7 +144,7 @@ class DATA(obj):
       row.y = j > cut
       (best if j > cut else rest).append(row)
     return i.clone(best), i.clone(random.sample(rest, len(best)*the.rest)) 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 def showd(d): return "{"+(" ".join([f":{k} {show(v)}"
                          for k,v in sorted(d.items()) if k[0]!="_"]))+"}"
 
@@ -190,8 +190,7 @@ def eg(name, the):
   yell("red"," FAIL\n") if tmp==False else yell("green", " PASS\n")
   for k,v in b4.items(): the[k]=v
   return 1 if tmp==False else 0
-
-#-------------------------
+#-------------------------------------------------------------------------------
 class Egs(object):
   def they(): print(str(the)[:30],"...",end=" ")
   
@@ -213,7 +212,6 @@ class Egs(object):
     print(data.stats())
     print(best.stats())
     prin(rest.stats())
-
-#-------------------------
+#-------------------------------------------------------------------------------
 the = DICT(**{k:coerce(v) for k,v in the.items()})
 if __name__ == "__main__": egs(the)
