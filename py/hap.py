@@ -24,35 +24,24 @@ import random, math, ast, sys, re
 
 the= {m[1]:m[2] for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)}
 #-----------------------------------------------------------------------------
-class ID(object):
-  def __hash__(i): return hash(id(i))
+class obj(object):
+  id=0
+  def __init__(i, **d): i.__dict__.update(**i.slots(**d)); i.id = obj.id = obj.id+1
+  def slots(i,**d)    : return d
+  def __repr__(i)     : return i.__class__.__name__+showd(i.__dict__)
+  def __hash__(i)     : return hash(i.id)
 
-@rec(unsafe_hash=True)
-class BIN():
-  lo:float =  1E60
-  hi:float = -1E60
-  n:int  = 0
-  ys:dict[str:int] =  None
-  #-------------
+class BIN(obj):
+  def slots(i,hi=None,lo=1E60): return dict(lo=lo, hi= hi or lo, n=0, ys={})
   def add(i,x,y):
     i.n += 1
     i.lo = min(i.lo,x)
     i.hi = max(i.hi,x)
     i.ys[y] = 1 + i.ys.get(y,0)
-
-bs=[BIN() for _ in range(10)]
-x=set(bs)
-[x.add(b) for b in bs]
-print(len(x))
-
 #-----------------------------------------------------------------------------
 @rec
-class col(object):
-  at:int  = 0
-  txt:str = " "
-  bins:dict    = None
-  n:int   = 0
-  #-------------
+class col(obj):
+  def slots(i,at=0,txt=" "): return dict(at=at, txt=txt,bins={},  n=0)
   def adds(i,lst): [i.add(x) for x in lst]; return i
 
   def add(i,x,inc=1):
@@ -68,13 +57,23 @@ class col(object):
 def COL(at=0,txt=" "):
   w = -1 if txt[-1] == "-" else 1
   return NUM(at,txt,w=w) if txt[0].isupper() else SYM(at,txt)
+
+def COLS(names):
+  x,y,cols = [],[],[COL(at=i,txt=s) for i,s in enumerate(names)]
+  for col in cols:
+    if col.txt[-1] != "X":
+       (y if col.txt[-1] in "+-" else x).append(col)
+  return names,cols,x,y
+
 #-----------------------------------------------------------------------------
 @rec
 class NUM(col):
-  w:int    = 1
-  mu:float = 0
-  m2:float = 0
-  sd:float = 0
+  w:int    =  1
+  mu:float =  0
+  m2:float =  0
+  sd:float =  0
+  lo:float =  1E60
+  hi:float = -1E60
   #-------------
   def mid(i): return i.mu
   def div(i): return i.sd
@@ -82,12 +81,14 @@ class NUM(col):
   def stats(i,div=False,rnd=2): return round(i.div() if div else i.mid(), rnd)
 
   def bin1(i,x):
-    z = (x-i.mu) / (i.sd + 1E-60)
+    z = (x - i.mu) / (i.sd + 1E-60)
     for cut in [-1.28,-.84,-.52,-.25,0,.25,.52,.84,1.28]:
       if z < cut: return cut
     return 1.28
 
   def add1(i,x,n):
+    i.lo  = min(i.lo, x)
+    i.hi  = max(i.hi, x)
     d     = x - i.mu
     i.mu += d/i.n
     i.m2 += d*(x - i.mu)
@@ -115,7 +116,7 @@ class ROW(object):
   cells: list = None
   #-----------------
   def better(i,j,data):
-    s1, s2, cols, n = 0, 0, data.cols.y, len(data.cols.y)
+    s1, s2, cols, n = 0, 0, data.y, len(data.y)
     for col in cols:
       a,b  = col.norm(i.cells[col.at]), col.norm(j.cells[col.at])
       s1  -= math.exp(col.w * (a - b) / n)
@@ -128,11 +129,14 @@ class DATA(object):
   y     = []
   cols  = []
   names = []
-  rows  = []
+  rows:list = None
   #-------------------
   def clone(i,rows=[]):
-    d= DATA().add(ROW(i.names))
-    [d.adds(row) for row in rows]
+    d= DATA()
+    print("??", len(rows), len(d.rows))
+    d.names, d.cols, d.x, d.y = COLS(i.names)
+    [d.add(row) for row in rows]
+    print("!!!", len(rows), len(d.rows))
     return d
 
   def read(i,file):
@@ -140,7 +144,7 @@ class DATA(object):
       for line in fp:
         line = re.sub(r'([\n\t\r"\' ]|#.*)', '', line)
         if line:
-          i.add(ROW(cells= [coerce(s.strip()) for s in line.split(",")]))
+          i.add(ROW(cells = [coerce(s.strip()) for s in line.split(",")]))
     return i
 
   def add(i,row):
@@ -148,24 +152,22 @@ class DATA(object):
       [col.add(row.cells[col.at]) for cols in [i.x, i.y] for col in cols]
       i.rows += [row]
     else:
-      i.names = row.cells
-      i.cols = [COL(at=i,txt=s) for i,s in enumerate(i.names)]
-      for col in i.cols:
-        if col.txt[-1] != "X":
-           (i.y if col.txt[-1] in "+-" else i.x).append(col)
+      i.names, i.cols, i.x, i.y = COLS(row.cells)
     return i
 
   def stats(i, cols=None, div=False, rnd=2):
+    print(len(i.rows))
     return DICT(N=len(i.rows), **{col.txt: col.stats(div=div, rnd=rnd) 
                                   for col in (cols or i.y)})  
 
   def betters(i):
-    rows = sorted(i.rows, key=cmp2key(lambda: r1.better(r2,i)))
+    rows = sorted(i.rows, key=cmp2key(lambda r1,r2: r1.better(r2,i)))
     cut = len(rows) - int(len(rows))**the.min
     best,rest = [],[]
-    for i,row in enumerate(rows):
-      row.y = i > cut
-      (best if i > cut else rest).append(row)
+    for j,row in enumerate(rows):
+      row.y = j > cut
+      (best if j > cut else rest).append(row)
+    print(cut,len(rows), len(best), len(rest), the.rest)
     return i.clone(best), i.clone(random.sample(rest, len(best)*the.rest)) 
 #-----------------------------------------------------------------------------
 def showd(d): return "{"+(" ".join([f":{k} {show(v)}"
@@ -223,14 +225,17 @@ class Egs(object):
 
   def sym():
     sym = SYM().adds("aaaabbc")
-    print(sym)
     return 1.37 < sym.div() < 1.39 and sym.mid()=='a'
 
   def read():
     prin(DATA().read(the.file).stats())
 
   def betters():
-    prin(DATA().betters())
+    data = DATA().read(the.file)
+    best,rest = data.betters()
+    print(data.stats())
+    print(best.stats())
+    prin(rest.stats())
 
 #-------------------------
 the = DICT(**{k:coerce(v) for k,v in the.items()})
