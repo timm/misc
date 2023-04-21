@@ -201,7 +201,7 @@ def cli(d):
   for k,v in d.items():
     v = str(v)
     for i,x in enumerate(sys.argv):
-      if ("-"+k[0]) == x:
+      if ("-"+k[0]) == x or ("--"+k) == x:
         v= "False" if v=="True" else ("True" if v=="False" else sys.argv[i+1])
     d[k] = coerce(v)
   return d
