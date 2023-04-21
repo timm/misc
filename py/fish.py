@@ -166,7 +166,7 @@ def contrasts(data1,data2):
 #-------------------------------------------------------------------------------
 def entropy(d):
   N = sum((d[k] for k in d))
-  return -sum((n/N*math.log(n/N,2) for n in i.has.values() if n > 0))
+  return -sum((n/N*math.log(n/N,2) for n in d.values() if n > 0))
 
 def showd(d): return "{"+(" ".join([f":{k} {show(v)}"
                          for k,v in sorted(d.items()) if k[0]!="_"]))+"}"
@@ -192,10 +192,11 @@ def coerce(x):
 
 def main(the):
   cli(the)
-  if the.help: return yell("cyan",__doc__)
-  if the.xecute == "push": return os.system("git commit -am saving; git push")
+  if the.help            : return yell("cyan",__doc__)
   if the.xecute == "pull": return os.system("git pull")
-  sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (the.go=="." or the.go==s)]))
+  if the.xecute == "push": return os.system("git commit -am saving; git push")
+  sys.exit(sum([eg(s,the) for s in dir(Egs) 
+                if s[0] !="_" and (the.go=="." or the.go==s)]))
 
 def cli(d):
   for k,v in d.items():
