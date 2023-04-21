@@ -14,13 +14,14 @@ USAGE:
    ./fish.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -f  --file  data csv file                       = ../../../4src/data/auto93.csv
-  -g  --go    start up action                     = nothing
-  -h  --help  show help                           = False
-  -m  --min   on N items, recurse down to N**min  = .5
-  -r  --rest  expand to len(list)*rest            = 4
-  -s  --seed  random number seed                  = 1234567891
-  -x  --xecute execute some  system action        = nothing | push | pull
+  -c  --cohen   different if (n2-n1 > sd*cohen)     = .35
+  -f  --file    data csv file                       = ../../../4src/data/auto93.csv
+  -g  --go      start up action                     = nothing
+  -h  --help    show help                           = False
+  -m  --min     on N items, recurse down to N**min  = .5
+  -r  --rest    expand to len(list)*rest            = 4
+  -s  --seed    random number seed                  = 1234567891
+  -x  --xecute  execute some  system action        = nothing | push | pull
 """
 from functools import cmp_to_key as cmp2key
 from typing    import Dict, Any, List
@@ -47,9 +48,15 @@ class BIN(obj):
     i.hi = max(i.hi,x)
     i._rows += [row]
     i.ys[y] = 1 + i.ys.get(y,0)
-  def merged(i,j,small=4,eps=.35):
-    pass
-#-----------------------------------------------------------------------------
+  def merge(i,j):
+    out = BIN(at=i.at, txt=i.txt, lo=i.lo, hi=j.hi)
+    out._rows = i._rows + j._rows
+    out.n = i.n + j.n
+    for d in [i.ys, j.ys]:
+      for key in d:
+        out.ys[key] = d[key] + out.get(key,0)
+    return out
+  #-----------------------------------------------------------------------------
 def COLS(names):
   cols,x,y = [COL(at=i,txt=s) for i,s in enumerate(names)], [], []
   for col in cols:
@@ -76,6 +83,7 @@ class col(obj):
     i.bins[k].add(x,y,row)
 #-------------------------------------------------------------------------------
 class NUM(col):
+  cuts = [-1.28,-.84,-.52,-.25,0,.25,.52,.84,1.28]
   def slots(i,at=0,txt=" ",w=1) : 
      return super().slots(at=at,txt=txt) | dict(w=1, mu=0,m2=0,sd=0,lo=1E60,hi=-1E60)
   def mid(i): return i.mu
@@ -85,9 +93,9 @@ class NUM(col):
 
   def bin1(i,x):
     z = (x - i.mu) / (i.sd + 1E-60)
-    for cut in [-1.28,-.84,-.52,-.25,0,.25,.52,.84,1.28]:
+    for cut in NUM.cuts:
       if z < cut: return cut
-    return 1.28
+    return Num.cuts[-1]
 
   def add1(i,x,n):
     i.lo  = min(i.lo, x)
@@ -96,6 +104,30 @@ class NUM(col):
     i.mu += d/i.n
     i.m2 += d*(x - i.mu)
     i.sd  = 0 if i.n<2 else (i.m2/(i.n - 1))**.5
+
+  def merged(i,bin1,bin2):
+    out      = merge(bin1,bin2)
+    small    = i.n / (len(NUM.cuts) - 1)
+    eps      = i.sd * the.cohen
+    e1,e2,e3 = entropy(bin1.ys), entropy(bin2.ys), entropy(out.ys)
+    n1,n2,n3 = bin1.n, bin2.n, out.n
+    if n1 <= small or n2 <= small : return out
+    if bin1.hi - bin1.lo <= eps   : return out
+    if bin2.hi - bin2.lo <= eps   : return out
+    if e3 <= n1/n3*e1 + n2/n3*e2  : return out
+
+  def merges(i,bins): 
+    now,j = [],0
+    while j < len(bins):
+      bin = bins[j]
+      if j < len(bins) - 1:
+        if new := i.merged(bin, bins[j+1]):
+          bin = new
+          j = j + 1
+      now += [bin]
+      j = j + 1
+    return bins if len(now) == len(bins) else i.merges(now) 
+
 #-------------------------------------------------------------------------------
 class SYM(col):
   def slots(i,**d): return super().slots(**d) | dict(has={},mode=None,most=0)
@@ -108,6 +140,8 @@ class SYM(col):
     i.has = i.has or {}
     tmp = i.has[x] = inc + i.has.get(x,0)
     if tmp > i.most: i.most,i.mode = tmp,x
+
+  def merges(i,bins): return bins
 #-------------------------------------------------------------------------------
 class ROW(obj):
   def slots(i,cells=[]): return dict(cells=cells)
