@@ -1,15 +1,20 @@
 #!/usr/bin/env python3 -B
 # vim: set ts=2 sw=2 et:
 """
-hap.py: multi-objective explanation, optimization
+fish.py: multi-objective explanation, optimization
 (c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
+
+          O  o
+     _\_   o
+  \\\\/  o\ .
+  //\___=
+     ''
 
 USAGE:
    ./twos.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -C  --Commit  save to github                    = False
-  -D  --Download  updae from github               = False
+  -d  --do    some system action                  = nothing
   -f  --file  data csv file                       = ../../../4src/data/auto93.csv
   -g  --go    start up action                     = nothing
   -h  --help  show help                           = False
@@ -188,8 +193,8 @@ def coerce(x):
 def main(the):
   cli(the)
   if the.help  :   return yell("cyan",__doc__)
-  if the.Commit:   return os.system("git commit -am saving; git push")
-  if the.Download: return os.system("git pull")
+  if the.do == "push": return os.system("git commit -am saving; git push")
+  if the.do == "pull": return os.system("git pull")
   sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (the.go=="." or the.go==s)]))
 
 def cli(d):
