@@ -31,14 +31,17 @@ class obj(object):
   def __hash__(i)     : return i.id
 #-----------------------------------------------------------------------------
 class BIN(obj):
-  def slots(i,lo=1E60,hi=None): 
-    return dict(lo=lo,hi= hi or lo,n=0,rows=[],ys={})
-  def add(i,x,row):
+  def slots(i, at=0, txt="", lo=1E60, hi=None): 
+    return dict(at=at, txt=txt, lo=lo, hi= hi or lo, n=0, _rows=[], ys={})
+  def add(i,x,y,row):
+    if x=="?": return x
     i.n += 1
     i.lo = min(i.lo,x)
     i.hi = max(i.hi,x)
-    i.rows += [row]
-    i.ys[row.y] = 1 + i.ys.get(row.y,0)
+    i._rows += [row]
+    i.ys[y] = 1 + i.ys.get(y,0)
+  def merged(i,j,small=4,eps=.35):
+    pass
 #-----------------------------------------------------------------------------
 def COLS(names):
   cols,x,y = [COL(at=i,txt=s) for i,s in enumerate(names)], [], []
@@ -60,10 +63,10 @@ class col(obj):
     i.n += inc
     i.add1(x,inc)
 
-  def bin(i,x,y):
+  def bin(i,x,y,row):
     k = i.bin1(x)
-    if not k in i.bins: i.bins[k] = BIN(i.at,i.txt,x)
-    i.bins[k].add(x)
+    if not k in i.bins: i.bins[k] = BIN(at=i.at, txt=i.txt, lo=x)
+    i.bins[k].add(x,y,row)
 #-------------------------------------------------------------------------------
 class NUM(col):
   def slots(i,at=0,txt=" ",w=1) : 
@@ -90,7 +93,7 @@ class NUM(col):
 class SYM(col):
   def slots(i,**d): return super().slots(**d) | dict(has={},mode=None,most=0)
   def mid(i): return i.mode
-  def div(i): return -sum((n/i.n*math.log(n/i.n,2) for n in i.has.values() if n > 0))
+  def div(i): return entropy(i.has)
   def stats(i, div=False, **_) : return i.div() if div else i.mid() 
   def bin1(i,x): return x
 
@@ -112,7 +115,7 @@ class ROW(obj):
 class DATA(obj):
   def slots(i):  return dict(x=[], y=[], cols=[], names=[], rows=[])
   def clone(i,rows=[]):
-    d= DATA()
+    d = DATA()
     d.names, d.cols, d.x, d.y = COLS(i.names)
     [d.add(row) for row in rows]
     return d
@@ -146,6 +149,18 @@ class DATA(obj):
       (best if j > cut else rest).append(row)
     return i.clone(best), i.clone(random.sample(rest, len(best)*the.rest)) 
 #-------------------------------------------------------------------------------
+def contrasts(data1,data2):
+  data12 = data1.clone(data1.rows + data2.rows)
+  for col in data12.x: 
+    for klass,rows in dict(best=data1.rows, rest=data2.rows).items():
+      for row in rows:
+        col.bin(row.cells[col.at], klass, row)
+  return data12.x
+#-------------------------------------------------------------------------------
+def entropy(d):
+  N = sum((d[k] for k in d))
+  return -sum((n/N*math.log(n/N,2) for n in i.has.values() if n > 0))
+
 def showd(d): return "{"+(" ".join([f":{k} {show(v)}"
                          for k,v in sorted(d.items()) if k[0]!="_"]))+"}"
 
@@ -159,11 +174,9 @@ class DICT(dict):
   __setattr__ = dict.__setitem__
   __repr__    = showd
 
-def prin(*l) : print(*l,end="")
-def round2(x): return round(x, ndigits=2)
-
-def yell(c,*s):
-  print(colored(''.join(s),"light_"+c,attrs=["bold"]),end="")
+def prin(*l) :  print(*l,end="")
+def round2(x):  return round(x, ndigits=2)
+def yell(c,*s): print(colored(''.join(s),"light_"+c,attrs=["bold"]),end="")
 
 def coerce(x):
   try   : x = ast.literal_eval(x)
@@ -209,10 +222,18 @@ class Egs(object):
 
   def betters():
     data = DATA().read(the.file)
-    best,rest = data.betters(); print("")
+    best,rest = data.betters()
     print(data.stats())
     print(best.stats())
     prin(rest.stats())
+
+  def contrast():
+    data = DATA().read(the.file)
+    best,rest = data.betters()
+    for x1 in contrasts(best,rest): 
+      print(x1.at)
+      for k,v in x1.bins.items():
+         print("\t",k,v)
 #-------------------------------------------------------------------------------
 the = DICT(**{k:coerce(v) for k,v in the.items()})
 if __name__ == "__main__": egs(the)
