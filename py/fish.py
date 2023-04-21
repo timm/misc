@@ -14,7 +14,7 @@ USAGE:
    ./twos.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -d  --do    some system action: push | pull     = nothing
+  -d  --do    some system action:                 = nothing | push | pull
   -f  --file  data csv file                       = ../../../4src/data/auto93.csv
   -g  --go    start up action                     = nothing
   -h  --help  show help                           = False
