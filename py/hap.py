@@ -8,7 +8,8 @@ USAGE:
    ./twos.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -C  --Commit  save to github                   = False
+  -C  --Commit  save to github                    = False
+  -D  --Download  updae from github               = False
   -f  --file  data csv file                       = ../../../4src/data/auto93.csv
   -g  --go    start up action                     = nothing
   -h  --help  show help                           = False
@@ -188,6 +189,7 @@ def main(the):
   for k,v in the.items(): the[k] = cli(k,v)
   if the.help  : return yell("cyan",__doc__)
   if the.Commit: return os.system("git commit -am saving; git push")
+  if the.Download: return os.system("git pull")
   sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (the.go=="." or the.go==s)]))
 
 def cli(k,v):
