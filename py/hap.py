@@ -8,6 +8,7 @@ USAGE:
    ./twos.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
+  -C  --Commit  save to github                   = False
   -f  --file  data csv file                       = ../../../4src/data/auto93.csv
   -g  --go    start up action                     = nothing
   -h  --help  show help                           = False
@@ -19,7 +20,7 @@ from functools import cmp_to_key as cmp2key
 from typing import Dict, Any, List
 from termcolor import colored
 from copy import deepcopy
-import random, math, ast, sys, re
+import random, math, ast, sys, re, os
 
 the= {m[1]:m[2] for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)}
 
@@ -183,9 +184,10 @@ def coerce(x):
   except: pass
   return x
 
-def egs(the):
+def main(the):
   for k,v in the.items(): the[k] = cli(k,v)
-  if the.help: return yell("cyan",__doc__)
+  if the.help  : return yell("cyan",__doc__)
+  if the.Commit: return os.system("git commit -am saving; git push")
   sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (the.go=="." or the.go==s)]))
 
 def cli(k,v):
@@ -236,4 +238,4 @@ class Egs(object):
          print("\t",k,v)
 #-------------------------------------------------------------------------------
 the = DICT(**{k:coerce(v) for k,v in the.items()})
-if __name__ == "__main__": egs(the)
+if __name__ == "__main__": main(the)
