@@ -14,7 +14,7 @@ USAGE:
    ./twos.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -d  --do    some system action                  = nothing
+  -d  --do    some system action: push | pull     = nothing
   -f  --file  data csv file                       = ../../../4src/data/auto93.csv
   -g  --go    start up action                     = nothing
   -h  --help  show help                           = False
@@ -192,7 +192,7 @@ def coerce(x):
 
 def main(the):
   cli(the)
-  if the.help  :   return yell("cyan",__doc__)
+  if the.help        : return yell("cyan",__doc__)
   if the.do == "push": return os.system("git commit -am saving; git push")
   if the.do == "pull": return os.system("git pull")
   sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (the.go=="." or the.go==s)]))
@@ -216,7 +216,7 @@ def eg(name, the):
   for k,v in b4.items(): the[k]=v
   return 1 if tmp==False else 0
 #-------------------------------------------------------------------------------
-class Egs(object):
+class Egs(obj):
   def they(): print(str(the)[:30],"...",end=" ")
   
   def num():
