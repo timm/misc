@@ -186,18 +186,20 @@ def coerce(x):
   return x
 
 def main(the):
-  for k,v in the.items(): the[k] = cli(k,v)
-  if the.help  : return yell("cyan",__doc__)
-  if the.Commit: return os.system("git commit -am saving; git push")
+  cli(the)
+  if the.help  :   return yell("cyan",__doc__)
+  if the.Commit:   return os.system("git commit -am saving; git push")
   if the.Download: return os.system("git pull")
   sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (the.go=="." or the.go==s)]))
 
-def cli(k,v):
-  v = str(v)
-  for i,x in enumerate(sys.argv):
-    if ("-"+k[0]) == x:
-      v= "False" if v=="True" else ("True" if v=="False" else sys.argv[i+1])
-  return coerce(v)
+def cli(d):
+  for k,v in d.items():
+    v = str(v)
+    for i,x in enumerate(sys.argv):
+      if ("-"+k[0]) == x:
+        v= "False" if v=="True" else ("True" if v=="False" else sys.argv[i+1])
+    d[k] = coerce(v)
+  return d
 
 def eg(name, the):
   b4 = {k:v for k,v in the.items()}
