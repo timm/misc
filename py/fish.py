@@ -11,21 +11,21 @@ fish.py: multi-objective explanation, optimization
      ''
 
 USAGE:
-   ./twos.py [OPTIONS] [-g ACTION]
+   ./fish.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -d  --do    some system action:                 = nothing | push | pull
   -f  --file  data csv file                       = ../../../4src/data/auto93.csv
   -g  --go    start up action                     = nothing
   -h  --help  show help                           = False
   -m  --min   on N items, recurse down to N**min  = .5
   -r  --rest  expand to len(list)*rest            = 4
   -s  --seed  random number seed                  = 1234567891
+  -x  --xecute execute some  system action        = nothing | push | pull
 """
 from functools import cmp_to_key as cmp2key
-from typing import Dict, Any, List
+from typing    import Dict, Any, List
 from termcolor import colored
-from copy import deepcopy
+from copy      import deepcopy
 import random, math, ast, sys, re, os
 
 the= {m[1]:m[2] for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)}
@@ -192,9 +192,9 @@ def coerce(x):
 
 def main(the):
   cli(the)
-  if the.help        : return yell("cyan",__doc__)
-  if the.do == "push": return os.system("git commit -am saving; git push")
-  if the.do == "pull": return os.system("git pull")
+  if the.help: return yell("cyan",__doc__)
+  if the.xecute == "push": return os.system("git commit -am saving; git push")
+  if the.xecute == "pull": return os.system("git pull")
   sys.exit(sum([eg(s,the) for s in dir(Egs) if s[0] !="_" and (the.go=="." or the.go==s)]))
 
 def cli(d):
