@@ -14,14 +14,13 @@ USAGE:
    ./fish.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -c  --cohen   different if (n2-n1 > sd*cohen)     = .35
   -f  --file    data csv file                       = ../../../4src/data/auto93.csv
   -g  --go      start up action                     = nothing
   -h  --help    show help                           = False
   -m  --min     on N items, recurse down to N**min  = .5
   -r  --rest    expand to len(list)*rest            = 4
   -s  --seed    random number seed                  = 1234567891
-  -x  --xecute  execute some  system action        = nothing | push | pull
+  -x  --xecute  execute some  system action         = nothing | push | pull
 """
 from functools import cmp_to_key as cmp2key
 from typing    import Dict, Any, List
@@ -54,7 +53,7 @@ class BIN(obj):
     out.n = i.n + j.n
     for d in [i.ys, j.ys]:
       for key in d:
-        out.ys[key] = d[key] + out.get(key,0)
+        out.ys[key] = d[key] + out.ys.get(key,0)
     return out
   #-----------------------------------------------------------------------------
 def COLS(names):
@@ -106,15 +105,12 @@ class NUM(col):
     i.sd  = 0 if i.n<2 else (i.m2/(i.n - 1))**.5
 
   def merged(i,bin1,bin2):
-    out      = merge(bin1,bin2)
+    out      = bin1.merge(bin2)
     small    = i.n / (len(NUM.cuts) - 1)
-    eps      = i.sd * the.cohen
     e1,e2,e3 = entropy(bin1.ys), entropy(bin2.ys), entropy(out.ys)
     n1,n2,n3 = bin1.n, bin2.n, out.n
     if n1 <= small or n2 <= small : return out
-    if bin1.hi - bin1.lo <= eps   : return out
-    if bin2.hi - bin2.lo <= eps   : return out
-    if e3 <= (n1/e1 + n2*e2)/n3   : return out
+    if e3 <= (n1*e1 + n2*e2)/n3   : return out
 
   def merges(i,bins): 
     now,j = [],0
@@ -126,8 +122,14 @@ class NUM(col):
           j = j + 1
       now += [bin]
       j = j + 1
-    return bins if len(now) == len(bins) else i.merges(now) 
+    return complete(bins) if len(now) == len(bins) else i.merges(now) 
 
+def complete(a):
+  for j in range(len(a)-1): a[j].hi = a[j+1].lo
+  a[ 0].lo = -1E60
+  a[-1].hi =  1E60
+  return a
+ 
 #-------------------------------------------------------------------------------
 class SYM(col):
   def slots(i,**d): return super().slots(**d) | dict(has={},mode=None,most=0)
@@ -196,6 +198,7 @@ def contrasts(data1,data2):
     for klass,rows in dict(best=data1.rows, rest=data2.rows).items():
       for row in rows:
         col.bin(row.cells[col.at], klass, row)
+    col.bins = col.merges(sorted(col.bins.values(),key=lambda b:b.lo))
   return data12.x
 #-------------------------------------------------------------------------------
 def entropy(d):
@@ -230,7 +233,7 @@ def main(the):
   if the.xecute == "pull": return os.system("git pull")
   if the.xecute == "push": return os.system("git commit -am saving; git push")
   sys.exit(sum([eg(s,the) for s in dir(Egs) 
-                if s[0] !="_" and (the.go=="all" or the.go==s)]))
+                if s[0] !="_" and (the.go=="." or the.go==s)]))
 
 def cli(d):
   for k,v in d.items():
@@ -276,10 +279,11 @@ class Egs:
   def contrast():
     data = DATA().read(the.file)
     best,rest = data.betters()
-    for x1 in contrasts(best,rest): 
-      print(x1.at)
-      for k,v in x1.bins.items():
-         print("\t",k,v)
+    for col in contrasts(best,rest): 
+      print("")
+      print(col.at,col.txt)
+      for bin in col.bins:
+        print("\t",bin.lo,bin.hi,showd(bin.ys))
 #-------------------------------------------------------------------------------
 the = DICT(**{k:coerce(v) for k,v in the.items()})
 if __name__ == "__main__": main(the)
