@@ -95,7 +95,7 @@ class NUM(col):
     z = (x - i.mu) / (i.sd + 1E-60)
     for cut in NUM.cuts:
       if z < cut: return cut
-    return Num.cuts[-1]
+    return NUM.cuts[-1]
 
   def add1(i,x,n):
     i.lo  = min(i.lo, x)
@@ -114,7 +114,7 @@ class NUM(col):
     if n1 <= small or n2 <= small : return out
     if bin1.hi - bin1.lo <= eps   : return out
     if bin2.hi - bin2.lo <= eps   : return out
-    if e3 <= n1/n3*e1 + n2/n3*e2  : return out
+    if e3 <= (n1/e1 + n2*e2)/n3   : return out
 
   def merges(i,bins): 
     now,j = [],0
@@ -230,7 +230,7 @@ def main(the):
   if the.xecute == "pull": return os.system("git pull")
   if the.xecute == "push": return os.system("git commit -am saving; git push")
   sys.exit(sum([eg(s,the) for s in dir(Egs) 
-                if s[0] !="_" and (the.go=="." or the.go==s)]))
+                if s[0] !="_" and (the.go=="all" or the.go==s)]))
 
 def cli(d):
   for k,v in d.items():
@@ -251,7 +251,7 @@ def eg(name, the):
   for k,v in b4.items(): the[k]=v
   return 1 if tmp==False else 0
 #-------------------------------------------------------------------------------
-class Egs(obj):
+class Egs:
   def they(): print(str(the)[:30],"...",end=" ")
   
   def num():
