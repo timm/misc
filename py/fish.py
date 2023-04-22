@@ -14,13 +14,14 @@ USAGE:
    ./fish.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -f  --file    data csv file                       = ../../../4src/data/auto93.csv
-  -g  --go      start up action                     = nothing
-  -h  --help    show help                           = False
-  -m  --min     on N items, recurse down to N**min  = .5
-  -r  --rest    expand to len(list)*rest            = 4
-  -s  --seed    random number seed                  = 1234567891
-  -x  --xecute  execute some  system action         = nothing | push | pull
+  -c  --cohen  'not differnt' if under the.cohen*sd  = .2
+  -f  --file    data csv file                        = ../../../4src/data/auto93.csv
+  -g  --go      start up action                      = nothing
+  -h  --help    show help                            = False
+  -m  --min     on N items, recurse down to N**min   = .5
+  -r  --rest    expand to len(list)*rest             = 4
+  -s  --seed    random number seed                   = 1234567891
+  -x  --xecute  execute some  system action          = nothing | push | pull
 """
 from functools import cmp_to_key as cmp2key
 from typing    import Dict, Any, List
@@ -107,9 +108,12 @@ class NUM(col):
   def merged(i,bin1,bin2):
     out      = bin1.merge(bin2)
     small    = i.n / (len(NUM.cuts) - 1)
+    eps      = i.sd*the.cohen
     e1,e2,e3 = entropy(bin1.ys), entropy(bin2.ys), entropy(out.ys)
     n1,n2,n3 = bin1.n, bin2.n, out.n
     if n1 <= small or n2 <= small : return out
+    if bin1.hi - bin1.lo < esp    : return out
+    if bin2.hi - bin2.lo < eps    : return out
     if e3 <= (n1*e1 + n2*e2)/n3   : return out
 
   def merges(i,bins): 
