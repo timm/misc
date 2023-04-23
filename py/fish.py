@@ -23,6 +23,9 @@ OPTIONS:
   -r  --rest    expand to len(list)*rest               = 4
   -s  --seed    random number seed                     = 1234567891
   -x  --xecute  execute some  system action            = nothing | push | pull
+
+NOTES:
+- ass
 """
 from functools import cmp_to_key as cmp2key
 from typing    import Dict, Any, List
@@ -105,15 +108,13 @@ class NUM(col):
     i.sd  = 0 if i.n<2 else (i.m2/(i.n - 1))**.5
 
   def merged(i,bin1,bin2):
-    out      = bin1.merge(bin2)
-    small    = i.n / the.bins
-    eps      = i.sd*the.cohen
+    out = bin1.merge(bin2)
+    small = i.n / the.bins
+    if bin1.n <= small or bin2.n <= small : return out
+    if bin1.hi - bin1.lo < i.sd*the.cohen : return out
+    if bin2.hi - bin2.lo < i.sd*the.cohen : return out
     e1,e2,e3 = entropy(bin1.ys), entropy(bin2.ys), entropy(out.ys)
-    n1,n2,n3 = bin1.n, bin2.n, out.n
-    if n1 <= small or n2 <= small : return out
-    if bin1.hi - bin1.lo < eps    : return out
-    if bin2.hi - bin2.lo < eps    : return out
-    if e3 <= (n1*e1 + n2*e2)/n3   : return out
+    if e3 <= (bin1.n*e1 + bin2.n*e2)/out.n : return out
 
   def merges(i,bins): 
     now,j = [],0
@@ -232,7 +233,7 @@ def coerce(x):
 
 def main(the):
   cli(the)
-  if the.help            : return yell("cyan",__doc__)
+  if the.help            : return yell("cyan",__doc__.split("\nNOTES")[0])
   if the.xecute == "pull": return os.system("git pull")
   if the.xecute == "push": return os.system("git commit -am saving; git push")
   sys.exit(sum([eg(s,the) for s in dir(Egs) 
