@@ -14,14 +14,15 @@ USAGE:
    ./fish.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -c  --cohen  'not differnt' if under the.cohen*sd  = .2
-  -f  --file    data csv file                        = ../../../4src/data/auto93.csv
-  -g  --go      start up action                      = nothing
-  -h  --help    show help                            = False
-  -m  --min     on N items, recurse down to N**min   = .5
-  -r  --rest    expand to len(list)*rest             = 4
-  -s  --seed    random number seed                   = 1234567891
-  -x  --xecute  execute some  system action          = nothing | push | pull
+  -b  --bins    number of bins                        = 16
+  -c  --cohen   'not differnt' if under the.cohen*sd  = .2
+  -f  --file    data csv file                         = ../../../4src/data/auto93.csv
+  -g  --go      start up action                       = nothing
+  -h  --help    show help                             = False
+  -m  --min     on N items, recurse down to N**min    = .5
+  -r  --rest    expand to len(list)*rest              = 4
+  -s  --seed    random number seed                    = 1234567891
+  -x  --xecute  execute some  system action           = nothing | push | pull
 """
 from functools import cmp_to_key as cmp2key
 from typing    import Dict, Any, List
@@ -92,10 +93,12 @@ class NUM(col):
   def stats(i,div=False,rnd=2): return round(i.div() if div else i.mid(), rnd)
 
   def bin1(i,x):
-    z = (x - i.mu) / (i.sd + 1E-60)
-    for cut in NUM.cuts:
-      if z < cut: return cut
-    return NUM.cuts[-1]
+    z = int((x - i.mu) / (i.sd + 1E-60) /the.bins)
+    print(max(-the/bins/2, min(the.bin/2, z)))
+    return  max(-the/bins/2, min(the.bin/2, z))
+    #for cut in NUM.cuts:
+     # if z < cut: return cut
+    #return NUM.cuts[-1]
 
   def add1(i,x,n):
     i.lo  = min(i.lo, x)
