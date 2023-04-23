@@ -7,15 +7,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/lua.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/python.min.js" integrity="sha512-YulS+eyi43Y7kdDoXxhCnsH8OlBesGO1kJ31qeCLSYkhB0X0/onxXa5xEe6FK71WGx6eQlAEaeTdwbGdtOU7Zw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>hljs.highlightAll();</script>
-<<<<<<< HEAD
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-MML-AM_CHTML"></script>
-=======
-    <script type="text/javascript" async 
-	    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-MML-AM_CHTML">
-    </script>
->>>>>>> d6a6a4befcd0775171ff806000454e052e9abe36
     <style>
      body {
        font-family: Optima, Segoe, "Segoe UI", Candara, Calibri, Arial, sans-serif; 
@@ -96,16 +90,26 @@ etc. is crap. In other words, the claim (or fact) that 90% of science
 fiction is crap is ultimately uninformative, because science fiction
 conforms to the same trends of quality as all other artforms.
 
-<pre><code>function cli(options) 
-  for k,v in pairs(options) do
-    v=tostring(v)
-    for n,x in ipairs(arg) do
-      if x=="-"..(k:sub(1,1)) or x=="--"..k then
-        v=v=="false" and "true" or v=="true" and "false" or arg[n+1] end
-    end 
-    options[k] = coerce(v) end 
-  return options end </code></pre>
+<pre><code class="language-python">class BIN(obj):
+  def slots(i, at=0, txt="", lo=1E60, hi=None):
+    return dict(at=at, txt=txt, lo=lo, hi= hi or lo, n=0, _rows=[], ys={})
 
+  def add(i,x,y,row):
+    if x=="?": return x
+    i.n += 1
+    i.lo = min(i.lo,x)
+    i.hi = max(i.hi,x)
+    i._rows += [row]
+    i.ys[y] = 1 + i.ys.get(y,0)
+
+  def merge(i,j):
+    out = BIN(at=i.at, txt=i.txt, lo=i.lo, hi=j.hi)
+    out._rows = i._rows + j._rows
+    out.n = i.n + j.n
+    for d in [i.ys, j.ys]:
+      for key in d:
+        out.ys[key] = d[key] + out.ys.get(key,0)
+    return out </code></pre>
 <p>
 You don't have to bounce a tennis ball very far in San Francisco
 before it will hit two developers complaining about how many js
