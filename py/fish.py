@@ -126,12 +126,12 @@ class NUM(col):
       now += [bin]
       j = j + 1
     if len(now) < len(bins): 
-      return i.merges(now) 
+      bins = i.merges(now) 
     else:
       for j in range(len(bins)-1): bins[j].hi = bins[j+1].lo
       bins[ 0].lo = -1E60
       bins[-1].hi =  1E60
-      return bins
+    return bins
  
 #-------------------------------------------------------------------------------
 class SYM(col):
