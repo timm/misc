@@ -14,15 +14,15 @@ USAGE:
    ./fish.py [OPTIONS] [-g ACTION]
 
 OPTIONS:
-  -b  --bins    number of bins                        = 16
-  -c  --cohen   'not differnt' if under the.cohen*sd  = .2
-  -f  --file    data csv file                         = ../../../4src/data/auto93.csv
-  -g  --go      start up action                       = nothing
-  -h  --help    show help                             = False
-  -m  --min     on N items, recurse down to N**min    = .5
-  -r  --rest    expand to len(list)*rest              = 4
-  -s  --seed    random number seed                    = 1234567891
-  -x  --xecute  execute some  system action           = nothing | push | pull
+  -b  --bins    number of bins                         = 16
+  -c  --cohen   'not different' if under the.cohen*sd  = .2
+  -f  --file    data csv file                          = ../../../4src/data/auto93.csv
+  -g  --go      start up action                        = nothing
+  -h  --help    show help                              = False
+  -m  --min     on N items, recurse down to N**min     = .5
+  -r  --rest    expand to len(list)*rest               = 4
+  -s  --seed    random number seed                     = 1234567891
+  -x  --xecute  execute some  system action            = nothing | push | pull
 """
 from functools import cmp_to_key as cmp2key
 from typing    import Dict, Any, List
@@ -84,7 +84,6 @@ class col(obj):
     i.bins[k].add(x,y,row)
 #-------------------------------------------------------------------------------
 class NUM(col):
-  cuts = [-1.28,-.84,-.52,-.25,0,.25,.52,.84,1.28]
   def slots(i,at=0,txt=" ",w=1) : 
      return super().slots(at=at,txt=txt) | dict(w=1, mu=0,m2=0,sd=0,lo=1E60,hi=-1E60)
   def mid(i): return i.mu
@@ -93,12 +92,9 @@ class NUM(col):
   def stats(i,div=False,rnd=2): return round(i.div() if div else i.mid(), rnd)
 
   def bin1(i,x):
-    z = int((x - i.mu) / (i.sd + 1E-60) /the.bins)
-    print(max(-the/bins/2, min(the.bin/2, z)))
-    return  max(-the/bins/2, min(the.bin/2, z))
-    #for cut in NUM.cuts:
-     # if z < cut: return cut
-    #return NUM.cuts[-1]
+    z = int((x - i.mu) / (i.sd + 1E-60) /(4/the.bins))
+    z = max(the.bins/-2, min( the.bins/2, z))
+    return  z 
 
   def add1(i,x,n):
     i.lo  = min(i.lo, x)
@@ -110,12 +106,12 @@ class NUM(col):
 
   def merged(i,bin1,bin2):
     out      = bin1.merge(bin2)
-    small    = i.n / (len(NUM.cuts) - 1)
+    small    = i.n / the.bins
     eps      = i.sd*the.cohen
     e1,e2,e3 = entropy(bin1.ys), entropy(bin2.ys), entropy(out.ys)
     n1,n2,n3 = bin1.n, bin2.n, out.n
     if n1 <= small or n2 <= small : return out
-    if bin1.hi - bin1.lo < esp    : return out
+    if bin1.hi - bin1.lo < eps    : return out
     if bin2.hi - bin2.lo < eps    : return out
     if e3 <= (n1*e1 + n2*e2)/n3   : return out
 
@@ -129,13 +125,11 @@ class NUM(col):
           j = j + 1
       now += [bin]
       j = j + 1
-    return complete(bins) if len(now) == len(bins) else i.merges(now) 
-
-def complete(a):
-  for j in range(len(a)-1): a[j].hi = a[j+1].lo
-  a[ 0].lo = -1E60
-  a[-1].hi =  1E60
-  return a
+    if len(now) < len(bins):  return i.merges(now) 
+    for j in range(len(bins)-1): bins[j].hi = bins[j+1].lo
+    bins[ 0].lo = -1E60
+    bins[-1].hi =  1E60
+    return now
  
 #-------------------------------------------------------------------------------
 class SYM(col):
