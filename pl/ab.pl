@@ -124,6 +124,7 @@ maybe0(X/Y,        rule(X/Y))      :- clause(X/_,_).
 maybe0(X/Y,        abducible(X/Y)).
 
 maybe1((X,Y))        :- maybe(X),maybe(Y).
+maybe1(between(X,Y,Z)) :-
 maybe1(abducible(X)) :- assume(X,0).
 maybe1(fact(X))      :- assume(X,1), one(X).
 maybe1(rule(X))      :- assume(X,2), one(clause(X,Y)), maybe(Y). /*
