@@ -20,7 +20,7 @@ Tim Menzies
      rich/t.
  
      %tim/f.
-     satiated/f.  /*
+     %satiated/f.  /*
 
 ### High level goal */
 
@@ -133,8 +133,8 @@ Here's anohter run. Hmmm... different order. Why?
 Return solutions to goal C<X>, in some random order. */
  
      one(X) :-
-     	setof(N/X,(X,
-     	           N is random(10000)),
-     	      All),
+     	setof(N/X,(X, N is random(10000)), All),
      	member(_/X,All).
+
+     :- print(100),goes, halt.
 
