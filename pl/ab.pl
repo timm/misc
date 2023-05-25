@@ -116,7 +116,7 @@ Here's anohter run. Hmmm... different order. Why?
 
 ## Assumption generation */
  
-     maybe(X) :- once(maybe0(X,Y)), maybe1(Y).
+maybe(X) :- once(maybe0(X,Y)), maybe1(Y).
      
      maybe0((X,Y),      (X,Y)).
      maybe0(X/Y,        fact(X/Y))      :- clause(X /_,true).
