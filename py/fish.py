@@ -1,31 +1,31 @@
 #!/usr/bin/env python3 -B
 # vim: set ts=2 sw=2 et:
 """
-fish.py: multi-objective explanation, optimization
-(c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
+fish.py: multi-objective explanation, optimization    
+(c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2    
+    
+              O  o    
+         _\_   o    
+      \\\\/  o\ .    
+      //\___=    
+         ''    
 
-          O  o
-     _\_   o
-  \\\\/  o\ .
-  //\___=
-     ''
+USAGE: ./fish.py [OPTIONS] [-g ACTIONs]    
 
-USAGE:
-   ./fish.py [OPTIONS] [-g ACTION]
+OPTIONS:    
 
-OPTIONS:
-  -b  --bins    number of bins                         = 16
-  -c  --cohen   'not different' if under the.cohen*sd  = .2
-  -f  --file    data csv file                          = ../../../4src/data/auto93.csv
-  -g  --go      start up action                        = nothing
-  -h  --help    show help                              = False
-  -m  --min     on N items, recurse down to N**min     = .5
-  -r  --rest    expand to len(list)*rest               = 4
-  -s  --seed    random number seed                     = 1234567891
-  -x  --xecute  execute some  system action            = nothing | push | pull
+      -b  --bins    number of bins                         = 16    
+      -c  --cohen   'not different' if under the.cohen*sd  = .2    
+      -f  --file    data csv file                          = ../../../4src/data/auto93.csv    
+      -g  --go      start up action                        = nothing    
+      -h  --help    show help                              = False    
+      -m  --min     on N items, recurse down to N**min     = .5    
+      -r  --rest    expand to len(list)*rest               = 4    
+      -s  --seed    random number seed                     = 1234567891    
+      -x  --xecute  execute some  system action            = nothing | push | pull    
 
-NOTES:
-- ass
+NOTES:    
+- ass    
 """
 from functools import cmp_to_key as cmp2key
 from typing    import Dict, Any, List
@@ -86,9 +86,25 @@ class col(obj):
     if not k in i.bins: i.bins[k] = BIN(at=i.at, txt=i.txt, lo=x)
     i.bins[k].add(x,y,row)
 #-------------------------------------------------------------------------------
+class SYM(col):
+  def slots(i,**d): return super().slots(**d) | dict(has={},mode=None,most=0)
+
+  def mid(i): return i.mode
+  def div(i): return entropy(i.has)
+  def stats(i, div=False, **_) : return i.div() if div else i.mid() 
+
+  def add1(i,x,inc=1):
+    i.has = i.has or {}
+    tmp = i.has[x] = inc + i.has.get(x,0)
+    if tmp > i.most: i.most,i.mode = tmp,x
+
+  def bin1(i,x): return x
+  def merges(i,bins): return bins
+#-------------------------------------------------------------------------------
 class NUM(col):
   def slots(i,at=0,txt=" ",w=1) : 
      return super().slots(at=at,txt=txt) | dict(w=1, mu=0,m2=0,sd=0,lo=1E60,hi=-1E60)
+
   def mid(i): return i.mu
   def div(i): return i.sd
   def norm(i,x): return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1E-60)
@@ -134,20 +150,6 @@ class NUM(col):
       bins[-1].hi =  1E60
     return bins
  
-#-------------------------------------------------------------------------------
-class SYM(col):
-  def slots(i,**d): return super().slots(**d) | dict(has={},mode=None,most=0)
-  def mid(i): return i.mode
-  def div(i): return entropy(i.has)
-  def stats(i, div=False, **_) : return i.div() if div else i.mid() 
-  def bin1(i,x): return x
-
-  def add1(i,x,inc=1):
-    i.has = i.has or {}
-    tmp = i.has[x] = inc + i.has.get(x,0)
-    if tmp > i.most: i.most,i.mode = tmp,x
-
-  def merges(i,bins): return bins
 #-------------------------------------------------------------------------------
 class ROW(obj):
   def slots(i,cells=[]): return dict(cells=cells)

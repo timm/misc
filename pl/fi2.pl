@@ -16,14 +16,30 @@ divide(N, M, Result) :- Result is N / M.
 % Multiply two numbers
 multiply(N, M, Result) :- Result is N * M.
 
+runiv(X0,N,X) :- runiv(X0,0,N,X).
+
+runiv(X,N,N,X) :- var(X),!.
+runiv(X0,N0,N,X) :-
+  X0 =.. L,
+  member(X1,L),
+  N1 is N0 + 1,
+  runiv(X1,N1,N,X).
+
 :- dynamic meta/6.
 :-op(700,xfx,:=).
-=(At,V,T, T)  :- meta(_,At,V,V,T,T).
-:=(At,V,T0,T) :- meta(_,At,_,V,T0,T).
->=(At,N)     --> =(At,N1), {N1 >= N}.
->( At,N)     --> =(At,N1), {N1 >  N}.
-<( At,N)     --> =(At,N1), {N1 <  N}.
-=<(At,N)     --> =(At,N1), {N1 =< N}.
+=(   At,V,T, T) :- meta(_,At,V,    V,      T, T).
+:=(  At,V,T0,T) :- meta(_,At,_,    V,      T0,T).
+pop( At,H,T0,T) :- meta(_,At,[H|L],L,      T0,T).
+push(At,X,T0,T) :- meta(_,At,L,    [X|L],  T0,T).
+inc( At,X,T, T) :- meta(_,At,L0,   [X/N|L],T, T), (without(L0,X/N0,L) -> N is N0+1; L=L0,N=1).
+in(  At,X,T, T) :- meta(_,At,L0,   [X|L],  T, T), without(L0,X,L).
+>=(  At,N)     --> =(At,N1), {N1 >= N}.
+>(   At,N)     --> =(At,N1), {N1 >  N}.
+<(   At,N)     --> =(At,N1), {N1 <  N}.
+=<(  At,N)     --> =(At,N1), {N1 =< N}.
+
+without([X|T],X,T).
+without([H|T0],X,[H|T]) :- without(T0,X,T).
 
 neg1(>=, <).
 neg1(>, =<).
@@ -32,10 +48,6 @@ neg(X,Y) :- neg1(X,Y);  neg1(Y,X).
 
 isa(F,Y) :- isa(F,Y,Y).
 isa(F,Y,Y) :- meta(F,_,_,_,Y,Y).
-
-singleton(X) :- findall(_,X,[_]),X.
-goal_expansion(=(At,V,T,T), true) :- singleton(=(At,V,T,T)).
-goal_expansion(:=(At,V,T,T),true) :- singleton(:=(At,V,T,T)).
 
 term_expansion((A --> for(F),B), (A1 :- B1)) :-
   dcg_translate_rule((A --> tmp,B),(A1 :- tmp(X,X),B1)),
@@ -53,13 +65,14 @@ meta1([H|L],V0,V1,[V |V0s],[V |V1s],X) :- H \= X, meta1(L,V0,V1,V0s,V1s,X).
 
 num = [at,txt,n,mu,mu2,w] .
 
-make(X) -->
+init(X) -->
    for(num),
-   at = 1, n=3, mu2=120,
-   mu > 20, n = 34.
+   at = X, n=3, mu2=120, w=[], push(w,a), push(w,b), pop(w,Y), {print(Y)},
+   mu = 20, n := 34.
 
 eg1 :-
-   listing(meta).
+   listing(meta),
+   init(34,_,X), print(X).
 
 % :- spy(num).
 % :- trace(num).
