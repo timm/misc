@@ -1,4 +1,4 @@
-% vim: filetype=prolog
+% vim: filetype=prolog et ts=2 :
 % Calculate log base 2 of a number
 :- use_module(library(lists)).
 log2(0, 0).
@@ -25,14 +25,14 @@ runiv(X0,N0,N,X) :-
   N1 is N0 + 1,
   runiv(X1,N1,N,X).
 
-:- dynamic meta/6.
+:- dynamic field/6.
 :-op(700,xfx,:=).
-=(   At,V,T, T) :- meta(_,At,V,    V,      T, T).
-:=(  At,V,T0,T) :- meta(_,At,_,    V,      T0,T).
-pop( At,H,T0,T) :- meta(_,At,[H|L],L,      T0,T).
-push(At,X,T0,T) :- meta(_,At,L,    [X|L],  T0,T).
-inc( At,X,T, T) :- meta(_,At,L0,   [X/N|L],T, T), (without(L0,X/N0,L) -> N is N0+1; L=L0,N=1).
-in(  At,X,T, T) :- meta(_,At,L0,   [X|L],  T, T), without(L0,X,L).
+=(   At,V,T, T) :- field(_,At,V,    V,      T, T).
+:=(  At,V,T0,T) :- field(_,At,_,    V,      T0,T).
+pop( At,H,T0,T) :- field(_,At,[H|L],L,      T0,T).
+push(At,X,T0,T) :- field(_,At,L,    [X|L],  T0,T).
+inc( At,X,T, T) :- field(_,At,L0,   [X/N|L],T, T), (without(L0,X/N0,L) -> N is N0+1; L=L0,N=1).
+in(  At,X,T, T) :- field(_,At,L0,   [X|L],  T, T), without(L0,X,L).
 >=(  At,N)     --> =(At,N1), {N1 >= N}.
 >(   At,N)     --> =(At,N1), {N1 >  N}.
 <(   At,N)     --> =(At,N1), {N1 <  N}.
@@ -47,28 +47,33 @@ neg1(=, \=).
 neg(X,Y) :- neg1(X,Y);  neg1(Y,X).
 
 isa(F,Y) :- isa(F,Y,Y).
-isa(F,Y,Y) :- meta(F,_,_,_,Y,Y).
+isa(F,Y,Y) :- field(F,_,_,_,Y,Y).
 
 term_expansion((A --> for(F),B), (A1 :- B1)) :-
   dcg_translate_rule((A --> tmp,B),(A1 :- tmp(X,X),B1)),
-  meta(F,_,_,_,X,X).
+  field(F,_,_,_,X,X).
 
-term_expansion(F = Fields, Metas) :-
-  findall(Meta, metas(F,Fields,Meta), Metas).
+term_expansion(F = L, Field) :-
+  findall(Field, fields(F,L,Field), Fields).
 
-metas(F,L,meta(F,X,V0,V1,Term0,Term1)) :-
-  member(X,L), meta1(L,V0,V1,L0,L1,X), Term0=.. [F|L0], Term1=.. [F|L1].
+fields(F,L,field(F,X,V0,V1,Term0,Term1)) :-
+  member(X,L), field1(L,V0,V1,L0,L1,X), Term0=.. [F|L0], Term1=.. [F|L1].
 
-meta1([],    _, _,[],      [],      _).
-meta1([H|L],V0,V1,[V0|V0s],[V1|V1s],H) :-         meta1(L,_, _, V0s,V1s,H).
-meta1([H|L],V0,V1,[V |V0s],[V |V1s],X) :- H \= X, meta1(L,V0,V1,V0s,V1s,X).
+field1([],    _, _,[],      [],      _).
+field1([H|L],V0,V1,[V0|V0s],[V1|V1s],H) :-         field1(L,_, _, V0s,V1s,H).
+field1([H|L],V0,V1,[V |V0s],[V |V1s],X) :- H \= X, field1(L,V0,V1,V0s,V1s,X).
 
-num = [at,txt,n,mu,mu2,w] .
+end(S,Last) :- sub_atom(S,_,1,0,Last).
 
-init(X) -->
+
+% asdas
+num = [at,txt,n,mu,mu2,w].
+
+init(At,Txt) -->
    for(num),
-   at = X, n=3, mu2=120, w=[], push(w,a), push(w,b), pop(w,Y), {print(Y)},
+   at = At, txt=Txt, n=0, mu=0,m2=0, w=[], push(w,a), push(w,b), pop(w,Y), {print(Y)},
    mu = 20, n := 34.
+
 
 eg1 :-
    listing(meta),
