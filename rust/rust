@@ -1,2 +1,3 @@
+#!/usr/bin/env bash
 TIMEFORMAT="%R secs"
-time  (rustc $1 &&  ${1/.rs/})
+time ( rustc $1.rs &&  ./$1)
