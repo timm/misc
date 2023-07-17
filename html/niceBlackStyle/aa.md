@@ -1,6 +1,5 @@
 ---
-title: Timm's Tips+Tricks for Smarter Scripting
-description: Tips and hints
+title: 101 Tricks for Smarter Scripts
 author: Tim Menzies
 ---
 July 16,2023
@@ -67,6 +66,10 @@ asda
 
 asdasdas
 
+<small>
+
 [^aaa]: asd asd as dasasdd
+
+
 
 
