@@ -17,6 +17,11 @@ body {
     line-height: 1.6
 }
 
+a {
+  color: #00b1ed;;
+  text-decoration: none;
+}
+
 header#banner {
     margin: 25px 0
 }
@@ -244,11 +249,11 @@ main#content pre {
     display: block;
     overflow-x: auto;
     font-size: 14px;
-    font-size: 1.4rem;
+    xfont-size: 1.4rem;
     white-space: pre;
     margin: 20px 0;
     padding: 1.5rem;
-    line-height: 1.4
+    line-height: 1.2;
 }
 
 main#content pre code {
@@ -369,23 +374,22 @@ footer#footer {
 }
 
 .chroma {
-    color: #f8f8f2;
-    background-color: #272822
+    xbackground-color: #333;
 }
 
-.chroma .err {
+._err {
     color: #960050;
     background-color: #1e0010
 }
 
-.chroma .lntd {
+._lntd {
     vertical-align: top;
     padding: 0;
     margin: 0;
     border: 0
 }
 
-.chroma .lntable {
+._lntable {
     border-spacing: 0;
     padding: 0;
     margin: 0;
@@ -395,229 +399,243 @@ footer#footer {
     display: block
 }
 
-.chroma .hl {
+._hl {
     display: block;
     width: 100%;
     background-color: #ffc
 }
 
-.chroma .lnt {
+._lnt {
     margin-right: .4em;
     padding: 0 .4em;
     color: #7f7f7f
 }
 
-.chroma .ln {
+._ln {
     margin-right: .4em;
     padding: 0 .4em;
     color: #7f7f7f
 }
 
-.chroma .k {
+._k {
+    color: #66d9ef;
+    color: maroon;
+}
+
+._kc {
     color: #66d9ef
 }
 
-.chroma .kc {
+._kd {
     color: #66d9ef
 }
 
-.chroma .kd {
-    color: #66d9ef
-}
-
-.chroma .kn {
+._kn {
     color: #f92672
 }
 
-.chroma .kp {
+._kp {
+    color: #66d9ef;
+    color: olive;
+}
+
+._kr {
+    color: #66d9ef;
+    color: navy;
+}
+
+._kt {
     color: #66d9ef
 }
 
-.chroma .kr {
+._na {
+    color: #a6e22e;
+    color: teal;
+}
+
+._nc {
+    color: #a6e22e
+}
+
+._no {
     color: #66d9ef
 }
 
-.chroma .kt {
-    color: #66d9ef
-}
-
-.chroma .na {
+._nd {
     color: #a6e22e
 }
 
-.chroma .nc {
+._ne {
     color: #a6e22e
 }
 
-.chroma .no {
-    color: #66d9ef
-}
-
-.chroma .nd {
+._nf {
     color: #a6e22e
 }
 
-.chroma .ne {
+._nx {
     color: #a6e22e
 }
 
-.chroma .nf {
-    color: #a6e22e
-}
-
-.chroma .nx {
-    color: #a6e22e
-}
-
-.chroma .nt {
+._nt {
     color: #f92672
 }
 
-.chroma .l {
+._l {
     color: #ae81ff
 }
 
-.chroma .ld {
+._ld {
     color: #e6db74
 }
 
-.chroma .s {
+._s {
     color: #e6db74
 }
 
-.chroma .sa {
+._sa {
     color: #e6db74
 }
 
-.chroma .sb {
+._sb {
     color: #e6db74
 }
 
-.chroma .sc {
+._sc {
     color: #e6db74
 }
 
-.chroma .dl {
+._dl {
     color: #e6db74
 }
 
-.chroma .sd {
+._sd {
     color: #e6db74
 }
 
-.chroma .s2 {
+._s2 {
     color: #e6db74
 }
 
-.chroma .se {
+._se {
     color: #ae81ff
 }
 
-.chroma .sh {
+._sh {
     color: #e6db74
 }
 
-.chroma .si {
+._si {
     color: #e6db74
 }
 
-.chroma .sx {
+._sx {
     color: #e6db74
 }
 
-.chroma .sr {
+._sr {
+    color: #e6db74;
+    color: aqua;
+}
+
+._s1 {
     color: #e6db74
 }
 
-.chroma .s1 {
+._ss {
     color: #e6db74
 }
 
-.chroma .ss {
-    color: #e6db74
-}
-
-.chroma .m {
+._m {
     color: #ae81ff
 }
 
-.chroma .mb {
+._mb {
     color: #ae81ff
 }
 
-.chroma .mf {
+._mf {
     color: #ae81ff
 }
 
-.chroma .mh {
+._mh {
     color: #ae81ff
 }
 
-.chroma .mi {
+._mi {
     color: #ae81ff
 }
 
-.chroma .il {
+._il {
     color: #ae81ff
 }
 
-.chroma .mo {
+._mo {
     color: #ae81ff
 }
 
-.chroma .o {
+._o {
     color: #f92672
 }
 
-.chroma .ow {
+._ow {
     color: #f92672
 }
 
-.chroma .c {
+._c {
     color: #75715e
 }
 
-.chroma .ch {
+._ch {
     color: #75715e
 }
 
-.chroma .cm {
+._cm {
+    color: #75715e;
+    color: red;
+}
+
+._c1 {
     color: #75715e
 }
 
-.chroma .c1 {
+._cs {
+    color: #75715e;
+    color: green;
+}
+
+._cp {
+    color: #75715e;
+    color: fushia;
+}
+
+._cpf {
     color: #75715e
 }
 
-.chroma .cs {
-    color: #75715e
-}
-
-.chroma .cp {
-    color: #75715e
-}
-
-.chroma .cpf {
-    color: #75715e
-}
-
-.chroma .gd {
+._gd {
     color: #f92672
 }
 
-.chroma .ge {
+._ge {
     font-style: italic
 }
 
-.chroma .gi {
+._gi {
     color: #a6e22e
 }
 
-.chroma .gs {
-    font-weight: 700
+._gs {
+    xfont-weight: 700;
+    color: lime;
 }
 
-.chroma .gu {
-    color: #75715e
+._gu {
+    color: green;
 }
 
+pre {
+  border-left: 1px solid gray;
+ font-size: small;
+ color: lightgray;
+}
