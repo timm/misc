@@ -1,6 +1,6 @@
 /<\/head>/{ 
   print "<script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>"
-  print "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css\" type=\"text/css\">"
+  print "<link rel=\"stylesheet\" href=\"//use.fontawesome.com/releases/v5.0.7/css/all.css\">"
   print $0
 }
 

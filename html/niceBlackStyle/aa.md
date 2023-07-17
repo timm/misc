@@ -1,8 +1,9 @@
 ---
-title: 101 Tips and Tricks for Smarter Scripts
+title: Tips and Tricks for Smarter Scripts
 author: Tim Menzies
+email: "timm@ieee.org"
+date: Jul 17, 2023
 ---
-July 16,2023
 
 <em>
 Simulating a universal, gate-based quantum computer on a classical
