@@ -21,6 +21,7 @@ gsub(/\<(del|global|nonlocal)\>/,"<font color=\"SkyBlue\">&</font>")
 1
 # https://www.pinterest.com/pin/371195194303176278/
 
+#need to find a good matchin color sequence from https://ethanschoonover.com/solarized/
 #black", "white", "gray", "silver", "maroon", "red", "purple", "fushsia", "green", "lime", "olive", "yellow", "navy", "blue", "teal", and "aqua"),
 
 # AliceBlue
