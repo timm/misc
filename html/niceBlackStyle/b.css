@@ -24,7 +24,7 @@ body {
 }
     
 a { color: #CC000; text-decoration: none; }
-pre {border-left: 1px solid #CCC;
+pre {border: 1px solid #BBB;
     background-color: #F0F0F0; padding: 8px;}
 
 xpre { line-height: 125%; }
