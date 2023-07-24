@@ -1,21 +1,24 @@
 /<\/head>/{ 
   print "<script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>"
-  print "<link rel=\"stylesheet\" href=\"//use.fontawesome.com/releases/v5.0.7/css/all.css\">"
+  print "<link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.0.7/css/all.css\">"
   print $0
 }
 
+
 /^<pre>/   { IN=1 }
+/^[ \t]*\#/ { print "<font color=DarkGrey>"$0"</font>"; next}
 IN {
-gsub(/\<(True|False|None)\>/,"<font color=\"Blue\">&</font>")
-gsub(/\<(and|or|not|in|is)\>/,"<font color=\"Coral\">&</font>")
-gsub(/\<(if|elif|else)\>/,"<font color=\"Cyan\">&</font>")
-gsub(/\<(for|while|break|continue|else)\>/,"<font color=\"GoldenRodYellow\">&</font>")
-gsub(/\<(def|class|with|as|pass|lambda)\>/,"<font color=\"#79CEEE\">&</font>")
-gsub(/\<(return|yield)\>/,"<font color=\"#6E89A2\">&</font>")
-gsub(/\<(import|from|as)\>/,"<font color=\"Pink\">&</font>")
-gsub(/\<(try|except|raise|finally|else|assert)\>/,"<font color=\"Salmon\">&</font>")
-gsub(/\<(async|await)\>/,"<font color=\"SeaGreen\">&</font>")
-gsub(/\<(del|global|nonlocal)\>/,"<font color=\"SkyBlue\">&</font>")
+gsub(/\<(and|or|not|in|is)\>/,"<b><font color=\"black\">&</font></b>")
+gsub(/\<(if|elif|else)\>/,"<b><font color=\"black\">&</font></b>")
+gsub(/\<(for|while|break|continue|else)\>/,"<b><font color=\"black\">&</font></b>")
+#gsub(/\<(def|class|with|as|pass|lambda)\>/,"<b><font color=\"#00427d\">&</font></b>")
+gsub(/\<(def|class|with|as|pass|lambda)\>/,"<b><font color=\"purple\">&</font></b>")
+gsub(/\<(return|yield)\>/,"<font color=\"red\">&</font></b>")
+gsub(/\<(try|except|raise|finally|else|assert)\>/,"<b><font color=\"black\">&</font></b>")
+gsub(/\<(True|False|None)\>/,"<b><font color=\"olive\">&</font></b>")
+gsub(/\<(import|from|as)\>/,"<b><font color=\"navy\">&</font></b>")
+gsub(/\<(async|await)\>/,"<b><font color=\"teal\">&</font></b>")
+gsub(/\<(del|global|nonlocal)\>/,"<b><font color=\"aqua\">&</font></b>")
 }
 /<\/pre>$/ { IN=0 }
 1

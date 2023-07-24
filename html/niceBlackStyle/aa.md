@@ -1,9 +1,11 @@
----
-title: Tips and Tricks for Smarter Scripts
-author: Tim Menzies
-email: "timm@ieee.org"
-date: Jul 17, 2023
----
+
+<img align=right width=300 src="https://leadingwithtrust.com/wp-content/uploads/2014/03/easy.jpg?w=300">
+
+# Tips and Tricks for Smarter, Simpler,  Scripts
+Tim Menzies   
+timm@ieee.org    
+Jul 17, 2023
+
 
 <em>
 Simulating a universal, gate-based quantum computer on a classical
@@ -21,12 +23,7 @@ lines of self-contained Common Lisp code. The language
 
 ------
 
-<!-- toc -->
-
-- [asdasda](#asdasda)
-- [asdas das das](#asdas-das-das)
-- [asdasdsad](#asdasdsad)
-  * [asdasas](#asdasas)
+[TOC]
 
 <!-- tocstop -->
 
@@ -34,6 +31,7 @@ lines of self-contained Common Lisp code. The language
 
 ## asdasda
 
+$$a^2$$
 $a^2$
 
 <i class="fa-solid fa-coffee"></i> 
@@ -42,11 +40,23 @@ asdasd asdd asdd asd asd asd asdas
 adasasddasads [^aaa]
 asdasdasa
 
+``` python
+def showRule(rule):
+   def spread(ins):
+      i,outs = 0,[]
+      while i < len(ins):
+         c,lo,hi = ins[i]
+         while i < len(a) - 1 and hi == ins[i+1][1]:
+            hi = ins[i+1][2]
+            i += 1
+         outs += [(c,lo,hi)]
+         i += 1
+      return tuple(outs)
+   return tuple(spread(v) for k,v in rule.items())
+```
 
-      def xx(a):
-         return 23
-
-asda
+	
+asd
 as
 das
 das
