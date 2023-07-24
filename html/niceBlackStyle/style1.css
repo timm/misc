@@ -635,7 +635,9 @@ footer#footer {
 }
 
 pre {
-  border-left: 1px solid gray;
+  xborder-left: 1px solid gray;
  font-size: small;
- color: lightgray;
+ color: black;
+ font-weight: bold;
+ background-color: white;
 }
