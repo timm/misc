@@ -1,4 +1,6 @@
 .SILENT:
+FMT= -x attr_list -x toc -x codehilite -x tables -x fenced_code -x footnotes#
+
 all: aa.html
 
 put:
@@ -14,4 +16,4 @@ toc:
 # 	mv tmp $@
 
 %.html : %.md
-	(cat head.html; python3 -m markdown -x toc -x codehilite -x tables -x fenced_code -x footnotes $^ ; cat foot.html) > $@
+	(cat head.html; python3 -m markdown $(FMT) $^ ; cat foot.html) > $@
