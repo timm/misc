@@ -1,0 +1,73 @@
+#|
+# Why I Like LISP
+
+TL;DR:<em> LISP makes it easy to write domain-specific language that let me express
+what I want, in the way that I want. Which is very useful (see examples, below).</em>
+
+Here's a quote that's taken me a while to understand. I used to think
+it was an insult to LISP. Know I think different.
+
+> "(A certain programming langauge)  is like a diamond. It has a 
+beautiful crystal structure; all of its parts are related in a uniform and elegant way. 
+But if you try to extend this structure in any way - even by adding another diamond - 
+you get an ugly kludge. LISP, on the other hand, is like a ball of mud. 
+You can add any amount of mud to it and it still looks like a ball of mud."    
+-- JoelMoses
+
+What's being said here is that LISP is built to be flexible, much more so that other languages.
+Why is such flexability important Well, consider the fight over 
+the walrus operator (`:=`) in Python3. 
+The operator 
+assignments occur as part of the expression evaluation. 
+That way, if you need the result of that conditional, you do not have to run
+that test again. Fror example:
+
+      # without walrus
+      x := someBigLongCalculation()
+      if x: handle(x)
+
+      # with walrus
+      if x := someBigLongCalculation(): handle(x)
+
+All in all it is a pretty minor addition to the language. 
+But in accordance with the [bike-shedding](https://en.wikipedia.org/wiki/Law_of_triviality)
+principle, it became a very contentious issue. Even after it
+was decibed to add it to Python, there were some very nasty social media posts
+about the whole thing and the way the issue was decided.
+The whole debate was so nasty that the chief design of Python,
+Guido van Rossum has decided, quit the Python project.
+"Now that (walrus) is done, I don't ever want to have to fight so hard for a 
+(chage)  and find that so many people despise my decisions.", he said.
+
+The lesson here is that in languages not designed as a big ball of mud,
+any little change can become a dispute of biblical proportions.
+That can't happen in LISP since it so easy to add another macro to add
+another language feature. For example, here's the walrus operator in LISP
+(its called the `anaphoric if` since anaphray is that part of a language that
+lets you reference something mentioned in the past).
+|#
+(defmacro aif (test this &optional that)
+  `(let ((it ,test)) (if it ,this ,that)))
+#|
+This code lets is trap the results of `test`  in `if`, then use it later.
+
+    (if (big-long-calculation)
+      (foo it))
+
+The point here is that no central committee has to be lobbied to add this to the languate. You
+like walruses? Then add the above two line and you are done.. You don't like walruses? Fine, just don't use it.
+
+Here's a slightly more complex 
+|#
+(defmacro my (&rest defstructs) 
+  `(progn 
+     ,@(loop for (_ it . slots) in defstructs collect
+         `(defstruct (,it (:constructor ,(intern (format nil "MAKE-~a0" it)))) ,@slots))))
+
+
+(my (defstruct a b c))
+
+(defun make-a (b c)
+  (make-a0 :b b :c c))
+
+(print (make-a 1 2))

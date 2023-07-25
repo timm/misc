@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why I Like LISP</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,300" rel="stylesheet" type="text/css">
+  <xlink href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+  <link rel="stylesheet" href="b.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      extensions: ["tex2jax.js"],
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+      },
+      "HTML-CSS": { fonts: ["TeX"] }
+    });
+  </script>
+  <script type="text/javascript"
+     src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js">
+   </script>
+</head>
+<body>
+<h1 id="why-i-like-lisp">Why I Like LISP</h1>
+<p>TL;DR:<em> LISP makes it easy for me to write domain-specific language that let me express
+what I want, in the way that I want. Which is very useful (see examples, below).</em></p>
+<p>Here's a quote that's taken me a while to understand. I used to think
+it was an insult to LISP. Know I think different.</p>
+<blockquote>
+<p>"(A certain programming langauge)  is like a diamond. It has a 
+beautiful crystal structure; all of its parts are related in a uniform and elegant way. 
+But if you try to extend this structure in any way - even by adding another diamond - 
+you get an ugly kludge. LISP, on the other hand, is like a ball of mud. 
+You can add any amount of mud to it and it still looks like a ball of mud."  <br />
+-- JoelMoses</p>
+</blockquote>
+<p>What's being said here is that LISP is built to be flexible, much more so that other languages.
+Why is such flexability important Well, consider the fight over 
+the walrus operator (<code>:=</code>) in Python3. 
+The operator 
+assignments occur as part of the expression evaluation. 
+That way, if you need the result of that conditional, you do not have to run
+that test again. Fror example:</p>
+<div class="codehilite"><pre><span></span><code><span class="w">  </span><span class="o">#</span><span class="w"> </span><span class="nv">without</span><span class="w"> </span><span class="nv">walrus</span>
+<span class="w">  </span><span class="nv">x</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">someBigLongCalculation</span><span class="p">()</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="nv">x</span><span class="o">:</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="nv">x</span><span class="p">)</span>
+
+<span class="w">  </span><span class="o">#</span><span class="w"> </span><span class="nv">with</span><span class="w"> </span><span class="nv">walrus</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">someBigLongCalculation</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="nv">x</span><span class="p">)</span>
+</code></pre></div>
+
+<p>All in all it is a pretty minor addition to the language. 
+But in accordance with the <a href="https://en.wikipedia.org/wiki/Law_of_triviality">bike-shedding</a>
+principle, it became a very contentious issue. Even after it
+was decibed to add it to Python, there were some very nasty social media posts
+about the whole thing and the way the issue was decided.
+The whole debate was so nasty that the chief design of Python,
+Guido van Rossum has decided, quit the Python project.
+"Now that (walrus) is done, I don't ever want to have to fight so hard for a 
+(chage)  and find that so many people despise my decisions.", he said.</p>
+<p>The lesson here is that in languages not designed as a big ball of mud,
+any little change can become a dispute of biblical proportions.
+That can't happen in LISP since it so easy to add another macro to add
+another language feature. For example, here's the walrus operator in LISP
+(its called the <code>anaphoric if</code> since anaphray is that part of a language that
+lets you reference something mentioned in the past).</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">aif</span><span class="w"> </span><span class="p">(</span><span class="nv">test</span><span class="w"> </span><span class="nv">this</span><span class="w"> </span><span class="k">&amp;optional</span><span class="w"> </span><span class="nv">that</span><span class="p">)</span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">test</span><span class="p">))</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">this</span><span class="w"> </span><span class="o">,</span><span class="nv">that</span><span class="p">)))</span>
+</code></pre></div>
+
+<p>This code lets is trap the results of <code>test</code>  in <code>if</code>, then use it later.</p>
+<div class="codehilite"><pre><span></span><code><span class="ss">(</span><span class="k">if</span><span class="w"> </span><span class="ss">(</span><span class="nv">big</span><span class="o">-</span><span class="nv">long</span><span class="o">-</span><span class="nv">calculation</span><span class="ss">)</span>
+<span class="w">  </span><span class="ss">(</span><span class="nv">foo</span><span class="w"> </span><span class="nv">it</span><span class="ss">))</span>
+</code></pre></div>
+
+<p>The point here is that no central committee has to be lobbied to add this to the languate. You
+like walruses? Then add the above two line and you are done.. You don't like walruses? Fine, just don't use it.</p>
+<p>Here's a slightly more complex </p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">my</span><span class="w"> </span><span class="p">(</span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">defstructs</span><span class="p">)</span><span class="w"> </span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">progn</span><span class="w"> </span>
+<span class="w">     </span><span class="o">,@</span><span class="p">(</span><span class="nb">loop</span><span class="w"> </span><span class="nv">for</span><span class="w"> </span><span class="p">(</span><span class="nv">_</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="nv">defstructs</span><span class="w"> </span><span class="nv">collect</span>
+<span class="w">         </span><span class="o">`</span><span class="p">(</span><span class="nb">defstruct</span><span class="w"> </span><span class="p">(</span><span class="o">,</span><span class="nv">it</span><span class="w"> </span><span class="p">(</span><span class="ss">:constructor</span><span class="w"> </span><span class="o">,</span><span class="p">(</span><span class="nb">intern</span><span class="w"> </span><span class="p">(</span><span class="nb">format</span><span class="w"> </span><span class="no">nil</span><span class="w"> </span><span class="s">&quot;MAKE-~a0&quot;</span><span class="w"> </span><span class="nv">it</span><span class="p">))))</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">))))</span>
+
+
+<span class="p">(</span><span class="nv">my</span><span class="w"> </span><span class="p">(</span><span class="nb">defstruct</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="nv">c</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nb">defun</span><span class="w"> </span><span class="nv">make-a</span><span class="w"> </span><span class="p">(</span><span class="nv">b</span><span class="w"> </span><span class="nv">c</span><span class="p">)</span>
+<span class="w">  </span><span class="p">(</span><span class="nv">make-a0</span><span class="w"> </span><span class="ss">:b</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="ss">:c</span><span class="w"> </span><span class="nv">c</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nb">print</span><span class="w"> </span><span class="p">(</span><span class="nv">make-a</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div></body>
+</html>
+
