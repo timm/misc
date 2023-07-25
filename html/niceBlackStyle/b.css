@@ -4,13 +4,16 @@ body {
   display: flex;
   justify-content: center;
   background-color: #f0f0f0;
+  background-color: #606060;
+  background-color: #212F3D;
   font-family: "Open Sans", "Segoe UI", Tahoma, sans-serif;
-  font-size: small;
+  xfont-size: small;
+   
 }
 
 
 .container {
-  max-width: 600px;
+  max-width: 700px;
   width: 100%;
   padding: 20px;
   box-sizing: border-box;
@@ -25,7 +28,8 @@ body {
     
 a { color: #CC000; text-decoration: none; }
 pre {border: 1px solid #BBB;
-    background-color: #F0F0F0; padding: 8px;}
+     font-size: x-small;
+     background-color: #F0F0F0; padding: 8px;}
 
 xpre { line-height: 125%; }
 xtd.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
