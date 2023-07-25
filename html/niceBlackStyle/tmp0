@@ -5,6 +5,10 @@
     LISP's macro system makes it crazy easy to write domain-specific language that let me express
     what I want, in the way that I want. Which is very useful (see examples, below). 
 
+(For other views on this topic, see
+    [WhyWeHateLis](https://wiki.c2.com/?WhyWeHateLisp).)
+    and [WhyWeLoveLisp](https://wiki.c2.com/?WhyWeLoveLisp).)
+
 In some ways, it does not matter what language I code in.
 This book is about as set of language-independent concepts,
 so the choice of Python vs LISP vs Rust vs Go vs Typescript vs Lua vs whatever
