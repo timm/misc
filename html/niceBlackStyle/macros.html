@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>(Why (I (Love (LISP))))</title>
+<title>without walrus</title>
+<title>with walrus</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,300" rel="stylesheet" type="text/css">
+  <xlink href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+  <link rel="stylesheet" href="b.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      extensions: ["tex2jax.js"],
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+      },
+      "HTML-CSS": { fonts: ["TeX"] }
+    });
+  </script>
+  <script type="text/javascript"
+     src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js">
+   </script>
+</head>
+<body>
+<img src="dots3.png" width=225 align=left
+  style="margin-bottom: 0px; padding-bottom: 0px;"> 
+<p style="text-align:right;">
+
+<a  href="index.html">home</a> :: 
+<a href="">src</a> ::
+<a href="">issues</a> <br> 
+    <span style="float:left;color:rgb(72,14,120);"> <b>SE+AI: a programmer's guide</b></span>
+<br>
+    <span style="float:left;"><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></span>
+</p>
+<br clear=all>
+
+<h1 id="why-i-love-lisp">(Why (I (Love (LISP))))</h1>
+<div class="admonition summary">
+<p class="admonition-title">TL;DR</p>
+<p>LISP's macro system makes it crazy easy to write domain-specific language that let me express
+what I want, in the way that I want. Which is very useful (see examples, below). </p>
+</div>
+<p>In some ways, it does not matter what language I code in.
+This book is about as set of language-independent concepts,
+so the choice of Python vs LISP vs Rust vs Go vs Typescript vs Lua vs whatever
+is kind of an
+irrelevancy.</p>
+<p>That said, someone always ask "why do you use LISP?"  So...</p>
+<h2 id="lisp-isnt-a-language">LISP Isn't a Language</h2>
+<p>Alan Kay once said
+"Lisp isn't a language, it's a building material". I  agree!
+LISP is built to be flexible, much more so than most  other languages.
+Why is such flexability important? </p>
+<p>Well, it the <a href="https://sep.turbifycdn.com/ty/cdn/paulgraham/acl1.txt?t=1688221954&amp;">words of Paul Graham</a>:</p>
+<ul>
+<li>You can write prototypes so quickly in Lisp that you can go through
+several iterations of design and implementation before you would,
+have even finished writing out the specifications.</li>
+<li>The essence of writing reusable software is to separate the general
+from the specific, and (LISP programming) inherently creates
+such a separation.  Instead of devoting all your effort to writing
+a single, monolithic application, you devote part of your effort
+to building a language, and part to writing a (proportionately
+smaller) application on top of it.</li>
+</ul>
+<p>Not convinced?
+Ok, then lets take a look at what happens in langauges <em>without</em> LISP's flexibility.</p>
+<h2 id="attack-of-the-walrus">Attack of the Walrus</h2>
+<p>Do you
+recall the fight over 
+the walrus operator (<code>:=</code>) in Python3? 
+That operator 
+allowws assignments occur as part of the expression evaluation. 
+That way, if you need the result of that conditional, you do not have to run
+that test again. For example:</p>
+<div class="codehilite"><pre><span></span><code># without walrus
+x := someBigLongCalculation()
+if x: handle(x)
+
+# with walrus
+if x := someBigLongCalculation(): handle(x)
+</code></pre></div>
+
+<p>All in all it is a pretty minor addition to the language. 
+Even so, the operator was hotly debated and
+there were some very nasty social media posts
+about the way the issue was decided.
+The doscussion got so toxic that the leader of the Python community,
+Guido van Rossum, quit the Python project.
+"Now that (walrus) is done, I don't ever want to have to fight so hard for a 
+(chage)  and find that so many people despise my decisions.", he said.</p>
+<p>To a LISPer, that whole debate is just insane.
+If you want the walrus, it can be added with just two lines of code:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">aif</span><span class="w"> </span><span class="p">(</span><span class="nv">test</span><span class="w"> </span><span class="nv">this</span><span class="w"> </span><span class="k">&amp;optional</span><span class="w"> </span><span class="nv">that</span><span class="p">)</span>
+<span class="w">   </span><span class="s">&quot;the anaporic if lets code reference some prior conce (from the cnditional test)&quot;</span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">test</span><span class="p">))</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">this</span><span class="w"> </span><span class="o">,</span><span class="nv">that</span><span class="p">)))</span>
+</code></pre></div>
+
+<p>This code lets is trap the results of <code>test</code>  into <code>it</code>, then use <code>it</code> later; e.g.</p>
+<div class="codehilite"><pre><span></span><code>(aif (big-long-calculation)
+  (foo it))
+</code></pre></div>
+
+<p>Note that this change can be made to your local
+LISP without having to lobby some central committee. No drama.
+And if you don't like my <code>aif</code> macro? Fine, just don't use it.</p>
+<p>XXX make this example after moonwalking</p>
+<p>I've got several other examples of 
+how a little LISP making a useful change to a language.<br />
+They all uses <code>defmacro</code> and if you need a little reminder on how that works:</p>
+<ul>
+<li>Most things is LISP are lists, even the code.</li>
+<li>Macros are functions (called at load time) that return lists which the LISP interprets as code.</li>
+<li>Macros are "coded" so much as they are "drawn". XXX</li>
+</ul>
+<p>If you need the full details, and lots of good tutorial examples,
+go see the <a href="https://lispcookbook.github.io/cl-cookbook/macros.html">LISP cookbook on macros</a>.</p>
+<h2 id="asd-a-dsas">asd a dsas</h2>
+<p>Consider the task
+of making nested accesses to a field inside a struct (e.g. the <code>streetNum</code> of the the <code>address</code> of
+the <code>home</code> of the <code>manager</code> of the `company. In standard LISP, that could be done wth:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
+<span class="w">   </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
+<span class="w">      </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
+<span class="w">         </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span><span class="o">*</span><span class="nx">company</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">manager</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">home</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">address</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">streetNum</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Pretty verbose, right? So lets fix that with a little macro :</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nv">struct</span><span class="w"> </span><span class="nv">slot</span><span class="w"> </span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span><span class="w"> </span>
+<span class="w">  </span><span class="s">&quot;Nested slot accesros&quot;</span>
+<span class="w">  </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">slots</span>
+<span class="w">    </span><span class="o">`</span><span class="p">(</span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">)</span><span class="w">  </span><span class="c1">; case one: we have to recurse</span>
+<span class="w">    </span><span class="o">`</span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)))</span><span class="w">  </span><span class="c1">; case two: no slots left, so just do an access.</span>
+</code></pre></div>
+
+<p>Now the above  example becomes something much more palatable.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">o</span><span class="w"> </span><span class="o">*</span><span class="nx">company</span><span class="o">*</span><span class="w"> </span><span class="nx">manager</span><span class="w"> </span><span class="nx">home</span><span class="w"> </span><span class="nx">address</span><span class="w"> </span><span class="nx">streetNum</span><span class="p">)</span>
+</code></pre></div>
+
+<p>nice macro adds a constructor <code>make-struct0</code> to a list of <code>defstruct</code>s. 
+To do this, it rewrites the struct definition such that:    </p>
+<ul>
+<li><code>(defstruct x slot1 slot2...)</code> </li>
+<li>becomes <code>(defstruct (x (:constructor make-x0)) slot1 slot2...)</code></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">add-make0</span><span class="w"> </span><span class="p">(</span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">defstructs</span><span class="p">)</span><span class="w"> </span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">progn</span><span class="w"> </span>
+<span class="w">     </span><span class="o">,@</span><span class="p">(</span><span class="nb">loop</span><span class="w"> </span><span class="nv">for</span><span class="w"> </span><span class="p">(</span><span class="nv">_</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="nv">defstructs</span><span class="w"> </span><span class="nv">collect</span>
+<span class="w">         </span><span class="o">`</span><span class="p">(</span><span class="nb">defstruct</span><span class="w"> </span><span class="p">(</span><span class="o">,</span><span class="nv">it</span><span class="w"> </span><span class="p">(</span><span class="ss">:constructor</span><span class="w"> </span><span class="o">,</span><span class="p">(</span><span class="nb">intern</span><span class="w"> </span><span class="p">(</span><span class="nb">format</span><span class="w"> </span><span class="no">nil</span><span class="w"> </span><span class="s">&quot;MAKE-~a0&quot;</span><span class="w"> </span><span class="nv">it</span><span class="p">))))</span><span class="w"> </span>
+<span class="w">            </span><span class="o">,@</span><span class="nv">slots</span><span class="p">))))</span>
+</code></pre></div>
+
+<p>This allows for a simple instance creation. In the following </p>
+<ul>
+<li><code>(make-crew0)</code> and <code>(make-person0)</code> are the primitive constructors;</li>
+<li>while <code>(make-crew)</code> and <code>(make-person)</code>  enforce certain conventions at creation time
+  (e.g., compute a person's <code>age</code> from their year of birth (<code>yob</code>)
+  and the current year).</li>
+</ul>
+<p>Here we go:</p>
+<div class="codehilite"><pre><span></span><code>(add-make0
+  (defstruct person name age salary)
+  (defstruct crew  persons))
+
+(defvar *salaries*  &#39;((salaries &#39;((commander . 30054) (walker . 18622 ) (pilot . 17147)))))
+
+(defun make-person (name yob role)
+    (make-person0 :name name 
+                  :role (cdr (assoc role *salaries*))
+                  :age  (- (sixth (multiple-value-list (get-decoded-time)))) yob))
+
+(defun make-crew (crew)
+  (make-crew0 :persons (loop for (name yob role) in crew collect 
+                         (make-person name yob role))))
+
+(make-crew &#39;((neil 1930 commander) (buzz 1930 buddy) (mike 1930 pilot)))
+
+=&gt; #S(CREW :PERSONS
+      (#S(PERSON :NAME NEIL :AGE 93 :ROLE PILOT) 
+       #S(PERSON :NAME BUZZ :AGE 93 :ROLE WALKER)
+       #S(PERSON :NAME MIKE :AGE 93 :ROLE FLOATER)))
+</code></pre></div>
+
+<p>Another macro, that is useful for frequency counts, is <code>freq</code>. This one is a little tricky.
+Say some sylmbolx conds :</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">freq</span><span class="w"> </span><span class="p">(</span><span class="nv">x</span><span class="w"> </span><span class="nv">lst</span><span class="w"> </span><span class="k">&amp;optional</span><span class="w"> </span><span class="p">(</span><span class="nv">init</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w">      </span>
+<span class="w">  </span><span class="s">&quot;frequency counts for small group of symbols (say, less than 50)&quot;</span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="nb">cdr</span><span class="w"> </span><span class="p">(</span><span class="nb">or</span><span class="w"> </span><span class="p">(</span><span class="nb">assoc</span><span class="w"> </span><span class="o">,</span><span class="nv">x</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="w"> </span><span class="ss">:test</span><span class="w"> </span><span class="nf">#&#39;</span><span class="nb">equal</span><span class="p">)</span>
+<span class="w">            </span><span class="p">(</span><span class="nb">car</span><span class="w"> </span><span class="p">(</span><span class="nb">setf</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="o">,</span><span class="nv">x</span><span class="w"> </span><span class="o">,</span><span class="nv">init</span><span class="p">)</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="p">))))))</span>
+</code></pre></div>
+
+<h2 id="i-dont-like-what-youve-done-here">"I don't like what you've done here"</h2>
+<p>Say you don't like the code I've got here. No drama.
+We don't need
+to go all walrus about it. Just delete my code and do whatever it is you
+wanted to do.  And send me that revised code-- I'd really enjoy seeing how
+you organize your code.</p></body>
+</html>
+
