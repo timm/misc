@@ -30,7 +30,4 @@ cat<<-'EOF'
    </script>
 </head>
 <body>
-  <div class="container">
-    <div class="content">
-      <!-- Your content goes here -->
 EOF
