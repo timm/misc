@@ -7,13 +7,14 @@
 
 In some ways, it does not matter what language I code in.
 This book is about as set of language-independent concepts,
-so the choice of Python vs LISP vs LUA vs etc
+so the choice of Python vs LISP vs Rust vs Go vs Typescript vs Lua vs whatever
 is kind of an
 irrelevancy.
 
 That said, someone always ask "why do you use LISP?"  So...
 
 
+## LISP Isn't a Language
 Alan Kay once said
 "Lisp isn't a language, it's a building material". I  agree!
 LISP is built to be flexible, much more so than most  other languages.
@@ -33,6 +34,9 @@ smaller) application on top of it.
 
 Not convinced?
 Ok, then lets take a look at what happens in langauges _without_ LISP's flexibility.
+
+## Attack of the Walrus
+
 Do you
 recall the fight over 
 the walrus operator (`:=`) in Python3? 
