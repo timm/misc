@@ -30,14 +30,15 @@ cat<<-'EOF'
    </script>
 </head>
 <body>
-<img src="dots3.png" width=150 align=left
+<img src="dots3.png" width=225 align=left
   style="margin-bottom: 0px; padding-bottom: 0px;"> 
 <p style="text-align:right;">
 
 <a  href="index.html">home</a> :: 
 <a href="">src</a> ::
-<a href="">issues</a> <br>  
-    <span style="float:left;"><b>SE+AI: a programmer's guide</b></span><br>
+<a href="">issues</a> <br> 
+    <span style="float:left;color:rgb(72,14,120);"> <b>SE+AI: a programmer's guide</b></span>
+<br>
     <span style="float:left;"><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></span>
 </p>
 <br clear=all>

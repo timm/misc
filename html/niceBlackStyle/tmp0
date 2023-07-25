@@ -1,33 +1,54 @@
 
-# Why I Like LISP
+# (Why (I (Love (LISP))))
 
 !!! summary  "TL;DR"
-    LISP makes it crazy easy to write domain-specific language that let me express
+    LISP's macro system makes it crazy easy to write domain-specific language that let me express
     what I want, in the way that I want. Which is very useful (see examples, below). 
 
-To some degree, it does not matter what language I code in.
-This book is about some important higher-level ideas so the choice
-of language could be viewed as 
-irrelevant (a more implementation detail).
+In some ways, it does not matter what language I code in.
+This book is about as set of language-independent concepts,
+so the choice of Python vs LISP vs LUA vs etc
+is kind of an
+irrelevancy.
 
 That said, someone always ask "why do you use LISP?"  So...
 
-Alan Kay once famously said
+
+Alan Kay once said
 "Lisp isn't a language, it's a building material". I  agree!
 LISP is built to be flexible, much more so than most  other languages.
-Why is such flexability important? Well, consider the fight over 
-the walrus operator (`:=`) in Python3. 
-The operator 
+Why is such flexability important? 
+
+Well, it the [words of Paul Graham](https://sep.turbifycdn.com/ty/cdn/paulgraham/acl1.txt?t=1688221954&):
+
+- You can write prototypes so quickly in Lisp that you can go through
+several iterations of design and implementation before you would,
+have even finished writing out the specifications.
+- The essence of writing reusable software is to separate the general
+from the specific, and (LISP programming) inherently creates
+such a separation.  Instead of devoting all your effort to writing
+a single, monolithic application, you devote part of your effort
+to building a language, and part to writing a (proportionately
+smaller) application on top of it.
+
+Not convinced?
+Ok, then lets take a look at what happens in langauges _without_ LISP's flexibility.
+Do you
+recall the fight over 
+the walrus operator (`:=`) in Python3? 
+That operator 
 allowws assignments occur as part of the expression evaluation. 
 That way, if you need the result of that conditional, you do not have to run
-that test again. Fror example:
+that test again. For example:
 
-      # without walrus
-      x := someBigLongCalculation()
-      if x: handle(x)
+```text
+# without walrus
+x := someBigLongCalculation()
+if x: handle(x)
 
-      # with walrus
-      if x := someBigLongCalculation(): handle(x)
+# with walrus
+if x := someBigLongCalculation(): handle(x)
+```
 
 All in all it is a pretty minor addition to the language. 
 Even so, the operator was hotly debated and
@@ -45,15 +66,13 @@ If you want the walrus, it can be added with just two lines of code:
 
 ```lisp
 (defmacro aif (test this &optional that)
-  "when you want the result of a  conditional, bit you do not want to run that test again."
+   "the anaporic if lets code reference some prior conce (from the cnditional test)"
   `(let ((it ,test)) (if it ,this ,that)))
 ```
 
 
 
-This is called the _anaphoric if_ since anaphra is that part of a language that
-lets you reference something mentioned in the past.
-This code lets is trap the results of `test`  into `it`, then use it later; e.g.
+This code lets is trap the results of `test`  into `it`, then use `it` later; e.g.
 
     (aif (big-long-calculation)
       (foo it))
@@ -131,23 +150,23 @@ This allows for a simple instance creation. In the following
 
 Here we go:
 
-```lisp
+```text
 (add-make0
   (defstruct person name age salary)
   (defstruct crew  persons))
 
+(defvar *salaries*  '((salaries '((commander . 30054) (walker . 18622 ) (pilot . 17147)))))
+
 (defun make-person (name yob role)
-  (let ((this-year (sixth (multiple-value-list (get-decoded-time))))
-        ((salaries '((pilot . 30054) (walker . 18622 ) (floater . 17147))))
     (make-person0 :name name 
-                  :role (cdr (assoc role salaries))
-                  :age (- this-year yob)))
+                  :role (cdr (assoc role *salaries*))
+                  :age  (- (sixth (multiple-value-list (get-decoded-time)))) yob))
 
 (defun make-crew (crew)
   (make-crew0 :persons (loop for (name yob role) in crew collect 
                          (make-person name yob role))))
 
-(make-crew '((neil 1930 pilot) (buzz 1930 walker) (mike 1930 floater)))
+(make-crew '((neil 1930 commander) (buzz 1930 buddy) (mike 1930 pilot)))
     
 => #S(CREW :PERSONS
       (#S(PERSON :NAME NEIL :AGE 93 :ROLE PILOT) 
