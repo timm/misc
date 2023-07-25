@@ -128,10 +128,10 @@ go see the <a href="https://lispcookbook.github.io/cl-cookbook/macros.html">LISP
 <p>Consider the task
 of making nested accesses to a field inside a struct (e.g. the <code>streetNum</code> of the the <code>address</code> of
 the <code>home</code> of the <code>manager</code> of the `company. In standard LISP, that could be done wth:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
-<span class="w">   </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
-<span class="w">      </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
-<span class="w">         </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span><span class="o">*</span><span class="nx">company</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">manager</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">home</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">address</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">streetNum</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code>(slot-value 
+   (slot-value 
+      (slot-value 
+         (slot-value *company &#39;manager) &#39;home) &#39;address) &#39;streetNum)
 </code></pre></div>
 
 <p>Pretty verbose, right? So lets fix that with a little macro :</p>
@@ -143,7 +143,7 @@ the <code>home</code> of the <code>manager</code> of the `company. In standard L
 </code></pre></div>
 
 <p>Now the above  example becomes something much more palatable.</p>
-<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">o</span><span class="w"> </span><span class="o">*</span><span class="nx">company</span><span class="o">*</span><span class="w"> </span><span class="nx">manager</span><span class="w"> </span><span class="nx">home</span><span class="w"> </span><span class="nx">address</span><span class="w"> </span><span class="nx">streetNum</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code>(o *company* manager home address streetNum)
 </code></pre></div>
 
 <p>nice macro adds a constructor <code>make-struct0</code> to a list of <code>defstruct</code>s. 
