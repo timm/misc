@@ -30,4 +30,17 @@ cat<<-'EOF'
    </script>
 </head>
 <body>
+<img src="dots3.png" width=150 align=left
+  style="margin-bottom: 0px; padding-bottom: 0px;"> 
+<p style="text-align:left;">
+<b>SE+AI: a programmer's guide</b>
+    <span style="float:right;">
+<a  href="index.html">home</a> :: 
+<a href="">src</a> ::
+<a href="">issues</a>   
+    </span><br>
+<a href="license">&copy;2023</a> by <a href="">Tim Menzies</a>
+</p>
+<br clear=all>
+
 EOF
