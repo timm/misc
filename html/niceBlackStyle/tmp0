@@ -3,7 +3,8 @@
 
 # Tips and Tricks for Smarter Scipts
 
-Let's write 
+Let's write  some code. How to start?
+
 ## asdads asd 
 
 asdas
