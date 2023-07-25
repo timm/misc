@@ -54,6 +54,8 @@ Note that this change can be made to your local
 LISP without having to lobby some central committee. No drama.
 And if you don't like walruses? Fine, just don't use it.
 
+XXX make this example after moonwalking
+
 I've got several other examples of 
 how a little LISP making a useful change to a language. Consider the task
 of making nested accesses to a field inside a struct (e.g. the `streetNum` of the the `address` of
@@ -72,9 +74,46 @@ Pretty verbose, right? So lets fix that with a little macro :
     `(o (slot-value ,struct ',slot) ,@slots)  ; case one: we have to recurse
     `(slot-value ,struct ',slot)))  ; case two: no slots left, so just do an access.
 #|
-Now the above  example becomes:
+Now the above  example becomes something much more palatable.
 
     (o *company* manager home address streetNum)
+
+Another nice macro adds a constructor `make-struct0` to a list of `defstruct`s. 
+To do this, it rewrites the struct definition such that:    
+
+- `(defstruct x slot1 slot2...)` becoes
+- `(defstruct (x (:constructor make-x0)) slot1 slot2...)`
+|#
+(defmacro add-make0 (&rest defstructs) 
+  `(progn 
+     ,@(loop for (_ it . slots) in defstructs collect
+         `(defstruct (,it (:constructor ,(intern (format nil "MAKE-~a0" it)))) 
+            ,@slots))))
+#|
+This allows for a simple instance creation. In the following 
+
+- (make-crew0) and (make-person0) are the primitive constructors;
+- while (make-crew) and (make-person)  enforce certain conventions at creation time
+  (e.g., in the following, we compute a person's `age` from their year of birth (`yob`)
+  and the current year.
+
+(add-make0
+  (defstruct person name age role)
+  (defstruct crew  persons))
+
+(defun make-person (name yob role)
+  (make-person0 :name name 
+                :role role
+                :age (- (sixth (multiple-value-list (get-decoded-time))) yob)))
+
+(defun make-crew (crew)
+  (make-crew0 :persons (loop for (name yob role) in crew collect (make-person name yob role))))
+
+(make-crew '((neil 1930 pilot) (buzz 1930 walker) (mike 1930 floater)))
+# => #S(CREW :PERSONS
+#      (#S(PERSON :NAME NEIL :AGE 93 :ROLE PILOT) 
+#       #S(PERSON :NAME BUZZ :AGE 93 :ROLE WALKER)
+#       #S(PERSON :NAME MIKE :AGE 93 :ROLE FLOATER)))
 
 Another macro, that is useful for frequency counts, is `freq`. This one is a little tricky.
 Say some sylmbolx conds :
@@ -83,16 +122,4 @@ Say some sylmbolx conds :
   "frequency counts for small group of symbols (say, less than 50)"
   `(cdr (or (assoc ,x ,lst :test #'equal)
             (car (setf ,lst (cons (cons ,x ,init) ,lst))))))
-|#
-(defmacro my (&rest defstructs) 
-  `(progn 
-     ,@(loop for (_ it . slots) in defstructs collect
-         `(defstruct (,it (:constructor ,(intern (format nil "MAKE-~a0" it)))) ,@slots))))
 
-
-(my (defstruct a b c))
-
-(defun make-a (b c)
-  (make-a0 :b b :c c))
-
-(print (make-a 1 2))

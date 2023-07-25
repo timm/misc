@@ -37,12 +37,8 @@ cat<<-'EOF'
 <a  href="index.html">home</a> :: 
 <a href="">src</a> ::
 <a href="">issues</a> <br>  
-    <span style="float:right;">
-
-<b>SE+AI: a programmer's guide</b>
-<a href="license">&copy;2023</a> by <a href="">Tim Menzies</a>
-
-    </span>
+    <span style="float:left;"><b>SE+AI: a programmer's guide</b></span><br>
+    <span style="float:left;"><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></span>
 </p>
 <br clear=all>
 
