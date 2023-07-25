@@ -2,16 +2,22 @@ body {
   margin: 0;
   padding: 15px;
 margin: 0px;
-max-width: 700px;
+xmax-width: 700px;
   font-family: "Open Sans", "Segoe UI", Tahoma, sans-serif;
 }
 
+.admonition { border: 1px solid #CCC; box-shadow: 5px 5px 5px lightblue;}
+.summary {   padding-left: 10px; margin-left: 20px; margin-right: 20px;; 
+           background-color: yellow; }
+.admonition-title {xpadding: 5px; font-weight: bold }
+
+aa {  margin-bottom: 0px; padding-bottom: 0px;}
+
    
 a { color: #CC0000; font-weight: bold; text-decoration: none; }
-pre {border-left: 1px dotted #CC0000;
-     padding-left: 10px;
-     margin-left:10px;
-     margin-right:10px;
+pre {border-left: 1px dashed #CC0000;
+     padding-left: 5px;
+     margin-left:20px;
 }
 
 h1 { xcolor: rgb(72,14,120); margin-top: 0px; padding-top: 0px; border-top: 1px solid rgb(72,14,120);} 

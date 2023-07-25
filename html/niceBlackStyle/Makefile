@@ -1,5 +1,5 @@
 .SILENT:
-FMT= -x toc -x codehilite -x tables -x fenced_code -x footnotes 
+FMT= -x toc -x codehilite -x tables -x fenced_code -x footnotes -x attr_list -x admonition
 all: aa.html
 
 put:
