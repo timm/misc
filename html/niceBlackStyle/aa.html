@@ -29,29 +29,53 @@
     <div class="content">
       <!-- Your content goes here -->
 
-<p><img align=right width=300 src="https://leadingwithtrust.com/wp-content/uploads/2014/03/easy.jpg?w=300"></p>
-<h1 id="tips-and-tricks-for-smarter-simpler-scripts">Tips and Tricks for Smarter, Simpler,  Scripts</h1>
+<p><img align=right width=200 src="https://64.media.tumblr.com/a2f91e8e8ff64d654762fa0a0bd297ea/749dcbc3d2ac7566-d9/s1280x1920/76372b6b2a3f1865c5c9ff1a7f247f3d872604d3.png"></p>
+<h1 id="se-and-ai-a-programmers-guide-to-working-smarter">SE and AI: a programmer's guide to working smarter</h1>
 <p>Tim Menzies <br />
 timm@ieee.org  <br />
 Jul 17, 2023</p>
 <p><em>
-Simulating a universal, gate-based quantum computer on a classical
-computer has many uses and benefits. The top benefit is the ability
-to inspect the amplitudes of the system’s state directly. However,
-while the mathematics is very well understood, implementing a
-general-purpose simulator has largely been folk knowledge. In this
-tutorial, we show how to build an interpreter for a general-purpose
-quantum programming language called , capable of executing most
-kinds of quantum circuits found in literature. It is presented
-economically, allowing its implementation to take fewer than 150
-lines of self-contained Common Lisp code. The language
- is very simple to extend, making the interpreter ripe for testing
- different kinds of behavior, such as noise models.</em></p>
+This book is a set of 101 tips and tricks and shortcuts for software engineering and knowledge engineering.
+It is based on years of teaching this stuff at a gradaute level. 
+The 
+tips and tricks and shortcuts and organized into different layers such as</p>
+<ul>
+<li>working working with teams;</li>
+<li>doing systems-level programming;</li>
+<li>for programming (in general) and for  scripting in Python;</li>
+<li>for data mining</li>
+<li>for optimization,</li>
+<li>for explainable-AI.</li>
+</ul>
+<p>Why read it? Well,
+AI software is still software <sup id="fnref:me20a"><a class="footnote-ref" href="#fn:me20a">1</a></sup>. To write better AI, we need better software engineering
+ that us deliver more functionality, in less time, with less code.
+Also, AI software searches for solution. So to write smarter code, 
+we need better knowledge engineering that finds
+the shortcuts that let us search faster.</p>
+<p>Good things happen when we combine better AI with better SE
+(e.g. we use the AI tools to find tests for software systems).
+For example,
+here we implment a very simple, yet very effective,
+multi-objective semi-supervised rule-based explanations.
+That code cuts up large problems into tiny pieces, then looks for
+patterns in the pieces.  That process only look at the
+important differences between pieces (so you don't waste time on
+irrelevancies).  This means you can (e.g.) explore 10,000 examples
+by only looking at a few dozen of them.  And when you are done,
+there is a nice simple set of rules that explains exactly what you
+learnt.
+The code has numerous applications in AI and SE (e.g. test case generation, explanation, anomaly detection, data synethsis, etc etc see rest of book)</p>
+<p>Explaining this code lets us review the shortcuts
+that simplify AI and SE.
+The code base is short, simple, free to could be used as the basis for a self-taught course on SE and AI.
+ALso, it could be the basis of multiple graduate-level softare engineering and knowledge engineering subjects.</p>
+<p>Share and enjoy!
+</em></p>
 <hr />
 <div class="toc">
 <ul>
-<li><a href="#tips-and-tricks-for-smarter-simpler-scripts">Tips and Tricks for Smarter, Simpler,  Scripts</a><ul>
-<li><a href="#asdasda">asdasda</a></li>
+<li><a href="#se-and-ai-a-programmers-guide-to-working-smarter">SE and AI: a programmer's guide to working smarter</a><ul>
 <li><a href="#asdas-das-das">asdas das das</a></li>
 <li><a href="#asdasdsad">asdasdsad</a><ul>
 <li><a href="#asdasas">asdasas</a></li>
@@ -64,12 +88,10 @@ lines of self-contained Common Lisp code. The language
 <!-- tocstop -->
 
 <hr />
-<h2 id="asdasda">asdasda</h2>
-<p>$$a^2$$
-$a^2$</p>
+<p>$a^2$</p>
 <p><i class="fa-solid fa-coffee"></i> </p>
 <p>asdasd asdd asdd asd asd asd asdas
-adasasddasads <sup id="fnref:aaa"><a class="footnote-ref" href="#fn:aaa">1</a></sup>
+adasasddasads
 asdasdasa</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">showRule</span><span class="p">(</span><span class="n">rule</span><span class="p">):</span>
    <span class="k">def</span> <span class="nf">spread</span><span class="p">(</span><span class="n">ins</span><span class="p">):</span>
@@ -102,8 +124,8 @@ asdasdasdasdas asd asd asd as das da adasda</p>
 <div class="footnote">
 <hr />
 <ol>
-<li id="fn:aaa">
-<p>asd asd as dasasdd&#160;<a class="footnote-backref" href="#fnref:aaa" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+<li id="fn:me20a">
+<p>Tim Menzies. 2020. The Five Laws of SE for AI. IEEE Softw. 37, 1 (Jan.-Feb. 2020), 81–85. https://doi.org/10.1109/MS.2019.2954841&#160;<a class="footnote-backref" href="#fnref:me20a" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div>    </div>
