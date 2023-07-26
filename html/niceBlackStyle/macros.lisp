@@ -6,7 +6,7 @@
     what I want, in the way that I want. Which is very useful (see examples, below). 
 
 (For other views on this topic, see
-    [WhyWeHateLis](https://wiki.c2.com/?WhyWeHateLisp).)
+    [WhyWeHateLisp](https://wiki.c2.com/?WhyWeHateLisp)
     and [WhyWeLoveLisp](https://wiki.c2.com/?WhyWeLoveLisp).)
 
 In some ways, it does not matter what language I code in.
