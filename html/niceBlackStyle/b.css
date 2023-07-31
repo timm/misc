@@ -11,9 +11,9 @@ h1    { margin-top: 0px; padding-top: 0px;
         border-top: 1px solid rgb(72,14,120);
       } 
 
-.admonition       { border: 1px solid #EEE; box-shadow: 3px 3px 3px black; }
+.admonition       { border: 1px solid #EEE; box-shadow: 2px 2px 3px black; }
 .admonition-title { font-weight: bold; }
-.summary          { padding-left: 10px; padding-right: 10px;
+.summary          { padding-left: 20px; padding-right: 10px;
                     margin-left:  20px; margin-right:  20px; 
-                    background-color: #DDD; 
+                    background-color: #FFBF00; 
                   }

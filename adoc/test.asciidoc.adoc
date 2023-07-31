@@ -6,6 +6,10 @@ Big ol' comment
 sittin' right 'tween this here title 'n header metadata
 ////
 Dan Allen <thedoc@asciidoctor.org>
+:stylesheet: asciidoc.css
+:toc: left
+:toclevels: 5
+:icons: font
 :description: A demo of Asciidoctor. This document +
               exercises numerous features of AsciiDoc +
               to test Asciidoctor compliance.
@@ -14,7 +18,6 @@ ifdef::asciidoctor[]
 :source-highlighter: coderay
 endif::asciidoctor[]
 :idprefix:
-:stylesheet: ./asciidoc.css
 :imagesdir: ./
 //:backend: docbook45
 //:backend: html5

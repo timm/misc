@@ -4,6 +4,7 @@
 <title>(Why (I (Love (LISP))))</title>
 <title>without walrus</title>
 <title>with walrus</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family='Roboto Mono'">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="b.css">
@@ -25,51 +26,39 @@
    </script>
 </head>
 <body>
-<img src="dots3.png" width=200 align=left
+<font    style="color:rgb(72,14,120);">
+<img src="dots3.png" width=250 align=left
   style="margin-bottom: 0px; padding-bottom: 0px;"> 
-<p style="text-align:right;">
-
+   <p style="text-align:right; padding-top: 0px; margin-top: 0px;">
 <a  href="index.html">home</a> :: 
 <a href="">src</a> ::
-<a href="">issues</a><br> 
-    <span style="float:left;color:rgb(72,14,120);"> <b>SE+AI: a programmer's guide</b></span>
-<br>
-    <span style="float:left;"><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></span>
-</p>
+<a href="">issues</a> </p>
+<h3>SE+AI: just the important bits</h3>
+<a href="license">&copy;2023</a> by <a href="">Tim Menzies</a>
+</font>
 <br clear=all>
-
 <h1 id="why-i-love-lisp">(Why (I (Love (LISP))))</h1>
 <div class="admonition summary">
 <p class="admonition-title">TL;DR</p>
-<p>LISP's macro system makes it crazy easy to write domain-specific language that let me express
-what I want, in the way that I want. Which is very useful (see examples, below). </p>
+<p>LISP is built to be adjustable, much more so than most  other languages. For example, here are macros
+to simplify instance management, speed up the processing of conditionals, and  make counting easier.</p>
 </div>
-<p>(For other views on this topic, see
-    <a href="https://wiki.c2.com/?WhyWeHateLisp">WhyWeHateLisp</a>
-    and <a href="https://wiki.c2.com/?WhyWeLoveLisp">WhyWeLoveLisp</a>.)</p>
-<p>In some ways, it does not matter what language I code in.
-This book is about as set of language-independent concepts,
-so the choice of Python vs LISP vs Rust vs Go vs Typescript vs Lua vs whatever
-is kind of an
-irrelevancy.</p>
-<p>That said, someone always ask "why do you use LISP?"  So...</p>
-<h2 id="lisp-isnt-a-language">LISP Isn't a Language</h2>
-<p>Alan Kay once said
-"Lisp isn't a language, it's a building material". I  agree!
-LISP is built to be flexible, much more so than most  other languages.
-Why is such flexability important? </p>
-<p>Well, it the <a href="https://sep.turbifycdn.com/ty/cdn/paulgraham/acl1.txt?t=1688221954&amp;">words of Paul Graham</a>:</p>
-<ul>
-<li>You can write prototypes so quickly in Lisp that you can go through
-several iterations of design and implementation before you would,
-have even finished writing out the specifications.</li>
-<li>The essence of writing reusable software is to separate the general
+<p>One thing I really love  about LISP is its flexability. 
+LISP is built to be adjustable, much more so than most  other languages.
+As Alan Kay said
+"Lisp isn't a language, it's a building material". 
+Every part of LISP's read-eval-print loop can be customized. LISP's
+macro system makes it trivial to extend the language. 
+Any abstraction
+you use inside the code can be made explicit and useful.</p>
+<p>Why is that important?
+Well, in the <a href="https://sep.turbifycdn.com/ty/cdn/paulgraham/acl1.txt?t=1688221954&amp;">words of Paul Graham</a>:
+<em> ... the essence of writing reusable software is to separate the general
 from the specific, and (LISP programming) inherently creates
 such a separation.  Instead of devoting all your effort to writing
 a single, monolithic application, you devote part of your effort
 to building a language, and part to writing a (proportionately
-smaller) application on top of it.</li>
-</ul>
+smaller) application on top of it.</em></p>
 <p>Not convinced?
 Ok, then lets take a look at what happens in langauges <em>without</em> LISP's flexibility.</p>
 <h2 id="attack-of-the-walrus">Attack of the Walrus</h2>
@@ -77,9 +66,9 @@ Ok, then lets take a look at what happens in langauges <em>without</em> LISP's f
 recall the fight over 
 the walrus operator (<code>:=</code>) in Python3? 
 That operator 
-allowws assignments occur as part of the expression evaluation. 
-That way, if you need the result of that conditional, you do not have to run
-that test again. For example:</p>
+allows assignments as part of expression evaluation. 
+That way, if you need the result of a conditional, you do not have to run
+that test again. For example, in Python:</p>
 <div class="codehilite"><pre><span></span><code># without walrus
 x := someBigLongCalculation()
 if x: handle(x)
@@ -88,19 +77,18 @@ if x: handle(x)
 if x := someBigLongCalculation(): handle(x)
 </code></pre></div>
 
-<p>All in all it is a pretty minor addition to the language. 
-Even so, the operator was hotly debated and
+<p>All in all it is a pretty minor addition to Python.
+Even so, the walrus operator was hotly debated and
 there were some very nasty social media posts
 about the way the issue was decided.
-The doscussion got so toxic that the leader of the Python community,
-Guido van Rossum, quit the Python project.
+The discussion got so toxic that the leader of the Python community,
+Guido van Rossum, <a href="https://hub.packtpub.com/why-guido-van-rossum-quit/">quit the Python project</a>.
 "Now that (walrus) is done, I don't ever want to have to fight so hard for a 
 (chage)  and find that so many people despise my decisions.", he said.</p>
 <p>To a LISPer, that whole debate is just insane.
 If you want the walrus, it can be added with just two lines of code:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">aif</span><span class="w"> </span><span class="p">(</span><span class="nv">test</span><span class="w"> </span><span class="nv">this</span><span class="w"> </span><span class="k">&amp;optional</span><span class="w"> </span><span class="nv">that</span><span class="p">)</span>
-<span class="w">   </span><span class="s">&quot;the anaporic if lets code reference some prior conce (from the cnditional test)&quot;</span>
-<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">test</span><span class="p">))</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">this</span><span class="w"> </span><span class="o">,</span><span class="nv">that</span><span class="p">)))</span>
+<span class="w">   </span><span class="o">`</span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">test</span><span class="p">))</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">this</span><span class="w"> </span><span class="o">,</span><span class="nv">that</span><span class="p">)))</span>
 </code></pre></div>
 
 <p>This code lets is trap the results of <code>test</code>  into <code>it</code>, then use <code>it</code> later; e.g.</p>
@@ -110,21 +98,24 @@ If you want the walrus, it can be added with just two lines of code:</p>
 
 <p>Note that this change can be made to your local
 LISP without having to lobby some central committee. No drama.
-And if you don't like my <code>aif</code> macro? Fine, just don't use it.</p>
-<p>XXX make this example after moonwalking</p>
+And if you don't like tmy <code>aif</code> macro? Fine, just don't use it.</p>
 <p>I've got several other examples of 
 how a little LISP making a useful change to a language.<br />
 They all uses <code>defmacro</code> and if you need a little reminder on how that works:</p>
 <ul>
 <li>Most things is LISP are lists, even the code.</li>
 <li>Macros are functions (called at load time) that return lists which the LISP interprets as code.</li>
-<li>Macros are "coded" so much as they are "drawn". XXX</li>
+<li>So macros are code that rewrites code.</li>
+<li>In that code, the <code>\</code>backick<code>defines a toggle enviornment where symbols are not evaluated,
+    unless proceeded by a</code>,comma<code>. ALso, the idiom</code>,@list` means create the list and lay it out flat.</li>
+<li>Macros are "coded" so much as they are "drawn". For example, the above <code>aif</code> definition,
+  the last line shows the code that is desired.</li>
 </ul>
 <p>If you need the full details, and lots of good tutorial examples,
 go see the <a href="https://lispcookbook.github.io/cl-cookbook/macros.html">LISP cookbook on macros</a>.</p>
-<h2 id="asd-a-dsas">asd a dsas</h2>
-<p>Consider the task
-of making nested accesses to a field inside a struct (e.g. the <code>streetNum</code> of the the <code>address</code> of
+<h2 id="nested-slot-accessors">Nested Slot Accessors</h2>
+<p>Consider<br />
+nested accesses to a field inside a struct;  e.g. the <code>streetNum</code> of the the <code>address</code> of
 the <code>home</code> of the <code>manager</code> of the `company. In standard LISP, that could be done wth:</p>
 <div class="codehilite"><pre><span></span><code>(slot-value 
    (slot-value 
@@ -134,30 +125,44 @@ the <code>home</code> of the <code>manager</code> of the `company. In standard L
 
 <p>Pretty verbose, right? So lets fix that with a little macro :</p>
 <div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nv">struct</span><span class="w"> </span><span class="nv">slot</span><span class="w"> </span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span><span class="w"> </span>
-<span class="w">  </span><span class="s">&quot;Nested slot accesros&quot;</span>
-<span class="w">  </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">slots</span>
-<span class="w">    </span><span class="o">`</span><span class="p">(</span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">)</span><span class="w">  </span><span class="c1">; case one: we have to recurse</span>
-<span class="w">    </span><span class="o">`</span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)))</span><span class="w">  </span><span class="c1">; case two: no slots left, so just do an access.</span>
+<span class="w">   </span><span class="s">&quot;Nested slot accesros&quot;</span>
+<span class="w">   </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">slots</span>
+<span class="w">     </span><span class="o">`</span><span class="p">(</span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">)</span><span class="w">  </span><span class="c1">; case one: we have to recurse</span>
+<span class="w">     </span><span class="o">`</span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)))</span><span class="w">  </span><span class="c1">; case two: no slots left, so just do an access.</span>
 </code></pre></div>
 
-<p>Now the above  example becomes something much more palatable.</p>
+<p>This is a recursive macro (which is a little tricky) that works front to back over a list of slots. 
+The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.
+With this macro, the above  example becomes something much more palatable.</p>
 <div class="codehilite"><pre><span></span><code>(o *company* manager home address streetNum)
 </code></pre></div>
 
-<p>nice macro adds a constructor <code>make-struct0</code> to a list of <code>defstruct</code>s. 
-To do this, it rewrites the struct definition such that:    </p>
-<ul>
-<li><code>(defstruct x slot1 slot2...)</code> </li>
-<li>becomes <code>(defstruct (x (:constructor make-x0)) slot1 slot2...)</code></li>
-</ul>
-<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">add-make0</span><span class="w"> </span><span class="p">(</span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">defstructs</span><span class="p">)</span><span class="w"> </span>
-<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">progn</span><span class="w"> </span>
-<span class="w">     </span><span class="o">,@</span><span class="p">(</span><span class="nb">loop</span><span class="w"> </span><span class="nv">for</span><span class="w"> </span><span class="p">(</span><span class="nv">_</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="nv">defstructs</span><span class="w"> </span><span class="nv">collect</span>
-<span class="w">         </span><span class="o">`</span><span class="p">(</span><span class="nb">defstruct</span><span class="w"> </span><span class="p">(</span><span class="o">,</span><span class="nv">it</span><span class="w"> </span><span class="p">(</span><span class="ss">:constructor</span><span class="w"> </span><span class="o">,</span><span class="p">(</span><span class="nb">intern</span><span class="w"> </span><span class="p">(</span><span class="nb">format</span><span class="w"> </span><span class="no">nil</span><span class="w"> </span><span class="s">&quot;MAKE-~a0&quot;</span><span class="w"> </span><span class="nv">it</span><span class="p">))))</span><span class="w"> </span>
-<span class="w">            </span><span class="o">,@</span><span class="nv">slots</span><span class="p">))))</span>
+<h2 id="saner-objects">Saner Objects</h2>
+<p>I love LISP but, like many people,  I have... issues... with the CLOS object system. 
+It can be so verbose to (e.g.) define and new class, or specialize the initialization of  a new instance.
+Worse, the functions that (e.g.) accesss the slot names of an instance vary from implementation to implementatin.</p>
+<p>Hence I wrote <code>defthing</code> that adds a constructor to <code>defstruct</code> as well as  method that lists
+all the slots of that struct. </p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">defthing</span><span class="w"> </span><span class="p">(</span><span class="nv">it</span><span class="w"> </span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">has</span><span class="p">)</span><span class="w"> </span>
+<span class="w">  </span><span class="s">&quot;adds a contructor function symbol; adds a method to return slots in this struct&quot;</span>
+<span class="w">  </span><span class="p">(</span><span class="k">labels</span><span class="w"> </span><span class="p">((</span><span class="nv">make</span><span class="w"> </span><span class="p">(</span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">intern</span><span class="w"> </span><span class="p">(</span><span class="nb">format</span><span class="w"> </span><span class="no">nil</span><span class="w"> </span><span class="s">&quot;MAKE-~a0&quot;</span><span class="w"> </span><span class="nv">x</span><span class="p">)))</span><span class="w"> </span><span class="c1">;create name for make primirive</span>
+<span class="w">           </span><span class="p">(</span><span class="nv">name</span><span class="w"> </span><span class="p">(</span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">consp</span><span class="w"> </span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">car</span><span class="w"> </span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="nv">x</span><span class="p">)))</span><span class="w"> </span><span class="c1">;slots with defaults are lists, else they are 1 word</span>
+<span class="w">    </span><span class="o">`</span><span class="p">(</span><span class="k">progn</span><span class="w"> </span><span class="p">(</span><span class="nb">defstruct</span><span class="w"> </span><span class="p">(</span><span class="o">,</span><span class="nv">it</span><span class="w"> </span><span class="p">(</span><span class="ss">:constructor</span><span class="w"> </span><span class="o">,</span><span class="p">(</span><span class="nv">make</span><span class="w"> </span><span class="nv">it</span><span class="p">)))</span><span class="w"> </span><span class="o">,@</span><span class="nv">has</span><span class="p">)</span>
+<span class="w">            </span><span class="p">(</span><span class="nb">defmethod</span><span class="w"> </span><span class="nv">slots</span><span class="w"> </span><span class="p">((</span><span class="nv">_</span><span class="w"> </span><span class="o">,</span><span class="nv">it</span><span class="p">))</span><span class="w"> </span><span class="ss">&#39;,</span><span class="p">(</span><span class="nb">mapcar</span><span class="w"> </span><span class="nf">#&#39;</span><span class="nv">name</span><span class="w"> </span><span class="nv">has</span><span class="p">)))))</span>
+
+
+
+<span class="o">```</span><span class="nv">lisp</span>
 </code></pre></div>
 
-<p>This allows for a simple instance creation. In the following </p>
+<p>Then, just cause it was so simple, I wrote <code>defthings</code> which is a wrapper
+around a set of <code>destructs</code> that turns them all into <code>defthings</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">defthings</span><span class="w"> </span><span class="p">(</span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">lst</span><span class="p">)</span><span class="w"> </span>
+<span class="w">  </span><span class="s">&quot;swaps first symbol from &#39;defstruct&#39; to &#39;defthing&#39;&quot;</span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">progn</span><span class="w"> </span><span class="o">,@</span><span class="p">(</span><span class="nb">loop</span><span class="w"> </span><span class="nv">for</span><span class="w"> </span><span class="p">(</span><span class="nv">_</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="nv">lst</span><span class="w"> </span><span class="nv">collect</span><span class="w"> </span><span class="o">`</span><span class="p">(</span><span class="nv">defthing</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">))))</span>
+</code></pre></div>
+
+<p>So know I can This allows for a simple instance creation. In the following </p>
 <ul>
 <li><code>(make-crew0)</code> and <code>(make-person0)</code> are the primitive constructors;</li>
 <li>while <code>(make-crew)</code> and <code>(make-person)</code>  enforce certain conventions at creation time
@@ -165,7 +170,7 @@ To do this, it rewrites the struct definition such that:    </p>
   and the current year).</li>
 </ul>
 <p>Here we go:</p>
-<div class="codehilite"><pre><span></span><code>(add-make0
+<div class="codehilite"><pre><span></span><code>(klasses
   (defstruct person name age salary)
   (defstruct crew  persons))
 
@@ -190,10 +195,10 @@ To do this, it rewrites the struct definition such that:    </p>
 
 <p>Another macro, that is useful for frequency counts, is <code>freq</code>. This one is a little tricky.
 Say some sylmbolx conds :</p>
-<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">freq</span><span class="w"> </span><span class="p">(</span><span class="nv">x</span><span class="w"> </span><span class="nv">lst</span><span class="w"> </span><span class="k">&amp;optional</span><span class="w"> </span><span class="p">(</span><span class="nv">init</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w">      </span>
-<span class="w">  </span><span class="s">&quot;frequency counts for small group of symbols (say, less than 50)&quot;</span>
-<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="nb">cdr</span><span class="w"> </span><span class="p">(</span><span class="nb">or</span><span class="w"> </span><span class="p">(</span><span class="nb">assoc</span><span class="w"> </span><span class="o">,</span><span class="nv">x</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="w"> </span><span class="ss">:test</span><span class="w"> </span><span class="nf">#&#39;</span><span class="nb">equal</span><span class="p">)</span>
-<span class="w">            </span><span class="p">(</span><span class="nb">car</span><span class="w"> </span><span class="p">(</span><span class="nb">setf</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="o">,</span><span class="nv">x</span><span class="w"> </span><span class="o">,</span><span class="nv">init</span><span class="p">)</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="p">))))))</span>
+<div class="codehilite"><pre><span></span><code><span class="c1">; (defmacro freq (x lst &amp;optional (init 0))      </span>
+<span class="c1">;   &quot;frequency counts for small group of symbols (say, less than 50)&quot;</span>
+<span class="c1">;   `(cdr (or (assoc ,x ,lst :test #&#39;equal)</span>
+<span class="c1">;             (car (setf ,lst (cons (cons ,x ,init) ,lst))))))</span>
 </code></pre></div>
 
 <h2 id="i-dont-like-what-youve-done-here">"I don't like what you've done here"</h2>
@@ -201,6 +206,8 @@ Say some sylmbolx conds :</p>
 We don't need
 to go all walrus about it. Just delete my code and do whatever it is you
 wanted to do.  And send me that revised code-- I'd really enjoy seeing how
-you organize your code.</p></body>
+you organize your code.</p>
+<div class="codehilite"><pre><span></span><code>
+</code></pre></div></body>
 </html>
 

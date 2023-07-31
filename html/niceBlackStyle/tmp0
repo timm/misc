@@ -2,39 +2,26 @@
 # (Why (I (Love (LISP))))
 
 !!! summary  "TL;DR"
-    LISP's macro system makes it crazy easy to write domain-specific language that let me express
-    what I want, in the way that I want. Which is very useful (see examples, below). 
+    LISP is built to be adjustable, much more so than most  other languages. For example, here are macros
+    to simplify instance management, speed up the processing of conditionals, and  make counting easier.
 
-(For other views on this topic, see
-    [WhyWeHateLisp](https://wiki.c2.com/?WhyWeHateLisp)
-    and [WhyWeLoveLisp](https://wiki.c2.com/?WhyWeLoveLisp).)
+One thing I really love  about LISP is its flexability. 
+LISP is built to be adjustable, much more so than most  other languages.
+As Alan Kay said
+"Lisp isn't a language, it's a building material". 
+Every part of LISP's read-eval-print loop can be customized. LISP's
+macro system makes it trivial to extend the language. 
+Any abstraction
+you use inside the code can be made explicit and useful.
 
-In some ways, it does not matter what language I code in.
-This book is about as set of language-independent concepts,
-so the choice of Python vs LISP vs Rust vs Go vs Typescript vs Lua vs whatever
-is kind of an
-irrelevancy.
-
-That said, someone always ask "why do you use LISP?"  So...
-
-
-## LISP Isn't a Language
-Alan Kay once said
-"Lisp isn't a language, it's a building material". I  agree!
-LISP is built to be flexible, much more so than most  other languages.
-Why is such flexability important? 
-
-Well, it the [words of Paul Graham](https://sep.turbifycdn.com/ty/cdn/paulgraham/acl1.txt?t=1688221954&):
-
-- You can write prototypes so quickly in Lisp that you can go through
-several iterations of design and implementation before you would,
-have even finished writing out the specifications.
-- The essence of writing reusable software is to separate the general
+Why is that important?
+Well, in the [words of Paul Graham](https://sep.turbifycdn.com/ty/cdn/paulgraham/acl1.txt?t=1688221954&):
+<em> ... the essence of writing reusable software is to separate the general
 from the specific, and (LISP programming) inherently creates
 such a separation.  Instead of devoting all your effort to writing
 a single, monolithic application, you devote part of your effort
 to building a language, and part to writing a (proportionately
-smaller) application on top of it.
+smaller) application on top of it.</em>
 
 Not convinced?
 Ok, then lets take a look at what happens in langauges _without_ LISP's flexibility.
@@ -45,9 +32,9 @@ Do you
 recall the fight over 
 the walrus operator (`:=`) in Python3? 
 That operator 
-allowws assignments occur as part of the expression evaluation. 
-That way, if you need the result of that conditional, you do not have to run
-that test again. For example:
+allows assignments as part of expression evaluation. 
+That way, if you need the result of a conditional, you do not have to run
+that test again. For example, in Python:
 
 ```text
 # without walrus
@@ -58,12 +45,12 @@ if x: handle(x)
 if x := someBigLongCalculation(): handle(x)
 ```
 
-All in all it is a pretty minor addition to the language. 
-Even so, the operator was hotly debated and
+All in all it is a pretty minor addition to Python.
+Even so, the walrus operator was hotly debated and
 there were some very nasty social media posts
 about the way the issue was decided.
-The doscussion got so toxic that the leader of the Python community,
-Guido van Rossum, quit the Python project.
+The discussion got so toxic that the leader of the Python community,
+Guido van Rossum, [quit the Python project](https://hub.packtpub.com/why-guido-van-rossum-quit/).
 "Now that (walrus) is done, I don't ever want to have to fight so hard for a 
 (chage)  and find that so many people despise my decisions.", he said.
 
@@ -74,8 +61,7 @@ If you want the walrus, it can be added with just two lines of code:
 
 ```lisp
 (defmacro aif (test this &optional that)
-   "the anaporic if lets code reference some prior conce (from the cnditional test)"
-  `(let ((it ,test)) (if it ,this ,that)))
+   `(let ((it ,test)) (if it ,this ,that)))
 ```
 
 
@@ -87,9 +73,7 @@ This code lets is trap the results of `test`  into `it`, then use `it` later; e.
 
 Note that this change can be made to your local
 LISP without having to lobby some central committee. No drama.
-And if you don't like my `aif` macro? Fine, just don't use it.
-
-XXX make this example after moonwalking
+And if you don't like tmy `aif` macro? Fine, just don't use it.
 
 I've got several other examples of 
 how a little LISP making a useful change to a language.  
@@ -97,15 +81,19 @@ They all uses `defmacro` and if you need a little reminder on how that works:
 
 - Most things is LISP are lists, even the code.
 - Macros are functions (called at load time) that return lists which the LISP interprets as code.
-- Macros are "coded" so much as they are "drawn". XXX
+  - So macros are code that rewrites code.
+  - In that code, the `\`backick` defines a toggle enviornment where symbols are not evaluated,
+    unless proceeded by a `,comma`. ALso, the idiom `,@list` means create the list and lay it out flat.
+- Macros are "coded" so much as they are "drawn". For example, the above `aif` definition,
+  the last line shows the code that is desired.
 
 If you need the full details, and lots of good tutorial examples,
 go see the [LISP cookbook on macros](https://lispcookbook.github.io/cl-cookbook/macros.html).
 
-## asd a dsas 
+## Nested Slot Accessors
 
-Consider the task
-of making nested accesses to a field inside a struct (e.g. the `streetNum` of the the `address` of
+Consider  
+nested accesses to a field inside a struct;  e.g. the `streetNum` of the the `address` of
 the `home` of the `manager` of the `company. In standard LISP, that could be done wth:
 
     (slot-value 
@@ -119,37 +107,60 @@ Pretty verbose, right? So lets fix that with a little macro :
 
 ```lisp
 (defmacro o (struct slot &rest slots) 
-  "Nested slot accesros"
-  (if slots
-    `(o (slot-value ,struct ',slot) ,@slots)  ; case one: we have to recurse
-    `(slot-value ,struct ',slot)))  ; case two: no slots left, so just do an access.
+   "Nested slot accesros"
+   (if slots
+     `(o (slot-value ,struct ',slot) ,@slots)  ; case one: we have to recurse
+     `(slot-value ,struct ',slot)))  ; case two: no slots left, so just do an access.
 ```
 
 
 
-Now the above  example becomes something much more palatable.
+This is a recursive macro (which is a little tricky) that works front to back over a list of slots. 
+The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.
+With this macro, the above  example becomes something much more palatable.
 
     (o *company* manager home address streetNum)
 
- nice macro adds a constructor `make-struct0` to a list of `defstruct`s. 
-To do this, it rewrites the struct definition such that:    
+## Saner Objects
 
-- `(defstruct x slot1 slot2...)` 
-- becomes `(defstruct (x (:constructor make-x0)) slot1 slot2...)`
+I love LISP but, like many people,  I have... issues... with the CLOS object system. 
+It can be so verbose to (e.g.) define and new class, or specialize the initialization of  a new instance.
+Worse, the functions that (e.g.) accesss the slot names of an instance vary from implementation to implementatin.
+
+Hence I wrote `defthing` that adds a constructor to `defstruct` as well as  method that lists
+all the slots of that struct. 
 
 
 
 ```lisp
-(defmacro add-make0 (&rest defstructs) 
-  `(progn 
-     ,@(loop for (_ it . slots) in defstructs collect
-         `(defstruct (,it (:constructor ,(intern (format nil "MAKE-~a0" it)))) 
-            ,@slots))))
+(defmacro defthing (it &rest has) 
+  "adds a contructor function symbol; adds a method to return slots in this struct"
+  (labels ((make (x) (intern (format nil "MAKE-~a0" x))) ;create name for make primirive
+           (name (x) (if (consp x) (car x) x))) ;slots with defaults are lists, else they are 1 word
+    `(progn (defstruct (,it (:constructor ,(make it))) ,@has)
+            (defmethod slots ((_ ,it)) ',(mapcar #'name has)))))
+
+
+
+```lisp
 ```
 
 
 
-This allows for a simple instance creation. In the following 
+Then, just cause it was so simple, I wrote `defthings` which is a wrapper
+around a set of `destructs` that turns them all into `defthings`:
+
+
+
+```lisp
+(defmacro defthings (&rest lst) 
+  "swaps first symbol from 'defstruct' to 'defthing'"
+  `(progn ,@(loop for (_ . slots) in lst collect `(defthing ,@slots))))
+```
+
+
+
+So know I can This allows for a simple instance creation. In the following 
 
 - `(make-crew0)` and `(make-person0)` are the primitive constructors;
 - while `(make-crew)` and `(make-person)`  enforce certain conventions at creation time
@@ -159,7 +170,7 @@ This allows for a simple instance creation. In the following
 Here we go:
 
 ```text
-(add-make0
+(klasses
   (defstruct person name age salary)
   (defstruct crew  persons))
 
@@ -188,10 +199,10 @@ Say some sylmbolx conds :
 
 
 ```lisp
-(defmacro freq (x lst &optional (init 0))      
-  "frequency counts for small group of symbols (say, less than 50)"
-  `(cdr (or (assoc ,x ,lst :test #'equal)
-            (car (setf ,lst (cons (cons ,x ,init) ,lst))))))
+; (defmacro freq (x lst &optional (init 0))      
+;   "frequency counts for small group of symbols (say, less than 50)"
+;   `(cdr (or (assoc ,x ,lst :test #'equal)
+;             (car (setf ,lst (cons (cons ,x ,init) ,lst))))))
 ```
 
 
@@ -202,4 +213,10 @@ We don't need
 to go all walrus about it. Just delete my code and do whatever it is you
 wanted to do.  And send me that revised code-- I'd really enjoy seeing how
 you organize your code.
+
+
+
+```lisp
+```
+
 
