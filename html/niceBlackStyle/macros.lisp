@@ -14,7 +14,7 @@ other languages. For example, here are macros for:
 |easy nested slow access; 
 
 |`defthing, defthings`  
-|fixing drawbacks with `defstruct` and OO in LISP; and  
+|fixes drawbacks with `defstruct` and OO in LISP  
 
 |`freq` 
 |simplifying  symbol counting (for key sizes of 50 or less)

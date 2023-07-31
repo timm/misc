@@ -15,6 +15,6 @@ toc:
 # 	mv tmp $@
 
 %.html : %.lisp
-	gawk -f lisp2md.awk $^  | asciidoctor -I .  -  > $@
+	gawk -f lisp2md.awk $^  | asciidoctor --theme github r -I .  -  > $@
 	#(sh head.sh $^;  asciidoc tmo-m markdown $(FMT) tmp0; cat foot.html) > $@
 	#rm tmp0
