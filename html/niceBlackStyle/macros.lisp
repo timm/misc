@@ -1,21 +1,29 @@
 #|
 ## (Why (I (Love (LISP))))
 
-**In brief:** I love  LISP since it can  be easily customized. For example, LISP has many quirks and
-these can be easily fixed with macros like the following:
+**In brief:** Compared to other languages,
+LISP offers fewer barriers and encourages
+more experimentation.
+Don't like something in the language? Then change it! E.g. see the macros
+							    in this file.
 
-[%xautowidth,cols=">1,1",frame=ends,stripes=even]
+
+[%autowidth,cols=">1,1,1",frame=ends,stripes=even]
 |===
 |`aif` 
-|(anaphoric if) for accessing a conditional without having to recompute it;
+|:
+|(anaphoric if) for accessing a conditional without having to recompute it
 
 |`o` 
-|easy nested slow access; 
+|:
+|easy  access to nested slots
 
 |`defthing, defthings`  
+|:
 |fixes drawbacks with `defstruct` and OO in LISP  
 
 |`freq` 
+|:
 |simplifying  symbol counting (for key sizes of 50 or less)
 |===
 
@@ -98,12 +106,12 @@ I've got several other examples of
 how a little LISP making a useful change to a language.  
 They all uses `defmacro` and if you need a little reminder on how that works:
 
-- Most things is LISP are lists, even the code.
-- Macros are functions (called at load time) that return lists which the LISP interprets as code.
-  - So macros are code that rewrites code.
-  - In that code, the `&#96;bactick` defines a toggle enviornment where symbols are not evaluated,
-    unless proceeded by a `,comma`. ALso, the idiom `,@list` means create the list and lay it out flat.
-- Macros are "coded" so much as they are "drawn". For example, the above `aif` definition,
+* Most things is LISP are lists, even the code.
+* Macros are functions (called at load time) that return lists which the LISP interprets as code.
+** So macros are code that rewrites code.
+** In that code, the `&#96;backtick` defines a toggle enviornment where symbols are not evaluated,
+   unless proceeded by a `,comma`. Also, the idiom `,@list` means create the list and lay it out flat.
+* Macros are  not so much "coded" so much as they are "drawn". For example, the above `aif` definition,
   the last line shows the code that is desired.
 
 If you need the full details, and lots of good tutorial examples,
@@ -151,10 +159,10 @@ all the slots of that struct.
     `(progn (defstruct (,it (:constructor ,(make it))) ,@has)
             (defmethod slots ((_ ,it)) ',(mapcar #'name has)))))
 #|
-Then, just cause it was so simple, I wrote `defthings` which is a wrapper
-around a set of `destructs` that turns them all into `defthings`:
+Then, just cause it was so simple, I wrote `asThings` which turns
+a list of `destructs` into  `defthings`:
 |#
-(defmacro defthings (&rest defstructs) 
+(defmacro asThings (&rest defstructs) 
   `(progn ,@(loop for (defstruct . slots) in defstructs collect `(defthing ,@slots))))
 #|
 This allows for simpler instance management.

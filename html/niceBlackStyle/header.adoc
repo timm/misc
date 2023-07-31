@@ -1,15 +1,20 @@
+
+:stylesheet: adoc-iconic.css
 :icons: font
 :source-highlighter: rouge
 :rouge-style: thankful_eyes
-:stylesheet: adoc-iconic.css
+
+:xsource-highlighter: pygments
+:xpygments-style: monokai
+
 ++++
-<img src="dots3.png" width=200 align=left style="border-bottom: 1px solid black;">
+<img src="dots3.png" width=250 align=left style="border-bottom: 1px solid black;">
 <p style="text-align:right; margin-top:0px; padding-top:0px;">
 <a href="index.html">home</a> :: 
 <a href="">src</a> ::
 <a href="">issues</a>
 </p>
-<h3><b>SE+AI: just the important bits</b></h3>
+<b style="font-size: 25px; color: rgb(17,13,111);" >SE+AI: just the important bits</b><br>
 <p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p><br clear=all>
 ++++
 

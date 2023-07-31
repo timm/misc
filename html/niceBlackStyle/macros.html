@@ -306,8 +306,8 @@ kbd kbd:last-child { margin-right: 0; }
 #header:before, #header:after, #content:before, #content:after, #footnotes:before, #footnotes:after, #footer:before, #footer:after { content: " "; display: table; }
 #header:after, #content:after, #footnotes:after, #footer:after { clear: both; }
 
-#header { margin-bottom: 2.5em; }
-#header > h1 { color: white; font-weight: bold; border-bottom: 1px solid #dddddd; margin-bottom: -28px; padding-bottom: 32px; }
+#header { xmargin-bottom: 2.5em; }
+#header > h1 { color: white; font-weight: bold; border-bottom: 1px solid #dddddd; margin-bottom: -8px; padding-bottom: 32px; }
 #header span { color: #191919; }
 #header #revnumber { text-transform: capitalize; }
 #header br { display: none; }
@@ -315,6 +315,7 @@ kbd kbd:last-child { margin-right: 0; }
 #header br + span:before { content: "\2013 \0020"; }
 #header br + span.author { padding-left: 0; }
 #header br + span.author:before { content: ", "; }
+#header {margin-top:10px; padding-top:1px;}
 
 #toc { border-bottom: 0 solid #dddddd; padding-bottom: 1.25em; }
 #toc > ul { margin-left: 0.25em; }
@@ -633,11 +634,11 @@ span.icon > [class^="icon-"], span.icon > [class*=" icon-"] { cursor: default; }
 
 .imageblock, .literalblock, .listingblock, .sidebarblock { margin-left: -0.9375em; margin-right: -0.9375em; }
 
-body { background: linear-gradient(270deg, #333333 0%, #333333 100%) no-repeat 0 0/100% 28px; 
-       background: -webkit-linear-gradient(270deg, #333333 0, #333333 100%) no-repeat 0 0/100% 28px; }
+body { padding-top: 10px; background: linear-gradient(270deg, #333333 0%, #333333 100%) no-repeat 0 0/100% 8px; 
+       background: -webkit-linear-gradient(270deg, #333333 0, #333333 100%) no-repeat 0 0/100% 8px; }
 
-#header { margin-bottom: 4em; }
-#header > h1 { border-bottom: none; margin-bottom: -28px; margin-top: 2em; }
+#header { xmargin-bottom: 4em; }
+#header > h1 { border-bottom: none; xmargin-bottom: -28px; margin-top: 2em; }
 #header span { color: white; }
 #header #toc { padding-top: 2em; margin-bottom: -4em; }
 
@@ -673,6 +674,7 @@ table.tableblock.grid-all > thead > tr { border-bottom: 2px solid #d8d8d8; }
 table.tableblock.grid-all > tbody > tr { border-bottom: 1px solid #d8d8d8; }
 
 #footer { border-top: 1px dashed #d8d8d8; }
+
 
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -859,41 +861,49 @@ pre.rouge .nv, pre.rouge .vc, pre.rouge .vg, pre.rouge .vi, pre.rouge .vm {
 <div id="header">
 </div>
 <div id="content">
-<img src="dots3.png" width=200 align=left style="border-bottom: 1px solid black;">
+<img src="dots3.png" width=250 align=left style="border-bottom: 1px solid black;">
 <p style="text-align:right; margin-top:0px; padding-top:0px;">
 <a href="index.html">home</a> ::
 <a href="">src</a> ::
 <a href="">issues</a>
 </p>
-<h3><b>SE+AI: just the important bits</b></h3>
+<b style="font-size: 25px; color: rgb(17,13,111);" >SE+AI: just the important bits</b><br>
 <p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p><br clear=all>
 <div class="sect1">
 <h2 id="_why_i_love_lisp">(Why (I (Love (LISP))))</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>In brief:</strong> I love  LISP since it can  be easily customized. For example, LISP has many quirks and
-these can be easily fixed with macros like the following:</p>
+<p><strong>In brief:</strong> Compared to other languages,
+LISP offers fewer barriers and encourages
+more experimentation.
+Don&#8217;t like something in the language? Then change it! E.g. see the macros
+							    in this file.</p>
 </div>
-<table class="tableblock frame-ends grid-all stripes-even stretch">
+<table class="tableblock frame-ends grid-all stripes-even fit-content">
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col>
+<col>
+<col>
 </colgroup>
 <tbody>
 <tr>
 <td class="tableblock halign-right valign-top"><p class="tableblock"><code>aif</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">(anaphoric if) for accessing a conditional without having to recompute it;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">:</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(anaphoric if) for accessing a conditional without having to recompute it</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-right valign-top"><p class="tableblock"><code>o</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">easy nested slow access;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">:</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">easy  access to nested slots</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-right valign-top"><p class="tableblock"><code>defthing, defthings</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">:</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">fixes drawbacks with <code>defstruct</code> and OO in LISP</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-right valign-top"><p class="tableblock"><code>freq</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">:</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">simplifying  symbol counting (for key sizes of 50 or less)</p></td>
 </tr>
 </tbody>
@@ -1013,13 +1023,17 @@ They all uses <code>defmacro</code> and if you need a little reminder on how tha
 </li>
 <li>
 <p>Macros are functions (called at load time) that return lists which the LISP interprets as code.</p>
-</li>
+<div class="ulist">
+<ul>
 <li>
 <p>So macros are code that rewrites code.</p>
 </li>
 <li>
 <p>In that code, the <code>&#96;bactick</code> defines a toggle enviornment where symbols are not evaluated,
 unless proceeded by a <code>,comma</code>. ALso, the idiom <code>,@list</code> means create the list and lay it out flat.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>Macros are "coded" so much as they are "drawn". For example, the above <code>aif</code> definition,
@@ -1175,7 +1189,7 @@ you organize your code.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-07-31 09:03:07 -0400
+Last updated 2023-07-31 17:30:34 -0400
 </div>
 </div>
 </body>

@@ -297,8 +297,8 @@ kbd kbd:last-child { margin-right: 0; }
 #header:before, #header:after, #content:before, #content:after, #footnotes:before, #footnotes:after, #footer:before, #footer:after { content: " "; display: table; }
 #header:after, #content:after, #footnotes:after, #footer:after { clear: both; }
 
-#header { margin-bottom: 2.5em; }
-#header > h1 { color: white; font-weight: bold; border-bottom: 1px solid #dddddd; margin-bottom: -28px; padding-bottom: 32px; }
+#header { xmargin-bottom: 2.5em; }
+#header > h1 { color: white; font-weight: bold; border-bottom: 1px solid #dddddd; margin-bottom: -8px; padding-bottom: 32px; }
 #header span { color: #191919; }
 #header #revnumber { text-transform: capitalize; }
 #header br { display: none; }
@@ -306,6 +306,7 @@ kbd kbd:last-child { margin-right: 0; }
 #header br + span:before { content: "\2013 \0020"; }
 #header br + span.author { padding-left: 0; }
 #header br + span.author:before { content: ", "; }
+#header {margin-top:10px; padding-top:1px;}
 
 #toc { border-bottom: 0 solid #dddddd; padding-bottom: 1.25em; }
 #toc > ul { margin-left: 0.25em; }
@@ -624,11 +625,11 @@ span.icon > [class^="icon-"], span.icon > [class*=" icon-"] { cursor: default; }
 
 .imageblock, .literalblock, .listingblock, .sidebarblock { margin-left: -0.9375em; margin-right: -0.9375em; }
 
-body { background: linear-gradient(270deg, #333333 0%, #333333 100%) no-repeat 0 0/100% 28px; 
-       background: -webkit-linear-gradient(270deg, #333333 0, #333333 100%) no-repeat 0 0/100% 28px; }
+body { padding-top: 10px; background: linear-gradient(270deg, #333333 0%, #333333 100%) no-repeat 0 0/100% 8px; 
+       background: -webkit-linear-gradient(270deg, #333333 0, #333333 100%) no-repeat 0 0/100% 8px; }
 
-#header { margin-bottom: 4em; }
-#header > h1 { border-bottom: none; margin-bottom: -28px; margin-top: 2em; }
+#header { xmargin-bottom: 4em; }
+#header > h1 { border-bottom: none; xmargin-bottom: -28px; margin-top: 2em; }
 #header span { color: white; }
 #header #toc { padding-top: 2em; margin-bottom: -4em; }
 
@@ -664,3 +665,4 @@ table.tableblock.grid-all > thead > tr { border-bottom: 2px solid #d8d8d8; }
 table.tableblock.grid-all > tbody > tr { border-bottom: 1px solid #d8d8d8; }
 
 #footer { border-top: 1px dashed #d8d8d8; }
+
