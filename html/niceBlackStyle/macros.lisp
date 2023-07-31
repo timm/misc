@@ -1,12 +1,12 @@
 #|
 ## (Why (I (Love (LISP))))
 
-**In brief:** Compared to other languages,
-LISP offers fewer barriers and encourages
-more experimentation.
-Don't like something in the language? Then change it! E.g. see the macros
+**In brief:** I find LISP liberating.
+It
+offers fewer barriers and encourages
+more experimentation than other languages.
+And if you don't like something in the language? Then change it! E.g. see the macros
 							    in this file.
-
 
 [%autowidth,cols=">1,1,1",frame=ends,stripes=even]
 |===
