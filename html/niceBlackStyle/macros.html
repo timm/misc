@@ -1029,14 +1029,14 @@ They all uses <code>defmacro</code> and if you need a little reminder on how tha
 <p>So macros are code that rewrites code.</p>
 </li>
 <li>
-<p>In that code, the <code>&#96;bactick</code> defines a toggle enviornment where symbols are not evaluated,
-unless proceeded by a <code>,comma</code>. ALso, the idiom <code>,@list</code> means create the list and lay it out flat.</p>
+<p>In that code, the <code>&#96;backtick</code> defines a toggle enviornment where symbols are not evaluated,
+unless proceeded by a <code>,comma</code>. Also, the idiom <code>,@list</code> means create the list and lay it out flat.</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>Macros are "coded" so much as they are "drawn". For example, the above <code>aif</code> definition,
+<p>Macros are  not so much "coded" so much as they are "drawn". For example, the above <code>aif</code> definition,
 the last line shows the code that is desired.</p>
 </li>
 </ul>
@@ -1101,49 +1101,53 @@ all the slots of that struct.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">defthing</span> <span class="p">(</span><span class="nv">it</span> <span class="k">&amp;rest</span> <span class="nv">has</span><span class="p">)</span>
-  <span class="p">(</span><span class="k">labels</span> <span class="p">((</span><span class="nv">make</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">intern</span> <span class="p">(</span><span class="nb">format</span> <span class="no">nil</span> <span class="s">"MAKE-~a0"</span> <span class="nv">x</span><span class="p">)))</span>
+  <span class="p">(</span><span class="k">labels</span> <span class="p">((</span><span class="nv">make</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">intern</span> <span class="p">(</span><span class="nb">format</span> <span class="no">nil</span> <span class="s">"%MAKE-~a"</span> <span class="nv">x</span><span class="p">)))</span>
            <span class="p">(</span><span class="nv">name</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">consp</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">x</span><span class="p">)</span> <span class="nv">x</span><span class="p">)))</span>
     <span class="o">`</span><span class="p">(</span><span class="k">progn</span> <span class="p">(</span><span class="nb">defstruct</span> <span class="p">(</span><span class="o">,</span><span class="nv">it</span> <span class="p">(</span><span class="ss">:constructor</span> <span class="o">,</span><span class="p">(</span><span class="nv">make</span> <span class="nv">it</span><span class="p">)))</span> <span class="o">,@</span><span class="nv">has</span><span class="p">)</span>
             <span class="p">(</span><span class="nb">defmethod</span> <span class="nv">slots</span> <span class="p">((</span><span class="nv">_</span> <span class="o">,</span><span class="nv">it</span><span class="p">))</span> <span class="ss">',</span><span class="p">(</span><span class="nb">mapcar</span> <span class="nf">#'</span><span class="nv">name</span> <span class="nv">has</span><span class="p">)))))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Then, just cause it was so simple, I wrote <code>defthings</code> which is a wrapper
-around a set of <code>destructs</code> that turns them all into <code>defthings</code>:</p>
+<p>Then, just cause it was so simple, I wrote <code>things</code> which turns
+a list of <code>destructs</code> into  <code>defthings</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">defthings</span> <span class="p">(</span><span class="k">&amp;rest</span> <span class="nv">defstructs</span><span class="p">)</span>
+<pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">things</span> <span class="p">(</span><span class="k">&amp;rest</span> <span class="nv">defstructs</span><span class="p">)</span>
   <span class="o">`</span><span class="p">(</span><span class="k">progn</span> <span class="o">,@</span><span class="p">(</span><span class="nb">loop</span> <span class="nv">for</span> <span class="p">(</span><span class="nb">defstruct</span> <span class="o">.</span> <span class="nv">slots</span><span class="p">)</span> <span class="nv">in</span> <span class="nv">defstructs</span> <span class="nv">collect</span> <span class="o">`</span><span class="p">(</span><span class="nv">defthing</span> <span class="o">,@</span><span class="nv">slots</span><span class="p">))))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This allows for simpler instance management.</p>
+<p>This allows for simpler instance management. In the following note that (e.g.) <code>%make-person</code> is
+the low-level constructor used by <code>make-person</code>
+(that looks up our crew&#8217;s salary and age).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="text">(defthings
+<pre class="rouge highlight"><code data-lang="text">; test-defthings.lisp
+(load "macros")
+;-----------------------------------------------------------------------------------------------
+(things
   (defstruct person name age salary)
-  (defstruct crew  persons))
-
-(defun make-person (name yob role)
-  "to make a person, computer age from this year and dob; also map their role into salaries"
-  (labels ((salary    (of) (cdr (assoc of '((commander . 30054) (walker . 18622 ) (pilot . 17147)))))
-           (this-year ()  (sixth (multiple-value-list (get-decoded-time)))))
-    (make-person0 :name name
-                  :role (salary role)
-                  :age  (- (this-year) yob)))))
+  (defstruct crew  (size 0) persons))
 
 (defun make-crew (crew)
-  (make-crew0 :persons (loop for (name yob role) in crew collect
-                         (make-person name yob role))))
+  (%make-crew :persons (loop for (name yob role) in crew collect (make-person name yob role))))
 
-(make-crew '((neil 1930 commander) (buzz 1930 buddy) (mike 1930 pilot)))
+(defun make-person (name yob role)
+    (%make-person :name name :salary (role-&gt;salary role) :age  (- (this-year) yob)))
+;-----------------------------------------------------------------------------------------------
+(defun role-&gt;salary (role)
+  (cdr (assoc role '((commander . 30054) (walker . 18622 ) (pilot . 17147)))))
+           
+(defun this-year ()
+  (sixth (multiple-value-list (get-decoded-time))))
+;-----------------------------------------------------------------------------------------------
+(print  (make-crew '((neil 1930 commander) (buzz 1930 walker) (mike 1930 pilot))))
 
-=&gt; #S(CREW :PERSONS
-      (#S(PERSON :NAME NEIL :AGE 93 :ROLE PILOT)
-       #S(PERSON :NAME BUZZ :AGE 93 :ROLE WALKER)
-       #S(PERSON :NAME MIKE :AGE 93 :ROLE FLOATER)))</code></pre>
+=&gt; #S(CREW :PERSONS (#S(PERSON :NAME NEIL :AGE 93 :SALARY 30054)
+		     #S(PERSON :NAME BUZZ :AGE 93 :SALARY 18622)
+		     #S(PERSON :NAME MIKE :AGE 93 :SALARY 17147)))</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1184,12 +1188,17 @@ you organize your code.</p>
 </li>
 </ul>
 </div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="lisp"></code></pre>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-07-31 17:30:34 -0400
+Last updated 2023-07-31 18:03:10 -0400
 </div>
 </div>
 </body>

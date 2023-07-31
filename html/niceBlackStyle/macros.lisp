@@ -154,41 +154,28 @@ Hence I wrote `defthing` that adds a constructor to `defstruct` as well as  meth
 all the slots of that struct. 
 |#
 (defmacro defthing (it &rest has) 
-  (labels ((make (x) (intern (format nil "MAKE-~a0" x))) 
+  (labels ((make (x) (intern (format nil "%MAKE-~a" x))) 
            (name (x) (if (consp x) (car x) x))) 
     `(progn (defstruct (,it (:constructor ,(make it))) ,@has)
             (defmethod slots ((_ ,it)) ',(mapcar #'name has)))))
 #|
-Then, just cause it was so simple, I wrote `asThings` which turns
+Then, just cause it was so simple, I wrote `things` which turns
 a list of `destructs` into  `defthings`:
 |#
-(defmacro asThings (&rest defstructs) 
+(defmacro things (&rest defstructs) 
   `(progn ,@(loop for (defstruct . slots) in defstructs collect `(defthing ,@slots))))
 #|
-This allows for simpler instance management.
+This allows for simpler instance management. In the following note that (e.g.) `%make-person` is
+the low-level constructor used by `make-person`
+(that looks up our crew's salary and age).
+
+
 ```text
-(defthings
-  (defstruct person name age salary)
-  (defstruct crew  persons))
-
-(defun make-person (name yob role)
-  "to make a person, computer age from this year and dob; also map their role into salaries"
-  (labels ((salary    (of) (cdr (assoc of '((commander . 30054) (walker . 18622 ) (pilot . 17147)))))
-           (this-year ()  (sixth (multiple-value-list (get-decoded-time)))))
-    (make-person0 :name name 
-                  :role (salary role)
-                  :age  (- (this-year) yob)))))
-
-(defun make-crew (crew)
-  (make-crew0 :persons (loop for (name yob role) in crew collect 
-                         (make-person name yob role))))
-
-(make-crew '((neil 1930 commander) (buzz 1930 buddy) (mike 1930 pilot)))
+include::test-defthing.lisp[]
     
-=> #S(CREW :PERSONS
-      (#S(PERSON :NAME NEIL :AGE 93 :ROLE PILOT) 
-       #S(PERSON :NAME BUZZ :AGE 93 :ROLE WALKER)
-       #S(PERSON :NAME MIKE :AGE 93 :ROLE FLOATER)))
+=> #S(CREW :PERSONS (#S(PERSON :NAME NEIL :AGE 93 :SALARY 30054) 
+		     #S(PERSON :NAME BUZZ :AGE 93 :SALARY 18622) 
+		     #S(PERSON :NAME MIKE :AGE 93 :SALARY 17147)))
 ```
 
 Another macro, that is useful for frequency counts, is `freq`. This one is a little tricky.
@@ -211,4 +198,4 @@ you organize your code.
 
 * [[[DIJ72]]] Edsger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).
 * [[[GRA95]]] Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall
-
+|#
