@@ -1,11 +1,21 @@
 #|
-# (Why (I (Love (LISP))))
+## (Why (I (Love (LISP))))
 
-!!! summary  "TL;DR"
-    LISP is built to be adjustable, much more so than most  other languages. For example, here are macros
-    to simplify instance management, speed up the processing of conditionals, and  make counting easier.
+NOTE:  LISP is built to be adjustable, much more so than most
+other languages. For example, here are macros for
+`aif` (anaphoric if) for accessing a conditional without having to recompute it;
+`o` for very easy nested slow access; 
+`defthing, defthings`  for fixing drawbacks with `defstruct` and OO in LISP; and  
+`freq` for simplifying  symbol counting (for key sizes of 50 or less)
 
-One thing I really love  about LISP is its flexability. 
+[quote,Edsger Dijkstra, at his 1972 Turing Award lecture.]
+LISP has jokingly been described as "the most intelligent way to misuse a computer". 
+I think that description a great compliment because it transmits the full flavour of liberation: 
+it has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts.
+
+LISP is the source.
+LISP is a language that is over 60 years old yet still offers services
+missing in more recent, supposedly better languages.
 LISP is built to be adjustable, much more so than most  other languages.
 As Alan Kay said
 "Lisp isn't a language, it's a building material". 
@@ -13,20 +23,20 @@ Every part of LISP's read-eval-print loop can be customized. LISP's
 macro system makes it trivial to extend the language. 
 Any abstraction
 you need inside the code can be made explicit and useful.
+Why is that important? Well:
 
-Why is that important?
-Well, in the [words of Paul Graham](https://sep.turbifycdn.com/ty/cdn/paulgraham/acl1.txt?t=1688221954&):
-<em> ... the essence of writing reusable software is to separate the general
+[quote, Paul Graham, from his book "ANSI Common LISP".]
+The essence of writing reusable software is to separate the general
 from the specific, and (LISP programming) inherently creates
 such a separation.  Instead of devoting all your effort to writing
 a single, monolithic application, you devote part of your effort
 to building a language, and part to writing a (proportionately
-smaller) application on top of it.</em>
+smaller) application on top of it.
 
 Not convinced?
-Ok, then lets take a look at what happens in langauges _without_ LISP's flexibility.
+Ok, then lets take a look at what happens in languages _without_ LISP's flexibility.
 
-## Attack of the Walrus
+### Attack of the Walrus
 
 Do you
 recall the fight over 
@@ -69,7 +79,7 @@ Note that this change can be made to your local
 LISP without having to lobby some central committee. No drama.
 And if you don't like tmy `aif` macro? Fine, just don't use it.
 
-## Macro Basics
+### Macro Basics
 
 I've got several other examples of 
 how a little LISP making a useful change to a language.  
@@ -86,7 +96,10 @@ They all uses `defmacro` and if you need a little reminder on how that works:
 If you need the full details, and lots of good tutorial examples,
 go see the [LISP cookbook on macros](https://lispcookbook.github.io/cl-cookbook/macros.html).
 
-## Nested Slot Accessors
+And, just to repeat my main point, if you don't think the following are useful, then feel
+free _not to use them_.
+
+### Nested Slot Accessors
 
 Consider  
 nested accesses to a field inside a struct;  e.g. the `streetNum` of the the `address` of
@@ -111,7 +124,7 @@ With this macro, the above  example becomes something much more palatable.
 
     (o *company* manager home address streetNum)
 
-## Saner Objects
+### Saner, Simpler,  Objects
 
 I love LISP but, like many people,  I have... issues... with the CLOS object system. 
 It can be so verbose to (e.g.) define and new class, or specialize the initialization of  a new instance.
@@ -168,10 +181,16 @@ Say some sylmbolx conds :
 ;   `(cdr (or (assoc ,x ,lst :test #'equal)
 ;             (car (setf ,lst (cons (cons ,x ,init) ,lst))))))
 #|
-## "I don't like what you've done here"
+### "I don't like what you've done here"
 Say you don't like the code I've got here. No drama.
 We don't need
 to go all walrus about it. Just delete my code and do whatever it is you
 wanted to do.  And send me that revised code-- I'd really enjoy seeing how
 you organize your code.
-|#
+
+[bibliography]
+== References
+
+* [[[DIJ72]]] Edsger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).
+* [[[GRA95]]] Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall
+

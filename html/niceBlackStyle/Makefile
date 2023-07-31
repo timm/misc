@@ -15,6 +15,6 @@ toc:
 # 	mv tmp $@
 
 %.html : %.lisp
-	gawk -f lisp2md.awk $^ > tmp0
-	(sh head.sh $^;  python3 -m markdown $(FMT) tmp0; cat foot.html) > $@
+	gawk -f lisp2md.awk $^  | asciidoctor -I .  -  > $@
+	#(sh head.sh $^;  asciidoc tmo-m markdown $(FMT) tmp0; cat foot.html) > $@
 	#rm tmp0
