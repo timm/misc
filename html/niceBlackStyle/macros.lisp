@@ -113,7 +113,6 @@ the `home` of the `manager` of the `company. In standard LISP, that could be don
 Pretty verbose, right? So lets fix that with a little macro :
 |#
 (defmacro o (struct slot &rest slots) 
-   "Nested slot accesros"
    (if slots
      `(o (slot-value ,struct ',slot) ,@slots)  ; case one: we have to recurse
      `(slot-value ,struct ',slot)))  ; case two: no slots left, so just do an access.
@@ -134,18 +133,16 @@ Hence I wrote `defthing` that adds a constructor to `defstruct` as well as  meth
 all the slots of that struct. 
 |#
 (defmacro defthing (it &rest has) 
-  "adds a contructor function symbol; adds a method to return slots in this struct"
-  (labels ((make (x) (intern (format nil "MAKE-~a0" x))) ;create name for make primirive
-           (name (x) (if (consp x) (car x) x))) ;slots with defaults are lists, else they are 1 word
+  (labels ((make (x) (intern (format nil "MAKE-~a0" x))) 
+           (name (x) (if (consp x) (car x) x))) 
     `(progn (defstruct (,it (:constructor ,(make it))) ,@has)
             (defmethod slots ((_ ,it)) ',(mapcar #'name has)))))
 #|
 Then, just cause it was so simple, I wrote `defthings` which is a wrapper
 around a set of `destructs` that turns them all into `defthings`:
 |#
-(defmacro defthings (&rest lst) 
-  "swaps first symbol from 'defstruct' to 'defthing'"
-  `(progn ,@(loop for (_ . slots) in lst collect `(defthing ,@slots))))
+(defmacro defthings (&rest defstructs) 
+  `(progn ,@(loop for (defstruct . slots) in defstructs collect `(defthing ,@slots))))
 #|
 This allows for simpler instance management.
 ```text

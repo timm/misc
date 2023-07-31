@@ -815,7 +815,6 @@ the <code>home</code> of the <code>manager</code> of the `company. In standard L
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">o</span> <span class="p">(</span><span class="nv">struct</span> <span class="nv">slot</span> <span class="k">&amp;rest</span> <span class="nv">slots</span><span class="p">)</span>
-   <span class="s">"Nested slot accesros"</span>
    <span class="p">(</span><span class="k">if</span> <span class="nv">slots</span>
      <span class="o">`</span><span class="p">(</span><span class="nv">o</span> <span class="p">(</span><span class="nb">slot-value</span> <span class="o">,</span><span class="nv">struct</span> <span class="ss">',slot</span><span class="p">)</span> <span class="o">,@</span><span class="nv">slots</span><span class="p">)</span>  <span class="c1">; case one: we have to recurse</span>
      <span class="o">`</span><span class="p">(</span><span class="nb">slot-value</span> <span class="o">,</span><span class="nv">struct</span> <span class="ss">',slot</span><span class="p">)))</span>  <span class="c1">; case two: no slots left, so just do an access.</span></code></pre>
@@ -846,9 +845,8 @@ all the slots of that struct.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">defthing</span> <span class="p">(</span><span class="nv">it</span> <span class="k">&amp;rest</span> <span class="nv">has</span><span class="p">)</span>
-  <span class="s">"adds a contructor function symbol; adds a method to return slots in this struct"</span>
-  <span class="p">(</span><span class="k">labels</span> <span class="p">((</span><span class="nv">make</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">intern</span> <span class="p">(</span><span class="nb">format</span> <span class="no">nil</span> <span class="s">"MAKE-~a0"</span> <span class="nv">x</span><span class="p">)))</span> <span class="c1">;create name for make primirive</span>
-           <span class="p">(</span><span class="nv">name</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">consp</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">x</span><span class="p">)</span> <span class="nv">x</span><span class="p">)))</span> <span class="c1">;slots with defaults are lists, else they are 1 word</span>
+  <span class="p">(</span><span class="k">labels</span> <span class="p">((</span><span class="nv">make</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">intern</span> <span class="p">(</span><span class="nb">format</span> <span class="no">nil</span> <span class="s">"MAKE-~a0"</span> <span class="nv">x</span><span class="p">)))</span>
+           <span class="p">(</span><span class="nv">name</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">consp</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">x</span><span class="p">)</span> <span class="nv">x</span><span class="p">)))</span>
     <span class="o">`</span><span class="p">(</span><span class="k">progn</span> <span class="p">(</span><span class="nb">defstruct</span> <span class="p">(</span><span class="o">,</span><span class="nv">it</span> <span class="p">(</span><span class="ss">:constructor</span> <span class="o">,</span><span class="p">(</span><span class="nv">make</span> <span class="nv">it</span><span class="p">)))</span> <span class="o">,@</span><span class="nv">has</span><span class="p">)</span>
             <span class="p">(</span><span class="nb">defmethod</span> <span class="nv">slots</span> <span class="p">((</span><span class="nv">_</span> <span class="o">,</span><span class="nv">it</span><span class="p">))</span> <span class="ss">',</span><span class="p">(</span><span class="nb">mapcar</span> <span class="nf">#'</span><span class="nv">name</span> <span class="nv">has</span><span class="p">)))))</span></code></pre>
 </div>
@@ -859,9 +857,8 @@ around a set of <code>destructs</code> that turns them all into <code>defthings<
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">defthings</span> <span class="p">(</span><span class="k">&amp;rest</span> <span class="nv">lst</span><span class="p">)</span>
-  <span class="s">"swaps first symbol from 'defstruct' to 'defthing'"</span>
-  <span class="o">`</span><span class="p">(</span><span class="k">progn</span> <span class="o">,@</span><span class="p">(</span><span class="nb">loop</span> <span class="nv">for</span> <span class="p">(</span><span class="nv">_</span> <span class="o">.</span> <span class="nv">slots</span><span class="p">)</span> <span class="nv">in</span> <span class="nv">lst</span> <span class="nv">collect</span> <span class="o">`</span><span class="p">(</span><span class="nv">defthing</span> <span class="o">,@</span><span class="nv">slots</span><span class="p">))))</span></code></pre>
+<pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">defthings</span> <span class="p">(</span><span class="k">&amp;rest</span> <span class="nv">defstructs</span><span class="p">)</span>
+  <span class="o">`</span><span class="p">(</span><span class="k">progn</span> <span class="o">,@</span><span class="p">(</span><span class="nb">loop</span> <span class="nv">for</span> <span class="p">(</span><span class="nb">defstruct</span> <span class="o">.</span> <span class="nv">slots</span><span class="p">)</span> <span class="nv">in</span> <span class="nv">defstructs</span> <span class="nv">collect</span> <span class="o">`</span><span class="p">(</span><span class="nv">defthing</span> <span class="o">,@</span><span class="nv">slots</span><span class="p">))))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -936,7 +933,7 @@ you organize your code.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-07-31 03:45:53 -0400
+Last updated 2023-07-31 03:57:27 -0400
 </div>
 </div>
 </body>

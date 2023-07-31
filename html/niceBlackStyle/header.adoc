@@ -1,0 +1,15 @@
+:toc: left
+:icons: font
+:source-highlighter: rouge
+:rouge-style: thankful_eyes
+++++
+<img src="dots3.png" width=200 align=left style="border-bottom: 1px solid black;">
+<p style="text-align:right;">
+<a href="index.html">home</a> :: 
+<a href="">src</a> ::
+<a href="">issues</a>
+</p>
+<h3><b>SE+AI: just the important bits</b></h3>
+<p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p>
+++++
+
