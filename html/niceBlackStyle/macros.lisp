@@ -1,12 +1,16 @@
 #|
 ## (Why (I (Love (LISP))))
 
-NOTE:  LISP is built to be adjustable, much more so than most
+### TL;DR
+LISP is built to be adjustable, much more so than most
 other languages. For example, here are macros for
-`aif` (anaphoric if) for accessing a conditional without having to recompute it;
-`o` for very easy nested slow access; 
-`defthing, defthings`  for fixing drawbacks with `defstruct` and OO in LISP; and  
-`freq` for simplifying  symbol counting (for key sizes of 50 or less)
+
+- `aif` (anaphoric if) for accessing a conditional without having to recompute it;
+- `o` for very easy nested slow access; 
+- `defthing, defthings`  for fixing drawbacks with `defstruct` and OO in LISP; and  
+- `freq` for simplifying  symbol counting (for key sizes of 50 or less)
+
+### About LISP
 
 [quote,Edsger Dijkstra, at his 1972 Turing Award lecture.]
 LISP has jokingly been described as "the most intelligent way to misuse a computer". 
