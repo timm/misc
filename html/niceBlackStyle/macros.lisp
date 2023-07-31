@@ -1,11 +1,10 @@
 #|
 ## (Why (I (Love (LISP))))
 
-### TL;DR
-LISP is built to be adjustable, much more so than most
-other languages. For example, here are macros for:
+**In brief:** I love  LISP since it can  be easily customized. For example, LISP has many quirks and
+these can be easily fixed with macros like the following:
 
-[%autowidth,cols="1,1",stripes=odd]
+[%xautowidth,cols=">1,1",frame=ends,stripes=even]
 |===
 |`aif` 
 |(anaphoric if) for accessing a conditional without having to recompute it;
