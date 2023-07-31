@@ -131,51 +131,59 @@ the `home` of the `manager` of the `company. In standard LISP, that could be don
           (slot-value 
              (slot-value *company 'manager) 'home) 'address) 'streetNum)
 
-Pretty verbose, right? So lets fix that with a little macro :
+Pretty verbose, right? So lets fix that with a little macro.
+This is a recursive macro (which is a little tricky) that works front to back over a list of slots. 
+The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.
 |#
 (defmacro o (struct slot &rest slots) 
    (if slots
      `(o (slot-value ,struct ',slot) ,@slots)  ; case one: we have to recurse
      `(slot-value ,struct ',slot)))  ; case two: no slots left, so just do an access.
 #|
-This is a recursive macro (which is a little tricky) that works front to back over a list of slots. 
-The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.
 With this macro, the above  example becomes something much more palatable.
 
     (o *company* manager home address streetNum)
 
+One common idiom is to slip in a print statement to view the contents of a struct.
+The following `oo` macro handles that (and not that it returns the struct so you can slip it in, get the print, and still
+				 carry on processing the struct).
+|#
+(defmacro oo (struct slot &rest slots)
+  `(progn (print (o ,struct ,slot ,@slots))
+	  ,struct))
+#|
+
 ### Saner, Simpler,  Objects
 
-I love LISP but, like many people,  I have... issues... with the CLOS object system. 
+Like many people,  I have... issues... with the CLOS object system. 
 It can be so verbose to (e.g.) define and new class, or specialize the initialization of  a new instance.
 Worse, the functions that (e.g.) accesss the slot names of an instance vary from implementation to implementatin.
 
-Hence I wrote `defthing` that adds a constructor to `defstruct` as well as  method that lists
-all the slots of that struct. 
+Hence I wrote `defthing` that adds a constructor to `defstruct` as well as  method `slots-of` that lists
+all the slots of a thing.
 |#
 (defmacro defthing (it &rest has) 
   (labels ((make (x) (intern (format nil "%MAKE-~a" x))) 
            (name (x) (if (consp x) (car x) x))) 
     `(progn (defstruct (,it (:constructor ,(make it))) ,@has)
-            (defmethod slots ((_ ,it)) ',(mapcar #'name has)))))
+            (defmethod slots-of ((_ ,it)) ',(mapcar #'name has)))))
 #|
-Then, just cause it was so simple, I wrote `things` which turns
+Then, just cause it was so easy to do, I wrote `things` which turns
 a list of `destructs` into  `defthings`:
 |#
 (defmacro things (&rest defstructs) 
   `(progn ,@(loop for (defstruct . slots) in defstructs collect `(defthing ,@slots))))
 #|
-This allows for simpler instance management. In the following note that (e.g.) `%make-person` is
-the low-level constructor used by `make-person`
-(that looks up our crew's salary and age).
+This allows for simpler instance management. In the following, a set of structs are converted
+to things (using `(things defstructs)`). 
+Then we see (for example) the  `make-person` constructor 
+ looking up our crew's salary and age before calling the constructor primitive constructor `%make-person`. 
 
 
 ```text
 include::test-defthing.lisp[]
     
-=> #S(CREW :PERSONS (#S(PERSON :NAME NEIL :AGE 93 :SALARY 30054) 
-		     #S(PERSON :NAME BUZZ :AGE 93 :SALARY 18622) 
-		     #S(PERSON :NAME MIKE :AGE 93 :SALARY 17147)))
+=> NEIL
 ```
 
 Another macro, that is useful for frequency counts, is `freq`. This one is a little tricky.

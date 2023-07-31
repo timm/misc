@@ -1066,7 +1066,9 @@ the <code>home</code> of the <code>manager</code> of the `company. In standard L
 </div>
 </div>
 <div class="paragraph">
-<p>Pretty verbose, right? So lets fix that with a little macro :</p>
+<p>Pretty verbose, right? So lets fix that with a little macro.
+This is a recursive macro (which is a little tricky) that works front to back over a list of slots.
+The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1077,13 +1079,23 @@ the <code>home</code> of the <code>manager</code> of the `company. In standard L
 </div>
 </div>
 <div class="paragraph">
-<p>This is a recursive macro (which is a little tricky) that works front to back over a list of slots.
-The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.
-With this macro, the above  example becomes something much more palatable.</p>
+<p>With this macro, the above  example becomes something much more palatable.</p>
 </div>
 <div class="literalblock">
 <div class="content">
 <pre>(o *company* manager home address streetNum)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>One common idiom is to slip in a print statement to view the contents of a struct.
+The <code>oo</code> macro handles that (and not that it returns the struct so you can slip it in, get the print, and still
+				 carry on processing the struct).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">oo</span> <span class="p">(</span><span class="nv">struct</span> <span class="nv">slot</span> <span class="k">&amp;rest</span> <span class="nv">slots</span><span class="p">)</span>
+  <span class="o">`</span><span class="p">(</span><span class="k">progn</span> <span class="p">(</span><span class="nb">print</span> <span class="p">(</span><span class="nv">o</span> <span class="o">,</span><span class="nv">struct</span> <span class="o">,</span><span class="nv">slot</span> <span class="o">,@</span><span class="nv">slots</span><span class="p">))</span>
+	  <span class="o">,</span><span class="nv">struct</span><span class="p">))</span></code></pre>
 </div>
 </div>
 </div>
@@ -1095,8 +1107,8 @@ It can be so verbose to (e.g.) define and new class, or specialize the initializ
 Worse, the functions that (e.g.) accesss the slot names of an instance vary from implementation to implementatin.</p>
 </div>
 <div class="paragraph">
-<p>Hence I wrote <code>defthing</code> that adds a constructor to <code>defstruct</code> as well as  method that lists
-all the slots of that struct.</p>
+<p>Hence I wrote <code>defthing</code> that adds a constructor to <code>defstruct</code> as well as  method <code>slots-of</code> that lists
+all the slots of a thing.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1104,11 +1116,11 @@ all the slots of that struct.</p>
   <span class="p">(</span><span class="k">labels</span> <span class="p">((</span><span class="nv">make</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">intern</span> <span class="p">(</span><span class="nb">format</span> <span class="no">nil</span> <span class="s">"%MAKE-~a"</span> <span class="nv">x</span><span class="p">)))</span>
            <span class="p">(</span><span class="nv">name</span> <span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">consp</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">x</span><span class="p">)</span> <span class="nv">x</span><span class="p">)))</span>
     <span class="o">`</span><span class="p">(</span><span class="k">progn</span> <span class="p">(</span><span class="nb">defstruct</span> <span class="p">(</span><span class="o">,</span><span class="nv">it</span> <span class="p">(</span><span class="ss">:constructor</span> <span class="o">,</span><span class="p">(</span><span class="nv">make</span> <span class="nv">it</span><span class="p">)))</span> <span class="o">,@</span><span class="nv">has</span><span class="p">)</span>
-            <span class="p">(</span><span class="nb">defmethod</span> <span class="nv">slots</span> <span class="p">((</span><span class="nv">_</span> <span class="o">,</span><span class="nv">it</span><span class="p">))</span> <span class="ss">',</span><span class="p">(</span><span class="nb">mapcar</span> <span class="nf">#'</span><span class="nv">name</span> <span class="nv">has</span><span class="p">)))))</span></code></pre>
+            <span class="p">(</span><span class="nb">defmethod</span> <span class="nv">slots-of</span> <span class="p">((</span><span class="nv">_</span> <span class="o">,</span><span class="nv">it</span><span class="p">))</span> <span class="ss">',</span><span class="p">(</span><span class="nb">mapcar</span> <span class="nf">#'</span><span class="nv">name</span> <span class="nv">has</span><span class="p">)))))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Then, just cause it was so simple, I wrote <code>things</code> which turns
+<p>Then, just cause it was so easy to do, I wrote <code>things</code> which turns
 a list of <code>destructs</code> into  <code>defthings</code>:</p>
 </div>
 <div class="listingblock">
@@ -1118,9 +1130,10 @@ a list of <code>destructs</code> into  <code>defthings</code>:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>This allows for simpler instance management. In the following note that (e.g.) <code>%make-person</code> is
-the low-level constructor used by <code>make-person</code>
-(that looks up our crew&#8217;s salary and age).</p>
+<p>This allows for simpler instance management. In the following, a set of structs are converted
+to things (using <code>(things defstructs)</code>).
+Then we see (for example) the  <code>make-person</code> constructor
+ looking up our crew&#8217;s salary and age before calling the constructor primitive constructor <code>%make-person</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1129,10 +1142,12 @@ the low-level constructor used by <code>make-person</code>
 ;-----------------------------------------------------------------------------------------------
 (things
   (defstruct person name age salary)
-  (defstruct crew  (size 0) persons))
+  (defstruct team  commander crew)) 
 
-(defun make-crew (crew)
-  (%make-crew :persons (loop for (name yob role) in crew collect (make-person name yob role))))
+(defun make-team (who)
+  (let ((persons (loop for (name yob role) in who collect 
+		      (make-person name yob role))))
+    (%make-team :commander (first persons) :crew (rest persons))))
 
 (defun make-person (name yob role)
     (%make-person :name name :salary (role-&gt;salary role) :age  (- (this-year) yob)))
@@ -1143,11 +1158,10 @@ the low-level constructor used by <code>make-person</code>
 (defun this-year ()
   (sixth (multiple-value-list (get-decoded-time))))
 ;-----------------------------------------------------------------------------------------------
-(print  (make-crew '((neil 1930 commander) (buzz 1930 walker) (mike 1930 pilot))))
+(let ((team (make-team '((neil 1930 commander) (buzz 1930 walker) (mike 1930 pilot)))))
+  (oo team commander name))
 
-=&gt; #S(CREW :PERSONS (#S(PERSON :NAME NEIL :AGE 93 :SALARY 30054)
-		     #S(PERSON :NAME BUZZ :AGE 93 :SALARY 18622)
-		     #S(PERSON :NAME MIKE :AGE 93 :SALARY 17147)))</code></pre>
+=&gt; NEIL</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1198,7 +1212,7 @@ you organize your code.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-07-31 18:03:10 -0400
+Last updated 2023-07-31 18:34:25 -0400
 </div>
 </div>
 </body>
