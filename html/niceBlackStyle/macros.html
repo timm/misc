@@ -193,6 +193,7 @@ pre.rouge .gs {
 <li><a href="#_saner_simpler_objects">Saner, Simpler,  Objects</a></li>
 <li><a href="#_symbol_counts">Symbol Counts</a></li>
 <li><a href="#_csv_reader">CSV Reader</a></li>
+<li><a href="#_newbie_mistakes_with_macros">Newbie Mistakes with Macros</a></li>
 <li><a href="#_i_dont_like_what_youve_done_here">"I don&#8217;t like what you&#8217;ve done here"</a></li>
 </ul>
 </li>
@@ -225,15 +226,6 @@ Lisp isn&#8217;t a language, it&#8217;s a building material.
 &#8212; Alan Kay
 </div>
 </div>
-<div class="quoteblock">
-<blockquote>
-(Another language) is for building pyramids ­imposing, breathtaking, static structures built by armies pushing heavy blocks into place.
-LISP is for building organisms imposing, breathtaking, dynamic structures built by squads fitting fluctuating myriads of simpler organisms into place.
-</blockquote>
-<div class="attribution">
-&#8212; Alan J. Perlis
-</div>
-</div>
 <div class="paragraph">
 <p>I find LISP liberating.
 Compared to other languages,
@@ -263,7 +255,7 @@ macro system makes it trivial to extend the language:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">fixes drawbacks with defstruct and OO in LISP</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="#_symbol_counts">freq</a></p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock"><a href="#_symbol_counts">has</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">simplifying  symbol counting (for key sizes of 50 or less)</p></td>
 </tr>
 <tr>
@@ -299,16 +291,20 @@ the walrus operator (<code>:=</code>) in Python3?
 That operator
 allows assignments as part of expression evaluation.
 That way, if you need the result of a conditional, you do not have to run
-that test again. For example, in Python:</p>
+that test again. For example, in Python, without walrus:</p>
 </div>
-<div class="listingblock">
+<div class="literalblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="text"># without walrus
-x := someBigLongCalculation()
-if x: handle(x)
-
-# with walrus
-if x := someBigLongCalculation(): handle(x)</code></pre>
+<pre>x := someBigLongCalculation()
+if x: handle(x)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But with walrus:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>if x := someBigLongCalculation(): handle(x)</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -331,11 +327,36 @@ If you want the walrus, it can be added with just two lines of code.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">aif</span> <span class="p">(</span><span class="nv">test</span> <span class="nv">this</span> <span class="k">&amp;optional</span> <span class="nv">that</span><span class="p">)</span>
-   <span class="o">`</span><span class="p">(</span><span class="k">let</span> <span class="p">((</span><span class="nv">it</span> <span class="o">,</span><span class="nv">test</span><span class="p">))</span> <span class="p">(</span><span class="k">if</span> <span class="nv">it</span> <span class="o">,</span><span class="nv">this</span> <span class="o">,</span><span class="nv">that</span><span class="p">)))</span></code></pre>
+   <span class="o">`</span><span class="p">(</span><span class="k">let</span>                    <span class="c1">;</span><i class="conum" data-value="2"></i><b>(2)</b>
+      <span class="p">((</span><span class="nv">it</span> <span class="o">,</span><span class="nv">test</span><span class="p">))</span>          <span class="c1">;</span><i class="conum" data-value="3"></i><b>(3)</b>
+      <span class="p">(</span><span class="k">if</span> <span class="nv">it</span> <span class="o">,</span><span class="nv">this</span> <span class="o">,</span><span class="nv">that</span><span class="p">)))</span> <span class="c1">;</span><i class="conum" data-value="1"></i><b>(1)</b></code></pre>
 </div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>Defmacro</code> returns a list that replaces the original list (and LISP interprets that new list
+as code).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>In that code, the <code>&#96;backtick</code> defines a toggle enviornment where symbols are not evaluated&#8230;&#8203;</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Unless proceeded by a <code>,comma</code>. Backticks lets us mix in names passed into the macro
+(in this case, the actual code of the condition <code>test</code> as well as what to do in the <code>this</code> and
+    <code>that branch</code>).</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
-<p>This code lets is trap the results of <code>test</code>  into <code>it</code>, then use <code>it</code> later; e.g.</p>
+<p>(Also, not shown above, the idiom <code>,@list</code> means create the list and lay it out flat.)</p>
+</div>
+<div class="paragraph">
+<p>The above <code>defmacro</code>
+lets us trap the results of <code>test</code>  into <code>it</code>, then use <code>it</code> later.</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -352,134 +373,139 @@ And if you don&#8217;t like the <code>aif</code> macro? Fine, just don&#8217;t u
 <p>And while we are talking about it, here is an ultra-cool anaphoric lambda macro
 which binds the function itself to the anaphor <code>self</code>, allowing it to recurse:</p>
 </div>
-<div class="listingblock">
+<div class="literalblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="text">(defmacro alambda (parms &amp;body body)
+<pre>(defmacro alambda (parms &amp;body body)
    `(labels ((self ,parms ,@body))
-      #'self))
-
- (alambda (n) ; factorial lambda
-   (if (= n 0)
-     1
-     (* n (self (1- n)))))</code></pre>
+      #'self))</pre>
 </div>
 </div>
-<div class="paragraph">
-<p>You know you&#8217;ve caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I&#8217;ve tried it and it gets suprisingly tricky surprisingly quickly).</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_macro_basics">Macro Basics</h3>
-<div class="paragraph">
-<p>This file has  several examples of
-how a little LISP making a useful change to a language.
-They all use <code>defmacro</code> so if you need a little reminder on how that works:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Most things is LISP are lists, even the code.</p>
-</li>
-<li>
-<p>Macros are functions (called at load time) that return lists which the LISP interprets as code.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>So macros are code that rewrites code.</p>
-</li>
-<li>
-<p>In that code, the <code>&#96;backtick</code> defines a toggle enviornment where symbols are not evaluated,
-unless proceeded by a <code>,comma</code>. Also, the idiom <code>,@list</code> means create the list and lay it out flat.</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Macros are  not so much "coded" so much as they are "drawn". For example, the above <code>aif</code> definition,
-  the last line shows the code that is desired.
-For another example of "drawing a macro", suppose someone had been nice enough to define a <code>while</code> macro for you:</p>
-</div>
-<div class="listingblock">
+<div class="literalblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="text">(defmacro while (test &amp;body body)
-  `(do ()
-       ((not ,test))
-     ,@body))
-
-; e.g. print numbers 1,2,3... 10
-(let ((n 0))
-  (while (&lt; n 10) (print (incf n))))</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Then you could imagine an <code>until</code> macro that was just a <code>not while</code>-- which you could draw up as a new macro like
-this:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="text">(defmacro until (test &amp;body body)
-  `(while (not ,test) ,@body))
-
-; e.g. print numbers 1,2,3... 10
-(let ((n 0))
-  (until (= n 10) (print (incf n))))</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>LISP makes extensive use of macros. For example, here&#8217;s the expansion of
-a seemingly simple <code>dottimes</code> call. Note that this high-level call becomes a set
-of gotos. The funny symbols (e.g. <code>#:LOOP-2860</code>) are variables created to handle
-some processing in the code.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="test">(pprint (macroexpand '(dotimes (i 10) (print i))))
-
-; ==&gt;
-
- (BLOCK NIL
-  (LET ((I 0))
-    (TAGBODY #:LOOP-2860
-       (IF (&gt;= I 10) (GO #:END-2861)) (PRINT I)
-          (PSETQ I (1+ I)) (GO #:LOOP-2860)
-             #:END-2861
-                (RETURN-FROM NIL (PROGN NIL)))))</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Here&#8217;s a more important example (and for PYTHON programers, I&#8217;ll say the following is like using a context manager
-    for reaching a file. That is to say, when reading files, the <code>with-open-file</code>  macro ensures no find streams
-    are left open and dangling, even if there is a code crash.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="text">(pprint (macroexpand '(with-open-file (s f) (print (read s)))))
-
-(LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ; <i class="conum" data-value="1"></i><b>(1)</b>
- (UNWIND-PROTECT
-   (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
-      (WHEN S (CLOSE S))) ; <i class="conum" data-value="2"></i><b>(2)</b>
-        (WHEN S (CLOSE S :ABORT T))))</code></pre>
+<pre>(alambda (n) ; factorial lambda
+  (if (= n 0)
+    1
+    (* n (self (1- n))))) <i class="conum" data-value="1"></i><b>(1)</b></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>The file is open before any reading starts;</td>
+<td>You know you&#8217;ve caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I&#8217;ve tried it and it gets suprisingly tricky surprisingly quickly).</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_macro_basics">Macro Basics</h3>
+<div class="paragraph">
+<p>Most things are LISP are lists, even the code.
+Macros are functions (called at load time) that return lists which the LISP interprets as code.
+So macros are code that rewrites code.</p>
+</div>
+<div class="paragraph">
+<p>Macros are  not so much "coded" so much as they are "drawn". For example, the above <code>aif</code> definition,
+  the last line shows the code that is desired.
+For another example of "drawing a macro", suppose someone had been nice enough to define a <code>while</code> macro for you:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>(defmacro while (test &amp;body body)
+  `(do ()
+       ((not ,test))
+     ,@body))
+;
+; e.g. print numbers 1,2,3... 10
+(let ((n 0))
+  (while (&lt; n 10) (print (incf n))))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then you could imagine an <code>until</code> macro that was just a <code>not while</code>-- which you could draw up as a new macro like
+this:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>(defmacro until (test &amp;body body)
+  `(while (not ,test) ,@body))
+;
+; e.g. print numbers 1,2,3... 10
+(let ((n 0))
+  (until (= n 10) (print (incf n))))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>LISP makes extensive use of macros. For example, here&#8217;s the expansion of
+a seemingly simple <code>dotimes</code> call.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>(pprint (macroexpand '(dotimes (i 10) (print i))))
+; ==&gt;
+ (BLOCK NIL
+  (LET ((I 0))
+    (TAGBODY #:LOOP-2860 <i class="conum" data-value="2"></i><b>(2)</b>
+       (IF (&gt;= I 10) (GO #:END-2861)) (PRINT I) <i class="conum" data-value="1"></i><b>(1)</b>
+          (PSETQ I (1+ I)) (GO #:LOOP-2860) <i class="conum" data-value="1"></i><b>(1)</b>
+             #:END-2861
+                (RETURN-FROM NIL (PROGN NIL)))))</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The above high-level call expands into set
+of gotos.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>All the <code>when</code> clauses at the end
-just keep  shouting at the stream until it closes.</td>
+<td>The funny symbols (e.g. <code>#:LOOP-2860</code>) are variables created to handle
+some processing in the code.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s a more interesting example.
+For PYTHON programers, I&#8217;ll say the following is like using a context manager
+    for reaching a file. That is to say, when reading files, the <code>with-open-file</code>  macro ensures no find streams
+    are left open and dangling, even if there is a code crash.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>(pprint (macroexpand '(with-open-file (s f) (print (read s)))))
+; ==&gt;
+(LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ; <i class="conum" data-value="1"></i><b>(1)</b>
+ (UNWIND-PROTECT   <i class="conum" data-value="2"></i><b>(2)</b>
+   (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
+      (WHEN S (CLOSE S))) ; <i class="conum" data-value="3"></i><b>(3)</b>
+        (WHEN S (CLOSE S :ABORT T))))</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Note that the file is open before any reading starts;</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>unwind-protect</code> means that even if the code crashes, some end-processing  will still happen.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>That end-processing just
+keeps  shouting at the file stream until it closes. Which is exactly what we want to happen.</td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
 <p>If you need the full details on macros, and lots of good tutorial examples,
 go see the <a href="https://lispcookbook.github.io/cl-cookbook/macros.html">LISP cookbook on macros</a>.</p>
+</div>
+<div class="paragraph">
+<p>And for some notes on standard macro newbie errors, see the end of this papge.</p>
 </div>
 </div>
 <div class="sect2">
@@ -567,74 +593,58 @@ to things (using <code>(things defstructs)</code> &lt;1&gt;).
 Then we see (for example) the  <code>make-team</code> constructor
  looking up our team&#8217;s salary and age before calling the constructor primitive constructor <code>%make-team</code>.</p>
 </div>
-<div class="listingblock">
+<div class="literalblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="text">(load "macros") ; test-defthings.lisp
+<pre>(load "macros"); test-defthings.lisp
 
-(things ; <i class="conum" data-value="1"></i><b>(1)</b>
+(things 
   (defstruct person name age salary)
   (defstruct team  commander crew)) 
 
 (defun make-team (who)
   (let ((persons (loop for (name yob role) in who collect 
 		      (make-person name yob role))))
-    (%make-team :commander (first persons) :crew (rest persons))))
+(%make-team :commander (first persons) :crew (rest persons))))
 
 (defun make-person (name yob role)
-    (%make-person :name name :salary (role-&gt;salary role) :age  (- (this-year) yob)))
-;-----------------------------------------------------------------------------------------------
+(%make-person :name name :salary (role-&gt;salary role) :age  (- (this-year) yob)))
+;-------------------------------------------------------------------------------
 (defun role-&gt;salary (role)
   (cdr (assoc role '((commander . 30054) (walker . 18622 ) (pilot . 17147)))))
-           
+  
 (defun this-year ()
   (sixth (multiple-value-list (get-decoded-time))))
-;-----------------------------------------------------------------------------------------------
+;--------------------------------------------------------------------------------------
 (let ((team (make-team '((neil 1930 commander) (buzz 1930 walker) (mike 1930 pilot)))))
   (oo team commander name))
 
-; =&gt; NEIL</code></pre>
+; ==&gt; NEIL</pre>
 </div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Library import</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>URL mapping</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>HTTP response body</td>
-</tr>
-</table>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_symbol_counts">Symbol Counts</h3>
 <div class="paragraph">
-<p><code>freq</code> is a macro for frequency counts.
+<p><code>has</code> is a macro for self creating items in a symbol table.
 When counting less than 50 symbols,
 this code runs as fast as hash tables, and is simpler to use.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">freq</span> <span class="p">(</span><span class="nv">x</span> <span class="nv">lst</span> <span class="k">&amp;optional</span> <span class="p">(</span><span class="nv">init</span> <span class="mi">0</span><span class="p">))</span>
+<pre class="rouge highlight"><code data-lang="lisp"><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">has</span> <span class="p">(</span><span class="nv">x</span> <span class="nv">lst</span> <span class="k">&amp;optional</span> <span class="p">(</span><span class="nv">init</span> <span class="mi">0</span><span class="p">))</span>
   <span class="o">`</span><span class="p">(</span><span class="nb">cdr</span> <span class="p">(</span><span class="nb">or</span> <span class="p">(</span><span class="nb">assoc</span> <span class="o">,</span><span class="nv">x</span> <span class="o">,</span><span class="nv">lst</span> <span class="ss">:test</span> <span class="nf">#'</span><span class="nb">equal</span><span class="p">)</span>
             <span class="p">(</span><span class="nb">car</span> <span class="p">(</span><span class="nb">setf</span> <span class="o">,</span><span class="nv">lst</span> <span class="p">(</span><span class="nb">cons</span> <span class="p">(</span><span class="nb">cons</span> <span class="o">,</span><span class="nv">x</span> <span class="o">,</span><span class="nv">init</span><span class="p">)</span> <span class="o">,</span><span class="nv">lst</span><span class="p">))))))</span></code></pre>
 </div>
 </div>
-<div class="listingblock">
+<div class="literalblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="text">(load "macros") ; test-freq.lisp
+<pre> (load "macros") ; test-has.lisp
+ 
+ (let (count)
+   (dolist (x '(aa aa aa aa bb bb cc)) (incf (has x count)))
+   (print count))
 
-(let (count)
-  (dolist (x '(aa aa aa aa bb bb cc)) (incf (freq x count)))
-  (print count))
-
-; =&gt; ((CC . 1) (BB . 2) (AA . 4))</code></pre>
+ ; =&gt; ((CC . 1) (BB . 2) (AA . 4))</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -700,17 +710,87 @@ macro tricks;</p>
 <div class="paragraph">
 <p>Here is <code>with-csv</code> in operation. It sums the number of cells in all lines of a  csv file.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="text">(load "macros") ; test-with-csv.lisp
-
-(let ((n 0))
-  (print 
-    (with-csv (line "auto93.csv" n) ; &lt;== note the out value, "n" 
-      (incf n (length line)))))
-
-; =&gt; 3192</code></pre>
+<div class="paragraph">
+<p>[s
+     (load "macros") ; test-with-csv.lisp
+     
+     (let n 0
+       (print 
+         (with-csv (line "auto93.csv" n) ; &#8656;= note the out value, "n" 
+           (incf n (length line)))))
+         
+     ; =&#8658; 3192</p>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_newbie_mistakes_with_macros">Newbie Mistakes with Macros</h3>
+<div class="paragraph">
+<p>Here&#8217;s a classic newb errors: <em>repeated processing</em>.
+The following macro looks fine <em>but</em> it includes the <code>x</code> expression
+twice. So what ever <code>x</code> does, it does it twice.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>(defmacro square-1 (x)
+   `(* ,x ,x))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This could be a very bad thing, depending on
+how slow is <code>x</code> to compute, or if  <code>x</code> has global side-effects such that calling it twice gives
+different answers each time.</p>
+</div>
+<div class="paragraph">
+<p>We could try to fix this, and if we do that wrong then we get to another newb error:
+<em>variable capture</em>. In this next macro, we run <code>x</code> only once and capture its output in <code>z</code>.
+Then we square
+<code>z</code>. All right? Nope!</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>(defmacro square-2 (x)
+   `(let ((z ,x))
+      (* z z))))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The problem here is that <code>x</code> can be arbiraray code whichm if it inclds a <code>z</code> variable,
+could mean that that code gets confused by the other <code>z</code> (and which point, it is anyone&#8217;s guess
+							      what happens next).</p>
+</div>
+<div class="paragraph">
+<p>To fix that problem, we need a variable name that is gaureentted never to appear anywhere
+else in the source code. This is something that the LISP built-in function <code>gensym</code> can  offer.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>(defmacro square (x)
+  (let ((z (gensym)))
+    `(let ((,z ,x))
+       (* ,z ,z))))
+;
+(print (macroexpand  '(square 2)))
+(print (square 2))
+; ==&gt;
+(LET ((#:G2856 2)) (* #:G2856 #:G2856)) <i class="conum" data-value="1"></i><b>(1)</b> <i class="conum" data-value="3"></i><b>(3)</b>
+4 <i class="conum" data-value="2"></i><b>(2)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Here&#8217;s what <code>(square 2)</code> expands into to.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Here&#8217;s the result of running <code>(square 2)</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Here we see the funny syntax of the <code>gensym</code> variable names (<code>#:G2856</code>).</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -748,7 +828,7 @@ you organize things. Share and enjoy!</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-01 13:02:50 -0400
+Last updated 2023-08-01 18:29:39 -0400
 </div>
 </div>
 </body>

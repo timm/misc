@@ -5,10 +5,6 @@
 Lisp isn't a language, it's a building material.
 
 
-[quote, Alan J. Perlis]
-(Another language) is for building pyramids ­imposing, breathtaking, static structures built by armies pushing heavy blocks into place. 
-LISP is for building organisms imposing, breathtaking, dynamic structures built by squads fitting fluctuating myriads of simpler organisms into place.
-
 I find LISP liberating.
 Compared to other languages,
 it
@@ -29,7 +25,7 @@ macro system makes it trivial to extend the language:
 |<<_saner_simpler_objects,defthing, defthings>>
 |fixes drawbacks with defstruct and OO in LISP  
 
-|<<_symbol_counts,freq>> 
+|<<_symbol_counts,has>> 
 |simplifying  symbol counting (for key sizes of 50 or less)
 
 |<<_csv_reader,with-csv>> 
@@ -61,16 +57,14 @@ the walrus operator (`:=`) in Python3?
 That operator 
 allows assignments as part of expression evaluation. 
 That way, if you need the result of a conditional, you do not have to run
-that test again. For example, in Python:
+that test again. For example, in Python, without walrus:
 
-```text
-# without walrus
-x := someBigLongCalculation()
-if x: handle(x)
+     x := someBigLongCalculation()
+     if x: handle(x)
 
-# with walrus
-if x := someBigLongCalculation(): handle(x)
-```
+But with walrus:
+
+     if x := someBigLongCalculation(): handle(x)
 
 All in all it is a pretty minor addition to Python.
 Even so, the walrus operator was hotly debated and
@@ -87,9 +81,21 @@ To a LISPer, that whole debate about the walrus operator is just insane.
 If you want the walrus, it can be added with just two lines of code.
 |#
 (defmacro aif (test this &optional that)
-   `(let ((it ,test)) (if it ,this ,that)))
+   `(let                    ;<2> 
+      ((it ,test))          ;<3>
+      (if it ,this ,that))) ;<1>
 #|
-This code lets is trap the results of `test`  into `it`, then use `it` later; e.g.
+<1> `Defmacro` returns a list that replaces the original list (and LISP interprets that new list
+								     as code).
+<2> In that code, the `&#96;backtick` defines a toggle enviornment where symbols are not evaluated...
+<3> Unless proceeded by a `,comma`. Backticks lets us mix in names passed into the macro
+   (in this case, the actual code of the condition `test` as well as what to do in the `this` and
+       `that branch`).
+
+(Also, not shown above, the idiom `,@list` means create the list and lay it out flat.)
+
+The above `defmacro`
+lets us trap the results of `test`  into `it`, then use `it` later.
 
     (aif (big-long-calculation)
       (foo it))
@@ -101,91 +107,86 @@ And if you don't like the `aif` macro? Fine, just don't use it.
 And while we are talking about it, here is an ultra-cool anaphoric lambda macro
 which binds the function itself to the anaphor `self`, allowing it to recurse:
 
-```text
-(defmacro alambda (parms &body body)
-   `(labels ((self ,parms ,@body))
-      #'self))
+     (defmacro alambda (parms &body body)
+        `(labels ((self ,parms ,@body))
+           #'self))
+     
+      (alambda (n) ; factorial lambda 
+        (if (= n 0)
+          1
+          (* n (self (1- n))))) <1>
 
- (alambda (n) ; factorial lambda
-   (if (= n 0)
-     1
-     (* n (self (1- n)))))
-```
-You know you've caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).
+<1> You know you've caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).
 
 ### Macro Basics
 
-This file has  several examples of 
-how a little LISP making a useful change to a language.  
-They all use `defmacro` so if you need a little reminder on how that works:
-
-* Most things is LISP are lists, even the code.
-* Macros are functions (called at load time) that return lists which the LISP interprets as code.
-** So macros are code that rewrites code.
-** In that code, the `&#96;backtick` defines a toggle enviornment where symbols are not evaluated,
-   unless proceeded by a `,comma`. Also, the idiom `,@list` means create the list and lay it out flat.
+Most things are LISP are lists, even the code.
+Macros are functions (called at load time) that return lists which the LISP interprets as code.
+So macros are code that rewrites code.
 
 Macros are  not so much "coded" so much as they are "drawn". For example, the above `aif` definition,
   the last line shows the code that is desired.
 For another example of "drawing a macro", suppose someone had been nice enough to define a `while` macro for you:
 
-```text
+     (defmacro while (test &body body)
+       `(do ()
+            ((not ,test))
+          ,@body))
+     ;
+     ; e.g. print numbers 1,2,3... 10
+     (let ((n 0))
+       (while (< n 10) (print (incf n))))
 
-(defmacro while (test &body body)
-  `(do ()
-       ((not ,test))
-     ,@body))
-
-; e.g. print numbers 1,2,3... 10
-(let ((n 0))
-  (while (< n 10) (print (incf n))))
-```
 Then you could imagine an `until` macro that was just a `not while`-- which you could draw up as a new macro like
 this:
-```text
-(defmacro until (test &body body)
-  `(while (not ,test) ,@body))
 
-; e.g. print numbers 1,2,3... 10
-(let ((n 0))
-  (until (= n 10) (print (incf n))))
-```
+     (defmacro until (test &body body)
+       `(while (not ,test) ,@body))
+     ;
+     ; e.g. print numbers 1,2,3... 10
+     (let ((n 0))
+       (until (= n 10) (print (incf n))))
+
 LISP makes extensive use of macros. For example, here's the expansion of
-a seemingly simple `dottimes` call. Note that this high-level call becomes a set
-of gotos. The funny symbols (e.g. `#:LOOP-2860`) are variables created to handle
+a seemingly simple `dotimes` call. 
+
+     (pprint (macroexpand '(dotimes (i 10) (print i)))) 
+     ; ==>
+      (BLOCK NIL
+       (LET ((I 0))
+         (TAGBODY #:LOOP-2860 <2>
+            (IF (>= I 10) (GO #:END-2861)) (PRINT I) <1>
+               (PSETQ I (1+ I)) (GO #:LOOP-2860) <1>
+                  #:END-2861
+                     (RETURN-FROM NIL (PROGN NIL)))))
+
+<1> The above high-level call expands into set
+of gotos.
+<2> The funny symbols (e.g. `#:LOOP-2860`) are variables created to handle
 some processing in the code. 
-```test
-(pprint (macroexpand '(dotimes (i 10) (print i)))) 
 
-; ==>
-
- (BLOCK NIL
-  (LET ((I 0))
-    (TAGBODY #:LOOP-2860
-       (IF (>= I 10) (GO #:END-2861)) (PRINT I)
-          (PSETQ I (1+ I)) (GO #:LOOP-2860)
-             #:END-2861
-                (RETURN-FROM NIL (PROGN NIL)))))
-```
-Here's a more important example (and for PYTHON programers, I'll say the following is like using a context manager
+Here's a more interesting example.
+For PYTHON programers, I'll say the following is like using a context manager
     for reaching a file. That is to say, when reading files, the `with-open-file`  macro ensures no find streams
     are left open and dangling, even if there is a code crash.
 
-```text
-(pprint (macroexpand '(with-open-file (s f) (print (read s)))))
+     (pprint (macroexpand '(with-open-file (s f) (print (read s)))))
+     ; ==>
+     (LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ; <1>
+      (UNWIND-PROTECT   <2>
+        (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
+           (WHEN S (CLOSE S))) ; <3>
+             (WHEN S (CLOSE S :ABORT T))))
 
-(LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ; <1>
- (UNWIND-PROTECT   
-   (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
-      (WHEN S (CLOSE S))) ; <2>
-        (WHEN S (CLOSE S :ABORT T))))
-```
-<1> The file is open before any reading starts;
-<2> All the `when` clauses at the end
-    just keep  shouting at the stream until it closes. 
+<1> Note that the file is open before any reading starts;
+<2> The `unwind-protect` means that even if the code crashes, some end-processing  will still happen.
+<2> That end-processing just
+    keeps  shouting at the file stream until it closes. Which is exactly what we want to happen.
 
 If you need the full details on macros, and lots of good tutorial examples,
 go see the https://lispcookbook.github.io/cl-cookbook/macros.html[LISP cookbook on macros].
+
+And for some notes on standard macro newbie errors, see the end of this papge.
 
 ### Nested Slot Accessors
 
@@ -246,30 +247,22 @@ to things (using `(things defstructs)` <1>).
 Then we see (for example) the  `make-team` constructor 
  looking up our team's salary and age before calling the constructor primitive constructor `%make-team`. 
 
-```text
+
 include::test-defthing.lisp[]
-    
-; => NEIL
-```
-<1> Library import
-<2> URL mapping
-<3> HTTP response body
 
 ### Symbol Counts
 
-`freq` is a macro for frequency counts.
+`has` is a macro for self creating items in a symbol table.
 When counting less than 50 symbols, 
 this code runs as fast as hash tables, and is simpler to use.
 |#
-(defmacro freq (x lst &optional (init 0))      
+(defmacro has (x lst &optional (init 0))      
   `(cdr (or (assoc ,x ,lst :test #'equal)
             (car (setf ,lst (cons (cons ,x ,init) ,lst))))))
 #|
-```text
-include::test-freq.lisp[]
+
+include::test-has.lisp[]
     
-; => ((CC . 1) (BB . 2) (AA . 4))
-```
 Two nice features of this code are that:
 
 * It is
@@ -306,11 +299,54 @@ macro tricks;
           ,out))
 #|
 Here is `with-csv` in operation. It sums the number of cells in all lines of a  csv file.
-```text
+
+[s
 include::test-with-csv.lisp[]
-    
-; => 3192  
-```
+
+### Newbie Mistakes with Macros
+
+Here's a classic newb errors: _repeated processing_. 
+The following macro looks fine _but_ it includes the `x` expression
+twice. So what ever `x` does, it does it twice. 
+
+     (defmacro square-1 (x)
+        `(* ,x ,x))
+
+This could be a very bad thing, depending on 
+how slow is `x` to compute, or if  `x` has global side-effects such that calling it twice gives
+different answers each time.
+
+We could try to fix this, and if we do that wrong then we get to another newb error: 
+_variable capture_. In this next macro, we run `x` only once and capture its output in `z`. 
+Then we square
+`z`. All right? Nope!
+
+     (defmacro square-2 (x)
+        `(let ((z ,x))
+           (* z z))))
+
+The problem here is that `x` can be arbiraray code whichm if it inclds a `z` variable,
+could mean that that code gets confused by the other `z` (and which point, it is anyone's guess 
+							      what happens next).
+
+To fix that problem, we need a variable name that is gaureentted never to appear anywhere
+else in the source code. This is something that the LISP built-in function `gensym` can  offer.
+
+     (defmacro square (x)
+       (let ((z (gensym)))
+         `(let ((,z ,x))
+            (* ,z ,z))))
+     ; 
+     (print (macroexpand  '(square 2)))
+     (print (square 2))
+     ; ==>
+     (LET ((#:G2856 2)) (* #:G2856 #:G2856)) <1> <3>
+     4 <2>
+
+<1> Here's what `(square 2)` expands into to.
+<2> Here's the result of running `(square 2)`
+<3> Here we see the funny syntax of the `gensym` variable names (`#:G2856`).
+
 ### "I don't like what you've done here"
 
 Say you don't like the code I've got here. No drama.
