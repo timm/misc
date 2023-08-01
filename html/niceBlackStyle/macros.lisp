@@ -1,13 +1,20 @@
 #|
-## (Why (I (Love (LISP))))
+## Defmacro
 
-**In brief:** I find LISP liberating.
+I find LISP liberating.
 Compared to other languages,
 it
 offers fewer barriers and encourages
 more experimentation.
-And if you don't like something in the language? Then change it! E.g. see the macros
-in this file.
+As Alan Kay said
+"Lisp isn't a language, it's a building material". 
+For example, until you "get" LISP, you probably don't realize that all the (say)
+OO languages you have been using live in a tiny corner of the space of possibilities.
+For another example, 
+LISP's
+macro system makes it trivial to extend the language;
+e.g. see the macros
+in this file:
 
 [%autowidth.stretch,cols=">1,1",frame=ends,stripes=even]
 |===
@@ -27,44 +34,27 @@ in this file.
 |easy processing of csv files
 |===
 
-### About LISP
+It has taken decades for other languages to evolve something as powerful as LISP's macro system
+(e.g. JULIA has a nice macro system that lets programmers manipulate the abstract syntax tree of its own code).
+And like any powerful tool, macros need to be used with care.
+https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros[Google's
+LISP style guide] cautions that  macros should  be used
+sparingly. For example, in   1000 lines of my own LISP code,
+there might only be 30 (ish) lines of macros. 
+But even
+if I don't write macros all the time, the key here is that, with LISP,
+the door
+is always open to creating new and powerful and succinct
+abstractions.
 
-Other have written
-much on the value of http://random-state.net/features-of-common-lisp.html[LISP's unique features].
-Here, I'll just repeat some remarks from some very, very, smart people:
-
-[quote,Edsger Dijkstra, at his 1972 Turing Award lecture.]
-LISP has jokingly been described as "the most intelligent way to misuse a computer". 
-I think that description a great compliment because it transmits the full flavour of liberation: 
-it has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts.
-
-LISP is the source.
-LISP is a language that is over 60 years old yet still offers services
-missing in more recent, supposedly better languages.
-LISP is built to be adjustable, much more so than most  other languages.
-As Alan Kay said
-"Lisp isn't a language, it's a building material". 
-Every part of LISP's read-eval-print loop can be customized. LISP's
-macro system makes it trivial to extend the language. 
-Any abstraction
-you need inside the code can be made explicit and useful.
-Why is that important? Well:
-
-[quote, Paul Graham, from his book "ANSI Common LISP".]
-The essence of writing reusable software is to separate the general
-from the specific, and (LISP programming) inherently creates
-such a separation.  Instead of devoting all your effort to writing
-a single, monolithic application, you devote part of your effort
-to building a language, and part to writing a (proportionately
-smaller) application on top of it.
-
-Not convinced?
-Ok, then lets take a look at what happens in languages _without_ LISP's flexibility.
 
 ### Attack of the Walrus
 
-Do you
-recall the fight over 
+Not convinced? Do you think you don't need LISP's open-endedness?
+Ok, then lets take a look at what happens in languages _without_ LISP's flexibility.
+
+Who remembers the bitter feud
+over
 the walrus operator (`:=`) in Python3? 
 That operator 
 allows assignments as part of expression evaluation. 
@@ -108,7 +98,7 @@ And if you don't like the `aif` macro? Fine, just don't use it.
 
 ### Macro Basics
 
-I've got several other examples of 
+This file has  several examples of 
 how a little LISP making a useful change to a language.  
 They all use `defmacro` so if you need a little reminder on how that works:
 
@@ -149,7 +139,7 @@ some processing in the code.
 ```test
 (pprint (macroexpand '(dotimes (i 10) (print i)))) 
 
-#==>
+; ==>
 
  (BLOCK NIL
   (LET ((I 0))
@@ -159,6 +149,23 @@ some processing in the code.
              #:END-2861
                 (RETURN-FROM NIL (PROGN NIL)))))
 ```
+Here's a more important example (and for PYTHON programers, I'll say the following is like using a context manager
+    for reaching a file. That is to say, when reading files, the `with-open-file`  macro ensures no find streams
+    are left open and dangling, even if there is a code crash.
+
+```text
+(pprint (macroexpand '(with-open-file (s f) (print (read s)))))
+
+(LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ; <1>
+ (UNWIND-PROTECT   
+   (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
+      (WHEN S (CLOSE S))) ; <2>
+        (WHEN S (CLOSE S :ABORT T))))
+```
+<1> The file is open before any reading starts;
+<2> All the `when` clauses at the end
+    just keep  shouting at the stream until it closes. 
+
 If you need the full details on macros, and lots of good tutorial examples,
 go see the https://lispcookbook.github.io/cl-cookbook/macros.html[LISP cookbook on macros].
 
@@ -288,13 +295,7 @@ include::test-with-csv.lisp[]
 ```
 ## "I don't like what you've done here"
 
-According to
-https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros[Google's
-LISP style guide], macros are a powerful tool that should be used
-carefully and sparingly. For example, if I write 1000 lines of LISP,
-I may only use the above 33 lines of macros.
-
-In any case, say you don't like the code I've got here. No drama.
+Say you don't like the code I've got here. No drama.
 We don't need
 to go all walrus about it. Just delete my code and do whatever it is you
 wanted to do.  And send me a link to that revised code-- I'd really enjoy seeing how
