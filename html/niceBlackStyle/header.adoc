@@ -3,9 +3,7 @@
 :stylesheet: fedora.css
 :icons: font
 :source-highlighter: rouge
-:rouge-style: thankfuls_-eyes
-
-:as: thankful_eyes
+:xrouge-style: thankful_-eyes
 
 
 ++++

@@ -193,9 +193,9 @@ pre.rouge .gs {
 <li><a href="#_saner_simpler_objects">Saner, Simpler,  Objects</a></li>
 <li><a href="#_symbol_counts">Symbol Counts</a></li>
 <li><a href="#_csv_reader">CSV Reader</a></li>
+<li><a href="#_i_dont_like_what_youve_done_here">"I don&#8217;t like what you&#8217;ve done here"</a></li>
 </ul>
 </li>
-<li><a href="#_i_dont_like_what_youve_done_here">"I don&#8217;t like what you&#8217;ve done here"</a></li>
 <li><a href="#_references">References</a></li>
 </ul>
 </div>
@@ -217,21 +217,32 @@ pre.rouge .gs {
 <div class="sect1">
 <h2 id="_defmacro">Defmacro</h2>
 <div class="sectionbody">
+<div class="quoteblock">
+<blockquote>
+Lisp isn&#8217;t a language, it&#8217;s a building material.
+</blockquote>
+<div class="attribution">
+&#8212; Alan Kay
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+(Another language) is for building pyramids ­imposing, breathtaking, static structures built by armies pushing heavy blocks into place.
+LISP is for building organisms imposing, breathtaking, dynamic structures built by squads fitting fluctuating myriads of simpler organisms into place.
+</blockquote>
+<div class="attribution">
+&#8212; Alan J. Perlis
+</div>
+</div>
 <div class="paragraph">
 <p>I find LISP liberating.
 Compared to other languages,
 it
 offers fewer barriers and encourages
 more experimentation.
-As Alan Kay said
-"Lisp isn&#8217;t a language, it&#8217;s a building material".
-For example, until you "get" LISP, you probably don&#8217;t realize that all the (say)
-OO languages you have been using live in a tiny corner of the space of possibilities.
-For another example,
+For example, as shown by the examples below,
 LISP&#8217;s
-macro system makes it trivial to extend the language;
-e.g. see the macros
-in this file:</p>
+macro system makes it trivial to extend the language:</p>
 </div>
 <table class="tableblock frame-ends grid-all stripes-even fit-content stretch">
 <colgroup>
@@ -263,7 +274,7 @@ in this file:</p>
 </table>
 <div class="paragraph">
 <p>It has taken decades for other languages to evolve something as powerful as LISP&#8217;s macro system
-(e.g. JULIA has a nice macro system that lets programmers manipulate the abstract syntax tree of its own code).
+(e.g. these days JULIA has a nice macro system that lets programmers manipulate the abstract syntax tree of its own code).
 And like any powerful tool, macros need to be used with care.
 <a href="https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros">Google&#8217;s
 LISP style guide</a> cautions that  macros should  be used
@@ -352,6 +363,9 @@ which binds the function itself to the anaphor <code>self</code>, allowing it to
      1
      (* n (self (1- n)))))</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>You know you&#8217;ve caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I&#8217;ve tried it and it gets suprisingly tricky surprisingly quickly).</p>
 </div>
 </div>
 <div class="sect2">
@@ -578,7 +592,7 @@ Then we see (for example) the  <code>make-team</code> constructor
 (let ((team (make-team '((neil 1930 commander) (buzz 1930 walker) (mike 1930 pilot)))))
   (oo team commander name))
 
-=&gt; NEIL</code></pre>
+; =&gt; NEIL</code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -620,7 +634,7 @@ this code runs as fast as hash tables, and is simpler to use.</p>
   (dolist (x '(aa aa aa aa bb bb cc)) (incf (freq x count)))
   (print count))
 
-=&gt; ((CC . 1) (BB . 2) (AA . 4))</code></pre>
+; =&gt; ((CC . 1) (BB . 2) (AA . 4))</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -695,21 +709,19 @@ macro tricks;</p>
     (with-csv (line "auto93.csv" n) ; &lt;== note the out value, "n" 
       (incf n (length line)))))
 
-=&gt; 3192</code></pre>
+; =&gt; 3192</code></pre>
 </div>
 </div>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_i_dont_like_what_youve_done_here">"I don&#8217;t like what you&#8217;ve done here"</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_i_dont_like_what_youve_done_here">"I don&#8217;t like what you&#8217;ve done here"</h3>
 <div class="paragraph">
 <p>Say you don&#8217;t like the code I&#8217;ve got here. No drama.
 We don&#8217;t need
 to go all walrus about it. Just delete my code and do whatever it is you
 wanted to do.  And send me a link to that revised code-- I&#8217;d really enjoy seeing how
-you organize your code. Share and enjoy!</p>
+you organize things. Share and enjoy!</p>
+</div>
 </div>
 </div>
 </div>
@@ -736,7 +748,7 @@ you organize your code. Share and enjoy!</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-01 10:57:03 -0400
+Last updated 2023-08-01 13:02:50 -0400
 </div>
 </div>
 </body>

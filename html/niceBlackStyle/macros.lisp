@@ -1,20 +1,22 @@
 #|
 ## Defmacro
 
+[quote, Alan Kay]
+Lisp isn't a language, it's a building material.
+
+
+[quote, Alan J. Perlis]
+(Another language) is for building pyramids ­imposing, breathtaking, static structures built by armies pushing heavy blocks into place. 
+LISP is for building organisms imposing, breathtaking, dynamic structures built by squads fitting fluctuating myriads of simpler organisms into place.
+
 I find LISP liberating.
 Compared to other languages,
 it
 offers fewer barriers and encourages
 more experimentation.
-As Alan Kay said
-"Lisp isn't a language, it's a building material". 
-For example, until you "get" LISP, you probably don't realize that all the (say)
-OO languages you have been using live in a tiny corner of the space of possibilities.
-For another example, 
+For example, as shown by the examples below, 
 LISP's
-macro system makes it trivial to extend the language;
-e.g. see the macros
-in this file:
+macro system makes it trivial to extend the language:
 
 [%autowidth.stretch,cols=">1,1",frame=ends,stripes=even]
 |===
@@ -109,6 +111,7 @@ which binds the function itself to the anaphor `self`, allowing it to recurse:
      1
      (* n (self (1- n)))))
 ```
+You know you've caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).
 
 ### Macro Basics
 
@@ -245,7 +248,7 @@ Then we see (for example) the  `make-team` constructor
 ```text
 include::test-defthing.lisp[]
     
-=> NEIL
+; => NEIL
 ```
 <1> Library import
 <2> URL mapping
@@ -264,7 +267,7 @@ this code runs as fast as hash tables, and is simpler to use.
 ```text
 include::test-freq.lisp[]
     
-=> ((CC . 1) (BB . 2) (AA . 4))
+; => ((CC . 1) (BB . 2) (AA . 4))
 ```
 Two nice features of this code are that:
 
@@ -313,7 +316,7 @@ Say you don't like the code I've got here. No drama.
 We don't need
 to go all walrus about it. Just delete my code and do whatever it is you
 wanted to do.  And send me a link to that revised code-- I'd really enjoy seeing how
-you organize your code. Share and enjoy!
+you organize things. Share and enjoy!
 
 [bibliography]
 == References
