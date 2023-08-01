@@ -35,7 +35,7 @@ in this file:
 |===
 
 It has taken decades for other languages to evolve something as powerful as LISP's macro system
-(e.g. JULIA has a nice macro system that lets programmers manipulate the abstract syntax tree of its own code).
+(e.g. these days JULIA has a nice macro system that lets programmers manipulate the abstract syntax tree of its own code).
 And like any powerful tool, macros need to be used with care.
 https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros[Google's
 LISP style guide] cautions that  macros should  be used
@@ -95,6 +95,20 @@ This code lets is trap the results of `test`  into `it`, then use `it` later; e.
 Note that this change can be made to your local
 LISP without having to lobby some central committee. No drama.
 And if you don't like the `aif` macro? Fine, just don't use it.
+
+And while we are talking about it, here is an ultra-cool anaphoric lambda macro
+which binds the function itself to the anaphor `self`, allowing it to recurse:
+
+```text
+(defmacro alambda (parms &body body)
+   `(labels ((self ,parms ,@body))
+      #'self))
+
+ (alambda (n) ; factorial lambda
+   (if (= n 0)
+     1
+     (* n (self (1- n)))))
+```
 
 ### Macro Basics
 
@@ -218,14 +232,14 @@ all the slots of a thing.
             (defmethod slots-of ((_ ,it)) ',(mapcar #'name has)))))
 #|
 Then, just cause it was so easy to do, I wrote `things` which turns
-a list of `destructs` into  `defthings`:
+a list of `defstruct`s into  `defthings`:
 |#
 (defmacro things (&rest defstructs) 
   `(progn ,@(loop for (defstruct . slots) in defstructs collect `(defthing ,@slots))))
 #|
 This allows for simpler instance management. In the following, a set of structs are converted
 to things (using `(things defstructs)` <1>). 
-Then we see (for example) the  `make-teak` constructor 
+Then we see (for example) the  `make-team` constructor 
  looking up our team's salary and age before calling the constructor primitive constructor `%make-team`. 
 
 ```text

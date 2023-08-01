@@ -337,6 +337,22 @@ If you want the walrus, it can be added with just two lines of code.</p>
 LISP without having to lobby some central committee. No drama.
 And if you don&#8217;t like the <code>aif</code> macro? Fine, just don&#8217;t use it.</p>
 </div>
+<div class="paragraph">
+<p>And while we are talking about it, here is an ultra-cool anaphoric lambda macro
+which binds the function itself to the anaphor <code>self</code>, allowing it to recurse:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="text">(defmacro alambda (parms &amp;body body)
+   `(labels ((self ,parms ,@body))
+      #'self))
+
+ (alambda (n) ; factorial lambda
+   (if (= n 0)
+     1
+     (* n (self (1- n)))))</code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_macro_basics">Macro Basics</h3>
@@ -523,7 +539,7 @@ all the slots of a thing.</p>
 </div>
 <div class="paragraph">
 <p>Then, just cause it was so easy to do, I wrote <code>things</code> which turns
-a list of <code>destructs</code> into  <code>defthings</code>:</p>
+a list of <code>defstruct`s into  `defthings</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -534,7 +550,7 @@ a list of <code>destructs</code> into  <code>defthings</code>:</p>
 <div class="paragraph">
 <p>This allows for simpler instance management. In the following, a set of structs are converted
 to things (using <code>(things defstructs)</code> &lt;1&gt;).
-Then we see (for example) the  <code>make-teak</code> constructor
+Then we see (for example) the  <code>make-team</code> constructor
  looking up our team&#8217;s salary and age before calling the constructor primitive constructor <code>%make-team</code>.</p>
 </div>
 <div class="listingblock">
@@ -720,7 +736,7 @@ you organize your code. Share and enjoy!</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-01 10:10:30 -0400
+Last updated 2023-08-01 10:57:03 -0400
 </div>
 </div>
 </body>
