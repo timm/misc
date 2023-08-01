@@ -207,13 +207,14 @@ pre.rouge .gs {
    background-color: #f8f8f7;
    margin-right: 20px; border: 1px dotted rgb(17,13,111);
 ">
-<p><a href="index.html">home</a> ::
+<p style="text-align: right"><a href="index.html">home</a> ::
 <a href="src">src</a> ::
-<a href="">issues</a></p>&nbsp;<br>
+<a href="">issues</a></p>
 
 <h3><b style="font-size: 25px;">SE+AI: just the important bits</b></h3>
-<p style="margin-bottom:0px; padding-bottom:0px;"><a href="license"><i class="fa fa-copyright fa-flip-horizontal"></i> 2023</a> by <a href="">Tim Menzies</a></p>
+<p><a href="license"><i class="fa fa-copyright fa-flip-horizontal"></i> 2023</a> by <a href="">Tim Menzies</a></p>
 <br clear=all>
+<hr>
 <div class="sect1">
 <h2 id="_why_i_love_lisp">(Why (I (Love (LISP))))</h2>
 <div class="sectionbody">
@@ -420,6 +421,27 @@ this:</p>
 ; e.g. print numbers 1,2,3... 10
 (let ((n 0))
   (until (= n 10) (print (incf n))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>LISP makes extensive use of macros. For example, here&#8217;s the expansion of
+a seemingly simple <code>dottimes</code> call. Note that this high-level call becomes a set
+of gotos. The funny symbols (e.g. <code>#:LOOP-2860</code>) are variables created to handle
+some processing in the code.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="test">(pprint (macroexpand '(dotimes (i 10) (print i))))
+
+#==&gt;
+
+ (BLOCK NIL
+  (LET ((I 0))
+    (TAGBODY #:LOOP-2860
+       (IF (&gt;= I 10) (GO #:END-2861)) (PRINT I)
+          (PSETQ I (1+ I)) (GO #:LOOP-2860)
+             #:END-2861
+                (RETURN-FROM NIL (PROGN NIL)))))</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -664,11 +686,11 @@ macro tricks;</p>
 <h2 id="_i_dont_like_what_youve_done_here">"I don&#8217;t like what you&#8217;ve done here"</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Macros are a powerful tool
-that should be used carefully and sparingly. For example,
-my ratio of macros:(functions+classes) is usually 1:50.
-For more on "use macros sparingly", see
-<a href="https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros">Google&#8217;s LISP style guide</a>.</p>
+<p>According to
+<a href="https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros">Google&#8217;s
+LISP style guide</a>, macros are a powerful tool that should be used
+carefully and sparingly. For example, if I write 1000 lines of LISP,
+I may only use the above 33 lines of macros.</p>
 </div>
 <div class="paragraph">
 <p>In any case, say you don&#8217;t like the code I&#8217;ve got here. No drama.
@@ -702,7 +724,7 @@ you organize your code. Share and enjoy!</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-01 00:20:44 -0400
+Last updated 2023-08-01 05:05:58 -0400
 </div>
 </div>
 </body>

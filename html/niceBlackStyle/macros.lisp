@@ -121,6 +121,7 @@ They all use `defmacro` so if you need a little reminder on how that works:
 Macros are  not so much "coded" so much as they are "drawn". For example, the above `aif` definition,
   the last line shows the code that is desired.
 For another example of "drawing a macro", suppose someone had been nice enough to define a `while` macro for you:
+
 ```text
 (defmacro while (test &body body)
   `(do ()
@@ -140,6 +141,23 @@ this:
 ; e.g. print numbers 1,2,3... 10
 (let ((n 0))
   (until (= n 10) (print (incf n))))
+```
+LISP makes extensive use of macros. For example, here's the expansion of
+a seemingly simple `dottimes` call. Note that this high-level call becomes a set
+of gotos. The funny symbols (e.g. `#:LOOP-2860`) are variables created to handle
+some processing in the code. 
+```test
+(pprint (macroexpand '(dotimes (i 10) (print i)))) 
+
+#==>
+
+ (BLOCK NIL
+  (LET ((I 0))
+    (TAGBODY #:LOOP-2860
+       (IF (>= I 10) (GO #:END-2861)) (PRINT I)
+          (PSETQ I (1+ I)) (GO #:LOOP-2860)
+             #:END-2861
+                (RETURN-FROM NIL (PROGN NIL)))))
 ```
 If you need the full details on macros, and lots of good tutorial examples,
 go see the https://lispcookbook.github.io/cl-cookbook/macros.html[LISP cookbook on macros].
@@ -270,11 +288,11 @@ include::test-with-csv.lisp[]
 ```
 ## "I don't like what you've done here"
 
-Macros are a powerful tool
-that should be used carefully and sparingly. For example,
-my ratio of macros:(functions+classes) is usually 1:50.
-For more on "use macros sparingly", see 
-https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros[Google's LISP style guide].
+According to
+https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros[Google's
+LISP style guide], macros are a powerful tool that should be used
+carefully and sparingly. For example, if I write 1000 lines of LISP,
+I may only use the above 33 lines of macros.
 
 In any case, say you don't like the code I've got here. No drama.
 We don't need
