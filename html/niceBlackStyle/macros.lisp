@@ -2,29 +2,34 @@
 ## (Why (I (Love (LISP))))
 
 **In brief:** I find LISP liberating.
-It
+Compared to other languages,
+it
 offers fewer barriers and encourages
 more experimentation than other languages.
 And if you don't like something in the language? Then change it! E.g. see the macros
-							    in this file.
+in this file.
 
 [%autowidth,cols=">1,1,1",frame=ends,stripes=even]
 |===
-|`aif` 
+|<<_anaphoric_if, `aif`>> 
 |:
 |(anaphoric if) for accessing a conditional without having to recompute it
 
-|`o` 
+|<<_nested_slot_accessors,`o`>> 
 |:
 |easy  access to nested slots
 
-|`defthing, defthings`  
+|<<_saner_simpler_objects,`defthing, defthings`>>
 |:
 |fixes drawbacks with `defstruct` and OO in LISP  
 
-|`freq` 
+|<<_symbol_counts,`freq`>> 
 |:
 |simplifying  symbol counting (for key sizes of 50 or less)
+
+|<<_csv_reader,`with-csv`>> 
+|:
+|easy processing of csv files
 |===
 
 ### About LISP
@@ -85,8 +90,10 @@ Guido van Rossum, [quit the Python project](https://hub.packtpub.com/why-guido-v
 "Now that (walrus) is done, I don't ever want to have to fight so hard for a 
 (chage)  and find that so many people despise my decisions.", he said.
 
+### Anaphoric If
+
 To a LISPer, that whole debate is just insane.
-If you want the walrus, it can be added with just two lines of code:
+If you want the walrus, it can be added with just two lines of code.
 |#
 (defmacro aif (test this &optional that)
    `(let ((it ,test)) (if it ,this ,that)))
@@ -149,8 +156,8 @@ The following `oo` macro handles that (and not that it returns the struct so you
 				 carry on processing the struct).
 |#
 (defmacro oo (struct slot &rest slots)
-  `(progn (print (o ,struct ,slot ,@slots))
-	  ,struct))
+  `(progn (print (o ,struct ,slot ,@slots)) 
+          ,struct))
 #|
 
 ### Saner, Simpler,  Objects
@@ -179,21 +186,65 @@ to things (using `(things defstructs)`).
 Then we see (for example) the  `make-person` constructor 
  looking up our crew's salary and age before calling the constructor primitive constructor `%make-person`. 
 
-
 ```text
 include::test-defthing.lisp[]
     
 => NEIL
 ```
+### Symbol Counts
 
-Another macro, that is useful for frequency counts, is `freq`. This one is a little tricky.
-Say some sylmbolx conds :
+`freq` is a macro for frequency counts.
+When counting less than 50 symbols, 
+this code runs as fast as hash tables, and is simpler to use.
 |#
-; (defmacro freq (x lst &optional (init 0))      
-;   "frequency counts for small group of symbols (say, less than 50)"
-;   `(cdr (or (assoc ,x ,lst :test #'equal)
-;             (car (setf ,lst (cons (cons ,x ,init) ,lst))))))
+(defmacro freq (x lst &optional (init 0))      
+  `(cdr (or (assoc ,x ,lst :test #'equal)
+            (car (setf ,lst (cons (cons ,x ,init) ,lst))))))
 #|
+```text
+include::test-freq.lisp[]
+    
+=> ((CC . 1) (BB . 2) (AA . 4))
+```
+Two nice features of this code are that:
+
+* It is
+self-initializing-- from the `init` argument.
+* What we do with the counts can be controlled
+by some wrapper function. For example, in the above
+code, we used `incf` to increase the counts (and we could
+have also used `decf` to reduce the counts).
+
+### CSV Reader
+`with-file` calls a function `fun` for each line of csv `file`.
+The lines are split on commas, then leading and training white space is removed.
+|#
+(defun with-file (file fun)
+  (labels ((trim (s) (string-trim `(#\Space #\Tab #\Newline) s))
+           (split (s &optional (sep #\,) (here 0))
+                  (let* ((there (position sep s :start here))
+                         (word  (trim (subseq s here there))))
+                    (labels ((tail () (if there (split s sep (1+ there)))))
+                      (if (equal word "") (tail) (cons word (tail)))))))
+    (with-open-file (s file) 
+      (loop (funcall fun (split (or (read-line s nil) (return))))))))
+#|
+The `with-csv` macro simplies the use of `with-file`. It demonstrates two usefl
+macro tricks; 
+
+* Code up everything you want as a function, then add the `defmacro` as a final layer;
+* Macros can define a return variable (see the `out` variable, below).
+|#
+(defmacro with-csv ((line file &optional out) &body body)
+  `(progn (with-file ,file #'(lambda (,line) ,@body)) 
+          ,out))
+#|
+Here is `with-csv` in operation. It sums the number of cells in all lines of a  csv file.
+```text
+include::test-with-csv.lisp[]
+    
+=> 3192  
+```
 ### "I don't like what you've done here"
 Say you don't like the code I've got here. No drama.
 We don't need

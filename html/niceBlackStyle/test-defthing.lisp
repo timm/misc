@@ -1,6 +1,5 @@
-; test-defthings.lisp
-(load "macros")
-;-----------------------------------------------------------------------------------------------
+(load "macros") ; test-defthings.lisp
+
 (things
   (defstruct person name age salary)
   (defstruct team  commander crew)) 
