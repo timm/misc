@@ -1,20 +1,25 @@
 
-:stylesheet: adoc-iconic.css
+:toc: left
+:stylesheet: fedora.css
 :icons: font
 :source-highlighter: rouge
-:rouge-style: thankful_eyes
+:rouge-style: thankfuls_-eyes
 
-:xsource-highlighter: pygments
-:xpygments-style: monokai
+:as: thankful_eyes
+
 
 ++++
-<img src="dots3.png" width=250 align=left style="border-bottom: 1px solid black;">
-<p style="text-align:right; margin-top:0px; padding-top:0px;">
-<a href="index.html">home</a> :: 
-<a href="">src</a> ::
-<a href="">issues</a>
-</p>
-<b style="font-size: 25px; color: rgb(17,13,111);" >SE+AI: just the important bits</b><br>
-<p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p><br clear=all>
+<!--- https://github.com/darshandsoni/asciidoctor-skins/tree/gh-pages/css --->
+<img src="dots3.png" width=250 align=left style="
+   background-color: #f8f8f7;
+   margin-right: 20px; border: 1px dotted rgb(17,13,111);
+">
+<p><a href="index.html">home</a> :: 
+<a href="src">src</a> ::
+<a href="">issues</a></p>&nbsp;<br>
+
+<h3><b style="font-size: 25px;">SE+AI: just the important bits</b></h3>
+<p style="margin-bottom:0px; padding-bottom:0px;"><a href="license"><i class="fa fa-copyright fa-flip-horizontal"></i> 2023</a> by <a href="">Tim Menzies</a></p>
+<br clear=all>
 ++++
 
