@@ -305,9 +305,9 @@ Here is `with-csv` in operation. It sums the number of cells in all lines of a  
 ```text
 include::test-with-csv.lisp[]
     
-=> 3192  
+; => 3192  
 ```
-## "I don't like what you've done here"
+### "I don't like what you've done here"
 
 Say you don't like the code I've got here. No drama.
 We don't need
