@@ -130,6 +130,7 @@ Macros are  not so much "coded" so much as they are "drawn". For example, the ab
 For another example of "drawing a macro", suppose someone had been nice enough to define a `while` macro for you:
 
 ```text
+
 (defmacro while (test &body body)
   `(do ()
        ((not ,test))

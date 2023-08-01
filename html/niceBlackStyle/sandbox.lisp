@@ -8,3 +8,25 @@
 (defmacro defthings (&rest lst) 
   "swaps first symbol from 'defstruct' to 'defthing'"
   `(progn ,@(loop for (_ . slots) in lst collect `(defthing ,@slots))))
+
+(defmacro alambda (parms &body body)
+   `(labels ((self ,parms ,@body))
+      #'self))
+
+ (alambda (n) ; factorial lambda
+   (if (= n 0)
+     1
+     (* n (self (1- n)))))
+
+(defun obj(&key (x 1) (y 2))
+  (lambda (fun &optional one)
+    (case fun
+      (x?  x)
+      (y?  y)
+      (x! (setf x one))
+      (y! (setf y  one)))))
+
+(let ((x (obj :x 10)))
+  (print (funcall x 'sum 100)))
+
+
