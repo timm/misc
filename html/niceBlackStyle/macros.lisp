@@ -155,15 +155,16 @@ a seemingly simple `dotimes` call.
       (BLOCK NIL
        (LET ((I 0))
          (TAGBODY #:LOOP-2860 <2>
-            (IF (>= I 10) (GO #:END-2861)) (PRINT I) <1>
-               (PSETQ I (1+ I)) (GO #:LOOP-2860) <1>
-                  #:END-2861
-                     (RETURN-FROM NIL (PROGN NIL)))))
+               (IF (>= I 10) 
+                   (GO #:END-2861))  <1>
+               (PRINT I) 
+               (PSETQ I (1+ I)) 
+               (GO #:LOOP-2860) 
+            #:END-2861
+               (RETURN-FROM NIL (PROGN NIL)))))
 
-<1> The above high-level call expands into set
-of gotos.
-<2> The funny symbols (e.g. `#:LOOP-2860`) are variables created to handle
-some processing in the code. 
+<1> The above high-level call expands into set of gotos.
+<2> The funny symbols (e.g. `#:LOOP-2860`) are variables created to handle some processing in the code. 
 
 Here's a more interesting example.
 For PYTHON programers, I'll say the following is like using a context manager

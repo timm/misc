@@ -446,23 +446,24 @@ a seemingly simple <code>dotimes</code> call.</p>
  (BLOCK NIL
   (LET ((I 0))
     (TAGBODY #:LOOP-2860 <i class="conum" data-value="2"></i><b>(2)</b>
-       (IF (&gt;= I 10) (GO #:END-2861)) (PRINT I) <i class="conum" data-value="1"></i><b>(1)</b>
-          (PSETQ I (1+ I)) (GO #:LOOP-2860) <i class="conum" data-value="1"></i><b>(1)</b>
-             #:END-2861
-                (RETURN-FROM NIL (PROGN NIL)))))</pre>
+          (IF (&gt;= I 10)
+              (GO #:END-2861))  <i class="conum" data-value="1"></i><b>(1)</b>
+          (PRINT I)
+          (PSETQ I (1+ I))
+          (GO #:LOOP-2860)
+       #:END-2861
+          (RETURN-FROM NIL (PROGN NIL)))))</pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>The above high-level call expands into set
-of gotos.</td>
+<td>The above high-level call expands into set of gotos.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>The funny symbols (e.g. <code>#:LOOP-2860</code>) are variables created to handle
-some processing in the code.</td>
+<td>The funny symbols (e.g. <code>#:LOOP-2860</code>) are variables created to handle some processing in the code.</td>
 </tr>
 </table>
 </div>
@@ -828,7 +829,7 @@ you organize things. Share and enjoy!</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-01 18:29:39 -0400
+Last updated 2023-08-01 20:59:47 -0400
 </div>
 </div>
 </body>
