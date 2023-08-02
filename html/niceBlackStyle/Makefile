@@ -8,5 +8,8 @@ put:
 toc:
 	markdown-toc -i aa.md
 
-%.html : %.lisp
-	gawk -f lisp2doc.awk $^  | asciidoctor  -  > $@
+%.adoc : %.lisp
+	gawk -f lisp2doc.awk $^ > $@
+
+%.html : %.adoc
+	 asciidoctor  $^

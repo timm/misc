@@ -1,4 +1,5 @@
-#|
+
+
 ## Defmacro
 
 [quote, Alan Kay]
@@ -79,12 +80,18 @@ Guido van Rossum, https://hub.packtpub.com/why-guido-van-rossum-quit/[quit the P
 
 To a LISPer, that whole debate about the walrus operator is just insane.
 If you want the walrus, it can be added with just two lines of code.
-|#
+
+
+
+```lisp
 (defmacro aif (test this &optional that)
    `(let                    ;<2> 
       ((it ,test))          ;<3>
       (if it ,this ,that))) ;<1>
-#|
+```
+
+
+
 <1> `Defmacro` returns a list that replaces the original list (and LISP interprets that new list
 								     as code).
 <2> In that code, the `&#96;backtick` defines a toggle enviornment where symbols are not evaluated...
@@ -203,12 +210,18 @@ the `home` of the `manager` of the `company`. In standard LISP, that could be do
 That's a little verbose, right? So lets fix that with a macro.
 This is a recursive macro (which is a little tricky) that works front to back over a list of slots. 
 The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.
-|#
+
+
+
+```lisp
 (defmacro o (struct slot &rest slots) 
    (if slots
      `(o (slot-value ,struct ',slot) ,@slots)  ; case one: we have to recurse
      `(slot-value ,struct ',slot)))  ; case two: no slots left, so just do an access.
-#|
+```
+
+
+
 With this macro, the above  example becomes something much more palatable.
 
     (o *company* manager home address streetNum)
@@ -216,11 +229,17 @@ With this macro, the above  example becomes something much more palatable.
 One common idiom is to slip in a print statement to view the contents of a struct.
 The following `oo` macro handles that (and note that it returns the struct so you can slip it in, get the print, and still
 				 carry on processing the struct).
-|#
+
+
+
+```lisp
 (defmacro oo (struct slot &rest slots)
   `(progn (print (o ,struct ,slot ,@slots)) 
           ,struct))
-#|
+```
+
+
+
 
 ### Saner, Simpler,  Objects
 
@@ -230,19 +249,31 @@ Worse, the functions that (e.g.) accesss the slot names of an instance vary from
 
 Hence I wrote `defthing` that adds a constructor to `defstruct` as well as  method `slots-of` that lists
 all the slots of a thing.
-|#
+
+
+
+```lisp
 (defmacro defthing (it &rest has) 
   (labels ((make (x) (intern (format nil "%MAKE-~a" x))) 
            (name (x) (if (consp x) (car x) x))) 
     `(progn (defstruct (,it (:constructor ,(make it))) ,@has)
             (defmethod slots-of ((_ ,it)) ',(mapcar #'name has)))))
-#|
+```
+
+
+
 Then, just cause it was so easy to do, I wrote `things` which turns
 a list of `defstruct`s into  `defthings`:
-|#
+
+
+
+```lisp
 (defmacro things (&rest defstructs)
   `(progn ,@(loop for (defstruct . slots) in defstructs collect `(defthing ,@slots))))
-#|
+```
+
+
+
 This allows for simpler instance management. In the following, a set of structs are converted
 to things (using `(things defstructs)`). 
 Then we see (for example) the  `make-team` constructor 
@@ -256,11 +287,17 @@ include::test-defthing.lisp[]
 `has` is a macro for self creating items in a symbol table.
 When counting less than 50 symbols, 
 this code runs as fast as hash tables, and is simpler to use.
-|#
+
+
+
+```lisp
 (defmacro has (x lst &optional (init 0))      
   `(cdr (or (assoc ,x ,lst :test #'equal)
             (car (setf ,lst (cons (cons ,x ,init) ,lst))))))
-#|
+```
+
+
+
 
 include::test-has.lisp[]
     
@@ -277,7 +314,10 @@ have also used `decf` to reduce the counts).
 `call-with-csv` applies a function `fun` to each line of csv `file`
 (and before that call,
 the lines are split on commas and leading and training white space is removed). 
-|#
+
+
+
+```lisp
 (defun call-with-csv (file fun)
   (labels ((trim (s) (string-trim `(#\Space #\Tab #\Newline) s))
            (split (s &optional (sep #\,) (here 0))
@@ -287,18 +327,27 @@ the lines are split on commas and leading and training white space is removed).
                       (if (equal word "") (tail) (cons word (tail)))))))
     (with-open-file (s file) 
       (loop (funcall fun (split (or (read-line s nil) (return))))))))
-#|
+```
+
+
+
 No, I won't explain this code since the plan here is simplify its use, with a macro.
 The `with-csv` macro demonstrates two useful
 macro tricks; 
 
 * Macros can define a return variable (see the `out` variable, below).
 * It is useful to code up everything you want as a function (e.g. `call-with-csv`, then add the `defmacro` as a final layer);
-|#
+
+
+
+```lisp
 (defmacro with-csv ((line file &optional out) &body body)
   `(progn (call-with-csv ,file #'(lambda (,line) ,@body)) 
           ,out))
-#|
+```
+
+
+
 Here is `with-csv` in operation. It sums the number of cells in all lines of a  csv file.
 
 [s
@@ -361,4 +410,10 @@ you organize things. Share and enjoy!
 
 * [[[DIJ72]]] Edsger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).
 * [[[GRA95]]] Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall
-|#
+
+
+
+```lisp
+```
+
+
