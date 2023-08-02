@@ -8,13 +8,5 @@ put:
 toc:
 	markdown-toc -i aa.md
 
-# %.html: %.md
-# 	echo "# make $@ ..."
-# 	pandoc -s  -V css=style0.css  -o $@ $<
-# 	gawk -f style.awk $@ > tmp
-# 	mv tmp $@
-
 %.html : %.lisp
-	gawk -f lisp2md.awk $^  | asciidoctor  -  > $@
-	#(sh head.sh $^;  asciidoc tmo-m markdown $(FMT) tmp0; cat foot.html) > $@
-	#rm tmp0
+	gawk -f lisp2doc.awk $^  | asciidoctor  -  > $@
