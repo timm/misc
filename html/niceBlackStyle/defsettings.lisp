@@ -11,15 +11,15 @@
     (bootstrap "bootstraps"                 256)
     (cliffs    "nonparametric small delta"  .147)
     (cohen     "parametric small delta"     .35)
+    (eg        "start up action"            help)
     (file      "read data file"             "../data/auto93.csv")
-    (go        "start up action"            help)
     (help      "show help"                  nil)
     (seed      "random number seed"         1234567891)
     (min       "min size"                   .5)
     (rest      "exapansion best to rest"    3)
     (top       "top items to explore"       10)
     (want      "optimization goal"          plan)))
-
+;----------------------------------------------------
 (defmacro ? (x) `(caddr (assoc ',x *settings*)))
 
 (defun args ()
@@ -35,10 +35,10 @@
                         (t      (not b4)))
                       b4)))) ; no update
 
-(defun about ()
-  "show the `about` part of settings"
+(defun show-help ()
   (format t "~%~{~a~%~}OPTIONS:~%" (? about))
-  (dolist (x (cdr *settings*)) (format t "  --~(~10a~) ~a~%"  (first x) (second x))))
-
+  (dolist (x (cdr *settings*)) 
+    (format t "  --~(~10a~) ~a~%"  (first x) (second x))))
+;------------------------------------------------------------------------------------
 (setf *settings* (cli *settings*))
-(if (? help) (about))
+(if (? help) (show-help))
