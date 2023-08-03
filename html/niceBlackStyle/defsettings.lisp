@@ -28,12 +28,12 @@
 
 (defun cli (lst)
   (loop for (flag help b4) in lst collect 
-    (list flag help 
-          (aif (member (format nil "--~(~a~)" flag) (args) :test #'equal)
-            (cond ((numberp b4) (read-from-string (second it)))
-                  ((stringp b4) (second it))
-                  (t            (print b4) (not b4)))
-            b4)))) ; no update
+    (list flag help (aif (member (format nil "--~(~a~)" flag) (args) :test #'equalp)
+                      (typecase b4
+                        (number (read-from-string (second it)))
+                        (string (second it))
+                        (t      (not b4)))
+                      b4)))) ; no update
 
 (defun about ()
   "show the `about` part of settings"
@@ -41,5 +41,4 @@
   (dolist (x (cdr *settings*)) (format t "  --~(~10a~) ~a~%"  (first x) (second x))))
 
 (setf *settings* (cli *settings*))
-(print (? help))
 (if (? help) (about))
