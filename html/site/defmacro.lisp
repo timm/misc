@@ -29,8 +29,8 @@ On this page:
 
 ## Attack of the Walrus
 
-Do you think you don't need the flexability of macros?
-Ok, then lets take a look at what happens in languages _without_ that  flexibility.
+Do you think you don't need the flexibility of macros?
+OK, then lets take a look at what happens in languages _without_ that  flexibility.
 
 Who remembers the bitter feud
 over
@@ -68,7 +68,7 @@ If you want the walrus, it can be added with just two lines of code.
 If the above, note that:
 
 1. `Defmacro` returns a list that replaces the original list (and LISP interprets that new list as code).
-2. In that code, the \` backtick defines a toggle enviornment where symbols are not evaluated...
+2. In that code, the \` backtick defines a toggle environment where symbols are not evaluated...
 3. Unless proceeded by a `,` comma. Backticks lets us mix in names passed into the macro
    (in this case, the actual code of the condition `test` as well as what to do in the `this` and
    `that branch`).
@@ -133,7 +133,7 @@ a seemingly simple `dotimes` call.  Note that `dotimes` expands into a set of go
                (RETURN-FROM NIL (PROGN NIL)))))
 
 Here's a more interesting example.
-For PYTHON programers, I'll say the following is like using a context manager
+For PYTHON programmers, I'll say the following is like using a context manager
     for reaching a file. That is to say, when reading files, the `with-open-file` this  macro ensures:
 
 1. The file is open before any reading starts (see the initial call to `open`);
@@ -164,8 +164,8 @@ which has some really good tutorial material.
 ## Nested Slot Accessors
 
 Consider  
-nested accesses to a field inside a struct;  e.g. the `streetNum` of the the `address` of
-the `home` of the `manager` of the `company`. In standard LISP, that could be done wth:
+nested accesses to a field inside a struct;  e.g. the `streetNum` of the `address` of
+the `home` of the `manager` of the `company`. In standard LISP, that could be done with:
 
     (slot-value 
        (slot-value 
@@ -174,11 +174,11 @@ the `home` of the `manager` of the `company`. In standard LISP, that could be do
 
 That's a little verbose, right? So lets fix that with a macro.
 This is a recursive macro (which is a little tricky) that works front to back over a list of slots. 
-The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.
+The first slot becomes the inner most accessors and accessors to the other slots are wrapped around it.
 |#
 (defmacro o (struct slot &rest slots) 
    (if slots
-     `(o (slot-value ,struct ',slot) ,@slots)  ; case one: we have to recurse
+     `(o (slot-value ,struct ',slot) ,@slots)  ; case one: we have to recurs
      `(slot-value ,struct ',slot)))  ; case two: no slots left, so just do an access.
 #|
 With this macro, the above  example becomes something much more palatable.
@@ -198,7 +198,7 @@ The following `oo` macro handles that (and note that it returns the struct so yo
 
 Like many people,  I have... issues... with the CLOS object system. 
 It can be so verbose to (e.g.) define and new class, or specialize the initialization of  a new instance.
-Worse, the functions that (e.g.) accesss the slot names of an instance vary from implementation to implementatin.
+Worse, the functions that (e.g.) access the slot names of an instance vary from implementation to implementatin.
 
 Hence I wrote `defthing` that adds a constructor to `defstruct` as well as  method `slots-of` that lists
 all the slots of a thing.
@@ -303,13 +303,13 @@ Then we square
         `(let ((z ,x))
            (* z z))))
 
-The problem here is that `x` can be arbiraray code whichm if it inclds a `z` variable,
+The problem here is that `x` can be arbitrary code which if it includes a `z` variable,
 could mean that that code gets confused by the other `z` (and which point, it is anyone's guess 
 							      what happens next).
 
-To fix that problem, we need a variable name that is gaureentted never to appear anywhere
+To fix that problem, we need a variable name that is guaranteed never to appear anywhere
 else in the source code. This is something that the LISP built-in function `gensym` can  offer.
-(so the variables with the fuuny syntax like `#:G2856` are made by `gensym`).
+(so the variables with the funny syntax like `#:G2856` are made by `gensym`).
 
      (defmacro square (x)
        (let ((z (gensym)))
@@ -327,7 +327,7 @@ else in the source code. This is something that the LISP built-in function `gens
 Not that I use the following, but its so much fun, I just got to share.
 
 Here is an ultra-cool anaphoric lambda macro
-which binds the function itself to the anaphor `self`, allowing it to recurse:
+which binds the function itself to the anaphor `self`, allowing it to recurs:
 
     (defmacro alambda (parms &body body)
        `(labels ((self ,parms ,@body))
@@ -338,17 +338,17 @@ which binds the function itself to the anaphor `self`, allowing it to recurse:
          1
          (* n (self (1- n))))) 
 
-You know you've caught the macro bug if this example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).
+You know you've caught the macro bug if this example gets you thinking "is all of OO just 10 lines of LISP macros?". 
+Exercise for the reader! (But, btw, I've tried it and it gets surprisingly tricky surprisingly quickly).
 
 ## "Don't like it"
 
-Say you don't like the code I've got here. No drama.
+Say you don't like the code I've got here. No drama.[^GRA95]
 We don't need
 to go all walrus about it. Just delete my code and do whatever it is you
 wanted to do.  And send me a link to that revised code-- I'd really enjoy seeing how
 you organize things. Share and enjoy!
 
-## References
 
-* [[[DIJ72]]] Edsger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).
-* [[[GRA95]]] Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall |#
+[^DIJ72]: Edger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).
+[^GRA95]: Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall |#

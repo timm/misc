@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Defmacro</title>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -30,36 +30,34 @@
 <a href="">issues</a> </p>
 <hr>
 
-<font style="color:rgb(72,14,120);">
-<h1>SE+AI:<br>just the important bits</h1>
+<h2>SE+AI: just the important bits</h2>
 <p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p>
-<img src="dots3.png" width=200 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
+
+
+<img src="dots4.png" width=200 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
 <hr style="paddiing-top:0px; margin-top:0px;">
-</font>
 </center>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<div class="toc">
+<ul>
+<li><a href="#defmacro">Defmacro</a><ul>
+<li><a href="#attack-of-the-walrus">Attack of the Walrus</a></li>
+<li><a href="#anaphoric-if">Anaphoric If</a></li>
+<li><a href="#macro-basics">Macro Basics</a></li>
+<li><a href="#nested-slot-accessors">Nested Slot Accessors</a></li>
+<li><a href="#saner-simpler-objects">Saner, Simpler,  Objects</a></li>
+<li><a href="#symbol-counts">Symbol Counts</a></li>
+<li><a href="#csv-reader">CSV Reader</a></li>
+<li><a href="#newbie-mistakes">Newbie Mistakes</a><ul>
+<li><a href="#repeated-processing">Repeated Processing</a></li>
+<li><a href="#variable-capture">Variable Capture</a></li>
+</ul>
+</li>
+<li><a href="#a-little-fun">A Little Fun</a></li>
+<li><a href="#dont-like-it">"Don't like it"</a></li>
+</ul>
+</li>
+</ul>
+</div>
     </div>
  <div id="right">
 <h1 id="defmacro">Defmacro</h1>
@@ -115,8 +113,8 @@ to creating new and powerful and succinct abstractions.</p>
 </tbody>
 </table>
 <h2 id="attack-of-the-walrus">Attack of the Walrus</h2>
-<p>Do you think you don't need the flexability of macros?
-Ok, then lets take a look at what happens in languages <em>without</em> that  flexibility.</p>
+<p>Do you think you don't need the flexibility of macros?
+OK, then lets take a look at what happens in languages <em>without</em> that  flexibility.</p>
 <p>Who remembers the bitter feud
 over
 the walrus operator (<code>:=</code>) in Python3? 
@@ -151,7 +149,7 @@ If you want the walrus, it can be added with just two lines of code.   </p>
 <p>If the above, note that:</p>
 <ol>
 <li><code>Defmacro</code> returns a list that replaces the original list (and LISP interprets that new list as code).</li>
-<li>In that code, the ` backtick defines a toggle enviornment where symbols are not evaluated...</li>
+<li>In that code, the ` backtick defines a toggle environment where symbols are not evaluated...</li>
 <li>Unless proceeded by a <code>,</code> comma. Backticks lets us mix in names passed into the macro
    (in this case, the actual code of the condition <code>test</code> as well as what to do in the <code>this</code> and
    <code>that branch</code>).</li>
@@ -212,7 +210,7 @@ a seemingly simple <code>dotimes</code> call.  Note that <code>dotimes</code> ex
 </code></pre></div>
 
 <p>Here's a more interesting example.
-For PYTHON programers, I'll say the following is like using a context manager
+For PYTHON programmers, I'll say the following is like using a context manager
     for reaching a file. That is to say, when reading files, the <code>with-open-file</code> this  macro ensures:</p>
 <ol>
 <li>The file is open before any reading starts (see the initial call to <code>open</code>);</li>
@@ -240,8 +238,8 @@ go see the
 which has some really good tutorial material.</p>
 <h2 id="nested-slot-accessors">Nested Slot Accessors</h2>
 <p>Consider<br />
-nested accesses to a field inside a struct;  e.g. the <code>streetNum</code> of the the <code>address</code> of
-the <code>home</code> of the <code>manager</code> of the <code>company</code>. In standard LISP, that could be done wth:</p>
+nested accesses to a field inside a struct;  e.g. the <code>streetNum</code> of the <code>address</code> of
+the <code>home</code> of the <code>manager</code> of the <code>company</code>. In standard LISP, that could be done with:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
 <span class="w">   </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
 <span class="w">      </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
@@ -250,10 +248,10 @@ the <code>home</code> of the <code>manager</code> of the <code>company</code>. I
 
 <p>That's a little verbose, right? So lets fix that with a macro.
 This is a recursive macro (which is a little tricky) that works front to back over a list of slots. 
-The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.</p>
+The first slot becomes the inner most accessors and accessors to the other slots are wrapped around it.</p>
 <div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nv">struct</span><span class="w"> </span><span class="nv">slot</span><span class="w"> </span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span><span class="w"> </span>
 <span class="w">   </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">slots</span>
-<span class="w">     </span><span class="o">`</span><span class="p">(</span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">)</span><span class="w">  </span><span class="c1">; case one: we have to recurse</span>
+<span class="w">     </span><span class="o">`</span><span class="p">(</span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">)</span><span class="w">  </span><span class="c1">; case one: we have to recurs</span>
 <span class="w">     </span><span class="o">`</span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)))</span><span class="w">  </span><span class="c1">; case two: no slots left, so just do an access.</span>
 </code></pre></div>
 
@@ -272,7 +270,7 @@ The following <code>oo</code> macro handles that (and note that it returns the s
 <h2 id="saner-simpler-objects">Saner, Simpler,  Objects</h2>
 <p>Like many people,  I have... issues... with the CLOS object system. 
 It can be so verbose to (e.g.) define and new class, or specialize the initialization of  a new instance.
-Worse, the functions that (e.g.) accesss the slot names of an instance vary from implementation to implementatin.</p>
+Worse, the functions that (e.g.) access the slot names of an instance vary from implementation to implementatin.</p>
 <p>Hence I wrote <code>defthing</code> that adds a constructor to <code>defstruct</code> as well as  method <code>slots-of</code> that lists
 all the slots of a thing.</p>
 <div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">defthing</span><span class="w"> </span><span class="p">(</span><span class="nv">it</span><span class="w"> </span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">has</span><span class="p">)</span><span class="w"> </span>
@@ -406,12 +404,12 @@ Then we square
        (* z z))))
 </code></pre></div>
 
-<p>The problem here is that <code>x</code> can be arbiraray code whichm if it inclds a <code>z</code> variable,
+<p>The problem here is that <code>x</code> can be arbitrary code which if it includes a <code>z</code> variable,
 could mean that that code gets confused by the other <code>z</code> (and which point, it is anyone's guess 
                                   what happens next).</p>
-<p>To fix that problem, we need a variable name that is gaureentted never to appear anywhere
+<p>To fix that problem, we need a variable name that is guaranteed never to appear anywhere
 else in the source code. This is something that the LISP built-in function <code>gensym</code> can  offer.
-(so the variables with the fuuny syntax like <code>#:G2856</code> are made by <code>gensym</code>).</p>
+(so the variables with the funny syntax like <code>#:G2856</code> are made by <code>gensym</code>).</p>
 <div class="codehilite"><pre><span></span><code> (defmacro square (x)
    (let ((z (gensym)))
      `(let ((,z ,x))
@@ -428,7 +426,7 @@ else in the source code. This is something that the LISP built-in function <code
 <h2 id="a-little-fun">A Little Fun</h2>
 <p>Not that I use the following, but its so much fun, I just got to share.</p>
 <p>Here is an ultra-cool anaphoric lambda macro
-which binds the function itself to the anaphor <code>self</code>, allowing it to recurse:</p>
+which binds the function itself to the anaphor <code>self</code>, allowing it to recurs:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="n">defmacro</span><span class="w"> </span><span class="n">alambda</span><span class="w"> </span><span class="p">(</span><span class="n">parms</span><span class="w"> </span><span class="o">&amp;</span><span class="n">body</span><span class="w"> </span><span class="n">body</span><span class="p">)</span>
 <span class="w">   </span><span class="err">`</span><span class="p">(</span><span class="n">labels</span><span class="w"> </span><span class="p">((</span><span class="n">self</span><span class="w"> </span><span class="p">,</span><span class="n">parms</span><span class="w"> </span><span class="p">,</span><span class="nv">@body</span><span class="p">))</span>
 <span class="w">      </span><span class="err">#&#39;</span><span class="n">self</span><span class="p">))</span>
@@ -439,16 +437,25 @@ which binds the function itself to the anaphor <code>self</code>, allowing it to
 <span class="w">     </span><span class="p">(</span><span class="o">*</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="p">(</span><span class="n">self</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="w"> </span><span class="n">n</span><span class="p">)))))</span>
 </code></pre></div>
 
-<p>You know you've caught the macro bug if this example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).</p>
+<p>You know you've caught the macro bug if this example gets you thinking "is all of OO just 10 lines of LISP macros?". 
+Exercise for the reader! (But, btw, I've tried it and it gets surprisingly tricky surprisingly quickly).</p>
 <h2 id="dont-like-it">"Don't like it"</h2>
-<p>Say you don't like the code I've got here. No drama.
+<p>Say you don't like the code I've got here. No drama.<sup id="fnref:GRA95"><a class="footnote-ref" href="#fn:GRA95">2</a></sup>
 We don't need
 to go all walrus about it. Just delete my code and do whatever it is you
 wanted to do.  And send me a link to that revised code-- I'd really enjoy seeing how
 you organize things. Share and enjoy!</p>
-<h2 id="references">References</h2>
-<ul>
-<li>[[[DIJ72]]] Edsger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).</li>
-<li>[[[GRA95]]] Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall |#</li>
-</ul>
-</div></body></html>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:DIJ72">
+<p>Edger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).&#160;<a class="footnote-backref" href="#fnref:DIJ72" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:GRA95">
+<p>Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall&#160;<a class="footnote-backref" href="#fnref:GRA95" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div>
+ </body>
+</html>

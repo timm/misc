@@ -1,14 +1,9 @@
-cat<<-'EOF'
 <!DOCTYPE html>
 <html>
 <head>
-EOF
-
-gawk 'sub(/^# /,""){print "<title>"$0"</title>"}' $1
-
-cat<<-'EOF'
   <meta charset="UTF-8">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -35,17 +30,36 @@ cat<<-'EOF'
 <a href="">issues</a> </p>
 <hr>
 
-<font style="color:rgb(72,14,120);">
-<h1>SE+AI:<br>just the important bits</h1>
+<h2>SE+AI: just the important bits</h2>
 <p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p>
-<img src="dots3.png" width=200 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
-<hr style="paddiing-top:0px; margin-top:0px;">
-</font>
-</center>
-EOF
-cat tmp_toc
 
-cat<<'EOF'
+
+<img src="dots4.png" width=200 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
+<hr style="paddiing-top:0px; margin-top:0px;">
+</center>
     </div>
  <div id="right">
-EOF
+<h1 id="asdas">asdas</h1>
+<p>$$
+\begin{array}{rcl}
+t_i&amp;\subseteq&amp; T\\
+a_i&amp;\subseteq&amp; A\\
+g_i&amp;\subseteq&amp; G
+\end{array}
+$$
+$$
+{w_i=\left(
+\begin{array}{rcl}
+t_i \wedge a_i&amp; \vdash&amp; g_i \\\ 
+t_i \wedge a_i&amp; \not\vdash&amp; \bot
+\end{array}\right)
+\\
+w_0={\mathit best}(w)}
+$$</p>
+<p>The <em>keys</em> assumptions are those that do not depend on any other assumption:</p>
+<ul>
+<li>repeated observation: the number of <em>keys</em>  is very small.</li>
+</ul>
+    </div>
+ </body>
+</html>
