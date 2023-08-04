@@ -8,10 +8,8 @@ gawk 'sub(/^# /,""){print "<title>"$0"</title>"}' $1
 
 cat<<-'EOF'
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="b.css">
-  <xlink rel="stylesheet" href="css/default.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+  <link rel="stylesheet" href="style.css">
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       extensions: ["tex2jax.js"],
@@ -29,16 +27,26 @@ cat<<-'EOF'
    </script>
 </head>
 <body>
-<font    style="color:rgb(72,14,120);">
-<img src="dots3.png" width=250 align=left
-  style="margin-bottom: 0px; padding-bottom: 0px;"> 
-   <p style="text-align:right; padding-top: 0px; margin-top: 0px;">
+
+<div id="left">
+EOF
+cat tmp_toc
+
+cat<<'EOF'
+    </div>
+ <div id="right">
+
+<font style="color:rgb(72,14,120);">
+<img src="dots3.png" width=250 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
+<p style="text-align:right; padding-top: 0px; margin-top: 0px;">
+
 <a  href="index.html">home</a> :: 
 <a href="">src</a> ::
 <a href="">issues</a> </p>
+
 <h3>SE+AI: just the important bits</h3>
 <a href="license">&copy;2023</a> by <a href="">Tim Menzies</a>
+
 </font><br clear=all>
 <hr style="paddiing-top:0px; margin-top:0px;">
-
 EOF

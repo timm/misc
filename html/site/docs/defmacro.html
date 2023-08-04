@@ -3,10 +3,8 @@
 <head>
 <title>Defmacro</title>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="b.css">
-  <xlink rel="stylesheet" href="css/default.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+  <link rel="stylesheet" href="style.css">
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       extensions: ["tex2jax.js"],
@@ -24,17 +22,8 @@
    </script>
 </head>
 <body>
-<font    style="color:rgb(72,14,120);">
-<img src="dots3.png" width=250 align=left
-  style="margin-bottom: 0px; padding-bottom: 0px;"> 
-   <p style="text-align:right; padding-top: 0px; margin-top: 0px;">
-<a  href="index.html">home</a> :: 
-<a href="">src</a> ::
-<a href="">issues</a> </p>
-<h3>SE+AI: just the important bits</h3>
-<a href="license">&copy;2023</a> by <a href="">Tim Menzies</a>
-</font><br clear=all>
-<hr style="paddiing-top:0px; margin-top:0px;">
+
+<div id="left">
 
 <div class="toc">
 <ul>
@@ -46,14 +35,30 @@
 <li><a href="#saner-simpler-objects">Saner, Simpler,  Objects</a></li>
 <li><a href="#symbol-counts">Symbol Counts</a></li>
 <li><a href="#csv-reader">CSV Reader</a></li>
-<li><a href="#newbie-mistakes-with-macros">Newbie Mistakes with Macros</a></li>
+<li><a href="#newbie-mistakes">Newbie Mistakes</a></li>
 <li><a href="#a-little-fun">A Little Fun</a></li>
-<li><a href="#i-dont-like-what-youve-done-here">"I don't like what you've done here"</a></li>
+<li><a href="#dont-like-it">"Don't like it"</a></li>
 <li><a href="#references">References</a></li>
 </ul>
 </li>
 </ul>
 </div>
+    </div>
+ <div id="right">
+
+<font style="color:rgb(72,14,120);">
+<img src="dots3.png" width=250 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
+<p style="text-align:right; padding-top: 0px; margin-top: 0px;">
+
+<a  href="index.html">home</a> :: 
+<a href="">src</a> ::
+<a href="">issues</a> </p>
+
+<h3>SE+AI: just the important bits</h3>
+<a href="license">&copy;2023</a> by <a href="">Tim Menzies</a>
+
+</font><br clear=all>
+<hr style="paddiing-top:0px; margin-top:0px;">
 <h1 id="defmacro">Defmacro</h1>
 <div class="admonition summary">
 <p class="admonition-title">TL;DR</p>
@@ -376,7 +381,7 @@ macro tricks; </p>
 ; ==&gt; 3192
 </code></pre></div>
 
-<h2 id="newbie-mistakes-with-macros">Newbie Mistakes with Macros</h2>
+<h2 id="newbie-mistakes">Newbie Mistakes</h2>
 <p>Here's a classic newb errors: <em>repeated processing</em>. 
 The following macro looks fine <em>but</em> it includes the <code>x</code> expression
 twice. So what ever <code>x</code> does, it does it twice. </p>
@@ -430,7 +435,7 @@ which binds the function itself to the anaphor <code>self</code>, allowing it to
 </code></pre></div>
 
 <p>You know you've caught the macro bug if this example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).</p>
-<h2 id="i-dont-like-what-youve-done-here">"I don't like what you've done here"</h2>
+<h2 id="dont-like-it">"Don't like it"</h2>
 <p>Say you don't like the code I've got here. No drama.
 We don't need
 to go all walrus about it. Just delete my code and do whatever it is you
@@ -441,3 +446,4 @@ you organize things. Share and enjoy!</p>
 <li>[[[DIJ72]]] Edsger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).</li>
 <li>[[[GRA95]]] Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall |#</li>
 </ul>
+</div></body></html>

@@ -25,6 +25,8 @@ On this page:
 |[`has`](#symbol-counts)                        |:| simplifying  symbol counting (for key sizes of 50 or less)|
 |[`with-csv`](#csv-reader)                      |:| easy processing of csv files |
 
+[TOC]
+
 ## Attack of the Walrus
 
 Do you think you don't need the flexability of macros?
@@ -275,7 +277,7 @@ Here is `with-csv` in operation. It sums the number of cells in all lines of a  
 
 ;include test/with-csv.lisp
 
-## Newbie Mistakes with Macros
+## Newbie Mistakes 
 
 Here's a classic newb errors: _repeated processing_. 
 The following macro looks fine _but_ it includes the `x` expression
@@ -334,7 +336,7 @@ which binds the function itself to the anaphor `self`, allowing it to recurse:
 
 You know you've caught the macro bug if this example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).
 
-## "I don't like what you've done here"
+## "Don't like it"
 
 Say you don't like the code I've got here. No drama.
 We don't need
