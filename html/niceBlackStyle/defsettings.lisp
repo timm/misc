@@ -1,4 +1,5 @@
 (unless (fboundp 'aif) (load "defmacro"))
+(unless (fboundp 'srand) (load "lib"))
 
 (defvar *settings*
   '((about "cutr"
@@ -22,23 +23,20 @@
 ;----------------------------------------------------
 (defmacro ? (x) `(caddr (assoc ',x *settings*)))
 
-(defun args ()
-  #+sbcl sb-ext:*posix-argv*
-  #+clisp ext:*args*)
+(defun settings-update (settings)
+  (loop for (flag help b4) in settings collect 
+	(let ((after (aif (member (format nil "--~(~a~)" flag) (args) :test #'equalp)
+			(typecase b4
+			  (number (read-from-string (second it)))
+			  (string (second it))
+			  (t      (not b4)))
+			b4))) ; no update
+	  (list flag help after))))
 
-(defun cli (lst)
-  (loop for (flag help b4) in lst collect 
-    (list flag help (aif (member (format nil "--~(~a~)" flag) (args) :test #'equalp)
-                      (typecase b4
-                        (number (read-from-string (second it)))
-                        (string (second it))
-                        (t      (not b4)))
-                      b4)))) ; no update
-
-(defun show-help ()
-  (format t "~%~{~a~%~}OPTIONS:~%" (? about))
-  (dolist (x (cdr *settings*)) 
+(defun settings-show (settings)
+  (format t "~%~{~a~%~}OPTIONS:~%" (caddr (assoc 'about settings)))
+  (dolist (x (cdr settings)) 
     (format t "  --~(~10a~) ~a~%"  (first x) (second x))))
 ;------------------------------------------------------------------------------------
-(setf *settings* (cli *settings*))
-(if (? help) (show-help))
+(setf *settings* (settings-update *settings*))
+(if (? help) (settings-show *settings*))

@@ -68,18 +68,17 @@ Guido van Rossum, https://hub.packtpub.com/why-guido-van-rossum-quit/[quit the P
 ## Anaphoric If
 
 To a LISPer, that whole debate about the walrus operator is just insane.
-If you want the walrus, it can be added with just two lines of code.
+If you want the walrus, it can be added with just two lines of code.   
 |#
 (defmacro aif (test this &optional that)
-   `(let                       ; note [2] 
-      ((it ,test))             ; note [3]
-      (if it ,this ,that)))    ; note [1]
+  `(let ((it ,test))            
+     (if it ,this ,that)))  
 #|
-Notes:
+If the above, note that:
 
-1.  `Defmacro` returns a list that replaces the original list (and LISP interprets that new list as code).
+1. `Defmacro` returns a list that replaces the original list (and LISP interprets that new list as code).
 2. In that code, the \` backtick defines a toggle enviornment where symbols are not evaluated...
-3. Unless proceeded by a `,comma`. Backticks lets us mix in names passed into the macro
+3. Unless proceeded by a `,` comma. Backticks lets us mix in names passed into the macro
    (in this case, the actual code of the condition `test` as well as what to do in the `this` and
    `that branch`).
 
@@ -94,22 +93,6 @@ lets us trap the results of `test`  into `it`, then use `it` later.
 Note that this change can be made to your local
 LISP without having to lobby some central committee. No drama.
 And if you don't like the `aif` macro? Fine, just don't use it.
-
-And while we are talking about it, here is an ultra-cool anaphoric lambda macro
-which binds the function itself to the anaphor `self`, allowing it to recurse:
-
-    (defmacro alambda (parms &body body)
-       `(labels ((self ,parms ,@body))
-          #'self))
-    
-     (alambda (n) ; factorial lambda 
-       (if (= n 0)
-         1
-         (* n (self (1- n))))) ;[1]
-
-Notes:
-
-1. You know you've caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).
 
 ## Macro Basics
 
@@ -141,47 +124,41 @@ this:
        (until (= n 10) (print (incf n))))
 
 LISP makes extensive use of macros. For example, here's the expansion of
-a seemingly simple `dotimes` call. 
+a seemingly simple `dotimes` call.  Note that `dotimes` expands into a set of goto statements
+(and, by the way,  the funny symbols (e.g. `#:LOOP-2860`) are variables created to handle some processing in the code). 
 
      (pprint (macroexpand '(dotimes (i 10) (print i)))) 
         
      ; ==>
       (BLOCK NIL
        (LET ((I 0))
-         (TAGBODY #:LOOP-2860        ;[2]
+         (TAGBODY #:LOOP-2860       
                (IF (>= I 10) 
-                   (GO #:END-2861))  ;[1]
+                   (GO #:END-2861))  
                (PRINT I) 
                (PSETQ I (1+ I)) 
                (GO #:LOOP-2860) 
             #:END-2861
                (RETURN-FROM NIL (PROGN NIL)))))
 
-Notes:
-
-1. The above high-level call expands into set of gotos.
-2. The funny symbols (e.g. `#:LOOP-2860`) are variables created to handle some processing in the code. 
-
 Here's a more interesting example.
 For PYTHON programers, I'll say the following is like using a context manager
-    for reaching a file. That is to say, when reading files, the `with-open-file`  macro ensures no find streams
-    are left open and dangling, even if there is a code crash.
+    for reaching a file. That is to say, when reading files, the `with-open-file` this  macro ensures:
+
+1. The file is open before any reading starts (see the initial call to `open`);
+2. No find streams
+    are left open and dangling, even if there is a code crash (see the use of `unwind-protect`); 
+3. When terminating, or cleaning up after a crash, the last 2 lines onf the expansion
+    keeps  shouting at the file stream until it closes. Which is exactly what we want to happen.
 
     (pprint (macroexpand '(with-open-file (s f) (print (read s)))))
        
     ; ==>
-    (LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ;[1]
-     (UNWIND-PROTECT                                    ;[2]
+    (LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) 
+     (UNWIND-PROTECT                                   
        (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
-          (WHEN S (CLOSE S)))                           ;[3]
+          (WHEN S (CLOSE S)))                         
             (WHEN S (CLOSE S :ABORT T))))
-
-Notes:
-
-1. Note that the file is open before any reading starts;
-2. The `unwind-protect` means that even if the code crashes, some end-processing  will still happen.
-3. That end-processing just
-    keeps  shouting at the file stream until it closes. Which is exactly what we want to happen.
 
 If you need the full details on macros, and lots of good tutorial examples,
 go see the https://lispcookbook.github.io/cl-cookbook/macros.html[LISP cookbook on macros].
@@ -332,6 +309,7 @@ could mean that that code gets confused by the other `z` (and which point, it is
 
 To fix that problem, we need a variable name that is gaureentted never to appear anywhere
 else in the source code. This is something that the LISP built-in function `gensym` can  offer.
+(so the variables with the fuuny syntax like `#:G2856` are made by `gensym`).
 
      (defmacro square (x)
        (let ((z (gensym)))
@@ -342,14 +320,25 @@ else in the source code. This is something that the LISP built-in function `gens
      (print (square 2))
         
      ; ==>
-     (LET ((#:G2856 2)) (* #:G2856 #:G2856))    ;[1] [3]
-     4                                          ;[2]
+     (LET ((#:G2856 2)) (* #:G2856 #:G2856))  ; <== This is what "(square 2)" expands into.
+     4                                        ; <== This is the result of running "(square 2)".
 
-Notes:
+## A Little Fun
+Not that I use the following, but its so much fun, I jjust got to share.
 
-1. Here's what `(square 2)` expands into to.
-2. Here's the result of running `(square 2)`
-3. Here we see the funny syntax of the `gensym` variable names (`#:G2856`).
+Here is an ultra-cool anaphoric lambda macro
+which binds the function itself to the anaphor `self`, allowing it to recurse:
+
+    (defmacro alambda (parms &body body)
+       `(labels ((self ,parms ,@body))
+          #'self))
+    
+     (alambda (n) ; factorial lambda 
+       (if (= n 0)
+         1
+         (* n (self (1- n))))) 
+
+You know you've caught the macro bug if this example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).
 
 ## "I don't like what you've done here"
 
@@ -359,9 +348,7 @@ to go all walrus about it. Just delete my code and do whatever it is you
 wanted to do.  And send me a link to that revised code-- I'd really enjoy seeing how
 you organize things. Share and enjoy!
 
-[bibliography]
-== References
+## References
 
 * [[[DIJ72]]] Edsger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).
-* [[[GRA95]]] Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall
-|#
+* [[[GRA95]]] Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall |#
