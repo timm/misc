@@ -13,3 +13,9 @@ toc:
 
 %.html : %.adoc
 	 asciidoctor  $^
+
+%.md : %.lisp
+	gawk -f lisp2md.awk $^ > $@
+
+%.html : %.md
+	(bash header.sh $.md; python3 -m markdown $(FMT) $^) > $@
