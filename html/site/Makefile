@@ -1,7 +1,7 @@
 .SILENT:
-FMT= -x toc -x codehilite -x tables -x fenced_code -x footnotes -x attr_list -x admonition
 all: docs/defmacros.html
 
+FMT= -x toc -x codehilite -x tables -x fenced_code -x footnotes -x attr_list -x admonition
 docs/%.html : tmp/%.md
 	echo "# $@ ..."
 	(bash etc/head.sh $^; python3 -m markdown $(FMT) $^) > $@
