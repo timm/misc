@@ -162,13 +162,13 @@ For PYTHON programers, I'll say the following is like using a context manager
     for reaching a file. That is to say, when reading files, the `with-open-file`  macro ensures no find streams
     are left open and dangling, even if there is a code crash.
 
-     (pprint (macroexpand '(with-open-file (s f) (print (read s)))))
-     ; ==>
-     (LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ; <1>
-      (UNWIND-PROTECT   <2>
-        (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
-           (WHEN S (CLOSE S))) ; <3>
-             (WHEN S (CLOSE S :ABORT T))))
+    (pprint (macroexpand '(with-open-file (s f) (print (read s)))))
+    ; ==>
+    (LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ; <1>
+     (UNWIND-PROTECT   <2>
+       (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
+          (WHEN S (CLOSE S))) ; <3>
+            (WHEN S (CLOSE S :ABORT T))))
 
 <1> Note that the file is open before any reading starts;
 <2> The `unwind-protect` means that even if the code crashes, some end-processing  will still happen.
