@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="b.css">
-  <link rel="stylesheet" href="css/default.css">
+  <xlink rel="stylesheet" href="css/default.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -55,7 +55,7 @@
 </div>
 <h1 id="defmacro">Defmacro</h1>
 <div class="admonition summary">
-<p class="admonition-title">Alan Kay</p>
+<p class="admonition-title">Alan Kay:</p>
 <p>Lisp isn't a language, it's a building material.</p>
 </div>
 <p>I find LISP liberating.
@@ -175,10 +175,13 @@ which binds the function itself to the anaphor <code>self</code>, allowing it to
 <span class="w"> </span><span class="p">(</span><span class="n">alambda</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">factorial</span><span class="w"> </span><span class="n">lambda</span><span class="w"> </span>
 <span class="w">   </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 <span class="w">     </span><span class="mi">1</span>
-<span class="w">     </span><span class="p">(</span><span class="o">*</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="p">(</span><span class="n">self</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="w"> </span><span class="n">n</span><span class="p">)))))</span><span class="w"> </span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span>
+<span class="w">     </span><span class="p">(</span><span class="o">*</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="p">(</span><span class="n">self</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="w"> </span><span class="n">n</span><span class="p">)))))</span><span class="w"> </span><span class="p">;</span><span class="o">[</span><span class="n">1</span><span class="o">]</span>
 </code></pre></div>
 
-<p>&lt;1&gt; You know you've caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).</p>
+<p>Notes:</p>
+<ol>
+<li>You know you've caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).</li>
+</ol>
 <h2 id="macro-basics">Macro Basics</h2>
 <p>Most things are LISP are lists, even the code.
 Macros are functions (called at load time) that return lists which the LISP interprets as code.
@@ -208,13 +211,14 @@ this:</p>
 
 <p>LISP makes extensive use of macros. For example, here's the expansion of
 a seemingly simple <code>dotimes</code> call. </p>
-<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">(</span><span class="n">pprint</span><span class="w"> </span><span class="p">(</span><span class="n">macroexpand</span><span class="w"> </span><span class="err">&#39;</span><span class="p">(</span><span class="n">dotimes</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">print</span><span class="w"> </span><span class="n">i</span><span class="p">))))</span><span class="w"> </span>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">(</span><span class="n">pprint</span><span class="w"> </span><span class="p">(</span><span class="n">macroexpand</span><span class="w"> </span><span class="err">&#39;</span><span class="p">(</span><span class="n">dotimes</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">print</span><span class="w"> </span><span class="n">i</span><span class="p">))))</span>
+
 <span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="o">==&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="n">BLOCK</span><span class="w"> </span><span class="n">NIL</span>
 <span class="w">   </span><span class="p">(</span><span class="n">LET</span><span class="w"> </span><span class="p">((</span><span class="n">I</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
-<span class="w">     </span><span class="p">(</span><span class="n">TAGBODY</span><span class="w"> </span><span class="err">#:</span><span class="n">LOOP</span><span class="o">-</span><span class="mi">2860</span><span class="w"> </span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span>
+<span class="w">     </span><span class="p">(</span><span class="n">TAGBODY</span><span class="w"> </span><span class="err">#:</span><span class="n">LOOP</span><span class="o">-</span><span class="mi">2860</span><span class="w">        </span><span class="p">;</span><span class="o">[</span><span class="n">2</span><span class="o">]</span>
 <span class="w">           </span><span class="p">(</span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="o">&gt;=</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span>
-<span class="w">               </span><span class="p">(</span><span class="k">GO</span><span class="w"> </span><span class="err">#:</span><span class="k">END</span><span class="o">-</span><span class="mi">2861</span><span class="p">))</span><span class="w">  </span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span>
+<span class="w">               </span><span class="p">(</span><span class="k">GO</span><span class="w"> </span><span class="err">#:</span><span class="k">END</span><span class="o">-</span><span class="mi">2861</span><span class="p">))</span><span class="w">  </span><span class="p">;</span><span class="o">[</span><span class="n">1</span><span class="o">]</span>
 <span class="w">           </span><span class="p">(</span><span class="k">PRINT</span><span class="w"> </span><span class="n">I</span><span class="p">)</span><span class="w"> </span>
 <span class="w">           </span><span class="p">(</span><span class="n">PSETQ</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="w"> </span><span class="n">I</span><span class="p">))</span><span class="w"> </span>
 <span class="w">           </span><span class="p">(</span><span class="k">GO</span><span class="w"> </span><span class="err">#:</span><span class="n">LOOP</span><span class="o">-</span><span class="mi">2860</span><span class="p">)</span><span class="w"> </span>
@@ -222,25 +226,32 @@ a seemingly simple <code>dotimes</code> call. </p>
 <span class="w">           </span><span class="p">(</span><span class="k">RETURN</span><span class="o">-</span><span class="k">FROM</span><span class="w"> </span><span class="n">NIL</span><span class="w"> </span><span class="p">(</span><span class="n">PROGN</span><span class="w"> </span><span class="n">NIL</span><span class="p">)))))</span>
 </code></pre></div>
 
-<p>&lt;1&gt; The above high-level call expands into set of gotos.
-&lt;2&gt; The funny symbols (e.g. <code>#:LOOP-2860</code>) are variables created to handle some processing in the code. </p>
+<p>Notes:</p>
+<ol>
+<li>The above high-level call expands into set of gotos.</li>
+<li>The funny symbols (e.g. <code>#:LOOP-2860</code>) are variables created to handle some processing in the code. </li>
+</ol>
 <p>Here's a more interesting example.
 For PYTHON programers, I'll say the following is like using a context manager
     for reaching a file. That is to say, when reading files, the <code>with-open-file</code>  macro ensures no find streams
     are left open and dangling, even if there is a code crash.</p>
 <div class="codehilite"><pre><span></span><code><span class="o">(</span><span class="nt">pprint</span><span class="w"> </span><span class="o">(</span><span class="nt">macroexpand</span><span class="w"> </span><span class="err">&#39;</span><span class="o">(</span><span class="nt">with-open-file</span><span class="w"> </span><span class="o">(</span><span class="nt">s</span><span class="w"> </span><span class="nt">f</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="nt">print</span><span class="w"> </span><span class="o">(</span><span class="nt">read</span><span class="w"> </span><span class="nt">s</span><span class="o">)))))</span>
+
 <span class="o">;</span><span class="w"> </span><span class="o">==&gt;</span>
-<span class="o">(</span><span class="nt">LET</span><span class="w"> </span><span class="o">((</span><span class="nt">S</span><span class="w"> </span><span class="o">(</span><span class="nt">OPEN</span><span class="w"> </span><span class="nt">F</span><span class="o">)))</span><span class="w"> </span><span class="o">(</span><span class="nt">DECLARE</span><span class="w"> </span><span class="o">(</span><span class="nt">SYSTEM</span><span class="p">::</span><span class="nd">READ-ONLY</span><span class="w"> </span><span class="nt">S</span><span class="o">))</span><span class="w"> </span><span class="o">;</span><span class="w"> </span><span class="o">&lt;</span><span class="nt">1</span><span class="o">&gt;</span>
-<span class="w"> </span><span class="o">(</span><span class="nt">UNWIND-PROTECT</span><span class="w">   </span><span class="o">&lt;</span><span class="nt">2</span><span class="o">&gt;</span>
+<span class="o">(</span><span class="nt">LET</span><span class="w"> </span><span class="o">((</span><span class="nt">S</span><span class="w"> </span><span class="o">(</span><span class="nt">OPEN</span><span class="w"> </span><span class="nt">F</span><span class="o">)))</span><span class="w"> </span><span class="o">(</span><span class="nt">DECLARE</span><span class="w"> </span><span class="o">(</span><span class="nt">SYSTEM</span><span class="p">::</span><span class="nd">READ-ONLY</span><span class="w"> </span><span class="nt">S</span><span class="o">))</span><span class="w"> </span><span class="o">;</span><span class="cp">[</span><span class="mi">1</span><span class="cp">]</span>
+<span class="w"> </span><span class="o">(</span><span class="nt">UNWIND-PROTECT</span><span class="w">                                    </span><span class="o">;</span><span class="cp">[</span><span class="mi">2</span><span class="cp">]</span>
 <span class="w">   </span><span class="o">(</span><span class="nt">MULTIPLE-VALUE-PROG1</span><span class="w"> </span><span class="o">(</span><span class="nt">PROGN</span><span class="w"> </span><span class="o">(</span><span class="nt">PRINT</span><span class="w"> </span><span class="o">(</span><span class="nt">READ</span><span class="w"> </span><span class="nt">S</span><span class="o">)))</span>
-<span class="w">      </span><span class="o">(</span><span class="nt">WHEN</span><span class="w"> </span><span class="nt">S</span><span class="w"> </span><span class="o">(</span><span class="nt">CLOSE</span><span class="w"> </span><span class="nt">S</span><span class="o">)))</span><span class="w"> </span><span class="o">;</span><span class="w"> </span><span class="o">&lt;</span><span class="nt">3</span><span class="o">&gt;</span>
+<span class="w">      </span><span class="o">(</span><span class="nt">WHEN</span><span class="w"> </span><span class="nt">S</span><span class="w"> </span><span class="o">(</span><span class="nt">CLOSE</span><span class="w"> </span><span class="nt">S</span><span class="o">)))</span><span class="w">                           </span><span class="o">;</span><span class="cp">[</span><span class="mi">3</span><span class="cp">]</span>
 <span class="w">        </span><span class="o">(</span><span class="nt">WHEN</span><span class="w"> </span><span class="nt">S</span><span class="w"> </span><span class="o">(</span><span class="nt">CLOSE</span><span class="w"> </span><span class="nt">S</span><span class="w"> </span><span class="p">:</span><span class="nd">ABORT</span><span class="w"> </span><span class="nt">T</span><span class="o">))))</span>
 </code></pre></div>
 
-<p>&lt;1&gt; Note that the file is open before any reading starts;
-&lt;2&gt; The <code>unwind-protect</code> means that even if the code crashes, some end-processing  will still happen.
-&lt;2&gt; That end-processing just
-    keeps  shouting at the file stream until it closes. Which is exactly what we want to happen.</p>
+<p>Notes:</p>
+<ol>
+<li>Note that the file is open before any reading starts;</li>
+<li>The <code>unwind-protect</code> means that even if the code crashes, some end-processing  will still happen.</li>
+<li>That end-processing just
+    keeps  shouting at the file stream until it closes. Which is exactly what we want to happen.</li>
+</ol>
 <p>If you need the full details on macros, and lots of good tutorial examples,
 go see the https://lispcookbook.github.io/cl-cookbook/macros.html[LISP cookbook on macros].</p>
 <p>And for some notes on standard macro newbie errors, see the end of this papge.</p>
@@ -333,6 +344,7 @@ this code runs as fast as hash tables, and is simpler to use.</p>
 <span class="w">            </span><span class="p">(</span><span class="nb">car</span><span class="w"> </span><span class="p">(</span><span class="nb">setf</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="o">,</span><span class="nv">x</span><span class="w"> </span><span class="o">,</span><span class="nv">init</span><span class="p">)</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="p">))))))</span>
 </code></pre></div>
 
+<p>For example:</p>
 <div class="codehilite"><pre><span></span><code>(load &quot;macros&quot;) ; test-has.lisp
 
 (let (count)
@@ -418,17 +430,21 @@ else in the source code. This is something that the LISP built-in function <code
    (let ((z (gensym)))
      `(let ((,z ,x))
         (* ,z ,z))))
- ; 
+
  (print (macroexpand  &#39;(square 2)))
  (print (square 2))
+
  ; ==&gt;
- (LET ((#:G2856 2)) (* #:G2856 #:G2856)) &lt;1&gt; &lt;3&gt;
- 4 &lt;2&gt;
+ (LET ((#:G2856 2)) (* #:G2856 #:G2856))    ;[1] [3]
+ 4                                          ;[2]
 </code></pre></div>
 
-<p>&lt;1&gt; Here's what <code>(square 2)</code> expands into to.
-&lt;2&gt; Here's the result of running <code>(square 2)</code>
-&lt;3&gt; Here we see the funny syntax of the <code>gensym</code> variable names (<code>#:G2856</code>).</p>
+<p>Notes:</p>
+<ol>
+<li>Here's what <code>(square 2)</code> expands into to.</li>
+<li>Here's the result of running <code>(square 2)</code></li>
+<li>Here we see the funny syntax of the <code>gensym</code> variable names (<code>#:G2856</code>).</li>
+</ol>
 <h2 id="i-dont-like-what-youve-done-here">"I don't like what you've done here"</h2>
 <p>Say you don't like the code I've got here. No drama.
 We don't need

@@ -1,7 +1,7 @@
 #|
 # Defmacro
 
-!!! summary  "Alan Kay"
+!!! summary  "Alan Kay:"
     Lisp isn't a language, it's a building material.
 
 
@@ -105,9 +105,11 @@ which binds the function itself to the anaphor `self`, allowing it to recurse:
      (alambda (n) ; factorial lambda 
        (if (= n 0)
          1
-         (* n (self (1- n))))) <1>
+         (* n (self (1- n))))) ;[1]
 
-<1> You know you've caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).
+Notes:
+
+1. You know you've caught the macro bug if the above example gets you thinking "is all of OO just 10 lines of LISP macros?". Exercise for the reader! (But, btw, I've tried it and it gets suprisingly tricky surprisingly quickly).
 
 ## Macro Basics
 
@@ -142,20 +144,23 @@ LISP makes extensive use of macros. For example, here's the expansion of
 a seemingly simple `dotimes` call. 
 
      (pprint (macroexpand '(dotimes (i 10) (print i)))) 
+        
      ; ==>
       (BLOCK NIL
        (LET ((I 0))
-         (TAGBODY #:LOOP-2860 <2>
+         (TAGBODY #:LOOP-2860        ;[2]
                (IF (>= I 10) 
-                   (GO #:END-2861))  <1>
+                   (GO #:END-2861))  ;[1]
                (PRINT I) 
                (PSETQ I (1+ I)) 
                (GO #:LOOP-2860) 
             #:END-2861
                (RETURN-FROM NIL (PROGN NIL)))))
 
-<1> The above high-level call expands into set of gotos.
-<2> The funny symbols (e.g. `#:LOOP-2860`) are variables created to handle some processing in the code. 
+Notes:
+
+1. The above high-level call expands into set of gotos.
+2. The funny symbols (e.g. `#:LOOP-2860`) are variables created to handle some processing in the code. 
 
 Here's a more interesting example.
 For PYTHON programers, I'll say the following is like using a context manager
@@ -163,16 +168,19 @@ For PYTHON programers, I'll say the following is like using a context manager
     are left open and dangling, even if there is a code crash.
 
     (pprint (macroexpand '(with-open-file (s f) (print (read s)))))
+       
     ; ==>
-    (LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ; <1>
-     (UNWIND-PROTECT   <2>
+    (LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) ;[1]
+     (UNWIND-PROTECT                                    ;[2]
        (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
-          (WHEN S (CLOSE S))) ; <3>
+          (WHEN S (CLOSE S)))                           ;[3]
             (WHEN S (CLOSE S :ABORT T))))
 
-<1> Note that the file is open before any reading starts;
-<2> The `unwind-protect` means that even if the code crashes, some end-processing  will still happen.
-<2> That end-processing just
+Notes:
+
+1. Note that the file is open before any reading starts;
+2. The `unwind-protect` means that even if the code crashes, some end-processing  will still happen.
+3. That end-processing just
     keeps  shouting at the file stream until it closes. Which is exactly what we want to happen.
 
 If you need the full details on macros, and lots of good tutorial examples,
@@ -253,6 +261,8 @@ this code runs as fast as hash tables, and is simpler to use.
             (car (setf ,lst (cons (cons ,x ,init) ,lst))))))
 #|
 
+For example:
+
 ;include test/has.lisp
     
 Two nice features of this code are that:
@@ -327,16 +337,19 @@ else in the source code. This is something that the LISP built-in function `gens
        (let ((z (gensym)))
          `(let ((,z ,x))
             (* ,z ,z))))
-     ; 
+         
      (print (macroexpand  '(square 2)))
      (print (square 2))
+        
      ; ==>
-     (LET ((#:G2856 2)) (* #:G2856 #:G2856)) <1> <3>
-     4 <2>
+     (LET ((#:G2856 2)) (* #:G2856 #:G2856))    ;[1] [3]
+     4                                          ;[2]
 
-<1> Here's what `(square 2)` expands into to.
-<2> Here's the result of running `(square 2)`
-<3> Here we see the funny syntax of the `gensym` variable names (`#:G2856`).
+Notes:
+
+1. Here's what `(square 2)` expands into to.
+2. Here's the result of running `(square 2)`
+3. Here we see the funny syntax of the `gensym` variable names (`#:G2856`).
 
 ## "I don't like what you've done here"
 
