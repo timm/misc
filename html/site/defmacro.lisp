@@ -279,6 +279,8 @@ Here is `with-csv` in operation. It sums the number of cells in all lines of a  
 
 ## Newbie Mistakes 
 
+### Repeated Processing
+
 Here's a classic newb errors: _repeated processing_. 
 The following macro looks fine _but_ it includes the `x` expression
 twice. So what ever `x` does, it does it twice. 
@@ -289,6 +291,8 @@ twice. So what ever `x` does, it does it twice.
 This could be a very bad thing, depending on 
 how slow is `x` to compute, or if  `x` has global side-effects such that calling it twice gives
 different answers each time.
+
+### Variable Capture
 
 We could try to fix this, and if we do that wrong then we get to another newb error: 
 _variable capture_. In this next macro, we run `x` only once and capture its output in `z`. 
@@ -320,7 +324,7 @@ else in the source code. This is something that the LISP built-in function `gens
      4                                        ; <== This is the result of running "(square 2)".
 
 ## A Little Fun
-Not that I use the following, but its so much fun, I jjust got to share.
+Not that I use the following, but its so much fun, I just got to share.
 
 Here is an ultra-cool anaphoric lambda macro
 which binds the function itself to the anaphor `self`, allowing it to recurse:

@@ -24,6 +24,19 @@
 <body>
 
 <div id="left">
+<center>
+<p><a  href="index.html">home</a> :: 
+<a href="">src</a> ::
+<a href="">issues</a> </p>
+<hr>
+
+<font style="color:rgb(72,14,120);">
+<h1>SE+AI:<br>just the important bits</h1>
+<p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p>
+<img src="dots3.png" width=200 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
+<hr style="paddiing-top:0px; margin-top:0px;">
+</font>
+</center>
 
 <div class="toc">
 <ul>
@@ -35,7 +48,11 @@
 <li><a href="#saner-simpler-objects">Saner, Simpler,  Objects</a></li>
 <li><a href="#symbol-counts">Symbol Counts</a></li>
 <li><a href="#csv-reader">CSV Reader</a></li>
-<li><a href="#newbie-mistakes">Newbie Mistakes</a></li>
+<li><a href="#newbie-mistakes">Newbie Mistakes</a><ul>
+<li><a href="#repeated-processing">Repeated Processing</a></li>
+<li><a href="#variable-capture">Variable Capture</a></li>
+</ul>
+</li>
 <li><a href="#a-little-fun">A Little Fun</a></li>
 <li><a href="#dont-like-it">"Don't like it"</a></li>
 <li><a href="#references">References</a></li>
@@ -45,20 +62,6 @@
 </div>
     </div>
  <div id="right">
-
-<font style="color:rgb(72,14,120);">
-<img src="dots3.png" width=250 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
-<p style="text-align:right; padding-top: 0px; margin-top: 0px;">
-
-<a  href="index.html">home</a> :: 
-<a href="">src</a> ::
-<a href="">issues</a> </p>
-
-<h3>SE+AI: just the important bits</h3>
-<a href="license">&copy;2023</a> by <a href="">Tim Menzies</a>
-
-</font><br clear=all>
-<hr style="paddiing-top:0px; margin-top:0px;">
 <h1 id="defmacro">Defmacro</h1>
 <div class="admonition summary">
 <p class="admonition-title">TL;DR</p>
@@ -382,6 +385,7 @@ macro tricks; </p>
 </code></pre></div>
 
 <h2 id="newbie-mistakes">Newbie Mistakes</h2>
+<h3 id="repeated-processing">Repeated Processing</h3>
 <p>Here's a classic newb errors: <em>repeated processing</em>. 
 The following macro looks fine <em>but</em> it includes the <code>x</code> expression
 twice. So what ever <code>x</code> does, it does it twice. </p>
@@ -392,6 +396,7 @@ twice. So what ever <code>x</code> does, it does it twice. </p>
 <p>This could be a very bad thing, depending on 
 how slow is <code>x</code> to compute, or if  <code>x</code> has global side-effects such that calling it twice gives
 different answers each time.</p>
+<h3 id="variable-capture">Variable Capture</h3>
 <p>We could try to fix this, and if we do that wrong then we get to another newb error: 
 <em>variable capture</em>. In this next macro, we run <code>x</code> only once and capture its output in <code>z</code>. 
 Then we square
@@ -421,7 +426,7 @@ else in the source code. This is something that the LISP built-in function <code
 </code></pre></div>
 
 <h2 id="a-little-fun">A Little Fun</h2>
-<p>Not that I use the following, but its so much fun, I jjust got to share.</p>
+<p>Not that I use the following, but its so much fun, I just got to share.</p>
 <p>Here is an ultra-cool anaphoric lambda macro
 which binds the function itself to the anaphor <code>self</code>, allowing it to recurse:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="n">defmacro</span><span class="w"> </span><span class="n">alambda</span><span class="w"> </span><span class="p">(</span><span class="n">parms</span><span class="w"> </span><span class="o">&amp;</span><span class="n">body</span><span class="w"> </span><span class="n">body</span><span class="p">)</span>

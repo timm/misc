@@ -29,24 +29,23 @@ cat<<-'EOF'
 <body>
 
 <div id="left">
+<center>
+<p><a  href="index.html">home</a> :: 
+<a href="">src</a> ::
+<a href="">issues</a> </p>
+<hr>
+
+<font style="color:rgb(72,14,120);">
+<h1>SE+AI:<br>just the important bits</h1>
+<p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p>
+<img src="dots3.png" width=200 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
+<hr style="paddiing-top:0px; margin-top:0px;">
+</font>
+</center>
 EOF
 cat tmp_toc
 
 cat<<'EOF'
     </div>
  <div id="right">
-
-<font style="color:rgb(72,14,120);">
-<img src="dots3.png" width=250 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
-<p style="text-align:right; padding-top: 0px; margin-top: 0px;">
-
-<a  href="index.html">home</a> :: 
-<a href="">src</a> ::
-<a href="">issues</a> </p>
-
-<h3>SE+AI: just the important bits</h3>
-<a href="license">&copy;2023</a> by <a href="">Tim Menzies</a>
-
-</font><br clear=all>
-<hr style="paddiing-top:0px; margin-top:0px;">
 EOF
