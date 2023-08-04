@@ -9,6 +9,7 @@ docs/%.html : tmp/%.md
 	python3 -m markdown $(FMT) $^ > tmp_md_all
 	gawk '/<div class="toc"/,/<\/div>/ { print $0>>"tmp_toc"; next} 1'  tmp_md_all > tmp_md_less
 	(bash etc/head.sh $^ ; cat tmp_md_less; echo "</div></body></html>") > $@
+	rm tmp_*
 
 
 tmp/%.md : %.lisp
