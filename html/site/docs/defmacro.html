@@ -2,7 +2,6 @@
 <html>
 <head>
 <title>Defmacro</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family='Roboto Mono'">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="b.css">
@@ -42,6 +41,9 @@
 <li><a href="#defmacro">Defmacro</a><ul>
 <li><a href="#attack-of-the-walrus">Attack of the Walrus</a></li>
 <li><a href="#anaphoric-if">Anaphoric If</a></li>
+<li><a href="#macro-basics">Macro Basics</a></li>
+<li><a href="#nested-slot-accessors">Nested Slot Accessors</a></li>
+<li><a href="#saner-simpler-objects">Saner, Simpler,  Objects</a></li>
 <li><a href="#symbol-counts">Symbol Counts</a></li>
 <li><a href="#csv-reader">CSV Reader</a></li>
 <li><a href="#newbie-mistakes-with-macros">Newbie Mistakes with Macros</a></li>
@@ -54,17 +56,20 @@
 </div>
 <h1 id="defmacro">Defmacro</h1>
 <div class="admonition summary">
-<p class="admonition-title">Alan Kay:</p>
-<p>Lisp isn't a language, it's a building material.</p>
-</div>
-<p>I find LISP liberating.
-Compared to other languages,
-it
-offers fewer barriers and encourages
-more experimentation.
-For example, as shown by the examples below, 
+<p class="admonition-title">TL;DR</p>
+<p>As shown by the examples on this page,
 LISP's
-macro system makes it trivial to extend the language:</p>
+macro system makes it trivial to extend the language.</p>
+<p>Like any other power tool, macros need to
+be used with care.
+<a href="https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros">Google's LISP style guide</a>
+cautions that  macros should  be used sparingly.
+For example, in   1000 lines of my own LISP code, there might only
+be 30 (ish) lines of macros.  But even if I don't write macros all
+the time, the key here is that, with LISP, the door is always open
+to creating new and powerful and succinct abstractions.</p>
+</div>
+<p>On this page:</p>
 <table>
 <thead>
 <tr>
@@ -101,20 +106,9 @@ macro system makes it trivial to extend the language:</p>
 </tr>
 </tbody>
 </table>
-<p>It has taken decades for other languages to evolve something as
-powerful as LISP's macro system (e.g. these days JULIA has a nice
-macro system that lets programmers manipulate the abstract syntax
-tree of its own code).  And like any powerful tool, macros need to
-be used with care.
-<a href="https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros">Google's LISP style guide</a>
-cautions that  macros should  be used sparingly.
-For example, in   1000 lines of my own LISP code, there might only
-be 30 (ish) lines of macros.  But even if I don't write macros all
-the time, the key here is that, with LISP, the door is always open
-to creating new and powerful and succinct abstractions.</p>
 <h2 id="attack-of-the-walrus">Attack of the Walrus</h2>
-<p>Not convinced? Do you think you don't need LISP's open-endedness?
-Ok, then lets take a look at what happens in languages <em>without</em> LISP's flexibility.</p>
+<p>Do you think you don't need the flexability of macros?
+Ok, then lets take a look at what happens in languages <em>without</em> that  flexibility.</p>
 <p>Who remembers the bitter feud
 over
 the walrus operator (<code>:=</code>) in Python3? 
@@ -140,119 +134,119 @@ Guido van Rossum, https://hub.packtpub.com/why-guido-van-rossum-quit/[quit the P
 (change)  and find that so many people despise my decisions.", he said.</p>
 <h2 id="anaphoric-if">Anaphoric If</h2>
 <p>To a LISPer, that whole debate about the walrus operator is just insane.
-If you want the walrus, it can be added with just two lines of code. <br />
-(defmacro aif (test this &amp;optional that)
-  `(let ((it ,test))          <br />
-     (if it ,this ,that)))  </p>
-<div class="codehilite"><pre><span></span><code><span class="n">If</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">above</span><span class="p">,</span><span class="w"> </span><span class="n">note</span><span class="w"> </span><span class="n">that</span><span class="p">:</span>
+If you want the walrus, it can be added with just two lines of code.   </p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">aif</span><span class="w"> </span><span class="p">(</span><span class="nv">test</span><span class="w"> </span><span class="nv">this</span><span class="w"> </span><span class="k">&amp;optional</span><span class="w"> </span><span class="nv">that</span><span class="p">)</span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">test</span><span class="p">))</span><span class="w">            </span>
+<span class="w">     </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="o">,</span><span class="nv">this</span><span class="w"> </span><span class="o">,</span><span class="nv">that</span><span class="p">)))</span><span class="w">  </span>
+</code></pre></div>
 
-<span class="mf">1.</span><span class="w"> </span><span class="err">`</span><span class="n">Defmacro</span><span class="err">`</span><span class="w"> </span><span class="n">returns</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">replaces</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">original</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="p">(</span><span class="ow">and</span><span class="w"> </span><span class="n">LISP</span><span class="w"> </span><span class="n">interprets</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">code</span><span class="p">)</span><span class="o">.</span>
-<span class="mf">2.</span><span class="w"> </span><span class="n">In</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">code</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span>\<span class="err">`</span><span class="w"> </span><span class="n">backtick</span><span class="w"> </span><span class="n">defines</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">toggle</span><span class="w"> </span><span class="n">enviornment</span><span class="w"> </span><span class="n">where</span><span class="w"> </span><span class="n">symbols</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">evaluated</span><span class="o">...</span>
-<span class="mf">3.</span><span class="w"> </span><span class="n">Unless</span><span class="w"> </span><span class="n">proceeded</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="err">`</span><span class="p">,</span><span class="err">`</span><span class="w"> </span><span class="n">comma</span><span class="o">.</span><span class="w"> </span><span class="n">Backticks</span><span class="w"> </span><span class="n">lets</span><span class="w"> </span><span class="n">us</span><span class="w"> </span><span class="n">mix</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">names</span><span class="w"> </span><span class="n">passed</span><span class="w"> </span><span class="n">into</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">macro</span>
-<span class="w">   </span><span class="p">(</span><span class="ow">in</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">case</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">actual</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">condition</span><span class="w"> </span><span class="err">`</span><span class="n">test</span><span class="err">`</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">well</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">what</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">do</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="err">`</span><span class="n">this</span><span class="err">`</span><span class="w"> </span><span class="ow">and</span>
-<span class="w">   </span><span class="err">`</span><span class="n">that</span><span class="w"> </span><span class="n">branch</span><span class="err">`</span><span class="p">)</span><span class="o">.</span>
+<p>If the above, note that:</p>
+<ol>
+<li><code>Defmacro</code> returns a list that replaces the original list (and LISP interprets that new list as code).</li>
+<li>In that code, the ` backtick defines a toggle enviornment where symbols are not evaluated...</li>
+<li>Unless proceeded by a <code>,</code> comma. Backticks lets us mix in names passed into the macro
+   (in this case, the actual code of the condition <code>test</code> as well as what to do in the <code>this</code> and
+   <code>that branch</code>).</li>
+</ol>
+<p>(Also, not shown above, the idiom <code>,@list</code> means create the list and lay it out flat.)</p>
+<p>The above <code>defmacro</code>
+lets us trap the results of <code>test</code>  into <code>it</code>, then use <code>it</code> later.</p>
+<div class="codehilite"><pre><span></span><code>(aif (big-long-calculation)
+  (foo it))
+</code></pre></div>
 
-<span class="p">(</span><span class="n">Also</span><span class="p">,</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">shown</span><span class="w"> </span><span class="n">above</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">idiom</span><span class="w"> </span><span class="err">`</span><span class="p">,</span><span class="err">@</span><span class="n">list</span><span class="err">`</span><span class="w"> </span><span class="n">means</span><span class="w"> </span><span class="n">create</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">lay</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">flat</span><span class="o">.</span><span class="p">)</span>
+<p>Note that this change can be made to your local
+LISP without having to lobby some central committee. No drama.
+And if you don't like the <code>aif</code> macro? Fine, just don't use it.</p>
+<h2 id="macro-basics">Macro Basics</h2>
+<p>Most things are LISP are lists, even the code.
+Macros are functions (called at load time) that return lists which the LISP interprets as code.
+So macros are code that rewrites code.</p>
+<p>Macros are  not so much "coded" so much as they are "drawn". For example, the above <code>aif</code> definition,
+  the last line shows the code that is desired.
+For another example of "drawing a macro", suppose someone had been nice enough to define a <code>while</code> macro for you:</p>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">(</span><span class="n">defmacro</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="w"> </span><span class="o">&amp;</span><span class="n">body</span><span class="w"> </span><span class="n">body</span><span class="p">)</span>
+<span class="w">   </span><span class="err">`</span><span class="p">(</span><span class="n">do</span><span class="w"> </span><span class="p">()</span>
+<span class="w">        </span><span class="p">((</span><span class="ow">not</span><span class="w"> </span><span class="p">,</span><span class="n">test</span><span class="p">))</span>
+<span class="w">      </span><span class="p">,</span><span class="nv">@body</span><span class="p">))</span>
 
-<span class="n">The</span><span class="w"> </span><span class="n">above</span><span class="w"> </span><span class="err">`</span><span class="n">defmacro</span><span class="err">`</span>
-<span class="n">lets</span><span class="w"> </span><span class="n">us</span><span class="w"> </span><span class="n">trap</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">results</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="err">`</span><span class="n">test</span><span class="err">`</span><span class="w">  </span><span class="n">into</span><span class="w"> </span><span class="err">`</span><span class="n">it</span><span class="err">`</span><span class="p">,</span><span class="w"> </span><span class="n">then</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="err">`</span><span class="n">it</span><span class="err">`</span><span class="w"> </span><span class="n">later</span><span class="o">.</span>
+<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="n">numbers</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mf">3.</span><span class="p">..</span><span class="w"> </span><span class="mi">10</span>
+<span class="w"> </span><span class="p">(</span><span class="n">let</span><span class="w"> </span><span class="p">((</span><span class="n">n</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
+<span class="w">   </span><span class="p">(</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">print</span><span class="w"> </span><span class="p">(</span><span class="n">incf</span><span class="w"> </span><span class="n">n</span><span class="p">))))</span>
+</code></pre></div>
 
-<span class="w">    </span><span class="p">(</span><span class="n">aif</span><span class="w"> </span><span class="p">(</span><span class="n">big</span><span class="o">-</span><span class="n">long</span><span class="o">-</span><span class="n">calculation</span><span class="p">)</span>
-<span class="w">      </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="n">it</span><span class="p">))</span>
+<p>Then you could imagine an <code>until</code> macro that was just a <code>not while</code>-- which you could draw up as a new macro like
+this:</p>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">(</span><span class="n">defmacro</span><span class="w"> </span><span class="n">until</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="w"> </span><span class="o">&amp;</span><span class="n">body</span><span class="w"> </span><span class="n">body</span><span class="p">)</span>
+<span class="w">   </span><span class="err">`</span><span class="p">(</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="ow">not</span><span class="w"> </span><span class="p">,</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="nv">@body</span><span class="p">))</span>
 
-<span class="n">Note</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">made</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">local</span>
-<span class="n">LISP</span><span class="w"> </span><span class="n">without</span><span class="w"> </span><span class="n">having</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">lobby</span><span class="w"> </span><span class="n">some</span><span class="w"> </span><span class="n">central</span><span class="w"> </span><span class="n">committee</span><span class="o">.</span><span class="w"> </span><span class="n">No</span><span class="w"> </span><span class="n">drama</span><span class="o">.</span>
-<span class="n">And</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">don</span><span class="s1">&#39;t like the `aif` macro? Fine, just don&#39;</span><span class="n">t</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">it</span><span class="o">.</span>
+<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="n">numbers</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mf">3.</span><span class="p">..</span><span class="w"> </span><span class="mi">10</span>
+<span class="w"> </span><span class="p">(</span><span class="n">let</span><span class="w"> </span><span class="p">((</span><span class="n">n</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
+<span class="w">   </span><span class="p">(</span><span class="n">until</span><span class="w"> </span><span class="p">(</span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">print</span><span class="w"> </span><span class="p">(</span><span class="n">incf</span><span class="w"> </span><span class="n">n</span><span class="p">))))</span>
+</code></pre></div>
 
-<span class="c1">## Macro Basics</span>
+<p>LISP makes extensive use of macros. For example, here's the expansion of
+a seemingly simple <code>dotimes</code> call.  Note that <code>dotimes</code> expands into a set of goto statements
+(and, by the way,  the funny symbols (e.g. <code>#:LOOP-2860</code>) are variables created to handle some processing in the code). </p>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">(</span><span class="n">pprint</span><span class="w"> </span><span class="p">(</span><span class="n">macroexpand</span><span class="w"> </span><span class="err">&#39;</span><span class="p">(</span><span class="n">dotimes</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">print</span><span class="w"> </span><span class="n">i</span><span class="p">))))</span>
 
-<span class="n">Most</span><span class="w"> </span><span class="n">things</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">LISP</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">lists</span><span class="p">,</span><span class="w"> </span><span class="n">even</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">code</span><span class="o">.</span>
-<span class="n">Macros</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">functions</span><span class="w"> </span><span class="p">(</span><span class="n">called</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="nb">load</span><span class="w"> </span><span class="n">time</span><span class="p">)</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">lists</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">LISP</span><span class="w"> </span><span class="n">interprets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">code</span><span class="o">.</span>
-<span class="n">So</span><span class="w"> </span><span class="n">macros</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">rewrites</span><span class="w"> </span><span class="n">code</span><span class="o">.</span>
+<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="o">==&gt;</span>
+<span class="w">  </span><span class="p">(</span><span class="n">BLOCK</span><span class="w"> </span><span class="n">NIL</span>
+<span class="w">   </span><span class="p">(</span><span class="n">LET</span><span class="w"> </span><span class="p">((</span><span class="n">I</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
+<span class="w">     </span><span class="p">(</span><span class="n">TAGBODY</span><span class="w"> </span><span class="err">#:</span><span class="n">LOOP</span><span class="o">-</span><span class="mi">2860</span><span class="w">       </span>
+<span class="w">           </span><span class="p">(</span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="o">&gt;=</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span>
+<span class="w">               </span><span class="p">(</span><span class="k">GO</span><span class="w"> </span><span class="err">#:</span><span class="k">END</span><span class="o">-</span><span class="mi">2861</span><span class="p">))</span><span class="w">  </span>
+<span class="w">           </span><span class="p">(</span><span class="k">PRINT</span><span class="w"> </span><span class="n">I</span><span class="p">)</span><span class="w"> </span>
+<span class="w">           </span><span class="p">(</span><span class="n">PSETQ</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="w"> </span><span class="n">I</span><span class="p">))</span><span class="w"> </span>
+<span class="w">           </span><span class="p">(</span><span class="k">GO</span><span class="w"> </span><span class="err">#:</span><span class="n">LOOP</span><span class="o">-</span><span class="mi">2860</span><span class="p">)</span><span class="w"> </span>
+<span class="w">        </span><span class="err">#:</span><span class="k">END</span><span class="o">-</span><span class="mi">2861</span>
+<span class="w">           </span><span class="p">(</span><span class="k">RETURN</span><span class="o">-</span><span class="k">FROM</span><span class="w"> </span><span class="n">NIL</span><span class="w"> </span><span class="p">(</span><span class="n">PROGN</span><span class="w"> </span><span class="n">NIL</span><span class="p">)))))</span>
+</code></pre></div>
 
-<span class="n">Macros</span><span class="w"> </span><span class="n">are</span><span class="w">  </span><span class="ow">not</span><span class="w"> </span><span class="n">so</span><span class="w"> </span><span class="n">much</span><span class="w"> </span><span class="s2">&quot;coded&quot;</span><span class="w"> </span><span class="n">so</span><span class="w"> </span><span class="n">much</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">they</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="s2">&quot;drawn&quot;</span><span class="o">.</span><span class="w"> </span><span class="n">For</span><span class="w"> </span><span class="n">example</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">above</span><span class="w"> </span><span class="err">`</span><span class="n">aif</span><span class="err">`</span><span class="w"> </span><span class="n">definition</span><span class="p">,</span>
-<span class="w">  </span><span class="n">the</span><span class="w"> </span><span class="n">last</span><span class="w"> </span><span class="n">line</span><span class="w"> </span><span class="n">shows</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">desired</span><span class="o">.</span>
-<span class="n">For</span><span class="w"> </span><span class="n">another</span><span class="w"> </span><span class="n">example</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="s2">&quot;drawing a macro&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">suppose</span><span class="w"> </span><span class="n">someone</span><span class="w"> </span><span class="n">had</span><span class="w"> </span><span class="n">been</span><span class="w"> </span><span class="n">nice</span><span class="w"> </span><span class="n">enough</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">define</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="err">`</span><span class="k">while</span><span class="err">`</span><span class="w"> </span><span class="n">macro</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">you</span><span class="p">:</span>
+<p>Here's a more interesting example.
+For PYTHON programers, I'll say the following is like using a context manager
+    for reaching a file. That is to say, when reading files, the <code>with-open-file</code> this  macro ensures:</p>
+<ol>
+<li>The file is open before any reading starts (see the initial call to <code>open</code>);</li>
+<li>No find streams
+    are left open and dangling, even if there is a code crash (see the use of <code>unwind-protect</code>); </li>
+<li>When terminating, or cleaning up after a crash, the last 2 lines of the expansion
+    keeps  shouting at the file stream until it closes. Which is exactly what we want to happen.</li>
+</ol>
+<p>Here we go:</p>
+<div class="codehilite"><pre><span></span><code>(pprint (macroexpand &#39;(with-open-file (s f) (print (read s)))))
 
-<span class="w">     </span><span class="p">(</span><span class="n">defmacro</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="w"> </span><span class="o">&amp;</span><span class="n">body</span><span class="w"> </span><span class="n">body</span><span class="p">)</span>
-<span class="w">       </span><span class="err">`</span><span class="p">(</span><span class="n">do</span><span class="w"> </span><span class="p">()</span>
-<span class="w">            </span><span class="p">((</span><span class="ow">not</span><span class="w"> </span><span class="p">,</span><span class="n">test</span><span class="p">))</span>
-<span class="w">          </span><span class="p">,</span><span class="err">@</span><span class="n">body</span><span class="p">))</span>
+; ==&gt;
+(LET ((S (OPEN F))) (DECLARE (SYSTEM::READ-ONLY S)) 
+ (UNWIND-PROTECT                                   
+   (MULTIPLE-VALUE-PROG1 (PROGN (PRINT (READ S)))
+      (WHEN S (CLOSE S)))                         
+        (WHEN S (CLOSE S :ABORT T))))
+</code></pre></div>
 
-<span class="w">     </span><span class="p">;</span><span class="w"> </span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="w"> </span><span class="nb">print</span><span class="w"> </span><span class="n">numbers</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mf">3.</span><span class="o">..</span><span class="w"> </span><span class="mi">10</span>
-<span class="w">     </span><span class="p">(</span><span class="n">let</span><span class="w"> </span><span class="p">((</span><span class="n">n</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
-<span class="w">       </span><span class="p">(</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">print</span><span class="w"> </span><span class="p">(</span><span class="n">incf</span><span class="w"> </span><span class="n">n</span><span class="p">))))</span>
+<p>The end of this page has some other tutorial material
+on macros (e.g. traps for macro newbies).
+And if you need more details that that, 
+go see the 
+<a href="https://lispcookbook.github.io/cl-cookbook/macros.html">LISP cookbook on macros</a>
+which has some really good tutorial material.</p>
+<h2 id="nested-slot-accessors">Nested Slot Accessors</h2>
+<p>Consider<br />
+nested accesses to a field inside a struct;  e.g. the <code>streetNum</code> of the the <code>address</code> of
+the <code>home</code> of the <code>manager</code> of the <code>company</code>. In standard LISP, that could be done wth:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
+<span class="w">   </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
+<span class="w">      </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
+<span class="w">         </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span><span class="o">*</span><span class="nx">company</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">manager</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">home</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">address</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">streetNum</span><span class="p">)</span>
+</code></pre></div>
 
-<span class="n">Then</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">could</span><span class="w"> </span><span class="n">imagine</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="err">`</span><span class="n">until</span><span class="err">`</span><span class="w"> </span><span class="n">macro</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">was</span><span class="w"> </span><span class="n">just</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="err">`</span><span class="ow">not</span><span class="w"> </span><span class="k">while</span><span class="err">`</span><span class="o">--</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">could</span><span class="w"> </span><span class="n">draw</span><span class="w"> </span><span class="n">up</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">macro</span><span class="w"> </span><span class="n">like</span>
-<span class="n">this</span><span class="p">:</span>
-
-<span class="w">     </span><span class="p">(</span><span class="n">defmacro</span><span class="w"> </span><span class="n">until</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="w"> </span><span class="o">&amp;</span><span class="n">body</span><span class="w"> </span><span class="n">body</span><span class="p">)</span>
-<span class="w">       </span><span class="err">`</span><span class="p">(</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="ow">not</span><span class="w"> </span><span class="p">,</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="err">@</span><span class="n">body</span><span class="p">))</span>
-
-<span class="w">     </span><span class="p">;</span><span class="w"> </span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="w"> </span><span class="nb">print</span><span class="w"> </span><span class="n">numbers</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mf">3.</span><span class="o">..</span><span class="w"> </span><span class="mi">10</span>
-<span class="w">     </span><span class="p">(</span><span class="n">let</span><span class="w"> </span><span class="p">((</span><span class="n">n</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
-<span class="w">       </span><span class="p">(</span><span class="n">until</span><span class="w"> </span><span class="p">(</span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">print</span><span class="w"> </span><span class="p">(</span><span class="n">incf</span><span class="w"> </span><span class="n">n</span><span class="p">))))</span>
-
-<span class="n">LISP</span><span class="w"> </span><span class="n">makes</span><span class="w"> </span><span class="n">extensive</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">macros</span><span class="o">.</span><span class="w"> </span><span class="n">For</span><span class="w"> </span><span class="n">example</span><span class="p">,</span><span class="w"> </span><span class="n">here</span><span class="s1">&#39;s the expansion of</span>
-<span class="n">a</span><span class="w"> </span><span class="n">seemingly</span><span class="w"> </span><span class="n">simple</span><span class="w"> </span><span class="err">`</span><span class="n">dotimes</span><span class="err">`</span><span class="w"> </span><span class="n">call</span><span class="o">.</span><span class="w">  </span><span class="n">Note</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="err">`</span><span class="n">dotimes</span><span class="err">`</span><span class="w"> </span><span class="n">expands</span><span class="w"> </span><span class="n">into</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">set</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">goto</span><span class="w"> </span><span class="n">statements</span>
-<span class="p">(</span><span class="ow">and</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">way</span><span class="p">,</span><span class="w">  </span><span class="n">the</span><span class="w"> </span><span class="n">funny</span><span class="w"> </span><span class="n">symbols</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="w"> </span><span class="err">`</span><span class="c1">#:LOOP-2860`) are variables created to handle some processing in the code). </span>
-
-<span class="w">     </span><span class="p">(</span><span class="n">pprint</span><span class="w"> </span><span class="p">(</span><span class="n">macroexpand</span><span class="w"> </span><span class="s1">&#39;(dotimes (i 10) (print i)))) </span>
-
-<span class="w">     </span><span class="p">;</span><span class="w"> </span><span class="o">==&gt;</span>
-<span class="w">      </span><span class="p">(</span><span class="n">BLOCK</span><span class="w"> </span><span class="n">NIL</span>
-<span class="w">       </span><span class="p">(</span><span class="n">LET</span><span class="w"> </span><span class="p">((</span><span class="n">I</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
-<span class="w">         </span><span class="p">(</span><span class="n">TAGBODY</span><span class="w"> </span><span class="c1">#:LOOP-2860       </span>
-<span class="w">               </span><span class="p">(</span><span class="n">IF</span><span class="w"> </span><span class="p">(</span><span class="o">&gt;=</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span>
-<span class="w">                   </span><span class="p">(</span><span class="n">GO</span><span class="w"> </span><span class="c1">#:END-2861))  </span>
-<span class="w">               </span><span class="p">(</span><span class="n">PRINT</span><span class="w"> </span><span class="n">I</span><span class="p">)</span><span class="w"> </span>
-<span class="w">               </span><span class="p">(</span><span class="n">PSETQ</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="w"> </span><span class="n">I</span><span class="p">))</span><span class="w"> </span>
-<span class="w">               </span><span class="p">(</span><span class="n">GO</span><span class="w"> </span><span class="c1">#:LOOP-2860) </span>
-<span class="w">            </span><span class="c1">#:END-2861</span>
-<span class="w">               </span><span class="p">(</span><span class="n">RETURN</span><span class="o">-</span><span class="n">FROM</span><span class="w"> </span><span class="n">NIL</span><span class="w"> </span><span class="p">(</span><span class="n">PROGN</span><span class="w"> </span><span class="n">NIL</span><span class="p">)))))</span>
-
-<span class="n">Here</span><span class="s1">&#39;s a more interesting example.</span>
-<span class="n">For</span><span class="w"> </span><span class="n">PYTHON</span><span class="w"> </span><span class="n">programers</span><span class="p">,</span><span class="w"> </span><span class="n">I</span><span class="s1">&#39;ll say the following is like using a context manager</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">reaching</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">file</span><span class="o">.</span><span class="w"> </span><span class="n">That</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">say</span><span class="p">,</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">reading</span><span class="w"> </span><span class="n">files</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="err">`</span><span class="n">with</span><span class="o">-</span><span class="n">open</span><span class="o">-</span><span class="n">file</span><span class="err">`</span><span class="w"> </span><span class="n">this</span><span class="w">  </span><span class="n">macro</span><span class="w"> </span><span class="n">ensures</span><span class="p">:</span>
-
-<span class="mf">1.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">open</span><span class="w"> </span><span class="n">before</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="n">reading</span><span class="w"> </span><span class="n">starts</span><span class="w"> </span><span class="p">(</span><span class="n">see</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">initial</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="err">`</span><span class="n">open</span><span class="err">`</span><span class="p">);</span>
-<span class="mf">2.</span><span class="w"> </span><span class="n">No</span><span class="w"> </span><span class="n">find</span><span class="w"> </span><span class="n">streams</span>
-<span class="w">    </span><span class="n">are</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="n">open</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">dangling</span><span class="p">,</span><span class="w"> </span><span class="n">even</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="n">crash</span><span class="w"> </span><span class="p">(</span><span class="n">see</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="err">`</span><span class="n">unwind</span><span class="o">-</span><span class="n">protect</span><span class="err">`</span><span class="p">);</span><span class="w"> </span>
-<span class="mf">3.</span><span class="w"> </span><span class="n">When</span><span class="w"> </span><span class="n">terminating</span><span class="p">,</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">cleaning</span><span class="w"> </span><span class="n">up</span><span class="w"> </span><span class="n">after</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">crash</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">last</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="n">onf</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">expansion</span>
-<span class="w">    </span><span class="n">keeps</span><span class="w">  </span><span class="n">shouting</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="n">until</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">closes</span><span class="o">.</span><span class="w"> </span><span class="n">Which</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">exactly</span><span class="w"> </span><span class="n">what</span><span class="w"> </span><span class="n">we</span><span class="w"> </span><span class="n">want</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">happen</span><span class="o">.</span>
-
-<span class="w">    </span><span class="p">(</span><span class="n">pprint</span><span class="w"> </span><span class="p">(</span><span class="n">macroexpand</span><span class="w"> </span><span class="s1">&#39;(with-open-file (s f) (print (read s)))))</span>
-
-<span class="w">    </span><span class="p">;</span><span class="w"> </span><span class="o">==&gt;</span>
-<span class="w">    </span><span class="p">(</span><span class="n">LET</span><span class="w"> </span><span class="p">((</span><span class="n">S</span><span class="w"> </span><span class="p">(</span><span class="n">OPEN</span><span class="w"> </span><span class="n">F</span><span class="p">)))</span><span class="w"> </span><span class="p">(</span><span class="n">DECLARE</span><span class="w"> </span><span class="p">(</span><span class="n">SYSTEM</span><span class="p">::</span><span class="n">READ</span><span class="o">-</span><span class="n">ONLY</span><span class="w"> </span><span class="n">S</span><span class="p">))</span><span class="w"> </span>
-<span class="w">     </span><span class="p">(</span><span class="n">UNWIND</span><span class="o">-</span><span class="n">PROTECT</span><span class="w">                                   </span>
-<span class="w">       </span><span class="p">(</span><span class="n">MULTIPLE</span><span class="o">-</span><span class="n">VALUE</span><span class="o">-</span><span class="n">PROG1</span><span class="w"> </span><span class="p">(</span><span class="n">PROGN</span><span class="w"> </span><span class="p">(</span><span class="n">PRINT</span><span class="w"> </span><span class="p">(</span><span class="n">READ</span><span class="w"> </span><span class="n">S</span><span class="p">)))</span>
-<span class="w">          </span><span class="p">(</span><span class="n">WHEN</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="p">(</span><span class="n">CLOSE</span><span class="w"> </span><span class="n">S</span><span class="p">)))</span><span class="w">                         </span>
-<span class="w">            </span><span class="p">(</span><span class="n">WHEN</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="p">(</span><span class="n">CLOSE</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="p">:</span><span class="n">ABORT</span><span class="w"> </span><span class="n">T</span><span class="p">))))</span>
-
-<span class="n">If</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">need</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">full</span><span class="w"> </span><span class="n">details</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">macros</span><span class="p">,</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">lots</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">good</span><span class="w"> </span><span class="n">tutorial</span><span class="w"> </span><span class="n">examples</span><span class="p">,</span>
-<span class="n">go</span><span class="w"> </span><span class="n">see</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">lispcookbook</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">cl</span><span class="o">-</span><span class="n">cookbook</span><span class="o">/</span><span class="n">macros</span><span class="o">.</span><span class="n">html</span><span class="p">[</span><span class="n">LISP</span><span class="w"> </span><span class="n">cookbook</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">macros</span><span class="p">]</span><span class="o">.</span>
-
-<span class="n">And</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">some</span><span class="w"> </span><span class="n">notes</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">standard</span><span class="w"> </span><span class="n">macro</span><span class="w"> </span><span class="n">newbie</span><span class="w"> </span><span class="n">errors</span><span class="p">,</span><span class="w"> </span><span class="n">see</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">papge</span><span class="o">.</span>
-
-<span class="c1">## Nested Slot Accessors</span>
-
-<span class="n">Consider</span><span class="w">  </span>
-<span class="n">nested</span><span class="w"> </span><span class="n">accesses</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="n">inside</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">struct</span><span class="p">;</span><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="err">`</span><span class="n">streetNum</span><span class="err">`</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="err">`</span><span class="n">address</span><span class="err">`</span><span class="w"> </span><span class="n">of</span>
-<span class="n">the</span><span class="w"> </span><span class="err">`</span><span class="n">home</span><span class="err">`</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="err">`</span><span class="n">manager</span><span class="err">`</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="err">`</span><span class="n">company</span><span class="err">`</span><span class="o">.</span><span class="w"> </span><span class="n">In</span><span class="w"> </span><span class="n">standard</span><span class="w"> </span><span class="n">LISP</span><span class="p">,</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">could</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">done</span><span class="w"> </span><span class="n">wth</span><span class="p">:</span>
-
-<span class="w">    </span><span class="p">(</span><span class="n">slot</span><span class="o">-</span><span class="n">value</span><span class="w"> </span>
-<span class="w">       </span><span class="p">(</span><span class="n">slot</span><span class="o">-</span><span class="n">value</span><span class="w"> </span>
-<span class="w">          </span><span class="p">(</span><span class="n">slot</span><span class="o">-</span><span class="n">value</span><span class="w"> </span>
-<span class="w">             </span><span class="p">(</span><span class="n">slot</span><span class="o">-</span><span class="n">value</span><span class="w"> </span><span class="o">*</span><span class="n">company</span><span class="w"> </span><span class="s1">&#39;manager) &#39;</span><span class="n">home</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;address) &#39;</span><span class="n">streetNum</span><span class="p">)</span>
-
-<span class="n">That</span><span class="s1">&#39;s a little verbose, right? So lets fix that with a macro.</span>
-<span class="n">This</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">recursive</span><span class="w"> </span><span class="n">macro</span><span class="w"> </span><span class="p">(</span><span class="n">which</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">little</span><span class="w"> </span><span class="n">tricky</span><span class="p">)</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">works</span><span class="w"> </span><span class="n">front</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">back</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">slots</span><span class="o">.</span><span class="w"> </span>
-<span class="n">The</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">slot</span><span class="w"> </span><span class="n">becomes</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">inner</span><span class="w"> </span><span class="n">most</span><span class="w"> </span><span class="n">accessor</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">accessors</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">other</span><span class="w"> </span><span class="n">slots</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">wrapped</span><span class="w"> </span><span class="n">around</span><span class="w"> </span><span class="n">it</span><span class="o">.</span>
-<span class="p">(</span><span class="n">defmacro</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="p">(</span><span class="n">struct</span><span class="w"> </span><span class="n">slot</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rest</span><span class="w"> </span><span class="n">slots</span><span class="p">)</span><span class="w"> </span>
-<span class="w">   </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="n">slots</span>
-<span class="w">     </span><span class="err">`</span><span class="p">(</span><span class="n">o</span><span class="w"> </span><span class="p">(</span><span class="n">slot</span><span class="o">-</span><span class="n">value</span><span class="w"> </span><span class="p">,</span><span class="n">struct</span><span class="w"> </span><span class="s1">&#39;,slot) ,@slots)  ; case one: we have to recurse</span>
-<span class="w">     </span><span class="err">`</span><span class="p">(</span><span class="n">slot</span><span class="o">-</span><span class="n">value</span><span class="w"> </span><span class="p">,</span><span class="n">struct</span><span class="w"> </span><span class="s1">&#39;,slot)))  ; case two: no slots left, so just do an access.</span>
+<p>That's a little verbose, right? So lets fix that with a macro.
+This is a recursive macro (which is a little tricky) that works front to back over a list of slots. 
+The first slot becomes the inner most accessor and accessors to the other slots are wrapped around it.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nv">struct</span><span class="w"> </span><span class="nv">slot</span><span class="w"> </span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span><span class="w"> </span>
+<span class="w">   </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">slots</span>
+<span class="w">     </span><span class="o">`</span><span class="p">(</span><span class="nv">o</span><span class="w"> </span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">)</span><span class="w">  </span><span class="c1">; case one: we have to recurse</span>
+<span class="w">     </span><span class="o">`</span><span class="p">(</span><span class="nb">slot-value</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="ss">&#39;,slot</span><span class="p">)))</span><span class="w">  </span><span class="c1">; case two: no slots left, so just do an access.</span>
 </code></pre></div>
 
 <p>With this macro, the above  example becomes something much more palatable.</p>
@@ -261,83 +255,78 @@ If you want the walrus, it can be added with just two lines of code. <br />
 
 <p>One common idiom is to slip in a print statement to view the contents of a struct.
 The following <code>oo</code> macro handles that (and note that it returns the struct so you can slip it in, get the print, and still
-                 carry on processing the struct).
-(defmacro oo (struct slot &amp;rest slots)
-  `(progn (print (o ,struct ,slot ,@slots)) 
-          ,struct))</p>
-<div class="codehilite"><pre><span></span><code><span class="c1">## Saner, Simpler,  Objects</span>
+                 carry on processing the struct).</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">oo</span><span class="w"> </span><span class="p">(</span><span class="nv">struct</span><span class="w"> </span><span class="nv">slot</span><span class="w"> </span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">progn</span><span class="w"> </span><span class="p">(</span><span class="nb">print</span><span class="w"> </span><span class="p">(</span><span class="nv">o</span><span class="w"> </span><span class="o">,</span><span class="nv">struct</span><span class="w"> </span><span class="o">,</span><span class="nv">slot</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">))</span><span class="w"> </span>
+<span class="w">          </span><span class="o">,</span><span class="nv">struct</span><span class="p">))</span>
+</code></pre></div>
 
-<span class="k">Like</span><span class="w"> </span><span class="n">many</span><span class="w"> </span><span class="n">people</span><span class="p">,</span><span class="w">  </span><span class="n">I</span><span class="w"> </span><span class="n">have</span><span class="p">...</span><span class="w"> </span><span class="n">issues</span><span class="p">...</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">CLOS</span><span class="w"> </span><span class="n">object</span><span class="w"> </span><span class="k">system</span><span class="p">.</span><span class="w"> </span>
-<span class="n">It</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">so</span><span class="w"> </span><span class="n">verbose</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.)</span><span class="w"> </span><span class="n">define</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">class</span><span class="p">,</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">specialize</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">initialization</span><span class="w"> </span><span class="k">of</span><span class="w">  </span><span class="n">a</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="k">instance</span><span class="p">.</span>
-<span class="n">Worse</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">functions</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.)</span><span class="w"> </span><span class="n">accesss</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">slot</span><span class="w"> </span><span class="k">names</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="k">instance</span><span class="w"> </span><span class="n">vary</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">implementation</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">implementatin</span><span class="p">.</span>
-
-<span class="n">Hence</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">wrote</span><span class="w"> </span><span class="n n-Quoted">`defthing`</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">adds</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">constructor</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n n-Quoted">`defstruct`</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">well</span><span class="w"> </span><span class="k">as</span><span class="w">  </span><span class="n">method</span><span class="w"> </span><span class="n n-Quoted">`slots-of`</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">lists</span>
-<span class="k">all</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">slots</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">thing</span><span class="p">.</span>
-<span class="p">(</span><span class="n">defmacro</span><span class="w"> </span><span class="n">defthing</span><span class="w"> </span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rest</span><span class="w"> </span><span class="n">has</span><span class="p">)</span><span class="w"> </span>
-<span class="w">  </span><span class="p">(</span><span class="n">labels</span><span class="w"> </span><span class="p">((</span><span class="n">make</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="w"> </span><span class="p">(</span><span class="k">format</span><span class="w"> </span><span class="n">nil</span><span class="w"> </span><span class="s2">&quot;%MAKE-~a&quot;</span><span class="w"> </span><span class="n">x</span><span class="p">)))</span><span class="w"> </span>
-<span class="w">           </span><span class="p">(</span><span class="k">name</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">consp</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">car</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">x</span><span class="p">)))</span><span class="w"> </span>
-<span class="w">    </span><span class="n n-Quoted">`(progn (defstruct (,it (:constructor ,(make it))) ,@has)</span>
-<span class="n n-Quoted">            (defmethod slots-of ((_ ,it)) &#39;,(mapcar #&#39;name has)))))</span>
+<h2 id="saner-simpler-objects">Saner, Simpler,  Objects</h2>
+<p>Like many people,  I have... issues... with the CLOS object system. 
+It can be so verbose to (e.g.) define and new class, or specialize the initialization of  a new instance.
+Worse, the functions that (e.g.) accesss the slot names of an instance vary from implementation to implementatin.</p>
+<p>Hence I wrote <code>defthing</code> that adds a constructor to <code>defstruct</code> as well as  method <code>slots-of</code> that lists
+all the slots of a thing.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">defthing</span><span class="w"> </span><span class="p">(</span><span class="nv">it</span><span class="w"> </span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">has</span><span class="p">)</span><span class="w"> </span>
+<span class="w">  </span><span class="p">(</span><span class="k">labels</span><span class="w"> </span><span class="p">((</span><span class="nv">make</span><span class="w"> </span><span class="p">(</span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">intern</span><span class="w"> </span><span class="p">(</span><span class="nb">format</span><span class="w"> </span><span class="no">nil</span><span class="w"> </span><span class="s">&quot;%MAKE-~a&quot;</span><span class="w"> </span><span class="nv">x</span><span class="p">)))</span><span class="w"> </span>
+<span class="w">           </span><span class="p">(</span><span class="nv">name</span><span class="w"> </span><span class="p">(</span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">consp</span><span class="w"> </span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">car</span><span class="w"> </span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="nv">x</span><span class="p">)))</span><span class="w"> </span>
+<span class="w">    </span><span class="o">`</span><span class="p">(</span><span class="k">progn</span><span class="w"> </span><span class="p">(</span><span class="nb">defstruct</span><span class="w"> </span><span class="p">(</span><span class="o">,</span><span class="nv">it</span><span class="w"> </span><span class="p">(</span><span class="ss">:constructor</span><span class="w"> </span><span class="o">,</span><span class="p">(</span><span class="nv">make</span><span class="w"> </span><span class="nv">it</span><span class="p">)))</span><span class="w"> </span><span class="o">,@</span><span class="nv">has</span><span class="p">)</span>
+<span class="w">            </span><span class="p">(</span><span class="nb">defmethod</span><span class="w"> </span><span class="nv">slots-of</span><span class="w"> </span><span class="p">((</span><span class="nv">_</span><span class="w"> </span><span class="o">,</span><span class="nv">it</span><span class="p">))</span><span class="w"> </span><span class="ss">&#39;,</span><span class="p">(</span><span class="nb">mapcar</span><span class="w"> </span><span class="nf">#&#39;</span><span class="nv">name</span><span class="w"> </span><span class="nv">has</span><span class="p">)))))</span>
 </code></pre></div>
 
 <p>Then, just cause it was so easy to do, I wrote <code>things</code> which turns
-a list of <code>defstruct</code>s into  <code>defthings</code>:
-(defmacro things (&amp;rest defstructs)
-  <code>(progn ,@(loop for (defstruct . slots) in defstructs collect</code>(defthing ,@slots))))</p>
-<div class="codehilite"><pre><span></span><code><span class="n">This</span><span class="w"> </span><span class="n">allows</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">simpler</span><span class="w"> </span><span class="n">instance</span><span class="w"> </span><span class="n">management</span><span class="o">.</span><span class="w"> </span><span class="n">In</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">following</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">set</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">structs</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">converted</span>
-<span class="n">to</span><span class="w"> </span><span class="n">things</span><span class="w"> </span><span class="p">(</span><span class="n">using</span><span class="w"> </span><span class="err">`</span><span class="p">(</span><span class="n">things</span><span class="w"> </span><span class="n">defstructs</span><span class="p">)</span><span class="err">`</span><span class="p">)</span><span class="o">.</span><span class="w"> </span>
-<span class="n">Then</span><span class="w"> </span><span class="n">we</span><span class="w"> </span><span class="n">see</span><span class="w"> </span><span class="p">(</span><span class="k">for</span><span class="w"> </span><span class="n">example</span><span class="p">)</span><span class="w"> </span><span class="n">the</span><span class="w">  </span><span class="err">`</span><span class="n">make</span><span class="o">-</span><span class="n">team</span><span class="err">`</span><span class="w"> </span><span class="n">constructor</span><span class="w"> </span>
-<span class="w"> </span><span class="n">looking</span><span class="w"> </span><span class="n">up</span><span class="w"> </span><span class="n">our</span><span class="w"> </span><span class="n">team</span><span class="s1">&#39;s salary and age before calling the constructor primitive constructor `%make-team`. </span>
+a list of <code>defstruct</code>s into  <code>defthings</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">things</span><span class="w"> </span><span class="p">(</span><span class="k">&amp;rest</span><span class="w"> </span><span class="nv">defstructs</span><span class="p">)</span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">progn</span><span class="w"> </span><span class="o">,@</span><span class="p">(</span><span class="nb">loop</span><span class="w"> </span><span class="nv">for</span><span class="w"> </span><span class="p">(</span><span class="nb">defstruct</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="nv">slots</span><span class="p">)</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="nv">defstructs</span><span class="w"> </span><span class="nv">collect</span><span class="w"> </span><span class="o">`</span><span class="p">(</span><span class="nv">defthing</span><span class="w"> </span><span class="o">,@</span><span class="nv">slots</span><span class="p">))))</span>
+</code></pre></div>
 
+<p>This allows for simpler instance management. In the following, a set of structs are converted
+to things (using <code>(things defstructs)</code>). 
+Then we see (for example) the  <code>make-team</code> constructor 
+ looking up our team's salary and age before calling the constructor primitive constructor <code>%make-team</code>. </p>
+<div class="codehilite"><pre><span></span><code>(load &quot;macros&quot;); test-defthings.lisp
 
+(things 
+  (defstruct person name age salary)
+  (defstruct team  commander crew)) 
 
+(defun make-team (who)
+  (let ((persons (loop for (name yob role) in who collect 
+              (make-person name yob role))))
+(%make-team :commander (first persons) :crew (rest persons))))
 
-<span class="err">```</span><span class="n">text</span>
-<span class="p">(</span><span class="nb">load</span><span class="w"> </span><span class="s2">&quot;macros&quot;</span><span class="p">);</span><span class="w"> </span><span class="n">test</span><span class="o">-</span><span class="n">defthings</span><span class="o">.</span><span class="n">lisp</span>
+(defun make-person (name yob role)
+(%make-person :name name :salary (role-&gt;salary role) :age  (- (this-year) yob)))
+;-------------------------------------------------------------------------------
+(defun role-&gt;salary (role)
+  (cdr (assoc role &#39;((commander . 30054) (walker . 18622 ) (pilot . 17147)))))
 
-<span class="p">(</span><span class="n">things</span><span class="w"> </span>
-<span class="w">  </span><span class="p">(</span><span class="n">defstruct</span><span class="w"> </span><span class="n">person</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="n">salary</span><span class="p">)</span>
-<span class="w">  </span><span class="p">(</span><span class="n">defstruct</span><span class="w"> </span><span class="n">team</span><span class="w">  </span><span class="n">commander</span><span class="w"> </span><span class="n">crew</span><span class="p">))</span><span class="w"> </span>
+(defun this-year ()
+  (sixth (multiple-value-list (get-decoded-time))))
+;--------------------------------------------------------------------------------------
+(let ((team (make-team &#39;((neil 1930 commander) (buzz 1930 walker) (mike 1930 pilot)))))
+  (oo team commander name))
 
-<span class="p">(</span><span class="n">defun</span><span class="w"> </span><span class="n">make</span><span class="o">-</span><span class="n">team</span><span class="w"> </span><span class="p">(</span><span class="n">who</span><span class="p">)</span>
-<span class="w">  </span><span class="p">(</span><span class="n">let</span><span class="w"> </span><span class="p">((</span><span class="n">persons</span><span class="w"> </span><span class="p">(</span><span class="n">loop</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="n">yob</span><span class="w"> </span><span class="n">role</span><span class="p">)</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">who</span><span class="w"> </span><span class="n">collect</span><span class="w"> </span>
-<span class="w">              </span><span class="p">(</span><span class="n">make</span><span class="o">-</span><span class="n">person</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="n">yob</span><span class="w"> </span><span class="n">role</span><span class="p">))))</span>
-<span class="p">(</span><span class="o">%</span><span class="n">make</span><span class="o">-</span><span class="n">team</span><span class="w"> </span><span class="p">:</span><span class="n">commander</span><span class="w"> </span><span class="p">(</span><span class="n">first</span><span class="w"> </span><span class="n">persons</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="n">crew</span><span class="w"> </span><span class="p">(</span><span class="n">rest</span><span class="w"> </span><span class="n">persons</span><span class="p">))))</span>
-
-<span class="p">(</span><span class="n">defun</span><span class="w"> </span><span class="n">make</span><span class="o">-</span><span class="n">person</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="n">yob</span><span class="w"> </span><span class="n">role</span><span class="p">)</span>
-<span class="p">(</span><span class="o">%</span><span class="n">make</span><span class="o">-</span><span class="n">person</span><span class="w"> </span><span class="p">:</span><span class="n">name</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">:</span><span class="n">salary</span><span class="w"> </span><span class="p">(</span><span class="n">role</span><span class="o">-&gt;</span><span class="n">salary</span><span class="w"> </span><span class="n">role</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="n">age</span><span class="w">  </span><span class="p">(</span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="o">-</span><span class="n">year</span><span class="p">)</span><span class="w"> </span><span class="n">yob</span><span class="p">)))</span>
-<span class="p">;</span><span class="o">-------------------------------------------------------------------------------</span>
-<span class="p">(</span><span class="n">defun</span><span class="w"> </span><span class="n">role</span><span class="o">-&gt;</span><span class="n">salary</span><span class="w"> </span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
-<span class="w">  </span><span class="p">(</span><span class="n">cdr</span><span class="w"> </span><span class="p">(</span><span class="n">assoc</span><span class="w"> </span><span class="n">role</span><span class="w"> </span><span class="s1">&#39;((commander . 30054) (walker . 18622 ) (pilot . 17147)))))</span>
-
-<span class="p">(</span><span class="n">defun</span><span class="w"> </span><span class="n">this</span><span class="o">-</span><span class="n">year</span><span class="w"> </span><span class="p">()</span>
-<span class="w">  </span><span class="p">(</span><span class="n">sixth</span><span class="w"> </span><span class="p">(</span><span class="n">multiple</span><span class="o">-</span><span class="n">value</span><span class="o">-</span><span class="n">list</span><span class="w"> </span><span class="p">(</span><span class="n">get</span><span class="o">-</span><span class="n">decoded</span><span class="o">-</span><span class="n">time</span><span class="p">))))</span>
-<span class="p">;</span><span class="o">--------------------------------------------------------------------------------------</span>
-<span class="p">(</span><span class="n">let</span><span class="w"> </span><span class="p">((</span><span class="n">team</span><span class="w"> </span><span class="p">(</span><span class="n">make</span><span class="o">-</span><span class="n">team</span><span class="w"> </span><span class="s1">&#39;((neil 1930 commander) (buzz 1930 walker) (mike 1930 pilot)))))</span>
-<span class="w">  </span><span class="p">(</span><span class="n">oo</span><span class="w"> </span><span class="n">team</span><span class="w"> </span><span class="n">commander</span><span class="w"> </span><span class="n">name</span><span class="p">))</span>
-
-<span class="p">;</span><span class="w"> </span><span class="o">==&gt;</span><span class="w"> </span><span class="n">NEIL</span>
+; ==&gt; NEIL
 </code></pre></div>
 
 <h2 id="symbol-counts">Symbol Counts</h2>
 <p><code>has</code> is a macro for self creating items in a symbol table.
 When counting less than 50 symbols, 
-this code runs as fast as hash tables, and is simpler to use.
-(defmacro has (x lst &amp;optional (init 0))    <br />
-  `(cdr (or (assoc ,x ,lst :test #'equal)
-            (car (setf ,lst (cons (cons ,x ,init) ,lst))))))</p>
-<div class="codehilite"><pre><span></span><code><span class="n">For</span><span class="w"> </span><span class="n">example</span><span class="p">:</span>
+this code runs as fast as hash tables, and is simpler to use.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">has</span><span class="w"> </span><span class="p">(</span><span class="nv">x</span><span class="w"> </span><span class="nv">lst</span><span class="w"> </span><span class="k">&amp;optional</span><span class="w"> </span><span class="p">(</span><span class="nv">init</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w">      </span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="nb">cdr</span><span class="w"> </span><span class="p">(</span><span class="nb">or</span><span class="w"> </span><span class="p">(</span><span class="nb">assoc</span><span class="w"> </span><span class="o">,</span><span class="nv">x</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="w"> </span><span class="ss">:test</span><span class="w"> </span><span class="nf">#&#39;</span><span class="nb">equal</span><span class="p">)</span>
+<span class="w">            </span><span class="p">(</span><span class="nb">car</span><span class="w"> </span><span class="p">(</span><span class="nb">setf</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="o">,</span><span class="nv">x</span><span class="w"> </span><span class="o">,</span><span class="nv">init</span><span class="p">)</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="p">))))))</span>
+</code></pre></div>
 
+<p>For example:</p>
+<div class="codehilite"><pre><span></span><code>(load &quot;macros&quot;) ; test-has.lisp
 
+(let (count)
+  (dolist (x &#39;(aa aa aa aa bb bb cc)) (incf (has x count)))
+  (print count))
 
-<span class="err">```</span><span class="n">text</span>
-<span class="p">(</span><span class="nb">load</span><span class="w"> </span><span class="s2">&quot;macros&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">test</span><span class="o">-</span><span class="n">has</span><span class="o">.</span><span class="n">lisp</span>
-
-<span class="p">(</span><span class="n">let</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
-<span class="w">  </span><span class="p">(</span><span class="n">dolist</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="s1">&#39;(aa aa aa aa bb bb cc)) (incf (has x count)))</span>
-<span class="w">  </span><span class="p">(</span><span class="nb">print</span><span class="w"> </span><span class="n">count</span><span class="p">))</span>
-
-<span class="p">;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">((</span><span class="n">CC</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">BB</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">AA</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="mi">4</span><span class="p">))</span>
+; =&gt; ((CC . 1) (BB . 2) (AA . 4))
 </code></pre></div>
 
 <p>Two nice features of this code are that:</p>
@@ -352,25 +341,28 @@ have also used <code>decf</code> to reduce the counts).</li>
 <h2 id="csv-reader">CSV Reader</h2>
 <p><code>call-with-csv</code> applies a function <code>fun</code> to each line of csv <code>file</code>
 (and before that call,
-the lines are split on commas and leading and training white space is removed). 
-(defun call-with-csv (file fun)
-  (labels ((trim (s) (string-trim `(#\Space #\Tab #\Newline) s))
-           (split (s &amp;optional (sep #\,) (here 0))
-                  (let* ((there (position sep s :start here))
-                         (word  (trim (subseq s here there))))
-                    (labels ((tail () (if there (split s sep (1+ there)))))
-                      (if (equal word "") (tail) (cons word (tail)))))))
-    (with-open-file (s file) 
-      (loop (funcall fun (split (or (read-line s nil) (return))))))))</p>
-<div class="codehilite"><pre><span></span><code><span class="k">No</span><span class="p">,</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">won</span><span class="s1">&#39;t explain this code since the plan here is simplify its use, with a macro.</span>
-<span class="s1">The `with-csv` macro demonstrates two useful</span>
-<span class="s1">macro tricks; </span>
+the lines are split on commas and leading and training white space is removed). </p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defun</span><span class="w"> </span><span class="nv">call-with-csv</span><span class="w"> </span><span class="p">(</span><span class="nv">file</span><span class="w"> </span><span class="nv">fun</span><span class="p">)</span>
+<span class="w">  </span><span class="p">(</span><span class="k">labels</span><span class="w"> </span><span class="p">((</span><span class="nv">trim</span><span class="w"> </span><span class="p">(</span><span class="nv">s</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">string-trim</span><span class="w"> </span><span class="o">`</span><span class="p">(</span><span class="sc">#\Space</span><span class="w"> </span><span class="sc">#\Tab</span><span class="w"> </span><span class="sc">#\Newline</span><span class="p">)</span><span class="w"> </span><span class="nv">s</span><span class="p">))</span>
+<span class="w">           </span><span class="p">(</span><span class="nv">split</span><span class="w"> </span><span class="p">(</span><span class="nv">s</span><span class="w"> </span><span class="k">&amp;optional</span><span class="w"> </span><span class="p">(</span><span class="nv">sep</span><span class="w"> </span><span class="sc">#\,</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nv">here</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
+<span class="w">                  </span><span class="p">(</span><span class="k">let*</span><span class="w"> </span><span class="p">((</span><span class="nv">there</span><span class="w"> </span><span class="p">(</span><span class="nb">position</span><span class="w"> </span><span class="nv">sep</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="ss">:start</span><span class="w"> </span><span class="nv">here</span><span class="p">))</span>
+<span class="w">                         </span><span class="p">(</span><span class="nv">word</span><span class="w">  </span><span class="p">(</span><span class="nv">trim</span><span class="w"> </span><span class="p">(</span><span class="nb">subseq</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="nv">here</span><span class="w"> </span><span class="nv">there</span><span class="p">))))</span>
+<span class="w">                    </span><span class="p">(</span><span class="k">labels</span><span class="w"> </span><span class="p">((</span><span class="nv">tail</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">there</span><span class="w"> </span><span class="p">(</span><span class="nv">split</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="nv">sep</span><span class="w"> </span><span class="p">(</span><span class="nb">1+</span><span class="w"> </span><span class="nv">there</span><span class="p">)))))</span>
+<span class="w">                      </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">equal</span><span class="w"> </span><span class="nv">word</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nv">tail</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="nv">word</span><span class="w"> </span><span class="p">(</span><span class="nv">tail</span><span class="p">)))))))</span>
+<span class="w">    </span><span class="p">(</span><span class="nb">with-open-file</span><span class="w"> </span><span class="p">(</span><span class="nv">s</span><span class="w"> </span><span class="nv">file</span><span class="p">)</span><span class="w"> </span>
+<span class="w">      </span><span class="p">(</span><span class="nb">loop</span><span class="w"> </span><span class="p">(</span><span class="nb">funcall</span><span class="w"> </span><span class="nv">fun</span><span class="w"> </span><span class="p">(</span><span class="nv">split</span><span class="w"> </span><span class="p">(</span><span class="nb">or</span><span class="w"> </span><span class="p">(</span><span class="nb">read-line</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="no">nil</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">return</span><span class="p">))))))))</span>
+</code></pre></div>
 
-<span class="s1">* Macros can define a return variable (see the `out` variable, below).</span>
-<span class="s1">* It is useful to code up everything you want as a function (e.g. `call-with-csv`, then add the `defmacro` as a final layer);</span>
-<span class="s1">(defmacro with-csv ((line file &amp;optional out) &amp;body body)</span>
-<span class="s1">  `(progn (call-with-csv ,file #&#39;</span><span class="p">(</span><span class="n">lambda</span><span class="w"> </span><span class="p">(,</span><span class="n">line</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="nv">@body</span><span class="p">))</span><span class="w"> </span>
-<span class="w">          </span><span class="p">,</span><span class="k">out</span><span class="p">))</span>
+<p>No, I won't explain this code since the plan here is simplify its use, with a macro.
+The <code>with-csv</code> macro demonstrates two useful
+macro tricks; </p>
+<ul>
+<li>Macros can define a return variable (see the <code>out</code> variable, below).</li>
+<li>It is useful to code up everything you want as a function (e.g. <code>call-with-csv</code>, then add the <code>defmacro</code> as a final layer);</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nb">defmacro</span><span class="w"> </span><span class="nv">with-csv</span><span class="w"> </span><span class="p">((</span><span class="nv">line</span><span class="w"> </span><span class="nv">file</span><span class="w"> </span><span class="k">&amp;optional</span><span class="w"> </span><span class="nv">out</span><span class="p">)</span><span class="w"> </span><span class="k">&amp;body</span><span class="w"> </span><span class="nv">body</span><span class="p">)</span>
+<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="k">progn</span><span class="w"> </span><span class="p">(</span><span class="nv">call-with-csv</span><span class="w"> </span><span class="o">,</span><span class="nv">file</span><span class="w"> </span><span class="nf">#&#39;</span><span class="p">(</span><span class="k">lambda</span><span class="w"> </span><span class="p">(</span><span class="o">,</span><span class="nv">line</span><span class="p">)</span><span class="w"> </span><span class="o">,@</span><span class="nv">body</span><span class="p">))</span><span class="w"> </span>
+<span class="w">          </span><span class="o">,</span><span class="nv">out</span><span class="p">))</span>
 </code></pre></div>
 
 <p>Here is <code>with-csv</code> in operation. It sums the number of cells in all lines of a  csv file.</p>
@@ -447,5 +439,5 @@ you organize things. Share and enjoy!</p>
 <h2 id="references">References</h2>
 <ul>
 <li>[[[DIJ72]]] Edsger W. Dijkstra (1972), The Humble Programmer (EWD 340) (ACM Turing Award lecture).</li>
+<li>[[[GRA95]]] Paul Graham (1995), ANSI Common Lisp.  Prentice-Hall |#</li>
 </ul>
-<p>```lisp</p>

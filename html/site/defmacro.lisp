@@ -1,21 +1,23 @@
 #|
 # Defmacro
 
-!!! summary  "Alan Kay:"
-    Lisp isn't a language, it's a building material.
+!!! summary  "TL;DR"
+    As shown by the examples on this page,
+    LISP's
+    macro system makes it trivial to extend the language.
 
+    Like any other power tool, macros need to
+    be used with care.
+    [Google's LISP style guide](https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros)
+    cautions that  macros should  be used sparingly.
+    For example, in   1000 lines of my own LISP code, there might only
+    be 30 (ish) lines of macros.  But even if I don't write macros all
+    the time, the key here is that, with LISP, the door is always open
+    to creating new and powerful and succinct abstractions.
 
-I find LISP liberating.
-Compared to other languages,
-it
-offers fewer barriers and encourages
-more experimentation.
-For example, as shown by the examples below, 
-LISP's
-macro system makes it trivial to extend the language:
+On this page:
 
-
-| Macro                                         |:| Notes  |
+|Macro |:|  Notes |
 |----------------------------------------------:|:|:-------|
 |[`aif`](#anaphoric-if)                         |:| (anaphoric if) for accessing a conditional without having to recompute it|
 |[`o`](#nested-slot-accessors)                 |:| easy  access to nested slots|
@@ -23,23 +25,10 @@ macro system makes it trivial to extend the language:
 |[`has`](#symbol-counts)                        |:| simplifying  symbol counting (for key sizes of 50 or less)|
 |[`with-csv`](#csv-reader)                      |:| easy processing of csv files |
 
-It has taken decades for other languages to evolve something as
-powerful as LISP's macro system (e.g. these days JULIA has a nice
-macro system that lets programmers manipulate the abstract syntax
-tree of its own code).  And like any powerful tool, macros need to
-be used with care.
-[Google's LISP style guide](https://google.github.io/styleguide/lispguide.xml?showone=Macros#Macros)
-cautions that  macros should  be used sparingly.
-For example, in   1000 lines of my own LISP code, there might only
-be 30 (ish) lines of macros.  But even if I don't write macros all
-the time, the key here is that, with LISP, the door is always open
-to creating new and powerful and succinct abstractions.
-
-
 ## Attack of the Walrus
 
-Not convinced? Do you think you don't need LISP's open-endedness?
-Ok, then lets take a look at what happens in languages _without_ LISP's flexibility.
+Do you think you don't need the flexability of macros?
+Ok, then lets take a look at what happens in languages _without_ that  flexibility.
 
 Who remembers the bitter feud
 over
@@ -148,8 +137,10 @@ For PYTHON programers, I'll say the following is like using a context manager
 1. The file is open before any reading starts (see the initial call to `open`);
 2. No find streams
     are left open and dangling, even if there is a code crash (see the use of `unwind-protect`); 
-3. When terminating, or cleaning up after a crash, the last 2 lines onf the expansion
+3. When terminating, or cleaning up after a crash, the last 2 lines of the expansion
     keeps  shouting at the file stream until it closes. Which is exactly what we want to happen.
+
+Here we go:
 
     (pprint (macroexpand '(with-open-file (s f) (print (read s)))))
        
@@ -160,10 +151,13 @@ For PYTHON programers, I'll say the following is like using a context manager
           (WHEN S (CLOSE S)))                         
             (WHEN S (CLOSE S :ABORT T))))
 
-If you need the full details on macros, and lots of good tutorial examples,
-go see the https://lispcookbook.github.io/cl-cookbook/macros.html[LISP cookbook on macros].
+The end of this page has some other tutorial material
+on macros (e.g. traps for macro newbies).
+And if you need more details that that, 
+go see the 
+[LISP cookbook on macros](https://lispcookbook.github.io/cl-cookbook/macros.html)
+which has some really good tutorial material.
 
-And for some notes on standard macro newbie errors, see the end of this papge.
 
 ## Nested Slot Accessors
 
