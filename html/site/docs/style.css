@@ -1,9 +1,9 @@
-body  { margin: 0;
-	padding: 15px;
+body  { 
+  padding: -20px; margin: -20px;
+  padding-right: 10px; margin-right: 10px;
 	font-family: Source Sans Pro, Roboto, Open Sans, Liberation Sans, DejaVu Sans, Verdana, Helvetica, Arial, sans-serif;
 }
-pre   { xbackground-color: #EEE;
-	xborder: 1px dotted rgb(72,14,120);
+pre   { 
 	padding: 5px;
 	border-left: 1px solid #CC0000;
 	background-image: linear-gradient(to right, #EEE, white);
@@ -26,20 +26,42 @@ h1,h2,h3,h4    { xmargin-top: 0px; padding-top: 0px;
 	background-color: #d9faff; 
 }
 .toc { font-size: small;}
+/*
 #left {
 	width: 200px;
 	position: fixed;
 	top: 0;
 	bottom: 0;
 	left: 0;
-	background-image: linear-gradient(#EEE, white,white);
 	padding:5px;
 }
 
 
-#left  ul {
-	padding-left:20px;
-}
 #right {
 	margin-left: 210px;
 }
+*/
+
+.left  ul {
+	padding-left:30px;
+}
+
+.parent {
+  position: relative;
+}
+
+.left {
+	background-image: linear-gradient(#DDD, white);
+  width: 220px;
+  height: 100%; /* To take the full height of the container */
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding-left:10px; xpadding-right:10px;
+}
+
+.right {
+  height: 100%; /* To take the full height of the container */
+  margin-left: 250px; /* To avoid overlap with the fixed-width div */
+}
+

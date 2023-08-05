@@ -1,4 +1,3 @@
-.SILENT:
 all: $(wildcard docs/*.html)
 
 FMT= -x toc -x codehilite -x tables -x fenced_code -x footnotes -x attr_list -x admonition

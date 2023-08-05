@@ -11,7 +11,6 @@ cat<<-'EOF'
   <meta charset="UTF-8">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       extensions: ["tex2jax.js"],
@@ -27,10 +26,11 @@ cat<<-'EOF'
   <script type="text/javascript"
      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js">
    </script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div id="left">
+<div class="parent">
+<div class="left">
 <center>
 <p><a  href="index.html">home</a> :: 
 <a href="">src</a> ::
@@ -41,7 +41,7 @@ cat<<-'EOF'
 <p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p>
 
 
-<img src="dots4.png" width=200 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
+<img src="dots4.png" width=190  style="margin-bottom: 0px; padding-bottom: 0px;">
 <hr style="paddiing-top:0px; margin-top:0px;">
 </center>
 EOF
@@ -51,7 +51,7 @@ gawk '/<div class="toc"/,/<\/div>/ {print $0; next}'  $1
 
 cat<<'EOF'
     </div>
- <div id="right">
+ <div class="right">
 EOF
 
 # print everything else except the TOC
@@ -59,6 +59,7 @@ gawk '/<div class="toc"/,/<\/div>/ {next} 1'  $1
 
 cat<<'EOF'
     </div>
+  </div>
  </body>
 </html>
 EOF

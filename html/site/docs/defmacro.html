@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       extensions: ["tex2jax.js"],
@@ -20,10 +19,11 @@
   <script type="text/javascript"
      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js">
    </script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div id="left">
+<div class="parent">
+<div class="left">
 <center>
 <p><a  href="index.html">home</a> :: 
 <a href="">src</a> ::
@@ -34,7 +34,7 @@
 <p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p>
 
 
-<img src="dots4.png" width=200 align=left style="margin-bottom: 0px; padding-bottom: 0px;"> 
+<img src="dots4.png" width=190  style="margin-bottom: 0px; padding-bottom: 0px;">
 <hr style="paddiing-top:0px; margin-top:0px;">
 </center>
 <div class="toc">
@@ -59,7 +59,7 @@
 </ul>
 </div>
     </div>
- <div id="right">
+ <div class="right">
 <h1 id="defmacro">Defmacro</h1>
 <div class="admonition summary">
 <p class="admonition-title">TL;DR</p>
@@ -79,36 +79,36 @@ to creating new and powerful and succinct abstractions.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: right;">Macro</th>
-<th style="text-align: center;">:</th>
-<th style="text-align: left;">Notes</th>
+<th align="right">Macro</th>
+<th align="center">:</th>
+<th align="left">Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: right;"><a href="#anaphoric-if"><code>aif</code></a></td>
-<td style="text-align: center;">:</td>
-<td style="text-align: left;">(anaphoric if) for accessing a conditional without having to recompute it</td>
+<td align="right"><a href="#anaphoric-if"><code>aif</code></a></td>
+<td align="center">:</td>
+<td align="left">(anaphoric if) for accessing a conditional without having to recompute it</td>
 </tr>
 <tr>
-<td style="text-align: right;"><a href="#nested-slot-accessors"><code>o</code></a></td>
-<td style="text-align: center;">:</td>
-<td style="text-align: left;">easy  access to nested slots</td>
+<td align="right"><a href="#nested-slot-accessors"><code>o</code></a></td>
+<td align="center">:</td>
+<td align="left">easy  access to nested slots</td>
 </tr>
 <tr>
-<td style="text-align: right;"><a href="#saner-simpler-objects"><code>defthing, defthings</code></a></td>
-<td style="text-align: center;">:</td>
-<td style="text-align: left;">fixes drawbacks with defstruct and OO in LISP</td>
+<td align="right"><a href="#saner-simpler-objects"><code>defthing, defthings</code></a></td>
+<td align="center">:</td>
+<td align="left">fixes drawbacks with defstruct and OO in LISP</td>
 </tr>
 <tr>
-<td style="text-align: right;"><a href="#symbol-counts"><code>has</code></a></td>
-<td style="text-align: center;">:</td>
-<td style="text-align: left;">simplifying  symbol counting (for key sizes of 50 or less)</td>
+<td align="right"><a href="#symbol-counts"><code>has</code></a></td>
+<td align="center">:</td>
+<td align="left">simplifying  symbol counting (for key sizes of 50 or less)</td>
 </tr>
 <tr>
-<td style="text-align: right;"><a href="#csv-reader"><code>with-csv</code></a></td>
-<td style="text-align: center;">:</td>
-<td style="text-align: left;">easy processing of csv files</td>
+<td align="right"><a href="#csv-reader"><code>with-csv</code></a></td>
+<td align="center">:</td>
+<td align="left">easy processing of csv files</td>
 </tr>
 </tbody>
 </table>
@@ -240,10 +240,10 @@ which has some really good tutorial material.</p>
 <p>Consider<br />
 nested accesses to a field inside a struct;  e.g. the <code>streetNum</code> of the <code>address</code> of
 the <code>home</code> of the <code>manager</code> of the <code>company</code>. In standard LISP, that could be done with:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
-<span class="w">   </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
-<span class="w">      </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
-<span class="w">         </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span><span class="o">*</span><span class="nx">company</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">manager</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">home</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">address</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">streetNum</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code>(slot-value 
+   (slot-value 
+      (slot-value 
+         (slot-value *company &#39;manager) &#39;home) &#39;address) &#39;streetNum)
 </code></pre></div>
 
 <p>That's a little verbose, right? So lets fix that with a macro.
@@ -256,7 +256,7 @@ The first slot becomes the inner most accessors and accessors to the other slots
 </code></pre></div>
 
 <p>With this macro, the above  example becomes something much more palatable.</p>
-<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">o</span><span class="w"> </span><span class="o">*</span><span class="nx">company</span><span class="o">*</span><span class="w"> </span><span class="nx">manager</span><span class="w"> </span><span class="nx">home</span><span class="w"> </span><span class="nx">address</span><span class="w"> </span><span class="nx">streetNum</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code>(o *company* manager home address streetNum)
 </code></pre></div>
 
 <p>One common idiom is to slip in a print statement to view the contents of a struct.
@@ -457,5 +457,6 @@ you organize things. Share and enjoy!</p>
 </ol>
 </div>
     </div>
+  </div>
  </body>
 </html>
