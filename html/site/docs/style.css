@@ -5,7 +5,7 @@ body  {
 }
 pre   { 
 	padding: 5px;
-	border-left: 1px solid #CC0000;
+	border-left: 1px dotted black;
 	background-image: linear-gradient(to right, #EEE, white);
 	margin-left: 30px;
 	padding: 5px;
@@ -16,6 +16,7 @@ a:hover { text-decoration: underline; }
 h1,h2,h3,h4    { xmargin-top: 0px; padding-top: 0px; 
 	color: #CC0000; 
 } 
+h1 { padding-top: 20px; }
 
 .admonition       { border: 1px solid #EEE; box-shadow: 2px 2px 3px black; }
 .admonition-title { font-weight: bold; 
@@ -26,42 +27,25 @@ h1,h2,h3,h4    { xmargin-top: 0px; padding-top: 0px;
 	background-color: #d9faff; 
 }
 .toc { font-size: small;}
-/*
-#left {
-	width: 200px;
-	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	padding:5px;
-}
 
+.left  ul { padding-left:30px; }
 
-#right {
-	margin-left: 210px;
-}
-*/
-
-.left  ul {
-	padding-left:30px;
-}
-
-.parent {
-  position: relative;
+.parent { position: relative; 
+  xpadding-top: 10px; 
 }
 
 .left {
-	background-image: linear-gradient(#DDD, white);
+	background-image: linear-gradient(#EEE, white);
   width: 220px;
   height: 100%; /* To take the full height of the container */
   position: absolute;
   top: 0;
   left: 0;
-  padding-left:10px; xpadding-right:10px;
+  padding-left:10px;
 }
 
 .right {
   height: 100%; /* To take the full height of the container */
-  margin-left: 250px; /* To avoid overlap with the fixed-width div */
+  margin-left: 260px; /* To avoid overlap with the fixed-width div */
 }
 

@@ -41,8 +41,8 @@ cat<<-'EOF'
 <p><a href="license">&copy;2023</a> by <a href="">Tim Menzies</a></p>
 
 
-<img src="dots4.png" width=190  style="margin-bottom: 0px; padding-bottom: 0px;">
-<hr style="paddiing-top:0px; margin-top:0px;">
+<img src="dots4.png" width=190  
+  style="margin-bottom: 0px; padding-bottom: 0px; border-bottom: 1px solid black;">
 </center>
 EOF
 
