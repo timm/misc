@@ -1,12 +1,15 @@
-all: $(wildcard docs/*.html)
+all: ready $(wildcard docs/*.html)
+
+ready:
+	mkdir -p etc tmp test docs
 
 FMT= -x toc -x codehilite -x tables -x fenced_code -x footnotes -x attr_list -x admonition
 
 define html
-        echo "# $@ ..."
-	python3 -m markdown $(FMT) $^ > tmp_md
-	./etc/page.sh tmp_md  > $@
-	rm tmp_md
+echo "# $@ ..."
+python3 -m markdown $(FMT) $^ > tmp_md
+./etc/page.sh tmp_md  > $@
+rm tmp_md
 endef
 
 # to build this : if any of this is new      ; then do this
