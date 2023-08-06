@@ -1,3 +1,4 @@
+.SILENT:
 all: ready $(wildcard docs/*.html)
 
 ready:
