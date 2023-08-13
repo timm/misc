@@ -2,7 +2,7 @@
 # Defmacro
 
 !!! summary  "TL;DR"
-    As shown by the examples on this page,
+    As shown by the examples here,
     LISP's
     macro system makes it trivial to extend the language.
 
@@ -316,7 +316,7 @@ else in the source code. This is something that the LISP built-in function `gens
          `(let ((,z ,x))
             (* ,z ,z))))
          
-     (print (macroexpand  '(square 2)))
+     (print (macroexpand  '(square 2)))   
      (print (square 2))
         
      ; ==>
@@ -334,11 +334,11 @@ which binds the function itself to the anaphor `self`, allowing it to recurs:
           #'self))
     
      (alambda (n) ; factorial lambda 
-       (if (= n 0)
+       (if (= n 0)  
          1
          (* n (self (1- n))))) 
 
-You know you've caught the macro bug if this example gets you thinking "is all of OO just 10 lines of LISP macros?". 
+You know you have really  caught the macro bug if this example gets you thinking "is all of OO just 10 lines of LISP macros?". 
 Exercise for the reader! (But, btw, I've tried it and it gets surprisingly tricky surprisingly quickly).
 
 ## "Don't like it"
