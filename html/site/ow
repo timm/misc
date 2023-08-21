@@ -114,7 +114,7 @@ install() {
   fi
 }
 
-list2md() { gawk '
+lisp2md() { gawk '
   BEGIN           { Top=1; }
   $1 ~ /;include/ { print "\n\n```text"; include($2); print "```\n\n"; next; }
   sub(/^#\|/,"")  { In=0;  print(Top ? "" : "```\n\n\n"); Top=0; next }
@@ -128,8 +128,8 @@ list2md() { gawk '
 }
 
 one() {
-  cat $1 | $prep > tmp_md0
-  python3 -m markdown ${FMT} tmp_md0> tmp_md
+  cat $1 | $wPrep > tmp_md0
+  python3 -m markdown ${FMT} tmp_md0 > tmp_md
   patch tmp_md  
   rm tmp_md0 tmp_md
 }
@@ -153,7 +153,7 @@ for c in ${wNeeds};do
 for f in `ls $wIn`; do
   mkdir -p $wOut
   g=$wOut/${f%.*}.html
-  if  [ "$f" -nt "$g" ]
-  then echo "now sh.ow.ing $g ..."; one $f > $g
+  if  [ "$f" -nt "$g" -o "$1" != "" ]; then
+     echo "now sh.ow.ing $g ..."; one $f > $g
   fi
 done

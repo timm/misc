@@ -1,8 +1,7 @@
-# docs/deftest.html ...
 <!DOCTYPE html>
 <html>
   <head>
-  <title>$1</title>
+<title></title>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
   <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
@@ -87,7 +86,36 @@
   style="margin-bottom: 0px; padding-bottom: 0px; border-bottom: 1px solid black;">
 </center>
 </div>
-<div class="right"></div>
+<div class="right"><p>(unless (fboundp 'srand) (load "lib"))</p>
+<p>(defun failures () 
+  (labels 
+    ((want (sym &amp;aux (str (symbol-name sym)))
+       (if (fboundp sym) 
+         (equalp "fail-" (subseq str 0 (min 5 (length str))))))
+     (wants (&amp;aux tmp) 
+        (do-all-symbols (sym tmp)<br />
+          (if (want sym) (push sym tmp))))
+     (run (fun &amp;aux bad (saved (copy-tree <em>settings</em>)))
+      (srand (? seed))
+      (set bad (failed? fun))
+      (setf setf <em>settings</em> (copy-tree saved))
+      (if bad
+         (format t "FAIL ~a ❌~%" sym))
+      bad))
+    (loop for sym in (sort (wants) #'string&lt; :key #'symbol-name) 
+      sum (if (run sym) 1 0))))</p>
+<p>(defun failed? (fun) 
+  (ignore-errors (return-from failed? (funcall fun)))
+  t)</p>
+<p>(defun fail-error-no-crash  () (&lt; 2 (/ 1 0)))
+(defun fail-error-yes-crash  () (&gt; 2 (/ 1 0)))</p>
+<p>(defun fail-error-no  () (&lt; 2 1))
+(defun fail-error-yes  () (&gt; 2 1))</p>
+<p>(defun fail-errors () 
+  (not (and (failed? #'fail-error-yes) (not (failed? #'fail-error-no)) 
+        (failed? #'fail-error-yes-crash) (failed? #'fail-error-no-crash)))) </p>
+<p>(failures)</p>
+</div>
  </div>
 </body>
 </html>
