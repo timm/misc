@@ -1,0 +1,5 @@
+go() {
+  f=$1; shift
+  lua $f.lua $*
+  return $?
+}
