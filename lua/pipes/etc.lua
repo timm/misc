@@ -1,18 +1,33 @@
-----------1---------2---------3---------4----------5----------6----------7---------8---------9
----- lint
+--       __                    ___                        
+--      /\ \__                /\_ \                       
+--    __\ \ ,_\   ___         \//\ \    __  __     __     
+--  /'__`\ \ \/  /'___\         \ \ \  /\ \/\ \  /'__`\   
+-- /\  __/\ \ \_/\ \__/       __ \_\ \_\ \ \_\ \/\ \L\.\_ 
+-- \ \____\\ \__\ \____\     /\_\/\____\\ \____/\ \__/.\_\
+--  \/____/ \/__/\/____/     \/_/\/____/ \/___/  \/__/\/_/
+--                                                        
+-------------------- ------------------- --------------------- -------------------- ----------
+-- | o ._  _|_ 
+-- | | | |  |_ 
+            
 local lint={}
 lint.b4={}; for k,v in pairs(_ENV) do b4[k]=k end
 
 function lint.rogues() 
   for k,v in pairs(_ENV) do 
     if not b4[k] then print("E> rogue",k," of " type(v)) end end end
+-------------------- ------------------- --------------------- -------------------- ----------
+-- ._   _. ._ _   _   _ 
+-- | | (_| | | | (/_ _> 
 
----- names
 local exp,sqrt,log,cos,floor,pi = math.exp,math.sqrt,math.log,math.cos,math.floor,math.pi
-local lint,list,maths,rand,run,settings,str = {},{},{},{},{},{},{}
+local go,lint,list,maths,rand,settings,str = {},{},{},{},{},{},{}
 local obj
+-------------------- ------------------- --------------------- -------------------- ----------
+--  _  |_   o  _   _ _|_  _ 
+-- (_) |_)  | (/_ (_  |_ _> 
+--         _|               
 
----- object
 local id=0
 local function obj(s,    t) 
   t = {_name=s} 
@@ -22,13 +37,18 @@ local function obj(s,    t)
         id = id + 1
         local i = setmetatable({_id=id},t);
         return setmetatable(t.init(i,...) or i,t) end}) end
+-------------------- ------------------- --------------------- -------------------- ----------
+-- ._ _   _. _|_ |_   _ 
+-- | | | (_|  |_ | | _> 
 
----- maths
 function maths.rnd(num, numDecimalPlaces,    mult)
+  if math.floor(num) == num then return num end
   mult = 10^(numDecimalPlaces or 0)
   return floor(num * mult + 0.5) / mult end
+-------------------- ------------------- --------------------- -------------------- ----------
+-- | o  _ _|_ 
+-- | | _>  |_ 
 
----- lists
 function list.map(t,fun,    u) 
   u={}; for k,v in pairs(t) do u[k] = fun(v) end; return u end
 
@@ -42,8 +62,11 @@ function list.sort(t,fun)
 function list.copy(t,    u)
   u={}; for k,v in pairs(t) do u[str.list.copy(k)] = str.list.copy(v) end; 
   return setmetable(u,getmetatable(t)) end
+-------------------- ------------------- --------------------- -------------------- ----------
+--  _  _  _|_ _|_ o ._   _   _ 
+-- _> (/_  |_  |_ | | | (_| _> 
+--                       _|    
 
----- settings
 function settings.create(s)
   t={_help=s}
   s:gsub("\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)",
@@ -59,8 +82,10 @@ function settings.update(t)
                          s=="true"  and "false" or arg[n+1]) end end end 
   if t.help then print(t._help) end
   return t end
+-------------------- ------------------- --------------------- -------------------- ----------
+-- ._  _. ._   _| 
+-- |  (_| | | (_| 
 
----- rand
 rand.seed = 937162211
 
 function rand.rint(nlo,nhi) return floor(0.5 + rand.rand(nlo,nhi)) end
@@ -79,9 +104,12 @@ function rand.many(t,n)
 function rand.norm(mu,sd,     r)
   r=rand.rand
   return (mu or 0) + (sd or 1)* sqrt(-2*log(r())) * cos(2*pi*r()) end
+-------------------- ------------------- --------------------- -------------------- ----------
+--  _   _  
+-- (_| (_) 
+--  _|     
 
---- cli
-function run.run(settings,name, fun,    ok,b4,result,out)
+function go.maybe(settings,name, fun,    ok,b4,result,out)
   b4={}; for k,v in pairs(settings) do b4[k]=v end
   math.randomseed(settings.seed or 1234567891)
   rand.seed  = settings.seed or 1234567891
@@ -89,15 +117,20 @@ function run.run(settings,name, fun,    ok,b4,result,out)
   out        = ok and result or false
   if not ok then print("❌ FAIL ",name,":",result) end
   for k,v in pairs(b4) do settings[k]=v end
-  return out end 
+  return result==false and 1 or 0 end 
 
-function run.runs(settings)
-  for k,fun in pairs(_ENV) do
-    pre,name = name:match"(%w+)_(.+)"
-    if pre=="eg_" and "settings.go"==name or "settings.go"=="all" then
-       run.run(settings,fun
-    if k:find"^eg_" then
----- str
+function go.runs(settings,     tag,fails)
+  fails=0
+  for name,fun in pairs(_ENV) do
+    if name:find"^eg_" then
+      tag = name:match"eg_(%w+)_.*"
+      if settings.go==tag or settings.go=="all" then
+        fails = fails + go.run(settings,tag,fun)  end end end
+  os.exit(fails) end
+-------------------- ------------------- --------------------- -------------------- ----------
+--  _ _|_ ._ 
+-- _>  |_ |  
+           
 str.cat = table.concat
 str.fmt = string.format
 
@@ -112,29 +145,26 @@ function str.coerces(s,    t)
   t={}; for s1 in s:gmatch("([^,]+)") do t[1+#t]=str.coerce(s1) end
   return t end
 
-function str.eman(x)
-  for k,v in pairs(_ENV) do if x==v then return k end end
-  return "?" end
-
 function str.csv(sFilename,fun,     src,s)
   src = io.input(sFilename)
   while true do
     s = io.read(); if s then fun(str.coerces(s)) else return io.close(src) end end end
 
-function str.oo(x,  n) 
-  print(str.o(x,  n)); return x end
+function str.eman(x)
+  for k,v in pairs(_ENV) do if x==v then return k end end
+  return "?" end
 
 function str.o(x,  n,    t)
   if type(x) == "function" then return str.eman(x).."()" end
   if type(x) ~= "table"    then return tostring(x) end
-  if type(x) == "number" then
-    if math.floor(x) ~= x then 
-      x = str.rnd(x, d or the.decimals or  2) end
-    return tostring(x) end 
-  t={}; for k,v in pairs(x) do 
-          if tostring(k):sub(1,1) ~= "_" then 
-            if #x>0 then t[1+#t] = str.o(v,n) 
-            else         t[1+#t] = str.fmt(":%s %s", k, str.o(v,n)) end end 
+  if type(x) == "number"   then return tostring(math.rnd(x, n or 2)) end 
+  t = list.map(x, function(k,v,     x1) 
+                    if tostring(k):sub(1,1) ~= "_" then 
+                      return #x>0 and str.o(v,n) or str.fmt(":%s %s", k, x1) end end)
   return (t._name or "").. "{" .. str.cat(#x==0 and sort(t) or t," ") .. "}" end
 
-return lint,list,maths,obj,rand,run,settings,str 
+function str.oo(x,  n) 
+  print(str.o(x,  n)); return x end
+-------------------- ------------------- --------------------- -------------------- ----------
+return {go=go,   lint=lint, list=list,         maths=maths, 
+        obj=obj, rand=rand, settings=settings, str=str} 
