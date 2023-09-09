@@ -1,0 +1,25 @@
+# vim : set filetype=sh :
+PS1="ful> "
+alias vim="nvim -u u -p ";
+alias gp="git commit -am saving; git push; git status";
+
+pdf() {
+	mkdir -p $HOME/tmp
+	echo "pdf-ing $1 ... "
+	a2ps                  \
+		-Br                  \
+		--chars-per-line 105  \
+		--file-align=fill      \
+		--line-numbers=1        \
+		--borders=no             \
+		--pro=color               \
+		--pretty-print="lua.ssh"   \
+		--columns  3                \
+		-M letter                    \
+		-o	 $HOME/tmp/$1.ps $1.lua
+	ps2pdf $HOME/tmp/$1.ps $HOME/tmp/$1.pdf;  rm $HOME/tmp/$1.ps
+  open $HOME/tmp/$1.pdf
+}
+
+[ -z "$FUL" ] && FUL=`pwd` bash  --init-file ./ful -i
+
