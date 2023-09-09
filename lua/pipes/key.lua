@@ -34,21 +34,21 @@ local function add2Col(col,x,    d)
        col.lo = min(col.lo,x)
        col.hi = max(col.hi,x) end end
 
-local _bins={
-     3={ −0.43,	 0.43},
-     4={ −0.67, 	 0,	     0.67},
-     5={ −0.84,	−0.25,	 0.25, 	 0.84},
-     6={ −0.97,	−0.43,	 0,	     0.43,	0.97},
-     7={ −1.07,	−0.57,	−0.18,	 0.18,	0.57,	1.07},
-     8={ −1.15,	−0.67,	−0.32, 	 0,	    0.32,	0.67,	1.15},
-     9={ −1.22,	−0.76,	−0.43,	−0.14,	0.14,	0.43,	0.76,	1.22},
-    10={ −1.28,	−0.84,	−0.52,	−0.25,	0,	  0.25,	0.52,	0.84,	1.28}}
+local _bins={}
+_bins[ 3] = { -.43,	 .43}
+_bins[ 4] = { -.67,     0,	 .67}
+_bins[ 5] = { -.84,	 -.25,	 .25,  .84}
+_bins[ 6] = { -.97,	 -.43,    0,	 .43,  .97}
+_bins[ 7] = { -1.07,	-.57,	-.18,	 .18,  .57, 1.07}
+_bins[ 8] = { -1.15,	-.67,	-.32, 	 0,	 .32,  .67, 1.15}
+_bins[ 9] = { -1.22,	-.76,	-.43,	-.14,	 .14,	 .43,  .76,	1.22}
+_bins[10] = { -1.28,	-.84,	-.52,	-.25,	   0,	 .25,  .52,	 .84,	1.28}
 
 local function bin(col,x,     tmp)
   if x=="?"      then return x end
   if col.is==SYM then return x end 
   tmp = (x- col.mu)/col.sd
-  for b,x in pairs(breaks[the.bin])  do if tmp <= x then return b end end
+  for b,x in pairs(breaks[the.bins])  do if tmp <= x then return b end end
   return the.bins end
 
 function COLS(t,    cols)
@@ -70,7 +70,7 @@ function DATA(src,    data,add1)
              add(col, row.cells[col.at]) end end 
     else data.cols = cols(row.cells) end end 
   -----------------------------------
-  data = (is=DATA, rows={}, cols=nil}
+  data = {is=DATA, rows={}}
   if   type(s) == "string" 
   then csv(the.file,  function(t) _add1(data,ROW(t,data)) end) 
        _discretize(data)
@@ -80,10 +80,15 @@ function DATA(src,    data,add1)
 function _discretize(data)
   for _,col in pairs(data.cols.all) do 
     for _,row in pairs(data,rows) do 
-      row.bins[col.at] = bin(col, row.cells[col.at]) end end end end end 
+      row.bins[col.at] = bin(col, row.cells[col.at]) end end end end end  
 
 local function dist(row1,row2)
-  d=0; for _,col in pairs(row1._data.cols.x) do d=d+_dist1(col, row1.dist[col.at], row2.dist[col.at]]) end--------------------------------
+  XXX over anutjomg
+  d,n = 0,0
+  for _,col in pairs(row1._data.cols.x) do 
+    n = n+1
+    d = d+ )_dist1(col, row1.dist[col.at], row2.dist[col.at]])^the.p end
+  return (d/n)^(1/the,p)
 
 the = l.cli(the)
 print(table.concat(row,", "))
