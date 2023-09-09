@@ -45,6 +45,13 @@ function NUM:add(x,    d)
     self.lo = min(self.lo,x)
     self.hi = max(self.hi,x) end end
 
+function NUM:bin(x,     tmp)
+  if x=="?"      then return x end
+  if col.is==SYM then return x end 
+  tmp = (x- col.mu)/col.sd
+  for b,x in pairs(breaks[the.bins])  do if tmp <= x then return b end end
+  return the.bins end
+
 NUM._bins= {
     [ 3] = { -.43,	 .43},
     [ 4] = { -.67,     0,	 .67},
@@ -55,13 +62,6 @@ NUM._bins= {
     [ 9] = { -1.22,	-.76,	-.43,	-.14,	 .14,	 .43,  .76,	1.22},
     [10] = { -1.28,	-.84,	-.52,	-.25,	   0,	 .25,  .52,	 .84,	1.28}}
 
-function NUM:bin(x,     tmp)
-  if x=="?"      then return x end
-  if col.is==SYM then return x end 
-  tmp = (x- col.mu)/col.sd
-  for b,x in pairs(breaks[the.bins])  do if tmp <= x then return b end end
-  return the.bins end
-  
 -------------------- ------------------- --------------------- -------------------- ----------
 function COLS:init(t)
   self.all={}; self.x={}; self.y={}; self.names=t

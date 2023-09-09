@@ -1,14 +1,47 @@
 " https://dev.to/elvessousa/my-basic-neovim-setup-253l
+let mapleader = " "
+
+" Install vundle
+let shouldInstallBundles = 0
+
+if !filereadable($HOME . "/.config/nvim/autoload/plug.vim")
+  echo "~≥ Installing vim-plug \n"
+  silent !curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  let shouldInstallBundles = 1
+endif
+
+" Plugins
+call plug#begin('~/.config/nvim/plugged')
+Plug 'wincent/terminus'
+Plug 'tpope/vim-vinegar'
+Plug 'powerline/powerline'
+call plug#end()
+
+
+if shouldInstallBundles == 1
+    echo "~> Installing plugs\n"
+    :PlugInstall
+endif
+
 colorscheme habamax
-set backupdir-=.
-set backupdir^=~/tmp,/tmp
+
+set noswapfile nowritebackup nobackup
+
 set ignorecase
 set visualbell
+set nowrap
+set termguicolors
+
+" Indendation
+set autoindent smarttab expandtab
+set shiftround tabstop=2 shiftwidth=2
+set pastetoggle=<F2>
 
 set ts=2
 set sw=2
 set sts=2
 set et
+
 
 set clipboard=unnamedplus
 set completeopt=noinsert,menuone,noselect
@@ -22,6 +55,9 @@ set title
 set ttimeoutlen=0
 set wildmenu
 
+" Search
+set gdefault
+set ignorecase smartcase
 
 filetype plugin indent on
 syntax on
@@ -38,3 +74,5 @@ else
         set termguicolors
     endif
 endif
+
+
