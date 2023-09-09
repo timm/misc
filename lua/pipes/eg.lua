@@ -8,9 +8,7 @@
 --  \/____/\/___L\ \   \/_/\/____/ \/___/  \/__/\/_/
 --           /\____/                                
 --           \_/__/                                 
-
-local l   = requre("etc")
-local the = l.settings.create[[
+local the = require("etc").settings.create[[
 
 eg: demonstrator of "less is more"
 (c) 2023, Tim Menzies, <timm@ieee.org>, BSD-2
@@ -26,8 +24,9 @@ OPTION:
   -g --go        start up action        = nothing
   -h --help      show help              = false]]
 -------------------- ------------------- --------------------- -------------------- ----------
-local cos,exp,log,max,min,pi = math.cos,math.exp,math.log,math.max,math.min,math.pi
+local l = require("etc")
 local csv,kap,oo,push,sort   = l.str.csv, l.list.kap, l.str.oo, l.list.push, l.list.sort
+local cos,exp,log,max,min,pi = math.cos,math.exp,math.log,math.max,math.min,math.pi
 
 local DATA,ROW,NUM,SYM = obj"DATA", obj"ROW", obj"NUM", obj"SYM"
 -------------------- ------------------- --------------------- -------------------- ----------
@@ -104,9 +103,9 @@ function ROW.dist(i,j)
    --- XXX over anutjomg
   d,n = 0,0
   for _,col in pairs(row1._data.cols.x) do 
-    n = n+1
-    d = d+ )_dist1(col, row1.dist[col.at], row2.dist[col.at]])^the.p end
-  return (d/n)^(1/the,p)
+    n = n + 1
+    d = d + (_dist1(col, row1.dist[col.at], row2.dist[col.at]))^the.p end
+  return (d/n)^(1/the.p) end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _|  _. _|_  _. 
 -- (_| (_|  |_ (_| 

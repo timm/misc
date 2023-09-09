@@ -11,17 +11,17 @@
 -- | | | |  |_ 
             
 local lint={}
-lint.b4={}; for k,v in pairs(_ENV) do b4[k]=k end
+lint.b4={}; for k,v in pairs(_ENV) do lint.b4[k]=k end
 
 function lint.rogues() 
   for k,v in pairs(_ENV) do 
-    if not b4[k] then print("E> rogue",k," of " type(v)) end end end
+    if not lint.b4[k] then print("E> rogue",k," of ",type(v)) end end end
 -------------------- ------------------- --------------------- -------------------- ----------
 -- ._   _. ._ _   _   _ 
 -- | | (_| | | | (/_ _> 
 
 local exp,sqrt,log,cos,floor,pi = math.exp,math.sqrt,math.log,math.cos,math.floor,math.pi
-local go,lint,list,maths,rand,settings,str = {},{},{},{},{},{},{}
+local lint,list,maths,rand,settings,str,test = {},{},{},{},{},{},{}
 local obj
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _  |_   o  _   _ _|_  _ 
@@ -105,11 +105,10 @@ function rand.norm(mu,sd,     r)
   r=rand.rand
   return (mu or 0) + (sd or 1)* sqrt(-2*log(r())) * cos(2*pi*r()) end
 -------------------- ------------------- --------------------- -------------------- ----------
---  _   _  
--- (_| (_) 
---  _|     
+-- _|_  _   _ _|_ 
+--  |_ (/_ _>  |_ 
 
-function go.maybe(settings,name, fun,    ok,b4,result,out)
+function test.Maybe(settings,name, fun,    ok,b4,result,out)
   b4={}; for k,v in pairs(settings) do b4[k]=v end
   math.randomseed(settings.seed or 1234567891)
   rand.seed  = settings.seed or 1234567891
@@ -119,13 +118,13 @@ function go.maybe(settings,name, fun,    ok,b4,result,out)
   for k,v in pairs(b4) do settings[k]=v end
   return result==false and 1 or 0 end 
 
-function go.runs(settings,     tag,fails)
+function test.Run(settings,     tag,fails)
   fails=0
-  for name,fun in pairs(_ENV) do
-    if name:find"^eg_" then
-      tag = name:match"eg_(%w+)_.*"
+  for name,fun in pairs(test) do
+    if name:find"^[a-z]" then
+      tag = name:match"(%w+).*"
       if settings.go==tag or settings.go=="all" then
-        fails = fails + go.run(settings,tag,fun)  end end end
+        fails = fails + test.Maybe(settings,tag,fun)  end end end
   os.exit(fails) end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _ _|_ ._ 
@@ -166,5 +165,5 @@ function str.o(x,  n,    t)
 function str.oo(x,  n) 
   print(str.o(x,  n)); return x end
 -------------------- ------------------- --------------------- -------------------- ----------
-return {go=go,   lint=lint, list=list,         maths=maths, 
-        obj=obj, rand=rand, settings=settings, str=str} 
+return {lint=lint, list=list,         maths=maths, obj=obj,
+        rand=rand, settings=settings, str=sr,      test=test} 
