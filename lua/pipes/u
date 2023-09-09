@@ -1,0 +1,40 @@
+" https://dev.to/elvessousa/my-basic-neovim-setup-253l
+colorscheme habamax
+set backupdir-=.
+set backupdir^=~/tmp,/tmp
+set ignorecase
+set visualbell
+
+set ts=2
+set sw=2
+set sts=2
+set et
+
+set clipboard=unnamedplus
+set completeopt=noinsert,menuone,noselect
+set cursorline
+set hidden
+set mouse=a
+set number
+set relativenumber
+set splitbelow splitright
+set title
+set ttimeoutlen=0
+set wildmenu
+
+
+filetype plugin indent on
+syntax on
+
+set t_Co=256
+" True color if available
+let term_program=$TERM_PROGRAM
+
+" Check for conflicts with Apple Terminal app
+if term_program !=? 'Apple_Terminal'
+    set termguicolors
+else
+    if $TERM !=? 'xterm-256color'
+        set termguicolors
+    endif
+endif
