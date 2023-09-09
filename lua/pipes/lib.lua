@@ -50,27 +50,31 @@ function rand.many(t,n)
 
 function rand.norm(mu,sd,     r)
   r=rand.rand
-  return (mu or 0) + (sd or 1)* sqrt(-2*log(r())) * cos(2*pi*r())
+  return (mu or 0) + (sd or 1)* sqrt(-2*log(r())) * cos(2*pi*r()) end
 
 --------------------20-----------------40-----------------60-----------------80 
-function maths.norm(x,mu,sd)
-  mu, sd = mu or 0, sd or 1
-  return 1 / (sd*sqrt(pi*2))*exp(-0.5*((x-mu)/sd)^2)
 
-function maths.bins(n)
-  a = 0
-  for x = -3,3,0.1 do a=a+maths.norm(x) end
+local breaks={
+    3={−0.43,0.43},
+    4={−0.67,0,0.67},
+    5={−0.84,−0.25,0.25,0.84},
+    6={−0.97,−0.43,0,0.43,0.97},
+    7={−1.07,−0.57,−0.18,0.18,0.57,1.07},
+    8={−1.15,−0.67,−0.32,0,0.32,0.67,1.15},
+    9={−1.22,−0.76,−0.43,−0.14,0.14,0.43,0.76,1.22},
+    10={,−1.28,−0.84,−0.52,−0.25,0,0.25,0.52,0.84,1.28}}
 
----- cli
-function run,go(the,fun,    ok,b4,result,out)
-  b4={}; for k,v in pairs(the) b4[k]=v end
+
+--- cli
+function run.go(the,fun,    ok,b4,result,out)
+  b4={}; for k,v in pairs(the) do b4[k]=v end
   math.randomseed(the.seed or 1234567891)
   rand.seed  = the.seed or 1234567891
   ok, result = pcall(fun)
   out        = ok and result or false
   if not ok then print("❌ FAIL ",str.eman(fun),":",result) end
   for k,v in pairs(b4) do the[k]=v end
-  return out end
+  return out end 
 
 ---- str
 str.cat = table.concat
@@ -90,7 +94,7 @@ function str.csv(sFilename,fun,     src,s)
   while true do
     s = io.read(); if s then fun(str.coerces(s)) else return io.close(src) end end end
 
-function srr.oo(x,  n) print(str.o(x,  n)); return x end
+function str.oo(x,  n) print(str.o(x,  n)); return x end
 
 function str.o(x,  n,    t)
   if type(x) == "function" then return str.eman(x).."()" end
