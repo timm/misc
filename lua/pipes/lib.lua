@@ -56,12 +56,22 @@ function list.kap(t,fun,    u)
   u={}; for k,v in pairs(t) do v,k=fun(k,v); u[k==nil and 1+#u or k]=v  end
   return u end
 
+function list.copy(t,    u)
+  if type(t) ~= "table" then return x end
+  u={}; for k,v in pairs(t) do u[list.copy(k)] = list.copy(v) end; 
+  return setmetable(u,getmetatable(t)) end
+
 function list.sort(t,fun) 
   table.sort(t,fun); return t end
 
-function list.copy(t,    u)
-  u={}; for k,v in pairs(t) do u[str.list.copy(k)] = str.list.copy(v) end; 
-  return setmetable(u,getmetatable(t)) end
+function list.lt(k) return function(x,y) return x[k] < y[k] end end
+
+function list.first(t) return t[1] end
+function list.last(t)  return t[#t] end
+
+function list.keysort(t,keyfun,    tmp) 
+  tmp = map(t, function(x) return {keyfun(x),x} end)
+  return map( sort(tmp, lt(1)),first) end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _  _  _|_ _|_ o ._   _   _ 
 -- _> (/_  |_  |_ | | | (_| _> 
@@ -69,18 +79,16 @@ function list.copy(t,    u)
 
 function settings.create(s)
   t={_help=s}
-  s:gsub("\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)",
-         function(k,v) t[k]=str.coerce(v) end)
+  s:gsub("\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", function(k,v) t[k]=str.coerce(v) end)
   return t end
 
-function settings.update(t)
+function settings.cli(t)
   for k,v in pairs(t,    s) do
     s=tostring(v)
     for n,x in ipairs(arg) do
       if x=="-"..(k:sub(1,1)) or x=="--"..k then
         t[k]= str.coerce(s=="false" and "true" or 
                          s=="true"  and "false" or arg[n+1]) end end end 
-  if t.help then print(t._help) end
   return t end
 -------------------- ------------------- --------------------- -------------------- ----------
 -- ._  _. ._   _| 

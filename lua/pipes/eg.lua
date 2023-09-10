@@ -8,7 +8,8 @@
 --  \/____/\/___L\ \   \/_/\/____/ \/___/  \/__/\/_/
 --           /\____/                                
 --           \_/__/                                 
-local the = require("etc").settings.create[[
+
+local the = require("lib").settings.create[[
 
 eg: demonstrator of "less is more"
 (c) 2023, Tim Menzies, <timm@ieee.org>, BSD-2
@@ -24,7 +25,7 @@ OPTION:
   -g --go        start up action        = nothing
   -h --help      show help              = false]]
 -------------------- ------------------- --------------------- -------------------- ----------
-local l = require("etc")
+local l = require("lib")
 local csv,kap,oo,push,sort   = l.str.csv, l.list.kap, l.str.oo, l.list.push, l.list.sort
 local cos,exp,log,max,min,pi = math.cos,math.exp,math.log,math.max,math.min,math.pi
 
@@ -37,10 +38,11 @@ local DATA,ROW,NUM,SYM = obj"DATA", obj"ROW", obj"NUM", obj"SYM"
 function SYM:init(at,txt) 
   return {n=0,at=at or 0,txt=txt or "",most=0,mode=nil,has={}} end
 
-function SYM:add(x)
+function SYM:add(x,n)
   if x~="?" then 
-    self.n = self.n + 1 
-    self.has[x] = 1 + (self.has[x] or 0)
+    n = n or 1
+    self.n = self.n + n 
+    self.has[x] = n + (self.has[x] or 0)
     if self.has[x] > self.most then 
       self.most, self.mode = self.has[x],x end end end
 
@@ -58,13 +60,13 @@ function NUM:add(x,    d)
     d       = x - self.mu
     self.mu = self.mu + d/self.n 
     self.m2 = self.m2 + d*(x - self.mu) 
-    self.sd = exp(-.5*((x - self.mu)/self.sd)^2) / (self.sd*((2*pi)^0.5)) 
+    self.sd = sqrt(self.m2/(i.n - 1))
     self.lo = min(self.lo,x)
     self.hi = max(self.hi,x) end end
 
 function NUM:bin(x,     tmp)
   if x=="?"      then return x end
-  tmp = math.floor((x - col.mu)/col.sd)
+  tmp = (x - col.mu)/col.sd
   for b,x in pairs(breaks[the.bins])  do if tmp <= x then return b end end
   return the.bins end
 
@@ -84,7 +86,7 @@ NUM._bins= {
 function COLS:init(t)
   self.all={}; self.x={}; self.y={}; self.names=t
   for at,txt in pairs(t) do 
-    col = push(self.all, (txt:find"^A-Z" and NUM or SYM)(at,txt))
+    col = push(self.all, (txt:find"^[A-Z]" and NUM or SYM)(at,txt))
     if txt:find"X$" then
       push(txt:find"[+-]$" and self.y or self.x, col) end end end
 
