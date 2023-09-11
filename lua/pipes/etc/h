@@ -33,11 +33,14 @@ hello() {
 	LIGHTCYAN='\033[1;36m'
 	WHITE='\033[1;37m'
 	clear
-	echo -e "$ORANGE"; 
-	$H/$D/etc/art
-	echo -e "$NO$DARKGRAY"
-	echo "Short cuts:"
+	echo -e "$NO$ORANGE"
+  echo " _   _|_   _   /  |_" 
+  echo "(/_   |_  (_  /   | | "
+	echo -e "$NO$LIGHTRED"
+	echo "Short cuts:"; echo ""
 	alias | sed 's/alias /  /'
+	echo -e "$NO$ORANGE"; 
+	$H/$D/etc/art
   echo -e "$NO"
 }
 
