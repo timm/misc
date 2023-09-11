@@ -35,22 +35,18 @@ alias ls="ls -G"
 ,p() { ,pdf $*   ; }
 
 ,alias() { ## show aliases
-	echo -e "$NO"
-	echo "Short cuts:"
-	echo -en "$NO$LIGHTRED"
+  echo ""
+	echo -e "${NO}${LIGHTRED}Short cuts:$NO"
 	alias | sed 's/alias /	  /' 
-	echo -en "$NO"
 }
 
 ,commands() { ## show avialable commands"
-	echo -en "$NO"
-	echo "Commands:"
-	echo -en "$NO$LIGHTRED"
+  echo ""
+	echo -e "${NO}${LIGHTRED}Command:$NO"
   gawk 'BEGIN {FS="##\\s*"} /^,.*## / {
              sub(/\(\).*/,"",$1)
              printf("%15s : %s\n",$1,$2)
          }' $H/$D/etc/,   
-	echo -en "$NO"
 }
 
 ,edit() { ## edit multiple files
