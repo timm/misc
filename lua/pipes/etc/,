@@ -43,10 +43,9 @@ alias ls="ls -G"
 ,commands() { ## show avialable commands"
   echo ""
 	echo -e "${NO}${LIGHTRED}Command:$NO"
-  gawk 'BEGIN {FS="##\\s*"} /^,.*## / {
-             sub(/\(\).*/,"",$1)
-             printf("%15s : %s\n",$1,$2)
-         }' $H/$D/etc/,   
+  gawk 'BEGIN{FS="[(][)][:space:]*[^#]+##[:space:]*"} 
+            /^,/ && /##/  { printf("%15s:%s\n",$1,$2) }
+         ' $H/$D/etc/,   
 }
 
 ,edit() { ## edit multiple files
@@ -67,7 +66,7 @@ alias ls="ls -G"
 ,lua() {  ## for short cut to run X.lua
   f=$1.lua; shift; lua $f $* ; }
 
-,pdf() { ##  print
+,pdf() { ## print lua to pdf
 	mkdir -p ~/tmp
 	echo "pdf-ing $1 ... "
 	a2ps                          \
