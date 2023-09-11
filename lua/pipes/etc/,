@@ -10,13 +10,29 @@ alias fgrep='fgrep --color=auto'
 alias gp="git add * ; git commit -am saving; git push; git status";
 alias grep='grep --color=auto'
 alias ls="ls -G"
-alias ed="nvim -u $H/$D/etc/nvimrc -p ";
 
-,() { 
-  f=$1.lua; shift; lua $f $*; 
-}
+,a() { ,alias    ; }
+,c() { ,commands   ; }
+,e() { ,edit $*  ; }
+,h() { ,help     ; }
+,l() { ,lua $* ; }
+,p() { ,pdf $*   ; }
 
-,h() {
+,alias() { ## show aliases
+	echo "Short cuts:"
+	alias | sed 's/alias /	  /' ; }
+
+,commands() { ## show avialable commands"
+	echo "Commands:"
+  gawk 'BEGIN {FS="##"} /^,.*## / {
+             sub(/\(\).*/,"",$1)
+             printf("%15s : %s\n",$1,$2)
+         }' $H/$D/etc/,  ; }
+
+,edit() { ## edit multiple files
+   nvim -u $H/$D/etc/nvimrc -p $* ; }
+
+,help() { ## show help
 	NO='\033[0m'
 	RED='\033[0;31m'
 	GREEN='\033[0;32m'
@@ -33,19 +49,22 @@ alias ed="nvim -u $H/$D/etc/nvimrc -p ";
 	LIGHTPURPLE='\033[1;35m'
 	LIGHTCYAN='\033[1;36m'
 	WHITE='\033[1;37m'
-	clear
-	echo -e "$NO$ORANGE"
-  echo " _   _|_   _   /  |_" 
-  echo "(/_   |_  (_  /   | | "
+	echo -en "$NO$ORANGE"
+	echo "  ___" 
+	echo "  _( )    comma,  v1.0"
+	echo "  _|/     timm, bsd2.0" 
 	echo -e "$NO$LIGHTRED"
-	echo "Short cuts:"; echo ""
-	alias | sed 's/alias /  /'
+  ,alias; echo -e "$NO"
+  ,commands
 	echo -e "$NO$ORANGE"; 
-	$H/$D/etc/art
-  echo -e "$NO"
-}
+	`git rev-parse --show-toplevel`/$D/etc/art
+  echo -en "$NO" ; 
+  }
 
-pdf() {
+,lua() {  ## for short cut to run X.lua
+  f=$1.lua; shift; lua $f $* ; }
+
+,pdf() { ##  print
 	mkdir -p ~/tmp
 	echo "pdf-ing $1 ... "
 	a2ps                          \
@@ -60,15 +79,17 @@ pdf() {
 		--pretty-print="$H/$D/etc/lua.ssh"   \
 		-o ~/tmp/$1.ps $1.lua
 	ps2pdf ~/tmp/$1.ps ~/tmp/$1.pdf;  rm ~/tmp/$1.ps
-  open ~/tmp/$1.pdf
-}
+  open ~/tmp/$1.pdf ; }
 
-here()    { cd $1; basename `pwd`; }
-PROMPT_COMMAND='echo -ne "📐 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'
 
-if    [ -z "$H" ] 
-then 
-     H=`git rev-parse --show-toplevel`
-     ,h
+here() { # internal command, prints current dir
+   cd $1; basename `pwd` ; }
+
+PROMPT_COMMAND='echo -ne ",$(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'
+
+if [ -z "$H" ] 
+then H=`git rev-parse --show-toplevel`
+     tput clear
+     ,help
      H="$H" bash --init-file $H/$D/etc/, -i
 fi
