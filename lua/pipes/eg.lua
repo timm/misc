@@ -154,8 +154,10 @@ function DATA:bins()
   for _,row in pairs(rows) do
     for _,cols in pairs{self.cols.x, self.cols.y} do for _,col in pairs(cols) do 
       row.bins[col.at] = col:bin(x) end end end end
+-------------------- ------------------- --------------------- -------------------- ----------
+local tree={}
 
-function DATA:half(rows,sorted,     a,b,C,as,bs,some)
+function tree.half(rows,sorted,     a,b,C,as,bs,some)
   some  = rand.many(rows or self.rows, min(the.Half, #rows))
   a,b,C = some[1]:extremities(some)
   as,bs = {},{}
@@ -164,5 +166,22 @@ function DATA:half(rows,sorted,     a,b,C,as,bs,some)
     push(n <= #rows/2 and as or bs, row) end
   return a,b,as,bs
 
+function tree.grow(data,sorted)
+  function work(data1)
+    node = {here=data1}
+    if #rows > 2* ((#rows)^.5) then
+      _,__,lefts,rights = tree.half(data1.rows,sorted)
+      node.lefts        = work(data:clone(lefts))
+      node.rights       = work(data:clone(rights)) end 
+    return node end 
+  return row(data) end
+
+function tree.walk(node,fun,lvl,     leafp)
+  lvl = lvl or 0
+  if node then
+    fun(node)
+    leafp = not node.lefts and not node.rights
+    tree.walk(node.lefts, fun,lvl+1,leafp)
+    tree.walk(node.rights,fun,lvl+1,leafp) end end
 -------------------- ------------------- --------------------- -------------------- ----------
 return {the=the, DATA=DATA, ROW=ROW, SYM=SYM, NUM=NUM, COLS=COLS}
