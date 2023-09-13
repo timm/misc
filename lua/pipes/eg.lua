@@ -167,21 +167,27 @@ function tree.half(rows,sorted,     a,b,C,as,bs,some)
   return a,b,as,bs
 
 function tree.grow(data,sorted)
-  function work(data1)
+  function _grow(data1)
     node = {here=data1}
     if #rows > 2* ((#rows)^.5) then
       _,__,lefts,rights = tree.half(data1.rows,sorted)
-      node.lefts        = work(data:clone(lefts))
-      node.rights       = work(data:clone(rights)) end 
+      node.lefts        = _grow(data:clone(lefts))
+      node.rights       = _grow(data:clone(rights)) end 
     return node end 
-  return row(data) end
+  return _grow(data) end
 
-function tree.walk(node,fun,lvl,     leafp)
+function tree.walk(node,fun,lvl)
   lvl = lvl or 0
   if node then
-    fun(node)
-    leafp = not node.lefts and not node.rights
-    tree.walk(node.lefts, fun,lvl+1,leafp)
-    tree.walk(node.rights,fun,lvl+1,leafp) end end
+    fun(node, lvl, not (node.lefts or node.rights))
+    tree.walk(node.lefts, fun,lvl+1)
+    tree.walk(node.rights,fun,lvl+1) end end
+
+function tree.show(node)
+  function _show(node1,lvl,leafp)
+    n= #node.here.rows)^.5
+    post = leafp and o(node.here:stats())  or ""
+    print(string.format("%"..tostring(log(n,2)//1).."s %s",("|.. ")*rep(lvl), post)) end
+  tree.walk(node, _show) end
 -------------------- ------------------- --------------------- -------------------- ----------
 return {the=the, DATA=DATA, ROW=ROW, SYM=SYM, NUM=NUM, COLS=COLS}
