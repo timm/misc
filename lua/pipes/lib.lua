@@ -1,12 +1,13 @@
---       __                    ___                        
---      /\ \__                /\_ \                       
---    __\ \ ,_\   ___         \//\ \    __  __     __     
---  /'__`\ \ \/  /'___\         \ \ \  /\ \/\ \  /'__`\   
--- /\  __/\ \ \_/\ \__/       __ \_\ \_\ \ \_\ \/\ \L\.\_ 
--- \ \____\\ \__\ \____\     /\_\/\____\\ \____/\ \__/.\_\
---  \/____/ \/__/\/____/     \/_/\/____/ \/___/  \/__/\/_/
---                                                        
--------------------- ------------------- --------------------- -------------------- ----------
+--[[
+ ___              __                        ___                         
+/\_ \      __    /\ \                      /\_ \                        
+\//\ \    /\_\   \ \ \____                 \//\ \     __  __     __     
+  \ \ \   \/\ \   \ \ '__`\                  \ \ \   /\ \/\ \  /'__`\   
+   \_\ \_  \ \ \   \ \ \L\ \            __    \_\ \_ \ \ \_\ \/\ \L\.\_ 
+   /\____\  \ \_\   \ \_,__/           /\_\   /\____\ \ \____/\ \__/.\_\
+   \/____/   \/_/    \/___/            \/_/   \/____/  \/___/  \/__/\/_/
+]]-- 
+
 -- | o ._  _|_ 
 -- | | | |  |_ 
             
@@ -111,19 +112,19 @@ function rand.many(t,n)
 
 function rand.norm(mu,sd,     r)
   r=rand.rand
-  return (mu or 0) + (sd or 1)* sqrt(-2*log(r())) * cos(2*pi*r()) end
+  return (mu or 0) + (sd or 1)* sqrt(-2*log(r())) * cos(2*pi*r()) end 
 -------------------- ------------------- --------------------- -------------------- ----------
 -- _|_  _   _ _|_ 
 --  |_ (/_ _>  |_ 
 
-function test.Maybe(settings,name, fun,    ok,b4,result,out)
-  b4={}; for k,v in pairs(settings) do b4[k]=v end
-  math.randomseed(settings.seed or 1234567891)
-  rand.seed  = settings.seed or 1234567891
+function test.Maybe(the, sName, fun,    ok,b4,result,out)
+  b4={}; for k,v in pairs(the) do b4[k]=v end
+  math.randomseed(the.seed or 1234567891)
+  rand.seed  = the.seed or 1234567891
   ok, result = pcall(fun)
   out        = ok and result or false
-  if not ok then print("❌ FAIL ",name,":",result) end
-  for k,v in pairs(b4) do settings[k]=v end
+  if not ok then print("❌ FAIL ",sName,":",result) end
+  for k,v in pairs(b4) do the[k]=v end
   return result==false and 1 or 0 end 
 
 function test.Run(settings,     tag,fails)

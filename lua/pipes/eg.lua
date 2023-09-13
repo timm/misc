@@ -22,8 +22,10 @@ OPTION:
   -b --bins      number of bins         = 5
   -d --decimals  print first `decimals` = 2
   -f --file      csv file to load       = 
+  -F --Far       distance to far        = .9
   -g --go        start up action        = nothing
-  -h --help      show help              = false]]
+  -h --help      show help              = false
+  -H --Half      items explored in halving = 256]]
 -------------------- ------------------- --------------------- -------------------- ----------
 local l = require("lib")
 local csv,kap,oo,push,sort   = l.str.csv, l.list.kap, l.str.oo, l.list.push, l.list.sort
@@ -47,6 +49,7 @@ function SYM:add(x,n)
       self.most, self.mode = self.has[x],x end end end
 
 function SYM:bin(x) return x end
+function SYM:dist(x,y) return x==y and 0 or 1 end
 -- -------------------- ------------------- --------------------- -------------------- ----------
 -- ._      ._ _  
 -- | | |_| | | | 
@@ -63,6 +66,16 @@ function NUM:add(x,    d)
     self.sd = sqrt(self.m2/(i.n - 1))
     self.lo = min(self.lo,x)
     self.hi = max(self.hi,x) end end
+
+function NUM:norm(x)
+  return x=="?" and x or (x-self.lo)/(self.hi - self.lo + 1E-30) end
+
+function NUM:dist(x,y) 
+  if x=="?" and y=="?" then return 1 end
+  x,y = self:norm(x), self:norm(y)
+  x = x~="?" and x or (y<.5 and 1 or 0)
+  y = y~="?" and y or (x<.5 and 1 or 0)
+  return abs(x - y) 
 
 function NUM:bin(x,     tmp)
   if x=="?"      then return x end
@@ -83,12 +96,14 @@ NUM._bins= {
 --  _  _  |  _ 
 -- (_ (_) | _> 
 
-function COLS:init(t)
-  self.all={}; self.x={}; self.y={}; self.names=t
+function COLS:init(t,    col,category)
+  self.all, self.x, self.y, self.names = {},{},{},t
   for at,txt in pairs(t) do 
-    col = push(self.all, (txt:find"^[A-Z]" and NUM or SYM)(at,txt))
+    col = txt:find"^[A-Z]" and NUM(at,txt) or SYM(at,txt)
+    push(self.all, col)
     if txt:find"X$" then
-      push(txt:find"[+-]$" and self.y or self.x, col) end end end
+      category = txt:find"[+-]$" and self.y or self.x
+      push(category, col) end end end
 
 function COLS:add(row)
   for _,cols in pairs{self.cols.x, self.cols.y} do for _,col in pairs(cols) do 
@@ -101,13 +116,21 @@ function COLS:add(row)
 function ROW:init(t,data) 
   return {_data=data,rows=t; bins=list.copy(t)} end
 
-function ROW.dist(i,j)
-   --- XXX over anutjomg
+function ROW:dist(i,j)
   d,n = 0,0
-  for _,col in pairs(row1._data.cols.x) do 
+  for _,col in pairs(row1._data.cols.x) do
     n = n + 1
-    d = d + (_dist1(col, row1.dist[col.at], row2.dist[col.at]))^the.p end
+    d = d + (col:dist(row1.dist[col.at], row2.dist[col.at]))^the.p end
   return (d/n)^(1/the.p) end
+
+function ROW:neighbors(rows)
+  return keysort(rows, function(row2) return self:dist(row2) end)
+
+function ROW:extremities(rows,     n,x,y)
+  n = (#rows*the.Far)//1
+  x = self:neighbors(rows)[n]
+  y = x:neighbors(rows)[n]
+  return x,y, x:dist(y)
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _|  _. _|_  _. 
 -- (_| (_|  |_ (_| 
@@ -119,6 +142,11 @@ function DATA:init(src)
        self:bins()
   else for _,row in pairs(src or {}) do self:add(row) end end end
 
+function DATA:clone(rows)
+  data = DATA({self.cols.names})
+  for row in pairs(rows or {}) do data:add(row) end `
+  return data end
+
 function DATA:add(row)
   if self.cols then push(self.rows, self.cols:add(row)) else self.cols=COLS(self.cells) end end 
 
@@ -126,5 +154,15 @@ function DATA:bins()
   for _,row in pairs(rows) do
     for _,cols in pairs{self.cols.x, self.cols.y} do for _,col in pairs(cols) do 
       row.bins[col.at] = col:bin(x) end end end end
+
+function DATA:half(rows,sorted,     a,b,C,as,bs,some)
+  some  = rand.many(rows or self.rows, min(the.Half, #rows))
+  a,b,C = some[1]:extremities(some)
+  as,bs = {},{}
+  if sorting and b:better(a) then a,b = b,c end
+  for n,row in pairs(sorted(rows, function(r) return (r:dist(a)^2+C^2-r:dist(b)^2)/(2*C) end)) do
+    push(n <= #rows/2 and as or bs, row) end
+  return a,b,as,bs
+
 -------------------- ------------------- --------------------- -------------------- ----------
 return {the=the, DATA=DATA, ROW=ROW, SYM=SYM, NUM=NUM, COLS=COLS}
