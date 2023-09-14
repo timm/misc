@@ -29,6 +29,7 @@ WHITE='\033[1;37m'
   echo ""
 	echo -e "${NO}${LIGHTRED}Short cuts:$NO"
 	alias | sed 's/alias /	  /' 
+  echo -en "$NO"
 }
 
 ,commands() { ## show avialable commands"
@@ -37,6 +38,7 @@ WHITE='\033[1;37m'
   gawk 'BEGIN{FS="[(][)][:space:]*[^#]+##[:space:]*"} 
             /^,/ && /##/  { printf("%15s :%s\n",$1,$2) }
          ' $H/$D/etc/,   
+  echo -en "$NO"
 }
 
 ,edit() { ## edit multiple files
@@ -49,9 +51,6 @@ WHITE='\033[1;37m'
 	echo "  _|/     timm, bsd2.0" 
   ,alias
   ,commands
-	echo -e "$NO$ORANGE"; 
-	`git rev-parse --show-toplevel`/$D/etc/art
-  echo -en "$NO" ; 
   }
 
 ,lua() {  ## for short cut to run X.lua

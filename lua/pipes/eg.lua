@@ -55,20 +55,24 @@ function SYM:dist(x,y) return x==y and 0 or 1 end
 -- | | |_| | | | 
 
 function NUM:init(at,txt) 
-	return {n=0,at=at or 0,txt=txt or "",mu=0,m2=0,sd=0} end  
+	return {n=0,at=at or 0,txt=txt or "",mu=0,m2=0,sd=0,
+          heaven=(txt or ""):find"-$" and 0 or 1} end  
 
 function NUM:add(x,    d)
   if x ~="?" then 
     self.n  = self.n + 1 
     d       = x - self.mu
+    self.lo = min(self.lo,x)
+    self.hi = max(self.hi,x) 
     self.mu = self.mu + d/self.n 
     self.m2 = self.m2 + d*(x - self.mu) 
-    self.sd = sqrt(self.m2/(i.n - 1))
-    self.lo = min(self.lo,x)
-    self.hi = max(self.hi,x) end end
+    self.sd = sqrt(self.m2/(i.n - 1)) end end
 
 function NUM:norm(x)
   return x=="?" and x or (x-self.lo)/(self.hi - self.lo + 1E-30) end
+
+function NUM:d2h(x)
+  return abs(self:norm(x) - self.heaven) end
 
 function NUM:dist(x,y) 
   if x=="?" and y=="?" then return 1 end
@@ -80,7 +84,7 @@ function NUM:dist(x,y)
 function NUM:bin(x,     tmp)
   if x=="?"      then return x end
   tmp = (x - col.mu)/col.sd
-  for b,x in pairs(breaks[the.bins])  do if tmp <= x then return b end end
+  for b,x in pairs(NUM._bins[the.bins])  do if tmp <= x then return b end end
   return the.bins end
 
 NUM._bins= {
@@ -114,7 +118,7 @@ function COLS:add(row)
 -- |  (_) \/\/ 
 
 function ROW:init(t,data) 
-  return {_data=data,rows=t; bins=list.copy(t)} end
+  return {_data=data,rows=t; bins=list.copy(t),evalled=false} end
 
 function ROW:dist(i,j)
   d,n = 0,0
@@ -131,6 +135,16 @@ function ROW:extremities(rows,     n,x,y)
   x = self:neighbors(rows)[n]
   y = x:neighbors(rows)[n]
   return x,y, x:dist(y)
+
+function ROW:d2h()
+  d,n,evalled = 0,0,true
+  for _,col in pairs(row1._data.cols.y) do 
+    n = n +1
+    d = d + col:d2h(self.cells[col.at])^the.p end
+  return (d/n)^(1/the.p) end
+
+function ROW.better(row1,row2)
+  return row1:d2h() < row2:d2h() end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _|  _. _|_  _. 
 -- (_| (_|  |_ (_| 
@@ -157,19 +171,20 @@ function DATA:bins()
 -------------------- ------------------- --------------------- -------------------- ----------
 local tree={}
 
-function tree.half(rows,sorted,     a,b,C,as,bs,some)
+function tree.half(rows,sorted,     a,b,C,as,bs,some, x)
+  function x(A,B) return (A^2+C^2 - B^2)/(2*C) end
   some  = rand.many(rows or self.rows, min(the.Half, #rows))
   a,b,C = some[1]:extremities(some)
   as,bs = {},{}
   if sorting and b:better(a) then a,b = b,c end
-  for n,row in pairs(sorted(rows, function(r) return (r:dist(a)^2+C^2-r:dist(b)^2)/(2*C) end)) do
+  for n,row in pairs(sorted(rows, function(r) return x(dist(a), r:dist(b)) end)) do
     push(n <= #rows/2 and as or bs, row) end
-  return a,b,as,bs
+  return a,b,as,bs end
 
 function tree.grow(data,sorted)
   function _grow(data1)
     node = {here=data1}
-    if #rows > 2* ((#rows)^.5) then
+    if #data1.rows > 2* ((#data.rows)^.5) then
       _,__,lefts,rights = tree.half(data1.rows,sorted)
       node.lefts        = _grow(data:clone(lefts))
       node.rights       = _grow(data:clone(rights)) end 
@@ -183,11 +198,13 @@ function tree.walk(node,fun,lvl)
     tree.walk(node.lefts, fun,lvl+1)
     tree.walk(node.rights,fun,lvl+1) end end
 
-function tree.show(node)
-  function _show(node1,lvl,leafp)
-    n= #node.here.rows)^.5
-    post = leafp and o(node.here:stats())  or ""
-    print(string.format("%"..tostring(log(n,2)//1).."s %s",("|.. ")*rep(lvl), post)) end
+function tree.show(node,     _show)
+  function _show(node1,lvl,leafp,     n,post)
+    n    = (#node.here.rows)^.5
+    n    = log(n,2)//1
+    pre  = "%".. tostring(n) .. "s %s"
+    post = leafp and o(node.here:stats()) or ""
+    print(string.format(pre, ("|...")*rep(lvl),post)) end
   tree.walk(node, _show) end
 -------------------- ------------------- --------------------- -------------------- ----------
 return {the=the, DATA=DATA, ROW=ROW, SYM=SYM, NUM=NUM, COLS=COLS}
