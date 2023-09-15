@@ -28,10 +28,9 @@ function test.map_demo(t)
   oo(l.list.map({1,2,3}, function(x) if x > 1 then return x*10 end end)) end
 
 function test.copy_copy_nested_strucures(t,    u)
-   print(1)
-   t={1,2,{4,5,{6,7}}}
-   u=l.list.copy(t)
-   t[3][3][2]=7000
-   print(u[3][3][2]) end
+  t={1,2,{4,5,{6,7}}}
+  u=l.list.copy(t)
+  t[3][3][2]=7000
+  return t[3][3][2] ~= u[3][3][2] end
 
 test.Run(eg.the)

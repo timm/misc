@@ -65,7 +65,8 @@ function list.kap(t,fun,    u,v1,k2)
 function list.copy(t,    u)
   if type(t) ~= "table" then return t end
   u={}; for k,v in pairs(t) do u[list.copy(k)] = list.copy(v) end; 
-  return setmetatable(u,getmetatable(t)) end
+  setmetatable(u,getmetatable(t)) 
+  return u end
 
 function list.sort(t,fun) 
   table.sort(t,fun); return t end
