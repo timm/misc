@@ -16,7 +16,7 @@ eg: demonstrator of "less is more"
 
 USAGE: 
   require"eg"
-  or lua egs.lua [OPTIONS]
+  or lua egs.lua [OPTIONS] [-g ACTION]
 
 OPTION:
   -b --bins      number of bins         = 5
@@ -157,7 +157,7 @@ function ROW.better(row1,row2)
 
 function DATA:init(src)
   self.rows={}
-  if   type(s) == "string" 
+  if   type(src) == "string" 
   then l.str.csv(the.file,  function(t) self:add(ROW(t,self)) end) 
        self:bins()
   else for _,row in pairs(src or {}) do self:add(row) end end end

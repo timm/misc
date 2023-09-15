@@ -22,7 +22,7 @@ function lint.rogues()
 -- | | (_| | | | (/_ _> 
 
 local exp,sqrt,log,cos,floor,pi = math.exp,math.sqrt,math.log,math.cos,math.floor,math.pi
-local lint,list,maths,rand,settings,str,test = {},{},{},{},{},{},{}
+local list,maths,rand,settings,str,test = {},{},{},{},{},{}
 local obj
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _  |_   o  _   _ _|_  _ 
@@ -58,22 +58,32 @@ function list.push(t,x)
 function list.map(t,fun,    u) 
   u={}; for k,v in pairs(t) do u[k] = fun(v) end; return u end
 
-function list.kap(t,fun,    u) 
-  u={}; for k,v in pairs(t) do v,k=fun(k,v); u[k==nil and 1+#u or k]=v  end
+function list.kap(t,fun,    u,v1,k2) 
+  u={}; for k,v in pairs(t) do v1,k1=fun(k,v); u[k1==nil and (1+#u) or k1]=v1  end
   return u end
 
 function list.copy(t,    u)
-  if type(t) ~= "table" then return x end
+  if type(t) ~= "table" then return t end
   u={}; for k,v in pairs(t) do u[list.copy(k)] = list.copy(v) end; 
-  return setmetable(u,getmetatable(t)) end
+  return setmetatable(u,getmetatable(t)) end
 
 function list.sort(t,fun) 
   table.sort(t,fun); return t end
 
 function list.lt(k) return function(x,y) return x[k] < y[k] end end
 
+
 function list.first(t) return t[1] end
 function list.last(t)  return t[#t] end
+
+function list.keys(t,    i,u) 
+  u={}; for k,v in pairs(t) do u[1+#u] = {k,v} end
+  table.sort(u, list.lt(1))
+  i=0
+  return function ()
+    i = i + 1
+    if i <= #u then return u[i][1], u[i][2] end end end
+
 
 function list.keysort(t,keyfun,    tmp) 
   tmp = map(t, function(x) return {keyfun(x),x} end)
@@ -90,13 +100,13 @@ function list.entropy(t,     e,n,_p)
 -- _> (/_  |_  |_ | | | (_| _> 
 --                       _|    
 
-function settings.create(s)
+function settings.create(s,     t)
   t={_help=s}
   s:gsub("\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", function(k,v) t[k]=str.coerce(v) end)
   return t end
 
-function settings.cli(t)
-  for k,v in pairs(t,    s) do
+function settings.cli(t,     s)
+  for k,v in pairs(t) do
     s=tostring(v)
     for n,x in ipairs(arg) do
       if x=="-"..(k:sub(1,1)) or x=="--"..k then
@@ -129,24 +139,31 @@ function rand.norm(mu,sd,     r)
 -- _|_  _   _ _|_ 
 --  |_ (/_ _>  |_ 
 
-function test.Maybe(the, sName, fun,    ok,b4,result,out)
+function test.Maybe(the, sName, fun,    ok,b4,result,bad)
   b4={}; for k,v in pairs(the) do b4[k]=v end
   math.randomseed(the.seed or 1234567891)
   rand.seed  = the.seed or 1234567891
+  print("tag",fun)
   ok, result = pcall(fun)
-  out        = ok and result or false
-  if not ok then print("❌ FAIL ",sName,":",result) end
   for k,v in pairs(b4) do the[k]=v end
-  return result==false and 1 or 0 end 
+  if ok then bad=result==false else bad=false end
+  if bad then print("❌  FAIL : "..sName.." : "..tostring(result)) end
+  return bad end 
 
-function test.Run(the,     tag,fails)
+function test.Run(the,     tag,fails,sep,a,b)
   fails=0
   settings.cli(the)
-  for name,fun in pairs(test) do
+  if the.help then io.write(the._help .. "\nACTIONS:") end
+  for name,fun in list.keys(test) do
     if name:find"^[a-z]" then
-      tag = name:match"(%w+)[_]?.*"
-      if the.go==tag or the.go=="all" then
-        fails = fails + test.Maybe(the,tag,fun)  end end end
+      if    the.help 
+      then  a,b="\n  ","\t: "; for s in name:gmatch("([^_]+)") do io.write(a..s..b); a,b=" ","" end 
+      else
+        tag = name:match"(%w+)[_]?.*"
+        if the.go==tag or the.go=="all" then
+          fails = fails + (test.Maybe(the,tag,fun) and 1 or 0)  end end end end
+  if the.help then print("") end
+  lint.rogues()
   os.exit(fails) end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _ _|_ ._ 
@@ -175,14 +192,15 @@ function str.eman(x)
   for k,v in pairs(_ENV) do if x==v then return k end end
   return "?" end
 
-function str.o(x,  n,    t)
+function str.o(x,  n,    t,x1)
   if type(x) == "function" then return str.eman(x).."()" end
   if type(x) == "number"   then return tostring(maths.rnd(x, n or 2)) end 
   if type(x) ~= "table"    then return tostring(x) end
-  t = list.map(x, function(k,v,     x1) 
+  t = list.kap(x, function(k,v,     x1) 
                     if tostring(k):sub(1,1) ~= "_" then 
-                      return #x>0 and str.o(v,n) or str.fmt(":%s %s", k, x1) end end)
-  return (t._name or "").. "{" .. str.cat(#x==0 and sort(t) or t," ") .. "}" end
+                      x1=str.o(v,n)
+                      return #x>0 and x1 or str.fmt(":%s %s", k, x1) end end)
+  return (t._name or "").. "{" .. str.cat(#x==0 and list.sort(t) or t," ") .. "}" end
 
 function str.oo(x,  n) 
   print(str.o(x,  n)); return x end
