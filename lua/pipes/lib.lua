@@ -43,6 +43,7 @@ local function obj(s,    t)
 -- | | | (_|  |_ | | _> 
 
 function maths.rnd(num, numDecimalPlaces,    mult)
+  if type(num) ~= "number" then return num end
   if math.floor(num) == num then return num end
   mult = 10^(numDecimalPlaces or 0)
   return floor(num * mult + 0.5) / mult end
@@ -72,7 +73,14 @@ function list.last(t)  return t[#t] end
 
 function list.keysort(t,keyfun,    tmp) 
   tmp = map(t, function(x) return {keyfun(x),x} end)
-  return map( sort(tmp, lt(1)),first) end
+  return map( sort(tmp, lt(1)), first) end
+
+function list.entropy(t,     e,n,_p)
+  function _p(p) return p*log(p,2) end
+  e,n=0,0 
+  for _,v in pairs(t) do n = n+v end
+  for _,v in pairs(t) do if v>0 then e = e - _p(v/n) end end
+  return e end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _  _  _|_ _|_ o ._   _   _ 
 -- _> (/_  |_  |_ | | | (_| _> 
@@ -165,7 +173,7 @@ function str.eman(x)
 function str.o(x,  n,    t)
   if type(x) == "function" then return str.eman(x).."()" end
   if type(x) ~= "table"    then return tostring(x) end
-  if type(x) == "number"   then return tostring(math.rnd(x, n or 2)) end 
+  if type(x) == "number"   then return tostring(maths.rnd(x, n or 2)) end 
   t = list.map(x, function(k,v,     x1) 
                     if tostring(k):sub(1,1) ~= "_" then 
                       return #x>0 and str.o(v,n) or str.fmt(":%s %s", k, x1) end end)

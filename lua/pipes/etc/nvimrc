@@ -14,6 +14,8 @@ endif
 call plug#begin('~/.config/nvim/plugged')
 Plug 'wincent/terminus'
 Plug 'tpope/vim-vinegar'
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'romainl/Apprentice',{'as':'apprentice'}
 Plug 'powerline/powerline'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 

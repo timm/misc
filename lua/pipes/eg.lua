@@ -38,7 +38,7 @@ local DATA,ROW,NUM,SYM = obj"DATA", obj"ROW", obj"NUM", obj"SYM"
 --    /        
 
 function SYM:init(at,txt) 
-  return {n=0,at=at or 0,txt=txt or "",most=0,mode=nil,has={}} end
+  return {n=0,at=at or 0,txt=txt or "",most=0,mode=nil,has={}} end 
 
 function SYM:add(x,n)
   if x~="?" then 
@@ -50,6 +50,8 @@ function SYM:add(x,n)
 
 function SYM:bin(x) return x end
 function SYM:dist(x,y) return x==y and 0 or 1 end
+function SYM:mid() return self.mode end
+function SYM:div() return list.entropy(self.has) end
 -- -------------------- ------------------- --------------------- -------------------- ----------
 -- ._      ._ _  
 -- | | |_| | | | 
@@ -79,7 +81,7 @@ function NUM:dist(x,y)
   x,y = self:norm(x), self:norm(y)
   x = x~="?" and x or (y<.5 and 1 or 0)
   y = y~="?" and y or (x<.5 and 1 or 0)
-  return abs(x - y) 
+  return abs(x - y)  end
 
 function NUM:bin(x,     tmp)
   if x=="?"      then return x end
@@ -96,6 +98,9 @@ NUM._bins= {
     [ 8] = { -1.15,	-.67,	-.32, 	 0,	 .32,  .67, 1.15},
     [ 9] = { -1.22,	-.76,	-.43,	-.14,	 .14,	 .43,  .76,	1.22},
     [10] = { -1.28,	-.84,	-.52,	-.25,	   0,	 .25,  .52,	 .84,	1.28}}
+
+function NUM:mid() return self.nu end
+function NIM:div() return list.entropy(self.has) end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _  _  |  _ 
 -- (_ (_) | _> 
@@ -128,7 +133,7 @@ function ROW:dist(i,j)
   return (d/n)^(1/the.p) end
 
 function ROW:neighbors(rows)
-  return keysort(rows, function(row2) return self:dist(row2) end)
+  return list.keysort(rows, function(row2) return self:dist(row2) end) end
 
 function ROW:extremities(rows,     n,x,y)
   n = (#rows*the.Far)//1
@@ -137,9 +142,9 @@ function ROW:extremities(rows,     n,x,y)
   return x,y, x:dist(y)
 
 function ROW:d2h()
-  d,n,evalled = 0,0,true
+  d,n,self.evalled = 0,0,true
   for _,col in pairs(row1._data.cols.y) do 
-    n = n +1
+    n = n + 1
     d = d + col:d2h(self.cells[col.at])^the.p end
   return (d/n)^(1/the.p) end
 
@@ -168,6 +173,14 @@ function DATA:bins()
   for _,row in pairs(rows) do
     for _,cols in pairs{self.cols.x, self.cols.y} do for _,col in pairs(cols) do 
       row.bins[col.at] = col:bin(x) end end end end
+
+function DATA:stats(cols="goal", decimals=None, want="mid"):
+  cols = cols or sef.cols.y
+  decs = decs or the.decimas
+  want = want or "mid"
+  out ={N=#self.rows}
+  for _col in pairs(cols or self.cols.y) do out[cols.at] = c.__dict__[want],decimals) for c in i.cols[cols]})
+
 -------------------- ------------------- --------------------- -------------------- ----------
 local tree={}
 
