@@ -30,15 +30,14 @@ OPTION:
 ]]
 -------------------- ------------------- --------------------- -------------------- ----------
 local l = require("lib")
-local oo,push,rnd,sort   = l.str.csv,  l.str.oo, l.list.push, l.maths.rnd,l.list.sort
+local obj,oo,push,rnd,sort   = l.obj, l.str.oo, l.list.push, l.maths.rnd, l.list.sort
 local cos,exp,log,max,min,pi = math.cos,math.exp,math.log,math.max,math.min,math.pi
 
-local DATA,ROW,NUM,SYM = obj"DATA", obj"ROW", obj"NUM", obj"SYM"
+local DATA,COLS,ROW,NUM,SYM = obj"DATA", obj"COLS", obj"ROW", obj"NUM", obj"SYM"
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _    ._ _  
 -- _> \/ | | | 
 --    /        
-
 function SYM:init(at,txt) 
   return {n=0,at=at or 0,txt=txt or "",most=0,mode=nil,has={}} end 
 
@@ -102,7 +101,7 @@ NUM._bins= {
     [10] = { -1.28,	-.84,	-.52,	-.25,	   0,	 .25,  .52,	 .84,	1.28}}
 
 function NUM:mid() return self.mu end
-function NIM:div() return self.sd end
+function NUM:div() return self.sd end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _  _  |  _ 
 -- (_ (_) | _> 
@@ -141,7 +140,7 @@ function ROW:extremities(rows,     n,x,y)
   n = (#rows*the.Far)//1
   x = self:neighbors(rows)[n]
   y = x:neighbors(rows)[n]
-  return x,y, x:dist(y)
+  return x,y, x:dist(y) end
 
 function ROW:d2h()
   d,n,self.cost = 0,0,1
@@ -165,7 +164,7 @@ function DATA:init(src)
 
 function DATA:clone(rows)
   data = DATA({self.cols.names})
-  for row in pairs(rows or {}) do data:add(row) end `
+  for row in pairs(rows or {}) do data:add(row) end 
   return data end
 
 function DATA:add(row)

@@ -15,6 +15,10 @@ local DATA,ROW,NUM,SYM = eg.DATA, eg.ROW, eg.NUM, eg.ROW
 
 function test.push(      t)
   t={30,10,20}
+  return 41 == push(sort(t), 40) end
+
+function test.pusha(      t)
+  t={30,10,20}
   return 40 == push(sort(t), 40) end
 
-
+test.Run(eg.the)

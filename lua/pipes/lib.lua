@@ -51,6 +51,10 @@ function maths.rnd(num, numDecimalPlaces,    mult)
 -- | o  _ _|_ 
 -- | | _>  |_ 
 
+function list.push(t,x)
+  t[1+#t] = x
+  return x end
+
 function list.map(t,fun,    u) 
   u={}; for k,v in pairs(t) do u[k] = fun(v) end; return u end
 
@@ -135,13 +139,14 @@ function test.Maybe(the, sName, fun,    ok,b4,result,out)
   for k,v in pairs(b4) do the[k]=v end
   return result==false and 1 or 0 end 
 
-function test.Run(settings,     tag,fails)
+function test.Run(the,     tag,fails)
   fails=0
+  settings.cli(the)
   for name,fun in pairs(test) do
     if name:find"^[a-z]" then
-      tag = name:match"(%w+).*"
-      if settings.go==tag or settings.go=="all" then
-        fails = fails + test.Maybe(settings,tag,fun)  end end end
+      tag = name:match"(%w+)[_]?.*"
+      if the.go==tag or the.go=="all" then
+        fails = fails + test.Maybe(the,tag,fun)  end end end
   os.exit(fails) end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _ _|_ ._ 
@@ -172,8 +177,8 @@ function str.eman(x)
 
 function str.o(x,  n,    t)
   if type(x) == "function" then return str.eman(x).."()" end
-  if type(x) ~= "table"    then return tostring(x) end
   if type(x) == "number"   then return tostring(maths.rnd(x, n or 2)) end 
+  if type(x) ~= "table"    then return tostring(x) end
   t = list.map(x, function(k,v,     x1) 
                     if tostring(k):sub(1,1) ~= "_" then 
                       return #x>0 and str.o(v,n) or str.fmt(":%s %s", k, x1) end end)
@@ -183,4 +188,4 @@ function str.oo(x,  n)
   print(str.o(x,  n)); return x end
 -------------------- ------------------- --------------------- -------------------- ----------
 return {lint=lint, list=list,         maths=maths, obj=obj,
-        rand=rand, settings=settings, str=sr,      test=test} 
+        rand=rand, settings=settings, str=str,      test=test} 
