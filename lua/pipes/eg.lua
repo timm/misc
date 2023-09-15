@@ -25,10 +25,12 @@ OPTION:
   -F --Far       distance to far        = .9
   -g --go        start up action        = nothing
   -h --help      show help              = false
-  -H --Half      items explored in halving = 256]]
+  -H --Half      items explored in halving = 256
+  -s --seed      random number seed     = 937162211
+]]
 -------------------- ------------------- --------------------- -------------------- ----------
 local l = require("lib")
-local csv,kap,oo,push,sort   = l.str.csv, l.list.kap, l.str.oo, l.list.push, l.list.sort
+local oo,push,rnd,sort   = l.str.csv,  l.str.oo, l.list.push, l.maths.rnd,l.list.sort
 local cos,exp,log,max,min,pi = math.cos,math.exp,math.log,math.max,math.min,math.pi
 
 local DATA,ROW,NUM,SYM = obj"DATA", obj"ROW", obj"NUM", obj"SYM"
@@ -51,7 +53,7 @@ function SYM:add(x,n)
 function SYM:bin(x) return x end
 function SYM:dist(x,y) return x==y and 0 or 1 end
 function SYM:mid() return self.mode end
-function SYM:div() return list.entropy(self.has) end
+function SYM:div() return l.list.entropy(self.has) end
 -- -------------------- ------------------- --------------------- -------------------- ----------
 -- ._      ._ _  
 -- | | |_| | | | 
@@ -99,8 +101,8 @@ NUM._bins= {
     [ 9] = { -1.22,	-.76,	-.43,	-.14,	 .14,	 .43,  .76,	1.22},
     [10] = { -1.28,	-.84,	-.52,	-.25,	   0,	 .25,  .52,	 .84,	1.28}}
 
-function NUM:mid() return self.nu end
-function NIM:div() return list.entropy(self.has) end
+function NUM:mid() return self.mu end
+function NIM:div() return self.sd end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _  _  |  _ 
 -- (_ (_) | _> 
@@ -123,7 +125,7 @@ function COLS:add(row)
 -- |  (_) \/\/ 
 
 function ROW:init(t,data) 
-  return {_data=data,rows=t; bins=list.copy(t),evalled=false} end
+  return {_data=data,rows=t; bins=l.list.copy(t),cost=0} end
 
 function ROW:dist(i,j)
   d,n = 0,0
@@ -133,7 +135,7 @@ function ROW:dist(i,j)
   return (d/n)^(1/the.p) end
 
 function ROW:neighbors(rows)
-  return list.keysort(rows, function(row2) return self:dist(row2) end) end
+  return l.list.keysort(rows, function(row2) return self:dist(row2) end) end
 
 function ROW:extremities(rows,     n,x,y)
   n = (#rows*the.Far)//1
@@ -142,7 +144,7 @@ function ROW:extremities(rows,     n,x,y)
   return x,y, x:dist(y)
 
 function ROW:d2h()
-  d,n,self.evalled = 0,0,true
+  d,n,self.cost = 0,0,1
   for _,col in pairs(row1._data.cols.y) do 
     n = n + 1
     d = d + col:d2h(self.cells[col.at])^the.p end
@@ -157,7 +159,7 @@ function ROW.better(row1,row2)
 function DATA:init(src)
   self.rows={}
   if   type(s) == "string" 
-  then csv(the.file,  function(t) self:add(ROW(t,self)) end) 
+  then l.str.csv(the.file,  function(t) self:add(ROW(t,self)) end) 
        self:bins()
   else for _,row in pairs(src or {}) do self:add(row) end end end
 
@@ -174,19 +176,16 @@ function DATA:bins()
     for _,cols in pairs{self.cols.x, self.cols.y} do for _,col in pairs(cols) do 
       row.bins[col.at] = col:bin(x) end end end end
 
-function DATA:stats(cols="goal", decimals=None, want="mid"):
-  cols = cols or sef.cols.y
-  decs = decs or the.decimas
-  want = want or "mid"
-  out ={N=#self.rows}
-  for _col in pairs(cols or self.cols.y) do out[cols.at] = c.__dict__[want],decimals) for c in i.cols[cols]})
-
+function DATA:stats(  cols,swant,n,      t)
+  t = {N = #self.rows}
+  for _,c in pairs(cols or self.cols.y) do t[c.at]=rnd(swant=="div" and c:div() or c:mid(), n) end
+  return t end
 -------------------- ------------------- --------------------- -------------------- ----------
 local tree={}
 
 function tree.half(rows,sorted,     a,b,C,as,bs,some, x)
   function x(A,B) return (A^2+C^2 - B^2)/(2*C) end
-  some  = rand.many(rows or self.rows, min(the.Half, #rows))
+  some  = l.rand.many(rows, min(the.Half, #rows))
   a,b,C = some[1]:extremities(some)
   as,bs = {},{}
   if sorting and b:better(a) then a,b = b,c end
@@ -205,11 +204,11 @@ function tree.grow(data,sorted)
   return _grow(data) end
 
 function tree.walk(node,fun,lvl)
-  lvl = lvl or 0
   if node then
+    lvl = lvl and lvl + 1 or 0
     fun(node, lvl, not (node.lefts or node.rights))
-    tree.walk(node.lefts, fun,lvl+1)
-    tree.walk(node.rights,fun,lvl+1) end end
+    tree.walk(node.lefts, fun,lvl)
+    tree.walk(node.rights,fun,lvl) end end
 
 function tree.show(node,     _show)
   function _show(node1,lvl,leafp,     n,post)
