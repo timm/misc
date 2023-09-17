@@ -36,7 +36,7 @@ local function obj(s,    t)
   return setmetatable(t, {
      __call=function(_,...)
         id = id + 1
-        local i = setmetatable({_id=id},t);
+        local i = setmetatable({_id=id},t)
         return setmetatable(t.init(i,...) or i,t) end}) end
 -------------------- ------------------- --------------------- -------------------- ----------
 -- ._ _   _. _|_ |_   _ 
@@ -74,6 +74,7 @@ function list.sort(t,fun)
 function list.lt(k) return function(x,y) return x[k] < y[k] end end
 
 function list.first(t) return t[1] end
+function list.second(t) return t[2] end
 function list.last(t)  return t[#t] end
 
 function list.keys(t,    i,u) 
@@ -84,9 +85,10 @@ function list.keys(t,    i,u)
     i = i + 1
     if i <= #u then return u[i][1], u[i][2] end end end
 
-function list.keysort(t,keyfun,    tmp) 
-  tmp = map(t, function(x) return {keyfun(x),x} end)
-  return map( sort(tmp, lt(1)), first) end
+function list.keysort(t,keyfun) 
+  local _,tmp = list
+  tmp = _.map(t, function(x) return {keyfun(x),x} end)
+  return _.map( _.sort(tmp, _.lt(1)), _.second) end
 
 function list.entropy(t,     e,n,_p)
   function _p(p) return p*log(p,2) end
@@ -191,21 +193,19 @@ function str.coerces(s,    t)
 function str.csv(sFilename,fun,     src,s)
   src = io.input(sFilename)
   while true do
-    s = io.read(); if s then fun(str.coerces(s)) else return io.close(src) end end end
-
-function str.eman(x)
-  for k,v in pairs(_ENV) do if x==v then return k end end
-  return "?" end
+    s = io.read()
+    if s then fun(str.coerces(s)) else return io.close(src) end end end
 
 function str.o(x,  n,    t,x1)
-  if type(x) == "function" then return str.eman(x).."()" end
+  if type(x) == "function" then return "()" end
   if type(x) == "number"   then return tostring(maths.rnd(x, n or 2)) end 
   if type(x) ~= "table"    then return tostring(x) end
-  t = list.kap(x, function(k,v,     x1) 
-                    if tostring(k):sub(1,1) ~= "_" then 
-                      x1=str.o(v,n)
-                      return #x>0 and x1 or str.fmt(":%s %s", k, x1) end end)
-  return (t._name or "").. "{" .. str.cat(#x==0 and list.sort(t) or t," ") .. "}" end
+  t = list.kap(x, 
+        function(k,v,     x1) 
+          if tostring(k):sub(1,1) ~= "_" then 
+            x1 = str.o(v,n)
+            return #x>0 and x1 or str.fmt(":%s %s", k, x1) end end)
+  return (x._name or "").. "{" .. str.cat(#x==0 and list.sort(t) or t," ") .. "}" end
 
 function str.oo(x,  n) 
   print(str.o(x,  n)); return x end

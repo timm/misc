@@ -19,14 +19,14 @@ USAGE:
   or lua egs.lua [OPTIONS] [-g ACTION]
 
 OPTION:
-  -b --bins      number of bins         = 5
-  -d --decimals  print first `decimals` = 2
-  -f --file      csv file to load       = 
-  -F --Far       distance to far        = .9
-  -g --go        start up action        = nothing
-  -h --help      show help              = false
-  -H --Half      items explored in halving = 256
-  -s --seed      random number seed     = 937162211
+  -b --bins      number of bins             = 5
+  -d --decimals  print first `decimals`     = 2
+  -f --file      csv file to load           = ../data/auto93.csv
+  -F --Far       distance to far            = .9
+  -g --go        start up action            = nothing
+  -h --help      show help                  = false
+  -H --Half      items explored in halving  = 256
+  -s --seed      random number seed         = 937162211
 ]]
 -------------------- ------------------- --------------------- -------------------- ----------
 local l = require("lib")
@@ -58,8 +58,8 @@ function SYM:div()     return l.list.entropy(self.has) end
 -- | | |_| | | | 
 
 function NUM:init(at,txt) 
-  at, txt = at or 0, txt or ""
-	return {n=0, at=0, txt="", mu=0, m2=0, sd=0, heaven=txt:find"-$" and 0 or 1} end
+  at,txt = at or 0,txt or ""
+	return {n=0,at=at,txt=txt,mu=0,m2=0,sd=0,heaven=txt:find"-$" and 0 or 1} end
 
 function NUM:add(x,    d)
   if x ~="?" then 
@@ -107,7 +107,7 @@ function COLS:init(t,    col,category)
   for at,txt in pairs(t) do 
     col = txt:find"^[A-Z]" and NUM(at,txt) or SYM(at,txt)
     push(self.all, col)
-    if txt:find"X$" then
+    if not txt:find"X$" then
       category = txt:find"[+-]$" and self.y or self.x
       push(category, col) end end end
 
