@@ -49,17 +49,17 @@ function SYM:add(x,n)
     if self.has[x] > self.most then 
       self.most, self.mode = self.has[x],x end end end
 
-function SYM:bin(x) return x end
+function SYM:bin(x)    return x end
 function SYM:dist(x,y) return x==y and 0 or 1 end
-function SYM:mid() return self.mode end
-function SYM:div() return l.list.entropy(self.has) end
+function SYM:mid()     return self.mode end
+function SYM:div()     return l.list.entropy(self.has) end
 -- -------------------- ------------------- --------------------- -------------------- ----------
 -- ._      ._ _  
 -- | | |_| | | | 
 
 function NUM:init(at,txt) 
-	return {n=0,at=at or 0,txt=txt or "",mu=0,m2=0,sd=0,
-          heaven=(txt or ""):find"-$" and 0 or 1} end  
+  at, txt = at or 0, txt or ""
+	return {n=0, at=0, txt="", mu=0, m2=0, sd=0, heaven=txt:find"-$" and 0 or 1} end
 
 function NUM:add(x,    d)
   if x ~="?" then 
@@ -71,17 +71,16 @@ function NUM:add(x,    d)
     self.m2 = self.m2 + d*(x - self.mu) 
     self.sd = sqrt(self.m2/(i.n - 1)) end end
 
-function NUM:norm(x)
-  return x=="?" and x or (x-self.lo)/(self.hi - self.lo + 1E-30) end
-
-function NUM:d2h(x)
-  return abs(self:norm(x) - self.heaven) end
+function NUM:mid()   return self.mu end
+function NUM:div()   return self.sd end
+function NUM:d2h(x)  return abs(self:norm(x) - self.heaven) end
+function NUM:norm(x) return x=="?" and x or (x-self.lo)/(self.hi - self.lo + 1E-30) end
 
 function NUM:dist(x,y) 
   if x=="?" and y=="?" then return 1 end
-  x,y = self:norm(x), self:norm(y)
-  x = x~="?" and x or (y<.5 and 1 or 0)
-  y = y~="?" and y or (x<.5 and 1 or 0)
+  x, y = self:norm(x), self:norm(y)
+  x = x="?" and (y<.5 and 1 or 0) or x
+  y = y="?" and (x<.5 and 1 or 0) or y
   return abs(x - y)  end
 
 function NUM:bin(x,     tmp)
@@ -99,9 +98,6 @@ NUM._bins= {
     [ 8] = { -1.15,	-.67,	-.32, 	 0,	 .32,  .67, 1.15},
     [ 9] = { -1.22,	-.76,	-.43,	-.14,	 .14,	 .43,  .76,	1.22},
     [10] = { -1.28,	-.84,	-.52,	-.25,	   0,	 .25,  .52,	 .84,	1.28}}
-
-function NUM:mid() return self.mu end
-function NUM:div() return self.sd end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _  _  |  _ 
 -- (_ (_) | _> 
@@ -123,8 +119,7 @@ function COLS:add(row)
 -- ._  _       
 -- |  (_) \/\/ 
 
-function ROW:init(t,data) 
-  return {_data=data,rows=t; bins=l.list.copy(t),cost=0} end
+function ROW:init(t,data) return {_data=data,rows=t; bins=l.list.copy(t),cost=0} end
 
 function ROW:dist(i,j)
   d,n = 0,0
@@ -149,8 +144,7 @@ function ROW:d2h()
     d = d + col:d2h(self.cells[col.at])^the.p end
   return (d/n)^(1/the.p) end
 
-function ROW.better(row1,row2)
-  return row1:d2h() < row2:d2h() end
+function ROW.better(row1,row2) return row1:d2h() < row2:d2h() end
 -------------------- ------------------- --------------------- -------------------- ----------
 --  _|  _. _|_  _. 
 -- (_| (_|  |_ (_| 
