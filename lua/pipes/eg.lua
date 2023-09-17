@@ -1,4 +1,3 @@
-#!/usr/bin/env lua
 --                       ___                        
 --                      /\_ \                       
 --    __     __         \//\ \    __  __     __     
@@ -38,8 +37,10 @@ local DATA,COLS,ROW,NUM,SYM = obj"DATA", obj"COLS", obj"ROW", obj"NUM", obj"SYM"
 --  _    ._ _  
 -- _> \/ | | | 
 --    /        
-function SYM:init(at,txt) 
-  return {n=0,at=at or 0,txt=txt or "",most=0,mode=nil,has={}} end 
+function SYM:init(t, at, txt) 
+  self.at, self.txt = at or 0, txt or ""
+  self.n, self.has, self.most, self.mode = 0, {}, 0, nil
+  for _,x in pairs(t or {}) do self:add(x) end end
 
 function SYM:add(x,n)
   if x~="?" then 
@@ -57,9 +58,10 @@ function SYM:div()     return l.list.entropy(self.has) end
 -- ._      ._ _  
 -- | | |_| | | | 
 
-function NUM:init(at,txt) 
-  at,txt = at or 0,txt or ""
-	return {n=0,at=at,txt=txt,mu=0,m2=0,sd=0,heaven=txt:find"-$" and 0 or 1} end
+function NUM:init(t, at, txt) 
+  self.at, self.txt = at or 0, txt or ""
+  self.n, self.mu, self.m2, self.sd = 0, 0, 0, 0
+  for _,x in pairs(t or {}) do self:add(x) end end
 
 function NUM:add(x,    d)
   if x ~="?" then 
@@ -105,7 +107,7 @@ NUM._bins= {
 function COLS:init(t,    col,category)
   self.all, self.x, self.y, self.names = {},{},{},t
   for at,txt in pairs(t) do 
-    col = txt:find"^[A-Z]" and NUM(at,txt) or SYM(at,txt)
+    col = (txt:find"^[A-Z]" and NUM or SYM)({}, at, txt)
     push(self.all, col)
     if not txt:find"X$" then
       category = txt:find"[+-]$" and self.y or self.x
