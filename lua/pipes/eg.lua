@@ -182,13 +182,13 @@ function DATA:stats(  cols,swant,n,      t)
 -------------------- ------------------- --------------------- -------------------- ----------
 local tree={}
 
-function tree.half(rows,sorted,     a,b,C,as,bs,some, x)
-  function x(A,B) return (A^2+C^2 - B^2)/(2*C) end
+function tree.half(rows,sorted,     a,b,C,as,bs,some, cosine)
   some  = l.rand.many(rows, min(the.Half, #rows))
   a,b,C = some[1]:extremities(some)
   as,bs = {},{}
   if sorting and b:better(a) then a,b = b,c end
-  for n,row in pairs(sorted(rows, function(r) return x(dist(a), r:dist(b)) end)) do
+  function cosine(A,B) return (A^2+C^2 - B^2)/(2*C) end
+  for n,row in pairs(sorted(rows, function(r) return cosine(r:dist(a), r:dist(b)) end)) do
     push(n <= #rows/2 and as or bs, row) end
   return a,b,as,bs end
 
