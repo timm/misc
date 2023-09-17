@@ -69,7 +69,7 @@ function NUM:add(x,    d)
     self.hi = max(self.hi,x) 
     self.mu = self.mu + d/self.n 
     self.m2 = self.m2 + d*(x - self.mu) 
-    self.sd = sqrt(self.m2/(i.n - 1)) end end
+    if i.n > 1 then self.sd = sqrt(self.m2/(i.n - 1)) end end end
 
 function NUM:mid()   return self.mu end
 function NUM:div()   return self.sd end
@@ -78,9 +78,9 @@ function NUM:norm(x) return x=="?" and x or (x-self.lo)/(self.hi - self.lo + 1E-
 
 function NUM:dist(x,y) 
   if x=="?" and y=="?" then return 1 end
-  x, y = self:norm(x), self:norm(y)
-  x = x="?" and (y<.5 and 1 or 0) or x
-  y = y="?" and (x<.5 and 1 or 0) or y
+  x,y = self:norm(x),self:norm(y)
+  if x=="?" then x = y<.5 and 1 or 0 end
+  if y=="?" then y = x<.5 and 1 or 0 end
   return abs(x - y)  end
 
 function NUM:bin(x,     tmp)
@@ -201,7 +201,7 @@ function tree.walk(node,fun,lvl)
     lvl = lvl and lvl + 1 or 0
     fun(node, lvl, not (node.lefts or node.rights))
     tree.walk(node.lefts, fun,lvl)
-    tree.walk(node.rights,fun,lvl) end end
+    tree.walk(node.rights,fun,lvl) end end 
 
 function tree.show(node,     _show)
   function _show(node1,lvl,leafp,     n,post)

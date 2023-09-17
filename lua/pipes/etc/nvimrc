@@ -18,6 +18,7 @@ Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'romainl/Apprentice',{'as':'apprentice'}
 Plug 'powerline/powerline'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
 
 call plug#end()
 
@@ -27,10 +28,9 @@ if shouldInstallBundles == 1
     :PlugInstall
 endif
 
-colorscheme habamax
+colorscheme nightfly
 
 set noswapfile nowritebackup nobackup
-
 set ignorecase
 set visualbell
 set nowrap
@@ -45,7 +45,6 @@ set ts=2
 set sw=2
 set sts=2
 set et
-
 
 set clipboard=unnamedplus
 set completeopt=noinsert,menuone,noselect

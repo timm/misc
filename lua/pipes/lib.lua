@@ -16,7 +16,7 @@ lint.b4={}; for k,v in pairs(_ENV) do lint.b4[k]=k end
 
 function lint.rogues() 
   for k,v in pairs(_ENV) do 
-    if not lint.b4[k] then print("E> rogue",k," of ",type(v)) end end end
+    if not lint.b4[k] then print(string.format("E> rogue: %s of %s",k,type(v))) end end end
 -------------------- ------------------- --------------------- -------------------- ----------
 -- ._   _. ._ _   _   _ 
 -- | | (_| | | | (/_ _> 
@@ -73,7 +73,6 @@ function list.sort(t,fun)
 
 function list.lt(k) return function(x,y) return x[k] < y[k] end end
 
-
 function list.first(t) return t[1] end
 function list.last(t)  return t[#t] end
 
@@ -84,7 +83,6 @@ function list.keys(t,    i,u)
   return function ()
     i = i + 1
     if i <= #u then return u[i][1], u[i][2] end end end
-
 
 function list.keysort(t,keyfun,    tmp) 
   tmp = map(t, function(x) return {keyfun(x),x} end)
@@ -135,21 +133,27 @@ function rand.many(t,n)
 
 function rand.norm(mu,sd,     r)
   r=rand.rand
-  return (mu or 0) + (sd or 1)* sqrt(-2*log(r())) * cos(2*pi*r()) end 
+  return (mu or 0) + (sd or 1)* sqrt(-2*log(r())) * cos(2*pi*r()) end  
 -------------------- ------------------- --------------------- -------------------- ----------
 -- _|_  _   _ _|_ 
 --  |_ (/_ _>  |_ 
 
-function test.Maybe(the, sName, fun,    ok,b4,result,bad)
+function test.Run1(the, sName, fun,    b4,ok,returned)
   b4={}; for k,v in pairs(the) do b4[k]=v end
   math.randomseed(the.seed or 1234567891)
-  rand.seed  = the.seed or 1234567891
-  print("tag",fun)
-  ok, result = pcall(fun)
+  rand.seed    = the.seed or 1234567891
+  ok, returned = pcall(fun)
   for k,v in pairs(b4) do the[k]=v end
-  if ok then bad=result==false else bad=false end
-  if bad then print("❌  FAIL : "..sName.." : "..tostring(result)) end
-  return bad end 
+  test.Status(ok,returned,sName) end
+
+function test.Status(ok,returned,sName)
+  if ok then -- pcall terminated normally
+    if returned == false then
+      print("❌  FAIL : "..sName.." : returned false") 
+      return true end 
+  else -- pcall terminated abnormally
+    print("❌  FAIL : "..sName.." : "..tostring(returned)) 
+    return true end end 
 
 function test.Run(the,     tag,fails,sep,a,b)
   fails=0
@@ -162,7 +166,7 @@ function test.Run(the,     tag,fails,sep,a,b)
       else
         tag = name:match"(%w+)[_]?.*"
         if the.go==tag or the.go=="all" then
-          fails = fails + (test.Maybe(the,tag,fun) and 1 or 0)  end end end end
+          fails = fails + (test.Run1(the,tag,fun) and 1 or 0)  end end end end
   if the.help then print("") end
   lint.rogues()
   os.exit(fails) end

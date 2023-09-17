@@ -13,6 +13,10 @@ local cos,exp,log,max,min,pi = math.cos,math.exp,math.log,math.max,math.min,math
 
 local DATA,ROW,NUM,SYM = eg.DATA, eg.ROW, eg.NUM, eg.ROW
 
+function test.crash() print(a.b.c) end
+
+function test.fail()  return false end
+
 function test.the_show_settings() 
   oo(eg.the) end
 
@@ -33,4 +37,10 @@ function test.copy_copy_nested_strucures(t,    u)
   t[3][3][2]=7000
   return t[3][3][2] ~= u[3][3][2] end
 
+function test.down_sort_downwards()
+  oo(sort({{100,"dd"},{50,"cc"},{25,"bb"},{10,"aa"}},
+          l.list.lt(1))) end
+
+
+-------------------- ------------------- --------------------- -------------------- ----------
 test.Run(eg.the)
