@@ -47,7 +47,7 @@ xpand1([X|Vs],[Y|Vs],[S|_], S,X,Y).
 xpand1([V|Xs],[V|Ys],[_|Ss],S,X,Y) :- xpand1(Xs,Ys,Ss,S, X,Y).
 
 % some inline goal-expansions
-term_expansion((X0 ---> Y0), 
+term_expansion((X0 ~~> Y0), 
                [(X :- Y), goal_expansion(X,Y)]) :-
   dcg_translate_rule((X0 --> Y0), (X :- Y)).
 
