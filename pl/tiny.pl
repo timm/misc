@@ -28,10 +28,6 @@ q(fred(A, B), C) :-
 */
 
 :- discontiguous slot/6.
-:- op(1200, xfx, --->).
-:- op(700, xfx, :=).
-:- op(700, xfx, in).
-
 %---------------------------------------------------------
 % term accessors 
 term_expansion(X=L0, L) :- findall(Y, xpand(X=L0,Y), L).
@@ -46,6 +42,10 @@ xpand(Functor = Slots, slot(Functor,Slot,Val1,Val2,T1,T2)) :-
 
 xpand1([X|Vs],[Y|Vs],[S|_], S,X,Y).
 xpand1([V|Xs],[V|Ys],[_|Ss],S,X,Y) :- xpand1(Xs,Ys,Ss,S, X,Y).
+
+:- op(1200, xfx, --->).
+:- op(700, xfx, :=).
+:- op(700, xfx, in).
 
 % some inline goal-expansions
 term_expansion((X0 ---> Y0), [(X :- Y), 
