@@ -27,7 +27,7 @@ q(fred(10, A), B) :-
 */
 
 :- discontiguous slot/6.
-:- op(1200, xfx, ~~>).
+:- op(1200, xfx, ~~>). % tadpole operator
 :- op(700, xfx, :=).
 :- op(700, xfx, in).
 
@@ -47,20 +47,19 @@ xpand1([X|Vs],[Y|Vs],[S|_], S,X,Y).
 xpand1([V|Xs],[V|Ys],[_|Ss],S,X,Y) :- xpand1(Xs,Ys,Ss,S, X,Y).
 
 % some inline goal-expansions
-term_expansion((X0 ~~> Y0), 
-               [(X :- Y), goal_expansion(X,Y)]) :-
+term_expansion((X0 ~~> Y0), [(X :- Y), goal_expansion(X,Y)]) :-
   dcg_translate_rule((X0 --> Y0), (X :- Y)).
 
 % some DCG magic
 =( X,Y) ~~> slot(_,X,Y,Y).
 :=(X,Y) ~~> slot(_,X,_,Y).
-+( X,Y) ~~> slot(_,X,Z, [Y|Z]).
-in(T,X) ~~> slot(_,X,Z,Z), {member(T,Z)}.
-=<(X,Y) ~~> slot(_,X,Z,Z), {Z=<Y}.
->=(X,Y) ~~> slot(_,X,Z,Z), {Z>=Y}.
-\=(X,Y) ~~> slot(_,X,Z,Z), {Z\=Y}.
-<( X,Y) ~~> slot(_,X,Z,Z), {Z <Y}.
->( X,Y) ~~> slot(_,X,Z,Z), {Z >Y}.
++( X,Y) ~~> slot(_,X,Z,[Y|Z]).
+in(T,X) ~~> slot(_,X,Z,Z),    {member(T,Z)}.
+=<(X,Y) ~~> slot(_,X,Z,Z),    {Z=<Y}.
+>=(X,Y) ~~> slot(_,X,Z,Z),    {Z>=Y}.
+\=(X,Y) ~~> slot(_,X,Z,Z),    {Z\=Y}.
+<( X,Y) ~~> slot(_,X,Z,Z),    {Z <Y}.
+>( X,Y) ~~> slot(_,X,Z,Z),    {Z >Y}.
 
 % define some swaps (to be done at load time)
 one(X) :- bagof(_,X,[X]).
