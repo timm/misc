@@ -1,5 +1,7 @@
 /*
 
+# EXAMPLE1:
+
 with goal-expansions commented out:
 
 :- listing(p), listing(q).
@@ -18,6 +20,8 @@ q(A, B) :-
     /(a, Old, F, G),
     print(Old),
     B=G.
+
+# EXAMPLE2:
 
 with goal-expansions uncommented (lots of load-time optimizations)
 
