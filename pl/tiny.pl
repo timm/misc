@@ -2,6 +2,8 @@
 
 with goal-expansions commented out:
 
+:- listing(p), listing(q).
+
 p(A, B) :-
     of(emp, A, C),
     =(name, tim, C, D),
@@ -18,6 +20,8 @@ q(A, B) :-
     B=G.
 
 with goal-expansions uncommented (lots of load-time optimizations)
+
+:- listing(p), listing(q).
 
 p(emp(tim, 10, A), B) :-
     true,
