@@ -1,3 +1,40 @@
+/*
+
+with goal-expansions commented out:
+
+p(A, B) :-
+    of(emp, A, C),
+    =(name, tim, C, D),
+    =(age, 10, D, E),
+    >(shoesize, 20, E, B).
+
+q(A, B) :-
+    of(fred, A, C),
+    =(a, 10, C, D),
+    in(love, shoesize, D, E),
+    =(b, 10, E, F),
+    /(a, Old, F, G),
+    print(Old),
+    B=G.
+
+with goal-expansions uncommented (lots of load-time optimizations)
+
+p(emp(tim, 10, A), B) :-
+    true,
+    true,
+    true,
+    >(shoesize, 20, emp(tim, 10, A), B).
+
+q(fred(10, A), B) :-
+    true,
+    true,
+    in(love, shoesize, fred(10, A), fred(C, 10)),
+    true,
+    /(a, Old, fred(C, 10), D),
+    print(Old),
+    B=D.
+ */
+
 :- discontiguous slot/6.
 
 :- op(700, xfx, :=).
@@ -36,7 +73,7 @@ goal_expansion(of(F,X,X),true) :- ground(F), slot(F,_,_,_,X,X).
 goal_expansion(X,true) :- 
   clause(X,slot(A,B,C,D,E,F)),
   slot(A,B,C,D,E,F).
-
+%
 %---------------------------------------------------------
 % some assertions in timm's tiny object language
 
