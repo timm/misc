@@ -1,20 +1,21 @@
+isempty(nil) :- !.
+isempty(tree(nil,nil,nil)).
+
+bTTree(tree(_,nil,nil)).
+bTTree(tree(N,Left,nil)) :- Left@=<N.
+bTTree(tree(N,nil,Right)) :- N@<Right.
+bTTree(tree(_,Left,Right)) :- bTTree(Left), bTTree(Right).
+bTTree(tree(N,Left,Right)) :- Left@=<N, N@<Right.
+
+
 class Goal:
   def __init__(i,name,who): i.name, i.who = name,who
 
 class Goal(SoftGoal):
-  def __init__(i,*lst): super().__init__(*lst)
-
 class Goal(HardGoal):
-  def __init__(i,*lst): super().__init__(*lst)
-
 class Goal(Task):
-  def __init__(i,*lst): super().__init__(*lst)
-
 class Goal(Task):
-  def __init__(i,*lst): super().__init__(*lst)
-
 class Goal(Task):
-  def __init__(i,*lst): super().__init__(*lst)
 
 class Many:
   def __init__(i)  : i.has  = []
