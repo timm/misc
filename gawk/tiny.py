@@ -9,9 +9,19 @@ OPTIONS:
   -b --b    asdas     = 2
   -m --m    asdas     = 1
   -h --help show help = False
-  -f --file data file = "../data/auto93.csv"
+  -f --file data file = ../data/auto93.csv
 """
 import ast, yaml,json, re,ast,sys,random,fileinput
+
+def coerce(s):
+  "coerce to int,float or bool"
+  try:              return ast.literal_eval(s)
+  except Exception: return s.strip()
+
+def nicely(x,short=True): 
+  "convert `x` to a nested dictionary; pretty print that dictionary"
+  return yaml.dump(json.loads(json.dumps(x, default=lambda i: i.__dict__)),
+                   default_flow_style=True)
 
 class Nice:
   "`nice` objects can represent themselves nicely"
@@ -21,17 +31,16 @@ class Settings(Nice):
   def __init__(i,s):
     "Settings are parsed from __doc__"
     goal = r"\n\s*-\w+\s*--(\w+).*=\s*(\S+)"
-    i.__dict__.update(**{m[1]:ast.literal_eval(m[2]) for m in re.finditer(goal,s)})
+    i.__dict__.update(**{m[1]:coerce(m[2]) for m in re.finditer(goal,s)})
   def cli(i):
     """Settings can be updated from command line. Boolean settings need no
-     argument (we just flip the default). if we see -h, print help and exit"""
-    d = i.__dict__
-    for k, v in d.items():
+    argument (we just flip the default). if we see -h, print help and exit"""
+    for k, v in i.__dict__.items():
       s = str(v)
       for j, x in enumerate(sys.argv):
         if ("-"+k[0]) == x or ("--"+k) == x:
           s = "True" if s == "False" else ("False" if s == "True" else sys.argv[j+1])
-        d[k] = make(s)
+        i.__dict__[k] = coerce(s)
     if i.help: sys.exit(print(__doc__))
     return i
 
@@ -51,16 +60,6 @@ class Data(Nice):
   def add(i,a):
     if i.cols: i.rows += [i.cols.add(a)]
     else: i.cols = COLS(a)
-
-def coerce(s):
-  "coerce to int,float or bool"
-  try:              return ast.literal_eval(s)
-  except Exception: return s.strip()
-
-def nicely(x,short=True): 
-  "convert `x` to a nested dictionary; pretty print that dictionary"
-  return yaml.dump(json.loads(json.dumps(x, default=lambda i: i.__dict__)),
-                   default_flow_style=True)
 
 def csv(file="-"):
   with  fileinput.FileInput(file) as src:
