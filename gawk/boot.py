@@ -1,6 +1,6 @@
 import re,ast,sys,yaml,json,fileinput
 
-class Nice:
+class NICE:
   "`nice` objects can represent themselves nicely"
   __repr__= lambda i: nicely(i)
 
@@ -9,7 +9,7 @@ def nicely(x,short=True):
   return yaml.dump(json.loads(json.dumps(x, default=lambda i: i.__dict__)),
                    default_flow_style=True)
 #-------------------------------------------------------------------------------
-class Settings(Nice):
+class SETTINGS(Nice):
   def __init__(i,s):
     "Settings are parsed from a string"
     i._help=s

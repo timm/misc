@@ -13,41 +13,33 @@ OPTIONS:
   -s --seed   random seed   = 1234567891
 """
 import sys,random
-from boot import Nice,Settings,coerce,csv
-the = Settings(__doc__)
+from boot import nice,settings,coerce,csv
+the = settings(__doc__)
 
 #--------------------------------------------------------------------------
 def nump(x): return type(x)==list
 
-def create(s): return list() if s[0].isupper() else dict()
+def col(s): return list() if s[0].isupper() else dict()
 
-def creates(a):
-  cols = {all=[], x={}, y={} , names=a}
-  for n,(s,c) in enumerate(zip(a,i.cols)):
-    col = create(s)
-    cols.all += [col]
-    if s[-1] != "X":
-      (cols.y if s[0].isupper() else cols.x)[n] = col
-  return cols
-
-def update(col,x):
-  if nump(col): col += [x]
+def add(col,x):
+  if nump(col): col += [x] 
   else: col[x] = col.get(x,0) + 1
 #--------------------------------------------------------------------------
-class Data(Nice):
-  def __init__(i, src): 
-    i.cols, i.rows =  None, [], []
-    i.updates(src)
-    [col.sort() for col in i.cols if nump(col)]
-
-  def updates(i,src):
-    if type(src)==str: [i.update(row) for row in csv(src)]
-    else             : [i.update(row) for row in (src or [])]
-
-  def update(i,a):
-    if not i.cols: i.cols = creates(a) else: 
-      [update(col,x) for col,x in zip(i.cols.all,a) if x != "?"]
+class data(nice):
+  def __init__(i)   : i.cols, i.rows = None, []
+  def read(i, src)  : [i.add(a)  for a  in csv(src)]; return i.ok()
+  def adds(i, a=[]) : [i.add(a1) for a1 in a];        return i.ok()
+  def ok(i)         : [col.sort() for col in i.cols.all if nump(col)]
+  def add(i,a):
+    if i.cols: 
+      [add(col,x) for col,x in zip(i.cols.all,a) if x != "?"]
       i.rows += [a]
+    else:
+      i.cols = {all=[], x={}, y={} , names=a}
+      for n,s in enumerate(a):
+        i.cols.all += [col(s)]
+        if s[-1] != "X":
+          (i.cols.y if s[0].isupper() else i.cols.x)[n] = i.cols.all[-1]
 #--------------------------------------------------------------------------
 def d2h(data,row):
   d,n = 0,0
