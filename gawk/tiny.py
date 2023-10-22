@@ -56,14 +56,13 @@ class data(nice):
   def bestRest(i,rows):
     a   = i.sorted(rows)
     mid = int(a//2)
-    if len(a) <=  20: return a[:mid], a[mid:]
+    if len(a) <=  20: return {0:a[:mid], 1:a[mid:]}
     j = 2 if len(a) <= 100 else 1
     n = j*len(a)**2
-    return random.sample(a[:-n], k=2*n),  a[-n:]
-  def score(i,rows): 
+    return {0:random.sample(a[:-n], k=2*n),  1:a[-n:]}
+  def count(i,rows): 
     f = {}
-    best,rest = i.bestRest(rows)
-    for klass,rows in {1:best, 2:rest}.items():
+    for klass,rows in i.bestRest(rows).items():
       for row in rows
         for cols in [i.cols.x, i.cols.y]:
           for c,col in cols.items():
