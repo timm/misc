@@ -71,6 +71,7 @@ class data(nice):
               b = bins(col,x)
               k = (klass, c, b, b+1 if nump(col) else b)
               f[k] = f.get(k,0) + 1 
+    return f
 #--------------------------------------------------------------------------
 def d2h(data,row):
   d,n = 0,0
