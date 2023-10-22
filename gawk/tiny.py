@@ -25,6 +25,17 @@ def add(col,x):
   if nump(col): col += [x] 
   else: col[x] = col.get(x,0) + 1
 
+def mid(col):
+  return per(col,.5) if nump(col) else max(col, key=col.get)
+
+def div(col):
+  if nump(col): return (per(col,.9) - per(col,.1))/2.56 
+  else: 
+    N = sum(col.values())
+    return -sum(n/N*math.log(n/N,2) for n in col.values() if n>0)
+
+def per(a, p=.5): return a[int(p*len(a))]
+  
 def norm(col,x):
   if not nump(col) and x != "?": return x
   return (x - col[0]) / (col[-1] - col[0] + 1E-30)
@@ -51,27 +62,45 @@ class data(nice):
       n += 1
       d  = d + (heaven - norm(col, a[c])^2
     return (d/n) ^ (1/2)
-  def sorts(i, rows):
-    return sorted(rows, key=lambda r: i.d2h(r))
   def bestRest(i,rows):
-    a   = i.sorted(rows)
+    a   = sorted(rows, key=lambda r: i.d2h(r))
     mid = int(a//2)
     if len(a) <=  20: return {0:a[:mid], 1:a[mid:]}
     j = 2 if len(a) <= 100 else 1
-    n = j*len(a)**2
+    n = j*len(a)**.5
     return {0:random.sample(a[:-n], k=2*n),  1:a[-n:]}
   def count(i,rows): 
-    f = {}
-    for klass,rows in i.bestRest(rows).items():
-      for row in rows
+    freq = {}
+    for klass,rows1 in i.bestRest(rows).items():
+      freq[klass] = {}
+      f = freq[klass]
+      for row in rows1:
         for cols in [i.cols.x, i.cols.y]:
           for c,col in cols.items():
             x = row[c]
             if x != "?":
               b = bins(col,x)
-              k = (klass, c, b, b+1 if nump(col) else b)
+              k = (c, b, b+1 if nump(col) else b)
               f[k] = f.get(k,0) + 1 
-    return f
+    return freq
+
+_bins= {
+    [ 3] = { -.43,	 .43},
+    [ 4] = { -.67,     0,	 .67},
+    [ 5] = { -.84,  -.25,  .25,  .84},
+    [ 6] = { -.97,	-.43,    0,	 .43,  .97},
+    [ 7] = { -1.07,	-.57,	-.18,	 .18,  .57, 1.07},
+    [ 8] = { -1.15,	-.67,	-.32, 	 0,	 .32,  .67, 1.15},
+    [ 9] = { -1.22,	-.76,	-.43,	-.14,	 .14,	 .43,  .76,	1.22},
+    [10] = { -1.28,	-.84,	-.52,	-.25,	   0,	 .25,  .52,	 .84,	1.28}}
+
+
+def  bin(x, tmp)
+  if x=="?":  return x 
+  tmp = (x − col.mu)/col.sd
+  for b,x in pairs(NUM._bins[the.bins]):
+    if tmp <= x: return b 
+  return the.bins 
 #--------------------------------------------------------------------------
 def d2h(data,row):
   d,n = 0,0
