@@ -24,6 +24,10 @@ def col(s): return list() if s[0].isupper() else dict()
 def add(col,x):
   if nump(col): col += [x] 
   else: col[x] = col.get(x,0) + 1
+
+def norm(col,x):
+  if not nump(col) and x != "?": return x
+  return (x - col[0]) / (col[-1] - col[0] + 1E-30)
 #--------------------------------------------------------------------------
 class data(nice):
   def __init__(i)   : i.cols, i.rows = None, []
@@ -40,6 +44,34 @@ class data(nice):
         i.cols.all += [col(s)]
         if s[-1] != "X":
           (i.cols.y if s[0].isupper() else i.cols.x)[n] = i.cols.all[-1]
+  def d2h(i,a):
+    d,n=0,0
+    for c,(col,name) in enumerate(zip(i.cols.y, i.cols.names)):
+      heaven = 0 if name[-1]=="-" else 1
+      n += 1
+      d  = d + (heaven - norm(col, a[c])^2
+    return (d/n) ^ (1/2)
+  def sorts(i, rows):
+    return sorted(rows, key=lambda r: i.d2h(r))
+  def bestRest(i,rows):
+    a   = i.sorted(rows)
+    mid = int(a//2)
+    if len(a) <=  20: return a[:mid], a[mid:]
+    j = 2 if len(a) <= 100 else 1
+    n = j*len(a)**2
+    return random.sample(a[:-n], k=2*n),  a[-n:]
+  def score(i,rows): 
+    f = {}
+    best,rest = i.bestRest(rows)
+    for klass,rows in {1:best, 2:rest}.items():
+      for row in rows
+        for cols in [i.cols.x, i.cols.y]:
+          for c,col in cols.items():
+            x = row[c]
+            if x != "?":
+              b = bins(col,x)
+              k = (klass, c, b, b+1 if nump(col) else b)
+              f[k] = f.get(k,0) + 1 
 #--------------------------------------------------------------------------
 def d2h(data,row):
   d,n = 0,0
