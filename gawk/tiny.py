@@ -6,66 +6,108 @@ USAGE:
   python3 tiny.py -f csvFile
 
 OPTIONS:
-  -b --b    asdas     = 2
-  -m --m    asdas     = 1
-  -h --help show help = False
-  -f --file data file = ../data/auto93.csv
+  -b --b      asdas         = 2
+  -m --m      asdas         = 1
+  -h --help   show help     = False
+  -f --file   data file     = ../data/auto93.csv
+  -s --seed   random seed   = 1234567891
 """
-import ast, yaml,json, re,ast,sys,random,fileinput
-
-def coerce(s):
-  "coerce to int,float or bool"
-  try:              return ast.literal_eval(s)
-  except Exception: return s.strip()
-
-def nicely(x,short=True): 
-  "convert `x` to a nested dictionary; pretty print that dictionary"
-  return yaml.dump(json.loads(json.dumps(x, default=lambda i: i.__dict__)),
-                   default_flow_style=True)
-
-class Nice:
-  "`nice` objects can represent themselves nicely"
-  __repr__= lambda i: nicely(i)
-
-class Settings(Nice):
-  def __init__(i,s):
-    "Settings are parsed from __doc__"
-    goal = r"\n\s*-\w+\s*--(\w+).*=\s*(\S+)"
-    i.__dict__.update(**{m[1]:coerce(m[2]) for m in re.finditer(goal,s)})
-  def cli(i):
-    """Settings can be updated from command line. Boolean settings need no
-    argument (we just flip the default). if we see -h, print help and exit"""
-    for k, v in i.__dict__.items():
-      s = str(v)
-      for j, x in enumerate(sys.argv):
-        if ("-"+k[0]) == x or ("--"+k) == x:
-          s = "True" if s == "False" else ("False" if s == "True" else sys.argv[j+1])
-        i.__dict__[k] = coerce(s)
-    if i.help: sys.exit(print(__doc__))
-    return i
-
+import sys,random
+from boot import Nice,Settings,coerce,csv
 the = Settings(__doc__)
-print(the)
+
 #--------------------------------------------------------------------------
-def nump(x): return type(x)=="list"
-def col(s) : return [] if s[0].isupper() else {}
-def add(col,x):
-  if x != "?": 
-    if nump(col): col += [x]
-    else        : col[x] = col.get(x,0) + 1
+def nump(x): return type(x)==list
 
+def create(s): return list() if s[0].isupper() else dict()
+
+def creates(a):
+  cols = {all=[], x={}, y={} , names=a}
+  for n,(s,c) in enumerate(zip(a,i.cols)):
+    col = create(s)
+    cols.all += [col]
+    if s[-1] != "X":
+      (cols.y if s[0].isupper() else cols.x)[n] = col
+  return cols
+
+def update(col,x):
+  if nump(col): col += [x]
+  else: col[x] = col.get(x,0) + 1
+#--------------------------------------------------------------------------
 class Data(Nice):
-  def __init__(i): i.cols=None; i.rows=[]
-  def read(f): [i.add(a) for a in csv(f)]
-  def add(i,a):
-    if i.cols: i.rows += [i.cols.add(a)]
-    else: i.cols = COLS(a)
+  def __init__(i, src): 
+    i.cols, i.rows =  None, [], []
+    i.updates(src)
+    [col.sort() for col in i.cols if nump(col)]
 
-def csv(file="-"):
-  with  fileinput.FileInput(file) as src:
-    for line in src:
-      line = re.sub(r'([\n\t\r"\' ]|#.*)', '', line)
-      if line: yield [coerce(x) for x in line.split(",")]
+  def updates(i,src):
+    if type(src)==str: [i.update(row) for row in csv(src)]
+    else             : [i.update(row) for row in (src or [])]
+
+  def update(i,a):
+    if not i.cols: i.cols = creates(a) else: 
+      [update(col,x) for col,x in zip(i.cols.all,a) if x != "?"]
+      i.rows += [a]
+#--------------------------------------------------------------------------
+def d2h(data,row):
+  d,n = 0,0
+  for col in data.cols.y:
+    heaven = 0 
+def thing(data,start=1,pause=7):
+  tmp  = sorted(data.rows[start:pause],key=lambda row: d2h(data,row))
+
+  mid  = len(tmp)//2
+  half = mid//2
+  count(data, tmp[:half],0)
+  count(data, tmp[half:],1)
+ 
+def count(data,lst,klass)
+  {col:for n,col in data.y.items():
+v
+def inc(d, kl,col):
+  for x in lst:
+    if x not in d: 
+      d[x]={}
+    inc(d[x], *lst[1:]) 
+    
+
+#--------------------------------------------------------------------------
+def cuts2Rule(cuts):
+  """Cuts belong to columns. Cuts are divided up into those columns.
+  If a column has more than one cut, that is a disjunction. Tha
+  final call to `set` removes duplicates."""
+  d = defaultdict(list)
+  [d[cut[0]].append(cut) for cut in cuts]
+  return tuple(sorted([tuple(sorted(set(x))) for x in d.values()]))
+
+def selects(rule, labelledRows):
+  "`Rule`s can select rows from multiple `labelledRows`."
+  return {label: select(rule,rows) for label,rows in labelledRows}
+
+def select(rule, rows): 
+  "`Rule`s can pull specific `rows`."
+  return [row for row in rows if ands(rule,row)]
+
+def ands(rule,row):
+  "`Rule` is a  collection of  conjunctions. If any are false, then the rule fails."
+  for cuts in rule:
+     if not ors(row[cuts[0][0]], cuts): return False
+  return True
+
+def ors(x, cuts):
+  "For each disjunction in `cuts`, at least one c`cut` must be true (else, return None)."
+  for cut in cuts:
+    if true(x, cut): return cut
+
+def true(x, cut):
+  "Is it true that this `cut` hold `x`?"
+  _,lo,hi = cut
+  return  x=="?" or lo==hi==x or  x > lo and x <= hi
+
+if __name__ == "__main__":
+  the = the.cli()
+  random.seed(the.seed)
+  d=Data(the.file)
 
 # class obj:       __repr__= lambda i:printd(i.__dict__, i.__class__.__name__)
 # class box(dict): __repr__= lambda i:printd(i); __setattr__=dict.__setitem__; __getattr__=dict.get
