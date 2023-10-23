@@ -12,23 +12,58 @@ OPTIONS:
     -b --bins number of bins     = 7]]
 
 --------------------------------------------------
-local function DATA() return {num={n={},lo={},hi={},mu={},
-                        sym={has={}}, name={}
-                        x={}, y={}, rows={}}
+local function NUM(at,s) 
+  return {at=at,s=s,n=0,lo=1e30,hi=-1e30,mu=0, heaven=(s or ""):find"-$" and 0 or 1} end
 
-local function head(i,t)
-  i.name=t
-  n=i.num
-  for c,s in pairs(t) do
-    if     s:find"-$" then n.y[c] = 0 
-    elseif s:find"+$" then n.y[c] = 1 
-    else   n.x[c]=c end
-    if s:find"^[A-Z]" then n.n[c]=0; n.lo[c]=1e30; n.hi[c]= -1e30 end end end
+local function SYM(at,s) return {symp=true, at=at,s=s,n=0, has={}} end
+
+local function COL(at,s) return (s:find"^[A-Z" and NUM or SYM)(at,s) end
+
+local function add2Col(col,x)
+  if x ~= "?" then
+    col.n = col.n + 1
+    if col.symp then col.has = 1 + (col.has[x] or 0) else
+      col.lo = math.min(col.lo,x)
+      col.hi = math.max(col.hi,x)
+      col.mu = col.mu + (x - col.mu)/col.n end end end 
+
+local function norm(col,x)
+  if x=="?" or col.symp then return x end
+  return (x - col.lo)/ (col.hi - col.lo + 1e-30) end
+
+local function z(num,x)
+  x = ((v - num.mu)/((num.hi - num.lo)/6) * 6/the.bins)//1
+  return x < 1 and 1 or x > the.bins and the.bins or x end
+
+local function COLS(t)
+  local all,x,y,ignore = {},{},{},{}
+  for at,s in pairs(t) do
+    local where = s:find"X$" and ignore or (s:find"[!+-]$" and y or x)
+    push(where, push(all, COL(at,s))) end 
+  return {all=all, x=x, y=y, names=t} end
+
+function add2Cols(cols,t)
+  for _,col in pairs(cols) do add2Col(coli, t[col.at]) end
+
+local add2Data
+local function DATA(src)
+  data = {rows={}, cols=None}
+  if   type(src)=="string" 
+  then for t in l.csv(src)       do add2Data(data,t) end 
+  else for t in pairs(src or {}) do add2Data(data,t) end end
+  return data end 
+
+function add2Data(data,t)
+  if data.cols then add2Cols(data.cols.x,t); add2Cols(data.cols.y,t) else 
+     data.cols = COLS(t) end end
+
 --------------------------------------------------
+function l.push(t,x) t[1+#t]=x; return x end
+
 function l.bchop(a,x,   lo,hi,mid)
   lo,hi=1,#a
   while lo<hi do
-    mid = (lo+hi)//2
+    mid = (lo+hi)//2`
     if a[mid]==x then return mid end
     if a[mid]>x  then hi=mid-1 else lo=mid+1 end end 
   return hi end
@@ -52,6 +87,12 @@ function l.trim(s) return s:match'^%s*(.*%S)' end
 function l.make(s,    _sym)
   function _sym(s) return s=="true" or (s~="false" and s) end
   return math.tointeger(s) or tonumber(s) or _sym(l.trim(s)) end
+
+function l.csv(sFilename,     src,n)
+  n,src = 0,io.input(sFilename)
+  return function(    s) 
+    s = io.read()
+    if s then n=n+1; return n,l.make(s) else io.close(src) end end end
 
 function l.items(t,    n,j,u)
   u={}; for k,_ in pairs(t) do u[1+#u] = k; end
