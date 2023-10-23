@@ -15,9 +15,9 @@ function DATA() return {num={n={},lo={},hi={},mu={},
                         sym={has={}}, name={}
                         x={}, y={}, rows={}}
 
-function head(data,t)
-  data.name=t
-  n=data.num
+function head(i,t)
+  i.name=t
+  n=i.num
   for c,s in pairs(t) do
     if     s:find"-$" then n.y[c] = 0 
     elseif s:find"+$" then n.y[c] = 1 
@@ -53,11 +53,11 @@ function l.make(s,    _sym)
   function _sym(s) return s=="true" or (s~="false" and s) end
   return math.tointeger(s) or tonumber(s) or _sym(l.trim(s)) end
 
-function l.items(t,    n,i,u)
+function l.items(t,    n,j,u)
   u={}; for k,_ in pairs(t) do u[1+#u] = k; end
   table.sort(u)
-  i=0
-  return function() if i < #u then i=i+1; return u[i], t[u[i]] end end end
+  j=0
+  return function() if j < #u then j=j+1; return u[j], t[u[j]] end end end
 
 function l.cli(t)
   for k,v in pairs(t) do
@@ -90,8 +90,8 @@ local eg={}
 function l.main()
   the = l.cli(l.settings(help))
   for _,x in pairs(arg) do if eg[x] then l.run(x,eg[x]) end end 
-  for i,_ in pairs(_ENV) do 
-    if not b4[i] then print(l.fmt("? %s %s",i,type(i))) end end end
+  for j,_ in pairs(_ENV) do 
+    if not b4[i] then print(l.fmt("? %s %s",j,type(j))) end end end
 
 function l.run(s,fun) 
   math.randomseed(the.seed)
@@ -105,18 +105,18 @@ function eg.all(  fails)
     if s~="all" then fails = l.run(s,fun) and 1 or 0 end end 
   os.exit(fails) end 
 
-function eg.bchop(     a,i) 
-  a={}; for i=1,10 do a[i]=10*i end
-  for i=0,120,10 do print(i,l.bchop(a,i)) end
+function eg.bchop(     a) 
+  a={}; for j=1,10 do a[j]=10*j end
+  for j=0,120,10 do print(j,l.bchop(a,j)) end
   l.oo(a) end 
 
 function eg.better(     a) 
   a={}
-  for i=1,50 do
-    local j,k
-    j=math.random()*10000 //1 
-    k= l.least(j,a,5) 
-    if k then print(i,j,k) end end 
+  for j=1,50 do
+    local k,l
+    k=math.random()*10000 //1 
+    l= l.least(k,a,5) 
+    if l then print(j,k,l) end end 
   l.oo(a) end
 
 function eg.the()  l.oo(the) end
