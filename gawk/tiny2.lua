@@ -11,6 +11,19 @@ OPTIONS:
     -b --bins number of bins     = 7]]
 
 --------------------------------------------------
+function DATA() return {num={n={},lo={},hi={},mu={},
+                        sym={has={}}, name={}
+                        x={}, y={}, rows={}}
+
+function head(data,t)
+  data.name=t
+  n=data.num
+  for c,s in pairs(t) do
+    if     s:find"-$" then n.y[c] = 0 
+    elseif s:find"+$" then n.y[c] = 1 
+    else   n.x[c]=c end
+    if s:find"^[A-Z]" then n.n[c]=0; n.lo[c]=1e30; n.hi[c]= -1e30 end end end
+--------------------------------------------------
 function l.bchop(a,x,   lo,hi,mid)
   lo,hi=1,#a
   while lo<hi do
@@ -31,8 +44,7 @@ function l.least(x,a,max,   j)
 
 function l.settings(s,    t)
   t={}
-  for k,s1 in s:gmatch("\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)") do
-    t[k]= l.make(s1) end
+  for k,s1 in s:gmatch("\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)") do t[k]= l.make(s1) end
   return t end
 
 function l.trim(s) return s:match'^%s*(.*%S)' end
@@ -72,14 +84,21 @@ function l.o(t,d,          u,x,mult)
   return (t._name or "").."{"..table.concat(u," ").."}" end
 
 function l.oo(t,d) print(l.o(t,d)); return t end
+
 --------------------------------------------------
+local eg={}
+function l.main()
+  the = l.cli(l.settings(help))
+  for _,x in pairs(arg) do if eg[x] then l.run(x,eg[x]) end end 
+  for i,_ in pairs(_ENV) do 
+    if not b4[i] then print(l.fmt("? %s %s",i,type(i))) end end end
+
 function l.run(s,fun) 
   math.randomseed(the.seed)
   print("==> ",s)
   if fun()==false then 
     print("❌ fail ",s); return true end end
 
-local eg={}
 function eg.all(  fails) 
   fails=0
   for s,fun in l.items(eg) do
@@ -101,9 +120,5 @@ function eg.better(     a)
   l.oo(a) end
 
 function eg.the()  l.oo(the) end
------------
-the = l.cli(l.settings(help))
-for _,x in pairs(arg) do if eg[x] then l.run(x,eg[x]) end end 
-for i,_ in pairs(_ENV) do if not b4[i] then print(l.fmt("? %s %s",i,type(i))) end end 
-
-
+--------------------------------------------------
+l.main()
