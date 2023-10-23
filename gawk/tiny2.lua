@@ -1,6 +1,7 @@
 -- vim: set et sts=2 sw=2 ts=2 : 
 local b4={}; for  k,_ in pairs(_ENV) do b4[k]=k end
-local l,the,help={},{},[[
+local l,eg,the = {},{},{}
+local help = [[
 tiny2.awk : as little asi as possible
 (c)20231 Tim Menzies
 
@@ -11,11 +12,11 @@ OPTIONS:
     -b --bins number of bins     = 7]]
 
 --------------------------------------------------
-function DATA() return {num={n={},lo={},hi={},mu={},
+local function DATA() return {num={n={},lo={},hi={},mu={},
                         sym={has={}}, name={}
                         x={}, y={}, rows={}}
 
-function head(i,t)
+local function head(i,t)
   i.name=t
   n=i.num
   for c,s in pairs(t) do
@@ -29,8 +30,7 @@ function l.bchop(a,x,   lo,hi,mid)
   while lo<hi do
     mid = (lo+hi)//2
     if a[mid]==x then return mid end
-    if a[mid]>x then hi=mid-1
-    else lo=mid+1 end end 
+    if a[mid]>x  then hi=mid-1 else lo=mid+1 end end 
   return hi end
 
 function l.least(x,a,max,   j) 
@@ -62,7 +62,7 @@ function l.items(t,    n,j,u)
 function l.cli(t)
   for k,v in pairs(t) do
     v = tostring(v)
-    for n,x in pairs(arg) do
+    for n,x in ipairs(arg) do
       if x=="-"..(k:sub(1,1)) or x=="--"..k then
         v = ((v=="false" and "true") or (v=="true" and "false") or arg[n+1]) 
         t[k] = l.make(v) end end end
@@ -86,7 +86,6 @@ function l.o(t,d,          u,x,mult)
 function l.oo(t,d) print(l.o(t,d)); return t end
 
 --------------------------------------------------
-local eg={}
 function l.main()
   the = l.cli(l.settings(help))
   for _,x in pairs(arg) do if eg[x] then l.run(x,eg[x]) end end 
