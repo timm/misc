@@ -41,7 +41,7 @@ function l.make(s,    _sym)
   function _sym(s) return s=="true" or (s~="false" and s) end
   return math.tointeger(s) or tonumber(s) or _sym(l.trim(s)) end
 
- function l.items(t,    n,i,u)
+function l.items(t,    n,i,u)
   u={}; for k,_ in pairs(t) do u[1+#u] = k; end
   table.sort(u)
   i=0
@@ -82,7 +82,7 @@ function l.run(s,fun)
 local eg={}
 function eg.all(  fails) 
   fails=0
-  for s,fun in pairs(eg) do
+  for s,fun in l.items(eg) do
     if s~="all" then fails = l.run(s,fun) and 1 or 0 end end 
   os.exit(fails) end 
 
@@ -93,10 +93,10 @@ function eg.bchop(     a,i)
 
 function eg.better(     a) 
   a={}
-  for i=1,5000 do
+  for i=1,50 do
     local j,k
     j=math.random()*10000 //1 
-    k= l.least(j,a,20) 
+    k= l.least(j,a,5) 
     if k then print(i,j,k) end end 
   l.oo(a) end
 
