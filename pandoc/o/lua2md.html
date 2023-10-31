@@ -8,13 +8,20 @@
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
     div.sourceCode { margin: 1em 0; }
     pre.sourceCode { margin: 0; }
@@ -49,7 +56,7 @@
     code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
     code span.at { color: #7d9029; } /* Attribute */
     code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { } /* BuiltIn */
+    code span.bu { color: #008000; } /* BuiltIn */
     code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
     code span.ch { color: #4070a0; } /* Char */
     code span.cn { color: #880000; } /* Constant */
@@ -62,7 +69,7 @@
     code span.ex { } /* Extension */
     code span.fl { color: #40a070; } /* Float */
     code span.fu { color: #06287e; } /* Function */
-    code span.im { } /* Import */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
     code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
     code span.kw { color: #007020; font-weight: bold; } /* Keyword */
     code span.op { color: #666666; } /* Operator */
@@ -78,7 +85,10 @@
   <link rel="stylesheet" href="../etc/css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Muli&display=swap" />
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
@@ -99,29 +109,44 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#documenting-code">Documenting Code</a></li>
-<li><a href="#usage">Usage</a></li>
-<li><a href="#implementation">Implementation</a>
+<li><a href="#documenting-code" id="toc-documenting-code">Documenting
+Code</a></li>
+<li><a href="#usage" id="toc-usage">Usage</a></li>
+<li><a href="#implementation" id="toc-implementation">Implementation</a>
 <ul>
-<li><a href="#docline">doc(line)</a></li>
-<li><a href="#codeline">code(line)</a></li>
-<li><a href="#is_blankline">is_blank(line)</a></li>
-<li><a href="#parse_docline">parse_doc(line)</a></li>
-<li><a href="#parse_codeline">parse_code(line)</a></li>
-<li><a href="#initialization">initialization</a></li>
+<li><a href="#docline" id="toc-docline">doc(line)</a></li>
+<li><a href="#codeline" id="toc-codeline">code(line)</a></li>
+<li><a href="#is_blankline"
+id="toc-is_blankline">is_blank(line)</a></li>
+<li><a href="#parse_docline"
+id="toc-parse_docline">parse_doc(line)</a></li>
+<li><a href="#parse_codeline"
+id="toc-parse_codeline">parse_code(line)</a></li>
+<li><a href="#initialization"
+id="toc-initialization">initialization</a></li>
 </ul></li>
 </ul>
 </nav>
-<p>Fun and braindead code documentation. Reads in annotated <a href="http://www.lua.org/">lua</a> code and writes out <a href="http://daringfireball.net/projects/markdown/">markdown</a>-formatted documentation. lua2md is documented using itself ;p</p>
+<p>Fun and braindead code documentation. Reads in annotated <a
+href="http://www.lua.org/">lua</a> code and writes out <a
+href="http://daringfireball.net/projects/markdown/">markdown</a>-formatted
+documentation. lua2md is documented using itself ;p</p>
 <h2 id="documenting-code">Documenting Code</h2>
 <p><i class="fas fa-camera"></i></p>
-<p><span class="math inline">\(a^b\)</span> Documentation lines start with <code>---</code> followed by a space, except when they are blank lines, in which case you don’t need the space. Documentation lines are run through markdown and output directly. Code (everything that’s not documentation) is converted into markdown code blocks.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">--- This is a documentation line and will be converted to markdown</span></span>
+<p><span class="math inline">\(a^b\)</span> Documentation lines start
+with <code>---</code> followed by a space, except when they are blank
+lines, in which case you don’t need the space. Documentation lines are
+run through markdown and output directly. Code (everything that’s not
+documentation) is converted into markdown code blocks.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">--- This is a documentation line and will be converted to markdown</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="co">--- paragraphs</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a>This is code which is output as a code block<span class="op">.</span></span></code></pre></div>
-<p>Code blocks have leading and trailing blank lines removed, and code blocks which end up being empty are not output.</p>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="cn">T</span><span class="va">his</span> <span class="va">is</span> <span class="va">code</span> <span class="va">which</span> <span class="va">is</span> <span class="va">output</span> <span class="va">as</span> <span class="va">a</span> <span class="va">code</span> <span class="va">block</span><span class="op">.</span></span></code></pre></div>
+<p>Code blocks have leading and trailing blank lines removed, and code
+blocks which end up being empty are not output.</p>
 <p>For example, the following:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">--- Empty code blocks</span></span>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">--- Empty code blocks</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a></span>
 <span id="cb2-3"><a href="#cb2-3"></a></span>
 <span id="cb2-4"><a href="#cb2-4"></a><span class="co">--- are omitted.</span></span></code></pre></div>
@@ -130,75 +155,89 @@
 <p>Empty code blocks</p>
 <p>are omitted.</p>
 </blockquote>
-<p>Note that although the code block is not shown, the break in documentation still acts as a paragraph break.</p>
+<p>Note that although the code block is not shown, the break in
+documentation still acts as a paragraph break.</p>
 <h2 id="usage">Usage</h2>
-<p>Currently lua2md always reads source code from standard input and writes documentation to standard output. As an example, lua2md’s own documentation can be generated with:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb3-1"><a href="#cb3-1"></a>lua lua2md<span class="op">.</span>lua <span class="op">&lt;</span> lua2md<span class="op">.</span>lua <span class="op">&gt;</span> <span class="cn">README</span><span class="op">.</span>md</span></code></pre></div>
+<p>Currently lua2md always reads source code from standard input and
+writes documentation to standard output. As an example, lua2md’s own
+documentation can be generated with:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb3-1"><a href="#cb3-1"></a><span class="va">lua</span> <span class="va">lua2md</span><span class="op">.</span><span class="va">lua</span> <span class="op">&lt;</span> <span class="va">lua2md</span><span class="op">.</span><span class="va">lua</span> <span class="op">&gt;</span> <span class="cn">README</span><span class="op">.</span><span class="va">md</span></span></code></pre></div>
 <h2 id="implementation">Implementation</h2>
 <h3 id="docline">doc(line)</h3>
-<p>If <code>line</code> contains documentation, then returns the markdown to output, otherwise returns <code>false</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">function</span> doc<span class="op">(</span>line<span class="op">)</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a>  <span class="cf">return</span> line<span class="op">:</span><span class="fu">match</span><span class="op">(</span><span class="st">&#39;^%s*%-%-%- (.*)$&#39;</span><span class="op">)</span> <span class="kw">or</span> line<span class="op">:</span><span class="fu">match</span><span class="op">(</span><span class="st">&#39;^%s*%-%-%-$&#39;</span><span class="op">)</span> <span class="kw">and</span> <span class="st">&quot;&quot;</span></span>
+<p>If <code>line</code> contains documentation, then returns the
+markdown to output, otherwise returns <code>false</code>.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">function</span> doc<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="cf">return</span> <span class="va">line</span><span class="op">:</span><span class="fu">match</span><span class="op">(</span><span class="st">&#39;^%s*%-%-%- (.*)$&#39;</span><span class="op">)</span> <span class="kw">or</span> <span class="va">line</span><span class="op">:</span><span class="fu">match</span><span class="op">(</span><span class="st">&#39;^%s*%-%-%-$&#39;</span><span class="op">)</span> <span class="kw">and</span> <span class="st">&quot;&quot;</span></span>
 <span id="cb4-3"><a href="#cb4-3"></a><span class="kw">end</span></span></code></pre></div>
 <h3 id="codeline">code(line)</h3>
-<p>If <code>line</code> contains code, then returns the markdown to output, otherwise returns <code>false</code>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">function</span> code<span class="op">(</span>line<span class="op">)</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="cf">return</span> <span class="kw">not</span> doc<span class="op">(</span>line<span class="op">)</span> <span class="kw">and</span> <span class="st">&#39;    &#39;</span> <span class="op">..</span> line</span>
+<p>If <code>line</code> contains code, then returns the markdown to
+output, otherwise returns <code>false</code>.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">function</span> code<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="cf">return</span> <span class="kw">not</span> doc<span class="op">(</span><span class="va">line</span><span class="op">)</span> <span class="kw">and</span> <span class="st">&#39;    &#39;</span> <span class="op">..</span> <span class="va">line</span></span>
 <span id="cb5-3"><a href="#cb5-3"></a><span class="kw">end</span></span></code></pre></div>
 <h3 id="is_blankline">is_blank(line)</h3>
-<p>Returns <code>true</code> if <code>line</code> is a blank line, <code>false</code> otherwise.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">function</span> is_blank<span class="op">(</span>line<span class="op">)</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a>  <span class="cf">return</span> line<span class="op">:</span><span class="fu">match</span><span class="op">(</span><span class="st">&#39;^%s*$&#39;</span><span class="op">)</span> <span class="kw">and</span> <span class="kw">true</span></span>
+<p>Returns <code>true</code> if <code>line</code> is a blank line,
+<code>false</code> otherwise.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">function</span> is_blank<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="cf">return</span> <span class="va">line</span><span class="op">:</span><span class="fu">match</span><span class="op">(</span><span class="st">&#39;^%s*$&#39;</span><span class="op">)</span> <span class="kw">and</span> <span class="kw">true</span></span>
 <span id="cb6-3"><a href="#cb6-3"></a><span class="kw">end</span></span></code></pre></div>
 <h3 id="parse_docline">parse_doc(line)</h3>
 <p>Parses a documentation block.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">function</span> parse_doc<span class="op">(</span>line<span class="op">)</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a>  <span class="kw">local</span> docline <span class="op">=</span> doc<span class="op">(</span>line<span class="op">)</span></span>
-<span id="cb7-3"><a href="#cb7-3"></a>  <span class="cf">while</span> docline <span class="cf">do</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a>    <span class="fu">print</span><span class="op">(</span>docline<span class="op">)</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a>    line <span class="op">=</span> <span class="fu">io.read</span><span class="op">()</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a>    <span class="cf">if</span> <span class="kw">not</span> line <span class="cf">then</span> <span class="cf">return</span> <span class="cf">end</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a>    docline <span class="op">=</span> doc<span class="op">(</span>line<span class="op">)</span></span>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">function</span> parse_doc<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="kw">local</span> <span class="va">docline</span> <span class="op">=</span> doc<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="cf">while</span> <span class="va">docline</span> <span class="cf">do</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="fu">print</span><span class="op">(</span><span class="va">docline</span><span class="op">)</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>    <span class="va">line</span> <span class="op">=</span> <span class="fu">io.read</span><span class="op">()</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="va">line</span> <span class="cf">then</span> <span class="cf">return</span> <span class="cf">end</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="va">docline</span> <span class="op">=</span> doc<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
 <span id="cb7-8"><a href="#cb7-8"></a>  <span class="cf">end</span></span>
 <span id="cb7-9"><a href="#cb7-9"></a>  <span class="fu">print</span><span class="op">()</span></span>
-<span id="cb7-10"><a href="#cb7-10"></a>  <span class="cf">return</span> parse_code<span class="op">(</span>line<span class="op">)</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>  <span class="cf">return</span> parse_code<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
 <span id="cb7-11"><a href="#cb7-11"></a><span class="kw">end</span></span></code></pre></div>
 <h3 id="parse_codeline">parse_code(line)</h3>
 <p>Parses a code block.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">function</span> parse_code<span class="op">(</span>line<span class="op">)</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a>  <span class="cf">while</span> is_blank<span class="op">(</span>line<span class="op">)</span> <span class="cf">do</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a>    line <span class="op">=</span> <span class="fu">io.read</span><span class="op">()</span></span>
-<span id="cb8-4"><a href="#cb8-4"></a>    <span class="cf">if</span> <span class="kw">not</span> line <span class="cf">then</span> <span class="cf">return</span> <span class="cf">end</span></span>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">function</span> parse_code<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="cf">while</span> is_blank<span class="op">(</span><span class="va">line</span><span class="op">)</span> <span class="cf">do</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="va">line</span> <span class="op">=</span> <span class="fu">io.read</span><span class="op">()</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="va">line</span> <span class="cf">then</span> <span class="cf">return</span> <span class="cf">end</span></span>
 <span id="cb8-5"><a href="#cb8-5"></a>  <span class="cf">end</span></span>
 <span id="cb8-6"><a href="#cb8-6"></a></span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="kw">local</span> blanks <span class="op">=</span> <span class="op">{}</span></span>
-<span id="cb8-8"><a href="#cb8-8"></a>  <span class="kw">local</span> codeline <span class="op">=</span> code<span class="op">(</span>line<span class="op">)</span></span>
-<span id="cb8-9"><a href="#cb8-9"></a>  <span class="cf">while</span> codeline <span class="cf">do</span></span>
-<span id="cb8-10"><a href="#cb8-10"></a>    <span class="cf">if</span> is_blank<span class="op">(</span>codeline<span class="op">)</span> <span class="cf">then</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a>      <span class="fu">table.insert</span><span class="op">(</span>blanks<span class="op">,</span> codeline<span class="op">)</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="kw">local</span> <span class="va">blanks</span> <span class="op">=</span> <span class="op">{}</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>  <span class="kw">local</span> <span class="va">codeline</span> <span class="op">=</span> code<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a>  <span class="cf">while</span> <span class="va">codeline</span> <span class="cf">do</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a>    <span class="cf">if</span> is_blank<span class="op">(</span><span class="va">codeline</span><span class="op">)</span> <span class="cf">then</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a>      <span class="fu">table.insert</span><span class="op">(</span><span class="va">blanks</span><span class="op">,</span> <span class="va">codeline</span><span class="op">)</span></span>
 <span id="cb8-12"><a href="#cb8-12"></a>    <span class="cf">else</span></span>
-<span id="cb8-13"><a href="#cb8-13"></a>      <span class="cf">if</span> <span class="op">#</span>blanks <span class="op">~=</span> <span class="dv">0</span> <span class="cf">then</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a>        <span class="fu">print</span><span class="op">(</span><span class="fu">table.concat</span><span class="op">(</span>blanks<span class="op">,</span> <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span><span class="op">))</span></span>
-<span id="cb8-15"><a href="#cb8-15"></a>        blanks <span class="op">=</span> <span class="op">{}</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a>      <span class="cf">if</span> <span class="op">#</span><span class="va">blanks</span> <span class="op">~=</span> <span class="dv">0</span> <span class="cf">then</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>        <span class="fu">print</span><span class="op">(</span><span class="fu">table.concat</span><span class="op">(</span><span class="va">blanks</span><span class="op">,</span> <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span><span class="op">))</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a>        <span class="va">blanks</span> <span class="op">=</span> <span class="op">{}</span></span>
 <span id="cb8-16"><a href="#cb8-16"></a>      <span class="cf">end</span></span>
-<span id="cb8-17"><a href="#cb8-17"></a>      <span class="fu">print</span><span class="op">(</span>codeline<span class="op">)</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>      <span class="fu">print</span><span class="op">(</span><span class="va">codeline</span><span class="op">)</span></span>
 <span id="cb8-18"><a href="#cb8-18"></a>    <span class="cf">end</span></span>
 <span id="cb8-19"><a href="#cb8-19"></a></span>
-<span id="cb8-20"><a href="#cb8-20"></a>    line <span class="op">=</span> <span class="fu">io.read</span><span class="op">()</span></span>
-<span id="cb8-21"><a href="#cb8-21"></a>    <span class="cf">if</span> <span class="kw">not</span> line <span class="cf">then</span> <span class="cf">return</span> <span class="cf">end</span></span>
-<span id="cb8-22"><a href="#cb8-22"></a>    codeline <span class="op">=</span> code<span class="op">(</span>line<span class="op">)</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>    <span class="va">line</span> <span class="op">=</span> <span class="fu">io.read</span><span class="op">()</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="va">line</span> <span class="cf">then</span> <span class="cf">return</span> <span class="cf">end</span></span>
+<span id="cb8-22"><a href="#cb8-22"></a>    <span class="va">codeline</span> <span class="op">=</span> code<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
 <span id="cb8-23"><a href="#cb8-23"></a>  <span class="cf">end</span></span>
 <span id="cb8-24"><a href="#cb8-24"></a>  <span class="fu">print</span><span class="op">()</span></span>
-<span id="cb8-25"><a href="#cb8-25"></a>  <span class="cf">return</span> parse_doc<span class="op">(</span>line<span class="op">)</span></span>
+<span id="cb8-25"><a href="#cb8-25"></a>  <span class="cf">return</span> parse_doc<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
 <span id="cb8-26"><a href="#cb8-26"></a><span class="kw">end</span></span></code></pre></div>
 <h3 id="initialization">initialization</h3>
-<p>Tests whether the lua document starts with documentation or code, then starts the corresponding parser.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">local</span> line <span class="op">=</span> <span class="fu">io.read</span><span class="op">()</span></span>
-<span id="cb9-2"><a href="#cb9-2"></a><span class="cf">if</span> <span class="kw">not</span> line <span class="cf">then</span> <span class="cf">return</span> <span class="cf">end</span></span>
-<span id="cb9-3"><a href="#cb9-3"></a><span class="cf">if</span> doc<span class="op">(</span>line<span class="op">)</span> <span class="cf">then</span></span>
-<span id="cb9-4"><a href="#cb9-4"></a>  parse_doc<span class="op">(</span>line<span class="op">)</span></span>
+<p>Tests whether the lua document starts with documentation or code,
+then starts the corresponding parser.</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">local</span> <span class="va">line</span> <span class="op">=</span> <span class="fu">io.read</span><span class="op">()</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="cf">if</span> <span class="kw">not</span> <span class="va">line</span> <span class="cf">then</span> <span class="cf">return</span> <span class="cf">end</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="cf">if</span> doc<span class="op">(</span><span class="va">line</span><span class="op">)</span> <span class="cf">then</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>  parse_doc<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
 <span id="cb9-5"><a href="#cb9-5"></a><span class="cf">else</span></span>
-<span id="cb9-6"><a href="#cb9-6"></a>  parse_code<span class="op">(</span>line<span class="op">)</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>  parse_code<span class="op">(</span><span class="va">line</span><span class="op">)</span></span>
 <span id="cb9-7"><a href="#cb9-7"></a><span class="cf">end</span></span></code></pre></div>
 <h2>License</h2>
 

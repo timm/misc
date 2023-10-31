@@ -81,17 +81,19 @@ Returns `true` if `line` is a blank line, `false` otherwise.
 ### parse_doc(line)
 Parses a documentation block.
 
-    function parse_doc(line)
-      local docline = doc(line)
-      while docline do
-        print(docline)
-        line = io.read()
-        if not line then return end
-        docline = doc(line)
-      end
-      print()
-      return parse_code(line)
-    end
+```lua {.numberLines}
+function parse_doc(line)
+  local docline = doc(line)
+  while docline do
+    print(docline)
+    line = io.read()
+    if not line then return end
+    docline = doc(line)
+  end
+  print()
+  return parse_code(line)
+end
+```
 
 ### parse_code(line)
 Parses a code block.
