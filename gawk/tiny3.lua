@@ -66,6 +66,7 @@ function main(file)
 
 
 -------------------------------------------------
+l.fmt = string.format
 function l.push(t,x) t[1+#t]=x ; return x end
 
 function l.shuffle(t,   j)
@@ -73,9 +74,8 @@ function l.shuffle(t,   j)
 
 
 function l.cat(t)
-  if type(t) ~= "table" then return tostring(t) end
-  u={}; for k,v in pairs(t) do 
-          u[1+#u]= #t>0 and l.cat(v) or string.format(":%s %s",k,l.cat(v)) end
+  if type(t) ~= "table" then return tostring(t) end               
+  u={}; for k,v in pairs(t) do l.push(u,#t>0 and l.cat(v) or l.fmt(":%s %s",k,l.cat(v))) end
   if #t==0 then table.sort(u) end
   return "{"..table.concat(u," ").."}" end
 
