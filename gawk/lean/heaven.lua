@@ -1,8 +1,52 @@
-function make(s,    fun)
+--[[ 
+1. walk table featrures in random order,
+2. at each step, 
+   - sample one value, find its neighborhood
+      - num neighborhood = +/i .35 *sd
+      - sym neighborhood = self
+   - set table to just the rows with that neighborhood
+3. when min rows found (or run out of features)
+   - interpolate between the selected rows
+--]]
+
+-- CONFIG -----------------------------------    
+the={cohen=.35,     -- nuneric neighborhood
+     cf =.5, f=.3,  -- interpolation control
+     want=10000     -- how many to build
+}
+
+-- SHORTCUTS -----------------------------------
+big = 1E64
+fmt = string.frmat
+R   = math.random
+
+-- SORTING -----------------------------------
+function shuffle(t,   j) -- Fisher–Yates shuffle
+  for i=#t,2,-1 do j=R(i); t[i],t[j]=t[j],t[i] end; return t end
+
+function lt(x,     g)  -- sorting cols with some missing values
+  function q(x) return x=="?" and -big or x end
+  return function(a,b) return q(a[x]) < q(b[x]) end end
+
+function sort(t,fun) -- soring on some function
+  table.sort(t,fun); return t end
+
+function sorts(t,col,nump,     u,v)  --> rows, soroted on "col"
+  u,v = (nump and sort(t,lt(col)) or t), {}
+  for _,x in pairs(u) do
+    if x ~= "?" then v[1+#v] = x end
+  return v end
+
+-- SELECT -----------------------------------
+function any(t) -- return any item
+  return t[R(#t)] end
+
+-- STRINGS -> THING -----------------------------------
+function make(s,    fun) -- coerce string to int,floag,bool or string
   function fun(s) return s=="true" or (s~="false" and s) end
   return math.tointeger(s) or tonumber(s) or fun(s:match'^%s*(.*%S)') end
 
-function csv(src) 
+function csv(src)  -- iteratore. ead csv rows from file
   src = io.input(file)
   return function(    s,t)
     s,t = io.read(),{}
@@ -10,72 +54,70 @@ function csv(src)
     then for s1 in s:gmatch("([^,]+)") do t[#t+1]=make(s1) end; return t;
     else io.close(src) end end end
 
-function sym(at,txt)
-  return {at=at,txt=txt} end
+-- THING -> STRINGS -----------------------------------
+fmt=string.format
+function o(t,d,          u,x,mult)
+  if type(t) == "number"   then
+    if math.floor(t) == t then return t else 
+      mult = 10^(d or 0)
+      return math.floor(t * mult + 0.5) / mult end end
+  if type(t) ~= "table" then return tostring(t) end
+  u={}; for k,v in pairs(t) do
+          x= o(v,d)
+          u[1+#u]= #t==0 and fmt(":%s %s",k,x) or x end
+  return ("{"..table.concat(#t==0 and sort(u) or u," ").."}" end
 
-function num(at,txt)
-  return {nump=true, at=at, txt=txt, lo= -1E30, hi= 1E30,
-          heaven=txt:find"-$" and -1 or 1} end
+function oo(t,d) print(o(t,d)); return t end
 
-function add(col,x)
-  if x ~= "?" and col.nump then
-    if x > col.hi then col.hi = x end
-    if x < col.lo then col.lo = x end end end
+-- INTERPOLATION --------------------------------------
+function grow(t,numps,    u,mutant)
+  function mutant(nump, a,b,c,d)
+    if R() > the.cf then return a end
+    if not nump     then return (R()> .5 and c or d) end
+    return b + f(c-d) end
+  -------------  
+  u={}
+  for _ =1,the.want do
+    local a,b,c,d,new = any(t), any(t), any(t), any(t),{}
+    for k,v in pairs(a) do
+      new[k] = mutant(numps[k],a[k],b[k],c[k],d[k]) end
+    u[1+#u]= new end
+  return u end
+  
+-- NEARBY --------------------------------------
+function div(t,col) -- sd of a sorted column
+  return (t[#t*.9//1] - t[#t*.1//1]) / 2.56 end
 
-function adds(cols,t)
-  for _,xy in pairs{cols.x, cols.y} do
-    for _,col in pairs(xy) do add(col,t[col.at]) end
-  return t end
+function nearby(t,col,nump,     x,y,sd)
+  x = any(t)[col] 
+  if nump then
+    sd = div(t,col)*the.cohen
+    x,y = x-sd/2, x+sd/2 end -- what to do at range overflow?
+  return x,(y or x) end
 
-function norm(num,x) 
-  return (x - num.lo) / (num.hi - num.lo + 1E-30) end
+-- DOWN SELECT ON FEATURES ----------------------
+function prune(t,col,nump,     u,v)
+  u,v   = sorts(t,col,nump),{}
+  lo,hi = nearby(t,col,nump)
+  for _,x in pairs(t) do
+    if lo <= x and x <= hi then v[1+#v] = x end end
+  return v end
 
-function d2h(num,x) 
-  return math.abs(num.heaven - norm(num,x)) end
---------------------------------------------------------------
-function d2h(t,cols,    n,d)
-  n,d = 0,0
-  for _,num in pairs(cols.y) do
-    n = n + 1
-    d = d + math.abs(col.heaven - norm(num,t[num.at]))^2 end
-  return (d/n)^.5 end
+function featureOrdering(t,    u) -- random feature ordering
+  for k,_ in pairs(t[1]) do u[1+#u] = k end  
+  return shuffle(u) end'
+  
+function prunes(t,numps)
+  for _,col in pairs(featureOdering(u)) do
+    if #t < the.min then break end
+    t= prune(t,col,nump[j]) end
+  return grow(t) end 
 
-function cols(t)
-  local all,x,y,klass = {},{},{},nil
-  for at,txt in pairs(t) do
-    col= (txt:find"^[A-Z]" and num and sym)(at,txt)
-    all[1+#all]=col
-    if not txt:find"Z$" then
-      if txt:find"[+-]$" then y[1+#y] = col else x[1+#x] = col end
-      if txt:find"!$".   then klass= col end end end end
-  return {all=all, x=x, y=y, klass=klass} end
-
-function main(file,     rows,nums)
+-- MAIN ---------------------
+function main(file,      numps,rows)
+  numps,rows={},{}
   for t in csv(file) do
-    if nums then rows[1+#rows] = adds(nums,t) else nums = head(t) end end end 
-
-function d2h(num,x)  { return abs( a[i] - norm(x,num.lo,num.hi) } end
-
-function d2hs(a,    n,d) {
-  n,d = 0,0
-  for(i in W) {
-    n+=1
-    d+= d2h(NUMS[i],a[i])^2 }
-  return (d/n)^.5 }
-
-function sortByD2h(x,_,,y,__) {
-  return compare(Row[x]["d2h"],Row[y]["d2h"]) }
-
-#-----------------------------------
-function compare(x,y) {
-  if (x < y)  return -1
-  if (x==y )  return  0
-  if (x > y) return  1 }
-
-function norm(x,lo,hi)     { return (x-lo) / (hi- lo + 1/Big) }
-function abs(x)            { return x<0 ? -x : x }
-
-function new(a,k)          { a[k][k]; delete a      }      
-function has(a,k,f)        { new(a,k); @f(a[k])     }
-function has1(a,k,f,g)     { new(a,k); @f(a[k],g)   }
-function has2(a,k,f,g,h)   { new(a,k); @f(a[k],g,h) }
+    if   not numps  
+    then for k,v in pairs(t) do  if v:find"^[A-Z]" then numps[k] = true end end
+    else rows[1+#rows] = t end end end
+  return prunes(t,numps) end 
