@@ -18,7 +18,7 @@ the={cohen=.35,     -- nuneric neighborhood
 
 -- SHORTCUTS -----------------------------------
 big = 1E64
-fmt = string.frmat
+fmt = string.format
 R   = math.random
 
 -- SORTING -----------------------------------
@@ -35,7 +35,7 @@ function sort(t,fun) -- soring on some function
 function sorts(t,col,nump,     u,v)  --> rows, soroted on "col"
   u,v = (nump and sort(t,lt(col)) or t), {}
   for _,x in pairs(u) do
-    if x ~= "?" then v[1+#v] = x end
+    if x ~= "?" then v[1+#v] = x end end
   return v end
 
 -- SELECT -----------------------------------
@@ -48,7 +48,7 @@ function make(s,    fun) -- coerce string to int,floag,bool or string
   return math.tointeger(s) or tonumber(s) or fun(s:match'^%s*(.*%S)') end
 
 function csv(src)  -- iteratore. ead csv rows from file
-  src = io.input(file)
+  src = io.input(src)
   return function(    s,t)
     s,t = io.read(),{}
     if   s 
@@ -66,7 +66,7 @@ function o(t,d,          u,x,mult)
   u={}; for k,v in pairs(t) do
           x= o(v,d)
           u[1+#u]= #t==0 and fmt(":%s %s",k,x) or x end
-  return ("{"..table.concat(#t==0 and sort(u) or u," ").."}" end
+  return "{"..table.concat(#t==0 and sort(u) or u," ").."}" end
 
 function oo(t,d) print(o(t,d)); return t end
 
@@ -75,7 +75,7 @@ function grow(t,numps,    u,mutant)
   function mutant(nump, a,b,c,d)
     if R() > the.cf then return a end
     if not nump     then return (R()> .5 and c or d) end
-    return b + f(c-d) end
+    return b + the.f(c-d) end
   -------------  
   u={}
   for _ =1,the.want do
@@ -105,20 +105,21 @@ function prune(t,col,nump,     u,v)
   return v end
 
 function featureOrdering(t,    u) -- random feature ordering
-  for k,_ in pairs(t[1]) do u[1+#u] = k end  
-  return shuffle(u) end'
-  
+  for k,_ in pairs(t[1]) do u[1+#u] = k end
+  return shuffle(u) end
+
 function prunes(t,numps)
-  for _,col in pairs(featureOdering(u)) do
+  for _,i in pairs(featureOrdering(t)) do
     if #t < the.min then break end
-    t= prune(t,col,nump[j]) end
-  return grow(t) end 
+    t= prune(t.rows,t.cols.all[i],numps[i]) end
+  return grow(t) end
 
 -- MAIN ---------------------
 function main(file,      numps,rows)
   numps,rows={},{}
   for t in csv(file) do
-    if   not numps  
-    then for k,v in pairs(t) do  if v:find"^[A-Z]" then numps[k] = true end end
-    else rows[1+#rows] = t end end end
-  return prunes(t,numps) end 
+    if not numps then
+     for k, v in pairs(t) do
+        if v:find"^[A-Z]" then numps[k] = true end end
+    else rows[1+#rows] = t  end
+  return prunes(t,numps) end

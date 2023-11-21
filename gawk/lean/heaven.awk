@@ -8,7 +8,7 @@ function csv(src)
     s,t = io.read(),{}
     if   s 
     then for s1 in s:gmatch("([^,]+)") do t[1+#t]=make(s1) end; return t
-    else io.close(src) end end end 
+    else io.close(src) end end 
 
 function main(file,     rows,cols)
   for t in csv(file) do    
