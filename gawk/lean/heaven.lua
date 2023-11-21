@@ -12,7 +12,8 @@
 -- CONFIG -----------------------------------    
 the={cohen=.35,     -- nuneric neighborhood
      cf =.5, f=.3,  -- interpolation control
-     want=10000     -- how many to build
+     want=10000,     -- how many to build
+     d=2             -- default number of de 
 }
 
 -- SHORTCUTS -----------------------------------
@@ -59,7 +60,7 @@ fmt=string.format
 function o(t,d,          u,x,mult)
   if type(t) == "number"   then
     if math.floor(t) == t then return t else 
-      mult = 10^(d or 0)
+      mult = 10^(d or the.d)
       return math.floor(t * mult + 0.5) / mult end end
   if type(t) ~= "table" then return tostring(t) end
   u={}; for k,v in pairs(t) do
