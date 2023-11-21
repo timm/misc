@@ -32,7 +32,7 @@ function norm(num,x)
 
 function d2h(num,x) 
   return math.abs(num.heaven - norm(num,x)) end
-
+--------------------------------------------------------------
 function d2h(t,cols,    n,d)
   n,d = 0,0
   for _,num in pairs(cols.y) do
