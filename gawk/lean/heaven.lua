@@ -1,4 +1,4 @@
-
+-- <!--  vim: set et ts=2 sts=2 sw=2 : -->
 -- 1. walk table featrures in random order,
 -- 2. at each step, 
 --    - sample one value, find its neighborhood
@@ -117,26 +117,28 @@ function nearby(rows,col,nump,     lo,hi,sd)
 -- ### Grow 
 local grow  -------------------------------------------------------------------
 
--- Using De interpolation. TODO: handle missing values
-function grow(t, numps, u, mutant)
-    function mutant(nump, a, b, c, d)
-        if R() > the.cf then return a end
-        if not nump then return (R() > .5 and c or d) end
-        return b + the.f(c - d)
-    end -----------------------
-    u = {}
-    for _ = 1, the.want do
-        local a, b, c, d, new = any(t), any(t), any(t), any(t), {}
-        for k, v in pairs(a) do
-            new[k] = mutant(numps[k], a[k], b[k], c[k], d[k])
-        end
-        u[1 + #u] = new
+-- Using Storn's DE interpolation. 
+function grow(rows, numps, u, mutant)
+  function mutant(nump, a, b, c, d)
+    if R() > the.cf then return a end
+    if not nump then return (R() > .5 and c or d) end
+    return b + ((c=="?" or d=="?") and 0 or the.f(c - d))
+  end -----------------------
+  u = {}
+  for _ = 1, the.want do
+    local a, b, c, d, new = any(rows), any(rows), any(rows), any(rows), {}
+    for k, v in pairs(a) do
+      new[k] = mutant(numps[k], a[k], b[k], c[k], d[k])
     end
-    return u
+    k= R(#old)
+    new[k] = old[k] -- Storn wants at least one old value in the new.
+    u[1 + #u] = new
+  end
+  return u
 end
 
 -- ### Prune
-local prune, featureOrdering, prunes  -------------------------------------====
+local prune, featureOrdering, prunes  -----------------------------------------
 
 -- Prune rows that are not nearby
 function prune(rows,col,nump,     u,v,lo,hi)
@@ -162,10 +164,12 @@ function prunes(rows,numps)
 local main  -------------------------------------------------------------------
 
 function main(file,      numps,rows)
-  numps,rows={},{}
+  rows={}
   for t in csv(file) do
-    if not numps then
-     for k, v in pairs(t) do
-        if v:find"^[A-Z]" then numps[k] = true end end
-    else rows[1+#rows] = t  end end
+    if numps then
+      rows[1+#rows] = t  
+    else
+      numps = {}
+      for k, v in pairs(t) do
+        if v:find"^[A-Z]" then numps[k] = true end end end end 
   return prunes(rows,numps) end
