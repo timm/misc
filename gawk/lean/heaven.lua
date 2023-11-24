@@ -9,11 +9,11 @@
 -- read this code bottom-up?  
 local the,help={},[[
 
-BEGIN: lots of examples of  generalized instance inference algorithms
+STANCE: lots of examples of  generalized instance inference algorithms
 (c) 2023, Tim Menzies, BSD-2.
 
 USAGE:
-  lua legion.lua [OTPIONS]
+  lua stance.lua [OTPIONS]
 
 OPTIONS:
   -c --cohen size of numeric neighborhood = .35
