@@ -7,18 +7,21 @@
 -- Note: LUA's scope does not extend beyond the current line.
 -- So X can not use Y unless X comes after Y (so maybe 
 -- read this code bottom-up?  
-local the = { -----------------------------------------------------------------
-     about = {what = "giar.lua",
-              why  = "example implementation, General instance-based reasoning",
-              when = "(c) 2023, BSD2",
-              who  = "Tim Menzies"
-             },
-     cohen=.35,     -- size of numeric neighborhood
-     cf =.5, f=.3,  -- interpolation control
-     want=10000,     -- how many to build
-     d=2             -- default number of de 
-}
+local the,help={},[[
 
+BEGIN: lots of examples of  generalized instance inference algorithms
+(c) 2023, Tim Menzies, BSD-2.
+
+USAGE:
+  lua legion.lua [OTPIONS]
+
+OPTIONS:
+  -c --cohen size of numeric neighborhood = .35
+  -C --cf    percent fetures to mutate = .5
+  -F --f     cross over distance        = .3
+  -f --fie   where to fond data          =
+  -w --want  how mGany to generate       = 10000
+  -d --d     how may decimal places to print = 2]]
 -- ## Lib
 
 -- ### Lint
@@ -54,7 +57,7 @@ function lt(x,     fun)
   function fun(x) return x=="?" and -big or x end
   return function(a,b) return fun(a[x]) < fun(b[x]) end end
 
--- soring on some function   
+-- sorting on some function   
 -- `sort([x], ?fun) --> [x]`  
 function sort(t,fun) 
   table.sort(t,fun); return t end
@@ -96,7 +99,7 @@ function coerce(s,    fun)
   return math.tointeger(s) or tonumber(s) or fun(s:match'^%s*(.*%S)') end
 
 -- Iterator. Returns rows from a csv file.   
--- `csv(s) --> fun --> [x]
+-- `csv(s) --> fun --> [x]`
 function csv(src)  
   src = io.input(src)
   return function(    s,t)
@@ -117,6 +120,13 @@ function cli(t)
         v = (v=="true" and "false") or (v="false" and "true") or arg[pos+1]
         t[k] = thing(v)  end end end
   return t end 
+
+-- Parse help string to find settings.
+-- `settings(s) --> [k=v]`
+function settings(s,    t,pat)
+  t,pat = {}, "\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)"
+  for k,s1 in s:gmatch(pat) do t[k]= coerce(s1) end
+  return s end
 
 -- ### Thing to  Strings 
 local o, oo  ------------------------------------------------------------------
@@ -219,6 +229,8 @@ local main  -------------------------------------------------------------------
 -- Read data from disc, update `the` from clu,   
 -- `main(s) --> [[x]]`
 function main(file,      numps,rows)
+  the = cli(settings(help))
+  if the.help the print(help) end
   rows={}
   for t in csv(file) do
     if numps then
