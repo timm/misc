@@ -111,7 +111,7 @@ function csv(src)
 -- Update settings from command line; e.g. for key `k`, look for `--k v`
 -- on the command line. Boolean flags do not head arguments
 -- (we just invert the default).   
--- `cli([k=v]) --> [k=v]`
+-- `cli([k=v],s) --> [k=v]`
 function cli(t)
   for k,v in pairs(t) do
     k = tostring(k)
@@ -119,6 +119,7 @@ function cli(t)
       if flag=="--"..k then
         v = (v=="true" and "false") or (v="false" and "true") or arg[pos+1]
         t[k] = thing(v)  end end end
+  if t.help then print(help) end
   return t end 
 
 -- Parse help string to find settings.
@@ -230,7 +231,6 @@ local main  -------------------------------------------------------------------
 -- `main(s) --> [[x]]`
 function main(file,      numps,rows)
   the = cli(settings(help))
-  if the.help the print(help) end
   rows={}
   for t in csv(file) do
     if numps then
