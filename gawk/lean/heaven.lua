@@ -1,19 +1,18 @@
 -- <!--  vim: set et ts=2 sts=2 sw=2 : -->
--- 1. walk table featrures in random order,
--- 2. at each step, 
---    - sample one value, find its neighborhood
---       - num neighborhood = +/i .35 *sd
---       - sym neighborhood = self
---    - set table to just the rows with that neighborhood
--- 3. when min rows found (or run out of features)
---    - interpolate between the selected rows
--- ----------------------------
+-- 1. Group data into regions
+--    - along the way, learn most informative rows and columns.
+-- 2. All inference is then  sampling each local  region.
+--    - e.g. data synythesis is  
+--    
 -- Note: LUA's scope does not extend beyond the current line.
--- So X can not use Y unless X comes after Y (so maybe read this code bottom-up?
-
--- ## Config  
-
+-- So X can not use Y unless X comes after Y (so maybe 
+-- read this code bottom-up?  
 local the = { -----------------------------------------------------------------
+     about = {what = "heaven.lua",
+              why  = "example implementation, general instance inference",
+              when = "(c) 2023, BSD2",
+              who  = "Tim Menzies"
+             },
      cohen=.35,     -- size of numeric neighborhood
      cf =.5, f=.3,  -- interpolation control
      want=10000,     -- how many to build
@@ -21,6 +20,19 @@ local the = { -----------------------------------------------------------------
 }
 
 -- ## Lib
+
+-- ### Lint
+local b4, rogues --------------------------------------------------------------
+
+-- Cache all the names known before the code starts
+b4={}; for k,v in pairs(_ENV) do b4[k]=k end
+
+-- `rogues() --> nil`   
+-- Report rogie locals
+function rogues()
+ for k,v in pairs(_ENV) do 
+   if not b4[k] then print("ROGUE: ",k,type(v)) end end end
+
 -- ### Shortcuts
 local big,fmt,R  --------------------------------------------------------------
 
@@ -29,21 +41,25 @@ fmt = string.format
 R   = math.random
 
 -- ### Sorting
-local shuffle, lt, sort, sorts  -----------------------------------------------
+local shuffle, lt, sort, sorts, ordered  --------------------------------------
 
+-- `shuffle([x], ?fun) --> [x]`   
 -- Fisher–Yates shuffle
-function shuffle(t,   j) 
+function shuffle(t,   j)
   for i=#t,2,-1 do j=R(i); t[i],t[j]=t[j],t[i] end; return t end
 
--- Sorting cols with some missing values
-function lt(x,     g)
-  q = function(x) return x=="?" and -big or x end
-  return function(a,b) return q(a[x]) < q(b[x]) end end
+-- `lt(s) --> fun`     
+-- Returns a function that sorts on field `x`.
+function lt(x,     fun)
+  function fun(x) return x=="?" and -big or x end
+  return function(a,b) return fun(a[x]) < fun(b[x]) end end
 
+-- `sort([x], ?fun) --> [x]`   
 -- soring on some function
 function sort(t,fun) 
   table.sort(t,fun); return t end
 
+-- `sort([x], n, b) --> [n]`  
 -- Rows  sorted on "col"
 function sorts(rows,col,nump,     u,v)  
   u,v = (nump and sort(rows,lt(col)) or rows), {}
@@ -51,51 +67,81 @@ function sorts(rows,col,nump,     u,v)
     if x ~= "?" then v[1+#v] = x end end
   return v end
 
+-- `ordered([s=x]) --> fun --> s,x`   
+-- Iterator. Returns key,values of `t` in key ordering.
+function ordered(t,     i,u)
+  i,u = 0,{}
+  for k,v in pairs(t) do u[1+#u] = {k,v} end
+  table.sort(u, lt(1))
+  return function()
+    if i < #u then
+      i = i+1
+      return u[i][1], u[i][2] end end end 
+
 -- ### Random Choice  
 local any  --------------------------------------------------------------------
 
+-- `any([x]) --> x`  
+-- Return any number.
 function any(t) -- return any item
   return t[R(#t)] end
 
 -- ### Strings to Thing
-local make, csv  --------------------------------------------------------------
+local coerce, csv,cli  -----------------------------------------------------------
 
--- coerce string to int,floag,bool or string
-function make(s,    fun) 
+-- `coerce(s) --> int | float | bool | string`   
+-- Coerce string.
+function coerce(s,    fun) 
   function fun(s) return s=="true" or (s~="false" and s) end
   return math.tointeger(s) or tonumber(s) or fun(s:match'^%s*(.*%S)') end
 
--- iteratore. ead csv rows from file
+-- `csv(s) --> fun --> [x]
+-- Iterator. Returns rows from a csv file.
 function csv(src)  
   src = io.input(src)
   return function(    s,t)
     s,t = io.read(),{}
     if   s 
-    then for s1 in s:gmatch("([^,]+)") do t[#t+1]=make(s1) end; return t;
+    then for s1 in s:gmatch("([^,]+)") do t[#t+1]=coerce(s1) end; return t;
     else io.close(src) end end end
+
+-- `cli([k=v]) --> [k=v]`    
+-- Update settings from command line; e.g. for key `k`, look for `--k v`
+-- on the command line. Boolean flags do not head arguments
+-- (we just invert the default). 
+function cli(t)
+  for k,v in pairs(t) do
+    k = tostring(k)
+    for pos,flag in pairs(arg) do
+      if flag=="--"..k then
+        v = (v=="true" and "false") or (v="false" and "true") or arg[pos+1]
+        t[k] = thing(v)  end end end
+  return t end 
 
 -- ### Thing to  Strings 
 local o, oo  ------------------------------------------------------------------
 
--- generate a string, round  number to `d` places, recurse into nested tables, sort hash tables on key.
-function o(it,d,          u,x,mult)
-  if type(it) == "number"   then
-    if math.floor(it) == it then return it else 
-      mult = 10^(d or the.d)
-      return math.floor(it * mult + 0.5) / mult end end
-  if type(it) ~= "table" then return tostring(it) end
-  u={}; for k,v in pairs(it) do
-          x= o(v,d)
-          u[1+#u]= #it==0 and fmt(":%s %s",k,x) or x end
-  return "{"..table.concat(#it==0 and sort(u) or u," ").."}" end
+-- `rnd(n,?d) --> n`      
+-- Return an integer for simple numbers, else round `n` to `d` places (default=2).
+function rnd(n)
+  if math.floor(it) == it then return it else 
+  mult = 10^(d or the.d or 2)
+  return math.floor(it * mult + 0.5) / mult end end
+
+-- `o(x,n) --> s`   
+-- Generate a string, from `x`. round  number to `d` places, recurse into nested tables, sort hash tables on key.
+function o(it,d,          u,fun)
+  function fun(k,x) return #it==0 and fmt(":%s %s",k,x) or x end
+  if type(it) == "number" then return rnd(it,d) end
+  if type(it) ~= "table"  then return tostring(it) end
+  u={}; for k,v in ordered(it) do u[1+#u] = fun(k, o(v,d)) end
+  return "{"..table.concat(u," ").."}" end
 
 -- generate `it`'s string, print `it`, return `it`
 function oo(it,d) print(o(it,d)); return it end
 
 -- ## Inference
 
-
-  
 -- ### Nearby  
 local div, nearby  ------------------------------------------------------------
 
@@ -172,4 +218,6 @@ function main(file,      numps,rows)
       numps = {}
       for k, v in pairs(t) do
         if v:find"^[A-Z]" then numps[k] = true end end end end 
-  return prunes(rows,numps) end
+  out= prunes(rows,numps) 
+  rogues()
+  return out end
