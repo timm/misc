@@ -8,8 +8,8 @@
 -- So X can not use Y unless X comes after Y (so maybe 
 -- read this code bottom-up?  
 local the = { -----------------------------------------------------------------
-     about = {what = "heaven.lua",
-              why  = "example implementation, general instance inference",
+     about = {what = "giar.lua",
+              why  = "example implementation, General instance-based reasoning",
               when = "(c) 2023, BSD2",
               who  = "Tim Menzies"
              },
