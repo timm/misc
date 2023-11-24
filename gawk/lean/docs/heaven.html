@@ -31,18 +31,18 @@ read this code bottom-up?  </p>
     <div class='code'>
       <div class="highlight"><pre><span></span><span class="kd">local</span> <span class="n">the</span><span class="p">,</span><span class="n">help</span><span class="o">=</span><span class="p">{},</span><span class="s">[[</span>
 
-<span class="s">BEGIN: lots of examples of  generalized instance inference algorithms</span>
+<span class="s">GIL: Generalized, instance-based learning</span>
 <span class="s">(c) 2023, Tim Menzies, BSD-2.</span>
 
 <span class="s">USAGE:</span>
-<span class="s">  lua legion.lua [OTPIONS]</span>
+<span class="s">  lua stance.lua [OPTIONS]</span>
 
 <span class="s">OPTIONS:</span>
-<span class="s">  -c --cohen size of numeric neighborhood = .35</span>
-<span class="s">  -C --cf    percent fetures to mutate = .5</span>
-<span class="s">  -F --f     cross over distance        = .3</span>
-<span class="s">  -f --fie   where to fond data          =</span>
-<span class="s">  -w --want  how mGany to generate       = 10000</span>
+<span class="s">  -c --cohen size of numeric neighborhood    = .35</span>
+<span class="s">  -C --cf    percent fetures to mutate       = .5</span>
+<span class="s">  -F --f     cross over distance             = .3</span>
+<span class="s">  -f --fie   where to fond data              = data/auto93.csv</span>
+<span class="s">  -w --want  how mGany to generate           = 10000</span>
 <span class="s">  -d --d     how may decimal places to print = 2]]</span></pre></div>
     </div>
   </div>
@@ -286,7 +286,7 @@ read this code bottom-up?  </p>
       <p>Update settings from command line; e.g. for key <code>k</code>, look for <code>--k v</code>
 on the command line. Boolean flags do not head arguments
 (we just invert the default). <br />
-<code>cli([k=v]) --&gt; [k=v]</code></p>
+<code>cli([k=v],s) --&gt; [k=v]</code></p>
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="kr">function</span> <span class="nf">cli</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
@@ -296,6 +296,7 @@ on the command line. Boolean flags do not head arguments
       <span class="kr">if</span> <span class="n">flag</span><span class="o">==</span><span class="s2">&quot;--&quot;</span><span class="o">..</span><span class="n">k</span> <span class="kr">then</span>
         <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="o">==</span><span class="s2">&quot;true&quot;</span> <span class="ow">and</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="s2">&quot;false&quot;</span> <span class="ow">and</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">arg</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">thing</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="kr">end</span> <span class="kr">end</span> <span class="kr">end</span>
+  <span class="kr">if</span> <span class="n">t</span><span class="p">.</span><span class="n">help</span> <span class="kr">then</span> <span class="nb">print</span><span class="p">(</span><span class="n">help</span><span class="p">)</span> <span class="kr">end</span>
   <span class="kr">return</span> <span class="n">t</span> <span class="kr">end</span></pre></div>
     </div>
   </div>
@@ -561,7 +562,6 @@ the same.  <br />
     <div class='code'>
       <div class="highlight"><pre><span class="kr">function</span> <span class="nf">main</span><span class="p">(</span><span class="n">file</span><span class="p">,</span>      <span class="n">numps</span><span class="p">,</span><span class="n">rows</span><span class="p">)</span>
   <span class="n">the</span> <span class="o">=</span> <span class="n">cli</span><span class="p">(</span><span class="n">settings</span><span class="p">(</span><span class="n">help</span><span class="p">))</span>
-  <span class="kr">if</span> <span class="n">the</span><span class="p">.</span><span class="n">help</span> <span class="n">the</span> <span class="nb">print</span><span class="p">(</span><span class="n">help</span><span class="p">)</span> <span class="kr">end</span>
   <span class="n">rows</span><span class="o">=</span><span class="p">{}</span>
   <span class="kr">for</span> <span class="n">t</span> <span class="kr">in</span> <span class="n">csv</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="kr">do</span>
     <span class="kr">if</span> <span class="n">numps</span> <span class="kr">then</span>

@@ -9,18 +9,18 @@
 -- read this code bottom-up?  
 local the,help={},[[
 
-STANCE: lots of examples of  generalized instance inference algorithms
+GIL: Generalized, instance-based reasoning
 (c) 2023, Tim Menzies, BSD-2.
 
 USAGE:
-  lua stance.lua [OTPIONS]
+  lua stance.lua [OPTIONS]
 
 OPTIONS:
-  -c --cohen size of numeric neighborhood = .35
-  -C --cf    percent fetures to mutate = .5
-  -F --f     cross over distance        = .3
-  -f --fie   where to fond data          =
-  -w --want  how mGany to generate       = 10000
+  -c --cohen size of numeric neighborhood    = .35
+  -C --cf    percent fetures to mutate       = .5
+  -F --f     cross over distance             = .3
+  -f --fie   where to fond data              = data/auto93.csv
+  -w --want  how mGany to generate           = 10000
   -d --d     how may decimal places to print = 2]]
 -- ## Lib
 
