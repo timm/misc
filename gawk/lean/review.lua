@@ -9,19 +9,21 @@
 -- read this code bottom-up?  
 local the,help={},[[
 
-GIL: Generalized, instance-based reasoning
+REVIEW : Demo of generalized instance reasoning
 (c) 2023, Tim Menzies, BSD-2.
 
 USAGE:
-  lua stance.lua [OPTIONS]
+  lua summer.lua [OPTIONS]
 
 OPTIONS:
   -c --cohen size of numeric neighborhood    = .35
   -C --cf    percent fetures to mutate       = .5
+  -d --d     how may decimal places to print = 2
   -F --f     cross over distance             = .3
   -f --fie   where to fond data              = data/auto93.csv
-  -w --want  how mGany to generate           = 10000
-  -d --d     how may decimal places to print = 2]]
+  -s --seed  random number seed              = 1234567891
+  -w --want  how mGny to generate            = 10000
+]]
 -- ## Lib
 
 -- ### Lint
@@ -30,7 +32,7 @@ local b4, rogues --------------------------------------------------------------
 -- Cache all the names known before the code starts
 b4={}; for k,v in pairs(_ENV) do b4[k]=k end
 
--- Report rogie locals.
+-- Report rogie locals.   
 -- `rogues() --> nil` 
 function rogues()
  for k,v in pairs(_ENV) do 
@@ -44,7 +46,7 @@ fmt = string.format
 R   = math.random
 
 -- ### Sorting
-local shuffle, lt, sort, sorts, ordered  --------------------------------------
+local shuffle, lt, sort, sorts, order  --------------------------------------
 
 -- Fisher–Yates shuffle; randomizes order of a table.   
 -- `shuffle([x], ?fun) --> [x]`   
@@ -71,8 +73,8 @@ function sorts(rows,col,nump,     u,v)
   return v end
 
 -- Iterator. Returns key,values of `t` in key ordering.  
--- `ordered([s=x]) --> fun --> s,x`
-function ordered(t,     i,u)
+-- `order([s=x]) --> fun --> s,x`
+function order(t,     i,u)
   i,u = 0,{}
   for k,v in pairs(t) do u[1+#u] = {k,v} end
   table.sort(u, lt(1))
@@ -84,7 +86,7 @@ function ordered(t,     i,u)
 -- ### Random Choice  
 local any  --------------------------------------------------------------------
 
--- Return any number.
+-- Return any number, selected at random.   
 -- `any([x]) --> x`  
 function any(t) -- return any item
   return t[R(#t)] end
@@ -145,7 +147,7 @@ function o(it,d,          u,fun)
   function fun(k,x) return #it==0 and fmt(":%s %s",k,x) or x end
   if type(it) == "number" then return rnd(it,d) end
   if type(it) ~= "table"  then return tostring(it) end
-  u={}; for k,v in ordered(it) do u[1+#u] = fun(k, o(v,d)) end
+  u={}; for k,v in order(it) do u[1+#u] = tostring(fun(k, o(v,d))) end
   return "{"..table.concat(u," ").."}" end
 
 -- generate `it`'s string, print `it`, return `it`   
@@ -165,7 +167,7 @@ function div(rows,col)
 -- find all rows nearby some randomly selected row. Returns two valyues marking
 -- the start and top of the selection range. For non-numerics, these two values are
 -- the same.    
--- `nearby([[x]],n,bool)` --> x,x`
+-- `nearby([[x]],n,bool)` --> x,x
 function nearby(rows,col,nump,     lo,hi,sd)
   lo = any(rows)[col]
   hi = lo
@@ -178,7 +180,7 @@ function nearby(rows,col,nump,     lo,hi,sd)
 local grow  -------------------------------------------------------------------
 
 -- Using Storn's DE interpolation.    
--- `grow( [[x]], [k=v]) --> [[x]]`
+-- `grow( ts, [k=v]) --> ts
 function grow(rows, numps,      u, mutant)
   function mutant(nump, a, b, c, d)
     if R() > the.cf then return a end
@@ -231,6 +233,7 @@ local main  -------------------------------------------------------------------
 -- `main(s) --> [[x]]`
 function main(file,      numps,rows)
   the = cli(settings(help))
+  math.randomseed(the.seed)
   rows={}
   for t in csv(file) do
     if numps then
