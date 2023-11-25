@@ -162,8 +162,8 @@ function o(it,d,          u,fun)
 function oo(it,d) print(o(it,d)); return it end
 
 -- ## Classes
-local ROW,SYM,NUM,COL,DATA,COLS -----------------------------------------------
-local     sym,num,col,data,seen
+local SYM,NUM,DATA,COLS,ROW,COL -----------------------------------------------
+local sym,num,data,seen
 
 -- ### ROW
 
@@ -183,11 +183,14 @@ function NUM(at,txt)
 function num(num1,x) 
   if x ~= "?" then num1.seen[1+#num1.seen] = x; num1.bad=true end end
 
+<<<<<<< HEAD
 -- ### COL
 function col(col1,x) 
   print(col1.ako == "SYM" and sym or num)
   (col1.ako == "SYM" and sym or num)(col1,x) end 
 
+=======
+>>>>>>> 8a8473cbf9869585b924842ba0057b285a70ea61
 function seen(col1)
   if col1.bad then col1.bad=false; table.sort(col1.seen) end 
   return col1.seen end
@@ -205,7 +208,10 @@ function COLS(t,    col1,all,x,y)
 -- ### DATA
 function DATA(src,    data1) 
   data1 = {ako="DATA",rows={},cols=nil}
+<<<<<<< HEAD
   print(type(src))
+=======
+>>>>>>> 8a8473cbf9869585b924842ba0057b285a70ea61
   if   type(src)=="string" 
   then for t   in csv(src)         do data(data1, ROW(t)) end
   else for row in pairs(src or {}) do data(data1, row)    end 
@@ -213,6 +219,7 @@ function DATA(src,    data1)
   return data1 end
 
 function data(data1,row)
+<<<<<<< HEAD
   print(1)
   if data1.cols 
   then for _,col1 in pairs(data1.cols.all) do col(col1, row[col1.at]) end
@@ -249,6 +256,13 @@ function stats(data1,  cols,fun,d,    t)
   for _,col1 in pairs(cols or data1.cols.y) do 
     t[col1.txt] = rnd((fun or mid)(col1),d or 2) end
   return t end
+=======
+  if   data1.cols 
+  then data1.rows[1+#data1.rows] = row
+       for _,col1 in pairs(data1.cols) do 
+         (col1.ako == "SYM" and sym or num)(col1,x) end
+  else data1.cols = COLS(row) end end
+>>>>>>> 8a8473cbf9869585b924842ba0057b285a70ea61
 
 -- ### Nearby  
 local div, nearby  ------------------------------------------------------------
