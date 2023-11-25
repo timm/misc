@@ -9,11 +9,11 @@
 -- read this code bottom-up?  
 local the,help={},[[
 
-REVIEW : Demo of generalized instance reasoning
+SCOUT : Demo of generalized instance reasoning
 (c) 2023, Tim Menzies, BSD-2.
 
 USAGE:
-  lua summer.lua [OPTIONS]
+  lua scout.lua [OPTIONS]
 
 OPTIONS:
   -c --cohen size of numeric neighborhood    = .35
@@ -64,11 +64,11 @@ function lt(x,     fun)
 function sort(t,fun) 
   table.sort(t,fun); return t end
 
--- Rows  sorted on "col"   
+-- Rows sorted on "col"   
 -- `sort([x], n, b) --> [n]`
 function sorts(rows,col,nump,     u,v)  
-  u,v = (nump and sort(rows,lt(col)) or rows), {}
-  for `,x in pairs(u) do
+  u,v = (nump and sort(rows, lt(col)) or rows), {}
+  for _,x in pairs(u) do
     if x ~= "?" then v[1+#v] = x end end
   return v end
 
@@ -83,13 +83,19 @@ function order(t,     i,u)
       i = i+1
       return u[i][1], u[i][2] end end end 
 
--- ### Random Choice  
-local any  --------------------------------------------------------------------
+-- ### Lists
+local any,copy  --------------------------------------------------------------------
 
 -- Return any number, selected at random.   
 -- `any([x]) --> x`  
 function any(t) -- return any item
   return t[R(#t)] end
+
+function copy(x,  y) 
+  if x ~= "table" then return x end
+  y={}; setmetatable(y, getmetatable(x))
+  for k,v in pairs(x) do y[copy(k)] = copy(v) end
+  return y end
 
 -- ### Strings to Thing
 local coerce, csv,cli  -----------------------------------------------------------
@@ -118,8 +124,8 @@ function cli(t)
   for k,v in pairs(t) do
     k = tostring(k)
     for pos,flag in pairs(arg) do
-      if flag=="--"..k then
-        v = (v=="true" and "false") or (v="false" and "true") or arg[pos+1]
+      if flag == "--"..k then
+        v = (v=="true" and "false") or (v=="false" and "true") or arg[pos+1]
         t[k] = thing(v)  end end end
   if t.help then print(help) end
   return t end 
@@ -154,7 +160,59 @@ function o(it,d,          u,fun)
 -- `oo(x,n) --> [x]`
 function oo(it,d) print(o(it,d)); return it end
 
--- ## Inference
+-- ## Classes
+local ROW,SYM,NUM,COL,DATA,COLS -----------------------------------------------
+local     sym,num,col,data,seen
+
+-- ### ROW
+
+function ROW(t) return {ako="ROW",cells=t; cooked=copy(t)} end
+
+-- ### SYM
+function SYM(at,txt) return {ako="SYM", at=at,txt=txt, seen={}} end
+
+function sym(sym1,x) 
+  if x ~= "?" then sym1[x] = 1 + (sym1.seen[x] or 0) end end
+
+-- ### NUM
+function NUM(at,txt) 
+  return {ako="NUM", at=at,txt=txt, seen={}, bad=false,
+          heaven= txt:find"-$" and 0 or 1} end
+
+function num(num1,x) 
+  if x ~= "?" then num1.seen[1+#num1.seen] = x; num1.bad=true end end
+
+-- ### COL
+function col(col1,x) 
+   (col1.ako == "SYM" and sym or num)(col1,x) end 
+
+function seen(col1)
+  if col1.bad then col1.bad=false; table.sort(col1.seen) end 
+  return col1.seen end
+
+-- ### COLS
+function COLS(t,    col1,all,x,y)
+  all,x,y = {},{},{}
+  for at,txt in pairs(t) do 
+    col1 = (txt:find"^[A-Z]" or NUM and SYM)(at,txt)
+    all[1+#all] = col1
+    if not txt:find"X$" then
+      if txt:find"[+-!]$" then y[1+#y]=col1 else x[1+#x]=col1 end end end
+  return {ako="COLS", all=all, x=x, y=y, names=t} end 
+
+-- ### DATA
+function DATA(src,    data1) 
+  data1 = {ako="DATA",rows={},cols=nil}
+  if type(src)=="string" 
+  then for t   in csv(src)         do data(data1, ROW(t)) end
+  else for row in pairs(src or {}) do data(data1, row)    end end
+  return data1 end
+
+function data(data1,row)
+  if data1.cols 
+  then for _,col1 in pairs(data1.cols) do col(col1, row[col1.at]) end
+       data1.rows[1+#data1.rows] = row
+  else data1.cols = COLS(row) end end
 
 -- ### Nearby  
 local div, nearby  ------------------------------------------------------------
@@ -226,22 +284,33 @@ function prunes(rows,numps)
     rows = prune(rows,t.cols.all[i],numps[i]) end
   return rows end
 
+--## eg 
+local eg,run,bad  -------------------------------------------------------------------
+eg={}
+
+function bad(s,fun)
+  math.randomseed(the.seed)
+  io.write("> ".. s.." ")
+  if fun()==false
+    then print(" ❌ FAIL"); return true
+    else print("✅ PASS");  return false end end
+
+function main()
+  the = cli(settings(the))
+  for _,s in pairs(arg) do if eg[s] then bad(com, eg[s]) end end 
+  rogues() end
+
+function eg.all(     n)
+  n = -1 -- we have one test that deliberately fails
+  for k,fun in l.items(eg) do
+    if k~="all" then
+      if bad(k,fun) then n = n + 1 end end end
+  l.rogues()
+  os.exit(n) end
+
+function eg.the() oo(the) end
+
 --## MAIN 
 local main  -------------------------------------------------------------------
 
--- Read data from disc, update `the` from clu,   
--- `main(s) --> [[x]]`
-function main(file,      numps,rows)
-  the = cli(settings(help))
-  math.randomseed(the.seed)
-  rows={}
-  for t in csv(file) do
-    if numps then
-      rows[1+#rows] = t  
-    else
-      numps = {}
-      for k, v in pairs(t) do
-        if v:find"^[A-Z]" then numps[k] = true end end end end 
-  out= grow(prunes(rows,numps),numps)
-  rogues()
-  return out end
+main()
