@@ -21,6 +21,7 @@ OPTIONS:
   -d --d     how may decimal places to print = 2
   -F --f     cross over distance             = .3
   -f --file  where to fond data              = data/auto93.csv
+  -h --help  show help                       = false
   -s --seed  random number seed              = 1234567891
   -w --want  how mGny to generate            = 10000
 ]]
@@ -122,18 +123,18 @@ function csv(src)
 -- `cli([k=v],s) --> [k=v]`
 function cli(t)
   for k,v in pairs(t) do
-    k = tostring(k)
+    v = tostring(v)
     for pos,flag in pairs(arg) do
-      if flag == "-"..k then
+      if flag == "--"..k or flag == "-"..k:sub(0,1) then
         v = (v=="true" and "false") or (v=="false" and "true") or arg[pos+1]
         t[k] = coerce(v)  end end end
-  if t.help then print(help) end
+  if t.help then os.exit(print(help)) end
   return t end 
 
 -- Parse help string to find settings.
 -- `settings(s) --> [k=v]`
 function settings(s,    t,pat)
-  t,pat = {}, "\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)"
+  t,pat = {}, "\n[%s]+[-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)"
   for k,s1 in s:gmatch(pat) do t[k]= coerce(s1) end
   return t end
 
@@ -162,35 +163,33 @@ function o(it,d,          u,fun)
 function oo(it,d) print(o(it,d)); return it end
 
 -- ## Classes
-local SYM,NUM,DATA,COLS,ROW,COL -----------------------------------------------
-local sym,num,data,seen
+local SYM,NUM,DATA,COL,COLS,ROW -----------------------------------------------
+local sym,num,data,col,seen
 
 -- ### ROW
 
-function ROW(t) return {ako="ROW",cells=t; cooked=copy(t)} end
+function ROW(t)
+  return {ako="ROW",cells=t; cooked=copy(t)} end
 
 -- ### SYM
-function SYM(at,txt) return {ako="SYM", at=at,txt=txt, seen={}} end
+function SYM(at,txt)
+  return {ako="SYM", at=at,txt=txt, seen={}} end
 
-function sym(sym1,x) 
+function sym(sym1,x)
   if x ~= "?" then sym1[x] = 1 + (sym1.seen[x] or 0) end end
 
 -- ### NUM
-function NUM(at,txt) 
+function NUM(at,txt)
   return {ako="NUM", at=at,txt=txt, seen={}, bad=false,
           heaven= txt:find"-$" and 0 or 1} end
 
 function num(num1,x) 
-  if x ~= "?" then num1.seen[1+#num1.seen] = x; num1.bad=true end end
+  if x ~= "?" then num1.seen[1+#(num1.seen)] = x; num1.bad=true end end
 
-<<<<<<< HEAD
 -- ### COL
 function col(col1,x) 
-  print(col1.ako == "SYM" and sym or num)
   (col1.ako == "SYM" and sym or num)(col1,x) end 
 
-=======
->>>>>>> 8a8473cbf9869585b924842ba0057b285a70ea61
 function seen(col1)
   if col1.bad then col1.bad=false; table.sort(col1.seen) end 
   return col1.seen end
@@ -208,10 +207,6 @@ function COLS(t,    col1,all,x,y)
 -- ### DATA
 function DATA(src,    data1) 
   data1 = {ako="DATA",rows={},cols=nil}
-<<<<<<< HEAD
-  print(type(src))
-=======
->>>>>>> 8a8473cbf9869585b924842ba0057b285a70ea61
   if   type(src)=="string" 
   then for t   in csv(src)         do data(data1, ROW(t)) end
   else for row in pairs(src or {}) do data(data1, row)    end 
@@ -219,11 +214,10 @@ function DATA(src,    data1)
   return data1 end
 
 function data(data1,row)
-<<<<<<< HEAD
-  print(1)
-  if data1.cols 
-  then for _,col1 in pairs(data1.cols.all) do col(col1, row[col1.at]) end
-       data1.rows[1+#data1.rows] = row
+  if   data1.cols 
+  then data1.rows[1 + #data1.rows] = row
+       for _,col1 in pairs(data1.cols.all) do 
+         (col1.ako == "SYM" and sym or num)(col1, row.cells[col1.at]) end
   else data1.cols = COLS(row.cells) end end
 
 -- ### Stats  
@@ -256,13 +250,6 @@ function stats(data1,  cols,fun,d,    t)
   for _,col1 in pairs(cols or data1.cols.y) do 
     t[col1.txt] = rnd((fun or mid)(col1),d or 2) end
   return t end
-=======
-  if   data1.cols 
-  then data1.rows[1+#data1.rows] = row
-       for _,col1 in pairs(data1.cols) do 
-         (col1.ako == "SYM" and sym or num)(col1,x) end
-  else data1.cols = COLS(row) end end
->>>>>>> 8a8473cbf9869585b924842ba0057b285a70ea61
 
 -- ### Nearby  
 local div, nearby  ------------------------------------------------------------
@@ -361,7 +348,7 @@ function eg.all(     n)
 function eg.the() oo(the) end
 
 function eg.data(   d)
-  oo(DATA(the.file))end
+  print(DATA(the.file).cols.y[1]) end
 
 --## MAIN 
 main()
