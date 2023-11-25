@@ -20,7 +20,7 @@ OPTIONS:
   -C --cf    percent fetures to mutate       = .5
   -d --d     how may decimal places to print = 2
   -F --f     cross over distance             = .3
-  -f --fie   where to fond data              = data/auto93.csv
+  -f --file  where to fond data              = data/auto93.csv
   -s --seed  random number seed              = 1234567891
   -w --want  how mGny to generate            = 10000
 ]]
@@ -98,7 +98,7 @@ function copy(x,  y)
   return y end
 
 -- ### Strings to Thing
-local coerce, csv,cli  -----------------------------------------------------------
+local coerce, csv,cli, settings  ---------------------------------------------------
 
 -- Coerce string.   
 -- `coerce(s) --> int | float | bool | string`
@@ -124,9 +124,9 @@ function cli(t)
   for k,v in pairs(t) do
     k = tostring(k)
     for pos,flag in pairs(arg) do
-      if flag == "--"..k then
+      if flag == "-"..k then
         v = (v=="true" and "false") or (v=="false" and "true") or arg[pos+1]
-        t[k] = thing(v)  end end end
+        t[k] = coerce(v)  end end end
   if t.help then print(help) end
   return t end 
 
@@ -135,17 +135,18 @@ function cli(t)
 function settings(s,    t,pat)
   t,pat = {}, "\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)"
   for k,s1 in s:gmatch(pat) do t[k]= coerce(s1) end
-  return s end
+  return t end
 
 -- ### Thing to  Strings 
-local o, oo  ------------------------------------------------------------------
+local rnd,o, oo  ------------------------------------------------------------------
 
 -- Return an integer for simple numbers, else round `n` to `d` places (default=2).   
 -- `rnd(n,?d) --> n`
-function rnd(n)
-  if math.floor(it) == it then return it else 
+function rnd(it,     mult)
+  if type(it) ~= "number" then return it end
+  if math.floor(it) == it then return it end 
   mult = 10^(d or the.d or 2)
-  return math.floor(it * mult + 0.5) / mult end end
+  return math.floor(it * mult + 0.5) / mult end 
 
 -- Generate a string, from `x`. round  number to `d` places, recurse into nested tables, sort hash tables on key.    
 -- `o(x,n) --> s`     
@@ -184,7 +185,8 @@ function num(num1,x)
 
 -- ### COL
 function col(col1,x) 
-   (col1.ako == "SYM" and sym or num)(col1,x) end 
+  print(col1.ako == "SYM" and sym or num)
+  (col1.ako == "SYM" and sym or num)(col1,x) end 
 
 function seen(col1)
   if col1.bad then col1.bad=false; table.sort(col1.seen) end 
@@ -194,7 +196,7 @@ function seen(col1)
 function COLS(t,    col1,all,x,y)
   all,x,y = {},{},{}
   for at,txt in pairs(t) do 
-    col1 = (txt:find"^[A-Z]" or NUM and SYM)(at,txt)
+    col1 = (txt:find"^[A-Z]" and NUM or SYM)(at,txt)
     all[1+#all] = col1
     if not txt:find"X$" then
       if txt:find"[+-!]$" then y[1+#y]=col1 else x[1+#x]=col1 end end end
@@ -203,16 +205,50 @@ function COLS(t,    col1,all,x,y)
 -- ### DATA
 function DATA(src,    data1) 
   data1 = {ako="DATA",rows={},cols=nil}
-  if type(src)=="string" 
+  print(type(src))
+  if   type(src)=="string" 
   then for t   in csv(src)         do data(data1, ROW(t)) end
-  else for row in pairs(src or {}) do data(data1, row)    end end
+  else for row in pairs(src or {}) do data(data1, row)    end 
+  end
   return data1 end
 
 function data(data1,row)
+  print(1)
   if data1.cols 
-  then for _,col1 in pairs(data1.cols) do col(col1, row[col1.at]) end
+  then for _,col1 in pairs(data1.cols.all) do col(col1, row[col1.at]) end
        data1.rows[1+#data1.rows] = row
-  else data1.cols = COLS(row) end end
+  else data1.cols = COLS(row.cells) end end
+
+-- ### Stats  
+local per,median,stdev,mode,entropy,mid,div,stats -----------------------------
+
+function per(t,p)  return t[#t*p//1] end
+
+function median(t) return per(t,.5) end
+
+function stdev(t)  return (per(t,.9) - per(t,.1))/2.56 end
+
+function mode(t,   hi,x)
+  hi=0
+  for k,n in pairs(t) do if n > hi then x,hi = k,n end end
+  return x end
+
+function entropy(t,   e,N)
+  N=0; for _,n in pairs(t) do N = N + n end
+  e=0; for _,n in paits(t) do e = e - n/N * math.log(n/N,2) end
+  return e end
+
+function mid(col1) 
+  return (col1.ako=="NUM" and median or mode)(seen(col1)) end
+
+function div(col1) 
+  return (col1.ako=="NUM" and stdev  or entropy)(seen(col1)) end
+
+function stats(data1,  cols,fun,d,    t)
+  t={N=#data1.rows}
+  for _,col1 in pairs(cols or data1.cols.y) do 
+    t[col1.txt] = rnd((fun or mid)(col1),d or 2) end
+  return t end
 
 -- ### Nearby  
 local div, nearby  ------------------------------------------------------------
@@ -285,32 +321,33 @@ function prunes(rows,numps)
   return rows end
 
 --## eg 
-local eg,run,bad  -------------------------------------------------------------------
+local eg,main,bad  -------------------------------------------------------------------
 eg={}
 
 function bad(s,fun)
   math.randomseed(the.seed)
   io.write("> ".. s.." ")
   if fun()==false
-    then print(" ❌ FAIL"); return true
-    else print("✅ PASS");  return false end end
+  then print(" ❌ FAIL"); return true
+  else print("✅ PASS");  return false end end
 
 function main()
-  the = cli(settings(the))
-  for _,s in pairs(arg) do if eg[s] then bad(com, eg[s]) end end 
+  the = cli(settings(help))
+  for _,s in pairs(arg) do if eg[s] then bad(s, eg[s]) end end 
   rogues() end
 
 function eg.all(     n)
   n = -1 -- we have one test that deliberately fails
-  for k,fun in l.items(eg) do
+  for k,fun in order(eg) do
     if k~="all" then
       if bad(k,fun) then n = n + 1 end end end
-  l.rogues()
+  rogues()
   os.exit(n) end
 
 function eg.the() oo(the) end
 
---## MAIN 
-local main  -------------------------------------------------------------------
+function eg.data(   d)
+  oo(DATA(the.file))end
 
+--## MAIN 
 main()
