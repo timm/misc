@@ -376,7 +376,7 @@ on the command line. Boolean flags do not head arguments
       <div class='octowrap'>
         <a class='octothorpe' href='#section-22'>#</a>
       </div>
-      <p>generate <code>it</code>&lsquo;s string, print <code>it</code>, return <code>it</code> <br />
+      <p>generate <code>it</code>&rsquo;s string, print <code>it</code>, return <code>it</code> <br />
 <code>oo(x,n) --&gt; [x]</code></p>
     </div>
     <div class='code'>
@@ -392,8 +392,8 @@ on the command line. Boolean flags do not head arguments
       <h2>Classes</h2>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="kd">local</span> <span class="n">ROW</span><span class="p">,</span><span class="n">SYM</span><span class="p">,</span><span class="n">NUM</span><span class="p">,</span><span class="n">COL</span><span class="p">,</span><span class="n">DATA</span><span class="p">,</span><span class="n">COLS</span> <span class="c1">-----------------------------------------------</span>
-<span class="kd">local</span>     <span class="n">sym</span><span class="p">,</span><span class="n">num</span><span class="p">,</span><span class="n">col</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">seen</span></pre></div>
+      <div class="highlight"><pre><span class="kd">local</span> <span class="n">SYM</span><span class="p">,</span><span class="n">NUM</span><span class="p">,</span><span class="n">DATA</span><span class="p">,</span><span class="n">COLS</span><span class="p">,</span><span class="n">ROW</span><span class="p">,</span><span class="n">COL</span> <span class="c1">-----------------------------------------------</span>
+<span class="kd">local</span> <span class="n">sym</span><span class="p">,</span><span class="n">num</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">seen</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -437,20 +437,7 @@ on the command line. Boolean flags do not head arguments
           <span class="n">heaven</span><span class="o">=</span> <span class="n">txt</span><span class="p">:</span><span class="n">find</span><span class="s2">&quot;-$&quot;</span> <span class="ow">and</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">}</span> <span class="kr">end</span>
 
 <span class="kr">function</span> <span class="nf">num</span><span class="p">(</span><span class="n">num1</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> 
-  <span class="kr">if</span> <span class="n">x</span> <span class="o">~=</span> <span class="s2">&quot;?&quot;</span> <span class="kr">then</span> <span class="n">num1</span><span class="p">.</span><span class="n">seen</span><span class="p">[</span><span class="mi">1</span><span class="o">+#</span><span class="n">num1</span><span class="p">.</span><span class="n">seen</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span> <span class="n">num1</span><span class="p">.</span><span class="n">bad</span><span class="o">=</span><span class="kc">true</span> <span class="kr">end</span> <span class="kr">end</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-27'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-27'>#</a>
-      </div>
-      <h3>COL</h3>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="kr">function</span> <span class="nf">col</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> 
-   <span class="p">(</span><span class="n">col1</span><span class="p">.</span><span class="n">ako</span> <span class="o">==</span> <span class="s2">&quot;SYM&quot;</span> <span class="ow">and</span> <span class="n">sym</span> <span class="ow">or</span> <span class="n">num</span><span class="p">)(</span><span class="n">col1</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> <span class="kr">end</span> 
+  <span class="kr">if</span> <span class="n">x</span> <span class="o">~=</span> <span class="s2">&quot;?&quot;</span> <span class="kr">then</span> <span class="n">num1</span><span class="p">.</span><span class="n">seen</span><span class="p">[</span><span class="mi">1</span><span class="o">+#</span><span class="n">num1</span><span class="p">.</span><span class="n">seen</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span> <span class="n">num1</span><span class="p">.</span><span class="n">bad</span><span class="o">=</span><span class="kc">true</span> <span class="kr">end</span> <span class="kr">end</span>
 
 <span class="kr">function</span> <span class="nf">seen</span><span class="p">(</span><span class="n">col1</span><span class="p">)</span>
   <span class="kr">if</span> <span class="n">col1</span><span class="p">.</span><span class="n">bad</span> <span class="kr">then</span> <span class="n">col1</span><span class="p">.</span><span class="n">bad</span><span class="o">=</span><span class="kc">false</span><span class="p">;</span> <span class="nb">table.sort</span><span class="p">(</span><span class="n">col1</span><span class="p">.</span><span class="n">seen</span><span class="p">)</span> <span class="kr">end</span> 
@@ -458,10 +445,10 @@ on the command line. Boolean flags do not head arguments
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-28'>
+  <div class='section' id='section-27'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-28'>#</a>
+        <a class='octothorpe' href='#section-27'>#</a>
       </div>
       <h3>COLS</h3>
     </div>
@@ -477,33 +464,35 @@ on the command line. Boolean flags do not head arguments
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-29'>
+  <div class='section' id='section-28'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-29'>#</a>
+        <a class='octothorpe' href='#section-28'>#</a>
       </div>
       <h3>DATA</h3>
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="kr">function</span> <span class="nf">DATA</span><span class="p">(</span><span class="n">src</span><span class="p">,</span>    <span class="n">data1</span><span class="p">)</span> 
   <span class="n">data1</span> <span class="o">=</span> <span class="p">{</span><span class="n">ako</span><span class="o">=</span><span class="s2">&quot;DATA&quot;</span><span class="p">,</span><span class="n">rows</span><span class="o">=</span><span class="p">{},</span><span class="n">cols</span><span class="o">=</span><span class="kc">nil</span><span class="p">}</span>
-  <span class="kr">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">==</span><span class="s2">&quot;string&quot;</span> 
+  <span class="kr">if</span>   <span class="nb">type</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">==</span><span class="s2">&quot;string&quot;</span> 
   <span class="kr">then</span> <span class="kr">for</span> <span class="n">t</span>   <span class="kr">in</span> <span class="n">csv</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>         <span class="kr">do</span> <span class="n">data</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">ROW</span><span class="p">(</span><span class="n">t</span><span class="p">))</span> <span class="kr">end</span>
-  <span class="kr">else</span> <span class="kr">for</span> <span class="n">row</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">src</span> <span class="ow">or</span> <span class="p">{})</span> <span class="kr">do</span> <span class="n">data</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>    <span class="kr">end</span> <span class="kr">end</span>
+  <span class="kr">else</span> <span class="kr">for</span> <span class="n">row</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">src</span> <span class="ow">or</span> <span class="p">{})</span> <span class="kr">do</span> <span class="n">data</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>    <span class="kr">end</span> 
+  <span class="kr">end</span>
   <span class="kr">return</span> <span class="n">data1</span> <span class="kr">end</span>
 
 <span class="kr">function</span> <span class="nf">data</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span><span class="n">row</span><span class="p">)</span>
-  <span class="kr">if</span> <span class="n">data1</span><span class="p">.</span><span class="n">cols</span> 
-  <span class="kr">then</span> <span class="kr">for</span> <span class="n">_</span><span class="p">,</span><span class="n">col1</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">data1</span><span class="p">.</span><span class="n">cols</span><span class="p">)</span> <span class="kr">do</span> <span class="n">col</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">col1</span><span class="p">.</span><span class="n">at</span><span class="p">])</span> <span class="kr">end</span>
-       <span class="n">data1</span><span class="p">.</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="o">+#</span><span class="n">data1</span><span class="p">.</span><span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span>
+  <span class="kr">if</span>   <span class="n">data1</span><span class="p">.</span><span class="n">cols</span> 
+  <span class="kr">then</span> <span class="n">data1</span><span class="p">.</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="o">+#</span><span class="n">data1</span><span class="p">.</span><span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span>
+       <span class="kr">for</span> <span class="n">_</span><span class="p">,</span><span class="n">col1</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">data1</span><span class="p">.</span><span class="n">cols</span><span class="p">)</span> <span class="kr">do</span> 
+         <span class="p">(</span><span class="n">col1</span><span class="p">.</span><span class="n">ako</span> <span class="o">==</span> <span class="s2">&quot;SYM&quot;</span> <span class="ow">and</span> <span class="n">sym</span> <span class="ow">or</span> <span class="n">num</span><span class="p">)(</span><span class="n">col1</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> <span class="kr">end</span>
   <span class="kr">else</span> <span class="n">data1</span><span class="p">.</span><span class="n">cols</span> <span class="o">=</span> <span class="n">COLS</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="kr">end</span> <span class="kr">end</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-30'>
+  <div class='section' id='section-29'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-30'>#</a>
+        <a class='octothorpe' href='#section-29'>#</a>
       </div>
       <h3>Nearby</h3>
     </div>
@@ -512,10 +501,10 @@ on the command line. Boolean flags do not head arguments
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-31'>
+  <div class='section' id='section-30'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-31'>#</a>
+        <a class='octothorpe' href='#section-30'>#</a>
       </div>
       <p>return sd of a sorted column (assumes not missing values). <br />
 <code>div( [x](x.html), n) --&gt; n</code></p>
@@ -526,10 +515,10 @@ on the command line. Boolean flags do not head arguments
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-32'>
+  <div class='section' id='section-31'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-32'>#</a>
+        <a class='octothorpe' href='#section-31'>#</a>
       </div>
       <p>find all rows nearby some randomly selected row. Returns two valyues marking
 the start and top of the selection range. For non-numerics, these two values are
@@ -547,10 +536,10 @@ the same.  <br />
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-33'>
+  <div class='section' id='section-32'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-33'>#</a>
+        <a class='octothorpe' href='#section-32'>#</a>
       </div>
       <h3>Grow</h3>
     </div>
@@ -559,10 +548,10 @@ the same.  <br />
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-34'>
+  <div class='section' id='section-33'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-34'>#</a>
+        <a class='octothorpe' href='#section-33'>#</a>
       </div>
       <p>Using Storn&rsquo;s DE interpolation.  <br />
 `grow( ts, [k=v]) &ndash;&gt; ts</p>
@@ -589,10 +578,10 @@ the same.  <br />
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-35'>
+  <div class='section' id='section-34'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-35'>#</a>
+        <a class='octothorpe' href='#section-34'>#</a>
       </div>
       <h3>Prune</h3>
     </div>
@@ -601,10 +590,10 @@ the same.  <br />
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-36'>
+  <div class='section' id='section-35'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-36'>#</a>
+        <a class='octothorpe' href='#section-35'>#</a>
       </div>
       <p>Prune rows that are not nearby.  <br />
 <code>`print( [x](x.html),n,bool)</code></p>
@@ -619,10 +608,10 @@ the same.  <br />
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-37'>
+  <div class='section' id='section-36'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-37'>#</a>
+        <a class='octothorpe' href='#section-36'>#</a>
       </div>
       <p>Explore features in random order. <br />
 <code>`featureOrdering(  [x](x.html)) --&gt;  [x](x.html)</code></p>
@@ -634,10 +623,10 @@ the same.  <br />
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-38'>
+  <div class='section' id='section-37'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-38'>#</a>
+        <a class='octothorpe' href='#section-37'>#</a>
       </div>
       <p>Prune on each feature  <br />
 <code>`print(  [x](x.html)],[k=x]) --&gt;  [x](x.html)</code></p>
@@ -651,10 +640,10 @@ the same.  <br />
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-39'>
+  <div class='section' id='section-38'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-39'>#</a>
+        <a class='octothorpe' href='#section-38'>#</a>
       </div>
       <h2>eg</h2>
     </div>
@@ -686,10 +675,10 @@ the same.  <br />
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-40'>
+  <div class='section' id='section-39'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-40'>#</a>
+        <a class='octothorpe' href='#section-39'>#</a>
       </div>
       <h2>MAIN</h2>
     </div>
