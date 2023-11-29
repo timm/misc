@@ -1,0 +1,150 @@
+        - using Parameters
+        - using Random
+        - #using BenchmarkTools
+        - 
+        - @with_kw mutable struct Config
+        -   char = (skip='?',less='>',more='<',num='$',klass='!')
+        -   str  = (skip="?",)
+        -   some = (max=32,)
+        -   div  = (few=1024,divs=16, cohen=0.3, trivial=1.05)
+        -   seed = 1
+        - 	w    = 1
+        -   name = "" end
+        - 
+        - 
+        - #Config(at,txt) = w=match(r'-$,txt)==nothing ? - 1 : 1; Config(w=100)
+        - # Config(at=0,txt="aaa") = begin w=match(r"-$",txt)==nothing ? -1 : 1
+        - # 	                             Config(some=at,w=w,name=txt) end
+        - #											 
+        - 															 
+        2 Config(at=0,txt="aaa")= Config(
+        -                         some=at,w=match(r"-$",txt)==nothing ? 1 : -1 ,name=txt) 
+        -  
+        - the=Config()
+        - Random.seed!(the.seed)
+        -   
+        - same(s) = s
+  2262960 int(x)  = floor(Int,x)
+    40960 any(a)  = a[ int(length(a) * rand()) + 1]
+       80 many(a,n=the.divs.few) = length(a) < n  ? a : [any(a)  for _ in 1:n]
+        -  
+        - function say(i)
+        -   s,pre="$(typeof(i)){",""
+        -   for f in sort!([x for x in fieldnames(typeof(i)) if !("$x"[1] == '_')])
+        -     g = getfield(i,f)
+        -     s = s * pre * "$f=$g" 
+        -     pre=", " end
+        -   print(s * "}") end
+        - 
+        - @with_kw mutable struct Num  
+        -   pos=0; txt=""; w=1; n=0; lo=10^32; hi=-1*10^32; mu=0; m2=0; sd=nothing  end
+        - 	
+        - @with_kw mutable struct Some 
+        -   pos=0; txt=""; w=1; n=0; _all=[]; max=the.some.max; stale=false  end
+        - 	
+        - @with_kw mutable struct Sym  
+        -   os=0; txt=""; w=1; n=0; seen=Dict();  mode=nothing; ent=nothing   end 
+        - 
+     8146 incs!(i,inits)      = begin [inc!(i,x) for x in inits]; i end
+        - nump(s,c=the.char)  = c.less in s || c.more in s || c.num in s
+        - goalp(s,c=the.char) = c.less in s || c.more in s || c.klass in s
+        - 
+        - function col(txt,pos)
+        -    x = nump(txt) ? Num : Sym
+        -    x(txt=txt, pos=pos, w= the.char.less in txt ? -1 : 1) end
+        - 
+        - function all(i::Some)
+        -   if i.stale 
+        - 		i._all = sort(i._all) end
+        -   i.stale=false
+        -   i._all end
+        - 
+   477016 function inc!(i,x)
+   477016   if x != the.char.skip
+   477016     i.n += 1
+   477016     inc1!(i,x) end
+   477016   x end
+        - 
+        - function inc1!(i::Some, x)
+        -   m = length(i._all)
+        -   if m < i.max
+        -     i.stale=true
+        -     push!(i._all,x)
+        -   elseif rand() < m/i.n
+        -     i.stale=true
+        -     i._all[ int(m*rand()) + 1 ] = x end end
+        - 
+     4073 function var(i::Num)
+     4073   if     i.m2 < 0  0 
+     4073   elseif i.n  < 2  0 
+     4073   else   (i.m2 / (i.n - 1 + 10^-32))^0.5  end end
+        - 
+   477016 function inc1!(i::Num,x)
+   477016   i.lo  = min(i.lo, x)
+   477016   i.hi  = max(i.hi, x)
+   477016   d     = x - i.mu
+   477016   i.mu += d / i.n
+   477016   i.m2 += d * (x - i.mu) end
+        - 
+       80 function div(lst, x, y)
+      160   function chop(a)
+       80     m = length(a)
+       80     tmp, out, n = [], [], m / the.div.divs
+       80     last=nothing
+      160     for (i,one) in enumerate(a)
+    81013       if length(tmp)>=n && m - i > n && x(one) != x(last) 
+     4856         if x(one) - x(tmp[1]) > eps
+      772           push!(out, tmp)
+      772           tmp = [] end end
+    62960       push!(tmp,one)
+   188800       last = one end
+      160     if length(tmp) > 0 push!(out,tmp) end
+       80     out end
+        -   #----------------
+      261   function merge(a)
+      181     tmp, out, j, m = [], [], 1, length(a)
+     1622     while j <= m
+     1441       one = a[j]
+     1441       if j < m
+     1331         two       = a[j+1]
+     1331         three     = [ one ; two ]
+     1331         n1, n2, n3= length(one), length(two), length(three)
+     1331         sd1,sd2,sd3= sd(one,y), sd(two,y), sd(three,y)
+     1331         sd12      = n1/n3*sd1 + n2/n3*sd2
+     2484         if abs(sd1 - sd2) < 0.01 || sd12*the.div.trivial >sd3
+      191           one = three
+      191 	  j += 1 end end
+     1441       push!(tmp,one)
+     2882       j += 1 end
+      181     return length(tmp) < length(a) ? merge(tmp) : a end
+        -   #---------------------------------
+       80   lst        = many(lst,the.div.few)
+       80   lst        = sort([z for z in lst if x(z) != the.str.skip], by=x)
+     4153   sd(a,f=x)  = var(incs!(Num(), [f(z) for z in a]))
+       80   mid(a,f=x) = f( a[ int(length(a)/2) ] )
+       80   eps        = the.div.cohen * sd(lst,x)
+       80   merge(chop(lst)) end
+        - 
+       80 function main(top)  
+  8443449   two(r) = if r<0.2 0 elseif r<0.4 1 elseif r<0.6 0 elseif r<0.8 1 else 0 end
+  2222080   one(r) = [int(100*r), two(r)]
+       80   lst = sort([rand() for _ in 1:top])
+       80   lst = [one(r) for r in lst]
+  1186121   first(z)  = z[1] 
+   414136   second(z) = z[2]
+      741   for (i,one) in enumerate(div(lst,first,second))  true end #println(i," ",length(one)," ", one[1]," ",last(one)) end 
+        -   end
+        - 
+        - main1() = for _ in 1:10; print(any([1,2,3])) end
+        - 
+       41 println(2); for _ in 1:20 main(10^2) end
+       41 println(3); for _ in 1:20 main(10^3) end
+       41 println(4); for _ in 1:20 main(10^4) end
+       41 println(5);  for _ in 1:20 main(10^5) end
+        - 
+        - # try
+        - #   println("\n--| ",int(time() % 1000)," |----------------")
+        - #   main()
+        - # catch e
+        - #    showerror(stdout, e, catch_backtrace()[1:10])
+        - # end
