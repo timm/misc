@@ -34,7 +34,7 @@ function l.div(col1)
 
 -- ## Many Cols ---------------------------------------------
 function l.COLS(t,     cols1,t)
-  cols1= {x={}, y={}, names=t, all=lib.map(t, l.COL)} 
+  cols1= {x={}, y={}, names=t, all=lib.kap(t, l.COL)} 
   for col1 in pairs(cols1.all) do
     if not col1.txt:find"X$" then
       t = col1.txt:find"[+-!]" and cols1.y or cols1.x

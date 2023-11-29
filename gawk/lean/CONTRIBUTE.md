@@ -14,6 +14,9 @@
 - Examples, tests are stored inside `eg`.  Before running an `eg` we reset the random number seed, and cache the current setttings.
   - After running an example, to undo any actions isnde the example, we reset the settings from that cache.
   - See `lib.try`. 
+- Functions that return functions are usually iterators; i.e. things that LUA can call in a for-loop; e.g. `for x in fun() do`.
+  Iterators keep track of some internal state and each time they are called, they return the next item. The loop
+  terminates when the iterator returns nil. E.g. see `lib.items()` that returns a list in sorted key order.
 
 ## Data standards
 - My csv files have a row one cntaining column names
