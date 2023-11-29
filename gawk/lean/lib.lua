@@ -2,7 +2,7 @@ local l={}
 local b4={}; for k,_ in pairs(_ENV) do  b4[k]=k end
 
 -- ## stats ----------------------------------------------------------
-function l.per(t,b)  return t[(#tn)//1] end
+function l.per(t,n)  return t[(#t*n)//1] end
 function l.median(t) return l.per(t, .5) end
 function l.stdev(t)  return (l.per(t, .9) - l.per(t,.1))/2.56 end
 
@@ -37,7 +37,7 @@ function l.copy(t,    u)
 
 function l.items(t,fun,    u,i)
   u={}; for k,_ in pairs(t) do u[1+#u]=k end
-  table.sort(k,fun)
+  table.sort(t,fun)
   i=0
   return function()
     if i<#u then i=i+1; return t[u[i]] end end end 
@@ -45,7 +45,7 @@ function l.items(t,fun,    u,i)
 -- ## maths string ----------------------------------------------------------
 function l.rnd(n, decs) --> num. return `n` rounded to `nPlaces`
   if type(n) ~= "number" then return n end
-  if math.floor(n) == it then return n end 
+  if math.floor(n) == n then return n end 
   local mult = 10^(decs or 3)
   return math.floor(n * mult + 0.5) / mult end
 
@@ -55,10 +55,10 @@ l.fmt = string.format
 function l.oo(x,  decs) print(l.o(x,decs)); return x end
 
 function l.o(x,  decs,       kv, u)
-  function kv(k,v) return fmt(":%s %s",k,l.o(v,decs)) end
+  function kv(k,v) return l.fmt(":%s %s",k,l.o(v,decs)) end
   if type(x) == "number" then return tostring(l.rnd(x,decs)) end
   if type(x) ~= "table"  then return tostring(x) end
-  u = #x==0 and sort(kap(x, kv)) or map(x, l.o, decs) 
+  u = #x==0 and l.sort(l.kap(x, kv)) or l.map(x, l.o, decs) 
   return "{"..table.concat(u,", ").."}" end 
 
 -- ## from string --------------------------------------------------------
@@ -66,7 +66,7 @@ function l.coerce(s,    fun)
   function fun(s) return s=="true" or (s~="false" and s) end
   return math.tointeger(s) or tonumber(s) or fun(s:match'^%s*(.*%S)') end
 
-function l.csv(sFilename,   src)
+function l.csv(sFilename,   src,n)
   n,src = -1,io.input(sFilename)
   return function(    s,t)
     s = io.read()
@@ -107,14 +107,14 @@ function l.try(s, settings,fun,       b4,oops)
 function l.run(settings,eg)
   l.cli(settings)
   for _,com in pairs(arg) do 
-    if eg[com] then try(com, settings, eg[com]) end end 
+    if eg[com] then l.try(com, settings, eg[com]) end end 
   l.rogues() end
 
 function l.runall(settings, eg,      oops)
   oops = -1 -- we have one test that deliberately fails
   for k,fun in l.items(eg) do
     if k~="all" then 
-      if try(k,settings,fun) then oops = oops + 1 end end end
+      if l.try(k,settings,fun) then oops = oops + 1 end end end
   l.rogues()
   os.exit(oops) end
 

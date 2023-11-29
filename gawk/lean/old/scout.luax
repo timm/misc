@@ -143,10 +143,10 @@ local rnd,o, oo  ---------------------------------------------------------------
 
 -- Return an integer for simple numbers, else round `n` to `d` places (default=2).   
 -- `rnd(n,?d) --> n`
-function rnd(it,     mult)
+function rnd(it,decs,     mult)
   if type(it) ~= "number" then return it end
-  if math.floor(it) == it then return it end 
-  mult = 10^(d or the.d or 2)
+  if math.floor(it) == it then return it end
+  mult = 10^(decs or the.d or 2)
   return math.floor(it * mult + 0.5) / mult end 
 
 -- Generate a string, from `x`. round  number to `d` places, recurse into nested tables, sort hash tables on key.    
@@ -236,7 +236,7 @@ function mode(t,   hi,x)
 
 function entropy(t,   e,N)
   N=0; for _,n in pairs(t) do N = N + n end
-  e=0; for _,n in paits(t) do e = e - n/N * math.log(n/N,2) end
+  e=0; for _,n in pairs(t) do e = e - n/N * math.log(n/N,2) end
   return e end
 
 function mid(col1) 
