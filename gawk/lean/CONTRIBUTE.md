@@ -1,7 +1,6 @@
 # Contribute
 
 ## Coding standards
-
 - Try to keep functions 5 lines long, or less
 - Avoid globals. Module locals are kept inside `l`.
 - Constructor functions are written in UPPER CASE; e.g. DATA
@@ -19,3 +18,6 @@
 ### Function arguments
 - Function arguments proceeded by two spaces are optional.
 - Function arguments proceeded by four spaces are local variables
+
+## Common idioms
+- `t[ 1 + #t ]=x` means push `x` to the end of the list (fyi: `#t` returns the size of the list `t`)
