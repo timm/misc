@@ -1,5 +1,5 @@
 saved:
-	git add *; git commit -am saved; git push
+	git add *; git commit -am saved; git push; git status
 
 docs/%.html : %.lua
 	mkdir -p docs
