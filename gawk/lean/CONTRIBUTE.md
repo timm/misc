@@ -8,11 +8,12 @@
   - so the `data` function updates `DATA` instances
 - Create strings representing an  instance `x` using `lib.o(x)` (and print that string using `lib.oo(x)`).
 - Control settings are parsed from a docstring at the top of file (see `lib.settings`)
+  - Settings need to contain at least `help=false` and `seed=1234567891`
   - Control settings can be optionally updated from the command line (see `lib.cli` )
-    - See `lib.run`.   
+    - See `lib.run`.  
 - Examples, tests are stored inside `eg`.  Before running an `eg` we reset the random number seed, and cache the current setttings.
   - After running an example, to undo any actions isnde the example, we reset the settings from that cache.
-  - See `lib.try`.   
+  - See `lib.try`. 
 
 ## Data standards
 - My csv files have a row one cntaining column names

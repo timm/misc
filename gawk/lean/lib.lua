@@ -63,11 +63,13 @@ function l.o(x,  decs,       kv, u)
 
 -- ## from string --------------------------------------------------------
 function l.coerce(s,    fun)
-  function fun(s) return s=="true" or (s~="false" and s) end
+  function fun(s) 
+    if   s=="nil" then return nil 
+    else return s=="true" or (s~="false" and s) end end
   return math.tointeger(s) or tonumber(s) or fun(s:match'^%s*(.*%S)') end
 
-function l.csv(sFilename,   src,n)
-  n,src = -1,io.input(sFilename)
+function l.csv(src,   n)
+  n,src = -1,io.input(src)
   return function(    s,t)
     s = io.read()
     if   s
