@@ -3,3 +3,7 @@ l() {
   shift
   lua $f.lua "$@"
 }
+
+e() {
+  "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" -r $*
+}
