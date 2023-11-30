@@ -27,11 +27,11 @@ function l.has(col1)
   if col1.unsorted then table.sort(col1.has); col1.unsorted=false end
   return col1.has end
 
-function l.mid(col1) 
+function l.mid(col1)
   return (col1.isSym and stats.mode or stats.median)(l.has(col1)) end
 
-function l.div(col1) 
-  return (col1.isSym and stats.entropy or stats.stdev)(l.has(col1)) end
+function l.div(col1)
+  return (col1.isSym and stats.entropy or stats.spread)(l.has(col1)) end
 
 -- ## Many Cols ---------------------------------------------
 function l.COLS(t,     cols1,t)
