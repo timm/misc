@@ -25,7 +25,7 @@ function l.items(t,fun,    u,i)
   table.sort(t,fun)
   i=0
   return function()
-    if i<#u then i=i+1; return t[u[i]] end end end 
+    if i<#u then i=i+1; return u[i], t[u[i]] end end end 
 
 -- ## maths string ----------------------------------------------------------
 function l.rnd(n, decs) --> num. return `n` rounded to `nPlaces`
@@ -100,7 +100,8 @@ function l.run(settings,eg)
 
 function l.runall(settings, eg,      oops)
   oops = -1 -- we have one test that deliberately fails
-  for k,fun in l.items(eg) do
+    for k, fun in l.items(eg) do
+    print("\n"..k)
     if k~="all" then 
       if l.try(k,settings,fun) then oops = oops + 1 end end end
   l.rogues()

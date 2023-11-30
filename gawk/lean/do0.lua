@@ -8,14 +8,15 @@ USAGE:
   l app101 [OPTIONS]
 
 OPTIONS:
-  -f --file  data file               = -
+  -f --file  data file               = data/auto93.csv
   -h --help  show help text          = false
   -s --seed  set random number seed  = 1234567891]]
 
 local eg, oo = {}, lib.oo
 
 function eg.the() oo(the) end
-function eg.csv() for _,t in lib.csv(the.file) do oo(t) end end
+function eg.csv() for _, t in lib.csv(the.file) do oo(t) end end
+function eg.all() lib.runall(the,eg) end
 
 deliberateMistake=1
 lib.run(the,eg)

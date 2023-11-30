@@ -1,4 +1,5 @@
-l = require"lib"
+local lib = require"lib"
+local l   = {}
 
 function l.per(t,n)  return t[(#t*n)//1] end
 function l.median(t) return l.per(t, .5) end
