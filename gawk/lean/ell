@@ -1,0 +1,5 @@
+l() {
+  f=$1
+  shift
+  lua $f.lua "$@"
+}

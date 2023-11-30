@@ -22,10 +22,10 @@ function l.rogues()
 
 -- ## lists ----------------------------------------------------------
 function l.map(t,fun,...)
-  local u={}; for k,v in pairs(t) do u[k] = fun(v,...) end; return u end
+  local u={}; for k,v in pairs(t) do u[1+#u] = fun(v,...) end; return u end
 
 function l.kap(t,fun,...)
-  local u={}; for k,v in pairs(t) do u[k] = fun(k,v,...) end; return u end
+  local u={}; for k,v in pairs(t) do u[1+#u] = fun(k,v,...) end; return u end
 
 function l.sort(t,fun) table.sort(t,fun); return t end
 
@@ -55,10 +55,10 @@ l.fmt = string.format
 function l.oo(x,  decs) print(l.o(x,decs)); return x end
 
 function l.o(x,  decs,       kv, u)
-  function kv(k,v) return l.fmt(":%s %s",k,l.o(v,decs)) end
+  function kv(k, v) if not k:find"^_" then return l.fmt(":%s %s", k, l.o(v, decs)) end end
   if type(x) == "number" then return tostring(l.rnd(x,decs)) end
-  if type(x) ~= "table"  then return tostring(x) end
-  u = #x==0 and l.sort(l.kap(x, kv)) or l.map(x, l.o, decs) 
+  if type(x) ~= "table" then return tostring(x) end
+  u = #x == 0 and l.sort(l.kap(x, kv)) or l.map(x, l.o, decs)
   return "{"..table.concat(u,", ").."}" end 
 
 -- ## from string --------------------------------------------------------
@@ -68,8 +68,9 @@ function l.coerce(s,    fun)
     else return s=="true" or (s~="false" and s) end end
   return math.tointeger(s) or tonumber(s) or fun(s:match'^%s*(.*%S)') end
 
-function l.csv(src,   n)
-  n,src = -1,io.input(src)
+function l.csv(src,  n)
+  if src=="-" then src=nil end
+  n, src = -1, io.input(src)
   return function(    s,t)
     s = io.read()
     if   s
@@ -92,13 +93,13 @@ function l.cli(t)
       if x=="-"..(k:sub(1,1)) or x=="--"..k then
         v= ((v=="false" and "true") or (v=="true" and "false") or arg[n+1])
         t[k] = l.coerce(v) end end end
-  if t.help then os.exit(print(t._help)) end
+  if t.help then os.exit(print("\n"..t._help)) end
   return t end
 
 -- ## tests and demos ---------------------------------------
 function l.try(s, settings,fun,       b4,oops)
   b4 = l.copy(settings)
-  math.randomseed(settings.seed or 1234567890)
+  math.randomseed(settings.seed or 1234567891)
   io.write("🔷 ".. s.." ")
   oops= fun()==false 
   for k,v in pairs(b4) do settings[k]= v end
