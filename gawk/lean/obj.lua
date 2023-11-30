@@ -1,4 +1,5 @@
-local lib=require"lib"
+local lib   = require"lib"
+local stats = require"stats"
 local l={}
 
 -- ## One Col ---------------------------------------------
@@ -27,10 +28,10 @@ function l.has(col1)
   return col1.has end
 
 function l.mid(col1) 
-  return (col1.isSym and lib.mode or lib.median)(l.has(col1)) end
+  return (col1.isSym and stats.mode or stats.median)(l.has(col1)) end
 
 function l.div(col1) 
-  return (col1.isSym and lib.entropy or lib.stdev)(l.has(col1)) end
+  return (col1.isSym and stats.entropy or stats.stdev)(l.has(col1)) end
 
 -- ## Many Cols ---------------------------------------------
 function l.COLS(t,     cols1,t)

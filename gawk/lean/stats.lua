@@ -1,8 +1,18 @@
-l=require"lib"
+l = require"lib"
 
--- for n,t in l.csv() do
---   if   n=0 
---   then header = map(t,l.COL) 
---   else map(header,function(col1) l.col(col1,t[col1.at]) end)
+function l.per(t,n)  return t[(#t*n)//1] end
+function l.median(t) return l.per(t, .5) end
+function l.stdev(t)  return (l.per(t, .9) - l.per(t,.1))/2.56 end
 
--- for n,t
+function l.entropy(t, e, N)
+  e,N = 0,0
+  for _,n in pairs(t) do N = N + n end
+  for _,n in pairs(t) do e = e - n/N*math.log(n/N,2) end
+  return e end
+
+function l.mode(t, most, mode)
+    most = 0
+    for k, v in pairs(t) do if v > most then mode, most = k, v end end
+    return mode end
+
+return l

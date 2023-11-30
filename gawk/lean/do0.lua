@@ -1,7 +1,7 @@
 #!/usr/bin/env lua
 local lib = require "lib"
 local the = lib.settings[[
-APP: example app
+do1: example app
 (c) 2023 Tim Menzies, BSD-2
 
 USAGE:
@@ -17,4 +17,5 @@ local eg, oo = {}, lib.oo
 function eg.the() oo(the) end
 function eg.csv() for _,t in lib.csv(the.file) do oo(t) end end
 
+x=1
 lib.run(the,eg)
