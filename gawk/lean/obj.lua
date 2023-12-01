@@ -7,11 +7,11 @@ function l.COL(n,s)
   return ((s or ""):find"^[A-Z]" and l.NUM or l.SYM)(n,s) end
 
 function l.SYM(n,s)
-    return {at=n, txt=s,  
-            isSym=true, has={},ok=false}  end
+  return {at=n, txt=s, isIgnored = (s or ""):find"X$",
+          isSym=true, has={},ok=false } end
 
 function l.NUM(n,s) 
-  return {at=n, txt=s,  
+  return {at=n, txt=s, isIgnored = (s or ""):find"X$",
           has={}, isSorted=false,
           heaven = (s or ""):find"-$" and 0 or 1} end
 
@@ -33,12 +33,12 @@ function l.div(col1)
   return (col1.isSym and stats.entropy or stats.spread)(l.has(col1)) end
 
 -- ## Many Cols ---------------------------------------------
-function l.COLS(t,      cols1)
-  cols1= {x={}, y={}, names=t, all=lib.kap(t, l.COL)} 
-  for at, col1 in pairs(cols1.all) do
-      if not col1.txt:find "X$" then
-          (col1.txt:find "[-!+]$" and cols1.y or cols1.x)[at]=col1 end end
-  return cols1 end
+function l.COLS(t,      x,y,all)
+  x, y, all = {}, {}, lib.kap(t, l.COL) 
+  for at, col1 in pairs(all) do
+    if not col1.isIgnored then
+      (col1.txt:find "[-!+]$" and y or x)[at]=col1 end end
+  return {names=t, x=x, y=y, all=all} end
 
 function l.cols(cols1, t)
   for _, col1 in pairs(cols1.all) do
@@ -48,8 +48,8 @@ function l.cols(cols1, t)
 function l.DATA(s_or_ts,    data1)
   data1 = {rows={},cols=nil}
   if   type(s_or_ts)=="string"
-	then for _,t  in lib.csv(s_or_ts) do l.data(data1,t) end
-	else for _,t in pairs(s_or_ts)    do l.data(data1,t) end end
+	then for _,t in lib.csv(s_or_ts) do l.data(data1,t) end
+	else for _,t in pairs(s_or_ts)   do l.data(data1,t) end end
 	return data1 end
 
 function l.data(data1, t)

@@ -2,26 +2,27 @@ local l={}
 local b4={}; for k,_ in pairs(_ENV) do  b4[k]=k end
 
 -- ## lint ----------------------------------------------------------
-function l.rogues()
+function l.rogues() --> nil
   for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
 
 -- ## lists ----------------------------------------------------------
-function l.map(t,fun,...)
+function l.map(t,fun,...) --> t
   local u={}; for k,v in pairs(t) do u[1+#u] = fun(v,...) end; return u end
 
-function l.kap(t,fun,...)
+function l.kap(t,fun,...) --> t
     local u = {}; for k, v in pairs(t) do
                     u[1+#u] = fun(k,v,...) end; return u end
 
-function l.sort(t,fun) table.sort(t,fun); return t end
+function l.sort(t,  fun) --> t
+  table.sort(t,fun); return t end
 
-function l.copy(t,    u)
+function l.copy(t,    u) --> any
   if type(t) ~= "table" then return t end
   u={}; setmetatable(u, getmetatable(t))
   for k,v in pairs(t) do u[l.copy(k)] = l.copy(v) end
   return u end
 
-function l.items(t,fun,    u,i)
+function l.items(t,fun,    u,i) --> fun --> (k,any)
   u={}; for k,_ in pairs(t) do u[1+#u]=k end
   table.sort(t,fun)
   i=0
@@ -38,9 +39,10 @@ function l.rnd(n, ndecs) --> num. return `n` rounded to `nPlaces`
 -- ## to string ----------------------------------------------------------
 l.fmt = string.format
 
-function l.oo(any,  ndecs) print(l.o(any,decs)); return x end
+function l.oo(any,  ndecs) --> any
+  print(l.o(any,decs)); return any end
 
-function l.o(any,  ndecs,       fun, u)
+function l.o(any,  ndecs,       fun, u) --> s
   function fun(k, v)
     k = tostring(k)
     if not k:find "^_" then
@@ -51,13 +53,13 @@ function l.o(any,  ndecs,       fun, u)
   return "{"..table.concat(u,", ").."}" end 
 
 -- ## from string --------------------------------------------------------
-function l.coerce(s,    fun)
+function l.coerce(s,    fun) --> string | bool | float | int | nil
   function fun(s) 
     if   s=="nil" then return nil 
     else return s=="true" or (s~="false" and s) end end
   return math.tointeger(s) or tonumber(s) or fun(s:match'^%s*(.*%S)') end
 
-function l.csv(s,  n,src)
+function l.csv(s,  n,src) --> fun --> (num,t)
   if s=="-" then s=nil end
   n, src = -1, io.input(s)
   return function(    s,t)
@@ -69,13 +71,13 @@ function l.csv(s,  n,src)
     else io.close(src) end end end
 
 -- ## settings -----------------------------------------------
-function l.settings(s,    t,pat)
+function l.settings(s,    t,pat) --> t
   t={_help=s}
   pat = "\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)"
   for k,s1 in s:gmatch(pat) do t[k]= l.coerce(s1) end
   return t end
 
-function l.cli(t)
+function l.cli(t) --> t
   for k,v in pairs(t) do
     v = tostring(v)
     for n,x in ipairs(arg) do
@@ -86,7 +88,7 @@ function l.cli(t)
   return t end
 
 -- ## tests and demos ---------------------------------------
-function l.try(s, tsettings,fun,       b4,oops)
+function l.try(s, tsettings,fun,       b4,oops) --> bool
   b4 = l.copy(tsettings)
   math.randomseed(tsettings.seed or 1234567891)
   io.write("🔷 ".. s.." ")
@@ -96,13 +98,13 @@ function l.try(s, tsettings,fun,       b4,oops)
   then print(" ❌ FAIL"); return true
   else print("✅ PASS");  return false end  end
 
-function l.run(tsettings,funs)
+function l.run(tsettings,funs) --> nil
   l.cli(tsettings)
   for _,com in pairs(arg) do 
     if funs[com] then l.try(com, tsettings, funs[com]) end end 
   l.rogues() end
 
-function l.runall(tsettings, funs,      oops)
+function l.runall(tsettings, funs,      oops) --> nil
   oops = -1 -- we have one test that deliberately fails
     for k, fun in l.items(funs) do
     print("\n"..k)
