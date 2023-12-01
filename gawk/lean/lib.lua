@@ -10,7 +10,8 @@ function l.map(t,fun,...)
   local u={}; for k,v in pairs(t) do u[1+#u] = fun(v,...) end; return u end
 
 function l.kap(t,fun,...)
-  local u={}; for k,v in pairs(t) do u[1+#u] = fun(k,v,...) end; return u end
+    local u = {}; for k, v in pairs(t) do
+                    u[1+#u] = fun(k,v,...) end; return u end
 
 function l.sort(t,fun) table.sort(t,fun); return t end
 
@@ -40,7 +41,10 @@ l.fmt = string.format
 function l.oo(x,  decs) print(l.o(x,decs)); return x end
 
 function l.o(x,  decs,       kv, u)
-  function kv(k, v) if not k:find"^_" then return l.fmt(":%s %s", k, l.o(v, decs)) end end
+  function kv(k, v)
+    k = tostring(k)
+    if not k:find "^_" then
+      return l.fmt(":%s %s", k, l.o(v, decs)) end end
   if type(x) == "number" then return tostring(l.rnd(x,decs)) end
   if type(x) ~= "table" then return tostring(x) end
   u = #x == 0 and l.sort(l.kap(x, kv)) or l.map(x, l.o, decs)
