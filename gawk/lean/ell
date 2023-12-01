@@ -7,3 +7,5 @@ l() {
 e() {
   "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"  $*
 }
+
+command_not_found_handle() { l "$@"; }

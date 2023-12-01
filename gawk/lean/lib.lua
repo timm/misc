@@ -29,25 +29,25 @@ function l.items(t,fun,    u,i)
     if i<#u then i=i+1; return u[i], t[u[i]] end end end 
 
 -- ## maths string ----------------------------------------------------------
-function l.rnd(n, decs) --> num. return `n` rounded to `nPlaces`
+function l.rnd(n, ndecs) --> num. return `n` rounded to `nPlaces`
   if type(n) ~= "number" then return n end
   if math.floor(n) == n  then return n end
-  local mult = 10^(decs or 3)
+  local mult = 10^(ndecs or 3)
   return math.floor(n * mult + 0.5) / mult end
 
 -- ## to string ----------------------------------------------------------
 l.fmt = string.format
 
-function l.oo(x,  decs) print(l.o(x,decs)); return x end
+function l.oo(any,  ndecs) print(l.o(any,decs)); return x end
 
-function l.o(x,  decs,       kv, u)
-  function kv(k, v)
+function l.o(any,  ndecs,       fun, u)
+  function fun(k, v)
     k = tostring(k)
     if not k:find "^_" then
-      return l.fmt(":%s %s", k, l.o(v, decs)) end end
-  if type(x) == "number" then return tostring(l.rnd(x,decs)) end
-  if type(x) ~= "table" then return tostring(x) end
-  u = #x == 0 and l.sort(l.kap(x, kv)) or l.map(x, l.o, decs)
+      return l.fmt(":%s %s", k, l.o(v, ndecs)) end end
+  if type(any) == "number" then return tostring(l.rnd(any,decs)) end
+  if type(any) ~= "table" then return tostring(any) end
+  u = #any == 0 and l.sort(l.kap(any, fun)) or l.map(any, l.o, decs)
   return "{"..table.concat(u,", ").."}" end 
 
 -- ## from string --------------------------------------------------------
@@ -57,14 +57,14 @@ function l.coerce(s,    fun)
     else return s=="true" or (s~="false" and s) end end
   return math.tointeger(s) or tonumber(s) or fun(s:match'^%s*(.*%S)') end
 
-function l.csv(src,  n)
-  if src=="-" then src=nil end
-  n, src = -1, io.input(src)
+function l.csv(s,  n,src)
+  if s=="-" then s=nil end
+  n, src = -1, io.input(s)
   return function(    s,t)
-    s = io.read()
-    if   s
+    s1 = io.read()
+    if   s1
     then n=n+1
-         t={}; for s1 in s:gmatch("([^,]+)") do t[1+#t]=l.coerce(s1) end
+         t={}; for s2 in s1:gmatch("([^,]+)") do t[1+#t]=l.coerce(s2) end
          return n,t
     else io.close(src) end end end
 
@@ -86,28 +86,28 @@ function l.cli(t)
   return t end
 
 -- ## tests and demos ---------------------------------------
-function l.try(s, settings,fun,       b4,oops)
-  b4 = l.copy(settings)
-  math.randomseed(settings.seed or 1234567891)
+function l.try(s, tsettings,fun,       b4,oops)
+  b4 = l.copy(tsettings)
+  math.randomseed(tsettings.seed or 1234567891)
   io.write("🔷 ".. s.." ")
   oops= fun()==false 
-  for k,v in pairs(b4) do settings[k]= v end
+  for k,v in pairs(b4) do tsettings[k]= v end
   if   oops
   then print(" ❌ FAIL"); return true
   else print("✅ PASS");  return false end  end
 
-function l.run(settings,eg)
-  l.cli(settings)
+function l.run(tsettings,funs)
+  l.cli(tsettings)
   for _,com in pairs(arg) do 
-    if eg[com] then l.try(com, settings, eg[com]) end end 
+    if funs[com] then l.try(com, tsettings, funs[com]) end end 
   l.rogues() end
 
-function l.runall(settings, eg,      oops)
+function l.runall(tsettings, funs,      oops)
   oops = -1 -- we have one test that deliberately fails
-    for k, fun in l.items(eg) do
+    for k, fun in l.items(funs) do
     print("\n"..k)
     if k~="all" then 
-      if l.try(k,settings,fun) then oops = oops + 1 end end end
+      if l.try(k,tsettings,fun) then oops = oops + 1 end end end
   l.rogues()
   os.exit(oops) end
 

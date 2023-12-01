@@ -32,8 +32,11 @@
 - Constructor names are used for variable names as type hint
   - But don't use the raw name, add (e.g.) a number
   - For example `data1` is an instance of type `DATA`.
+- `any` is anything at all.
 - `t` denotes a table of anything at all
 - `n` is usually for a number
+- `s` (prefix) is a strong
+- `xs` (postfix) is a list of x; eg `ns` is a list of numbers and `ts` is a list of lists.
 - `isX` is for booleans
 - `u` us usually some temporary generated from `t`.
 
