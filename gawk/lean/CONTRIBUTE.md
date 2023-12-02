@@ -17,6 +17,7 @@
 - Functions that return functions are usually iterators; i.e. things that LUA can call in a for-loop; e.g. `for x in fun() do`.
   Iterators keep track of some internal state and each time they are called, they return the next item. The loop
   terminates when the iterator returns nil. E.g. see `lib.items()` that returns a list in sorted key order.
+- No lonley ends. If a line only contains "end", consider appending it to the line above.
 
 ## Data standards
 - My csv files have a row one cntaining column names

@@ -16,7 +16,7 @@ local eg, oo = {}, lib.oo
 
 function eg.the() oo(the) end
 function eg.csv() for _, t in lib.csv(the.file) do oo(t) end end
-function eg.all() lib.runall(the,eg) end
+function eg.all() lib.runall(the,eg) end 
 
 deliberateMistake=1
 lib.run(the,eg)
