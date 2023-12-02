@@ -29,6 +29,16 @@ function l.items(t,fun,    u,i) --> fun --> (k,any)
   return function()
     if i<#u then i=i+1; return u[i], t[u[i]] end end end 
 
+function l.report(ts, nwidth)
+  s = "%"..(nwidth or 4).."s"
+  function v(k1,v1) return fmt(s,v1) end
+  function k(k1,v1) return fmt(s,k1) end
+  print(table.concat(kap(ts[1],k),", "))
+  for k,t in pairs(ts) do print(table.contact(kap(t,v))..fmt(s,k)) end end
+  
+function l.asList(t,    u) --> t
+  u={}; for k,v in pairs(t) do u[1+#u] = v end; return v end
+
 -- ## maths string ----------------------------------------------------------
 function l.rnd(n, ndecs) --> num. return `n` rounded to `nPlaces`
   if type(n) ~= "number" then return n end

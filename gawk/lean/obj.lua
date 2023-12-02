@@ -33,12 +33,13 @@ function l.div(col1) --> n
   return (col1.isSym and stats.entropy or stats.spread)(l.has(col1)) end
 
 -- ## Many Cols ---------------------------------------------
-function l.COLS(t,      x,y,all) --> COLS
+function l.COLS(t,      x,y,all,klass) --> COLS
   x, y, all = {}, {}, lib.kap(t, l.COL) 
   for at, col1 in pairs(all) do
     if not col1.isIgnored then
+      if col1.txt:find"!$" then klass=col1 end
       (col1.txt:find "[-!+]$" and y or x)[at]=col1 end end
-  return {names=t, x=x, y=y, all=all} end
+  return {klass=klass, names=t, x=x, y=y, all=all} end
 
 function l.cols(cols1, t) --> nil
   for _, col1 in pairs(cols1.all) do
@@ -65,8 +66,8 @@ function l.stats(data1, fun,ndecs,cols1,     t) --> t[s=n]
     return t end
 
 function l.clone(data1,  ts,     data2) --> DATA
-  data2 = DATA({data1.col.names})
-  for _,t in pairs(ts or {}) do  data(data2,t) end 
+  data2 = l.DATA({data1.cols.names})
+  for _,t in pairs(ts or {}) do l.data(data2,t) end 
   return data2 end
 
 return l
