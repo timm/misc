@@ -7,16 +7,17 @@ function l.COL(n,s) --> NUM or SYM
   return ((s or ""):find"^[A-Z]" and l.NUM or l.SYM)(n,s) end
 
 function l.SYM(n,s) --> SYM
-  return {at=n, txt=s, isIgnored = (s or ""):find"X$",
+  return {at=n, txt=s, n=0, isIgnored = (s or ""):find"X$",
           isSym=true, has={},ok=false } end
 
 function l.NUM(n,s) --> NUM
-  return {at=n, txt=s, isIgnored = (s or ""):find"X$",
+  return {at=n, txt=s, n=0, isIgnored = (s or ""):find"X$",
           has={}, isSorted=false,
           heaven = (s or ""):find"-$" and 0 or 1} end
 
 function l.col(col1,any,     t) --> nil 
   if any ~= "?" then
+    col.n = col.n + 1
     t = col1.has 
     if   col1.isSym
     then t[any] = 1+(t[any] or 0) 
@@ -70,4 +71,35 @@ function l.clone(data1,  ts,     data2) --> DATA
   for _,t in pairs(ts or {}) do l.data(data2,t) end 
   return data2 end
 
+-- ## Bayesian stuff -----------------------------------------
+function likesMost(t,datas,n,h,     most,tmp,out)
+  most = -1E30 
+  for k,data in pairs(datas) do
+    tmp = self:like(data,n,h)
+    if tmp > most then out,most = k,tmp end end
+  return out,most end
+
+function likes(t,data,n,h,       prior,out,col,b,inc)
+  prior = (#data.rows + the.k) / (n + the.k * h)
+  out   = math.log(prior)
+  for at,v in pairs(self.cells) do
+    col = data.cols.x[at]
+    if col and v ~= "?" then
+      b   = col:bin(v)
+      inc = ((col.has[b] or 0) + the.m*prior)/(col.n+the.m)
+      out = out + math.log(inc) end end
+  return out end
+
+function like(col,any,prior)
+  if col.isSym
+   return ((col.has[any] or 0) + the.m*prior)/(self.n+the.m) end
+
+function NUM:like(v,_,     nom,denom)
+  if v > self.mu + 4*self.sd then return 0 end
+  if v < self.mu - 4*self.sd then return 0 end
+  nom   = math.exp(-.5*((v - self.mu)/self.sd)^2)
+  denom = (self.sd*((2*math.pi)^0.5))
+  return nom/denom end
+
+--------------------------------------------------------
 return l

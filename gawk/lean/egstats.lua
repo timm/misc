@@ -32,11 +32,10 @@ function eg.datas(data1,   datas,rows1,all,k,mids,divs)
   mids={}
   divs={}
   for k,data1 in pairs(datas) do 
-    mids[k] = obj.stats(data1, data1.cols.x,obj.mid) 
-    divs[k] = obj.stats(data1, data1.cols.x,obj.div,2) end
-  lib.report(mids,"\nmid",8) 
-  lib.report(divs,"\nspread",8) 
-  end
+    mids[k] = obj.stats(data1, data1.cols.x, obj.mid) 
+    divs[k] = obj.stats(data1, data1.cols.x, obj.div,2) end
+  lib.report(mids,"\nmid"   ,8) 
+  lib.report(divs,"\nspread",8) end
 
 -- ## main ---------------------------------------------------
 lib.run(the,eg)
