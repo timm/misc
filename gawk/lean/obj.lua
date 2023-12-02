@@ -8,30 +8,35 @@ function l.COL(n,s) --> NUM or SYM
 
 function l.SYM(n,s) --> SYM
   return {at=n, txt=s, n=0, isIgnored = (s or ""):find"X$",
-          isSym=true, has={},ok=false } end
+          has={}, most=0, mode=nil,
+          isSym=true, } end
 
 function l.NUM(n,s) --> NUM
   return {at=n, txt=s, n=0, isIgnored = (s or ""):find"X$",
-          has={}, isSorted=false,
+          mu=0, m2=0, sd=0,
           heaven = (s or ""):find"-$" and 0 or 1} end
 
-function l.col(col1,any,     t) --> nil 
+function l.col(col1,any,     t,sym,num) --> nil 
+  function sym(t)
+    t[any] = 1 + (t[any] + 0)
+    if t[any] > col1.most then
+      coll1.most, col1.mode = t[any], any end 
+  end -----------------
+  function num(     d)
+    d       = any - col1.mu
+    col1.mu = col1.mu + d/col1.n)
+    col1.m2 = col.m2 + d*(any - col1.mu) 
+    if col1.n>1 then col1.sd =  (col1.m2/(col1.n-1))^.5 end 
+  end ---------------
   if any ~= "?" then
-    col.n = col.n + 1
-    t = col1.has 
-    if   col1.isSym
-    then t[any] = 1+(t[any] or 0) 
-    else t[1+#t]=any; col1.isSorted=false end end end
-
-function l.has(col1) --> any
-  if not (col1.isSym or col1.isSorted) then table.sort(col1.has); col1.isSorted=true end
-  return col1.has end
+     col1.n = col1.n + 1
+     col1.isSym and sym(col1.has) or num() end end
 
 function l.mid(col1) --> any
-  return (col1.isSym and stats.mode or stats.median)(l.has(col1)) end
+  return col1.isSym and col1.mode or col1.mu end
 
 function l.div(col1) --> n
-  return (col1.isSym and stats.entropy or stats.spread)(l.has(col1)) end
+  return col1.isSym and stats.entropy(col1.has) or col1.sd end
 
 -- ## Many Cols ---------------------------------------------
 function l.COLS(t,      x,y,all,klass) --> COLS

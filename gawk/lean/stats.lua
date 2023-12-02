@@ -1,34 +1,11 @@
 local lib = require"lib"
 local l   = {}
 
-function l.per(t,n)  --> any
-  return t[(#t*n)//1] end
-
-function l.median(t) --> any
-  return l.per(t, .5) end
-
-function l.spread(t) --> any
-  return (l.per(t, .9) - l.per(t, .1)) / 2.56 end
-
-function l.stdev(t,    n,d,mu,m2)  --> n
-  n,mu,m2=0,0,0
-  for _,x in pairs(t) do
-    n  = n + 1
-    d  = x - mu
-    mu = mu + d/n
-    m2 = m2 + d*(x - mu) end
-  return (m2/(n-1))^.5 end
-
 function l.entropy(t,    e,N) --> n
   e,N = 0,0
   for _,n in pairs(t) do N = N + n end
   for _,n in pairs(t) do e = e - n/N*math.log(n/N,2) end
   return e end
-
-function l.mode(t,      most, mode) --> any
-  most = 0
-  for k, v in pairs(t) do if v > most then mode, most = k, v end end
-  return mode end
 
 -- ## Classifier performance stats ---------------------------------------------
 function l.ABCD(klass, b4)
