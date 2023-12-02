@@ -1,11 +1,7 @@
-l() {
+eg() {
   f=$1
   shift
-  lua $f.lua "$@"
+  lua eg$f.lua "$@"
 }
 
-e() {
-  "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"  $*
-}
-
-command_not_found_handle() { l "$@"; }
+command_not_found_handle() { eg "$@"; }

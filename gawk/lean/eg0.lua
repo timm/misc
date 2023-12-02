@@ -1,11 +1,11 @@
 #!/usr/bin/env lua
 local lib = require "lib"
 local the = lib.settings[[
-do1: example app
+eg0: example app
 (c) 2023 Tim Menzies, BSD-2
 
 USAGE:
-  l app101 [OPTIONS]
+  eg 0 [OPTIONS]
 
 OPTIONS:
   -f --file  data file               = data/auto93.csv

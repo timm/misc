@@ -59,7 +59,7 @@ function l.data(data1, t) --> nil
        data1.rows[ 1+#data1.rows ] = t
   else data1.cols = l.COLS(t) end end
 
-function l.stats(data1, fun,ndecs,cols1,     t) --> t[s=n]
+function l.stats(data1, cols1,fun,ndecs,     t) --> t[s=n]
     t = { N = #data1.rows }
     for _, col1 in pairs(cols1 or data1.cols.y) do
         t[col1.txt] = lib.rnd((fun or l.mid)(col1), ndecs) end

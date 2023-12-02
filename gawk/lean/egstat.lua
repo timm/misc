@@ -4,11 +4,11 @@ local obj   = require"obj"
 local stats = require"stats"
 
 local the   = lib.settings[[
-dostat: count stats over all data
+egstat: count stats over all data
 (c) 2023 Tim Menzies, BSD-2
 
 USAGE:
-  lua dostat.lua [OPTIONS]
+  eg stat [OPTIONS]
 
 OPTIONS:
   -f --file  data file               = data/diabetes.csv
@@ -34,6 +34,9 @@ function eg.num(     num1,m,d)
   m, d = obj.mid(num1), obj.div(num1)
   print(m,d, stats.stdev(obj.has(num1)))
   return 50 == m and m < 51 and 29 < d and d < 32 end
+
+function eg.csv() 
+  for _,t in lib.csv(the.file) do oo(t) end end 
 
 function eg.data(data1)
   oo(obj.stats(DATA(the.file))) end

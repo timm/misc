@@ -29,12 +29,18 @@ function l.items(t,fun,    u,i) --> fun --> (k,any)
   return function()
     if i<#u then i=i+1; return u[i], t[u[i]] end end end 
 
-function l.report(ts, nwidth)
+function l.report(ts,header,nwidth,    order,out,s,keys)
+  if header then print(header) end
   s = "%"..(nwidth or 4).."s"
-  function v(k1,v1) return fmt(s,v1) end
-  function k(k1,v1) return fmt(s,k1) end
-  print(table.concat(kap(ts[1],k),", "))
-  for k,t in pairs(ts) do print(table.contact(kap(t,v))..fmt(s,k)) end end
+  function out(x) io.write(l.fmt(s,x)) end
+  function order(     u)  
+    for _,t in pairs(ts) do 
+      u={}; for k,_ in pairs(t) do u[1+#u]=k end
+            return l.sort(u) end end
+  keys = order()
+  out""; for _,k in pairs(keys) do out(k) end; print""
+  for k1,t in l.items(ts) do 
+    out(k1); for _,k2 in pairs(keys) do out(t[k2]) end; print"" end end 
   
 function l.asList(t,    u) --> t
   u={}; for k,v in pairs(t) do u[1+#u] = v end; return v end
