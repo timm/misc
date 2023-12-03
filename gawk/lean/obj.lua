@@ -1,3 +1,4 @@
+--<!-- vim: set syntax=lua ts=2 sw=2 et : -->
 local lib   = require"lib"
 local stats = require"stats"
 local l={}
@@ -20,17 +21,17 @@ function l.col(col1,any,     t,sym,num) --> nil
   function sym(t)
     t[any] = 1 + (t[any] + 0)
     if t[any] > col1.most then
-      coll1.most, col1.mode = t[any], any end 
+      col1.most, col1.mode = t[any], any end 
   end -----------------
   function num(     d)
     d       = any - col1.mu
-    col1.mu = col1.mu + d/col1.n)
-    col1.m2 = col.m2 + d*(any - col1.mu) 
+    col1.mu = col1.mu + d/col1.n
+    col1.m2 = col1.m2 + d*(any - col1.mu) 
     if col1.n>1 then col1.sd =  (col1.m2/(col1.n-1))^.5 end 
   end ---------------
   if any ~= "?" then
      col1.n = col1.n + 1
-     col1.isSym and sym(col1.has) or num() end end
+     if col1.isSym then sym(col1.has) else num() end end end
 
 function l.mid(col1) --> any
   return col1.isSym and col1.mode or col1.mu end
@@ -75,36 +76,6 @@ function l.clone(data1,  ts,     data2) --> DATA
   data2 = l.DATA({data1.cols.names})
   for _,t in pairs(ts or {}) do l.data(data2,t) end 
   return data2 end
-
--- ## Bayesian stuff -----------------------------------------
-function likesMost(t,datas,n,h,     most,tmp,out)
-  most = -1E30 
-  for k,data in pairs(datas) do
-    tmp = self:like(data,n,h)
-    if tmp > most then out,most = k,tmp end end
-  return out,most end
-
-function likes(t,data,n,h,       prior,out,col,b,inc)
-  prior = (#data.rows + the.k) / (n + the.k * h)
-  out   = math.log(prior)
-  for at,v in pairs(self.cells) do
-    col = data.cols.x[at]
-    if col and v ~= "?" then
-      b   = col:bin(v)
-      inc = ((col.has[b] or 0) + the.m*prior)/(col.n+the.m)
-      out = out + math.log(inc) end end
-  return out end
-
-function like(col,any,prior)
-  if col.isSym
-   return ((col.has[any] or 0) + the.m*prior)/(self.n+the.m) end
-
-function NUM:like(v,_,     nom,denom)
-  if v > self.mu + 4*self.sd then return 0 end
-  if v < self.mu - 4*self.sd then return 0 end
-  nom   = math.exp(-.5*((v - self.mu)/self.sd)^2)
-  denom = (self.sd*((2*math.pi)^0.5))
-  return nom/denom end
 
 --------------------------------------------------------
 return l

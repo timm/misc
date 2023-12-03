@@ -1,3 +1,4 @@
+--<!-- vim: set syntax=lua ts=2 sw=2 et : -->
 local l={}
 local b4={}; for k,_ in pairs(_ENV) do  b4[k]=k end
 
@@ -41,9 +42,9 @@ function l.report(ts,header,nwidth,    order,out,s,keys)
   out""; for _,k in pairs(keys) do out(k) end; print""
   for k1,t in l.items(ts) do 
     out(k1); for _,k2 in pairs(keys) do out(t[k2]) end; print"" end end 
-  
+
 function l.asList(t,    u) --> t
-  u={}; for k,v in pairs(t) do u[1+#u] = v end; return v end
+  u={}; for k,v in pairs(t) do u[1+#u] = v end; return u end
 
 -- ## maths string ----------------------------------------------------------
 function l.rnd(n, ndecs) --> num. return `n` rounded to `nPlaces`
@@ -56,16 +57,16 @@ function l.rnd(n, ndecs) --> num. return `n` rounded to `nPlaces`
 l.fmt = string.format
 
 function l.oo(any,  ndecs) --> any
-  print(l.o(any,decs)); return any end
+  print(l.o(any,ndecs)); return any end
 
 function l.o(any,  ndecs,       fun, u) --> s
   function fun(k, v)
     k = tostring(k)
     if not k:find "^_" then
       return l.fmt(":%s %s", k, l.o(v, ndecs)) end end
-  if type(any) == "number" then return tostring(l.rnd(any,decs)) end
+  if type(any) == "number" then return tostring(l.rnd(any,ndecs)) end
   if type(any) ~= "table" then return tostring(any) end
-  u = #any == 0 and l.sort(l.kap(any, fun)) or l.map(any, l.o, decs)
+  u = #any == 0 and l.sort(l.kap(any, fun)) or l.map(any, l.o, ndecs)
   return "{"..table.concat(u,", ").."}" end 
 
 -- ## from string --------------------------------------------------------
