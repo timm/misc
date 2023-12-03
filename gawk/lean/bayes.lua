@@ -3,7 +3,7 @@ local l={}
 
 
 -- How much does a column like one value `any`?
-function l.like(col1,any,prior,    nom.denom)
+function l.like(col1,any,prior,    nom,denom)
   if col1.isSym then
     return ((col1.has[any] or 0) + the.m*prior)/(col1.n+the.m) 
   else
@@ -14,12 +14,12 @@ function l.like(col1,any,prior,    nom.denom)
     return nom/(denom  + 1E-30) end end
 
 -- How much does a `data` like the row `rowt`?
-function l.likes(rowt,data,n,h,       prior,out,col,inc)
+function l.likes(rowt,data,n,h,       prior,out,col1,inc)
   prior = (#data.rows + the.k) / (n + the.k * h)
   out   = math.log(prior)
   for at,v in pairs(rowt) do
-    col = data.cols.x[at]
-    if col and v ~= "?" then
+    col1 = data.cols.x[at]
+    if col1 and v ~= "?" then
       inc = l.like(col1,v,prior)
       out = out + math.log(inc) end end
   return out end

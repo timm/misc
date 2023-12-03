@@ -1,7 +1,6 @@
 #!/usr/bin/env lua
 local lib   = require"lib"
-local obj   = require"obj" 
-local stats = require"stats"
+local obj   = require"obj"
 
 local the   = lib.settings[[
 egstat: count stats over all data
@@ -11,35 +10,40 @@ USAGE:
   eg stat [OPTIONS]
 
 OPTIONS:
-  -f --file  data file               = data/diabetes.csv
+  -f --file  data file               = data/auto93.csv
   -h --help  show help text          = false
   -s --seed  set random number seed  = 1234567891]]
 
 -- ## Names ---------------------------------------------------
-local col, SYM, NUM, DATA = obj.col, obj.SYM, obj.NUM, obj.DATA
-local oo,mid,div          = lib.oo,  obj.mid, obj.div
+local SYM, NUM, DATA       = obj.SYM, obj.NUM, obj.DATA
+local csv,o,oo,run,runall  = lib.csv, lib.o, lib.oo,lib.run,lib.runall
+local col, div, mid, stats = obj.col, obj.div, obj.mid,obj.stats
 
 -- ## Examples -------------------------------------------------
-local eg={}
+local eg  = {}
+function eg.fail() return false end
+
 function eg.sym(      sym1,m,d)
   sym1 = SYM()
-  for _,x in pairs{1,1,1,1,2,2,3} do obj.col(sym1,x) end
-  m,d = obj.mid(sym1), obj.div(sym1)
+  for _,x in pairs{1,1,1,1,2,2,3} do col(sym1,x) end
+  m,d = mid(sym1), div(sym1)
   print(m,d)
   return 1== m and 1.37 <  d and d < 1.38 end
 
 function eg.num(     num1,m,d)
   num1 = NUM()
-  for i=1,100 do obj.col(num1, i) end
-  m, d = obj.mid(num1), obj.div(num1)
-  print(m,d, stats.stdev(obj.has(num1)))
-  return 50 == m and m < 51 and 29 < d and d < 32 end
+  for i=1,100 do col(num1, i) end
+  m, d = mid(num1), div(num1)
+  print(m,d)
+  return 50 < m and m < 51 and 29 < d and d < 30 end
 
-function eg.csv() 
-  for _,t in lib.csv(the.file) do oo(t) end end 
+function eg.csv()
+  print""
+  for n,t in csv(the.file) do if (n% 75) ==0 then oo(t) end end end
 
 function eg.data(data1)
-  oo(obj.stats(DATA(the.file))) end
+  oo(stats(DATA(the.file),"y",mid,2)) end
+
 
 -- ## main ---------------------------------------------------
-lib.run(the,eg)
+run(the,eg)

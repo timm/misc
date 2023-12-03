@@ -25,7 +25,7 @@ function l.copy(t,    u) --> any
 
 function l.items(t,fun,    u,i) --> fun --> (k,any)
   u={}; for k,_ in pairs(t) do u[1+#u]=k end
-  table.sort(t,fun)
+  table.sort(u,fun)
   i=0
   return function()
     if i<#u then i=i+1; return u[i], t[u[i]] end end end 
@@ -117,17 +117,19 @@ function l.try(s, tsettings,fun,       b4,oops) --> bool
 
 function l.run(tsettings,funs) --> nil
   l.cli(tsettings)
-  for _,com in pairs(arg) do 
-    if funs[com] then l.try(com, tsettings, funs[com]) end end 
+  for _, com in pairs(arg) do
+    if com=="all" then return l.runall(tsettings,funs) end
+    if funs[com]  then l.try(com, tsettings, funs[com]) end end 
   l.rogues() end
 
 function l.runall(tsettings, funs,      oops) --> nil
   oops = -1 -- we have one test that deliberately fails
-    for k, fun in l.items(funs) do
+  for k, fun in l.items(funs) do
     print("\n"..k)
     if k~="all" then 
       if l.try(k,tsettings,fun) then oops = oops + 1 end end end
   l.rogues()
+  print(oops==0 and "✅ PASS ALL" or " ❌ FAIL "..oops)
   os.exit(oops) end
 
 return l

@@ -17,13 +17,14 @@ function l.NUM(n,s) --> NUM
           mu=0, m2=0, sd=0,
           heaven = (s or ""):find"-$" and 0 or 1} end
 
-function l.col(col1,any,     t,sym,num) --> nil 
+function l.col(col1, any, t, sym, num)  --> nil
   function sym(t)
-    t[any] = 1 + (t[any] + 0)
+    t[any] = 1 + (t[any] or 0)
     if t[any] > col1.most then
       col1.most, col1.mode = t[any], any end 
   end -----------------
-  function num(     d)
+  function num(d)
+    -- datagenetics.com/blog/november22017/index.html xplains this:
     d       = any - col1.mu
     col1.mu = col1.mu + d/col1.n
     col1.m2 = col1.m2 + d*(any - col1.mu) 
@@ -68,7 +69,7 @@ function l.data(data1, t) --> nil
 
 function l.stats(data1, cols1,fun,ndecs,     t) --> t[s=n]
     t = { N = #data1.rows }
-    for _, col1 in pairs(cols1 or data1.cols.y) do
+    for _, col1 in pairs(data1.cols[cols1 or "y"]) do
         t[col1.txt] = lib.rnd((fun or l.mid)(col1), ndecs) end
     return t end
 
