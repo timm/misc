@@ -1,10 +1,17 @@
-@include "lib" 
+# globals:  
+@include "lib"
 
-BEGIN{ BINS = 5
+BEGIN{ #GLOBALS
+       BINS = 5
        MIN = .5
-       FS = OFS = "," }
-     { row()  }
-END  { main() }
+       FS = OFS = ","
+       # Col = contents of numeric columns
+       # Data= all rows and columns
+       # Cuts= splits for data
+      }
+      { row() }
+END   { main()
+        rogues() }
 
 function row(     i,num) {
   for(i=1;i<=NF;i++) $i=trim($i)
@@ -14,28 +21,24 @@ function row(     i,num) {
       if ($i ~ /^[A-Z]/) num[i] 
   } else {
     for(i=1;i<=NF;i++)
-      if (i in num) Seen[i][NR] = ($i+=0)
+      if (i in num) Col[i][NR] = ($i+=0)
      Data[NR][i] = $i }}
 
-function main(     i) {
-  for(i in Seen) {
-    bins(i,Seen[i]) }
-  rogues() }
-
-function bins(col,a,    max,jump,small,i,lo,x,b) {
-   max   = asort(a,b)
+function main(          i,max,jump,small,j,lo,x) {   
+  for(i in Col) {
+   max   = asort(Col[i],a)
    jump  = int(max/BINS)
-   small = D*sd(b)
-   i     = jump 
-   lo    = b[1]
-   while(i < max) {
-     x = b[i]
-     if ((x != b[i+1]) && (x - lo) > small) {
-       Cuts[col][x] = x
+   small = D*sd(a)
+   j     = jump 
+   lo    = a[1]
+   while(j < max) {
+     x = a[j]
+     if ((x != a[j+1]) && (x - lo) > small) {
+       Cuts[j][x] = x
        lo  = x
-       i  += jump }
+       j  += jump }
      else
-       i++ }}
+       j++ }}
  
 
      
