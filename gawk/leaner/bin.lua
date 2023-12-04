@@ -46,15 +46,15 @@ function l.bin(x,cuts,   out)
   for k=2, #cuts do
     below=cuts[k-1]
     top=cuts[k]
-    if x > below and x <= top then return top end end end 
+    if x >= below and x <= top then return top end end end 
 
 function l.main(      data1)
   the = lib.cli(the)
-  data1 = l.DATA(the.file) 
+  data1 = l.DATA(the.file)
   for _,t in pairs(data1.rows) do
-
     for k,xcuts1 in pairs(data1.xcuts) do
       t[k] = l.bin(t[k], xcuts1) end 
-    lib.cat(t) end end
+    print(lib.cat(t)) end 
+  end
 
 l.main()
