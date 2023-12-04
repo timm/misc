@@ -1,29 +1,48 @@
 local l={}
 
-function l.per(t,p) return t[(p*#t)//1] end
-function l.mid(t)   return l.per(t,.5) end
-function l.div(t)   return (l.per(t,.9) - l.per(t,.1))/2.56 end
-
-function l.push(t,x) t[1+#t]=x; return x end
-
-function l.cat(t,     u)
-  u={}; for k,v in pairs(t) do u[k]=tostring(v) end
-  return table.concat(u,", ") end
-
-function l.map(t,fun,...) --> t
-  local u={};  for k,v in pairs(t) do u[1+#u] = fun(v,...) end; return u end
-
-function l.kap(t,fun,...) --> t
-  local u = {}; for k, v in pairs(t) do
-                  u[1+#u] = fun(k,v,...) end; return u end
-
-l.fmt = string.format
-
+-- ## numbers
 function l.rnd(n, ndecs)  
   if type(n) ~= "number" then return n end
   if math.floor(n) == n  then return n end
   local mult = 10^(ndecs or 3)
   return math.floor(n * mult + 0.5) / mult end
+
+-- ## lists
+function l.push(t,x) t[1+#t]=x; return x end
+
+function l.sort(t,  fun) --> t
+  table.sort(t,fun); return t end
+
+
+function l.per(t,p) return t[(p*#t)//1] end
+function l.mid(t)   return l.per(t,.5) end
+function l.div(t)   return (l.per(t,.9) - l.per(t,.1))/2.56 end
+
+function l.defaults(t, defaults)
+  t = t or {}
+  for k,v in pairs(defaults) do
+    if t[k] == nil then t[k] = v end end 
+  return t end
+
+function l.map(t,fun,...) --> t
+  local u={};  for k,v in pairs(t) do u[1+#u] = fun(v,...) end; return u end
+
+function l.kap(t,fun,...)  
+  local u = {}; for k, v in pairs(t) do
+                    u[1+#u] = fun(k,v,...) end; return u end
+
+function l.items(t,fun,    u,i)  
+  u={}; for k,_ in pairs(t) do u[1+#u]=k end
+  table.sort(u,fun)
+  i=0
+  return function()
+    if i<#u then i=i+1; return u[i], t[u[i]] end end end
+
+-- ## thing to string
+l.fmt = string.format
+
+function l.cat(t)
+  return table.concat(l.map(t,tostring),", ") end
 
 function l.oo(any,  ndecs)  
   print(l.o(any,ndecs)); return any end
@@ -38,9 +57,7 @@ function l.o(any,  ndecs,     fun, u)
   u = #any == 0 and l.sort(l.kap(any, fun)) or l.map(any, l.o, ndecs)
   return "{"..table.concat(u,", ").."}" end 
 
-function l.sort(t,  fun) --> t
-  table.sort(t,fun); return t end
-
+-- ## string to thing
 function l.coerce(s,    fun)
   function fun(s)
     if s=="nil" then return nil
@@ -51,14 +68,11 @@ function l.cells(s1,    t)
   t={}; for s2 in s1:gmatch("([^,]+)") do t[1+#t]=l.coerce(s2) end; 
   return t end
 
-function l.csv(src,fun,    line,nr)
+function l.csv(src)
   src =  src=="" and io.input() or io.input(src)
-  nr,line = -1,io.read()
-  while line do
-    nr=nr+1
-    fun(nr,line)
-    line = io.read() end
-  io.close(src) end
+  return function(   line)
+    line = io.read()
+    if line then return l.cells(line) else io.close(src) end end end
 
 function l.cli(t) 
   for k,v in pairs(t) do
