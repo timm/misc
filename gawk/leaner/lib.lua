@@ -1,3 +1,4 @@
+-- [home](index.html) :: [lib](lib.html)
 local l={}
 
 -- ## numbers
@@ -13,11 +14,15 @@ function l.push(t,x) t[1+#t]=x; return x end
 function l.sort(t,  fun) --> t
   table.sort(t,fun); return t end
 
+function l.per(t,p)   return t[(p*#t)//1] end
+function l.median(t)  return l.per(t,.5) end
+function l.stdev(t)   return (l.per(t,.9) - l.per(t,.1))/2.56 end
 
-function l.per(t,p) return t[(p*#t)//1] end
-function l.mid(t)   return l.per(t,.5) end
-function l.div(t)   return (l.per(t,.9) - l.per(t,.1))/2.56 end
-
+function l.entropy(t,    e,n) 
+  e,n=0,0
+  for _,v in pairs(t) do n= n + v end
+  for _,v in pairs(t) do e= e - v/n * math.log(v/n,2) end
+  return e end
 function l.defaults(t, defaults)
   t = t or {}
   for k,v in pairs(defaults) do
@@ -37,6 +42,18 @@ function l.items(t,fun,    u,i)
   i=0
   return function()
     if i<#u then i=i+1; return u[i], t[u[i]] end end end
+
+function l.report(ts, header, nwidth, u, say)
+    print(header)
+    function say(x) io.write(l.fmt("%" .. (nwidth or 4) .. "s", x)) end
+    u = {}
+    for _, t in pairs(ts) do
+      for k, _ in pairs(t) do u[1 + #u] = k end  
+      table.sort(u)
+      say ""; for _, k in pairs(u) do say(k) end; print ""
+      for k1, t in l.items(ts) do
+        say(k1); for _, k2 in pairs(u) do say(t[k2]) end; print "" end
+      return 1 end end
 
 -- ## thing to string
 l.fmt = string.format
@@ -74,6 +91,13 @@ function l.csv(src)
     line = io.read()
     if line then return l.cells(line) else io.close(src) end end end
 
+function l.settings(s,    t,pat)
+  t={}
+  pat = "\n[%s]+[-][%S][%s]+[-][-]([%S]+)[^\n]+= ([%S]+)"
+  for k, s1 in s:gmatch(pat) do t[k] = l.make(s1) end
+  t._help = s
+  return t,s end
+
 function l.cli(t) 
   for k,v in pairs(t) do
     v = tostring(v)
@@ -81,6 +105,7 @@ function l.cli(t)
       if x=="-"..(k:sub(1,1)) or x=="--"..k then
         v= ((v=="false" and "true") or (v=="true" and "false") or arg[n+1])
         t[k] = l.coerce(v) end end end
+  if t.help then os.exit(print(t._help)) end  
   return t end
     
 return l

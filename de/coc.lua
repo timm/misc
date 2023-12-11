@@ -6,13 +6,13 @@
 --- @export
 local p,n,s="+","-","*"
 return {
-  acap= {n}, cplx={p,1,6}, prec={s,1,6},
-	aexp= {n}, data={p,2,5}, flex={s,1,6},
-	ltex= {n}, docu={p},     arch={s,1,6},
-	pcap= {n}, pvol={p,2,5}, team={s,1,6},
-	pcon= {n}, rely={p},     pmat={s,1,6},
-	plex= {n}, ruse={p,2,6},
-	sced= {n}, stor={p,3,6},
-	site= {n}, time={p,3,6},
-  tool= {n}
+  Acap= {n}, Cplx={p,1,6}, Prec={s,1,6},
+	Aexp= {n}, Data={p,2,5}, Flex={s,1,6},
+	Ltex= {n}, Docu={p},     Arch={s,1,6},
+	Pcap= {n}, Pvol={p,2,5}, Team={s,1,6},
+	Pcon= {n}, Rely={p},     Pmat={s,1,6},
+	Plex= {n}, Ruse={p,2,6},
+	Sced= {n}, Stor={p,3,6},
+	Site= {n}, Time={p,3,6},
+  Tool= {n}
 }

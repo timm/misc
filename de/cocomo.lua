@@ -43,7 +43,7 @@ return  function(i,coc,risk,
     i.y[k] = i.y[k] or y(t[1], i.x[k])
   end 
   i.y.a = i.y.a or from(2.3, 9.18)
-  i.y.b = i.y.b or ((.85 - 1.1)/9.18-2.2)*i.y.a+.9+(1.2-.8)/2
+  i.y.b = i.y.b or ((.85 - 1.1)/(9.18-2.2))*i.y.a+.9+(1.2-.8)/2
   i.y.loc = i.y.loc or from(2,2000)
   i.y.effort = i.y.effort or effort()
   i.y.risk = i.y.risk or risks()
