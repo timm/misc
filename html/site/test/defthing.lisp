@@ -6,11 +6,11 @@
 
 (defun make-team (who)
   (let ((persons (loop for (name yob role) in who collect 
-		      (make-person name yob role))))
-(%make-team :commander (first persons) :crew (rest persons))))
+                       (make-person name yob role))))
+    (%make-team :commander (first persons) :crew (rest persons))))
 
 (defun make-person (name yob role)
-(%make-person :name name :salary (role->salary role) :age  (- (this-year) yob)))
+  (%make-person :name name :salary (role->salary role) :age  (- (this-year) yob)))
 ;-------------------------------------------------------------------------------
 (defun role->salary (role)
   (cdr (assoc role '((commander . 30054) (walker . 18622 ) (pilot . 17147)))))

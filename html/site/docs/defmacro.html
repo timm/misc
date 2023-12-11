@@ -126,36 +126,36 @@ to creating new and powerful and succinct abstractions.</p>
 <table>
 <thead>
 <tr>
-<th align="right">Macro</th>
-<th align="center">:</th>
-<th align="left">Notes</th>
+<th style="text-align: right;">Macro</th>
+<th style="text-align: center;">:</th>
+<th style="text-align: left;">Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="right"><a href="#anaphoric-if"><code>aif</code></a></td>
-<td align="center">:</td>
-<td align="left">(anaphoric if) for accessing a conditional without having to recompute it</td>
+<td style="text-align: right;"><a href="#anaphoric-if"><code>aif</code></a></td>
+<td style="text-align: center;">:</td>
+<td style="text-align: left;">(anaphoric if) for accessing a conditional without having to recompute it</td>
 </tr>
 <tr>
-<td align="right"><a href="#nested-slot-accessors"><code>o</code></a></td>
-<td align="center">:</td>
-<td align="left">easy  access to nested slots</td>
+<td style="text-align: right;"><a href="#nested-slot-accessors"><code>o</code></a></td>
+<td style="text-align: center;">:</td>
+<td style="text-align: left;">easy  access to nested slots</td>
 </tr>
 <tr>
-<td align="right"><a href="#saner-simpler-objects"><code>defthing, defthings</code></a></td>
-<td align="center">:</td>
-<td align="left">fixes drawbacks with defstruct and OO in LISP</td>
+<td style="text-align: right;"><a href="#saner-simpler-objects"><code>defthing, defthings</code></a></td>
+<td style="text-align: center;">:</td>
+<td style="text-align: left;">fixes drawbacks with defstruct and OO in LISP</td>
 </tr>
 <tr>
-<td align="right"><a href="#symbol-counts"><code>has</code></a></td>
-<td align="center">:</td>
-<td align="left">simplifying  symbol counting (for key sizes of 50 or less)</td>
+<td style="text-align: right;"><a href="#symbol-counts"><code>has</code></a></td>
+<td style="text-align: center;">:</td>
+<td style="text-align: left;">simplifying  symbol counting (for key sizes of 50 or less)</td>
 </tr>
 <tr>
-<td align="right"><a href="#csv-reader"><code>with-csv</code></a></td>
-<td align="center">:</td>
-<td align="left">easy processing of csv files</td>
+<td style="text-align: right;"><a href="#csv-reader"><code>with-csv</code></a></td>
+<td style="text-align: center;">:</td>
+<td style="text-align: left;">easy processing of csv files</td>
 </tr>
 </tbody>
 </table>
@@ -287,10 +287,10 @@ which has some really good tutorial material.</p>
 <p>Consider<br />
 nested accesses to a field inside a struct;  e.g. the <code>streetNum</code> of the <code>address</code> of
 the <code>home</code> of the <code>manager</code> of the <code>company</code>. In standard LISP, that could be done with:</p>
-<div class="codehilite"><pre><span></span><code>(slot-value 
-   (slot-value 
-      (slot-value 
-         (slot-value *company &#39;manager) &#39;home) &#39;address) &#39;streetNum)
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
+<span class="w">   </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
+<span class="w">      </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span>
+<span class="w">         </span><span class="p">(</span><span class="nx">slot</span><span class="o">-</span><span class="nx">value</span><span class="w"> </span><span class="o">*</span><span class="nx">company</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">manager</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">home</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">address</span><span class="p">)</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">streetNum</span><span class="p">)</span>
 </code></pre></div>
 
 <p>That's a little verbose, right? So lets fix that with a macro.
@@ -303,7 +303,7 @@ The first slot becomes the inner most accessors and accessors to the other slots
 </code></pre></div>
 
 <p>With this macro, the above  example becomes something much more palatable.</p>
-<div class="codehilite"><pre><span></span><code>(o *company* manager home address streetNum)
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="nx">o</span><span class="w"> </span><span class="o">*</span><span class="nx">company</span><span class="o">*</span><span class="w"> </span><span class="nx">manager</span><span class="w"> </span><span class="nx">home</span><span class="w"> </span><span class="nx">address</span><span class="w"> </span><span class="nx">streetNum</span><span class="p">)</span>
 </code></pre></div>
 
 <p>One common idiom is to slip in a print statement to view the contents of a struct.
@@ -345,11 +345,11 @@ Then we see (for example) the  <code>make-team</code> constructor
 
 (defun make-team (who)
   (let ((persons (loop for (name yob role) in who collect 
-              (make-person name yob role))))
-(%make-team :commander (first persons) :crew (rest persons))))
+                       (make-person name yob role))))
+    (%make-team :commander (first persons) :crew (rest persons))))
 
 (defun make-person (name yob role)
-(%make-person :name name :salary (role-&gt;salary role) :age  (- (this-year) yob)))
+  (%make-person :name name :salary (role-&gt;salary role) :age  (- (this-year) yob)))
 ;-------------------------------------------------------------------------------
 (defun role-&gt;salary (role)
   (cdr (assoc role &#39;((commander . 30054) (walker . 18622 ) (pilot . 17147)))))
