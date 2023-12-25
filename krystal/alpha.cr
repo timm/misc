@@ -19,3 +19,7 @@ class Num < Col
 n1= Num.new
 n2= Num.new
 n1.add(23)
+
+s = "true"
+v = s.to_f? || s=="true" || s != "false" && s
+puts v
