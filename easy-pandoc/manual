@@ -1,0 +1,520 @@
+<!doctype html>
+<html >
+<head>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!--[if lt IE 9]>
+                <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+        <![endif]-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+
+    <!-- <link rel="stylesheet" type="text/css" href="template.css" /> -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/template.css" />
+
+    <link href="https://vjs.zencdn.net/5.4.4/video-js.css" rel="stylesheet" />
+
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+    <!-- <script type='text/javascript' src='menu/js/jquery.cookie.js'></script> -->
+    <!-- <script type='text/javascript' src='menu/js/jquery.hoverIntent.minified.js'></script> -->
+    <!-- <script type='text/javascript' src='menu/js/jquery.dcjqaccordion.2.7.min.js'></script> -->
+
+    <!-- <link href="menu/css/skins/blue.css" rel="stylesheet" type="text/css" /> -->
+    <!-- <link href="menu/css/skins/graphite.css" rel="stylesheet" type="text/css" /> -->
+    <!-- <link href="menu/css/skins/grey.css" rel="stylesheet" type="text/css" /> -->
+  
+    <!-- <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+        
+  
+    <!-- <script src="script.js"></script> -->
+  
+    <!-- <script src="jquery.sticky-kit.js "></script> -->
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/js/jquery.cookie.js'></script>
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/js/jquery.hoverIntent.minified.js'></script>
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/js/jquery.dcjqaccordion.2.7.min.js'></script>
+
+    <link href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/css/skins/blue.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/css/skins/graphite.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/menu/css/skins/grey.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/gh/ryangrose/easy-pandoc-templates@948e28e5/css/elegant_bootstrap.css" rel="stylesheet" type="text/css" />
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+    <script src="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/script.js"></script>
+  
+    <script src="https://cdn.jsdelivr.net/gh/diversen/pandoc-bootstrap-adaptive-template@959c3622/jquery.sticky-kit.js"></script>
+    <meta name="generator" content="pandoc" />
+  <meta name="author" content="John MacFarlane" />
+  <meta name="date" content="2008-01-08" />
+  <title>PANDOC(1) Pandoc User Manuals</title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+
+    
+    <div class="navbar navbar-static-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <span class="doc-title">PANDOC(1) Pandoc User Manuals</span>
+        <ul class="nav pull-right doc-info">
+                    <li><p class="navbar-text">John MacFarlane</p></li>
+                              <li><p class="navbar-text">January 8,
+2008</p></li>
+                  </ul>
+      </div>
+    </div>
+  </div>
+    <div class="container">
+    <div class="row">
+            <div id="TOC" class="span3">
+        <div class="well toc">
+
+        <ul>
+        <li><a href="#name" id="toc-name">NAME</a></li>
+        <li><a href="#synopsis" id="toc-synopsis">SYNOPSIS</a></li>
+        <li><a href="#description"
+        id="toc-description">DESCRIPTION</a></li>
+        <li><a href="#options" id="toc-options">OPTIONS</a></li>
+        <li><a href="#templates" id="toc-templates">TEMPLATES</a></li>
+        <li><a href="#see-also" id="toc-see-also">SEE ALSO</a></li>
+        </ul>
+
+        </div>
+      </div>
+            <div class="span9">
+
+      
+      <h1 id="name">NAME</h1>
+<p>pandoc - general markup converter</p>
+<h1 id="synopsis">SYNOPSIS</h1>
+<p>pandoc [<em>options</em>] [<em>input-file</em>]…</p>
+<h1 id="description">DESCRIPTION</h1>
+<p>Pandoc converts files from one markup format to another. It can read
+markdown and (subsets of) reStructuredText, HTML, and LaTeX, and it can
+write plain text, markdown, reStructuredText, HTML, LaTeX, ConTeXt,
+Texinfo, groff man, MediaWiki markup, RTF, OpenDocument XML, ODT,
+DocBook XML, EPUB, and Slidy or S5 HTML slide shows.</p>
+<p>If no <em>input-file</em> is specified, input is read from
+<em>stdin</em>. Otherwise, the <em>input-files</em> are concatenated
+(with a blank line between each) and used as input. Output goes to
+<em>stdout</em> by default (though output to <em>stdout</em> is disabled
+for the <code>odt</code> and <code>epub</code> output formats). For
+output to a file, use the <code>-o</code> option:</p>
+<pre><code>pandoc -o output.html input.txt</code></pre>
+<p>Instead of a file, an absolute URI may be given. In this case pandoc
+will fetch the content using HTTP:</p>
+<pre><code>pandoc -f html -t markdown http://www.fsf.org</code></pre>
+<p>The input and output formats may be specified using command-line
+options (see <strong>OPTIONS</strong>, below, for details). If these
+formats are not specified explicitly, Pandoc will attempt to determine
+them from the extensions of the input and output filenames. If input
+comes from <em>stdin</em> or from a file with an unknown extension, the
+input is assumed to be markdown. If no output filename is specified
+using the <code>-o</code> option, or if a filename is specified but its
+extension is unknown, the output will default to HTML. Thus, for
+example,</p>
+<pre><code>pandoc -o chap1.tex chap1.txt</code></pre>
+<p>converts <em>chap1.txt</em> from markdown to LaTeX. And</p>
+<pre><code>pandoc README</code></pre>
+<p>converts <em>README</em> from markdown to HTML.</p>
+<p>Pandoc’s version of markdown is an extended variant of standard
+markdown: the differences are described in the <em>README</em> file in
+the user documentation. If standard markdown syntax is desired, the
+<code>--strict</code> option may be used.</p>
+<p>Pandoc uses the UTF-8 character encoding for both input and output.
+If your local character encoding is not UTF-8, you should pipe input and
+output through <code>iconv</code>:</p>
+<pre><code>iconv -t utf-8 input.txt | pandoc | iconv -f utf-8</code></pre>
+<h1 id="options">OPTIONS</h1>
+<dl>
+<dt>-f <em>FORMAT</em>, -r <em>FORMAT</em>, --from=<em>FORMAT</em>,
+--read=<em>FORMAT</em></dt>
+<dd>
+Specify input format. <em>FORMAT</em> can be <code>native</code> (native
+Haskell), <code>markdown</code> (markdown or plain text),
+<code>rst</code> (reStructuredText), <code>html</code> (HTML), or
+<code>latex</code> (LaTeX). If <code>+lhs</code> is appended to
+<code>markdown</code>, <code>rst</code>, or <code>latex</code>, the
+input will be treated as literate Haskell source.
+</dd>
+<dt>-t <em>FORMAT</em>, -w <em>FORMAT</em>, --to=<em>FORMAT</em>,
+--write=<em>FORMAT</em></dt>
+<dd>
+Specify output format. <em>FORMAT</em> can be <code>native</code>
+(native Haskell), <code>plain</code> (plain text), <code>markdown</code>
+(markdown), <code>rst</code> (reStructuredText), <code>html</code>
+(HTML), <code>latex</code> (LaTeX), <code>context</code> (ConTeXt),
+<code>man</code> (groff man), <code>mediawiki</code> (MediaWiki markup),
+<code>texinfo</code> (GNU Texinfo), <code>docbook</code> (DocBook XML),
+<code>opendocument</code> (OpenDocument XML), <code>odt</code>
+(OpenOffice text document), <code>epub</code> (EPUB book),
+<code>slidy</code> (Slidy HTML and javascript slide show),
+<code>s5</code> (S5 HTML and javascript slide show), or <code>rtf</code>
+(rich text format). Note that <code>odt</code> and <code>epub</code>
+output will not be directed to <em>stdout</em>; an output filename must
+be specified using the <code>-o/--output</code> option. If
+<code>+lhs</code> is appended to <code>markdown</code>,
+<code>rst</code>, <code>latex</code>, or <code>html</code>, the output
+will be rendered as literate Haskell source.
+</dd>
+<dt>-s, --standalone</dt>
+<dd>
+Produce output with an appropriate header and footer (e.g. a standalone
+HTML, LaTeX, or RTF file, not a fragment).
+</dd>
+<dt>-o <em>FILE</em>, --output=<em>FILE</em></dt>
+<dd>
+Write output to <em>FILE</em> instead of <em>stdout</em>. If
+<em>FILE</em> is `<code>-</code>’, output will go to <em>stdout</em>.
+</dd>
+<dt>-p, --preserve-tabs</dt>
+<dd>
+Preserve tabs instead of converting them to spaces.
+</dd>
+<dt>--tab-stop=<em>TABSTOP</em></dt>
+<dd>
+Specify tab stop (default is 4).
+</dd>
+<dt>--strict</dt>
+<dd>
+Use strict markdown syntax, with no extensions or variants.
+</dd>
+<dt>--reference-links</dt>
+<dd>
+Use reference-style links, rather than inline links, in writing markdown
+or reStructuredText.
+</dd>
+<dt>-R, --parse-raw</dt>
+<dd>
+Parse untranslatable HTML codes and LaTeX environments as raw HTML or
+LaTeX, instead of ignoring them.
+</dd>
+<dt>-S, --smart</dt>
+<dd>
+Use smart quotes, dashes, and ellipses. (This option is significant only
+when the input format is <code>markdown</code>. It is selected
+automatically when the output format is <code>latex</code> or
+<code>context</code>.)
+</dd>
+<dt>-m<em>URL</em>, --latexmathml=<em>URL</em></dt>
+<dd>
+Use LaTeXMathML to display embedded TeX math in HTML output. To insert a
+link to a local copy of the <code>LaTeXMathML.js</code> script, provide
+a <em>URL</em>. If no <em>URL</em> is provided, the contents of the
+script will be inserted directly into the HTML header.
+</dd>
+<dt>--mathml</dt>
+<dd>
+Convert TeX math to MathML. In standalone mode, a small javascript will
+be inserted that allows the MathML to be viewed on some browsers.
+</dd>
+<dt>--jsmath=<em>URL</em></dt>
+<dd>
+Use jsMath to display embedded TeX math in HTML output. The <em>URL</em>
+should point to the jsMath load script; if provided, it will be linked
+to in the header of standalone HTML documents.
+</dd>
+<dt>--gladtex</dt>
+<dd>
+Enclose TeX math in <code>&lt;eq&gt;</code> tags in HTML output. These
+can then be processed by gladTeX to produce links to images of the
+typeset formulas.
+</dd>
+<dt>--mimetex=<em>URL</em></dt>
+<dd>
+Render TeX math using the mimeTeX CGI script. If <em>URL</em> is not
+specified, it is assumed that the script is at
+<code>/cgi-bin/mimetex.cgi</code>.
+</dd>
+<dt>--webtex=<em>URL</em></dt>
+<dd>
+Render TeX math using an external script. The formula will be
+concatenated with the URL provided. If <em>URL</em> is not specified,
+the Google Chart API will be used.
+</dd>
+<dt>-i, --incremental</dt>
+<dd>
+Make list items in Slidy or S5 display incrementally (one by one).
+</dd>
+<dt>--offline</dt>
+<dd>
+Include all the CSS and javascript needed for a Slidy or S5 slide show
+in the output, so that the slide show will work even when no internet
+connection is available.
+</dd>
+<dt>--xetex</dt>
+<dd>
+Create LaTeX outut suitable for processing by XeTeX.
+</dd>
+<dt>-N, --number-sections</dt>
+<dd>
+Number section headings in LaTeX, ConTeXt, or HTML output. (Default is
+not to number them.)
+</dd>
+<dt>--section-divs</dt>
+<dd>
+Wrap sections in <code>&lt;div&gt;</code> tags, and attach identifiers
+to the enclosing <code>&lt;div&gt;</code> rather than the header itself.
+</dd>
+<dt>--no-wrap</dt>
+<dd>
+Disable text wrapping in output. (Default is to wrap text.)
+</dd>
+<dt>--sanitize-html</dt>
+<dd>
+Sanitizes HTML (in markdown or HTML input) using a whitelist. Unsafe
+tags are replaced by HTML comments; unsafe attributes are omitted. URIs
+in links and images are also checked against a whitelist of URI schemes.
+</dd>
+<dt>--email-obfuscation=<em>none|javascript|references</em></dt>
+<dd>
+Specify a method for obfuscating <code>mailto:</code> links in HTML
+documents. <em>none</em> leaves <code>mailto:</code> links as they are.
+<em>javascript</em> obfuscates them using javascript.
+<em>references</em> obfuscates them by printing their letters as decimal
+or hexadecimal character references. If <code>--strict</code> is
+specified, <em>references</em> is used regardless of the presence of
+this option.
+</dd>
+<dt>--id-prefix<em>=string</em></dt>
+<dd>
+Specify a prefix to be added to all automatically generated identifiers
+in HTML output. This is useful for preventing duplicate identifiers when
+generating fragments to be included in other pages.
+</dd>
+<dt>--indented-code-classes<em>=classes</em></dt>
+<dd>
+Specify classes to use for indented code blocks–for example,
+<code>perl,numberLines</code> or <code>haskell</code>. Multiple classes
+may be separated by spaces or commas.
+</dd>
+<dt>--toc, --table-of-contents</dt>
+<dd>
+Include an automatically generated table of contents (HTML, markdown,
+RTF) or an instruction to create one (LaTeX, reStructuredText). This
+option has no effect on man, DocBook, Slidy, or S5 output.
+</dd>
+<dt>--base-header-level=<em>LEVEL</em></dt>
+<dd>
+Specify the base level for headers (defaults to 1).
+</dd>
+<dt>--template=<em>FILE</em></dt>
+<dd>
+Use <em>FILE</em> as a custom template for the generated document.
+Implies <code>-s</code>. See TEMPLATES below for a description of
+template syntax. If this option is not used, a default template
+appropriate for the output format will be used. See also
+<code>-D/--print-default-template</code>.
+</dd>
+<dt>-V KEY=VAL, --variable=<em>KEY:VAL</em></dt>
+<dd>
+Set the template variable KEY to the value VAL when rendering the
+document in standalone mode. This is only useful when the
+<code>--template</code> option is used to specify a custom template,
+since pandoc automatically sets the variables used in the default
+templates.
+</dd>
+<dt>-c <em>CSS</em>, --css=<em>CSS</em></dt>
+<dd>
+Link to a CSS style sheet. <em>CSS</em> is the pathname of the style
+sheet.
+</dd>
+<dt>-H <em>FILE</em>, --include-in-header=<em>FILE</em></dt>
+<dd>
+Include contents of <em>FILE</em> at the end of the header. Implies
+<code>-s</code>.
+</dd>
+<dt>-B <em>FILE</em>, --include-before-body=<em>FILE</em></dt>
+<dd>
+Include contents of <em>FILE</em> at the beginning of the document body.
+Implies <code>-s</code>.
+</dd>
+<dt>-A <em>FILE</em>, --include-after-body=<em>FILE</em></dt>
+<dd>
+Include contents of <em>FILE</em> at the end of the document body.
+Implies <code>-s</code>.
+</dd>
+<dt>-C <em>FILE</em>, --custom-header=<em>FILE</em></dt>
+<dd>
+Use contents of <em>FILE</em> as the document header. <em>Note: This
+option is deprecated. Users should transition to using
+<code>--template</code> instead.</em>
+</dd>
+<dt>--reference-odt=<em>filename</em></dt>
+<dd>
+Use the specified file as a style reference in producing an ODT. For
+best results, the reference ODT should be a modified version of an ODT
+produced using pandoc. The contents of the reference ODT are ignored,
+but its stylesheets are used in the new ODT. If no reference ODT is
+specified on the command line, pandoc will look for a file
+<code>reference.odt</code> in the user data directory (see
+<code>--data-dir</code>). If this is not found either, sensible defaults
+will be used.
+</dd>
+<dt>--epub-stylesheet=<em>filename</em></dt>
+<dd>
+Use the specified CSS file to style the EPUB. If no stylesheet is
+specified, pandoc will look for a file <code>epub.css</code> in the user
+data directory (see <code>--data-dir</code>, below). If it is not found
+there, sensible defaults will be used.
+</dd>
+<dt>--epub-metadata=<em>filename</em></dt>
+<dd>
+<p>Look in the specified XML file for metadata for the EPUB. The file
+should contain a series of Dublin Core elements
+(http://dublincore.org/documents/dces/), for example:</p>
+<pre><code> &lt;dc:rights&gt;Creative Commons&lt;/dc:rights&gt;
+ &lt;dc:language&gt;es-AR&lt;/dc:language&gt;</code></pre>
+<p>By default, pandoc will include the following metadata elements:
+<code>&lt;dc:title&gt;</code> (from the document title),
+<code>&lt;dc:creator&gt;</code> (from the document authors),
+<code>&lt;dc:language&gt;</code> (from the locale), and
+<code>&lt;dc:identifier id="BookId"&gt;</code> (a randomly generated
+UUID). Any of these may be overridden by elements in the metadata
+file.</p>
+</dd>
+<dt>-D <em>FORMAT</em>, --print-default-template=<em>FORMAT</em></dt>
+<dd>
+Print the default template for an output <em>FORMAT</em>. (See
+<code>-t</code> for a list of possible <em>FORMAT</em>s.)
+</dd>
+<dt>-T <em>STRING</em>, --title-prefix=<em>STRING</em></dt>
+<dd>
+Specify <em>STRING</em> as a prefix to the HTML window title.
+</dd>
+<dt>--data-dir<em>=DIRECTORY</em></dt>
+<dd>
+<p>Specify the user data directory to search for pandoc data files. If
+this option is not specified, the default user data directory will be
+used:</p>
+<pre><code>$HOME/.pandoc</code></pre>
+<p>in unix and</p>
+<pre><code>C:\Documents And Settings\USERNAME\Application Data\pandoc</code></pre>
+<p>in Windows. A <code>reference.odt</code>, <code>epub.css</code>,
+<code>templates</code> directory, or <code>s5</code> directory placed in
+this directory will override pandoc’s normal defaults.</p>
+</dd>
+<dt>--dump-args</dt>
+<dd>
+Print information about command-line arguments to <em>stdout</em>, then
+exit. The first line of output contains the name of the output file
+specified with the <code>-o</code> option, or `<code>-</code>’ (for
+<em>stdout</em>) if no output file was specified. The remaining lines
+contain the command-line arguments, one per line, in the order they
+appear. These do not include regular Pandoc options and their arguments,
+but do include any options appearing after a `<code>--</code>’ separator
+at the end of the line. This option is intended primarily for use in
+wrapper scripts.
+</dd>
+<dt>--ignore-args</dt>
+<dd>
+<p>Ignore command-line arguments (for use in wrapper scripts). Regular
+Pandoc options are not ignored. Thus, for example,</p>
+<pre><code>pandoc --ignore-args -o foo.html -s foo.txt -- -e latin1</code></pre>
+<p>is equivalent to</p>
+<pre><code>pandoc -o foo.html -s</code></pre>
+</dd>
+<dt>-v, --version</dt>
+<dd>
+Print version.
+</dd>
+<dt>-h, --help</dt>
+<dd>
+Show usage message.
+</dd>
+</dl>
+<h1 id="templates">TEMPLATES</h1>
+<p>When the <code>-s/--standalone</code> option is used, pandoc uses a
+template to add header and footer material that is needed for a
+self-standing document. To see the default template that is used, just
+type</p>
+<pre><code>pandoc --print-default-template=FORMAT</code></pre>
+<p>where <code>FORMAT</code> is the name of the output format. A custom
+template can be specified using the <code>--template</code> option. You
+can also override the system default templates for a given output format
+<code>FORMAT</code> by putting a file
+<code>templates/FORMAT.template</code> in the user data directory (see
+<code>--data-dir</code>, below).</p>
+<p>Templates may contain <em>variables</em>. Variable names are
+sequences of alphanumerics, <code>-</code>, and <code>_</code>, starting
+with a letter. A variable name surrounded by <code>$</code> signs will
+be replaced by its value. For example, the string <code>$title$</code>
+in</p>
+<pre><code>&lt;title&gt;$title$&lt;/title&gt;</code></pre>
+<p>will be replaced by the document title.</p>
+<p>To write a literal <code>$</code> in a template, use
+<code>$$</code>.</p>
+<p>Some variables are set automatically by pandoc. These vary somewhat
+depending on the output format, but include:</p>
+<dl>
+<dt><code>legacy-header</code></dt>
+<dd>
+contents specified by <code>-C/--custom-header</code>
+<code>header-includes</code>
+</dd>
+<dd>
+contents specified by <code>-H/--include-in-header</code> (may have
+multiple values) <code>toc</code>
+</dd>
+<dd>
+non-null value if <code>--toc/--table-of-contents</code> was specified
+<code>include-before</code>
+</dd>
+<dd>
+contents specified by <code>-B/--include-before-body</code> (may have
+multiple values) <code>include-after</code>
+</dd>
+<dd>
+contents specified by <code>-A/--include-after-body</code> (may have
+multiple values) <code>body</code>
+</dd>
+<dd>
+body of document <code>title</code>
+</dd>
+<dd>
+title of document, as specified in title block <code>author</code>
+</dd>
+<dd>
+author of document, as specified in title block (may have multiple
+values) <code>date</code>
+</dd>
+<dd>
+date of document, as specified in title block
+</dd>
+</dl>
+<p>Variables may be set at the command line using the
+<code>-V/--variable</code> option. This allows users to include custom
+variables in their templates.</p>
+<p>Templates may contain conditionals. The syntax is as follows:</p>
+<pre><code>$if(variable)$
+X 
+$else$
+Y
+$endif$</code></pre>
+<p>This will include <code>X</code> in the template if
+<code>variable</code> has a non-null value; otherwise it will include
+<code>Y</code>. <code>X</code> and <code>Y</code> are placeholders for
+any valid template text, and may include interpolated variables or other
+conditionals. The <code>$else$</code> section may be omitted.</p>
+<p>When variables can have multiple values (for example,
+<code>author</code> in a multi-author document), you can use the
+<code>$for$</code> keyword:</p>
+<pre><code>$for(author)$
+&lt;meta name=&quot;author&quot; content=&quot;$author$&quot; /&gt;
+$endfor$</code></pre>
+<p>You can optionally specify a separator to be used between consecutive
+items:</p>
+<pre><code>$for(author)$$author$$sep$, $endfor$</code></pre>
+<h1 id="see-also">SEE ALSO</h1>
+<p><code>markdown2pdf</code> (1). The <em>README</em> file distributed
+with Pandoc contains full documentation.</p>
+<p>The Pandoc source code and all documentation may be downloaded from
+<a href="http://johnmacfarlane.net/pandoc/"
+class="uri">http://johnmacfarlane.net/pandoc/</a>.</p>
+            </div>
+    </div>
+  </div>
+  <script src="https://vjs.zencdn.net/5.4.4/video.js"></script>
+
+</body>
+</html>
