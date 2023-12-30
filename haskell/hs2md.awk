@@ -1,5 +1,5 @@
-    {a[NR]=$0}
-END {for(i=1;i<=NR;i++) main(i,a[i])}
+    { a[NR] = $0 }
+END { for(i=1;i<=NR;i++) main(i,a[i]) }
 
 function src(i)  { return a[i] ~ /^> /      }
 function sp(i)   { return a[i] ~ /^[ \t]*$/ }
