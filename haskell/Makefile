@@ -5,5 +5,5 @@ FILES=$(wildcard *.lhs)
 docs: $(FILES:.lhs=.md)
 
 %.md : %.lhs
-	@echo "==> $@"
+	@echo "$^ ==> $@"
 	@gawk -f hs2md.awk $^ > $@

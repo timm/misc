@@ -30,3 +30,5 @@ makeCar = Car{year=1980,company="ford",model="trhuster"}
 ```haskell
 main :: IO ()
 main = print(makeCar{year=2})
+```
+
