@@ -1,5 +1,5 @@
-function src(i)  { return  (a[i] ~ /^> /)     }
-function sp(i)   { return  (a[i] ~ /^[ \t]*$/) }
+function src(i)  { return a[i] ~ /^> /    }
+function sp(i)   { return a[i] ~ /^[ \t]*$/ }
 
     {a[NR]=$0}
 END {for(i=1;i<=NR;i++) {  
