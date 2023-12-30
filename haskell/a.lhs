@@ -1,5 +1,3 @@
-#!/usr/bin/env runghc 
-
 First code
 ==========
 
