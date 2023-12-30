@@ -1,4 +1,3 @@
-
 head (x:xs) =  x
 tail (x:xs)  =  xs
 
