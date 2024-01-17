@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<title>demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lua.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lisp.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+<style>
+html {
+  max-width: 100ch;
+  padding: 3em 1em;
+  margin: auto;
+  line-height: 1.75;
+  font-size: 1.25em;
+}
+h1,h2,h3,h4,h5,h6 {
+  margin: 3em 0 1em;
+}
+
+p,ul,ol {
+  margin-bottom: 2em;
+  color: #1d1d1d;
+  font-family: sans-serif;
+}
+pre {font-size: small}
+
+</style>
+<body>
+<div class="w3-bar w3-black">
+  <a href="#" class="w3-bar-item w3-button">Home</a>
+  <a href="#" class="w3-bar-item w3-button">Link 1</a>
+  <a href="#" class="w3-bar-item w3-button">Link 2</a>
+  <a href="#" class="w3-bar-item w3-button">Link 3</a>
+
+<div class="w3-dropdown-hover">
+    <button class="w3-button">Dropdown</button>
+    <div class="w3-dropdown-content w3-bar-block w3-card-4 w3-black">
+      <a href="#" class="w3-bar-item w3-button">Link 1</a>
+      <a href="#" class="w3-bar-item w3-button">Link 2</a>
+      <a href="#" class="w3-bar-item w3-button">Link 3</a>
+    </div></div> 
+
+
+</div> 
+
+
+
+
+	<div class="w3-cell-row">
+		<div class="w3-container  w3-cell">
+			<p>
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+Hello W3.CSS Layout.
+</p>
+		</div>
+
+		<div class="w3-container  w3-cell">
+
+			<pre><code class="language-lua">
+function eg.discretize(max,num1,sym1,mu,sd,t,u,n,y,v,i)
+  t, u, v, num1, sym1 = {}, {},{}, NUM(), SYM()
+  max=1000
+  for _ = 1, max do t[1+#t]= col(num1, norm(10,2)) end
+  table.sort(t)
+  for _,x in pairs(t) do
+    y = discretize(num1, x)
+    col(sym1,y)
+    u[y] = y
+    v[y] =x  end
+  i=0
+  for _, y in pairs(sort(u)) do
+    n = sym1.has[y]
+    i=i+1
+    print(fmt("%2s %6s%%   %4.1f  %s",y, n/10, v[y], 
+             ('*'):rep(n//10))) end end
+			</code></pre>
+		</div>
+	</div>
+  
+<div class="w3-padding w3-xlarge w3-black">
+    <i class="fa fa-home"></i>
+    <i class="fa fa-search"></i>
+    <i class="fa fa-cloud"></i>
+    <i class="fa fa-trash"></i>
+    Welcome!
+  </div>
+
+
+<div class="w3-container">
+  <p>A car is a wheeled, self-powered motor vehicle used for trans portation.
+  Most definitions of the term specify that cars are designed to run primarily on roads,
+  to have seating for one to eight people, to typically have four wheels. (Wikipedia)</p>    
+
+  <table class="w3-table w3-bordered w3-striped">
+    <tr class="w3-teal">
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Points</th>
+    </tr>
+    <tr>
+      <td>Jill</td>
+      <td>Smith</td>
+      <td>50</td>
+    </tr>
+    <tr>
+      <td>Eve</td>
+      <td>Jackson</td>
+      <td>94</td>
+    </tr>
+    <tr>
+      <td>Adam</td>
+      <td>Johnson</td>
+      <td>67</td>
+    </tr>
+  </table>
+</div>
+
+<div class="w3-panel w3-leftbar w3-border ">
+  <p>Yellow often indicates a warning that might need attention.</p>
+</div>
+
+
+<footer class="w3-container ">
+  <h5>Footer</h5>
+  <p>Footer information goes here</p>
+</footer>
+
+</body>
+</html>
