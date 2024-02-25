@@ -2,10 +2,14 @@ import random,ast,sys,re
 from fileinput import FileInput as file_or_stdin
 
 class obj:
+    defaults=dict(seed=1234567891,
+                k=1,
+                m=2,
+                file="../data/auto93.csv"
+             )
   def __init__(i,**d): i.__dict__.update(d)
   def __repr__(i): return i.__class__.__name__+str(i.__dict__)
 
-the = obj(seed=1234567891, k=1, m=2, some=64, data="../data/auto93.csv")
 #-------------------------------------------------
 class Some(obj):
   def __init__(i): i.n,i.ok,i._has = 0,False,[]
@@ -98,7 +102,8 @@ class eg:
       datas[kl].add(row)
     DATA(csv(file),fun=fun)
     print(my.y/my.n)
-    
+
+the=obj(**obj.defaults)
 if __name__=="__main__" and len(sys.argv)>1:
 	random.seed(the.seed)
 	getattr(eg, sys.argv[1], lambda: print("?"))()
