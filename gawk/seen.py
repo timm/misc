@@ -1,18 +1,21 @@
+# seen.py  : tiny ai teaching lab
+# (c)2024, Tim Menzies, BSD2 license. Share and enjoy.
 import random,math,ast,sys,re
 from fileinput import FileInput as file_or_stdin
 
-class OBJ:
-  def __init__(i,**d): i.__dict__.update(d)
-  def __repr__(i)    : return i.__class__.__name__+str(i.__dict__)
-
-defaults = dict(seed=1234567891,
+config = dict(seed=1234567891,
                 k=1,
                 m=2,
                 file="../data/auto93.csv")
+#----------------------------------------------------------------------------------------
+class OBJ:
+  def __init__(i,**d): i.__dict__.update(d)
+  def __repr__(i): return i.__class__.__name__+'{'+show(i.__dict__)+'}' 
 
-the  = OBJ(**defaults)
+the  = OBJ(**config)
 big  = 1E30
 tiny = 1/big
+isa  = isinstance
 r    = random.random
 
 def adds(x,lst): [x.add(y) for y in lst]; return x
@@ -34,24 +37,30 @@ def csv(file=None):
   with file_or_stdin(file) as src:
     for line in src:
       line = re.sub(r'([\n\t\r"\’ ]|#.*)', '', line)
-      if line: yield [coerce(s.strip()) for s in line.split(",")]
-#-------------------------------------------------
+      if line: yield [coerce(s.strip()) for s in line.split(",")] 
+
+def show(x,n=2): 
+  if isa(x,(int,float)) : return x if int(x)==x else round(x,n)
+  if isa(x,(list,tuple)): return [show(y,n) for y in x][:10]
+  if isa(x,dict): return ' '.join(f":{k} {show(v,n)}" for k,v in x.items() if k[0]!="_")
+  return x
+#----------------------------------------------------------------------------------------
 class COL(OBJ):
   def __init__(i,at=0,txt=" "):
     i.n,i.at,i.txt = 0,at,txt
     i.heaven = 0 if txt[-1]=="-" else 1
 
 class SYM(COL):
-  def __init__(i,**d):   super().__init__(**d); i.has={}
+  def __init__(i,**d): super().__init__(**d); i.has={}
 
-  def add(i,x): i.has[x] = i.has.get(x,0) + 1
+  def add(i,x): i.n += 1; i.has[x] = 1 + i.has.get(x,0)
 
-  def div(i,x):
+  def div(i):
     return -sum(n/i.n * math.log(n/i.n,2) for n in i.has.values() if n > 0)
 
   def like(i,x,m,prior): return (i.has.get(x, 0) + m*prior) / (i.n + m)
 
-  def mid(i,x): return max(i.has, key=i.has.get)
+  def mid(i): return max(i.has, key=i.has.get)
 
 class NUM(COL):
   def __init__(i,**d):
@@ -83,7 +92,7 @@ class COLS(OBJ):
     i.x,i.y,i.all,i.names,i.klass = [],[],[],names,None
     for at,txt in enumerate(names):
       a,z = txt[0], txt[-1]
-      col = (NUM if a.isupper() else SYM)(at,txt)
+      col = (NUM if a.isupper() else SYM)(at=at,txt=txt)
       i.all.append(col)
       if z != "X":
         (i.y if z in "!+-" else i.x).append(col)
@@ -96,7 +105,7 @@ class COLS(OBJ):
 class DATA(OBJ):
   def __init__(i,src=[],fun=None,ordered=False):
     i.rows, i.cols = [],[]
-    adds(i, src)
+    [i.add(lst,fun) for lst in src]
     if ordered: i.ordered()
 
   def add(i,lst,fun=None):
@@ -120,7 +129,7 @@ class NB(OBJ):
                 for klass,data in i.datas.items()])[1]
   
   def run(i,data,lst):
-    klass = lst[data.cols.klass]
+    klass = lst[data.cols.klass.at]
     if len(data.rows) > 10: 
       i.n += 1
       i.y += 1 if klass == i.classify(lst) else 0
@@ -128,18 +137,29 @@ class NB(OBJ):
     i.datas[klass].add(lst) 
 
   def report(i): return OBJ(acc=i.y/i.n)
-#-------------------------------------------------
+#----------------------------------------------------------------------------------------
 class eg:
+  def the(): print(the)
+
+  def sym():
+    s = adds(SYM(),"aaaabbc")
+    print(s.mid(),  s.div())
+
   def one(): 
-    d=DATA(csv("../data/auto93.csv"))
-    print(d.cols.all[2].has)
+    w = OBJ(n=0)
+    def inc(_,r): w.n += len(r)
+    d = DATA(csv("../data/auto93.csv"), inc) 
+    assert w.n == 3184
 
-  def nb(file = the.file): # make this a class
-    nb=NB()
-    DATA(csv(file), fun=nb.call)
-    print(nb.report())
-
+  def nb():
+    for k in [0,1,2,3]:
+      for m in [0,1,2,3]: 
+        the.k, the.m = k,m
+        nb = NB()
+        DATA(csv("../data/soybean.csv"), nb.run)
+        print(the.k, the.m, nb.report())
+#----------------------------------------------------------------------------------------
 if __name__=="__main__" and len(sys.argv)>1:
-  the = OBJ(**cli(defaults))
+  the = OBJ(**cli(config))
   random.seed(the.seed)
-  getattr(eg, sys.argv[1], lambda: print("?"))()
+  getattr(eg, sys.argv[1], lambda: print("?"))() 
