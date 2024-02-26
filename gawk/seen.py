@@ -22,7 +22,7 @@ def cli(d):
     for c,arg in enumerate(sys.argv):
       after = "" if c >= len(sys.argv) - 1 else sys.argv[c+1]
       if arg in ["-"+k[0], "--"+k]:
-        v = "false" if v==true else ("true" if v==false else after)
+        v = "false" if v==True else ("true" if v==False else after)
         d[k] = coerce(v)
   return d
 
@@ -58,25 +58,25 @@ class NUM(COL):
     super().__init__(**d)
     i.mu, i.m2, i.lo, i.hi = 0,0, big, -big
 
-  def add(i,x):
+  def add(i,n):
     i.n += 1
-    i.lo = min(x,i.lo)
-    i.hi = max(x,i.hi)
-    delta = x - i.mu
+    i.lo = min(n,i.lo)
+    i.hi = max(n,i.hi)
+    delta = n - i.mu
     i.mu += delta / i.n
-    i.m2 += delta * (x -  i.mu)
+    i.m2 += delta * (n -  i.mu)
 
-  def div(i,x): return 0 if i.n < 2 else (i.m2 / (i.n - 1))**.5
+  def div(i): return 0 if i.n < 2 else (i.m2 / (i.n - 1))**.5
 
-  def like(i,x,*_):
+  def like(i,n,*_):
     v     = i.div()**2 + tiny
-    nom   = math.e**(-1*(x - i.mid())**2/(2*v)) + tiny
+    nom   = math.e**(-1*(n - i.mid())**2/(2*v)) + tiny
     denom = (2*math.pi*v)**.5
     return min(1, nom/(denom + tiny))
 
-  def mid(i,x): return i.mu
+  def mid(i): return i.mu
 
-  def norm(i,x): return x=="?" and x or (x - i.lo) / (i.hi - i.lo + tiny)
+  def norm(i,n): return n=="?" and n or (n - i.lo) / (i.hi - i.lo + tiny)
 
 class COLS(OBJ):
   def __init__(i,names):
@@ -87,50 +87,59 @@ class COLS(OBJ):
       i.all.append(col)
       if z != "X":
         (i.y if z in "!+-" else i.x).append(col)
-        if z == "!" then i.klass= col
+        if z == "!": i.klass= col
 
-  def add(i,row):
-    [col.add(row[col.at]) for col in i.all if row[col.at] != "?"]
-    return row
+  def add(i,lst):
+    [col.add(lst[col.at]) for col in i.all if lst[col.at] != "?"]
+    return lst
 
 class DATA(OBJ):
-  def __init__(i,src=[],fun=None.ordered=False):
+  def __init__(i,src=[],fun=None,ordered=False):
     i.rows, i.cols = [],[]
     adds(i, src)
-    if ordered: self.ordered()
+    if ordered: i.ordered()
 
-  def add(i,src,fun=None):
+  def add(i,lst,fun=None):
     if i.cols:
-      if fun: fun(i,row)
-      i.rows += [i.cols.add(row)]
-    else: i.cols = COLS(row)
+      if fun: fun(i,lst)
+      i.rows += [i.cols.add(lst)]
+    else: i.cols = COLS(lst)
 
   def clone(i): return DATA([i.cols.names])
 
-  def loglike(i, row, nall, nh, m=the.m, k=the.k):
+  def loglike(i, lst, nall, nh, m=the.m, k=the.k):
     prior = (len(i.rows) + k) / (nall + k*nh)
-    likes = [c.like(row[c.at],m,prior) for c in i.cols.x if row[c.at] != "?"]
+    likes = [c.like(lst[c.at],m,prior) for c in i.cols.x if lst[c.at] != "?"]
     return sum(math.log(x) for x in likes + [prior])
+
+class NB(OBJ):
+  def __init__(i): i.y,i.n,i.datas = 0,0,{} 
+
+  def classify(i,lst):
+    return max([(data.loglike(lst,i.n,len(i.datas)),klass)
+                for klass,data in i.datas.items()])[1]
+  
+  def run(i,data,lst):
+    klass = lst[data.cols.klass]
+    if len(data.rows) > 10: 
+      i.n += 1
+      i.y += 1 if klass == i.classify(lst) else 0
+    if klass not in i.datas: i.datas[klass] =  data.clone()
+    i.datas[klass].add(lst) 
+
+  def report(i): return OBJ(acc=i.y/i.n)
 #-------------------------------------------------
 class eg:
   def one(): 
     d=DATA(csv("../data/auto93.csv"))
     print(d.cols.all[2].has)
 
-  def nb(file = the.src): # make this a class
-    y,n,datas = 0,0,{}
-    def fun(data,row):
-      n += 1
-      kl = row[data.cols.klass]
-      if n > 10:
-        guess = max([(v.loglike(row,n,2),k) for k,v in datas.items()])[1]
-        if kl = guess: y += 1
-      if kl not in datas: datas[kl] =  data.clone()
-      datas[kl].add(row)
-    DATA(csv(file),fun=fun)
-    print(my.y/my.n)
+  def nb(file = the.file): # make this a class
+    nb=NB()
+    DATA(csv(file), fun=nb.call)
+    print(nb.report())
 
 if __name__=="__main__" and len(sys.argv)>1:
-    the = obj(**cli(defaults))
-	random.seed(the.seed)
-	getattr(eg, sys.argv[1], lambda: print("?"))()
+  the = OBJ(**cli(defaults))
+  random.seed(the.seed)
+  getattr(eg, sys.argv[1], lambda: print("?"))()
