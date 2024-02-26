@@ -10,7 +10,7 @@ config = dict(seed=1234567891,
 #----------------------------------------------------------------------------------------
 class OBJ:
   def __init__(i,**d): i.__dict__.update(d)
-  def __repr__(i): return i.__class__.__name__+'{'+show(i.__dict__)+'}' 
+  def __repr__(i): return i.__class__.__name__+'{'+show(i.__dict__)+'}'
 
 the  = OBJ(**config)
 big  = 1E30
@@ -37,9 +37,9 @@ def csv(file=None):
   with file_or_stdin(file) as src:
     for line in src:
       line = re.sub(r'([\n\t\r"\’ ]|#.*)', '', line)
-      if line: yield [coerce(s.strip()) for s in line.split(",")] 
+      if line: yield [coerce(s.strip()) for s in line.split(",")]
 
-def show(x,n=2): 
+def show(x,n=2):
   if isa(x,(int,float)) : return x if int(x)==x else round(x,n)
   if isa(x,(list,tuple)): return [show(y,n) for y in x][:10]
   if isa(x,dict): return ' '.join(f":{k} {show(v,n)}" for k,v in x.items() if k[0]!="_")
@@ -51,21 +51,17 @@ class COL(OBJ):
     i.heaven = 0 if txt[-1]=="-" else 1
 
 class SYM(COL):
-  def __init__(i,**d): super().__init__(**d); i.has={}
-
-  def add(i,x): i.n += 1; i.has[x] = 1 + i.has.get(x,0)
-
-  def div(i):
-    return -sum(n/i.n * math.log(n/i.n,2) for n in i.has.values() if n > 0)
-
+  def __init__(i,**d)  : super().__init__(**d); i.has={}
+  def add(i,x)         : i.n += 1; i.has[x] = 1 + i.has.get(x,0)
+  def div(i)           : return -sum(n/i.n * math.log(n/i.n,2) for n in i.has.values() if n > 0)
   def like(i,x,m,prior): return (i.has.get(x, 0) + m*prior) / (i.n + m)
-
-  def mid(i): return max(i.has, key=i.has.get)
+  def mid(i)           : return max(i.has, key=i.has.get)
 
 class NUM(COL):
-  def __init__(i,**d):
-    super().__init__(**d)
-    i.mu, i.m2, i.lo, i.hi = 0,0, big, -big
+  def __init__(i,**d)  : super().__init__(**d) i.mu, i.m2, i.lo, i.hi = 0,0, big, -big
+  def div(i)           : return 0 if i.n < 2 else (i.m2 / (i.n - 1))**.5
+  def mid(i)           : return i.mu
+  def norm(i,n)        : return n=="?" and n or (n - i.lo) / (i.hi - i.lo + tiny)
 
   def add(i,n):
     i.n += 1
@@ -75,17 +71,11 @@ class NUM(COL):
     i.mu += delta / i.n
     i.m2 += delta * (n -  i.mu)
 
-  def div(i): return 0 if i.n < 2 else (i.m2 / (i.n - 1))**.5
-
   def like(i,n,*_):
     v     = i.div()**2 + tiny
     nom   = math.e**(-1*(n - i.mid())**2/(2*v)) + tiny
     denom = (2*math.pi*v)**.5
     return min(1, nom/(denom + tiny))
-
-  def mid(i): return i.mu
-
-  def norm(i,n): return n=="?" and n or (n - i.lo) / (i.hi - i.lo + tiny)
 
 class COLS(OBJ):
   def __init__(i,names):
@@ -98,9 +88,7 @@ class COLS(OBJ):
         (i.y if z in "!+-" else i.x).append(col)
         if z == "!": i.klass= col
 
-  def add(i,lst):
-    [col.add(lst[col.at]) for col in i.all if lst[col.at] != "?"]
-    return lst
+  def add(i,lst): [col.add(lst[col.at]) for col in i.all if lst[col.at] != "?"]; return lst
 
 class DATA(OBJ):
   def __init__(i,src=[],fun=None,ordered=False):
@@ -122,19 +110,19 @@ class DATA(OBJ):
     return sum(math.log(x) for x in likes + [prior])
 
 class NB(OBJ):
-  def __init__(i): i.y,i.n,i.datas = 0,0,{} 
+  def __init__(i): i.y,i.n,i.datas = 0,0,{}
 
   def classify(i,lst):
     return max([(data.loglike(lst,i.n,len(i.datas)),klass)
                 for klass,data in i.datas.items()])[1]
-  
+
   def run(i,data,lst):
     klass = lst[data.cols.klass.at]
-    if len(data.rows) > 10: 
+    if len(data.rows) > 10:
       i.n += 1
-      i.y += 1 if klass == i.classify(lst) else 0
+      i.y += (klass == i.classify(lst))
     if klass not in i.datas: i.datas[klass] =  data.clone()
-    i.datas[klass].add(lst) 
+    i.datas[klass].add(lst)
 
   def report(i): return OBJ(acc=i.y/i.n)
 #----------------------------------------------------------------------------------------
@@ -145,7 +133,7 @@ class eg:
     s = adds(SYM(),"aaaabbc")
     print(s.mid(),  s.div())
 
-  def one(): 
+  def one():
     w = OBJ(n=0)
     def inc(_,r): w.n += len(r)
     d = DATA(csv("../data/auto93.csv"), inc) 
