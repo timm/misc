@@ -58,7 +58,7 @@ class SYM(COL):
   def mid(i)           : return max(i.has, key=i.has.get)
 
 class NUM(COL):
-  def __init__(i,**d)  : super().__init__(**d) i.mu, i.m2, i.lo, i.hi = 0,0, big, -big
+  def __init__(i,**d)  : super().__init__(**d); i.mu,i.m2,i.lo,i.hi = 0,0,big,-big
   def div(i)           : return 0 if i.n < 2 else (i.m2 / (i.n - 1))**.5
   def mid(i)           : return i.mu
   def norm(i,n)        : return n=="?" and n or (n - i.lo) / (i.hi - i.lo + tiny)
@@ -104,16 +104,20 @@ class DATA(OBJ):
 
   def clone(i): return DATA([i.cols.names])
 
-  def loglike(i, lst, nall, nh, m=the.m, k=the.k):
+  def loglike(i, lst, nall, nh, m,k):
     prior = (len(i.rows) + k) / (nall + k*nh)
     likes = [c.like(lst[c.at],m,prior) for c in i.cols.x if lst[c.at] != "?"]
-    return sum(math.log(x) for x in likes + [prior])
+    return sum(math.log(x) for x in likes + [prior] if x>0)
 
 class NB(OBJ):
   def __init__(i): i.y,i.n,i.datas = 0,0,{}
 
   def classify(i,lst):
-    return max([(data.loglike(lst,i.n,len(i.datas)),klass)
+    return max([(data.loglike(lst, 
+                               i.n,
+                              max(1,len(i.datas)),
+                               the.m,
+                               the.k),klass)
                 for klass,data in i.datas.items()])[1]
 
   def run(i,data,lst):
