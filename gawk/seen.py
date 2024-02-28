@@ -153,7 +153,6 @@ class NB(OBJ):
 
   def report(i): return OBJ(accuracy = i.correct / i.nall)
 
-
 #----------------------------------------------------------------------------------------
 class eg:
   def unknown(): print(f"W> unknown action [{the.todo}].")
