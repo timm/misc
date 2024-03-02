@@ -1,0 +1,60 @@
+
+:sectnums!:
+= AI for Humans,  is Different?
+
+This book is about human-level AI; i.e. tiny AI tools that builds useful     tiny models that humans can read and understand and critique 
+(and maybe even trust).  
+
+It is written from programmers
+so it often shows code. But the main point here is that **all my tools require very little code**. So  I think even non-programmers can learn
+from all this how simple and effective is tiny AI. 
+
+Tiny AI is different to Big AI.  At the time of this right, Big AI and large language models are  dominating the press and the research.
+They are all anyone wants to talk about. Big AI is particularly  attractive to the      big companies that build and sell these
+big tools since, well, that means they get big bucks. 
+
+But there is another kind of AI which might be called "human-level" AI. 
+Over the years, there have been many reports that very simple models can perform exceptionally well. Yet, where are the papers
+asking ``say, does that mean that we could make AI
+simpler and more comprehensible?'' 
+This an important question since
+I think making AI comprehensible and trustable is a very   important goal.
+Humans often have difficulty accurately assessing complex Big AI
+models (leading to unreliable and sometimes dangerous results). 
+
+So why read this book? Well, perhaps:
+
+- You are seeking an alternative to complex AI tools that no one really understands. 
+- You just want a quick tutorial on some cool scripting tricks.
+- You are a fan of minimalism so  when ever you finish something, you lean back and say "what can I throw away and this still works?".
+- You are a fan of synthesis and you want to know how to combine together, in a simple way, what's been learned from decades of AI
+- You are a pragmatic engineering who wants to  rush a tiny AI prototype out the  door.
+At the very least this means you   will have an initial baseline system against which you can measure the value of your big AI tool.
+Alternatively, you might realize that you don't need to go big  since a little AI is all you ever needed. 
+
+[CAUTION]
+====
+An admonition block may contain complex content.
+
+.A list
+- one
+- two
+- three
+
+Another paragraph.
+====
+
+== The Keys Effect
+
+I explore tiny AI since, after three decades of working on AI [[Me92]], I keep finding examples
+where  just enough modeling is    more than enough.
+
+
+
+But do 
+
+This is the preface for the whole book.
+
+=== Preface Subsection
+
+Chinchillas rule the world.

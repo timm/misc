@@ -1,24 +1,19 @@
-= Multi-Part Book with Parts that Have Special Sections
-Author Name <author@example.com>
+= AI for Humans: a Programmer's Guide
+Author:  Tim Menzies <timm@ieee.org>
 :doctype: book
 :toc: left
 :part-signifier: Component
 :sectnums:
 :partnums:
+:caution-caption:    ❌❌   
 
 [preface]
-= Book Preface
-
-This is the preface for the whole book.
-
-=== Preface Subsection
-
-Chinchillas rule the world.
-
+ 
+include::preface.adoc[]
+ 
 = Part 1
 
-This is the introduction to the first part of our mud-encrusted journey.
-
+ 
 include::chapter1.adoc[]
 
 [glossary]
@@ -30,7 +25,10 @@ rain::
 [bibliography]
 = References
 
-* [[[pp]]] Andy Hunt & Dave Thomas. The Pragmatic Programmer:
+* [[Me92]] Menzies, T., Black, J., Fleming, J., & Dean, M. (1992, April). 
+An expert system for raising pigs. In The first Conference on Practical Applications of Prolog’. 
+ http://aturing.umcs.maine.edu/~meadow/courses/cos301/raising-pigs.pdf 
+* [[[Prag99]]] Andy Hunt & Dave Thomas. The Pragmatic Programmer:
 From Journeyman to Master. Addison-Wesley. 1999.
-* [[[gof,gang]]] Erich Gamma, Richard Helm, Ralph Johnson & John Vlissides.
+* [[[Gof94]]] Erich Gamma, Richard Helm, Ralph Johnson & John Vlissides.
 Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley. 1994.
