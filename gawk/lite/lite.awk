@@ -86,6 +86,8 @@ function go_all(   f,a) {
    split(f,a,/_/)
    if (a[1]=="go" && a[2] !="all") go(a[2]) }}
 
+function go_save() { system("git commit -am saved; git push") }
+
 function go_cat(  f) {
   while(getline < (f?f:"-")) print $0 }
 #------------------------------------------------------------------------------------------
