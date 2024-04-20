@@ -40,6 +40,7 @@ function addSym(sym,x)
   sym[x] = 1 + (sym[x] or 0)  end
 
 function addNum(num,x,     delta)
+  num.n  = num.n + 1
   delta  = x - num.mu
   num.mu = num.mu + delta/num.n
   num.m2 = num.m2 + delta*(x - num.mu)
