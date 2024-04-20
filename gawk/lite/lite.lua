@@ -67,7 +67,7 @@ local div,mid,norm,sd, entropy
 function div(col)    return col.isNum and sd(col) or entropy(col.has) end
 function mid(col)    return col.isNum and col.sd or col.mode end
 function norm(num,x) return x=="?"and x or (x - num.lo)/(num.hi - num.lo + 1E-30) 
-function sd(num)     return num.n < 2 and 0 or (num.md/(num.n - 1))^.5 end
+function sd(num)     return num.n < 2 and 0 or (num.m2/(num.n - 1))^.5 end
 
 function entropy(t,   N,e)
   e,N=0,0
