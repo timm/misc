@@ -19,7 +19,7 @@ function DATA(strs,    data)
   return data end
 
 function newSym(data,c,_) 
-  data.syms[c]={} end
+  data.syms[c] = {n=0, seen={}} end
 
 function newNum(data,c,str) 
   data.nums[c] = {heaven=str:find(the.magic.min) and 0 or 1,
@@ -37,7 +37,8 @@ function add(data,t)
       if data.nums[c] then addNum(data.nums[c],x) else addSym(data.syms[c],x) end end end end
 
 function addSym(sym,x) 
-  sym[x] = 1 + (sym[x] or 0)  end
+  sym.n = sym.n + 1
+  sym.seen[x] = 1 + (sym.seen[x] or 0)  end
 
 function addNum(num,x,     delta)
   num.n  = num.n + 1
