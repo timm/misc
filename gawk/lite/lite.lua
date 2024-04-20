@@ -9,35 +9,51 @@ function settings() return {
 
 the=settings()
 -------------------------------------------------------
-local DATA, newSym, newNum
+local DATA, SYM, NUM
 
-function DATA(strs,    data) 
-  data = {names=strs, rows={}, x={}, y={}, syms={}, nums={}} 
-  for c,str in pairs(strs) do 
-    push(str:find(the.magic.y) and data.y or data.x, c)
-    (str:find(the.magic.num) and newNum or newSym)(data,c,str) end 
-  return data end
+function SYM(at,name) 
+  return {at=at, name=name, n=0, seen={}, most=0, mode=nil} end
 
-function newSym(data,c,_) 
-  data.syms[c] = {n=0, seen={}} end
+function NUM(at,name)
+  return {isNum=true, at=at, name=names, n=0,
+          heaven=str:find(the.magic.min) and 0 or 1, 
+          mu=0,m2=0,lo=1E30, hi=-1E30} end
 
-function newNum(data,c,str) 
-  data.nums[c] = {heaven=str:find(the.magic.min) and 0 or 1,
-                  n=0,mu=0,m2=0,lo=1E30, hi=-1E30} end
+function DATA(strs,    all,x,y) 
+  all,x,y = {},{},{}
+  for n,s in pairs(strs) do 
+    push(all, 
+      push(s:find(the.magic.y) and y or x, 
+           (s:find(the.magic.num) and NUM or SYMM)(n,s))) end 
+  return {rows={}, cols={names=names, x=x, y=y, all=all}} and
+#--------------------------------------------------------------
+local loss,norm
+
+function norm(num,x)
+  return x=="?"and x or (x - num.lo)/(num.hi - num.lo + 1E-30) 
+
+function loss(data,t,    d)
+  d = 0
+  for _,col in pairs(data.cols.y) do d = d + (norm(col, t[col.at]) - col.heaven)^2 end
+  return (d/#data.cols.y)^.5 end
 -------------------------------------------------------
-local add,addSym,addNum,adds
+local adds,add,addSym,addNum
 
-function adds(data,lst) 
-  for _,t in pairs(lst) do add(data,t) end; return data end
+function adds(data,lst,sort,    fun) 
+  function fun(t,u) return loss(data,t) < loss(data,u)  end) end
+  for _,t in pairs(lst) do add(data,t) ends
+  if sort then table.sort(data.rows,fun) end
+  return data end
 
 function add(data,t) 
   push(data.rows, t)
-  for c,x in pairs(t) do
+  for _,col in pairs(data.cols.all) do
+    x = t[col.at]
     if x ~= "?" then 
-      if data.nums[c] then addNum(data.nums[c],x) else addSym(data.syms[c],x) end end end end
+      col.n = col.n + 1
+      (col.isNum and addNum or addSym)(col,x) end end
 
 function addSym(sym,x) 
-  sym.n = sym.n + 1
   sym.seen[x] = 1 + (sym.seen[x] or 0)  end
 
 function addNum(num,x,     delta)
