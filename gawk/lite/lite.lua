@@ -9,55 +9,41 @@ function settings() return {
 
 the=settings()
 -------------------------------------------------------
-local col,columns,DATA,new
+local DATA, newSym, newNum
 
-function DATA(strs) return {
-  names=strs, 
-  rows={},
-  y={}, x={}, heaven={}, 
-  n={}, 
-  seen={}, 
-  mu={}, m2={}, hi={}, lo={}}  end
-
-function new(strs,    data) 
-  data=DATA(strs)
+function DATA(strs,    data) 
+  data = {names=strs, rows={}, x={}, y={}, syms={}, nums={}} 
   for c,str in pairs(strs) do 
-    columns(data,c,str)
-    col(data,c,str) end 
+    push(str:find(the.magic.y) and data.y or data.x, c)
+    (str:find(the.magic.num) and newNum or newSym)(data,c,str) end 
   return data end
 
-function columns(data,c,str)
-  data.n[c]=0
-  if not str:find(the.magic.y) then push(data.cols.x, c) else
-    push(data.cols.y, c)
-    data.cols.heaven[c] = str:find(the.magic.min) and 0 or 1
+function newSym(data,c,_) 
+  data.syms[c]={} end
 
-function col(data,c,str)
-  if not str:find(the.magic.num) then data.seen[c]={} else
-    data.mu[c] = 0
-    data.m2[c] = 0
-    data.lo[c] =  1E30
-    data.hi[c] = -1E30 end end 
+function newNum(data,c,str) 
+  data.nums[c] = {heaven=str:find(the.magic.min) and 0 or 1,
+                  n=0,mu=0,m2=0,lo=1E30, hi=-1E30} end
 -------------------------------------------------------
-local add,add1,adds,nump
+local add,addSym,addNum,adds
 
-function adds(data,lst) for _,t in pairs(lst) do add(data,t) end; return data end
+function adds(data,lst) 
+  for _,t in pairs(lst) do add(data,t) end; return data end
 
 function add(data,t) 
   push(data.rows, t)
   for c,x in pairs(t) do
     if x ~= "?" then 
-      data.n[c] = data.n[c]+1
-      add1(data,c,x) end end end
+      if data.nums[c] then addNum(data.nums[c],x) else addSym(data.syms[c],x) end end end end
 
-function add1(data,c,x,    delta)
-  if not nump(data,c) then data.seen[c][x] = 1 + (data.seen[c][x] or 0)  else
-    delta      = x - data.mu[c]
-    data.mu[c] = data.mu[c] + delta/data.n[c]
-    data.m2[c] = data.m2[c] + delta*(x - data.mu[c])
-    if x > data.hi[c] then data.hi[c] = x end
-    if x < data.lo[c] then data.lo[c] = x end end end
-  
-function nump(data,c) return data.mu[c] end
+function addSym(sym,x) 
+  sym[x] = 1 + (sym[x] or 0)  end
+
+function addNum(num,x,     delta)
+  delta  = x - num.mu
+  num.mu = num.mu + delta/num.n
+  num.m2 = num.m2 + delta*(x - num.mu)
+  if x > num.hi then num.hi = x end
+  if x < num.lo then num.lo = x end end 
 #--------------------------------------------------------------
 function push(t,x) t[1+#t]=x; return x end
