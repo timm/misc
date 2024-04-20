@@ -1,9 +1,11 @@
-local help="""
-lite.lua : look around, learn a little, decide what to do next
-(copyleft) 2024 Tim Menzies <timm@ieee.org> BSD 2 clause.
-"""
+local help=[[
+lite.lua : very simple sequential model optimizer.
+Look around a little, learn a little, decide what to do next
+(c) 2024 Tim Menzies <timm@ieee.org> BSD 2 clause.
+]]
 local push
-local settings,the
+-------------------------------------------------------
+local settings, the
 
 function settings() return {
   file="../../data/auto93.csv",
@@ -14,31 +16,32 @@ the=settings()
 -------------------------------------------------------
 local DATA, SYM, NUM
 
-function SYM(at,name) 
-  return {at=at, name=name, n=0, seen={}, most=0, mode=nil} end
+function SYM(name,at)
+  return {name=name or "", at=at or 0, n=0, seen={}, most=0, mode=nil} end
 
-function NUM(at,name)
-  return {isNum=true, at=at, name=names, n=0,
-          heaven=str:find(the.magic.min) and 0 or 1, 
+function NUM(name,at)
+  return {isNum=true, at=at or 0, name = name or "", n=0,
+          heaven=(name or ""):find(the.magic.min) and 0 or 1,
           mu=0,m2=0,lo=1E30, hi=-1E30} end
 
-function DATA(strs,    all,x,y) 
+function DATA(strs,    all,x,y)
   all,x,y = {},{},{}
-  for n,s in pairs(strs) do 
-    push(all, 
-      push(s:find(the.magic.y) and y or x, 
-           (s:find(the.magic.num) and NUM or SYMM)(n,s))) end 
-  return {rows={}, cols={names=names, x=x, y=y, all=all}} and
+  for n,s in pairs(strs) do
+    push(all,
+      push(s:find(the.magic.y) and y or x,  
+           (s:find(the.magic.num) and NUM or SYM)(s,n))) end
+  return {rows={}, cols={names=strs, x=x, y=y, all=all}} end
 -------------------------------------------------------
-local adds,add,addSym,addNum,loss,adds
+local adds,add,addSym,addNum,loss,adds, norm
 
-function add(data,t) 
+function add(data,t,    x)
+  print(data.rows)
   push(data.rows, t)
   for _,col in pairs(data.cols.all) do
     x = t[col.at]
     if x ~= "?" then 
       col.n = col.n + 1
-      (col.isNum and addNum or addSym)(col,x) end end
+      (col.isNum and addNum or addSym)(col,x) end end end
 
 function addSym(sym,x) 
   sym.seen[x] = 1 + (sym.seen[x] or 0)  end
@@ -49,29 +52,49 @@ function addNum(num,x,     delta)
   num.mu = num.mu + delta/num.n
   num.m2 = num.m2 + delta*(x - num.mu)
   if x > num.hi then num.hi = x end
-  if x < num.lo then num.lo = x end end 
+  if x < num.lo then num.lo = x end end
 
 function loss(data,t,    d)
   d = 0
   for _,col in pairs(data.cols.y) do d = d + (norm(col, t[col.at]) - col.heaven)^2 end
   return (d/#data.cols.y)^.5 end
 
-function adds(data,lst,sort,    fun) 
-  function fun(t,u) return loss(data,t) < loss(data,u) end
-  for _,t in pairs(lst) do add(data,t) ends
-  if sort then table.sort(data.rows,fun) end
-  return data end
+function adds(thing,lst)
+  for _,x in pairs(lst) do print(x); add(thing,x) end
+  return thing end
 --------------------------------------------------------------
-local div,mid,norm,sd, entropy
+local div,mid,norm,sd, entropy -- norm (defined above)
 
 function div(col)    return col.isNum and sd(col) or entropy(col.has) end
 function mid(col)    return col.isNum and col.sd or col.mode end
-function norm(num,x) return x=="?"and x or (x - num.lo)/(num.hi - num.lo + 1E-30) 
+function norm(num,x) return x=="?"and x or (x - num.lo)/(num.hi - num.lo + 1E-30) end
 function sd(num)     return num.n < 2 and 0 or (num.m2/(num.n - 1))^.5 end
 
 function entropy(t,   N,e)
   e,N=0,0
   for _,n in pairs(t) do N=N+n end 
   for _,n in pairs(t) do e=e + n/N*math.log(n/N,2) end
---------------------------------------------------------------
+  return -e end
+----------------------------------------------------------------
+-- ## Misc library functions
 function push(t,x) t[1+#t]=x; return x end
+----------------------------------------------------------------
+-- ## Examples
+local eg = {}
+
+local function normal(mu,sd,    R)
+  R=math.random
+  return (mu or 0) + (sd or 1) * math.sqrt(-2 * math.log(R()))
+                               * math.cos(2 * math.pi * R()) end
+
+local function run(x)
+  the = settings()
+  math.randomseed(the.seed or 1234567891)
+  return eg[x]() end
+
+function eg.num(  n)
+  n=NUM()
+  for _=1,10^4 do addNum(n,normal(10,2)) end
+  print(sd(n), mid(n)) end
+
+if  not pcall(debug.getlocal, 4, 1) and arg[1] then run(arg[1]) end
