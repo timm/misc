@@ -2,20 +2,19 @@
 local help=[[
 lite.lua : very simple sequential model optimizer.
 Look around a little, learn a little, decide what to do next
-(c) 2024 Tim Menzies <timm@ieee.org> BSD 2 clause.
-]]
+(c) 2024 Tim Menzies <timm@ieee.org> BSD 2 clause.]]
 local SYM,NUM,DATA = {},{},{}
-local klass,adds,cat,entropy,fmt,kat,kap,map,normal,show,push,sort
+local the,settings
+local adds,cat,entropy,fmt,kap,kat,klass,map,normal,show,push,sort
 -------------------------------------------------------
-local function settings() return {
+function settings() return {
   file  = "../../data/auto93.csv",
   seed  = 1234567891,
+  p     = 2,
   magic = {y="[-+!]$", --[a]
            min="-$",
            num="^[A-Z]"
           }} end
-
-local the=settings()
 -------------------------------------------------------
 function SYM:new(name,at)
   return {name=name or "", at=at or 0, n=0, seen={}, most=0, mode=nil} end
@@ -59,10 +58,30 @@ function NUM:div() return self.n < 2 and 0 or (self.m2/(self.n - 1))^.5 end
 
 function NUM:norm(x) return x=="?"and x or (x - self.lo)/(self.hi - self.lo + 1E-30) end
 
-function DATA:loss(t,    d)
+----------------------------------------------------------------
+function SYM:dist(x,y)
+  return x=="?" and 1 or (x==y and 0 or 1) end
+
+function NUM:dist(x,y)
+  if x=="?" and u=="?" then return 1 end
+  x,y=self:norm(x), self:norm(y)
+  x= (x~="?") and x or (y<.5 and 1 or 0)
+  y= (y~="?") and y or (x<.5 and 1 or 0)
+  return abs(x-y) end
+
+function DATA:dist(t1,t2,    d)
+  d = 0
+  for _,col in pairs(self.cols.x) do d = d + (col:dist(t1[col.at], t2[col.at])^p end
+  return (d/#self.cols.x)^(1/p) end
+
+function DATA:dist2heaven(t,    d)
   d = 0
   for _,col in pairs(self.cols.y) do d=d + (col:norm(t[col.at]) - col.heaven)^2 end
   return (d/#self.cols.y)^.5 end
+
+-- function DATA:dist2rows(row1,   rows)
+--   rows = rows or self.row
+--   table.sort(rows, function(r1,r2) self:dist())
 ----------------------------------------------------------------
 -- ## Misc library functions
 
@@ -117,6 +136,7 @@ local function run(x)
   math.randomseed(the.seed or 1234567891)
   return eg[x]() end
 
+eg["-h"] = function() print("\n"..help) end
 function eg.num(  n,t)
   t={}; for _=1,10^4 do push(t,normal(10,2)) end;  n=adds(NUM(),t)
   print(n:div(), n:mid()) end
