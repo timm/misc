@@ -5,7 +5,7 @@ Look around a little, learn a little, decide what to do next
 (c) 2024 Tim Menzies <timm@ieee.org> BSD 2 clause.]]
 local SYM,NUM,DATA = {},{},{}
 local the,settings
-local adds,cat,entropy,fmt,kap,kat,klass,map,normal,show,push,sort
+local adds,cat,entropy,fmt,kap,kat,klass,map,normal,show,push,show,sort
 -------------------------------------------------------
 function settings() return {
   file  = "../../data/auto93.csv",
@@ -32,17 +32,18 @@ function DATA:new(strs,    all,x,y)
         (s:find(the.magic.num) and NUM or SYM)(s,n))) end
   return {rows={}, cols={names=strs, x=x, y=y, all=all}} end
 -------------------------------------------------------
-function SYM:add(x)
-  self.n = self.n + 1
-  self.seen[x] = 1 + (self.seen[x] or 0)  end
+function SYM:add(x,n)
+  n            = n or 1
+  self.n       = self.n + n
+  self.seen[x] = n + (self.seen[x] or 0)  end
 
 function NUM:add(x,     delta)
   self.n  = self.n + 1
-  delta  = x - self.mu
+  delta   = x - self.mu
   self.mu = self.mu + delta/self.n
   self.m2 = self.m2 + delta*(x - self.mu)
-  if x > self.hi then self.hi = x end
-  if x < self.lo then self.lo = x end end
+  self.hi = math.max(self.hi, x)
+  self.lo = math.max(self.lo, x) end
 
 function DATA:add(t,    x)
   push(self.rows, t)
@@ -53,35 +54,50 @@ function DATA:add(t,    x)
 function SYM:mid() return self.mode end
 function NUM:mid() return self.mu end
 
-function SYM:div() return entropy(self.has) end
+function SYM:div() return entropy(self.seen) end
 function NUM:div() return self.n < 2 and 0 or (self.m2/(self.n - 1))^.5 end
 
 function NUM:norm(x) return x=="?"and x or (x - self.lo)/(self.hi - self.lo + 1E-30) end
+----------------------------------------------------------------
+function SYM:like(x, prior)
+  return ((self.seen[x] or 0) + the.m*prior)/(self.n +the.m) end
 
+function NUM:like(x,_,      sd)
+  sd = self:div() + 1E-30
+  return (2.718^(-.5*(x - self.mu)^2/(sd^2))) / (sd*2.5) end
+
+function DATA:like(t,n,nHypotheses,       prior,out,v)
+  prior = (#self.rows + the.k) / (n + the.k * nHypotheses)
+  out   = math.log(prior)
+  for _,col in pairs(self.cols.x) do
+    v= t[col.at]
+    if v ~= "?" then
+      out = out + math.log(col:like(v,prior)) end end
+  return out end
 ----------------------------------------------------------------
 function SYM:dist(x,y)
   return x=="?" and 1 or (x==y and 0 or 1) end
 
 function NUM:dist(x,y)
-  if x=="?" and u=="?" then return 1 end
+  if x=="?" and y=="?" then return 1 end
   x,y=self:norm(x), self:norm(y)
   x= (x~="?") and x or (y<.5 and 1 or 0)
   y= (y~="?") and y or (x<.5 and 1 or 0)
-  return abs(x-y) end
+  return math.abs(x-y) end
 
 function DATA:dist(t1,t2,    d)
   d = 0
-  for _,col in pairs(self.cols.x) do d = d + (col:dist(t1[col.at], t2[col.at])^p end
-  return (d/#self.cols.x)^(1/p) end
+  for _,c in pairs(self.cols.x) do d = d + c:dist(t1[c.at], t2[c.at])^the.p end
+  return (d/#self.cols.x)^(1/the.p) end
 
 function DATA:dist2heaven(t,    d)
   d = 0
-  for _,col in pairs(self.cols.y) do d=d + (col:norm(t[col.at]) - col.heaven)^2 end
+  for _,c in pairs(self.cols.y) do d=d + (c:norm(t[c.at]) - c.heaven)^2 end
   return (d/#self.cols.y)^.5 end
 
--- function DATA:dist2rows(row1,   rows)
---   rows = rows or self.row
---   table.sort(rows, function(r1,r2) self:dist())
+function DATA:dist2rows(row,  rows)
+  return sort(map(rows or self.rows, function(r) return {self.dist(row,r),r} end),
+             function(x,y) return x[1] < y[1] end) end
 ----------------------------------------------------------------
 -- ## Misc library functions
 
