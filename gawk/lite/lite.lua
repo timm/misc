@@ -35,7 +35,8 @@ function DATA:new(strs,    all,x,y)
 function SYM:add(x,n)
   n            = n or 1
   self.n       = self.n + n
-  self.seen[x] = n + (self.seen[x] or 0)  end
+  self.seen[x] = n + (self.seen[x] or 0)
+  if self.seen[x] > self.most then self.most, self.mode = self.seen[x],x end end
 
 function NUM:add(x,     delta)
   self.n  = self.n + 1
@@ -49,7 +50,7 @@ function DATA:add(t,    x)
   push(self.rows, t)
   for _,col in pairs(self.cols.all) do
     x = t[col.at]
-    if x ~= "?" then col:add(col,x) end end end
+    if x ~= "?" then col:add(x) end end end
 --------------------------------------------------------------
 function SYM:mid() return self.mode end
 function NUM:mid() return self.mu end
@@ -66,13 +67,14 @@ function NUM:like(x,_,      sd)
   sd = self:div() + 1E-30
   return (2.718^(-.5*(x - self.mu)^2/(sd^2))) / (sd*2.5) end
 
-function DATA:like(t,n,nHypotheses,       prior,out,v)
+function DATA:loglike(t,n,nHypotheses,       prior,out,v,inc)
   prior = (#self.rows + the.k) / (n + the.k * nHypotheses)
   out   = math.log(prior)
   for _,col in pairs(self.cols.x) do
     v= t[col.at]
     if v ~= "?" then
-      out = out + math.log(col:like(v,prior)) end end
+      inc = col:like(v,prior)
+      if inc>0 then out = out + math.log(col:like(v,prior)) end end end
   return out end
 ----------------------------------------------------------------
 function SYM:dist(x,y)
@@ -95,9 +97,15 @@ function DATA:dist2heaven(t,    d)
   for _,c in pairs(self.cols.y) do d=d + (c:norm(t[c.at]) - c.heaven)^2 end
   return (d/#self.cols.y)^.5 end
 
-function DATA:dist2rows(row,  rows)
+function DATA:neighbors(row,  rows)
   return sort(map(rows or self.rows, function(r) return {self.dist(row,r),r} end),
              function(x,y) return x[1] < y[1] end) end
+
+function DATA:faraway(some,  n,far,     away)
+  n    = n or (#some * the.far) // 1
+  far  = far or self:neighbors(any(some), some)[n][2]
+  away = self:neighbors(far,some)[n][2]
+  return far, away end
 ----------------------------------------------------------------
 -- ## Misc library functions
 
@@ -111,6 +119,9 @@ function entropy(t,   N,e)
 function normal(mu,sd,    r)
   r = math.random
   return (mu or 0) + (sd or 1) * math.sqrt(-2 * math.log(r()))* math.cos(2 * math.pi * r()) end
+
+function any(t)           return t[math.random(#t)] end
+function many(t,n,    u)  u={}; for _ in 1,n do push(u, any(t)) end end
 
 -- ### Lists
 function adds(thing,t) for _,x in pairs(t) do thing:add(x) end; return thing end
