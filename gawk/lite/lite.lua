@@ -52,28 +52,40 @@ function NUM:add(x,     delta)
   self.hi = math.max(self.hi, x)
   self.lo = math.min(self.lo, x) end
 
-function DATA:add(row)
+function DATA:add(row,      x)
   l.push(self.rows, row)
   for _,col in pairs(self.cols.all) do
     x = row.cells[col.at]
     if x ~= "?" then col:add(x) end end end
 -----------------------------------------------------------------------------------------
-function SYM:mid() return self.mode end
-function NUM:mid() return self.mu end
+-- ### Queries to distributions
 
-function SYM:div() return l.entropy(self.seen) end
-function NUM:div() return self.n < 2 and 0 or (self.m2/(self.n - 1))^.5 end
+-- `mid() -> any` <br>Returns central tendency 
+function SYM:mid() return self.mode end 
+function NUM:mid() return self.mu end   
 
-function NUM:norm(x) return x=="?"and x or (x - self.lo)/(self.hi - self.lo + 1E-30) end
+-- `div() -> float` <br>Returns diversity  
+function SYM:div() return l.entropy(self.seen) end  
+function NUM:div() return self.n < 2 and 0 or (self.m2/(self.n-1))^.5 end  
+
+-- `norm(int) -> (0..1 | ?)`
+function NUM:norm(x)  
+  return x=="?"and x or (x - self.lo)/(self.hi - self.lo + 1E-30) end
 -----------------------------------------------------------------------------------------
-function SYM:like(x, prior)
+-- ### Likelihood of distribution having 'it' 
+
+-- `like(any,float) -> float`
+function SYM:like(x, prior) 
   return ((self.seen[x] or 0) + the.nb.m*prior)/(self.n +the.nb.m) end
 
-function NUM:like(x,_,      sd)
+-- `like(num) -> float`
+function NUM:like(x,  _,      sd) 
   sd = self:div() + 1E-30
   return (2.718^(-.5*(x - self.mu)^2/(sd^2))) / (sd*2.5) end
 
-function DATA:loglike(t,n,nClasses,       prior,out,v,inc)
+-- `loglike(ROW,int,int) -> float`
+function DATA:loglike(row, n, nClasses,   
+                      prior,out,v,inc)
   prior = (#self.rows + the.nb.k) / (n + the.nb.k * nClasses)
   out   = math.log(prior)
   for _,col in pairs(self.cols.x) do
@@ -83,22 +95,24 @@ function DATA:loglike(t,n,nClasses,       prior,out,v,inc)
       if inc > 0 then out = out + math.log(inc) end end end
   return out end
 -----------------------------------------------------------------------------------------
--- function DATA:smo(  score,like, acquite)
---   score   = score or function(B,R) return  B - R end
---   like    = function(row,data) return data:loglike(row, len(data.rows),2) end
---   acquire = function (best,rest,rows)
---               rows = sort(rows, function(r) return -score(like(r,best), like(r,rest)) end)
---               for i = (#rows*the.upper//1),#rows do rows[i]= nil end
---               return rows end end
---   todo,done={},{}
---   for i,row in pairs(l.shuffle(self.rows)) do
---      l.push( i <= the.smo.start and todo or done, row) end
---   data1=self:clone(done,true)
---   for i in 1,the.stop do
---     if #todo < 3 then break end
---     n = (#done^the.best + .5)//1
---     for 
---     todo = acquite()
+local SMO={}
+function SMO:new(data,score)
+function DATA:smo(  score,like, acquite)
+  score   = score or function(B,R) return  B - R end
+  like    = function(row,data) return data:loglike(row, len(data.rows),2) end
+  acquire = function (best,rest,rows)
+              rows = sort(rows, function(r) return -score(like(r,best), like(r,rest)) end)
+              for i = (#rows*the.upper//1),#rows do rows[i]= nil end
+              return rows end end
+  todo,done={},{}
+  for i,row in pairs(l.shuffle(self.rows)) do
+     l.push( i <= the.smo.start and todo or done, row) end
+  data1=self:clone(done,true)
+  for i in 1,the.stop do
+    if #todo < 3 then break end
+    n = (#done^the.best + .5)//1
+    for 
+    todo = acquite()
 
                
                      
