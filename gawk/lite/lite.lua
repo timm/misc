@@ -83,6 +83,12 @@ function DATA:loglike(t,n,nHypotheses,       prior,out,v,inc)
       if inc > 0 then out = out + math.log(inc) end end end
   return out end
 -----------------------------------------------------------------------------------------
+function DATA:smo(  score,likike)
+  score = score or function(B,R) return  B - R end
+  like  = function(row,data) return data:loglike(row, len(data.rows),2) end
+  acquire = function (best,rest,rows) end 
+  end
+-----------------------------------------------------------------------------------------
 function SYM:dist(x,y)
   return x=="?" and 1 or (x==y and 0 or 1) end
 
@@ -183,10 +189,10 @@ function l.csv(src,     i)
 function l.arg(s)
   for k,v in pairs(arg) do if v==s then return l.coerce(arg[k+1]) end end end
 
-function csv2data(file,     data)
-  for i,t in csv(file) do
-    if i==1 then data=DATA(t) else data:add(t) end end 
-  return data end 
+function l.csv2data(file,     data)
+  for i,t in l.csv(file) do
+    if i==1 then data=DATA(t) else data:add(ROW(t)) end end
+  return data end
 -----------------------------------------------------------------------------------------
 -- ## Examples
 
@@ -205,8 +211,10 @@ eg["--csv"]= function(    i)
   i=0
   for row in l.csv(the.file) do i=i+1; if i%50==1 then print(l.cat(row)) end end end
 
-eg["--data"]=function(    d,it)
-  for c,col in pairs(DATA(the.file).cols.all) do print(c,col) end end
+eg["--data"]=function(    d)
+  d =  l.csv2data(the.file)
+  for c,col in pairs(d.cols.all) do print(c,col) end
+  print(#d.rows, d.cols.all[1]:div()) end
 -----------------------------------------------------------------------------------------
 -- ## Start uo
 l.kap({ROW=ROW,SYM=SYM, NUM=NUM, DATA=DATA},l.klass)
