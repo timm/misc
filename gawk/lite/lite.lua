@@ -73,8 +73,8 @@ function NUM:like(x,_,      sd)
   sd = self:div() + 1E-30
   return (2.718^(-.5*(x - self.mu)^2/(sd^2))) / (sd*2.5) end
 
-function DATA:loglike(t,n,nHypotheses,       prior,out,v,inc)
-  prior = (#self.rows + the.nb.k) / (n + the.nb.k * nHypotheses)
+function DATA:loglike(t,n,nClasses,       prior,out,v,inc)
+  prior = (#self.rows + the.nb.k) / (n + the.nb.k * nClasses)
   out   = math.log(prior)
   for _,col in pairs(self.cols.x) do
     v = t.cells[col.at]
@@ -83,11 +83,26 @@ function DATA:loglike(t,n,nHypotheses,       prior,out,v,inc)
       if inc > 0 then out = out + math.log(inc) end end end
   return out end
 -----------------------------------------------------------------------------------------
-function DATA:smo(  score,likike)
-  score = score or function(B,R) return  B - R end
-  like  = function(row,data) return data:loglike(row, len(data.rows),2) end
-  acquire = function (best,rest,rows) end 
-  end
+-- function DATA:smo(  score,like, acquite)
+--   score   = score or function(B,R) return  B - R end
+--   like    = function(row,data) return data:loglike(row, len(data.rows),2) end
+--   acquire = function (best,rest,rows)
+--               rows = sort(rows, function(r) return -score(like(r,best), like(r,rest)) end)
+--               for i = (#rows*the.upper//1),#rows do rows[i]= nil end
+--               return rows end end
+--   todo,done={},{}
+--   for i,row in pairs(l.shuffle(self.rows)) do
+--      l.push( i <= the.smo.start and todo or done, row) end
+--   data1=self:clone(done,true)
+--   for i in 1,the.stop do
+--     if #todo < 3 then break end
+--     n = (#done^the.best + .5)//1
+--     for 
+--     todo = acquite()
+
+               
+                     
+
 -----------------------------------------------------------------------------------------
 function SYM:dist(x,y)
   return x=="?" and 1 or (x==y and 0 or 1) end
@@ -135,6 +150,11 @@ function l.normal(mu,sd,    r)
 
 function l.any(t)           return t[math.random(#t)] end
 function l.many(t,n,    u)  u={}; for _ in 1,n do l.push(u, l.any(t)) end end
+
+function l.shuffle(t,    u,j)
+  u={}; for _,x in pairs(t) do u[1+#u]=x; end;
+  for i = #u,2,-1 do j=math.random(i); u[i],u[j] = u[j],u[i] end
+  return u end
 
 -- ### Lists
 function l.adds(thing,t) for x in pairs(t) do thing:add(x) end; return thing end
