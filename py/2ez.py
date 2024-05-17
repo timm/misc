@@ -5,7 +5,6 @@
 (C) 2024 Tim Menzies, timm@ieee.org, BSD-2 """
 
 import re,ast,sys,math,random,copy
-from typing import Any,Iterable,Callable
 from fileinput import FileInput as file_or_stdin
 
 defaults = dict(decs=3,
@@ -16,18 +15,20 @@ big = 1E30
 #--------- --------- --------- --------- --------- --------- --------- --------- --------
 def COL(txt=" ",at=0): return o(at=at, txt=txt, n=0, heaven= 0 if s[-1]=="-" else 1)
 def SYM(**d):  return o(this=SYM, has={},**COL(**d))
-def NUM(**d):  return o(this=NUM, hi=-big, lo=big, mu=0, m2=0, sd=0,**COL(**d))
+def NUM(**d):  return o(this=NUM, hi=-big, lo=big, mu=0, m2=0, **COL(**d))
 def COLS(lst): return o(this=COLS, x=[], y=[], all=[], klass=None, names=lst)
 def DATA():    return o(this=DATA, rows=[], cols=[])
 
 def cols(names):
   cols1 = COLS(names)
-  for n,s in enumerate(names):
-    col = (NUM if s[0].isupper else SYM)(txt=s, at=n)
-    col1.all += [col]
-    if s[-1] == "!": cols1.klass = col
-    if s[-1] != "X": (col1.y if s[-1] in "!+-" else col1.x).append(col)
+  cols1.all = [_cols(n,s,cols1) for n,s in enumerate(names)]
   return cols1
+
+def _cols1(n,s,cols1):
+  col = (NUM if s[0].isupper else SYM)(txt=s, at=n)
+  if s[-1] == "!": cols1.klass = col
+  if s[-1] != "X": (col1.y if s[-1] in "!+-" else col1.x).append(col)
+  return col
 
 def data(src=None, rank=False):
   data1=DATA()
@@ -36,7 +37,7 @@ def data(src=None, rank=False):
   return data1
 
 def clone(data, inits=[], rank=False):
-  return DATA([data.cols.names]+inits,rank + rank)
+  return DATA([data.cols.names]+inits,rank=rank )
 
 #--------- --------- --------- --------- --------- --------- --------- --------- ---------
 def add2data(data,row):
@@ -58,7 +59,6 @@ def _add2num(num,x,n):
     d       = x - num.mu
     num.mu += d / num.n
     num.m2 += d * (x -  num.mu)
-    num.sd  = 0 if num.n < 2 else (num.m2 / (num.n - 1))**.5
 
 #--------- --------- --------- --------- --------- --------- --------- --------- --------
 def d2h(data,row):
@@ -103,10 +103,14 @@ def cli(d):
 #--------- --------- --------- --------- --------- --------- --------- --------- ---------
 def run(s):
   b4 = {k:v for k,v in the.__dict__.items()}
-  getattr(eg,s)()
+  out = getattr(eg,s)()
   for k,v in b4.items(): the.__dict__[k]=v
+  return out
 
 class eg:
+  def all():
+    sys.exit(sum(run(s)==False for s in dir() if s[0] !="_" and s !=  "all"))
+
   def the(): print(the)
 
   def help():
