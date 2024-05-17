@@ -24,7 +24,7 @@ def COLS(lst):
 def DATA(lsts, rank=False):
   data = OBJ(rows=[],col=[])
   for row in lsts: addRow(data,row)
-  if rank: data.rows.sort(key = lambda row:d2h(data,row))
+  if rank: data.rows.sort(key = lambda lst:d2h(data,row))
   return data
 
 def d2h(data,row):
