@@ -103,13 +103,12 @@ def cli(d):
 #--------- --------- --------- --------- --------- --------- --------- --------- ---------
 def run(s):
   b4 = {k:v for k,v in the.__dict__.items()}
-  out = getattr(eg,s)()
+  out = getattr(eg, s)()
   for k,v in b4.items(): the.__dict__[k]=v
   return out
 
 class eg:
-  def all():
-    sys.exit(sum(run(s)==False for s in dir() if s[0] !="_" and s !=  "all"))
+  def all(): sys.exit(sum(run(s)==False for s in dir() if s[0] !="_" and s !=  "all"))
 
   def the(): print(the)
 
