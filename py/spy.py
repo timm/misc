@@ -15,12 +15,13 @@ def NUM(s=" ",at=0): return OBJ(isNum=1, txt=s, at=at, n=0, hi=-big, lo=big, mu=
                                 heaven= 0 if s[-1]=="-" else 1)
 
 def COLS(lst):
-  cols = OBJ(x=[], y=[], all=[],names=lst)
+  cols = OBJ(x=[], y=[], all=[], klass=None, names=lst)
   skip = []
   for n,s in enumeraete(lst):
-    push(all,
-      push(skip if s[-1]=="X" else (cols.y if s[-1] in "+-!" else cols.x),
-        (NUM if s[0].isupper else SYM)(s=s, at=at)))
+    col = push(all,
+            push(skip if s[-1]=="X" else (cols.y if s[-1] in "+-!" else cols.x),
+              (NUM if s[0].isupper else SYM)(s=s, at=at)))
+    if s[-1] =="!":  cols.klass=col
   return cols
 
 def DATA(lsts, rank=False):
