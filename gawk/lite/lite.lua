@@ -5,9 +5,8 @@ Look around a little, learn a little, decide what to do next
 (c) 2024 Tim Menzies <timm@ieee.org> BSD 2 clause.]]
 
 local ROW,SYM,NUM,DATA = {},{},{},{}
-local the,settings
 -----------------------------------------------------------------------------------------
-function settings() return {
+local function settings() return {
   file  = "../../data/auto93.csv",
   seed  = 1234567891,
   decs  = 3,
@@ -19,17 +18,25 @@ function settings() return {
            min=  "-$",
            num=  "^[A-Z]"
           }} end
+
+local the = settings()
 -----------------------------------------------------------------------------------------
+-- ## Constructors
+
+-- `new(list) -> ROW`
 function ROW:new(t) return {cells=t} end
 
+-- `new(str,int) -> SYM`
 function SYM:new(name,at)
   return {name=name or "", at=at or 0, n=0, seen={}, most=0, mode=nil} end
 
+-- `new(str,int) -> NUM`
 function NUM:new(name,at)
   return {at=at or 0, name = name or "", n=0,
           heaven=(name or ""):find(the.magic.min) and 0 or 1,
           mu=0,m2=0,lo=1E30, hi=-1E30} end
 
+-- `new(list[str]) -> DATA`
 function DATA:new(strs,    all,x,y)
   all,x,y = {},{},{}
   for n,s in pairs(strs) do
@@ -37,6 +44,11 @@ function DATA:new(strs,    all,x,y)
       l.push(s:find(the.magic.y) and y or x,  
         (s:find(the.magic.num) and NUM or SYM)(s,n))) end
   return {rows={}, cols={names=strs, x=x, y=y, all=all}} end
+
+-- `clone(?list[row], bool)
+function DATA:clone(  rows,isSort,     data)
+  data = l.adds(DATA({self.cols.names}), rows or {})
+  return sort and data:sort(isSort) or data end
 -----------------------------------------------------------------------------------------
 function SYM:add(x,n)
   n            = n or 1
