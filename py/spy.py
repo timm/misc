@@ -1,6 +1,6 @@
 #!/usr/bin/env python3 -B
 # vim : set ts=2 sw=2 et :
-import re,ast,sys,math,random
+import re,ast,sys,math,random,copy
 from typing import Any,Iterable,Callable
 from fileinput import FileInput as file_or_stdin
 
@@ -60,13 +60,16 @@ class OBJ:
     return i.__class__.__name__+str(d)
 
 #------------------------------------------------------------------------------
+def run(s):
+  b4 = {k:v for k,v in the.__dict__.items()}
+  getattr(eg,s)()
+  for k,v in b4.items(): the.__dict__[k]=v
+
 class eg:
   def load(): print(1)
     
 #------------------------------------------------------------------------------
 the = OBJ(**defaults)
-
 if __name__ == "__main__":
   cli(the.__dict__)
-  print(the)
-  getattr(eg, the.go)
+  run(the.go)
