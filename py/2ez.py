@@ -26,11 +26,11 @@ the = o(decs  = 3,
 
 big = 1E30
 #--------- --------- --------- --------- --------- --------- --------- --------- --------
-def DATA():            return o(this=DATA, rows=[], cols=[])
-def COLS(lst):         return o(this=COLS, x=[], y=[], all=[], klass=None, names=lst)
-def SYM(txt=" ",at=0): return o(this=SYM,  txt=txt, at=at, n=0, has={})
-def NUM(txt=" ",at=0): return o(this=NUM,  txt=txt, at=at, n=0, hi=-big, lo=big, 
-                                           mu=0, m2=0, heaven= 0 if txt[-1]=="-" else 1)
+def DATA():            return o(DATA, rows=[], cols=[])
+def COLS(lst):         return o(x=[], y=[], all=[], klass=None, names=lst)
+def SYM(txt=" ",at=0): return o(isNum=False, txt=txt, at=at, n=0, has={})
+def NUM(txt=" ",at=0): return o(isNum=True,  txt=txt, at=at, n=0, hi=-big, lo=big, 
+                                             mu=0, m2=0, heaven= 0 if txt[-1]=="-" else 1)
 
 def cols(names):
   cols1 = COLS(names)
@@ -60,7 +60,7 @@ def add2data(data,row):
 def add2col(col,x,n=1):
   if x!="?":
     col.n += n
-    (_add2num if col.this is NUM else _add2sym)(col,x,n)
+    (_add2num if col.isNum else _add2sym)(col,x,n)
   return x
 
 def _add2Sym(sym,x,n): sym.has[x] = sym.has.get(x,0) + n
@@ -75,13 +75,13 @@ def _add2num(num,x,n):
 
 #--------- --------- --------- --------- --------- --------- --------- --------- --------
 def mid(col): 
-  return col.mu if col.this is NUM else max(col.has, key=col.has.get)
+  return col.mu if col.isNum else max(col.has, key=col.has.get)
 
 def mids(data, cols=None): 
   return {col.txt:mid(col) for col in cols or data.cols.x}
 
 def div(col): 
-  return ent(col.has) if col.this is SYM else (0 if col.n <2 else (col.m2/(col.n-1))**.5)
+  return  (0 if col.n <2 else (col.m2/(col.n-1))**.5) if cols.isNum else ent(col.has)
 
 def divs(data, cols=None): return {col.txt:div(col) for col in cols or data.cols.x}
 
@@ -99,7 +99,7 @@ def loglikes(data, row, nall, nh):
   return sum(math.log(x) for x in likes + [prior] if x>0)
 
 def like(col, x, prior): 
-  return like4num(col,x) if col.this == NUM else like4sym(col,x,prior)
+  return like4num(col,x) if col.isNum else like4sym(col,x,prior)
   
 def like4sym(sym,x,prior): return (i.has.get(x, 0) + the.m*prior) / (i.n + the.m)
 
@@ -111,30 +111,28 @@ def like4num(num,x):
 
 #--------- --------- --------- --------- --------- --------- --------- --------- --------
 def smo(data, score=lambda B,R: B-R):
-  def score1(row, bestData, restData, n): 
-    return score(loglikes(bestData, row, n, 2), 
-                 loglikes(restData, row, n, 2))
+  def guess(row, best, rest, n): 
+    return score(loglikes(best, row, n, 2), loglikes(rest, row, n, 2))
 
-  def find_top_todos(todo, sorted_done):
-    n   = len(sorted_done)
-    cut = int(n ** the.N) 
-    top = int(n *  the.top)
-    bestData = clone(data, sorted_done[:cut])
-    restData = clone(data, sorted_done[cut:])
-    return sorted(todo, key=lambda row: score1(row, bestData, restData, n))[:top]
+  def guesses(todo, done):
+    n    = len(done)
+    cut  = int(n ** the.N) 
+    top  = int(n *  the.top)
+    best = clone(data, done[:cut])
+    rest = clone(data, done[cut:])
+    return sorted(todo, key=lambda row: guess(row, best, rest, n))[:top]
 
-  def smo1(todo, done, bestData)
+  def smo1(todo, done):
     for _ in range(the.Stop - the.start):
       if len(todo) < 3: break
-      top,*todo = find_top_todos(todo, bestData.rows)
+      top,*todo = guesses(todo, done)
       done += [top]
-      bestData = clone(data, done, rank=True)
-    return bestData.rows[0]
+      done = clone(data, done, rank=True).rows # done is now resorted
+    return done[0]
 
   random.shuffle(data.rows)
-  done = data.rows[:start]
-  return smo1(data.rows[start:], done, clone(data, done,rank=True))
-  
+  return smo1(data.rows[the.start:], clone(data.rows[:the.start], rank=True).rows)
+   
 #--------- --------- --------- --------- --------- --------- --------- --------- ---------
 def ent(d):
   N = sum(v for v in d.values() if v > 0)
