@@ -4,6 +4,8 @@
 """
 2ez.py : semi-supervised multi-objective optimization and explanation
 (C) 2024 Tim Menzies, timm@ieee.org, BSD-2
+
+Coding Python like functional LISP, applying worse-is-better and less is more.
 """
 
 import re,ast,sys,math,random,copy
@@ -13,16 +15,17 @@ class o:
   def __init__(i,**d): i.__dict__.update(d)
   def __repr__(i): return i.__class__.__name__+str(show(i.__dict__))
 
-the = o(decs  = 3,
+the = o(
+        decs  = 3,
         file  = "../../ezr/data/misc/auto93.csv",
-        go    = "help",
         k     = 1,
+        label = 4,
+        Last  = 30,
         m     = 2,
         n     = 12,
         N     = 0.5,
-        seed  = 1234567891, # an odious, pernicious, apocalyptic, defecient prime 
-        open  = 4,
-        Over  = 20,
+        Run   = "help",
+        seed  = 1234567891, # an odious, pernicious, apocalyptic, defecient prime
         top   = 0.8)
 
 big = 1E30
@@ -30,7 +33,7 @@ big = 1E30
 def DATA():            return o(rows=[], cols=[])
 def COLS(lst):         return o(x=[], y=[], all=[], klass=None, names=lst)
 def SYM(txt=" ",at=0): return o(isNum=False, txt=txt, at=at, n=0, has={})
-def NUM(txt=" ",at=0): return o(isNum=True,  txt=txt, at=at, n=0, hi=-big, lo=big, 
+def NUM(txt=" ",at=0): return o(isNum=True,  txt=txt, at=at, n=0, hi=-big, lo=big,
                                              mu=0, m2=0, heaven= 0 if txt[-1]=="-" else 1)
 
 def cols(names):
@@ -77,13 +80,13 @@ def _add2num(num,x,n):
     num.m2 += d * (x -  num.mu)
 
 #--------- --------- --------- --------- --------- --------- --------- --------- --------
-def mid(col): 
+def mid(col):
   return col.mu if col.isNum else max(col.has, key=col.has.get)
 
-def mids(data, cols=None): 
+def mids(data, cols=None):
   return {col.txt:mid(col) for col in cols or data.cols.x}
 
-def div(col): 
+def div(col):
   return  (0 if col.n <2 else (col.m2/(col.n-1))**.5) if col.isNum else ent(col.has)
 
 def divs(data, cols=None): return {col.txt:div(col) for col in cols or data.cols.x}
@@ -101,9 +104,9 @@ def loglikes(data, row, nall, nh):
   likes = [like(col,row[col.at],prior) for col in data.cols.x if row[col.at] != "?"]
   return sum(math.log(x) for x in likes + [prior] if x>0)
 
-def like(col, x, prior): 
+def like(col, x, prior):
   return like4num(col,x) if col.isNum else like4sym(col,x,prior)
-  
+
 def like4sym(sym,x,prior): return (sym.has.get(x, 0) + the.m*prior) / (sym.n + the.m)
 
 def like4num(num,x):
@@ -114,28 +117,27 @@ def like4num(num,x):
 
 #--------- --------- --------- --------- --------- --------- --------- --------- --------
 def smo(data, score=lambda B,R: B-R):
-  def guess(row, best, rest, n): 
-    return score(loglikes(best, row, n, 2), loglikes(rest, row, n, 2))
-
-  def guesses(todo, done):
+  def guess(todo, done):
     n    = len(done)
-    cut  = int(n ** the.N) 
+    cut  = int(n ** the.N)
     top  = int(n *  the.top)
     best = clone(data, done[:cut])
     rest = clone(data, done[cut:])
-    return sorted(todo, key=lambda row: guess(row, best, rest, n))[:top]
+    key  = lambda row: score(loglikes(best, row, n, 2), loglikes(rest, row, n, 2))
+    return sorted(todo, key=key)[:top]
 
   def smo1(todo, done):
-    for _ in range(the.Over - the.open):
+    for i in range(the.Last - the.label):
+      print(i,len(todo), len(done))
       if len(todo) < 3: break
-      top,*todo = guesses(todo, done)
+      top,*todo = guess(todo, done)
       done += [top]
       done = clone(data, done, rank=True).rows # done is now resorted
     return done[0]
 
   random.shuffle(data.rows)
-  return smo1(data.rows[the.open:], clone(data, data.rows[:the.open], rank=True).rows)
-   
+  return smo1(data.rows[the.label:], clone(data, data.rows[:the.label], rank=True).rows)
+
 #--------- --------- --------- --------- --------- --------- --------- --------- ---------
 def ent(d):
   N = sum(v for v in d.values() if v > 0)
@@ -165,9 +167,8 @@ def cli(d):
   for k,v in d.items():
     v = str(v)
     for c,arg in enumerate(sys.argv):
-      after = "" if c >= len(sys.argv) - 1 else sys.argv[c+1]
       if arg == "-"+k[0]:
-        d[k] = coerce("false" if v=="true" else ("true" if v=="false" else after))
+        d[k] = coerce("false" if v=="true" else ("true" if v=="false" else sys.argv[c+1]))
 
 def green(s):  return re.sub(r"^(...)", r"\033[92m\1\033[00m",s)
 def yellow(s): return re.sub(r"(.*)", r"\033[93m\1\033[00m",s)
@@ -189,15 +190,15 @@ class eg:
 
   def help():
     print(cyan(f"{__doc__}"))
-    print(yellow(f"\nSettings:"))
+    print(yellow(f"Settings:"))
     [print(green(f" -{k[0]} {k:5} = {v}")) for k,v in the.__dict__.items()]
     print(yellow(f"\nStart-up commands:"))
-    [print(green(f" -g {k} ")) for k in sorted(dir(eg)) if k[0] !=  "_"]
+    [print(green(f" -A {k} ")) for k in sorted(dir(eg)) if k[0] !=  "_"]
 
   def the(): print(the)
 
   def csv(): [print(x) for x in csv(the.file)]
-  
+
   def num():
     n= adds(NUM(),range(100))
     print(dict(div=div(n), mid=mid(n)))
@@ -211,7 +212,7 @@ class eg:
     print(show(mids(data1)))
     print(show(mids(clone(data1, data1.rows))))
 
-  def datas(): 
+  def datas():
     data1= data(csv(the.file), rank=True)
     print(show(mids(data1, cols=data1.cols.y)))
     print(data1.cols.names)
@@ -220,13 +221,17 @@ class eg:
 
   def loglike():
     data1= data(csv(the.file))
-    print(show(sorted(loglikes(data1,row,1000,2) 
+    print(show(sorted(loglikes(data1,row,1000,2)
                       for i,row in enumerate(data1.rows) if i%10==0)))
 
   def smo():
     d= data(csv(the.file))
-    print(adds(NUM(), [d2h(d, smo(data(csv(the.file)))) for _ in range(20)]))
+    print(d2h(d, smo(d)))
+
+  def smo20():
+    d= data(csv(the.file))
+    print(adds(NUM(), [d2h(d, smo(d)) for _ in range(20)]))
 #--------- --------- --------- --------- --------- --------- --------- --------- ---------
 if __name__ == "__main__":
   cli(the.__dict__)
-  run(the.go)
+  run(the.Run)
