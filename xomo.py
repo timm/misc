@@ -10,6 +10,11 @@ def of(x):     return random.choice(x)
 def ints(a,b): return random.randint(a,b)
 def reals(a,b): return random.uniform(a,b)
 
+def eq1(x,m,n):     return (x-3)*reals(m,n)+1 
+def eq2(x,m,n):     return (x-6)*reals(m,n) 
+def pem(x,a=1,b=5): assert a <= x <= b; return eq1(x,  0.073,  0.21)
+def nem(x,a=1,b=5): assert a <= x <= b; return eq1(x, -0.178, -0.078)
+def sf(x):          assert 1 <= x <= 6; return eq2(x, -1.6,   -1.014)
 #-------------------------------------------------------
 def base():
     return dict(
@@ -161,11 +166,6 @@ def cocomo2000(i):
   return months,timE,staff
 
 def fill(f, rx=None):
-  def eq1(x,m,n):     return (x-3)*reals(m,n)+1 
-  def eq2(x,m,n):     return (x-6)*reals(m,n) 
-  def pem(x,a=1,b=5): assert a <= x <= b; return eq1(x,  0.073,  0.21)
-  def nem(x,a=1,b=5): assert a <= x <= b; return eq1(x, -0.178, -0.078)
-  def sf(x):          assert 1 <= x <= 6; return eq2(x, -1.6,   -1.014)
   d = (base() | f()  | rx()) if rx else (base() | f())
   i = o(**d)
   tunings = dict(
@@ -177,6 +177,11 @@ def fill(f, rx=None):
             aexp=nem(i.aexp),     plex=nem(i.plex),     ltex=nem(i.ltex),    
             tool=nem(i.tool),     site=nem(i.site,1,6), sced=nem(i.sced) )
   return o(**(d | tunings))
+
+def cprint(rows):
+  widths = [max(map(len, col)) for col in zip(*rows)]
+  for row in rows:
+     print("  ".join((val.ljust(width) for val, width in zip(row, widths))))
 
 def settings():
   parser = argparse.ArgumentParser(description='Cocomo simulator')
