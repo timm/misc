@@ -2,14 +2,15 @@
 # <!-- vim: set ts=2 sw=2 sts=2 et: -->
 import sys,random,argparse
 
-def of(x):     return random.choice(x)
-def ints(a,b): return random.randint(a,b)
-def reals(a,b): return random.uniform(a,b)
-
 class o:
   def __init__(i,**d): i.__dict__.update(d)
   def __repr__(i): return i.__class__.__name__ + str(i.__dict__)
  
+def of(x):     return random.choice(x)
+def ints(a,b): return random.randint(a,b)
+def reals(a,b): return random.uniform(a,b)
+
+#-------------------------------------------------------
 def base():
     return dict(
     # calibration params
@@ -20,6 +21,7 @@ def base():
     # size params
     newKsloc = ints(2, 10000),# new code, thousands of lines of codes
     adaptedKsloc = ints(2,10000),
+    reduceLoc = 1,   # reduce knlow by this facor
     # percentages
     revl    = ints(0,100), # percentage of code discarded
     aa      = ints(0,100), # degree of assessment and assimilation
@@ -59,16 +61,9 @@ def base():
     site    =	ints(1, 6), # Multi-site Development
     sced    =	ints(1, 5), # Schedule pressure
     # defect removal methods
-    automated_analysis  =	 ints(1, 6),
-    peer_reviews  =	 ints(1, 6),
+    automated_analysis           =	 ints(1, 6),
+    peer_reviews                 =	 ints(1, 6),
     execution_testing_and_tools  =	 ints(1, 6))
-
-def perturb():
-  def eq1(x,m,n):   return (x-3)*reals(m,n)+1 
-  def eq2(x,m,n):   return (x-6)*reals(m,n) 
-  def pem(a=1,b=5): return eq1(ints(a,b),  0.073,  0.21)
-  def nem(a=1,b=5): return eq1(ints(a,b), -0.187, -0.078)
-  def sf():         return eq2(ints(1,6), -1.58,  -1.014)
 
 def cocomo2000(i):
   """Estimate calculates the quotient result from 
@@ -83,8 +78,7 @@ def cocomo2000(i):
     newsKsloc(), and the calculation of code reuse, 
     equivalentKsloc().
     """
-    return (1+( i.revl /100)) \
-        * (i.newKsloc+equivalentKsloc())
+    return (1+( i.revl /100)) * i.reduceLoc * (i.newKsloc+equivalentKsloc())
 
   def equivalentKsloc():
     """EquivalenKsloc is the calculation of code reuse.  It is derived from the
@@ -251,9 +245,9 @@ def relaxSchedule(): return dict(
 def improveProcessMaturity(): return dict(
   Pmat = 5)
 
-# def reduceFunctionality(): return dict(
-#   data = 2, nkloc=0.5) # nloc is a special symbol. Used to change kloc.
-#
+def reduceFunctionality(): return dict(
+  data = 2, reduceLoc=0.5) # nloc is a special symbol. Used to change kloc.
+
 def improveTeam(): return dict(
   Team = 5)
 
@@ -266,7 +260,7 @@ rx = dict( doNothing=doNothing, improvePersonel=improvePersonnel,
        moreArch=increaseArchitecturalAnalysisRiskResolution, 
        releaxSchedule=relaxSchedule,
        improveProcess=improveProcessMaturity, 
-       #reduceFunctioanlity=reduceFunctionality, 
+       reduceFunctioanlity=reduceFunctionality, 
        improveTeam=improveTeam,
        reduceQuality=reduceQuality)
 
