@@ -9,9 +9,7 @@ def reals(a,b): return random.uniform(a,b)
 class o:
   def __init__(i,**d): i.__dict__.update(d)
   def __repr__(i): return i.__class__.__name__ + str(i.__dict__)
-
-def fill(f): return o(**(base() | f()))
-
+ 
 def base():
     return dict(
     # calibration params
@@ -64,6 +62,13 @@ def base():
     automated_analysis  =	 ints(1, 6),
     peer_reviews  =	 ints(1, 6),
     execution_testing_and_tools  =	 ints(1, 6))
+
+def perturb():
+  def eq1(x,m,n):   return (x-3)*reals(m,n)+1 
+  def eq2(x,m,n):   return (x-6)*reals(m,n) 
+  def pem(a=1,b=5): return eq1(ints(a,b),  0.073,  0.21)
+  def nem(a=1,b=5): return eq1(ints(a,b), -0.187, -0.078)
+  def sf():         return eq2(ints(1,6), -1.58,  -1.014)
 
 def cocomo2000(i):
   """Estimate calculates the quotient result from 
@@ -156,10 +161,6 @@ def cocomo2000(i):
     return i.b+0.01*(i.Prec + i.Flex + i.Resl + i.Team + i.Pmat)
 
   #--- main
-  i.adaptedKsloc    /= 1000
-  i.newKsloc        /= 1000
-  i.equivalentKsloc /= 1000
-  print("s",size())
   months = pm()
   timE   = tdev()
   staff  = months/timE
@@ -169,7 +170,7 @@ def ground():
   "JPL ground systems"
   return dict(
     newKsloc = reals(11,392),
-    equivalentKsloc=0,
+    adaptedtKsloc=0,
     Pmat = of([2,3]),        acap = of([3,4,5]),
     aexp = of([2,3,4,5]),    cplx = of([1,2,3,4]),
     data = of([2,3]),        rely = of([1,2,3,4]),
@@ -183,7 +184,7 @@ def flight():
   "JPL flight systems"
   return dict(
     newKsloc = reals(4,418),
-    equivalentKsloc=0,
+    adaptedtKsloc=0,
     Pmat = of([2,3]),        acap = of([3,4,5]),
     apex = of([2,3,4,5]),    cplx = of([3,4,5,6]),
     data = of([2,3]),        ltex = of([1,2,3,4]),  
@@ -196,7 +197,7 @@ def osp():
   "Orbital space plane. Flight guidance system."
   return dict(
     newKsloc = reals(75,125),
-    equivalentKsloc=0,
+    adaptedtKsloc=0,
     Flex = of([2,3,4,5]),    Pmat = of([1,2,3,4]),
     Prec = of([1,2]),        Resl = of([1,2,3]),
     Team = of([2,3]),        acap = of([2,3]),
@@ -215,7 +216,7 @@ def osp2():
   develops, more things are set in stone)."""
   return dict(
     newKsloc = reals(75,125),
-    equivalentKsloc=0,
+    adaptedtKsloc=0,
     docu = of([3,4]),         ltex = of([2,5]),
     sced = of([2,3,4]),       Pmat = of([4,5]),
     Prec = of([3,4, 5]),
@@ -263,6 +264,24 @@ rx = [ doNothing, improvePersonnel, improveToolsTechniquesPlatform,
        increaseArchitecturalAnalysisRiskResolution, relaxSchedule,
        improveProcessMaturity, reduceFunctionality, improveTeam,
        reduceQuality]
+
+def fill(f, rx=doNothing):
+  def eq1(x,m,n):     return (x-3)*reals(m,n)+1 
+  def eq2(x,m,n):     return (x-6)*reals(m,n) 
+  def pem(x,a=1,b=5): assert a <= x <= b; return eq1(x,  0.073,  0.21)
+  def nem(x,a=1,b=5): assert a <= x <= b; return eq1(x, -0.178, -0.078)
+  def sf(x):          assert 1 <= x <= 6; return eq2(x, -1.6,   -1.014)
+  i = o(**(base() | f() | rx()))
+  tunings= dict(
+            Prec=sf(i.Prec),       Flex=sf(i.Flex),      Resl=sf(i.Resl),  Team=sf(i.Team),   
+            Pmat=sf(i.Pmat),      rely=pem(i.rely),     data=pem(i.data,2,5), 
+            cplx=pem(i.cplx,1,6), ruse=pem(i.ruse,2,6), docu=pem(i.docu),    
+            time=pem(i.time,3,6), stor=pem(i.stor,3,6), pvol=pem(i.pvol,2,5),
+            acap=nem(i.acap),     pcap=nem(i.pcap),     pcon=nem(i.pcon),    
+            aexp=nem(i.aexp),     plex=nem(i.plex),     ltex=nem(i.ltex),    
+            tool=nem(i.tool),     site=nem(i.site,1,6), sced=nem(i.sced) )
+  print(tunings)
+  return o(**(i.__dict__ | tunings))
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Cocomo simulator')
