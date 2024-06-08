@@ -1,6 +1,13 @@
 saved:
 	git commit -am as; git push; git status
 
+~/tmp/%.html : %.py
+	pycco -d ~/tmp $^
+	echo 'p {text-align: right;}' >> ~/tmp/pycco.css
+	sed -i '' 's/2ez.py : /<img src=2ez.png align=left width=170>&/' $@
+	cp 2ez.png ~/tmp
+	open $@
+
 ~/tmp/%.pdf: %.py  ## .lua ==> .pdf
 	mkdir -p ~/tmp
 	echo "pdf-ing $@ ... "

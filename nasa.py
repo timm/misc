@@ -107,18 +107,17 @@ rx = dict( doNothing=doNothing, improvePersonel=improvePersonnel,
        improveTeam=improveTeam,
        reduceQuality=reduceQuality)
 
-def div(lst):
-  n=len(lst)
-  lst.sort()
-  return lst[n//2]
+def mid(lst): n=len(lst); lst.sort();return lst[n//2]
+def div(lst): n=len(lst)//10; lst.sort(); return (lst[9*n] - lst[n])/2.58
 
 if __name__ == "__main__":
   the = settings()
   random.seed(the.seed)
   print(the.seed, random.random())
   for k,rx in rx.items():
-    m=[]
+    m,r=[],[]
     for _ in range(the.repeats):
-      months,timE,staff = cocomo2000(fill(flight,rx))
+      months,timE,staff,risks = cocomo2000(fill(flight,rx))
       m += [months]
-    print(f"{k:20} {div(m):10.3f}")
+      r += [risks]
+    print(f"{k:20} {mid(m):10.3f} {mid(r):10.0f} {div(m):10.3f} {div(r):10.3f}")
