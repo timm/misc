@@ -41,7 +41,7 @@ function l.csv(src,     cells)
 -- ### Objects
 
 -- Make a class.
-function l.is(s,    t) t={a=s,__tostring=l.o}; t.__index=t; return t end
+function l.is(s,  t) t=t or {}; t.a=s; t.__tostring=l.o; t.__index=t; return t end
 -- Make an instance.
 function l.isa(x,y) return setmetatable(y,z) end
 
@@ -65,6 +65,14 @@ function l.phi(x,mu,sigma,    z,cdf)
 -- Return a sorted list
 function l.sort(t,fun) table.sort(t,fun); return t end
 
+-- map a function over a list
+function l.map(t,fun,    u)
+  u={}; for _,v in pairs(t) do u[1+#u] = fun(v) end; return u end
+
+-- sum a result over a list
+function l.sum(t,fun,    n)
+  n=0; for _,v in pairs(t) do n = n + fun(v) end; return n end
+
 ------------------------------------------------------------------------------------------
 -- ## Demos, examples
 
@@ -79,6 +87,7 @@ function eg.phi()
 ------------------------------------------------------------------------------------------
 -- ## Start-up
 
+is("DATA",DATA); is("COLS",COLS); is("SYM",SYM); is("NUM",NUM); 
 -- Go.
-return pcall(debug.getlocal, 4, 1) and {the=the, lib=l} or eg[arg[1]]()
+return pcall(debug.getlocal, 4, 1) and {the=the, lib=l} or eg[(arg[1] or "-h")]()
 
