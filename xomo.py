@@ -170,7 +170,7 @@ def ground():
   "JPL ground systems"
   return dict(
     newKsloc = reals(11,392),
-    adaptedtKsloc=0,
+    adaptedKsloc=0,
     Pmat = of([2,3]),        acap = of([3,4,5]),
     aexp = of([2,3,4,5]),    cplx = of([1,2,3,4]),
     data = of([2,3]),        rely = of([1,2,3,4]),
@@ -184,7 +184,8 @@ def flight():
   "JPL flight systems"
   return dict(
     newKsloc = reals(4,418),
-    adaptedtKsloc=0,
+    adaptedKsloc=0,
+    revl=0,
     Pmat = of([2,3]),        acap = of([3,4,5]),
     apex = of([2,3,4,5]),    cplx = of([3,4,5,6]),
     data = of([2,3]),        ltex = of([1,2,3,4]),  
@@ -197,7 +198,7 @@ def osp():
   "Orbital space plane. Flight guidance system."
   return dict(
     newKsloc = reals(75,125),
-    adaptedtKsloc=0,
+    adaptedKsloc=0,
     Flex = of([2,3,4,5]),    Pmat = of([1,2,3,4]),
     Prec = of([1,2]),        Resl = of([1,2,3]),
     Team = of([2,3]),        acap = of([2,3]),
@@ -216,7 +217,7 @@ def osp2():
   develops, more things are set in stone)."""
   return dict(
     newKsloc = reals(75,125),
-    adaptedtKsloc=0,
+    adaptedKsloc=0,
     docu = of([3,4]),         ltex = of([2,5]),
     sced = of([2,3,4]),       Pmat = of([4,5]),
     Prec = of([3,4, 5]),
@@ -233,37 +234,41 @@ def osp2():
 def doNothing(): return {}
 
 def improvePersonnel(): return dict(
-  acap=[5],pcap=[5],pcon=[5], aexp=[5], pexp=[5], ltex=[5])
+  acap=5,pcap=5,pcon=5, aexp=5, pexp=5, ltex=5)
 
 def improveToolsTechniquesPlatform(): return dict(
-  time=[3],stor=[3],pvol=[2],tool=[5], site=[6])
+  time=3,stor=3,pvol=2,tool=5, site=6)
 
 def improvePrecendentnessDevelopmentFlexibility(): return dict(
-  Prec=[5],Flex=[5])
+  Prec=5,Flex=5)
 
 def increaseArchitecturalAnalysisRiskResolution(): return dict(
-  Resl=[5])
+  Resl=5)
 
 def relaxSchedule(): return dict(
-  sced = [5])
+  sced = 5)
 
 def improveProcessMaturity(): return dict(
-  Pmat = [5])
+  Pmat = 5)
 
-def reduceFunctionality(): return dict(
-  data = [2], nkloc=[0.5]) # nloc is a special symbol. Used to change kloc.
-
+# def reduceFunctionality(): return dict(
+#   data = 2, nkloc=0.5) # nloc is a special symbol. Used to change kloc.
+#
 def improveTeam(): return dict(
-  Team = [5])
+  Team = 5)
 
 def reduceQuality():  return dict(
-  rely = [1], docu=[1], time = [3], cplx = [1])
+  rely = 1, docu=1, time = 3, cplx = 1)
 
-rx = [ doNothing, improvePersonnel, improveToolsTechniquesPlatform,
-       improvePrecendentnessDevelopmentFlexibility,
-       increaseArchitecturalAnalysisRiskResolution, relaxSchedule,
-       improveProcessMaturity, reduceFunctionality, improveTeam,
-       reduceQuality]
+rx = dict( doNothing=doNothing, improvePersonel=improvePersonnel, 
+       improveTools=improveToolsTechniquesPlatform,
+       improvePrec=improvePrecendentnessDevelopmentFlexibility,
+       moreArch=increaseArchitecturalAnalysisRiskResolution, 
+       releaxSchedule=relaxSchedule,
+       improveProcess=improveProcessMaturity, 
+       #reduceFunctioanlity=reduceFunctionality, 
+       improveTeam=improveTeam,
+       reduceQuality=reduceQuality)
 
 def fill(f, rx=doNothing):
   def eq1(x,m,n):     return (x-3)*reals(m,n)+1 
@@ -280,15 +285,23 @@ def fill(f, rx=doNothing):
             acap=nem(i.acap),     pcap=nem(i.pcap),     pcon=nem(i.pcon),    
             aexp=nem(i.aexp),     plex=nem(i.plex),     ltex=nem(i.ltex),    
             tool=nem(i.tool),     site=nem(i.site,1,6), sced=nem(i.sced) )
-  print(tunings)
   return o(**(i.__dict__ | tunings))
+
+def div(lst):
+  n=len(lst)
+  lst.sort()
+  return lst[n//2]
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Cocomo simulator')
   parser.add_argument('-s', '--seed',    type=int, default=1234567891, help='random number seed (default: 1234567891)')
   parser.add_argument('-r', '--repeats', type=int, default=1,          help='number of reoeats (default: 1)')
   the = parser.parse_args()
-  print(the)
   random.seed(the.seed)
-  for _ in range(the.repeats):
-    print(cocomo2000(fill(flight)))
+  print(the.seed, random.random())
+  for k,rx in rx.items():
+    m=[]
+    for _ in range(the.repeats):
+      months,timE,staff = cocomo2000(fill(flight,rx))
+      m += [months]
+    print(k, div(m))
