@@ -34,18 +34,19 @@ body  {
   padding: 10px; 
 	font-family: Source Sans Pro, Roboto, Open Sans, Liberation Sans, DejaVu Sans, Verdana, Helvetica, Arial, sans-serif;
 }
+a                 { color: #CC0000; text-decoration: none; font-weight: bold; }
+a:hover           { text-decoration: underline; }
+h1,h2,h3,h4       { color: #CC0000; } 
+.admonition       { border: 1px solid #EEE; box-shadow: 2px 2px 3px black; }
+.admonition-title { font-weight: bold; }
 pre   { 
+	font-weight: normal;
 	padding: 5px;
 	border-left: 1px dotted black;
 	background-image: linear-gradient(to right, #EEE, white);
 	margin-left: 30px;
 	padding: 5px;
 }
-a                 { color: #CC0000; text-decoration: none; font-weight: bold; }
-a:hover           { text-decoration: underline; }
-h1,h2,h3,h4       { color: #CC0000; } 
-.admonition       { border: 1px solid #EEE; box-shadow: 2px 2px 3px black; }
-.admonition-title { font-weight: bold; }
 </style>
 </head>
 <body>
@@ -65,8 +66,10 @@ tmp/%.md : %.lua
 tmp/%.html : tmp/%.md
 	echo $$headera > $@
 	echo "<title>$(basename $(notdir $@))</title>" >> $@
-	echo  $$headerz >> $@
+	echo $$headerz >> $@
+	echo "<img align=right width=250 src='dots4.png'>" >> $@
 	echo "<h1>$(basename $(notdir $@))</h1>" >> $@
+	echo "<p><em>Tim Menzies, 2024<br>timm@ieee.org</em></p>" >> $@
 	python3 -m markdown $(FMT) $^ >> $@
 	echo "</body></html>" >> $@
 
