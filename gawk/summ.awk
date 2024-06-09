@@ -1,7 +1,16 @@
 BEGIN {FS=","}
 # NR==1 { head(Cols) }
 #       { body(Cols,Rows) }
-#
+
+#----------------------------------------------------------------------------------------
+function head(cols,    k,what) {
+  for(k=1;k<=NF;k++) {
+    array(cols,k)
+    what = $k ~ /^[A-Z]/ ? "Num" : "Sym" 
+    @what(cols[k], k,$k) }}
+
+function body(cols,    k) { for(k in Cols) add(cols[k],$k) }
+
 #----------------------------------------------------------------------------------------
 # Polymorphic verbs
 function add(i,x,    f) { f="add" i[isA]; return @f(i,x) }
@@ -49,14 +58,6 @@ function addSym(i,x) {
     if (++i[seeN][x] > i[mosT]) {
       i[mosT] = i[seeN][x]
       i[modE] = x }}}
-
-function head(cols,    k,what) {
-  for(k=1;k<=NF;k++) {
-    array(cols,k)
-    what = $k ~ /^[A-Z]/ ? "Num" : "Sym" 
-    @what(cols[k], k,$k) }}
-
-function body(cols,    k) { for(k in Cols) add(cols[k],$k) }
 
 function array(a,k) { a[k][0]; delete a[k][0] }
 
