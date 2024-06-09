@@ -7,9 +7,11 @@
 -- and (c) always fuse rows that falls closer than a third of a 
 -- standard deviation? Lets find out!
 -- 
+-- [TOC]
+--  
 -- ## Prelimianries
 -- To begin with, in this code, `l` is a misc set of tricks (defined at end of file);
--- `the` is the global settings; and `help` is the doc string.
+-- and `help` is the doc string.
 local l,the,help = {}, {}, [[
 ruler.lua : v0.1: an experiment in Chebyshev weighting
 (c) Tim Menzies <timm@ieee.org> BSD2
@@ -27,16 +29,29 @@ SETTINGS:
   -t  --train    =  ../ezr/data/misc/auto93.csv
   -v  --version  =  false]]
 
--- We'll need to cache some stuff so that, at the end, we can check for
--- rogue globals (see the `rogues()` function, below).
+-- We'll need some globals (e.g. like stuff we'll use at end, in `l.rogues()`, to find rogue globals)
 local b4={}; for k,_ in pairs(_ENV) do b4[k]=k end
--- We'll eed some globals.
 local big = 1E30
--- We'll need some objects. In this system, csv files are read into DATA 
+-- The `help` string is parsed to generate `the` global settings file.
+function l.coerce(s,     other) 
+  _other = function(s) if s=="nil" then return nil  end
+                       return s=="true" or s ~="false" and s or false end 
+  return math.tointeger(s) or tonumber(s) or _other(s:match'^%s*(.*%S)') end
+     
+function l.settings(s)
+  t={}; for k,s1 in help:gmatch("[-][-]([%S]+)[^=]+=[%s]*([%S]+)") do t[k]=l.coerce(s1) end
+  return t end
+   
+local the = l.settings(help)
+
+--  We'll need some objects:
+--   
+-- - Initially, these objects will be just standard tables. Later, we
+-- convert them into objects using the `l.obj()` function.
 -- objects.
--- DATAs hold  rows, which are summarized in COLS ojects.
+-- - In this system, DATAs hold  rows, which are summarized in COLS objects.
 -- COLS hold  either NUMermic or SYMbolic values.
-local NUM,SYM,DATA,COLS = {},{},{},{}
+local NUM,SYM,DATA,COLS = {},{},{},{} 
 
 -- `NUM`s a
 function SYM:new(s,n) return {at=n, txt=s, n=0, seen={}, most=0, mode=nil} end
@@ -138,17 +153,6 @@ function l.entropy(t,     e,N)
   N=0; for n in l.has(t) do N = N+n end
   e=0; for n in l.has(t) do e = n/N * math.log(n/N,2) end
   return -e end
-
-local function _coerce1(s)
-  if s=="nil" then return nil else return s=="true" or s ~="false" and s or false end end
-
-function l.coerce(s) 
-  return math.tointeger(s) or tonumber(s) or _coerce1(s:match'^%s*(.*%S)') end
-
-function l.settings(s,     t)
-  t={}
-  for k,s1 in s:gmatch("[-][-]([%S]+)[^=]+=[%s]*([%S]+)") do t[k]=l.coerce(s1) end
-  return t end
 
 function l.cli(t)
   for key, s in pairs(t) do

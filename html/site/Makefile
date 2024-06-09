@@ -29,6 +29,13 @@ export headera
 define headerz
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lua.min.js"></script>
+
+<script>hljs.highlightAll();</script>
 <style>
 body  { 
   padding: 10px; 
@@ -39,17 +46,19 @@ a:hover           { text-decoration: underline; }
 h1,h2,h3,h4       { color: #CC0000; } 
 .admonition       { border: 1px solid #EEE; box-shadow: 2px 2px 3px black; }
 .admonition-title { font-weight: bold; }
-pre   { 
-	font-weight: normal;
-	padding: 5px;
-	border-left: 1px dotted black;
-	background-image: linear-gradient(to right, #EEE, white);
-	margin-left: 30px;
-	padding: 5px;
+p code { 
+    background: #f8f8ff;
+    border: 1px solid #dedede;
+    padding: 0 0.2em; }
+pre code   { 
+  border: 1px solid #dedede;
+	border-left: 4px solid #CCC;
+margin-left: 30px;
 }
 </style>
 </head>
 <body>
+<div style="max-width:800px; margin:0 auto;">
 
 
 endef
@@ -67,7 +76,7 @@ tmp/%.html : tmp/%.md
 	echo $$headera > $@
 	echo "<title>$(basename $(notdir $@))</title>" >> $@
 	echo $$headerz >> $@
-	echo "<img align=right width=250 src='dots4.png'>" >> $@
+	echo "<img align=right width=250 src='marsQueen.png'>" >> $@
 	echo "<h1>$(basename $(notdir $@))</h1>" >> $@
 	echo "<p><em>Tim Menzies, 2024<br>timm@ieee.org</em></p>" >> $@
 	python3 -m markdown $(FMT) $^ >> $@
