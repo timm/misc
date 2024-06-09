@@ -1,15 +1,23 @@
-BEGIN {FS=","}
-# NR==1 { head(Cols) }
-#       { body(Cols,Rows) }
+BEGIN {FS=","
+      {line(rows,cols) }
 
 #----------------------------------------------------------------------------------------
-function head(cols,    k,what) {
-  for(k=1;k<=NF;k++) {
-    array(cols,k)
-    what = $k ~ /^[A-Z]/ ? "Num" : "Sym" 
-    @what(cols[k], k,$k) }}
+function line(rows,cols,     a)  {
+  for(k=1;k<=NF;k++) a[k]=coerce($0)
+  length(cols) ? body(a,cols,rows) : head(a,cols) x}
+  close(f) }
 
-function body(cols,    k) { for(k in Cols) add(cols[k],$k) }
+function head(a,cols,    k,what) {
+  for(k in a) {
+    array(cols,k)
+    what = a[k] ~ /^[A-Z]/ ? "Num" : "Sym" 
+    @what(cols[k], k,a[k]) }}
+
+function body(a, cols,rows,    r,k,x) { 
+  r=length(rows) + 1
+  for(k in a) {
+    rows[r][k] = a[k]
+    add(cols[k], x) }
 
 #----------------------------------------------------------------------------------------
 # Polymorphic verbs
@@ -59,6 +67,7 @@ function addSym(i,x) {
       i[mosT] = i[seeN][x]
       i[modE] = x }}}
 
+function coerce(s) { return x==y? y : x } 
 function array(a,k) { a[k][0]; delete a[k][0] }
 
 function entropy(a,   N,e) {
