@@ -7,11 +7,12 @@ function line(rows,cols,     a)  {
   length(cols) ? body(a,cols,rows) : head(a,cols) x}
   close(f) }
 
-function head(a,cols,    k,what) {
+# asdasasd
+# asdas
+function head(a,cols,    k,w {
   for(k in a) {
     array(cols,k)
-    what = a[k] ~ /^[A-Z]/ ? "Num" : "Sym" 
-    @what(cols[k], k,a[k]) }}
+    w= a[k] ~ /^[A-Z]/ ? "Num" : "Sym"; @w(cols[k],k,a[k]) }}
 
 function body(a, cols,rows,    r,k,x) { 
   r=length(rows) + 1
