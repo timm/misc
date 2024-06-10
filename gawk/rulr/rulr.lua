@@ -5,6 +5,7 @@ local the={about={what="rulr",
                   who="Tim Menzies",
                   when=2024,
                   copyright="BSD, two clause"},
+           seed=1234567891,
            train="auto93.csv"}
 
 local l,b4={},{}; for k,_ in pairs(_ENV) do b4[k]=k end
@@ -121,6 +122,12 @@ function l.rogues()
 
 -------------------------------------------------------
 -- ## Start-up Actions
+local function try(fun,     tmp,ok)
+  tmp={}; for k,v in pairs(the) do cached[k] = v end
+  math.randomseed(the.seed)
+  ok = xpcall(fun,function(err) print(tostring(debug.traceback())) end)
+  for k,v in pairs(tmp) do the[k]=v end
+  return ok 
 
 -- Where to store the actions.
 local eg={}
@@ -135,4 +142,9 @@ function eg.csv()
 function eg.data()
   DATA.new(l.csv(the.train)) end
 
-eg[arg[1] or "version"]()
+if   pcall(debug.getlocal, 4, 1) then-- if __name__ == "__main__":
+else local todo = eg[arg[1]] and arg[1] or "version"
+     try(eg[todo])
+     l.rogues() end
+
+return {the=the, help=help, lib=l, DATA=DATA,SYM=SYM,NUM=NUM,COLS=COLS}
