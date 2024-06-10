@@ -1,3 +1,10 @@
+SHELL     := bash 
+MAKEFLAGS += --warn-undefined-variables
+.SILENT:  
+
+bye:
+	echo -n "Why> ";read x; git commit -am "$$x"; git push; git status
+
 docs: ~/tmp/rulr.html
 
 ~/tmp/%.html : %.lua
