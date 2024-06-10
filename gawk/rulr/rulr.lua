@@ -80,14 +80,22 @@ function l.items(t,n)
   k,n=0,#t
   return function() if k < n then k=k+1; return t[k] end end end
 
+function l.kap(t,f,     u) 
+  u={};  for k,v in pairs(t) do u[1+#u] = f(k,v) end; return u end
+
 -- ### Maths
 function l.entropy(t,   e,N)
   n=0; for _,n in pairs(t) do N = N + n end
   e=0; for _,n in pairs(t) do e = e - (n/N)*math.log(n/N,2) end 
   return e end
 
+function l.cdf(x,mu,sigma,     z,cdf)
+  fun = function(z) return 1 - 0.5*2.718^(-0.717*z - 0.416*z*z) end
+  z = (x - mu) / sigma
+  return z >= 0 and fun(z) or 1 - fun(-z) end
+
 -- ### String to Thing
-function l.coerce(s,     other) 
+function l.coerce(s,     _other) 
   _other = function(s) if s=="nil" then return nil  end
                        return s=="true" or s ~="false" and s or false end 
   return math.tointeger(s) or tonumber(s) or _other(s:match'^%s*(.*%S)') end
@@ -106,15 +114,12 @@ function l.csv(src)
 
 function l.oo(t) print(l.o(t)); return t end
 
-local function list(t,u) 
-  for _,v in pairs(t) do u[1+#u] = l.o(v) end ; return u end
-
-local function dict(t,u) 
-  for k,v in pairs(t) do u[1+#u] = l.fmt(":%s %s",k,l.o(v)) end; return l.sort(u) end 
-
-function l.o(t)
+function l.o(t,    _list,_dict,u)
   if type(t) ~= "table" then return tostring(t) end
-    return (t._name or "") .. "{" .. l.cat((#t==0 and dict or list)(t,{}) ," ") .. "}" end
+  _list = function(_,v) return l.o(v) end 
+  _dict = function(k,v) return l.fmt(":%s %s",k,l.o(v)) end
+  u = l.kap(t, #t==0 and _dict or _list)
+  return "{" .. l.cat(#t==0 and l.sort(u) or u ," ") .. "}" end 
 
 -- ### List
 function l.rogues() 
@@ -123,11 +128,11 @@ function l.rogues()
 -------------------------------------------------------
 -- ## Start-up Actions
 local function try(fun,     tmp,ok)
-  tmp={}; for k,v in pairs(the) do cached[k] = v end
+  tmp={}; for k,v in pairs(the) do tmp[k] = v end
   math.randomseed(the.seed)
   ok = xpcall(fun,function(err) print(tostring(debug.traceback())) end)
   for k,v in pairs(tmp) do the[k]=v end
-  return ok 
+  return ok end
 
 -- Where to store the actions.
 local eg={}
