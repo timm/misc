@@ -12,11 +12,11 @@ local l,b4={},{}; for k,_ in pairs(_ENV) do b4[k]=k end
 local DATA,NUM,SYM,COLS={},{},{},{}
 
 -------------------------------------------------------
-function COLS.new(names,     self)
+function COLS.new(names,     self,col)
   self = l.is(COLS, {all={}, x={}, y={}, names=names})
   for n,s in pairs(names) do
-    push(self.all, (s:find"^[A-Z]" and NUM or SUM)(s,n))
-    if not s:find"X$" then push(s:find"[-+!]$" and self.y or self.x, col) end end
+    col = l.push(self.all, (s:find"^[A-Z]" and NUM or SYM).new(s,n))
+    if not s:find"X$" then l.push(s:find"[-+!]$" and self.y or self.x, col) end end
   return self end
 
 -------------------------------------------------------
@@ -27,16 +27,13 @@ function DATA.new(it,   self)
 
 function DATA:add(t)
   l.push(self.rows, t)
-  for _,cols in pairs{self.x, self.y} do
+  for _,cols in pairs{self.cols.x, self.cols.y} do
     for _,col in pairs(cols) do col:add(t[col.at]) end end end
 
 -------------------------------------------------------
 function SYM.new(s,n)
   return l.is(SYM, {txt=s, at=n, n=0, has={}, mode=nil, most=0, 
                     heaven=(s or ""):find"-$" and 0 or 1}) end
-
-function SYM:mid() return self.mode end
-function SYM:div() return entropy(self.has) end
 
 function SYM:add(x)
   if x ~= "?" then
@@ -48,19 +45,25 @@ function SYM:add(x)
 function NUM.new(s,n)
   return l.is(NUM, {txt=s, at=n, n=0, mu=0, m2=0, sd=0, lo=1E30, hi= -1E30}) end
 
-function NUM:mid() return self.mu end
-function NUM:div() return self.sd end
-
 function NUM:add(x,     d)
   if x ~= "?" then
     self.n  = 1 + self.n
     self.lo = math.min(x, self.lo)
-    self.hi = math.min(x, self.hi)
+    self.hi = math.max(x, self.hi)
     d       = x - self.mu
-    self.mu = self.mu + d/i.n
-    self.m2 = self.m2 + d*(x - i.mu)
+    self.mu = self.mu + d/self.n
+    self.m2 = self.m2 + d*(x - self.mu)
     self.sd = (self.m2/(self.n - 1 + 1E-30))^0.5 end end
 
+--------------------------------------------------------
+function SYM:mid() return self.mode end
+function NUM:mid() return self.mu end
+
+function SYM:div() return l.entropy(self.has) end
+function NUM:div() return self.sd end
+
+function DATA:mids(cols) 
+  return l.map(cols or self.cols.y, function(col) return l.rnd(col:mid()) end) end
 --------------------------------------------------------
 -- ## Misc Functions
 
@@ -69,27 +72,31 @@ l.cat = table.concat
 l.fmt = string.format
 
 -- Objects
-function l.is(x,y) x.__tostring=l.o; x.__index=x; setmetatable(y,x); return x end
+function l.is(x,y) 
+  x.__tostring=l.o; x.__index=x; setmetatable(y,x); return y end
 
 -- ### Lists
 function l.sort(t,fun) table.sort(t,fun); return t end
 
 function l.push(t,x) t[1+#t]=x; return x end
 
-function l.items(t,n)
+function l.items(t,     k,n)
   k,n=0,#t
   return function() if k < n then k=k+1; return t[k] end end end
+
+function l.map(t,f,     u) 
+  u={};  for k,v in pairs(t) do u[1+#u] = f(v) end; return u end
 
 function l.kap(t,f,     u) 
   u={};  for k,v in pairs(t) do u[1+#u] = f(k,v) end; return u end
 
 -- ### Maths
 function l.entropy(t,   e,N)
-  n=0; for _,n in pairs(t) do N = N + n end
+  N=0; for _,n in pairs(t) do N = N + n end
   e=0; for _,n in pairs(t) do e = e - (n/N)*math.log(n/N,2) end 
   return e end
 
-function l.cdf(x,mu,sigma,     z,cdf)
+function l.cdf(x,mu,sigma,     z,fun)
   fun = function(z) return 1 - 0.5*2.718^(-0.717*z - 0.416*z*z) end
   z = (x - mu) / sigma
   return z >= 0 and fun(z) or 1 - fun(-z) end
@@ -152,4 +159,4 @@ else local todo = eg[arg[1]] and arg[1] or "version"
      try(eg[todo])
      l.rogues() end
 
-return {the=the, help=help, lib=l, DATA=DATA,SYM=SYM,NUM=NUM,COLS=COLS}
+return {the=the, lib=l,DATA=DATA,SYM=SYM,NUM=NUM,COLS=COLS}
