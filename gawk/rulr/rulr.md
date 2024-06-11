@@ -1,6 +1,8 @@
 #!/usr/bin/env lua
 -- <!-- vim: set filetype=lua ts=2 sw=2 sts=2 et: -->
 
+# stuff
+
 First we need some config
 
     local the={about={what="rulr",
@@ -11,6 +13,8 @@ First we need some config
                bins=16,
                seed=1234567891,
                train="auto93.csv"}
+
+## things
 
 Then we need
 
