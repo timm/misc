@@ -11,7 +11,7 @@ local the={about={what="rulr",
 
 local l,b4={},{}; for k,_ in pairs(_ENV) do b4[k]=k end
 local DATA,NUM,SYM,COLS={},{},{},{}
-
+local big=1E30
 -------------------------------------------------------
 function COLS.new(names,     self,col)
   self = l.is(COLS, { all={}, x={}, y={}, names=names })
@@ -24,6 +24,12 @@ function COLS:add2Col(n,s,    col)
   if not s:find"X$" then 
     l.push(s:find"[-+!]$" and self.y or self.x, col) end end
 
+function COLS:add(t)
+  for _,cols in pairs{self.x, self.y} do
+    for _,col in pairs(cols) do 
+      col:add(t[col.at]) end end 
+  return t end
+
 -------------------------------------------------------
 function DATA.new(it,   self) 
   self = l.is(DATA, {rows={}, cols=COLS.new(it())}) 
@@ -31,11 +37,9 @@ function DATA.new(it,   self)
   return self end
 
 function DATA:add(t)
-  l.push(self.rows, t)
-  for _,cols in pairs{self.cols.x, self.cols.y} do
-    for _,col in pairs(cols) do col:add(t[col.at]) end end end
+  l.push(self.rows, self.cols:add(t)) end
 
--------------------------------------------------------
+ -------------------------------------------------------
 function SYM.new(s,n)
   return l.is(SYM, {txt=s, at=n, n=0, has={}, mode=nil, most=0, 
                     heaven=(s or ""):find"-$" and 0 or 1}) end
@@ -48,7 +52,7 @@ function SYM:add(x)
 
 --------------------------------------------------------
 function NUM.new(s,n)
-  return l.is(NUM, {txt=s, at=n, n=0, mu=0, m2=0, sd=0, lo=1E30, hi= -1E30}) end
+  return l.is(NUM, {txt=s, at=n, n=0, mu=0, m2=0, sd=0, lo=big, hi= -big}) end
 
 function NUM:add(x,     d)
   if x ~= "?" then
@@ -58,7 +62,7 @@ function NUM:add(x,     d)
     d       = x - self.mu
     self.mu = self.mu + d/self.n
     self.m2 = self.m2 + d*(x - self.mu)
-    self.sd = (self.m2/(self.n - 1 + 1E-30))^0.5 end end
+    self.sd = (self.m2/(self.n - 1 + 1/big))^0.5 end end
 
 --------------------------------------------------------
 function SYM:mid() return self.mode end
@@ -71,9 +75,6 @@ function DATA:mids(cols)
   return l.map(cols or self.cols.y, function(col) return l.rnd(col:mid()) end) end
 
 --------------------------------------------------------
-function SYM:bin(x) return x end
-function NUM:bin(x) return math.min(the.bins, 1+((the.bins * self:norm(x))//1)) end
-
 local BIN={}
 function BIN.new(at,txt,lo,hi,n)
   return l.is(BIN,{at=at, txt=txt, lo=lo, hi=hi or lo, n=n or 0, ys={}}) end
@@ -85,52 +86,45 @@ function BIN:add(x,y)
   self.ys[y] = 1 + (self.ys[y] or 0) end
 
 function BIN:mergeable(other, small)
-  both = BIN.new(self.at, self.txt, self.lo, other.hi, self.n + other.n)
-  for _,ys in pairs{self.ys, other.ys} do
-    for k,v in pairs(ys) do
-      both.ys[k] = v + (both.ys[k] or 0) end end
+  both      = BIN.new(self.at, self.txt, self.lo, other.hi, self.n + other.n)
+  both.ys   = l.sumDict(self.y, other.ys)
   e1,e2,e12 = l.entropy(self.ys), l.entropy(other.ys), l.entropy(both.ys)
-  if self.n < small or other.n < small then return both end
-  if e12 <= (self.n*e1 + other.n*e2) / both.n then return both end end 
-  
-function DATA:bins(klasses,     all,tmp,n)
-  all = {}
-  for _,col in pairs(self.cols.x) do
-    tmp, n = self:divides(col,klasses)
-    for _,bin in pairs(col:merges(tmp, n/the.bins)) do l.push(all, bin) end end
-  return all end
+  if self.n < small or other.n < small or e12 <= (self.n*e1 + other.n*e2) / both.n then
+    return both end end 
 
-function DATA:divides(col,klasses)
-  out,n = {},0
+function DATA:bins(col,klasses)
+  bins,n = {},0
   for klass,rows in pairs(klasses) do
     for _,row in pairs(rows) do
       n += 1
       x = row[col.at]
       if x != "?" then 
         k = col:bins(x) 
-        out[k] = out[k] or BIN.new(col.at, col.txt, x)
-        out[k]:add(x,klass) end end end 
-  return map(out, function(x) return x end), n end
+        bins[k] = bins[k] or BIN.new(col.at, col.txt, x)
+        bins[k]:add(x,klass) end end end 
+  return col:merges(sort(bins, by"lo"),  n/the.bins) end
 
+function SYM:bin(x) return x end
+function NUM:bin(x) return math.min(the.bins, 1+((the.bins * self:norm(x))//1)) end
+ 
 function SYM:merges(x,_) return x end
-function NUM:merges(b4,enough,    j,now,a,b,ab)
+function NUM:merges(b4,enough,    j,now,a,tmp)
   j, now = 1, {}
   while j <=  len(b4) do
     a = b4[j]
     if j <  len(b4) then
-      b = b4[j+1]
-      ab = a:mergable(b,enough) 
-      if ab then
-        a = ab
+      tmp = a:mergable(b4[j+1],enough) 
+      if tmp then
+        a = tmp
         j = j+1 end end
-    now += [a]
-    j += 1 
+    l.push(now,a)
+    j = j+1 
   end
   if len(now) < len(b4) then return self:merges(now,enough) end
-  for j=2,len(row) do
+  for j=2,len(now) do
     now[j].lo    = now[j-1].hi
-    now[1].lo    = -1E30
-    now[#now].hi =  1E30 end
+    now[1].lo    = -big
+    now[#now].hi =  big end
   return now end
 
 --------------------------------------------------------
@@ -147,7 +141,9 @@ function l.is(x,y)
 -- ### Lists
 function l.by(s) return function(a,b) return a[s] < b[s] end end
 
-function l.sort(t,fun) table.sort(t,fun); return t end
+-- returns a copy of `t`, sorted.
+function l.sort(t,fun,     u) 
+  u={}; for _,v in pairs(t) do u[1+#u]=v end; table.sort(u,fun); return u end
 
 function l.push(t,x) t[1+#t]=x; return x end
 
@@ -160,6 +156,13 @@ function l.map(t,f,     u)
 
 function l.kap(t,f,     u) 
   u={};  for k,v in pairs(t) do u[1+#u] = f(k,v) end; return u end
+
+function l.sumDicts(d1,d2,     d12)
+  d12={}
+  for _,d in pairs{d1, d2} do
+    for k,v in pairs(d) do
+      d12[k] = v + (d12[k] or 0) end end
+  return d12 end
 
 -- ### Maths
 function l.entropy(t,   e,N)
