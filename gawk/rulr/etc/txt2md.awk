@@ -1,5 +1,6 @@
 BEGIN {FS="\n"
-        RS=""
-       print "#!/usr/bin/env lua\n" }
-$1 ~ /^ / {print(1); print "```lua\n'"$0"\n```\n"; next}
-             {print "\n" $0 }
+        RS=""}
+
+        NR==1{ next}
+sub(/^    /,"") { gsub(/\n    /,"\n"); $0= "```lua\n"$0"\n```\n"}
+          {print "\n\n" $0 }

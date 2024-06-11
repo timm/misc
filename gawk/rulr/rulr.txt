@@ -1,25 +1,91 @@
 -- <!-- vim: set filetype=lua ts=2 sw=2 sts=2 et: -->
 
-# stuff
+rulr.lua: an experiment in icnremental rule learning.      
+@2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
 
-First we need some config
+This program is an experiment in incremental learning via the
+Chebyshev maximum metric.  This code reads a table of rows, where
+the columns are either indepedent `x` values or dependent `y` goals.
+As new rows arrive, some are _best_; i.e. their y values are closest
+to the desired best value for that column.
 
-    local the={about={what="rulr",
-                      why="experiment with fast clustering",
-                      who="Tim Menzies",
-                      when=2024,
-                      copyright="BSD, two clause"},
-               bins=16,
-               seed=1234567891,
-               train="auto93.csv"}
+    local function chebyshev(row,ycols,      d,tmp)
+      d = 0
+      for _,col in pairs(ycols) do
+        tmp = col.norm(row[col.at]) -- normalize  0..1 
+        d = math.max(d, math.abs(col.best - tmp))
+      return d end -- lower values are better
+
+If a row is not _best_, then we will call it _rest_.  This code
+sorts  ranges according to how often they are seen in the _best_
+and _rest_ rows. We will build rules, prefering ranges that frequently
+occur in _best_ (as well as being more probable in _best_ than
+_rest_).
+
+    local function prefer(range,bests,rests,nBests, nRests)
+      local b,r,support,probability
+      b = bests[range] / nBests
+      r = rests[range] / nRests
+      support = b
+      probability = b/(b+r)
+      return support * probability end
+
+If $\mu,\sigma$ are the standard deviation of the distance seen to
+date, then  a _best_ row has Chebyshev distance $d$ is $(d-\mu)/\sigma < T$.
+Parameters like $T$ are set via engineering judgement (i.e.  guesing).
+$T$ is stored in a special variable "the", along with all our other
+configuration options.  FYI, values like $T=-1.28$ or $T=-1$ select
+for the top top one-tenth or one-sixth of all rows.
+
+    local the = {T     = -1.28,
+                 seed  = 1234567891,
+                 train = "auto93.csv"}
+
+This code will need some classes:
+
+    local NUM = {} -- information on numeric columns
+    local SYM = {} -- information on symbolic columns
+    local DATA= {} -- place to store all the columns 
+    local COLS= {} -- a factory that makes NUMs and SYMs
+    local RANGE= {} -- place to store an upper and lower bound
+    
+Also, we need some trivia to support our Lua code:
+
+    local l = {}; -- place to store misc functions
+    local b4 = {}; for k,_ in pairs(_ENV) do b4[k]=k end -- used by rogue()
+    local function new(class, object)  -- how we create instances
+      klass.__index=class; setmetatable(object, class); return object end
+
+Our NUMs know their column   `name`, the column `pos`ition, the `lo`
+and `hi` value, as well their column mean `mu` and standard deviation
+`sd`.  
+
+     function NUM.new(name,pos)
+      return new(NUM, {name=name, pos=pos, n=0, mu=0, m2=0, sd=0, 
+                       lo=1E30, hi= -1E30, 
+                       goal = (s or ""):find"-$" and 0 or 1}) end
+
+When adding a new value to  a NUM, we use the Welford incremetal
+algorithm [^welford] to update the means and standard deviations.
+
+[^welford]: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+
+    function NUM:add(x,     d) 
+      if x ~= "?" then
+        self.n  = 1 + self.n
+        self.lo = math.min(x, self.lo)
+        self.hi = math.max(x, self.hi)
+        d       = x - self.mu
+        self.mu = self.mu + d/self.n
+        self.m2 = self.m2 + d*(x - self.mu)
+        self.sd = (self.m2/(self.n - 1 + 1/1E30))^0.5 end end
+   
+For that to work, when we define numeric columns, recognize which of those
+are goals that we want to either minimize or maximze.
 
 ## things
 
 Then we need
-
-    local l,b4={},{}; for k,_ in pairs(_ENV) do b4[k]=k end
-    local DATA,NUM,SYM,COLS={},{},{},{}
-    local big=1E30
 
 Also, we u=must use
 
@@ -37,10 +103,10 @@ Also, we u=must use
     function COLS:add(t)
       for _,cols in pairs{self.x, self.y} do
         for _,col in pairs(cols) do 
-          col:add(t[col.at]) end end 
+          col:add(t[col.pos]) end end 
       return t end
     
-Now I have thigns tos about john's mustache
+Now I have thigns tos about johns mustache
 
     function DATA.new(it,   self) 
       self = l.is(DATA, {rows={}, cols=COLS.new(it())}) 
@@ -51,8 +117,8 @@ Now I have thigns tos about john's mustache
       l.push(self.rows, self.cols:add(t)) end
     
      -------------------------------------------------------
-    function SYM.new(s,n)
-      return l.is(SYM, {txt=s, at=n, n=0, has={}, mode=nil, most=0, 
+    function SYM.new(name,pos)
+      return l.is(SYM, {name=name, pos=n, n=0, has={}, mode=nil, most=0, 
                         heaven=(s or ""):find"-$" and 0 or 1}) end
     
     function SYM:add(x)
@@ -62,19 +128,7 @@ Now I have thigns tos about john's mustache
         if self.has[x] > self.most then self.most, self.mode = self.has[x], x end end end
     
     --------------------------------------------------------
-    function NUM.new(s,n)
-      return l.is(NUM, {txt=s, at=n, n=0, mu=0, m2=0, sd=0, lo=big, hi= -big}) end
-    
-    function NUM:add(x,     d)
-      if x ~= "?" then
-        self.n  = 1 + self.n
-        self.lo = math.min(x, self.lo)
-        self.hi = math.max(x, self.hi)
-        d       = x - self.mu
-        self.mu = self.mu + d/self.n
-        self.m2 = self.m2 + d*(x - self.mu)
-        self.sd = (self.m2/(self.n - 1 + 1/big))^0.5 end end
-    
+   
     --------------------------------------------------------
     function SYM:mid() return self.mode end
     function NUM:mid() return self.mu end
@@ -86,18 +140,18 @@ Now I have thigns tos about john's mustache
       return l.map(cols or self.cols.y, function(col) return l.rnd(col:mid()) end) end
     
     --------------------------------------------------------
-    local BIN={}
-    function BIN.new(at,txt,lo,hi,n)
-      return l.is(BIN,{at=at, txt=txt, lo=lo, hi=hi or lo, n=n or 0, ys={}}) end
+    local RANGE={}
+    function RANGE.new(pos,name,lo,hi,n)
+      return l.is(RANGE,{pos=pos, name=name, lo=lo, hi=hi or lo, n=n or 0, ys={}}) end
     
-    function BIN:add(x,y)
+    function RANGE:add(x,y)
       self.n  = self.n + 1
       self.lo = math.min(x, self.lo)
       self.hi = math.max(x, self.hi)
       self.ys[y] = 1 + (self.ys[y] or 0) end
     
-    function BIN:mergeable(other, small)
-      both      = BIN.new(self.at, self.txt, self.lo, other.hi, self.n + other.n)
+    function RANGE:mergeable(other, small)
+      both      = RANGE.new(self.pos, self.name, self.lo, other.hi, self.n + other.n)
       both.ys   = l.sumDict(self.y, other.ys)
       e1,e2,e12 = l.entropy(self.ys), l.entropy(other.ys), l.entropy(both.ys)
       if self.n < small or other.n < small or e12 <= (self.n*e1 + other.n*e2) / both.n then
@@ -108,10 +162,10 @@ Now I have thigns tos about john's mustache
       for klass,rows in pairs(klasses) do
         for _,row in pairs(rows) do
           n += 1
-          x = row[col.at]
+          x = row[col.pos]
           if x != "?" then 
             k = col:bins(x) 
-            bins[k] = bins[k] or BIN.new(col.at, col.txt, x)
+            bins[k] = bins[k] or RANGE.new(col.pos, col.name, x)
             bins[k]:add(x,klass) end end end 
       return col:merges(sort(bins, by"lo"),  n/the.bins) end
     
@@ -134,8 +188,8 @@ Now I have thigns tos about john's mustache
       if len(now) < len(b4) then return self:merges(now,enough) end
       for j=2,len(now) do
         now[j].lo    = now[j-1].hi
-        now[1].lo    = -big
-        now[#now].hi =  big end
+        now[1].lo    = -1E30
+        now[#now].hi =  1E30 end
       return now end
     
     --------------------------------------------------------
@@ -146,10 +200,7 @@ Now I have thigns tos about john's mustache
     l.fmt = string.format
     
     -- Objects
-    function l.is(x,y) 
-      x.__tostring=l.o; x.__index=x; setmetatable(y,x); return y end
-    
-    -- ### Lists
+        -- ### Lists
     function l.by(s) return function(a,b) return a[s] < b[s] end end
     
     -- returns a copy of `t`, sorted.
@@ -222,32 +273,8 @@ Now I have thigns tos about john's mustache
     -- ### List
     function l.rogues() 
       for k,v in pairs(_ENV) do if not b4[k] then print("Rogue?",k,type(v)) end end end
-    
-    -------------------------------------------------------
-    -- ## Start-up Actions
-    local function try(fun,     tmp,ok)
-      tmp={}; for k,v in pairs(the) do tmp[k] = v end
-      math.randomseed(the.seed)
-      ok = xpcall(fun,function(err) print(tostring(debug.traceback())) end)
-      for k,v in pairs(tmp) do the[k]=v end
-      return ok end
-    
-    -- Where to store the actions.
-    local eg={}
-    
-    function eg.oo() l.oo(the) end
-    
-    function eg.version() print("rulr version 0.2") end
-    
-    function eg.csv()
-      for t in l.csv(the.train)  do l.oo(t) end end
-    
-    function eg.data()
-      DATA.new(l.csv(the.train)) end
-    
-    if   pcall(debug.getlocal, 4, 1) then-- if __name__ == "__main__":
-    else local todo = eg[arg[1]] and arg[1] or "version"
-         try(eg[todo])
-         l.rogues() end
-    
+
+## Set-up actions
+
+    math.randomseed(the.seed)
     return {the=the, lib=l,DATA=DATA,SYM=SYM,NUM=NUM,COLS=COLS}
