@@ -7,6 +7,10 @@ bye:
 
 docs: ~/tmp/rulr.html
 
+docs/%.md : %.lua
+	mkdir -p tmp
+	gawk -f etc/txt2md.awk $^ > $*
+
 ~/tmp/%.html : %.lua
 	pycco  -d ~/tmp $^ 
 	echo "p {text-align: right;}" >> ~/tmp/pycco.css
