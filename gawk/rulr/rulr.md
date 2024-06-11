@@ -1,5 +1,5 @@
 #!/usr/bin/env lua
--- <!-- vim: set ts=2 sw=2 sts=2 et: -->
+-- <!-- vim: set filetype=lua ts=2 sw=2 sts=2 et: -->
 
 First we need some config
 
@@ -37,7 +37,8 @@ Also, we u=must use
           col:add(t[col.at]) end end 
       return t end
     
-    -------------------------------------------------------
+Now I have thigns tos about john's mustache
+
     function DATA.new(it,   self) 
       self = l.is(DATA, {rows={}, cols=COLS.new(it())}) 
       for t in it do self:add(t) end  
