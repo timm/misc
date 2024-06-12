@@ -1,27 +1,50 @@
--- vim: set ts=2 sw=2 sts=2 et: 
+# RULR <!-- vim: set ts=2 sw=2 sts=2 et: -->
 
 rulr.lua: an experiment in incremental rule learning.      
 @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
 
+This program is an experiment in incremental rule learning via the
+Chebyshev (pronounced cheh-bee-shev) maximum metric. 
+
+This code is written in Lua since that is a very simple notation [^lua].
+Also, once we define the name space at top-of-file, it is easy to
+rearrange the code to fit the narrative. Here is our name space:
+
+[^lua]: For a short tutorial on Lua, see "[Learn Lua in Y
+minutes](https://learnxinyminutes.com/docs/lua/)".
+
 ```lua
-local NUM  = {} -- information on numeric columns
-local SYM  = {} -- information on symbolic columns
+local NUM  = {} -- info on numeric columns
+local SYM  = {} -- info on symbolic columns
 local DATA = {} -- place to store all the columns 
-local COLS = {} -- a factory that makes NUMs and SYMs
-local RANGE= {} -- place to store an upper and lower bound
-local l    = {} -- place to store misc functions, defined later
-local b4   = {} -- used by rogue() to find typos in var names
-for k,_ in pairs(_ENV) do b4[k]=k end 
+local COLS = {} -- factory to make NUMs and SYMs
+local RANGE= {} -- stores upper and lower bounds
+local l    = {} -- stores misc functions, defined later
 
 local function new(class, object)  -- how we create instances
   class.__index=class; setmetatable(object, class); return object end
+
+local b4   = {} -- used by rogue() to find typos in var names
+for k,_ in pairs(_ENV) do b4[k]=k end 
 ```
 
-This program is an experiment in incremental learning via the
-Chebyshev (pronounced cheh-bee-shev) maximum metric.  The Chebyshev
-distance _c_ returns the maximum difference between two points over
-any of their axis values.
+Note some conventions:
 
+- The string "?" is used to denote a missing value.
+- This code uses polymorphism, but no inheritance (why? I have my reasons[^nooo]).
+- In function headers, anything after two spaces is an optional arg.
+  Also, anything after four spaces is a local variable. For example, looking at the
+  first two functions defined below:
+  - `c,tmp` are local variables within the `chebyshev()` function, shown below.
+  - `d` is an optional argument for `RANGE.new()` (and it is not supplied then we default `hi` to the value of `lo`).
+
+[^nooo]: Why no OO? See Les Hatton's comments on that [Does OO sync with how we think?](https://www.researchgate.net/publication/3247400_Does_OO_sync_with_how_we_think).
+See also Jack Diederich's [Stop Writing Classes](https://www.youtube.com/watch?v=o9pEzgHorH0).
+
+## About
+
+The Chebyshev distance _c_ returns the maximum difference between
+two points over any of their axis values.  
 ```lua
 local function chebyshev(row,ycols,      c,tmp)
   c = 0
@@ -31,13 +54,29 @@ local function chebyshev(row,ycols,      c,tmp)
   return 1 - c end -- so LARGER values are better
 ```
 
-We want something to maximize so we will use _C=1-c_ (so _larger_
+We want something to maximize so we will use _d=1-c_ (so _larger_
 values  of _d_ are _better_).  When reading tabular data, we assume
 the data has columns that are either independent `x` values or
-dependent `y` goals.  If the `x` values are  discretized into ranges.
-those ranges can be scored as the sum of the _C_ s seen for that
-range.  Then, when we build rules, we favor the ranges with the
-largest _d_ values.
+dependent `y` goals.  If the `x` values are  discretized into ranges,
+those ranges have a  `score` equal to  the sum of the _d_ s seen
+for that range.  Then, when we build rules, we favor the ranges
+with the largest _d_ values. In the following code, we say
+a RANGE `selects()` a row if the row's value for that column
+calls within that range.
+
+```lua
+function RANGE.new(col,lo,  hi)
+  return new(RANGE, {col=col, lo=lo, hi=hi or lo, score=0})
+
+function RANGE:add(x,d)
+  self.score = self.score + d 
+  if x < self.lo then self.lo = x end
+  if x > self.hi then self.hi = x end end
+
+function RANGE:selects(row) 
+  x = row[self.col.at] -- if value if "dont know", then assume true
+  return x == "?" and true or self.lo <= x and x < self.hi end
+```
 
 To keep things simple, we will discretize numerics into seven ranges.
 This value of seven is a magic configuration parameter set via
@@ -53,20 +92,32 @@ local the = {ranges = 7,
 ```
 
 This code will need classes to handle SYMbolic and NUMeric columns.
-NUMs summarize a stream of numbers.
-NUMs know their column   `name`, the column `pos`ition, the `lo`
-and `hi` value, as well their column mean `mu` and standard deviation
-`sd`.  
+Both kinds of columns support comparison and sorting but only
+NUMerics support mathematical operations (sich as add or subtract).
+
+NUMs summarize a stream of numbers.  NUMs know their column   `name`,
+the column `pos`ition, the `lo` and `hi` value, as well their column
+mean `mu` and standard deviation `sd`.  
 
 ```lua
 function NUM.new(name,pos)
-  return new(NUM, {name=name, pos=pos, n=0, mu=0, m2=0, sd=0, 
-                   lo=1E30, hi= -1E30, ranges={},
-                   goal = (s or ""):find"-$" and 0 or 1}) end
+  return new(NUM, {name=name, pos=pos, n=0, ranges={},
+                   mu=0, m2=0, sd=0, lo=1E30, hi= -1E30, ranges={},
+                   goal = (name or ""):find"-$" and 0 or 1}) end
+
+```
+Note that NUM has a `goal` slot which holds the best value possible
+for this column. If a column name ends in "-" then we say that we
+seek to minimize this column (in which case, the `goal` is 0).  For
+this to work, we must first normalize the goals to the range 0..1
+(which is handled via `norm()`):
+
+```lua
+function NUM:norm(x)
+  return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/the.big) end
 ```
 
-When adding a new value to  a NUM, we use the Welford 
-algorithm [^welford] to incrementally update the means and standard deviations.
+When adding a new value to  a NUM, we use the Welford algorithm [^welford] to incrementally update the means and standard deviations.
 
 [^welford]: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
 
@@ -81,6 +132,7 @@ function NUM:add(x,     d)
     self.m2 = self.m2 + d*(x - self.mu)
     self.sd = (self.m2/(self.n - 1 + 1/the.big))^0.5 end 
   return x end
+
 ```
 
 Now that `mu` and `sd` are updated incrementally, that means that
@@ -88,14 +140,13 @@ for each row, we can map any number into some integer index
 `1..the.ranges`.  To do that, we report what area accumulates under
 a Gaussian curve below that number. This will be be some
 value 0..1 which, if we multiple by `the.ranges`, this return the
-relevant range
-index.
+relevant range.
 
 ```lua
-local function _range(col,x,     r)
+local function arrange(col,x,d,     r) -- "col" can be a NUM or a SYM
   r = col:range(x)
-  col.ranges[r] = col.ranges[r] or RANGES.new(col,lo)
-  return col.ranges[r] end
+  col.ranges[r] = col.ranges[r] or RANGE.new(col,lo)
+  col.ranges[r]:add(x,d)  end
 
 function NUM:range(x,     tmp)
   tmp = self:cdf(x) * the.range // 1 + 1 -- map to 0.. the.range+1
@@ -107,34 +158,38 @@ function NUM:areaBelow(x,      z,fun)
   return z >= 0 and fun(z) or 1 - fun(-z) end
 ```
 
-(Aside: `NUM:areaBelow()` uses the Min (1989) 
+(Aside: `NUM:areaBelow()` uses the Lin (1989) 
 approximation to the cumulative distribution function [^min].)
 
-[^min]: As described in <em>Approximations to Standard Normal Distribution
-Function</em>, Ramu Yerukala and Naveen Kumar Boiroju, International
+[^min]: As described in [Approximations to Standard Normal Distribution Function](https://www.ijser.org/researchpaper/Approximations-to-Standard-Normal-Distribution-Function.pdf)
+by Ramu Yerukala and Naveen Kumar Boiroju, International
 Journal of Scientific & Engineering Research, Volume 6, Issue 4,
 April-2015 515 ISSN 2229-5518
-https://www.ijser.org/researchpaper/Approximations-to-Standard-Normal-Distribution-Function.pdf
 While there are better approximations than Lin (1989), they are
 more elaborate. Lin (1988) is a good balance between simplicity
 and low error rates.
 
+Turning now to SYMbolic columns, these have nearly all the same
+slots as NUMbers. But also, we keep  a count of the symbols
+`seen` so far as well as the most common symbol (which is called the `mode`).
+
 ```lua
 function SYM.new(name,pos)
-  return new(SYM, {name=name, pos=n, n=0, has={}, mode=nil, most=0}) end 
+  return new(SYM, {name=name, pos=n, n=0, ranges={},
+                   seen={}, mode=nil, most=0}) end 
 
 function SYM:add(x)
   if x ~= "?" then
     self.n = 1 + self.n
-    self.has[x] = 1 + (self.has[x] or 0)
-    if self.has[x] > self.most then 
-      self.most, self.mode = self.has[x], x end end end
+    self.seen[x] = 1 + (self.seen[x] or 0)
+    if self.seen[x] > self.seen then 
+      self.most, self.mode = self.seen[x], x end end end
 
 function SYM:range(x) return end
 
 ```
 
-## things
+## things asda
 
 Then we need
 
