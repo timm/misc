@@ -3,12 +3,26 @@
 rulr.lua: an experiment in incremental rule learning.      
 @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
 
+
+```lua
+local NUM  = {} -- information on numeric columns
+local SYM  = {} -- information on symbolic columns
+local DATA = {} -- place to store all the columns 
+local COLS = {} -- a factory that makes NUMs and SYMs
+local RANGE= {} -- place to store an upper and lower bound
+local l    = {}; -- place to store misc functions, defined later
+local b4   = {}; for k,_ in pairs(_ENV) do -- used by rogue() 
+                     b4[k]=k end 
+
+local function new(class, object)  -- how we create instances
+  class.__index=class; setmetatable(object, class); return object end
+```
+
 This program is an experiment in incremental learning via the
 Chebyshev (pronounced cheh-bee-shev) maximum metric.  
 The Chebyshev
 distance _c_ returns the maximum difference between two points over
 any of their axis values.
-
 
 ```lua
 local function chebyshev(row,ycols,      d,tmp)
@@ -20,35 +34,12 @@ local function chebyshev(row,ycols,      d,tmp)
 ```
 
 We want something to maximize so we will use _C=1-c_ (so _larger_
-values  of _C_ are _better_).  
-
-Before we begin, we need to define our name space.
-
-```lua
-local NUM = {} -- information on numeric columns
-local SYM = {} -- information on symbolic columns
-local DATA= {} -- place to store all the columns 
-local COLS= {} -- a factory that makes NUMs and SYMs
-local RANGE= {} -- place to store an upper and lower bound
-local l = {}; -- place to store misc functions
-local b4 = {}
-```
-
-We also need two other small details:
-
-```lua
-for k,_ in pairs(_ENV) do -- used by rogue() 
-  b4[k]=k end 
-
-local function new(class, object)  -- how we create instances
-  klass.__index=class; setmetatable(object, class); return object end
-```
-
-When reading tabular data, we assume the data has columns that are
-either independent `x` values or dependent `y` goals.  If the `x`
-values are  discretized into ranges.  those ranges can be scored
-as the sum of the _C_ s seen for that range.  Then, when we build
-rules, we favor the ranges with the largest _C_ values.
+values  of _d_ are _better_).  When reading tabular data, we assume
+the data has columns that are either independent `x` values or
+dependent `y` goals.  If the `x` values are  discretized into ranges.
+those ranges can be scored as the sum of the _C_ s seen for that
+range.  Then, when we build rules, we favor the ranges with the
+largest _d_ values.
 
 To keep things simple, we will discretize numerics into seven ranges.
 This value of seven is a magic configuration parameter set via
@@ -72,7 +63,7 @@ and `hi` value, as well their column mean `mu` and standard deviation
 ```lua
 function NUM.new(name,pos)
   return new(NUM, {name=name, pos=pos, n=0, mu=0, m2=0, sd=0, 
-                   lo=1E30, hi= -1E30, 
+                   lo=1E30, hi= -1E30, ranges={},
                    goal = (s or ""):find"-$" and 0 or 1}) end
 ```
 
@@ -97,10 +88,17 @@ Now that `mu` and `sd` are updated incrementally, that means that
 for each row, we can map any number into some integer index
 `1..the.ranges`.  To do that, we report what area accumulates under
 a Gaussian curve below that number. This will be be some
-value 0..1 which, if we multiple by `the.ranges`, will return that
+value 0..1 which, if we multiple by `the.ranges`, this return the
+relevant range
 index.
 
 ```lua
+function NUM:chebyshev(x,   r)
+  self:add(x)
+  r = self:bin(x)
+  self.ranges[r] = self.ranges[r] or RANGES.new(self,lo)
+  self.ranges[r]:add(x, 1-c)  end
+
 function NUM:bin(x,     tmp)
   tmp = self:cdf(x) * the.range // 1 + 1 -- map to 0.. the.range+1
   return  max(1, min(the.ranges, tmp)) end -- keep in bounds
