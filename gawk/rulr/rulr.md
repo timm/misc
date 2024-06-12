@@ -95,11 +95,11 @@ index.
 ```lua
 function NUM:chebyshev(x,   r)
   self:add(x)
-  r = self:bin(x)
+  r = self:range(x)
   self.ranges[r] = self.ranges[r] or RANGES.new(self,lo)
   self.ranges[r]:add(x, 1-c)  end
 
-function NUM:bin(x,     tmp)
+function NUM:range(x,     tmp)
   tmp = self:cdf(x) * the.range // 1 + 1 -- map to 0.. the.range+1
   return  max(1, min(the.ranges, tmp)) end -- keep in bounds
 
@@ -108,9 +108,6 @@ function NUM:areaBelow(x,      z,fun)
   z = (x - self.mu) / self.sigma
   return z >= 0 and fun(z) or 1 - fun(-z) end
 ```
-
-For that to work, when we define numeric columns, recognize which of those
-are goals that we want to either minimize or maximze.
 
 ## things
 
