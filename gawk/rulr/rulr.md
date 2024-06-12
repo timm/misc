@@ -1,19 +1,24 @@
 # RULR <!-- vim: set ts=2 sw=2 sts=2 et: -->
-   
 rulr.lua: an experiment in incremental rule learning.      
 @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
-  
+     
 This program is an experiment in incremental rule learning via the
 Chebyshev (pronounced cheh-bee-shev) maximum metric. 
-
------
-
+Exploring incremental learning is important since, often,
+there is so much to explore that we cannot look at it all.
+So the question is, how much do we lose by jumping in early and 
+generating a model before all the facts are in? Optimistically,
+we hope for an 
+"early plateau" effect where, after not much
+data, we stop learning new things. The experiments of this code
+test is that optimism is justified.
+    
 This code is written in Lua since that is a very simple notation
 (for a short tutorial on Lua, see "[Learn Lua in Y
 minutes](https://learnxinyminutes.com/docs/lua/)").
 Also, once we define the name space at top-of-file, it is easy to
 rearrange the code to fit the narrative. Here is our name space:
-
+    
 ```lua
 local NUM  = {} -- info on numeric columns
 local SYM  = {} -- info on symbolic columns
@@ -21,26 +26,32 @@ local DATA = {} -- place to store all the columns
 local COLS = {} -- factory to make NUMs and SYMs
 local RANGE= {} -- stores upper and lower bounds
 local l    = {} -- stores misc functions, defined later
-
+   
 local function new(class, object)  -- how we create instances
   class.__index=class; setmetatable(object, class); return object end
-
+   
 local b4   = {} -- used by rogue() to find typos in var names
 for k,_ in pairs(_ENV) do b4[k]=k end 
 ```
+  
 Note some conventions:
-
+  
 - The string "?" is used to denote a missing value.
 - In function headers, anything after two spaces is an optional arg.
   Also, anything after four spaces is a local variable. For example, looking at the
   first two functions defined below:
   - `c,tmp` are local variables within the `chebyshev()` function, shown below.
-  - `d` is an optional argument for `RANGE.new()` (and it is not supplied then we default `hi` to the value of `lo`).
+  - `d` is an optional argument for `RANGE.new()` (and it is not supplied then we 
+    default `hi` to the value of `lo`).
 - This code uses polymorphism, but no inheritance.
-   Why not use full OO? I will let others explain that. See Les Hatton's comments on that [Does OO sync with how we think?](https://www.researchgate.net/publication/3247400_Does_OO_sync_with_how_we_think).
-   and see also Jack Diederich's [Stop Writing Classes](https://www.youtube.com/watch?v=o9pEzgHorH0).
-  
----------
+   Why not use full OO? I will let others explain that.
+   See Les Hatton's comments on that 
+   [Does OO sync with how we think?](https://www.researchgate.net/publication/3247400_Does_OO_sync_with_how_we_think).
+   and see also Jack Diederich's 
+   [Stop Writing Classes](https://www.youtube.com/watch?v=o9pEzgHorH0).
+
+
+# includes tests/csv
 
 ## About
 
@@ -48,7 +59,6 @@ The Chebyshev distance _c_ returns the maximum difference between
 two points over any of their axis values.  
 
 ```lua
-
 local function chebyshev(row,ycols,      c,tmp)
   c = 0
   for _,col in pairs(ycols) do

@@ -1,4 +1,5 @@
-local l=dofile("../rulr.lua").lib
+local l=dofile("../src/rulr.lua").lib
+
 
 local c,n = 0,0
 for t in l.csv("auto93.csv") do
