@@ -1,24 +1,69 @@
 # RULR <!-- vim: set ts=2 sw=2 sts=2 et: -->
 rulr.lua: an experiment in incremental rule learning.      
 @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
-     
+
 This program is an experiment in incremental rule learning via the
 Chebyshev (pronounced cheh-bee-shev) maximum metric. 
-Exploring incremental learning is important since, often,
+Incremental learning is important since, often,
 there is so much to explore that we cannot look at it all.
-So the question is, how much do we lose by jumping in early and 
+So how much do we lose by jumping in early and 
 generating a model before all the facts are in? Optimistically,
 we hope for an 
-"early plateau" effect where, after not much
-data, we stop learning new things. The experiments of this code
-test is that optimism is justified.
-    
-This code is written in Lua since that is a very simple notation
-(for a short tutorial on Lua, see "[Learn Lua in Y
-minutes](https://learnxinyminutes.com/docs/lua/)").
-Also, once we define the name space at top-of-file, it is easy to
-rearrange the code to fit the narrative. Here is our name space:
-    
+"early plateau" effect where, after some point,
+we stop learning new things. This code will test that optimism.
+
+ 
+Note some conventions:
+  
+- This code is written in Lua since that is a very simple notation.
+  For a short tutorial on Lua, see "[Learn Lua in Y
+  minutes](https://learnxinyminutes.com/docs/lua/)".
+- In our data, the  string "?" is used to denote a missing value.
+- In our data,  row one  list the columns names. Those names
+  define the various roles of our columns:
+  - NUMeric column names start with an upper case letter. All
+    other columns are SYMbolic.
+  - Names ending with "+" or "-" are things we want to maximize
+    or minimize(respectively). 
+  - Anything ending in "X" is a column we should ignore.
+  - For example, here is some care data where we want
+    to minimize car weight and maximize our acceleration and 
+    fuel consuption.
+
+        {Clndrs  Volume  HpX      Model  origin  Lbs-  Acc+  Mpg+}
+        -------  ------  ---      -----  ------  ----  ----  ----
+        {8       302     129      75     1       3169  12    10}
+        {8       318     150      72     1       4135  13.5  20}
+        {6       168     120      76     2       3820  16.7  20}
+        {3       70      90       73     3       2124  13.5  20}
+        {6       232     90       78     1       3210  17.2  20}
+        {6       231     110      75     1       3039  15    20}
+        {6       173     110      81     1       2725  12.6  20}
+        {4       140     92       76     1       2572  14.9  30}
+        {4       97      88       72     3       2100  16.5  30}
+        {4       90      70       76     2       1937  14.2  30}
+        {4       85      65       79     3       2020  19.2  30}
+        {4       98      65       81     1       2045  16.2  30}
+        {4       85      70       78     3       2070  18.6  40}
+
+
+As to other conventions:
+- In function headers, anything after two spaces is an optional arg.
+  Also, anything after four spaces is a local variable. For example, looking at the
+  first two functions defined below:
+  - `c,tmp` are local variables within the `chebyshev()` function, shown below.
+  - `d` is an optional argument for `RANGE.new()` (and it is not supplied then we 
+    default `hi` to the value of `lo`).
+- This code uses polymorphism, but no inheritance.
+   Why not use full OO? I will let others explain that.
+   See Les Hatton's comments on that 
+   [Does OO sync with how we think?](https://www.researchgate.net/publication/3247400_Does_OO_sync_with_how_we_think).
+   and see also Jack Diederich's 
+   [Stop Writing Classes](https://www.youtube.com/watch?v=o9pEzgHorH0).
+- We define the name space at top-of-file 
+  that makes it easier to
+  rearrange the code to fit the narrative. Here is our name space:
+
 ```lua
 local NUM  = {} -- info on numeric columns
 local SYM  = {} -- info on symbolic columns
@@ -33,25 +78,6 @@ local function new(class, object)  -- how we create instances
 local b4   = {} -- used by rogue() to find typos in var names
 for k,_ in pairs(_ENV) do b4[k]=k end 
 ```
-  
-Note some conventions:
-  
-- The string "?" is used to denote a missing value.
-- In function headers, anything after two spaces is an optional arg.
-  Also, anything after four spaces is a local variable. For example, looking at the
-  first two functions defined below:
-  - `c,tmp` are local variables within the `chebyshev()` function, shown below.
-  - `d` is an optional argument for `RANGE.new()` (and it is not supplied then we 
-    default `hi` to the value of `lo`).
-- This code uses polymorphism, but no inheritance.
-   Why not use full OO? I will let others explain that.
-   See Les Hatton's comments on that 
-   [Does OO sync with how we think?](https://www.researchgate.net/publication/3247400_Does_OO_sync_with_how_we_think).
-   and see also Jack Diederich's 
-   [Stop Writing Classes](https://www.youtube.com/watch?v=o9pEzgHorH0).
-
-
-# includes tests/csv
 
 ## About
 

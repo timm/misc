@@ -1,4 +1,6 @@
 .SILENT:
+bye:
+		git commit -am as; git push; git status
 
 ../src/%.lua : ../%.md
 	mkdir -p ../src
