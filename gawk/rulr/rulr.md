@@ -1,17 +1,18 @@
 # RULR <!-- vim: set ts=2 sw=2 sts=2 et: -->
-
+   
 rulr.lua: an experiment in incremental rule learning.      
 @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
-
+  
 This program is an experiment in incremental rule learning via the
 Chebyshev (pronounced cheh-bee-shev) maximum metric. 
 
-This code is written in Lua since that is a very simple notation [^lua].
+-----
+
+This code is written in Lua since that is a very simple notation
+(for a short tutorial on Lua, see "[Learn Lua in Y
+minutes](https://learnxinyminutes.com/docs/lua/)").
 Also, once we define the name space at top-of-file, it is easy to
 rearrange the code to fit the narrative. Here is our name space:
-
-[^lua]: For a short tutorial on Lua, see "[Learn Lua in Y
-minutes](https://learnxinyminutes.com/docs/lua/)".
 
 ```lua
 local NUM  = {} -- info on numeric columns
@@ -27,30 +28,32 @@ local function new(class, object)  -- how we create instances
 local b4   = {} -- used by rogue() to find typos in var names
 for k,_ in pairs(_ENV) do b4[k]=k end 
 ```
-
 Note some conventions:
 
 - The string "?" is used to denote a missing value.
-- This code uses polymorphism, but no inheritance (why? I have my reasons[^nooo]).
 - In function headers, anything after two spaces is an optional arg.
   Also, anything after four spaces is a local variable. For example, looking at the
   first two functions defined below:
   - `c,tmp` are local variables within the `chebyshev()` function, shown below.
   - `d` is an optional argument for `RANGE.new()` (and it is not supplied then we default `hi` to the value of `lo`).
-
-[^nooo]: Why no OO? See Les Hatton's comments on that [Does OO sync with how we think?](https://www.researchgate.net/publication/3247400_Does_OO_sync_with_how_we_think).
-See also Jack Diederich's [Stop Writing Classes](https://www.youtube.com/watch?v=o9pEzgHorH0).
+- This code uses polymorphism, but no inheritance.
+   Why not use full OO? I will let others explain that. See Les Hatton's comments on that [Does OO sync with how we think?](https://www.researchgate.net/publication/3247400_Does_OO_sync_with_how_we_think).
+   and see also Jack Diederich's [Stop Writing Classes](https://www.youtube.com/watch?v=o9pEzgHorH0).
+  
+---------
 
 ## About
 
 The Chebyshev distance _c_ returns the maximum difference between
 two points over any of their axis values.  
+
 ```lua
+
 local function chebyshev(row,ycols,      c,tmp)
   c = 0
   for _,col in pairs(ycols) do
     tmp = col.norm(row[col.at]) -- normalize  0..1 
-    c = math.max(d, math.abs(col.best - tmp))
+    c = math.max(d, math.abs(col.best - tmp)) end
   return 1 - c end -- so LARGER values are better
 ```
 
@@ -66,7 +69,7 @@ calls within that range.
 
 ```lua
 function RANGE.new(col,lo,  hi)
-  return new(RANGE, {col=col, lo=lo, hi=hi or lo, score=0})
+  return new(RANGE, {col=col, lo=lo, hi=hi or lo, score=0}) end
 
 function RANGE:add(x,d)
   self.score = self.score + d 
@@ -86,7 +89,7 @@ options.
 
 ```lua
 local the = {ranges = 7,
-             big    = 1E30.
+             big    = 1E30,
              seed  = 1234567891,
              train = "auto93.csv"}
 ```
@@ -260,9 +263,9 @@ function DATA:bins(col,klasses)
   bins,n = {},0
   for klass,rows in pairs(klasses) do
     for _,row in pairs(rows) do
-      n += 1
+      n = n + 1
       x = row[col.pos]
-      if x != "?" then 
+      if x ~= "?" then 
         k = col:bins(x) 
         bins[k] = bins[k] or RANGE.new(col.pos, col.name, x)
         bins[k]:add(x,klass) end end end 
@@ -368,7 +371,7 @@ function l.o(t,    _list,_dict,u)
 function l.rogues() 
   for k,v in pairs(_ENV) do if not b4[k] then print("Rogue?",k,type(v)) end end end
 
-## Set-up actions
+-- ## Set-up actions
 
 math.randomseed(the.seed)
 return {the=the, lib=l,DATA=DATA,SYM=SYM,NUM=NUM,COLS=COLS}

@@ -1,24 +1,17 @@
 SHELL     := bash 
 MAKEFLAGS += --warn-undefined-variables
-.SILENT:  
 
 bye:
 	echo -n "Why> ";read x; git commit -am "$$x"; git push; git status
 
-docs: ~/tmp/rulr.html
 
-docs/%.md : src/%.lua
+src/%.lua : %.md
 	mkdir -p docs
-	gawk -f etc/md2lua.awk $^ > $*
+	gawk -f etc/md2lua.awk $^ > $@
+	luac -p $@
 
-~/tmp/%.html : %.lua
+~/tmp/%.html : src/%.lua
 	pycco  -d ~/tmp $^ 
-	echo "p {text-align: right;}" >> ~/tmp/pycco.css
 	cp marsQueen.png ~/tmp
 	open $@
 
-~/tmp/%.html : %.awk
-	pycco -l bash -d ~/tmp $^ 
-	echo "p {text-align: right;}" >> ~/tmp/pycco.css
-	cp marsQueen.png ~/tmp
-	open $@
