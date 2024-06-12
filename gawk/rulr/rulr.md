@@ -109,6 +109,18 @@ function NUM:areaBelow(x,      z,fun)
   return z >= 0 and fun(z) or 1 - fun(-z) end
 ```
 
+(Aside: `NUM:areaBelow()` uses the Min (1989) approximation to the cumulative distribution function [^min].)
+
+[^min]: As described in Approximations to Standard Normal Distribution
+Function, Ramu Yerukala and Naveen Kumar Boiroju, International
+Journal of Scientific & Engineering Research, Volume 6, Issue 4,
+April-2015
+515 ISSN 2229-5518
+https://www.ijser.org/researchpaper/Approximations-to-Standard-Normal-Distribution-Function.pdf
+While there are better approximations that Lin (1989), they are
+more elaborate. Lin (1988) is a   good balance between simplicity
+and low error rates.
+
 ## things
 
 Then we need
