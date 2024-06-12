@@ -3,34 +3,32 @@
 rulr.lua: an experiment in incremental rule learning.      
 @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
 
-
 ```lua
 local NUM  = {} -- information on numeric columns
 local SYM  = {} -- information on symbolic columns
 local DATA = {} -- place to store all the columns 
 local COLS = {} -- a factory that makes NUMs and SYMs
 local RANGE= {} -- place to store an upper and lower bound
-local l    = {}; -- place to store misc functions, defined later
-local b4   = {}; for k,_ in pairs(_ENV) do -- used by rogue() 
-                     b4[k]=k end 
+local l    = {} -- place to store misc functions, defined later
+local b4   = {} -- used by rogue() to find typos in var names
+for k,_ in pairs(_ENV) do b4[k]=k end 
 
 local function new(class, object)  -- how we create instances
   class.__index=class; setmetatable(object, class); return object end
 ```
 
 This program is an experiment in incremental learning via the
-Chebyshev (pronounced cheh-bee-shev) maximum metric.  
-The Chebyshev
+Chebyshev (pronounced cheh-bee-shev) maximum metric.  The Chebyshev
 distance _c_ returns the maximum difference between two points over
 any of their axis values.
 
 ```lua
-local function chebyshev(row,ycols,      d,tmp)
-  d = 0
+local function chebyshev(row,ycols,      c,tmp)
+  c = 0
   for _,col in pairs(ycols) do
     tmp = col.norm(row[col.at]) -- normalize  0..1 
-    d = math.max(d, math.abs(col.best - tmp))
-  return d end -- so LARGER values are better
+    c = math.max(d, math.abs(col.best - tmp))
+  return 1 - c end -- so LARGER values are better
 ```
 
 We want something to maximize so we will use _C=1-c_ (so _larger_
@@ -81,7 +79,8 @@ function NUM:add(x,     d)
     d       = x - self.mu
     self.mu = self.mu + d/self.n
     self.m2 = self.m2 + d*(x - self.mu)
-    self.sd = (self.m2/(self.n - 1 + 1/the.big))^0.5 end end
+    self.sd = (self.m2/(self.n - 1 + 1/the.big))^0.5 end 
+  return x end
 ```
 
 Now that `mu` and `sd` are updated incrementally, that means that
@@ -93,11 +92,10 @@ relevant range
 index.
 
 ```lua
-function NUM:chebyshev(x,   r)
-  self:add(x)
-  r = self:range(x)
-  self.ranges[r] = self.ranges[r] or RANGES.new(self,lo)
-  self.ranges[r]:add(x, 1-c)  end
+local function _range(col,x,     r)
+  r = col:range(x)
+  col.ranges[r] = col.ranges[r] or RANGES.new(col,lo)
+  return col.ranges[r] end
 
 function NUM:range(x,     tmp)
   tmp = self:cdf(x) * the.range // 1 + 1 -- map to 0.. the.range+1
@@ -109,17 +107,32 @@ function NUM:areaBelow(x,      z,fun)
   return z >= 0 and fun(z) or 1 - fun(-z) end
 ```
 
-(Aside: `NUM:areaBelow()` uses the Min (1989) approximation to the cumulative distribution function [^min].)
+(Aside: `NUM:areaBelow()` uses the Min (1989) 
+approximation to the cumulative distribution function [^min].)
 
-[^min]: As described in Approximations to Standard Normal Distribution
-Function, Ramu Yerukala and Naveen Kumar Boiroju, International
+[^min]: As described in <em>Approximations to Standard Normal Distribution
+Function</em>, Ramu Yerukala and Naveen Kumar Boiroju, International
 Journal of Scientific & Engineering Research, Volume 6, Issue 4,
-April-2015
-515 ISSN 2229-5518
+April-2015 515 ISSN 2229-5518
 https://www.ijser.org/researchpaper/Approximations-to-Standard-Normal-Distribution-Function.pdf
-While there are better approximations that Lin (1989), they are
-more elaborate. Lin (1988) is a   good balance between simplicity
+While there are better approximations than Lin (1989), they are
+more elaborate. Lin (1988) is a good balance between simplicity
 and low error rates.
+
+```lua
+function SYM.new(name,pos)
+  return new(SYM, {name=name, pos=n, n=0, has={}, mode=nil, most=0}) end 
+
+function SYM:add(x)
+  if x ~= "?" then
+    self.n = 1 + self.n
+    self.has[x] = 1 + (self.has[x] or 0)
+    if self.has[x] > self.most then 
+      self.most, self.mode = self.has[x], x end end end
+
+function SYM:range(x) return end
+
+```
 
 ## things
 
@@ -158,16 +171,6 @@ function DATA:add(t)
   l.push(self.rows, self.cols:add(t)) end
 
  -------------------------------------------------------
-function SYM.new(name,pos)
-  return l.is(SYM, {name=name, pos=n, n=0, has={}, mode=nil, most=0, 
-                    heaven=(s or ""):find"-$" and 0 or 1}) end
-
-function SYM:add(x)
-  if x ~= "?" then
-    self.n = 1 + self.n
-    self.has[x] = 1 + (self.has[x] or 0)
-    if self.has[x] > self.most then self.most, self.mode = self.has[x], x end end end
-
 --------------------------------------------------------
    
 --------------------------------------------------------
