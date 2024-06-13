@@ -2,14 +2,17 @@ local r=require"rulr"
 local DATA = r.DATA
 local l  = r.lib
 
-local fun=function(x) return l.rnd(x.score/x.n) end
+local fun=function(x,    tmp) tmp= x.score/x.n; return tmp<0 and 0 or tmp end
 
 -- todo shuffel the rows
+-- todo sort example rows by chey
 
-d=DATA.new(l.csv("auto93.csv"))
+local d=DATA.new(l.csv("auto93.csv"))
 for _,col in pairs(d.cols.x) do
     print""
    for _,r in pairs(l.sort(col.ranges, l.on(fun))) do 
-       print(l.o(r), fun(r)) end end
+       print(l.fmt("%5.3f",fun(r)), l.o(r)) end end
+
+l.rogues()
  
 --rulr.lib.oo(d:mids())
