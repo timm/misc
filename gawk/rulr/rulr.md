@@ -6,14 +6,13 @@ rulr.lua: an experiment in incremental rule learning.
 @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
 
 This code is an experiment in incremental rule learning via the
-Chebyshev (pronounced cheh-bee-shev) maximum metric. 
-Incremental learning is important since, often,
-there is so much to explore that we cannot look at it all.
-So how much do we lose by jumping in early and 
-generating a model before all the facts are in? Optimistically,
-we hope for an 
-"early plateau" effect where, after some point,
-we stop learning new things. This code will test that optimism. 
+Chebyshev (pronounced cheh-bee-shev) maximum metric.  Incremental
+learning is important since, often, there is so much to explore
+that we cannot look at it all.  So how much do we lose by jumping
+in early and generating a model before all the facts are in?
+Optimistically, we hope for an "early plateau" effect where, after
+some point, we stop learning new things. This code will test that
+optimism.
 
 - [RULR](#rulr)
   - [Conventions](#conventions)
@@ -91,9 +90,8 @@ As to other coding conventions:
 
 ### Name space
 
-We define the name space at top-of-file 
-  that makes it easier to
-  rearrange the code to fit the narrative. Here is our name space:
+We define the name space at top-of-file that makes it easier to
+rearrange the code to fit the narrative.  Here is our name space:
 
 ```lua
 local NUM  = {} -- info on numeric columns
@@ -114,7 +112,7 @@ for k,_ in pairs(_ENV) do b4[k]=k end
 ### The Chebyshev Function
 
 The Chebyshev distance _c_ returns the maximum difference between
-two points over any of their axis values.  
+two points over any of their axis values.
 
 ```lua
 local function chebyshev(row,ycols,      c,tmp)
@@ -126,17 +124,16 @@ local function chebyshev(row,ycols,      c,tmp)
 ```
 
 We want something to maximize so we will use _d=1-c_ (so _larger_
-values  of _d_ are _better_).  
+values  of _d_ are _better_).
 
 
 ### Class RANGEs
 
-When reading tabular data, we assume
-the data has columns that are either independent `x` values or
-dependent `y` goals.  If the `x` values are  discretized into ranges,
-those ranges have a  `score` equal to  the sum of the _d_ s seen
-for that range.  Then, when we build rules, we favor the ranges
-with the largest _d_ values. 
+When reading tabular data, we assume the data has columns that are
+either independent `x` values or dependent `y` goals.  If the `x`
+values are  discretized into ranges, those ranges have a  `score`
+equal to  the sum of the _d_ s seen for that range.  Then, when we
+build rules, we favor the ranges with the largest _d_ values.
 
 ```lua
 function RANGE.new(col,lo,  hi)
@@ -148,8 +145,7 @@ function RANGE:add(x,d)
   if x > self.hi then self.hi = x end end
 ```
 
-As In the following code, we say
-a RANGE `selects()` a row if the row's value for that column
+We say a RANGE `selects()` a row if the row's value for that column
 falls within that range.
 
 ```lua
@@ -159,15 +155,16 @@ function RANGE:selects(row)
          self.lo <= x and x < self.hi or         -- for NUMeric ranges
          self.lo == self.hi and self.lo == x end -- for SYMbolic ranges    
 ```
-To explain the  last line of `selects()`, once we coded up RANGEs for NUMeric ranges,
-it was fun to see that nearly the same code worked for SYMbolic ranges,
-with one tiny hack: SYMboic ranges have the same value for `lo` and `hi`. 
- 
+To explain the  last line of `selects()`, once we coded up RANGEs
+for NUMeric ranges, it was fun to see that nearly the same code
+worked for SYMbolic ranges, with one tiny hack: SYMboic ranges have
+the same value for `lo` and `hi`.
+
 ### Config (stored in "the")
 
-To keep things simple, we will discretize NUME+erics into seven ranges.
-This value of seven is a magic configuration parameter set via
-"engineering judgment" (a.k.a.  guessing).  The variable "the"
+To keep things simple, we will discretize NUME+erics into seven
+ranges.  This value of seven is a magic configuration parameter set
+via "engineering judgment" (a.k.a.  guessing).  The variable "the"
 stores that magic number,  along with any other configuration
 options.
 
@@ -186,7 +183,7 @@ NUMerics support mathematical operations (sich as add or subtract).
 
 NUMs summarize a stream of numbers.  NUMs know their column   `name`,
 the column `pos`ition, the `lo` and `hi` value, as well their column
-mean `mu` and standard deviation `sd`.  
+mean `mu` and standard deviation `sd`.
 
 ```lua
 function NUM.new(name,pos)
@@ -206,7 +203,8 @@ function NUM:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/the.big) end
 ```
 
-When adding a new value to  a NUM, we use the Welford algorithm [^welford] to incrementally update the means and standard deviations.
+When adding a new value to  a NUM, we use the Welford algorithm
+[^welford] to incrementally update the means and standard deviations.
 
 [^welford]: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
 
@@ -228,9 +226,9 @@ function NUM:add(x,     d)
 Now that `mu` and `sd` are updated incrementally, that means that
 for each row, we can map any number into some integer index
 `1..the.ranges`.  To do that, we report what area accumulates under
-a Gaussian curve below that number. This will be be some
-value 0..1 which, if we multiple by `the.ranges`, this return the
-relevant range.
+a Gaussian curve below that number. This will be be some value 0..1
+which, if we multiple by `the.ranges`, this return the relevant
+range.
 
 ```lua
 local function arrange(col,x,d,     r) -- "col" can be a NUM or a SYM
@@ -249,22 +247,23 @@ function NUM:area(x,      z,fun)
   return z >= 0 and fun(z) or 1 - fun(-z) end
 ```
 
-(Aside: `NUM:area()` uses the Lin (1989) 
-approximation to the cumulative distribution function [^min].)
+(Aside: `NUM:area()` uses the Lin (1989) approximation to the
+cumulative distribution function [^min].)
 
-[^min]: As described in [Approximations to Standard Normal Distribution Function](https://www.ijser.org/researchpaper/Approximations-to-Standard-Normal-Distribution-Function.pdf)
-by Ramu Yerukala and Naveen Kumar Boiroju, International
-Journal of Scientific & Engineering Research, Volume 6, Issue 4,
-April-2015 515 ISSN 2229-5518
-While there are better approximations than Lin (1989), they are
-more elaborate. Lin (1988) is a good balance between simplicity
-and low error rates.
+[^min]: As described in [Approximations to Standard Normal Distribution
+Function](https://www.ijser.org/researchpaper/Approximations-to-Standard-Normal-Distribution-Function.pdf)
+by Ramu Yerukala and Naveen Kumar Boiroju, International Journal
+of Scientific & Engineering Research, Volume 6, Issue 4, April-2015
+515 ISSN 2229-5518 While there are better approximations than Lin
+(1989), they are more elaborate. Lin (1988) is a good balance between
+simplicity and low error rates.
 
 ### Class SYM
 
 Turning now to SYMbolic columns, these have nearly all the same
 slots as NUMbers. But also, SYMs  keep  a count of the symbols
-`seen` so far as well as the most common symbol (which is called the `mode`).
+`seen` so far as well as the most common symbol (which is called
+the `mode`).
 
 ```lua
 function SYM.new(name,pos)
@@ -279,8 +278,8 @@ function SYM:add(x)
       self.most, self.mode = self.seen[x], x end end end
 ```
 
-The `arrange()` function (shown above) needs to know how to convert a value into a range.
-Each SYMbolic value is its own range:
+The `arrange()` function (shown above) needs to know how to convert
+a value into a range.  Each SYMbolic value is its own range:
 
 ```lua
 function SYM:range(x) return x end
@@ -288,14 +287,15 @@ function SYM:range(x) return x end
 
 ### Class COLS
 
-Recalling the daa example shown above, our data files have an first row
-that names our columns:
+Recalling the daa example shown above, our data files have an first
+row that names our columns:
 
       Clndrs, Volume, HpX, Model, origin, Lbs-,Acc+, Mpg+
 
-The COLS class is a factory that can take  that list of names and creates a NUMeric
-class (for names starting with upper case), goals (for anything ending in "+" or "-").
-It also knows to skip over names edning with "X" (e.g. "HpX").
+The COLS class is a factory that can take  that list of names and
+creates a NUMeric class (for names starting with upper case), goals
+(for anything ending in "+" or "-").  It also knows to skip over
+names edning with "X" (e.g. "HpX").
 
 ```lua
 function COLS.new(names,     self,col)
@@ -303,8 +303,9 @@ function COLS.new(names,     self,col)
   for n,s in pairs(names) do self:newColumn(n,s) end
 return self end
 ```
-All our NUMs and SYMs get stored in `self.all`. And, for ease of processing,
-some are also stores in `self.x` and `self.y` (for the independent and dependent variables)
+All our NUMs and SYMs get stored in `self.all`. And, for ease of
+processing, some are also stores in `self.x` and `self.y` (for the
+independent and dependent variables)
 
 ```lua
 function COLS:newColumn(n,s,    col)
@@ -313,9 +314,9 @@ function COLS:newColumn(n,s,    col)
   if not s:find"X$" then 
     l.push(s:find"[-+!]$" and self.y or self.x, col) end end 
 ```
-When COLS get updated with a `row`, they find the Chebyshev distance `d` 
-(calculated above) for that `row`. This is used to 
- update the column information, as well as the RANGEs of each column.
+When COLS get updated with a `row`, they find the Chebyshev distance
+`d` (calculated above) for that `row`. This is used to update the
+column information, as well as the RANGEs of each column.
 
 ```lua
 function COLS:add(row,      d)
@@ -328,9 +329,10 @@ function COLS:add(row,      d)
 
 ### Class DATA
 
-The DATA class ties everything together. When it reads the first `row` of the data,
-it calls `COLS.new()` to create the columns. When it reads the other `row`s, it updates
-those columns with in information from each `row`.  
+The DATA class ties everything together. When it reads the first
+`row` of the data, it calls `COLS.new()` to create the columns.
+When it reads the other `row`s, it updates those columns with in
+information from each `row`.
 
 ```lua
 function DATA.new(src,   self) 
