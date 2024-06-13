@@ -237,16 +237,16 @@ local function arrange(col,x,d,     r) -- "col" can be a NUM or a SYM
   col.ranges[r]:add(x,d)  end
 
 function NUM:range(x,     tmp)
-  tmp = self:cdf(x) * the.range // 1 + 1 -- map to 0.. the.range+1
-  return  max(1, min(the.ranges, tmp)) end -- keep in bounds
+  tmp = self:area(x) * the.range // 1 + 1 -- map to 0.. the.range+1
+  return  math.max(1, math.min(the.ranges, tmp)) end -- keep in bounds
 
-function NUM:areaBelow(x,      z,fun)
+function NUM:area(x,      z,fun)
   fun = function(z) return 1 - 0.5*2.718^(-0.717*z - 0.416*z*z) end
   z = (x - self.mu) / self.sigma
   return z >= 0 and fun(z) or 1 - fun(-z) end
 ```
 
-(Aside: `NUM:areaBelow()` uses the Lin (1989) 
+(Aside: `NUM:area()` uses the Lin (1989) 
 approximation to the cumulative distribution function [^min].)
 
 [^min]: As described in [Approximations to Standard Normal Distribution Function](https://www.ijser.org/researchpaper/Approximations-to-Standard-Normal-Distribution-Function.pdf)
