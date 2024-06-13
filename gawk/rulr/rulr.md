@@ -1,4 +1,5 @@
-# RULR <!-- vim: set ts=2 sw=2 sts=2 et: -->
+# RULR
+
 rulr.lua: an experiment in incremental rule learning.      
 @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
 
@@ -12,9 +13,25 @@ we hope for an
 "early plateau" effect where, after some point,
 we stop learning new things. This code will test that optimism.
 
-[TOC] 
+- [RULR](#rulr)
+  - [Conventions](#conventions)
+    - [Data Conventions](#data-conventions)
+    - [Coding Conventions](#coding-conventions)
+    - [Name space](#name-space)
+  - [Inside the Code](#inside-the-code)
+    - [The Chebyshev Function](#the-chebyshev-function)
+    - [Class RANGEs](#class-ranges)
+    - [Config (stored in "the")](#config-stored-in-the)
+    - [Class NUMs](#class-nums)
+    - [RANGE creation and updating](#range-creation-and-updating)
+    - [Class SYM](#class-sym)
+    - [Class COLS](#class-cols)
+    - [Class DATA](#class-data)
+
 
 ## Conventions
+
+### Data Conventions
 
 Note some conventions about our data:
   
@@ -48,11 +65,15 @@ Note some conventions about our data:
         {4       85      70       78     3       2070  18.6  40}
 
 
+### Coding Conventions
+
 As to other coding conventions:
 
 - This code is written in Lua since that is a very simple notation.
   For a short tutorial on Lua, see "[Learn Lua in Y
   minutes](https://learnxinyminutes.com/docs/lua/)".
+- UPPER CASE names are classes. `XXX.new()` is the constructor for
+  class `XXX`.
 - In function headers, anything after two spaces is an optional arg.
   Also, anything after four spaces is a local variable. For example, looking at the
   first two functions defined below:
@@ -65,7 +86,10 @@ As to other coding conventions:
    [Does OO sync with how we think?](https://www.researchgate.net/publication/3247400_Does_OO_sync_with_how_we_think).
    and see also Jack Diederich's 
    [Stop Writing Classes](https://www.youtube.com/watch?v=o9pEzgHorH0).
-- We define the name space at top-of-file 
+
+### Name space
+
+We define the name space at top-of-file 
   that makes it easier to
   rearrange the code to fit the narrative. Here is our name space:
 
@@ -84,7 +108,8 @@ local b4   = {} -- used by rogue() to find typos in var names
 for k,_ in pairs(_ENV) do b4[k]=k end 
 ```
 
-## About
+## Inside the Code
+### The Chebyshev Function
 
 The Chebyshev distance _c_ returns the maximum difference between
 two points over any of their axis values.  
@@ -99,14 +124,17 @@ local function chebyshev(row,ycols,      c,tmp)
 ```
 
 We want something to maximize so we will use _d=1-c_ (so _larger_
-values  of _d_ are _better_).  When reading tabular data, we assume
+values  of _d_ are _better_).  
+
+
+### Class RANGEs
+
+When reading tabular data, we assume
 the data has columns that are either independent `x` values or
 dependent `y` goals.  If the `x` values are  discretized into ranges,
 those ranges have a  `score` equal to  the sum of the _d_ s seen
 for that range.  Then, when we build rules, we favor the ranges
-with the largest _d_ values. In the following code, we say
-a RANGE `selects()` a row if the row's value for that column
-calls within that range.
+with the largest _d_ values. 
 
 ```lua
 function RANGE.new(col,lo,  hi)
@@ -116,13 +144,26 @@ function RANGE:add(x,d)
   self.score = self.score + d 
   if x < self.lo then self.lo = x end
   if x > self.hi then self.hi = x end end
-
-function RANGE:selects(row) 
-  x = row[self.col.at] -- if value if "dont know", then assume true
-  return x == "?" and true or self.lo <= x and x < self.hi end
 ```
 
-To keep things simple, we will discretize numerics into seven ranges.
+As In the following code, we say
+a RANGE `selects()` a row if the row's value for that column
+falls within that range.
+
+```lua
+function RANGE:selects(row) 
+  x = row[self.col.at] -- if value if "dont know", then assume true
+  return x == "?" and true or 
+         self.lo <= x and x < self.hi or         -- for NUMeric ranges
+         self.lo == self.hi and self.lo == x end -- for SYMbolic ranges    
+```
+To explain the  last line of `selects()`, once we coded up RANGEs for NUMeric ranges,
+it was fun to see that nearly the same code worked for SYMbolic ranges,
+with one tiny hack: SYMboic ranges have the same value for `lo` and `hi`. 
+ 
+### Config (stored in "the")
+
+To keep things simple, we will discretize NUME+erics into seven ranges.
 This value of seven is a magic configuration parameter set via
 "engineering judgment" (a.k.a.  guessing).  The variable "the"
 stores that magic number,  along with any other configuration
@@ -135,6 +176,8 @@ local the = {ranges = 7,
              train = "auto93.csv"}
 ```
 
+### Class NUMs 
+
 This code will need classes to handle SYMbolic and NUMeric columns.
 Both kinds of columns support comparison and sorting but only
 NUMerics support mathematical operations (sich as add or subtract).
@@ -145,8 +188,8 @@ mean `mu` and standard deviation `sd`.
 
 ```lua
 function NUM.new(name,pos)
-  return new(NUM, {name=name, pos=pos, n=0, ranges={},
-                   mu=0, m2=0, sd=0, lo=1E30, hi= -1E30, ranges={},
+  return new(NUM, {name=name, pos=pos, n=0, ranges={}, 
+                   mu=0, m2=0, sd=0, lo=1E30, hi= -1E30,  
                    goal = (name or ""):find"-$" and 0 or 1}) end
 
 ```
@@ -178,6 +221,7 @@ function NUM:add(x,     d)
   return x end
 
 ```
+### RANGE creation and updating
 
 Now that `mu` and `sd` are updated incrementally, that means that
 for each row, we can map any number into some integer index
@@ -189,7 +233,7 @@ relevant range.
 ```lua
 local function arrange(col,x,d,     r) -- "col" can be a NUM or a SYM
   r = col:range(x)
-  col.ranges[r] = col.ranges[r] or RANGE.new(col,lo)
+  col.ranges[r] = col.ranges[r] or RANGE.new(col.lo)
   col.ranges[r]:add(x,d)  end
 
 function NUM:range(x,     tmp)
@@ -213,8 +257,10 @@ While there are better approximations than Lin (1989), they are
 more elaborate. Lin (1988) is a good balance between simplicity
 and low error rates.
 
+### Class SYM
+
 Turning now to SYMbolic columns, these have nearly all the same
-slots as NUMbers. But also, we keep  a count of the symbols
+slots as NUMbers. But also, SYMs  keep  a count of the symbols
 `seen` so far as well as the most common symbol (which is called the `mode`).
 
 ```lua
@@ -228,51 +274,73 @@ function SYM:add(x)
     self.seen[x] = 1 + (self.seen[x] or 0)
     if self.seen[x] > self.seen then 
       self.most, self.mode = self.seen[x], x end end end
-
-function SYM:range(x) return end
-
 ```
 
-## things asda
+The `arrange()` function (shown above) needs to know how to convert a value into a range.
+Each SYMbolic value is its own range:
 
-Then we need
+```lua
+function SYM:range(x) return x end
+```
 
-Also, we u=must use
+### Class COLS
+
+Recalling the daa example shown above, our data files have an first row
+that names our columns:
+
+      Clndrs, Volume, HpX, Model, origin, Lbs-,Acc+, Mpg+
+
+The COLS class is a factory that can take  that list of names and creates a NUMeric
+class (for names starting with upper case), goals (for anything ending in "+" or "-").
+It also knows to skip over names edning with "X" (e.g. "HpX").
 
 ```lua
 function COLS.new(names,     self,col)
-  self = l.is(COLS, { all={}, x={}, y={}, names=names })
-  for n,s in pairs(names) do self:add2Col(n,s) end
+  self = new(COLS, { all={}, x={}, y={}, names=names })
+  for n,s in pairs(names) do self:newColumn(n,s) end
 return self end
-
-function COLS:add2Col(n,s,    col)
-  col= (s:find"^[A-Z]" and NUM or SYM).new(s,n)
-  l.push(self.all, col)
-  if not s:find"X$" then 
-    l.push(s:find"[-+!]$" and self.y or self.x, col) end end
-
-function COLS:add(t)
-  for _,cols in pairs{self.x, self.y} do
-    for _,col in pairs(cols) do 
-      col:add(t[col.pos]) end end 
-  return t end
 ```
-
-Now I have thigns tos about johns mustache
+All our NUMs and SYMs get stored in `self.all`. And, for ease of processing,
+some are also stores in `self.x` and `self.y` (for the independent and dependent variables)
 
 ```lua
-function DATA.new(it,   self) 
-  self = l.is(DATA, {rows={}, cols=COLS.new(it())}) 
-  for t in it do self:add(t) end  
+function COLS:newColumn(n,s,    col)
+  col = (s:find"^[A-Z]" and NUM or SYM).new(s,n) 
+  l.push(self.all,col)
+  if not s:find"X$" then 
+    l.push(s:find"[-+!]$" and self.y or self.x, col) end end 
+```
+When COLS get updated with a `row`, they find the Chebyshev distance `d` 
+(calculated above) for that `row`. This is used to 
+ update the column information, as well as the RANGEs of each column.
+
+```lua
+function COLS:add(row)
+  for _,cols in pairs{self.x, self.y} do
+    for _,col in pairs(cols) do 
+       col:add(row[col.pos])
+       arrange(col, row[col.pos], chebyshev(row, self.y)) end end end
+```
+
+### Class DATA
+
+The DATA class ties everything together. When it reads the first `row` of the data,
+it calls `COLS.new()` to create the columns. When it reads the other `row`s, it updates
+those columns with in information from each `row`.  
+
+```lua
+function DATA.new(file,   self) 
+  for row in csv(file) 
+    if  self then self:add(row) else 
+      self = new(DATA, {rows={}, cols=COLS.new(row)}) end end
   return self end
 
-function DATA:add(t)
-  l.push(self.rows, self.cols:add(t)) end
+function DATA:add(row)
+  l.push(self.rows, row)
+  self.cols:add(row)  end
+```
 
- -------------------------------------------------------
---------------------------------------------------------
-   
---------------------------------------------------------
+```lua
 function SYM:mid() return self.mode end
 function NUM:mid() return self.mu end
 
@@ -281,99 +349,24 @@ function NUM:div() return self.sd end
 
 function DATA:mids(cols) 
   return l.map(cols or self.cols.y, function(col) return l.rnd(col:mid()) end) end
-
---------------------------------------------------------
-local RANGE={}
-function RANGE.new(pos,name,lo,hi,n)
-  return l.is(RANGE,{pos=pos, name=name, lo=lo, hi=hi or lo, n=n or 0, ys={}}) end
-
-function RANGE:add(x,y)
-  self.n  = self.n + 1
-  self.lo = math.min(x, self.lo)
-  self.hi = math.max(x, self.hi)
-  self.ys[y] = 1 + (self.ys[y] or 0) end
-
-function RANGE:mergeable(other, small)
-  both      = RANGE.new(self.pos, self.name, self.lo, other.hi, self.n + other.n)
-  both.ys   = l.sumDict(self.y, other.ys)
-  e1,e2,e12 = l.entropy(self.ys), l.entropy(other.ys), l.entropy(both.ys)
-  if self.n < small or other.n < small or e12 <= (self.n*e1 + other.n*e2) / both.n then
-    return both end end 
-
-function DATA:bins(col,klasses)
-  bins,n = {},0
-  for klass,rows in pairs(klasses) do
-    for _,row in pairs(rows) do
-      n = n + 1
-      x = row[col.pos]
-      if x ~= "?" then 
-        k = col:bins(x) 
-        bins[k] = bins[k] or RANGE.new(col.pos, col.name, x)
-        bins[k]:add(x,klass) end end end 
-  return col:merges(sort(bins, by"lo"),  n/the.bins) end
-
-function SYM:bin(x) return x end
-function NUM:bin(x) return math.min(the.bins, 1+((the.bins * self:norm(x))//1)) end
  
-function SYM:merges(x,_) return x end
-function NUM:merges(b4,enough,    j,now,a,tmp)
-  j, now = 1, {}
-  while j <=  len(b4) do
-    a = b4[j]
-    if j <  len(b4) then
-      tmp = a:mergable(b4[j+1],enough) 
-      if tmp then
-        a = tmp
-        j = j+1 end end
-    l.push(now,a)
-    j = j+1 
-  end
-  if len(now) < len(b4) then return self:merges(now,enough) end
-  for j=2,len(now) do
-    now[j].lo    = now[j-1].hi
-    now[1].lo    = -1E30
-    now[#now].hi =  1E30 end
-  return now end
-
---------------------------------------------------------
--- ## Misc Functions
-
 -- Shortcuts
 l.cat = table.concat
 l.fmt = string.format
-
--- Objects
-    -- ### Lists
-function l.by(s) return function(a,b) return a[s] < b[s] end end
-
+ - 
 -- returns a copy of `t`, sorted.
 function l.sort(t,fun,     u) 
   u={}; for _,v in pairs(t) do u[1+#u]=v end; table.sort(u,fun); return u end
 
 function l.push(t,x) t[1+#t]=x; return x end
-
-function l.items(t,     k,n)
-  k,n=0,#t
-  return function() if k < n then k=k+1; return t[k] end end end
-
+ 
 function l.map(t,f,     u) 
   u={};  for k,v in pairs(t) do u[1+#u] = f(v) end; return u end
 
 function l.kap(t,f,     u) 
   u={};  for k,v in pairs(t) do u[1+#u] = f(k,v) end; return u end
-
-function l.sumDicts(d1,d2,     d12)
-  d12={}
-  for _,d in pairs{d1, d2} do
-    for k,v in pairs(d) do
-      d12[k] = v + (d12[k] or 0) end end
-  return d12 end
-
--- ### Maths
-function l.entropy(t,   e,N)
-  N=0; for _,n in pairs(t) do N = N + n end
-  e=0; for _,n in pairs(t) do e = e - (n/N)*math.log(n/N,2) end 
-  return e end
+ 
+ 
 
 function l.rnd(n, ndecs)
   if type(n) ~= "number" then return n end
@@ -417,3 +410,5 @@ function l.rogues()
 math.randomseed(the.seed)
 return {the=the, lib=l,DATA=DATA,SYM=SYM,NUM=NUM,COLS=COLS}
 ```
+
+asda
