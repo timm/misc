@@ -332,8 +332,10 @@ those columns with in information from each `row`.
 
 ```lua
 function DATA.new(file,   self) 
-  for row in csv(file) 
-    if  self then self:add(row) else 
+  for row in csv(file) do
+    if self then  -- this is some row after the first row
+      self:add(row)   
+    else  -- this is the first row
       self = new(DATA, {rows={}, cols=COLS.new(row)}) end end
   return self end
 

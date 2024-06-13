@@ -1,9 +1,11 @@
--- # RULR
+-- # RULR 
+-- 
+-- <img align=right src=marsQueen.png width=250>
 -- 
 -- rulr.lua: an experiment in incremental rule learning.      
 -- @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
 -- 
--- This program is an experiment in incremental rule learning via the
+-- This code is an experiment in incremental rule learning via the
 -- Chebyshev (pronounced cheh-bee-shev) maximum metric. 
 -- Incremental learning is important since, often,
 -- there is so much to explore that we cannot look at it all.
@@ -11,7 +13,7 @@
 -- generating a model before all the facts are in? Optimistically,
 -- we hope for an 
 -- "early plateau" effect where, after some point,
--- we stop learning new things. This code will test that optimism.
+-- we stop learning new things. This code will test that optimism. 
 -- 
 -- - [RULR](#rulr)
 --   - [Conventions](#conventions)
@@ -237,16 +239,16 @@ local function arrange(col,x,d,     r) -- "col" can be a NUM or a SYM
   col.ranges[r]:add(x,d)  end
 
 function NUM:range(x,     tmp)
-  tmp = self:cdf(x) * the.range // 1 + 1 -- map to 0.. the.range+1
-  return  max(1, min(the.ranges, tmp)) end -- keep in bounds
+  tmp = self:area(x) * the.range // 1 + 1 -- map to 0.. the.range+1
+  return  math.max(1, math.min(the.ranges, tmp)) end -- keep in bounds
 
-function NUM:areaBelow(x,      z,fun)
+function NUM:area(x,      z,fun)
   fun = function(z) return 1 - 0.5*2.718^(-0.717*z - 0.416*z*z) end
   z = (x - self.mu) / self.sigma
   return z >= 0 and fun(z) or 1 - fun(-z) end
 -- 
 -- 
--- (Aside: `NUM:areaBelow()` uses the Lin (1989) 
+-- (Aside: `NUM:area()` uses the Lin (1989) 
 -- approximation to the cumulative distribution function [^min].)
 -- 
 -- [^min]: As described in [Approximations to Standard Normal Distribution Function](https://www.ijser.org/researchpaper/Approximations-to-Standard-Normal-Distribution-Function.pdf)
@@ -297,20 +299,21 @@ function SYM:range(x) return x end
 
 function COLS.new(names,     self,col)
   self = new(COLS, { all={}, x={}, y={}, names=names })
-  for n,s in pairs(names) do l.push(self.cols, self:add2Col(n,s)) end
+  for n,s in pairs(names) do self:newColumn(n,s) end
 return self end
 -- 
 -- All our NUMs and SYMs get stored in `self.all`. And, for ease of processing,
 -- some are also stores in `self.x` and `self.y` (for the independent and dependent variables)
 -- 
 
-function COLS:add2Col(n,s,    col)
+function COLS:newColumn(n,s,    col)
   col = (s:find"^[A-Z]" and NUM or SYM).new(s,n) 
+  l.push(self.all,col)
   if not s:find"X$" then 
     l.push(s:find"[-+!]$" and self.y or self.x, col) end end 
 -- 
 -- When COLS get updated with a `row`, they find the Chebyshev distance `d` 
--- (calculated above). This is used to 
+-- (calculated above) for that `row`. This is used to 
 --  update the column information, as well as the RANGEs of each column.
 -- 
 
@@ -325,18 +328,20 @@ function COLS:add(row)
 -- 
 -- The DATA class ties everything together. When it reads the first `row` of the data,
 -- it calls `COLS.new()` to create the columns. When it reads the other `row`s, it updates
--- those columns with in information from that `row`.  
+-- those columns with in information from each `row`.  
 -- 
 
 function DATA.new(file,   self) 
-  self = new(DATA, {rows={}, cols=COLS.new(it())}) 
-  for row in csv(file) do self:add(row) end  
+  for row in csv(file) do
+    if self then  -- this is some row after the first row
+      self:add(row)   
+    else  -- this is the first row
+      self = new(DATA, {rows={}, cols=COLS.new(row)}) end end
   return self end
 
 function DATA:add(row)
   l.push(self.rows, row)
   self.cols:add(row)  end
--- 
 -- 
 -- 
 
@@ -359,7 +364,6 @@ function l.sort(t,fun,     u)
 
 function l.push(t,x) t[1+#t]=x; return x end
  
-
 function l.map(t,f,     u) 
   u={};  for k,v in pairs(t) do u[1+#u] = f(v) end; return u end
 
