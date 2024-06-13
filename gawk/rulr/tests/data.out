@@ -1,30 +1,34 @@
 % lua data.lua
 
 
-0.000	{:hi 8 :lo 8 :n 64 :name Clndrs :pos 1 :range 7 :score -1.27e+32}
-0.328	{:hi 6 :lo 6 :n 4 :name Clndrs :pos 1 :range 4 :score 1.31}
-0.360	{:hi 8 :lo 6 :n 31 :name Clndrs :pos 1 :range 5 :score 11.15}
-0.433	{:hi 8 :lo 8 :n 9 :name Clndrs :pos 1 :range 6 :score 3.9}
-0.497	{:hi 6 :lo 5 :n 13 :name Clndrs :pos 1 :range 3 :score 6.46}
-0.521	{:hi 6 :lo 4 :n 114 :name Clndrs :pos 1 :range 2 :score 59.34}
-0.549	{:hi 6 :lo 3 :n 163 :name Clndrs :pos 1 :range 1 :score 89.41}
+Clndrs
+0.000	{:n 64 :range {7} :score -1.27e+32}
+0.328	{:n 4 :range {4} :score 1.31}
+0.360	{:n 31 :range {5} :score 11.15}
+0.433	{:n 9 :range {6} :score 3.9}
+0.497	{:n 13 :range {3} :score 6.46}
+0.521	{:n 114 :range {2} :score 59.34}
+0.549	{:n 163 :range {1} :score 89.41}
 
-0.000	{:hi 400 :lo 262 :n 15 :name Volume :pos 2 :range 6 :score -1.17e+32}
-0.000	{:hi 360 :lo 151 :n 39 :name Volume :pos 2 :range 3 :score -1e+31}
-0.027	{:hi 455 :lo 304 :n 11 :name Volume :pos 2 :range 7 :score 0.3}
-0.076	{:hi 400 :lo 318 :n 6 :name Volume :pos 2 :range 5 :score 0.46}
-0.253	{:hi 351 :lo 260 :n 16 :name Volume :pos 2 :range 4 :score 4.04}
-0.476	{:hi 318 :lo 85 :n 127 :name Volume :pos 2 :range 2 :score 60.41}
-0.526	{:hi 307 :lo 68 :n 184 :name Volume :pos 2 :range 1 :score 96.84}
+Volume
+0.000	{:n 15 :range {6} :score -1.17e+32}
+0.000	{:n 39 :range {3} :score -1e+31}
+0.027	{:n 11 :range {7} :score 0.3}
+0.076	{:n 6 :range {5} :score 0.46}
+0.253	{:n 16 :range {4} :score 4.04}
+0.476	{:n 127 :range {2} :score 60.41}
+0.526	{:n 184 :range {1} :score 96.84}
 
-0.000	{:hi 71 :lo 70 :n 38 :name Model :pos 4 :range 1 :score -1e+31}
-0.000	{:hi 82 :lo 70 :n 172 :name Model :pos 4 :range 7 :score -1.17e+32}
-0.354	{:hi 79 :lo 72 :n 54 :name Model :pos 4 :range 6 :score 19.11}
-0.446	{:hi 76 :lo 71 :n 33 :name Model :pos 4 :range 4 :score 14.7}
-0.455	{:hi 78 :lo 72 :n 50 :name Model :pos 4 :range 5 :score 22.76}
-0.482	{:hi 72 :lo 71 :n 26 :name Model :pos 4 :range 2 :score 12.54}
-0.516	{:hi 74 :lo 71 :n 25 :name Model :pos 4 :range 3 :score 12.89}
+Model
+0.000	{:n 38 :range {1} :score -1e+31}
+0.000	{:n 172 :range {7} :score -1.17e+32}
+0.354	{:n 54 :range {6} :score 19.11}
+0.446	{:n 33 :range {4} :score 14.7}
+0.455	{:n 50 :range {5} :score 22.76}
+0.482	{:n 26 :range {2} :score 12.54}
+0.516	{:n 25 :range {3} :score 12.89}
 
-0.000	{:hi 1 :lo 1 :n 249 :name origin :pos 5 :range 1 :score -1.27e+32}
-0.503	{:hi 3 :lo 3 :n 79 :name origin :pos 5 :range 3 :score 39.74}
-0.520	{:hi 2 :lo 2 :n 70 :name origin :pos 5 :range 2 :score 36.4}
+origin
+0.000	{:n 249 :range {1} :score -1.27e+32}
+0.503	{:n 79 :range {3} :score 39.74}
+0.520	{:n 70 :range {2} :score 36.4}

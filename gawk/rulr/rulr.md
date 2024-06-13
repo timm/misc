@@ -70,7 +70,7 @@ Note some conventions about our data:
 
 ### Coding Conventions
 
-As to other coding conventions:
+As to our coding conventions:
 
 - This code is written in Lua since that is a very simple notation.
   For a short tutorial on Lua, see "[Learn Lua in Y
@@ -103,9 +103,9 @@ local COLS = {} -- factory to make NUMs and SYMs
 local RANGE= {} -- stores upper and lower bounds
 local l    = {} -- stores misc functions, defined later
    
-local function new(class, object)  -- how we create instances
+function isa(class, object)  -- how we create instances
   class.__index=class; setmetatable(object, class); return object end
-   
+
 local b4   = {} -- used by rogue() to find typos in var names
 for k,_ in pairs(_ENV) do b4[k]=k end 
 ```
@@ -113,7 +113,11 @@ for k,_ in pairs(_ENV) do b4[k]=k end
 ## Inside the Code
 ### The Chebyshev Function
 
-The Chebyshev distance _c_ returns the maximum difference between
+We use Chebyshev since it is a very harsh critic. If any goal is not controlled
+then Chebyshev will complain, even if every other goal is doing fine.
+
+More specifically,
+the Chebyshev distance _c_ returns the maximum difference between
 two points over any of their axis values.
 
 ```lua
@@ -124,10 +128,8 @@ local function chebyshev(row,ycols,      c,tmp)
     c = math.max(c, math.abs(col.best - tmp)) end
   return 1 - c end -- so LARGER values are better
 ```
-
 We want something to maximize so we will use _d=1-c_ (so _larger_
 values  of _d_ are _better_).
-
 
 ### Class RANGEs
 
@@ -138,14 +140,28 @@ equal to  the sum of the _d_ s seen for that range.  Then, when we
 build rules, we favor the ranges with the largest _d_ values.
 
 ```lua
-function RANGE.new(name,pos,r,lo,  hi)
-  return new(RANGE, {n=0,name=name,pos=pos, range=r, lo=lo, hi=hi or lo, score=0}) end
+function RANGE.new(col,r)
+  return isa(RANGE, {n=0, _col=col, range={r},  score=0}) end
 
 function RANGE:add(x,d)
   self.n = self.n + 1
-  self.score = self.score + d 
-  if x < self.lo then self.lo = x end
-  if x > self.hi then self.hi = x end end
+  self.score = self.score + d  end
+```
+Two adjacent  ranges can be merged if either contains too few examples or
+of their scores are very similar. The merged range has a score that the weighted
+sum of the two parts.
+```lua
+function RANGE:merged(other,small,      out)
+  out = self + other
+  if self.n < small or other.n < small          then return out end
+  if math.abs(self.score - other.score) <= 0.05 then return out end end
+
+function RANGE:__add(other)
+  out   = RANGE.isa(self.col)
+  out.n = self.n + other.n
+  out.score = (self.n * self.score + other.n * other.score)/out.n
+  for _,r in pairs{self.range, other.range} do l.push(out.range, r) end
+  return out end
 ```
 
 We say a RANGE `selects()` a row if the row's value for that column
@@ -190,7 +206,7 @@ mean `mu` and standard deviation `sd`.
 
 ```lua
 function NUM.new(name,pos)
-  return new(NUM, {name=name, pos=pos, n=0, ranges={}, 
+  return isa(NUM, {name=name, pos=pos, n=0, ranges={}, 
                    mu=0, m2=0, sd=0, lo=1E30, hi= -1E30,  
                    best = (name or ""):find"-$" and 0 or 1}) end
 
@@ -237,7 +253,7 @@ range.
 local function arrange(col,x,d,     r) -- "col" can be a NUM or a SYM
   if x ~= "?" then
     r = col:range(x)
-    col.ranges[r] = col.ranges[r] or RANGE.new(col.name,col.pos,r,x)
+    col.ranges[r] = col.ranges[r] or RANGE.new(col,r,x)
     col.ranges[r]:add(x,d)  end end
 
 function NUM:range(x,     tmp)
@@ -270,7 +286,7 @@ the `mode`).
 
 ```lua
 function SYM.new(name,pos)
-  return new(SYM, {name=name, pos=pos, n=0, ranges={},
+  return isa(SYM, {name=name, pos=pos, n=0, ranges={},
                    seen={}, mode=nil, most=0}) end 
 
 function SYM:add(x)
@@ -298,11 +314,11 @@ row that names our columns:
 The COLS class is a factory that can take  that list of names and
 creates a NUMeric class (for names starting with upper case), goals
 (for anything ending in "+" or "-").  It also knows to skip over
-names edning with "X" (e.g. "HpX").
+names ending with "X" (e.g. "HpX").
 
 ```lua
 function COLS.new(names,     self,col)
-  self = new(COLS, { all={}, x={}, y={}, names=names })
+  self = isa(COLS, { all={}, x={}, y={}, names=names })
   for n,s in pairs(names) do self:newColumn(n,s) end
 return self end
 ```
@@ -333,7 +349,7 @@ function COLS:add(row,      d)
 ### Class DATA
 
 The DATA class ties everything together. When it reads the first
-`row` of the data, it calls `COLS.new()` to create the columns.
+`row` of the data, it calls `COLS.isa()` to create the columns.
 When it reads the other `row`s, it updates those columns with in
 information from each `row`.
 
@@ -343,7 +359,7 @@ function DATA.new(src,   self)
     if self then  -- this is some row after the first row
       self:add(row)   
     else  -- this is the first row
-      self = new(DATA, {rows={}, cols=COLS.new(row)}) end end
+      self = isa(DATA, {rows={}, cols=COLS.new(row)}) end end
   return self end
 
 function DATA:add(row)
@@ -408,7 +424,7 @@ function l.o(t,    _list,_dict,u)
   if type(t) == "number" then return tostring(l.rnd(t)) end
   if type(t) ~= "table" then return tostring(t) end
   _list = function(_,v) return l.o(v) end 
-  _dict = function(k,v) return l.fmt(":%s %s",k,l.o(v)) end
+  _dict = function(k,v) if not tostring(k):find"^_" then return l.fmt(":%s %s",k,l.o(v)) end end
   u = l.kap(t, #t==0 and _dict or _list)
   return "{" .. l.cat(#t==0 and l.sort(u) or u ," ") .. "}" end 
 
@@ -422,6 +438,11 @@ Linting for `rogue` variables (e.g. misspelt, not declared as local).
 ```lua
 function l.rogues() 
   for k,v in pairs(_ENV) do if not b4[k] then print("Rogue?",k,type(v)) end end end
+```
+
+Object stuff
+```lua
+
 ```
 
 ## Start-up
