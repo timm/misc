@@ -100,7 +100,7 @@ local NUM  = {} -- info on numeric columns
 local SYM  = {} -- info on symbolic columns
 local DATA = {} -- place to store all the columns 
 local COLS = {} -- factory to make NUMs and SYMs
-local RANGE= {} -- stores upper and lower bounds
+local RANGE= {} -- stores ranges
 local l    = {} -- stores misc functions, defined later
    
 function isa(class, object)  -- how we create instances
@@ -141,13 +141,13 @@ local function chebyshev(row,ycols,      c,tmp)
 -- 
 
 function RANGE.new(col,r)
-  return isa(RANGE, {n=0, _col=col, range={r},  score=0}) end
+  return isa(RANGE, {n=0, _col=col, has={r},  score=0}) end
 
 function RANGE:add(x,d)
   self.n = self.n + 1
   self.score = self.score + d  end
 -- 
--- Two adjacent  ranges can be merged if either contains too few examples or
+-- Two adjacent  RANGEs can be merged if either contains too few examples or
 -- of their scores are very similar. The merged range has a score that the weighted
 -- sum of the two parts.
 
@@ -157,10 +157,10 @@ function RANGE:merged(other,small,      out)
   if math.abs(self.score - other.score) <= 0.05 then return out end end
 
 function RANGE:__add(other)
-  out   = RANGE.isa(self.col)
+  out   = RANGE.new(self.col)
   out.n = self.n + other.n
   out.score = (self.n * self.score + other.n * other.score)/out.n
-  for _,r in pairs{self.range, other.range} do l.push(out.range, r) end
+  for _,r in pairs{self.has, other.has} do l.push(out.has, r) end
   return out end
 -- 
 -- 
@@ -170,14 +170,13 @@ function RANGE:__add(other)
 
 function RANGE:selects(row) 
   x = row[self.col.pos] -- if value if "dont know", then assume true
-  return x == "?" and true or 
-         self.lo <= x and x < self.hi or         -- for NUMeric ranges
-         self.lo == self.hi and self.lo == x end -- for SYMbolic ranges    
+  if x=="?" then return true end
+  wants = self.col:range(x)
+  for _,has in pairs(self.has) do if wants==has then return true end end end
 -- 
--- To explain the  last line of `selects()`, once we coded up RANGEs
--- for NUMeric ranges, it was fun to see that nearly the same code
--- worked for SYMbolic ranges, with one tiny hack: SYMboic ranges have
--- the same value for `lo` and `hi`.
+-- Just as an aside, once we coded up RANGEs
+-- for NUMeric ranges, it was fun to see that exactly the same code
+-- worked for SYMbolic ranges.
 -- 
 -- ### Config (stored in "the")
 -- 
