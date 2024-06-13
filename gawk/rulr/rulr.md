@@ -1,9 +1,11 @@
-# RULR
+# RULR 
+
+<img align=right src=marsQueen.png width=250>
 
 rulr.lua: an experiment in incremental rule learning.      
 @2024, Tim Menzies, <timm@ieee.org>, BSD-2 license.
 
-This program is an experiment in incremental rule learning via the
+This code is an experiment in incremental rule learning via the
 Chebyshev (pronounced cheh-bee-shev) maximum metric. 
 Incremental learning is important since, often,
 there is so much to explore that we cannot look at it all.
@@ -11,7 +13,7 @@ So how much do we lose by jumping in early and
 generating a model before all the facts are in? Optimistically,
 we hope for an 
 "early plateau" effect where, after some point,
-we stop learning new things. This code will test that optimism.
+we stop learning new things. This code will test that optimism. 
 
 - [RULR](#rulr)
   - [Conventions](#conventions)
