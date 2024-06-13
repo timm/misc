@@ -317,11 +317,12 @@ When COLS get updated with a `row`, they find the Chebyshev distance `d`
  update the column information, as well as the RANGEs of each column.
 
 ```lua
-function COLS:add(row)
+function COLS:add(row,      d)
+  d = chebyshev(row, self.y)
   for _,cols in pairs{self.x, self.y} do
     for _,col in pairs(cols) do 
        col:add(row[col.pos])
-       arrange(col, row[col.pos], chebyshev(row, self.y)) end end end
+       arrange(col, row[col.pos], d) end end end
 ```
 
 ### Class DATA
@@ -331,8 +332,8 @@ it calls `COLS.new()` to create the columns. When it reads the other `row`s, it 
 those columns with in information from each `row`.  
 
 ```lua
-function DATA.new(file,   self) 
-  for row in csv(file) do
+function DATA.new(src,   self) 
+  for row in src do
     if self then  -- this is some row after the first row
       self:add(row)   
     else  -- this is the first row
@@ -341,7 +342,7 @@ function DATA.new(file,   self)
 
 function DATA:add(row)
   l.push(self.rows, row)
-  self.cols:add(row)  end
+  self.cols:add(row) end
 ```
 
 ```lua
