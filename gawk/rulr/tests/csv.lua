@@ -1,4 +1,4 @@
-local l=dofile("../src/rulr.lua").lib
+local l=require("rulr").lib
 
 
 local c,n = 0,0

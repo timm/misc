@@ -1,6 +1,6 @@
 .SILENT:
 bye:
-		git commit -am as; git push; git status
+	git commit -am as; git push; git status
 
 ../src/%.lua : ../%.md
 	mkdir -p ../src
@@ -11,4 +11,4 @@ it?=rulr
 test: $x.lua 
 	echo "% lua $x.lua\n" | tee $x.out
 	(cd ..; $(MAKE) src/$(it).lua;)
-	lua $(x).lua  | tee -a $x.out
+	LUA_PATH="../src/?.lua;;" lua $(x).lua  | tee -a $x.out

@@ -28,6 +28,8 @@ optimism.
     - [Class SYM](#class-sym)
     - [Class COLS](#class-cols)
     - [Class DATA](#class-data)
+  - [Misc Support code](#misc-support-code)
+  - [Start-up](#start-up)
 
 
 ## Conventions
@@ -118,8 +120,8 @@ two points over any of their axis values.
 local function chebyshev(row,ycols,      c,tmp)
   c = 0
   for _,col in pairs(ycols) do
-    tmp = col.norm(row[col.at]) -- normalize  0..1 
-    c = math.max(d, math.abs(col.best - tmp)) end
+    tmp = col:norm(row[col.pos]) -- normalize  0..1 
+    c = math.max(c, math.abs(col.best - tmp)) end
   return 1 - c end -- so LARGER values are better
 ```
 
@@ -136,10 +138,11 @@ equal to  the sum of the _d_ s seen for that range.  Then, when we
 build rules, we favor the ranges with the largest _d_ values.
 
 ```lua
-function RANGE.new(col,lo,  hi)
-  return new(RANGE, {col=col, lo=lo, hi=hi or lo, score=0}) end
+function RANGE.new(name,pos,r,lo,  hi)
+  return new(RANGE, {n=0,name=name,pos=pos, range=r, lo=lo, hi=hi or lo, score=0}) end
 
 function RANGE:add(x,d)
+  self.n = self.n + 1
   self.score = self.score + d 
   if x < self.lo then self.lo = x end
   if x > self.hi then self.hi = x end end
@@ -150,7 +153,7 @@ falls within that range.
 
 ```lua
 function RANGE:selects(row) 
-  x = row[self.col.at] -- if value if "dont know", then assume true
+  x = row[self.col.pos] -- if value if "dont know", then assume true
   return x == "?" and true or 
          self.lo <= x and x < self.hi or         -- for NUMeric ranges
          self.lo == self.hi and self.lo == x end -- for SYMbolic ranges    
@@ -189,12 +192,12 @@ mean `mu` and standard deviation `sd`.
 function NUM.new(name,pos)
   return new(NUM, {name=name, pos=pos, n=0, ranges={}, 
                    mu=0, m2=0, sd=0, lo=1E30, hi= -1E30,  
-                   goal = (name or ""):find"-$" and 0 or 1}) end
+                   best = (name or ""):find"-$" and 0 or 1}) end
 
 ```
-Note that NUM has a `goal` slot which holds the best value possible
+Note that NUM has a `best` slot which holds the best value possible
 for this column. If a column name ends in "-" then we say that we
-seek to minimize this column (in which case, the `goal` is 0).  For
+seek to minimize this column (in which case, the `best` is 0).  For
 this to work, we must first normalize the goals to the range 0..1
 (which is handled via `norm()`):
 
@@ -234,16 +237,16 @@ range.
 local function arrange(col,x,d,     r) -- "col" can be a NUM or a SYM
   if x ~= "?" then
     r = col:range(x)
-    col.ranges[r] = col.ranges[r] or RANGE.new(col, x)
+    col.ranges[r] = col.ranges[r] or RANGE.new(col.name,col.pos,r,x)
     col.ranges[r]:add(x,d)  end end
 
 function NUM:range(x,     tmp)
-  tmp = self:area(x) * the.range // 1 + 1 -- map to 0.. the.range+1
+  tmp = self:area(x) * the.ranges // 1 + 1 -- maps x to 0.. the.range+1
   return  math.max(1, math.min(the.ranges, tmp)) end -- keep in bounds
 
 function NUM:area(x,      z,fun)
-  fun = function(z) return 1 - 0.5*2.718^(-0.717*z - 0.416*z*z) end
-  z = (x - self.mu) / self.sigma
+  fun = function(z) return 1 - 0.5*2.718^(-0.717*z - 0.416*z*z) end 
+  z = (x - self.mu) / self.sd
   return z >= 0 and fun(z) or 1 - fun(-z) end
 ```
 
@@ -267,14 +270,14 @@ the `mode`).
 
 ```lua
 function SYM.new(name,pos)
-  return new(SYM, {name=name, pos=n, n=0, ranges={},
+  return new(SYM, {name=name, pos=pos, n=0, ranges={},
                    seen={}, mode=nil, most=0}) end 
 
 function SYM:add(x)
   if x ~= "?" then
     self.n = 1 + self.n
     self.seen[x] = 1 + (self.seen[x] or 0)
-    if self.seen[x] > self.seen then 
+    if self.seen[x] > self.most then 
       self.most, self.mode = self.seen[x], x end end end
 ```
 
@@ -357,66 +360,73 @@ function NUM:div() return self.sd end
 
 function DATA:mids(cols) 
   return l.map(cols or self.cols.y, function(col) return l.rnd(col:mid()) end) end
- 
--- Shortcuts
+```
+
+## Misc Support code
+
+Standard one-liners:
+```lua
 l.cat = table.concat
 l.fmt = string.format
- - 
--- returns a copy of `t`, sorted.
-function l.sort(t,fun,     u) 
+```
+List stuff
+```lua
+function l.sort(t,fun,     u) -- return a copy of `t`, sorted using `fun`,
   u={}; for _,v in pairs(t) do u[1+#u]=v end; table.sort(u,fun); return u end
+
+function l.by(x) return function(a,b) return a[x] < b[x] end end
+
+function l.on(fun) return function(a,b) return fun(a) < fun(b) end end
 
 function l.push(t,x) t[1+#t]=x; return x end
  
-function l.map(t,f,     u) 
-  u={};  for k,v in pairs(t) do u[1+#u] = f(v) end; return u end
-
-function l.kap(t,f,     u) 
-  u={};  for k,v in pairs(t) do u[1+#u] = f(k,v) end; return u end
- 
- 
-
-function l.rnd(n, ndecs)
-  if type(n) ~= "number" then return n end
-  if math.floor(n) == n  then return n end
-  local mult = 10^(ndecs or 2)
-  return math.floor(n * mult + 0.5) / mult end
-
--- ### String to Thing
-function l.coerce(s,     _other) 
-  _other = function(s) if s=="nil" then return nil  end
-                       return s=="true" or s ~="false" and s or false end 
-  return math.tointeger(s) or tonumber(s) or _other(s:match'^%s*(.*%S)') end
-
-function l.cells(s,    t)
-  t={}; for s1 in s:gsub("%s+", ""):gmatch("([^,]+)") do t[1+#t]=l.coerce(s1) end
-  return t end
-
+function l.map(t,f,     u) u={}; for k,v in pairs(t) do u[1+#u]= f(v)   end; return u end
+function l.kap(t,f,     u) u={}; for k,v in pairs(t) do u[1+#u]= f(k,v) end; return u end
+```
+Stuff for reading csv files.
+```lua
 function l.csv(src)
   src = src=="-" and io.stdin or io.input(src)
   return function(      s)
     s = io.read()
     if s then return l.cells(s) else io.close(src) end end end
 
--- ### Pretty print
+function l.cells(s,    t)
+  t={}; for s1 in s:gsub("%s+", ""):gmatch("([^,]+)") do t[1+#t]=l.coerce(s1) end
+  return t end
 
+function l.coerce(s,     _other) 
+  _other = function(s) if s=="nil" then return nil  end
+                       return s=="true" or s ~="false" and s or false end 
+  return math.tointeger(s) or tonumber(s) or _other(s:match'^%s*(.*%S)') end
+```
+Pretty print stuff.
+```lua
 function l.oo(t) print(l.o(t)); return t end
 
 function l.o(t,    _list,_dict,u)
+  if type(t) == "number" then return tostring(l.rnd(t)) end
   if type(t) ~= "table" then return tostring(t) end
   _list = function(_,v) return l.o(v) end 
   _dict = function(k,v) return l.fmt(":%s %s",k,l.o(v)) end
   u = l.kap(t, #t==0 and _dict or _list)
   return "{" .. l.cat(#t==0 and l.sort(u) or u ," ") .. "}" end 
 
--- ### List
+function l.rnd(n, ndecs)
+  if type(n) ~= "number" then return n end
+  if math.floor(n) == n  then return math.floor(n) end
+  local mult = 10^(ndecs or 2)
+  return math.floor(n * mult + 0.5) / mult end
+```
+Linting for `rogue` variables (e.g. misspelt, not declared as local).
+```lua
 function l.rogues() 
   for k,v in pairs(_ENV) do if not b4[k] then print("Rogue?",k,type(v)) end end end
+```
 
--- ## Set-up actions
+## Start-up
 
+```lua
 math.randomseed(the.seed)
 return {the=the, lib=l,DATA=DATA,SYM=SYM,NUM=NUM,COLS=COLS}
 ```
-
-asda
