@@ -12,12 +12,12 @@ we hope for an
 "early plateau" effect where, after some point,
 we stop learning new things. This code will test that optimism.
 
- 
-Note some conventions:
+[TOC] 
+
+## Conventions
+
+Note some conventions about our data:
   
-- This code is written in Lua since that is a very simple notation.
-  For a short tutorial on Lua, see "[Learn Lua in Y
-  minutes](https://learnxinyminutes.com/docs/lua/)".
 - In our data, the  string "?" is used to denote a missing value.
 - In our data,  row one  list the columns names. Those names
   define the various roles of our columns:
@@ -26,9 +26,10 @@ Note some conventions:
   - Names ending with "+" or "-" are things we want to maximize
     or minimize(respectively). 
   - Anything ending in "X" is a column we should ignore.
-  - For example, here is some care data where we want
+  - For example, here is some car data where the goals are
+    `Lbs-,Acc+,Mpg+`; i.e. we want
     to minimize car weight and maximize our acceleration and 
-    fuel consuption.
+    maximize fuel consumption.
 
         {Clndrs  Volume  HpX      Model  origin  Lbs-  Acc+  Mpg+}
         -------  ------  ---      -----  ------  ----  ----  ----
@@ -47,7 +48,11 @@ Note some conventions:
         {4       85      70       78     3       2070  18.6  40}
 
 
-As to other conventions:
+As to other coding conventions:
+
+- This code is written in Lua since that is a very simple notation.
+  For a short tutorial on Lua, see "[Learn Lua in Y
+  minutes](https://learnxinyminutes.com/docs/lua/)".
 - In function headers, anything after two spaces is an optional arg.
   Also, anything after four spaces is a local variable. For example, looking at the
   first two functions defined below:
