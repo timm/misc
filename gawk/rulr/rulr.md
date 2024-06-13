@@ -234,9 +234,10 @@ relevant range.
 
 ```lua
 local function arrange(col,x,d,     r) -- "col" can be a NUM or a SYM
-  r = col:range(x)
-  col.ranges[r] = col.ranges[r] or RANGE.new(col.lo)
-  col.ranges[r]:add(x,d)  end
+  if x ~= "?" then
+    r = col:range(x)
+    col.ranges[r] = col.ranges[r] or RANGE.new(col, x)
+    col.ranges[r]:add(x,d)  end end
 
 function NUM:range(x,     tmp)
   tmp = self:area(x) * the.range // 1 + 1 -- map to 0.. the.range+1
