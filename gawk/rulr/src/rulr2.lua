@@ -1,50 +1,38 @@
-local b4   = {} -- used by rogue() to find typos in var names
-for k,_ in pairs(_ENV) do b4[k]=k end
+local l=require"lib"
+local maths=require"maths"
+local the,help=l.settings[[
+rulr2.lua : a small range learner
+(c) 2024, Tim Menzies, timm@ieee.org, BSD-2 license
 
-local the = {ranges = 7,
-             big    = 1E30,
-             dull   = 0.05,
-             seed  = 1234567891,
-             train = "auto93.csv"}
+Options:
+  -r --ranges  max nu,ber of bins = 7
+  -b --big     a big number       = 1E30
+  -d --dull    too smal to be interesting = 0.05
+  -s --seed    random number seed = 1234567891
+  -t --train   train data         = auto83.csv ]]
 
 local NUM  = {} -- info on numeric columns
 local SYM  = {} -- info on symbolic columns
 local DATA = {} -- place to store all the columns 
 local COLS = {} -- factory to make NUMs and SYMs
 local RANGE= {} -- stores ranges
-local l    = {} -- stores misc functions, defined later
-
-local function isa(class, object)  -- how we create instances
-  class.__index=class; setmetatable(object, class); return object end
-
-local function chebyshev(row,cols,      c,tmp)
-  c = 0
-  for _,col in pairs(cols) do
-    tmp = col:norm(row[col.pos]) -- normalize  0..1 
-    c = math.max(c, math.abs(col.best - tmp)) end
-  return 1 - c end -- so LARGER values are better
 
 -----------------------------------------------------------------------------------------
 function RANGE.new(col,r)
-  return isa(RANGE, {n=0, _col=col, has=r,  _score=0}) end
+  return l.is(RANGE, {n=0, _col=col, has=r,  _score=0}) end
 
-function RANGE:__tostring() return self.col.name .. l.o(self) end
+function RANGE:__tostring() return self._col.name .. l.o(self) end
 
 function RANGE:add(x,d)
   self.n = self.n + 1
   self._score = self._score + d  end
 
 function RANGE:score(      s)
-  s= self._score/self.n; return s < 0 and 0 or s end
-
-function RANGE:selects(row)
-  x = row[self.col.pos] -- if value if "dont know", then assume true
-  if x=="?" then return true end
-  return self.has == self.col:range(x) end
+  s= self._score/self._col.n; return s < 0 and 0 or s end
 
 -----------------------------------------------------------------------------------------
 function NUM.new(name,pos)
-  return isa(NUM, {name=name, pos=pos, n=0, ranges={},
+  return l.is(NUM, {name=name, pos=pos, n=0,
                    mu=0, m2=0, sd=0, lo=1E30, hi= -1E30,
                    best = (name or ""):find"-$" and 0 or 1}) end
 
@@ -56,22 +44,17 @@ function NUM:add(x,     d)
     self.n  = 1 + self.n
     self.lo = math.min(x, self.lo)
     self.hi = math.max(x, self.hi)
-    d       = x - self.mu
-    self.mu = self.mu + d/self.n
-    self.m2 = self.m2 + d*(x - self.mu)
-    self.sd = (self.m2/(self.n - 1 + 1/the.big))^0.5 end
+    self.mu, self.m2, self.sd = maths.welford(self.n, self.mu, self.m2)
   return x end
 
-function NUM:range(x,     cdf,z,area,tmp)
-  cdf = function(z) return 1 - 0.5*2.718^(-0.717*z - 0.416*z*z) end
-  z = (x - self.mu) / self.sd
-  area = z >= 0 and cdf(z) or 1 - cdf(-z)
+function NUM:range(x,     area,tmp)
+  area = maths.auc(x, self.mu, self/sd)
   tmp = 1 + (area * the.ranges // 1) -- maps x to 0.. the.range+1
   return  math.max(1, math.min(the.ranges, tmp)) end -- keep in bounds
 
 -----------------------------------------------------------------------------------------
 function SYM.new(name,pos)
-  return isa(SYM, {name=name, pos=pos, n=0, ranges={},
+  return l.is(SYM, {name=name, pos=pos, n=0,
                    seen={}, mode=nil, most=0}) end
 
 function SYM:range(x) return x end
@@ -85,7 +68,7 @@ function SYM:add(x)
 
 -----------------------------------------------------------------------------------------
 function COLS.new(names,     self,col)
-  self = isa(COLS, { all={}, x={}, y={}, names=names })
+  self = l.is(COLS, { all={}, x={}, y={}, names=names })
   for n,s in pairs(names) do self:newColumn(n,s) end
 return self end
 
@@ -100,21 +83,22 @@ function COLS:add(row,        x)
     for _,col in pairs(cols) do
        x = row[col.pos]
        if x ~= "?" then col:add(row[col.pos]) end end end
-  return self end
+  return row end
 
 function COLS:arrange(x,col,d,       r)
   if x ~= "?" then
     r = col:range(x)
+    col.ranges    = col.ranges or {}
     col.ranges[r] = col.ranges[r] or RANGE.new(col,r,x)
     col.ranges[r]:add(x,d) end end
 
 -----------------------------------------------------------------------------------------
 function DATA.new(src,  names,      cols)
   cols = names and COLS.new(names) or nil
-  return new(DATA,{rows={},  cols=cols}) end
+  return l.is(DATA,{rows={},  cols=cols}) end
 
-function DATA:reads(file) for   row in l.csv(file) do self:add(row) end; return self end
-function DATA:loads(lst)  for _,row in pairs(lst)  do self:add(row) end; return self end
+function DATA:read(file) for   row in l.csv(file) do self:add(row) end; return self end
+function DATA:load(lst)  for _,row in pairs(lst)  do self:add(row) end; return self end
 
 function DATA:add(row)
   if   self.cols
@@ -125,7 +109,8 @@ function DATA:add(row)
 function DATA:sort(     fun)
   fun = function(row) return chebyshev(row,self.cols.y) end
   self.rows = l.sort(self.rows, function(a,b) return fun(a) < fun(b) end)
-    return self.rows end
+  return self end
+
 
 function DATA:arrages(row,   d)
   d= chebyshev(row,self.cols.y)
@@ -139,20 +124,6 @@ function DATA:ranges(     fun,out)
        l.push(out,r) end end
   return out end
 
-function DATA:merge(b4,small,dull,  isSorted,      a,ab,now,i)
-  b4 = isSorted and b4 or l.sort(b4, l.by"on")
-  i, now = 1, {}
-  while i <= #b4 do
-     a = b4[i]
-     if i < #b4 then
-       ab = a:merge(b4[i+1],small,dull)
-       if ab then
-         a = ab
-         i = i + 1 end end
-    l.push(now,a)
-    i = i + 1 end
-  return #now == #b4 and b4 or self:merge(now,small,dull,true) end
-
 -----------------------------------------------------------------------------------------
 function SYM:mid() return self.mode end
 function NUM:mid() return self.mu end
@@ -162,8 +133,12 @@ function NUM:div() return self.sd end
 
 function DATA:mids(cols)
   return l.map(cols or self.cols.y, function(col) return l.rnd(col:mid()) end) end
-  
+
 -----------------------------------------------------------------------------------------
+local l ={}
+function l.is(class, object)  -- how we create instances
+  class.__index=class; setmetatable(object, class); return object end
+
 l.cat = table.concat
 l.fmt = string.format
 
