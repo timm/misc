@@ -1,34 +1,3 @@
 % lua data.lua
 
-
-Clndrs
-0.000	{:has {7} :n 64 :score -1.27e+32}
-0.328	{:has {4} :n 4 :score 1.31}
-0.360	{:has {5} :n 31 :score 11.15}
-0.433	{:has {6} :n 9 :score 3.9}
-0.497	{:has {3} :n 13 :score 6.46}
-0.521	{:has {2} :n 114 :score 59.34}
-0.549	{:has {1} :n 163 :score 89.41}
-
-Volume
-0.000	{:has {6} :n 15 :score -1.17e+32}
-0.000	{:has {3} :n 39 :score -1e+31}
-0.027	{:has {7} :n 11 :score 0.3}
-0.076	{:has {5} :n 6 :score 0.46}
-0.253	{:has {4} :n 16 :score 4.04}
-0.476	{:has {2} :n 127 :score 60.41}
-0.526	{:has {1} :n 184 :score 96.84}
-
-Model
-0.000	{:has {1} :n 38 :score -1e+31}
-0.000	{:has {7} :n 172 :score -1.17e+32}
-0.354	{:has {6} :n 54 :score 19.11}
-0.446	{:has {4} :n 33 :score 14.7}
-0.455	{:has {5} :n 50 :score 22.76}
-0.482	{:has {2} :n 26 :score 12.54}
-0.516	{:has {3} :n 25 :score 12.89}
-
-origin
-0.000	{:has {1} :n 249 :score -1.27e+32}
-0.503	{:has {3} :n 79 :score 39.74}
-0.520	{:has {2} :n 70 :score 36.4}
+0.248

@@ -141,25 +141,33 @@ build rules, we favor the ranges with the largest _d_ values.
 
 ```lua
 function RANGE.new(col,r)
-  return isa(RANGE, {n=0, _col=col, has={r},  score=0}) end
+  return isa(RANGE, {n=0, _col=col, on=r, merged={r},  _score=0}) end
+
+function RANGE:__tostring() return l.o{name=self._col.name, merged=self.merged, n=self.n, on=self.on} end
 
 function RANGE:add(x,d)
   self.n = self.n + 1
-  self.score = self.score + d  end
+  self._score = self._score + d  end
+
+function RANGE:score(      s)
+  s= self._score/self.n; return s < 0 and 0 or s end
 ```
-Two adjacent  RANGEs can be merged if either contains too few examples or
-of their scores are very similar. The merged range has a score that the weighted
-sum of the two parts.
+Two adjacent  RANGEs can be merged if either contains too few examples or if
+their scores are very similar. The merged range has a score that the weighted sum
+of the two parts.
+
 ```lua
-function RANGE:merged(other,small,      out)
-  out = self + other
-  if self.n < small or other.n < small          then return out end
-  if math.abs(self.score - other.score) <= 0.05 then return out end end
+function RANGE.merge(i,j,small,dull,     k)
+  out = i + j
+  if i.n < small or j.n < small then return out end 
+  if i:score() < dull and j:score() < dull then return out end
+  if math.abs(i:score() - j:score()) < dull then return out end end
 
 function RANGE:__add(other)
-  out   = RANGE.new(self.col)
+  out   = RANGE.new(self.col,self.r)
   out.n = self.n + other.n
-  out.score = (self.n * self.score + other.n * other.score)/out.n
+  out.on = self.on
+  out._score = (self.n * self._score + other.n * other._score)/out.n
   for _,r in pairs{self.has, other.has} do l.push(out.has, r) end
   return out end
 ```
@@ -189,6 +197,7 @@ options.
 ```lua
 local the = {ranges = 7,
              big    = 1E30,
+             dull   = 0.05,
              seed  = 1234567891,
              train = "auto93.csv"}
 ```
@@ -249,12 +258,6 @@ which, if we multiple by `the.ranges`, this return the relevant
 range.
 
 ```lua
-local function arrange(col,x,d,     r) -- "col" can be a NUM or a SYM
-  if x ~= "?" then
-    r = col:range(x)
-    col.ranges[r] = col.ranges[r] or RANGE.new(col,r,x)
-    col.ranges[r]:add(x,d)  end end
-
 function NUM:range(x,     tmp)
   tmp = self:area(x) * the.ranges // 1 + 1 -- maps x to 0.. the.range+1
   return  math.max(1, math.min(the.ranges, tmp)) end -- keep in bounds
@@ -334,15 +337,22 @@ function COLS:newColumn(n,s,    col)
 ```
 When COLS get updated with a `row`, they find the Chebyshev distance
 `d` (calculated above) for that `row`. This is used to update the
-column information, as well as the RANGEs of each column.
+column information, as well as the RANGEs of each column (and it no `d`
+is supplied, we skip updating the ranges)
 
 ```lua
-function COLS:add(row,      d)
-  d = chebyshev(row, self.y)
+function COLS:add(row,  d,      x)
   for _,cols in pairs{self.x, self.y} do
     for _,col in pairs(cols) do 
-       col:add(row[col.pos])
-       arrange(col, row[col.pos], d) end end end
+       x = row[col.pos]
+       if x ~= "?" then
+          col:add(row[col.pos])
+          if d then self:arrange(col,x,d) end end end end end
+          
+function COLS:arrange(col,x,  d,     r)
+  r = col:range(x)
+  col.ranges[r] = col.ranges[r] or RANGE.new(col,r,x)
+  col.ranges[r]:add(x,d)  end 
 ```
 
 ### Class DATA
@@ -363,7 +373,31 @@ function DATA.new(src,   self)
 
 function DATA:add(row)
   l.push(self.rows, row)
-  self.cols:add(row) end
+  self.cols:add(row, chebyshev(row, self.cols.y)) end
+```
+
+```lua
+function DATA:ranges(     fun,out)
+  out = {}
+  fun = function(r) return r:score() end 
+  for _,col in pairs(self.cols.x) do 
+    for _,r in pairs(DATA:merge(col.ranges, #(self.rows)/the.ranges, the.dull)) do
+       l.push(out,r) end end 
+  return out end 
+
+function DATA:merge(b4,small,dull,  isSorted,      a,ab,now,i)
+  b4 = isSorted and b4 or l.sort(b4, l.by"on")  
+  i, now = 1, {}
+  while i <= #b4 do
+     a = b4[i] 
+     if i < #b4 then
+       ab = a:merge(b4[i+1],small,dull)
+       if ab then
+         a = ab
+         i = i + 1 end end
+    l.push(now,a)
+    i = i + 1 end
+  return #now == #b4 and b4 or self:merge(now,small,dull,true) end
 ```
 
 ```lua
