@@ -19,12 +19,11 @@ local RANGE= {} -- stores ranges
 
 -----------------------------------------------------------------------------------------
 function RANGE.new(col,r)
-  return l.is(RANGE, {n=0, _col=col, has=r,  _score=0}) end
+  return l.is(RANGE, { _col=col, has=r,  _score=0}) end
 
 function RANGE:__tostring() return self._col.name .. l.o(self) end
 
 function RANGE:add(x,d)
-  self.n = self.n + 1
   self._score = self._score + d  end
 
 function RANGE:score(      s)

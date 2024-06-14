@@ -26,6 +26,9 @@ function maths.minkowski(row,cols,  p,     d,n)
     d = d + col:dist(row1[col.pos], row2[col.pos])^p end
   return (d/n)^(1/p) end
 
+function maths.norms(mu,sd)
+   return mu + sd* math.log(1/math.random())^.5*math.cos(math.pi*math.random()) end
+
 function maths.welford(n,mu,m2,     d)
   d  = x  - mu
   mu = mu + d/n
