@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+body { font-size: small; 
+        font-family: Optima, Candara, 'Noto Sans', source-sans-pro, sans-serif;
+        font-weight: normal;
+}
+
+.wrapper {
+  margin: auto;
+  max-width: 600px;
+  padding: 10px;
+}
+
+
+
+h1,h2,h3,h4 { font-family: Cinzel; }
+pre { padding: 10px; background-color: #EDEDED;  }

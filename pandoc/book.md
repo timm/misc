@@ -1,24 +1,3 @@
-# Markdown: Syntax
-
-*   [Overview](#overview)
-    *   [Philosophy](#philosophy)
-    *   [Inline HTML](#html)
-    *   [Automatic Escaping for Special Characters](#autoescape)
-*   [Block Elements](#block)
-    *   [Paragraphs and Line Breaks](#p)
-    *   [Headers](#header)
-    *   [Blockquotes](#blockquote)
-    *   [Lists](#list)
-    *   [Code Blocks](#precode)
-    *   [Horizontal Rules](#hr)
-*   [Span Elements](#span)
-    *   [Links](#link)
-    *   [Emphasis](#em)
-    *   [Code](#code)
-    *   [Images](#img)
-*   [Miscellaneous](#misc)
-    *   [Backslash Escapes](#backslash)
-    *   [Automatic Links](#autolink)
 
 
 **Note:** This document is itself written using Markdown; you
@@ -166,41 +145,41 @@ or even:
 1. McHale
 8. Parish
 
-```lua
--- ## Support
+Code:
 
--- Determine what we want.
-function csvWant(row,    out,put)
-  out, put = {},0
-  for get,txt in pairs(row) do
-    if string.sub(txt,1,1) ~= the.ch.skip then
-      put      = put + 1
-      out[put] = get
-  end end
-  return out
-end
-
--- Take what we `want`
--- (and while we are here, coerce any
--- number strings to numbers).
-function csvTake(want,row,     out,cell)
-  out = {}
-  for put,get in pairs(want) do
-    cell     = row[get]
-    cell     = tonumber(cell) or cell -- coercian
-    out[put] = cell end
-  return out
-end
-
--- Low-level function: Split the string `s` on some seperatpr `sep`
--- (which defaults to ",") into a return list.
-function split(s,     sep,out)
-  out, sep = {}, sep or ","
-  for y in string.gmatch(s, "([^" ..sep.. "]+)") do
-    out[#out+1] = y end
-  return out
-end
-```
+     -- ## Support
+     
+     -- Determine what we want.
+     function csvWant(row,    out,put)
+       out, put = {},0
+       for get,txt in pairs(row) do
+         if string.sub(txt,1,1) ~= the.ch.skip then
+           put      = put + 1
+           out[put] = get
+       end end
+       return out
+     end
+     
+     -- Take what we `want`
+     -- (and while we are here, coerce any
+     -- number strings to numbers).
+     function csvTake(want,row,     out,cell)
+       out = {}
+       for put,get in pairs(want) do
+         cell     = row[get]
+         cell     = tonumber(cell) or cell -- coercian
+         out[put] = cell end
+       return out
+     end
+         
+     -- Low-level function: Split the string `s` on some seperatpr `sep`
+     -- (which defaults to ",") into a return list.
+     function split(s,     sep,out)
+       out, sep = {}, sep or ","
+       for y in string.gmatch(s, "([^" ..sep.. "]+)") do
+         out[#out+1] = y end
+       return out
+     end
 
 you'd get the exact same HTML output. The point is, if you want to,
 you can use ordinal numbers in your ordered Markdown lists, so that
