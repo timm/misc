@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>lua2md</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../etc/css/a.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+</head>
+<body>
+<div class=wrapper>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+
+<img align=right 
+    style=" margin-top: 12px; margin-bottom: 10px; box-shadow: 5px 5px 5px #aaa; border: #CCC 1px solid; margin-right:3px;" 
+    width=250 src="../etc/img/top.png">
+<p>
+<a href="index.html">index</a> 
+:: <a href="docs.html">docs</a> 
+:: <a href="install.html">install</a>  
+:: <a href="license.html">license</a>  </p>
+<hr>
+<header id="title-block-header">
+<h1 class="title">lua2md</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#overview" id="toc-overview">Overview</a>
+<ul>
+<li><a href="#philosophy" id="toc-philosophy">Philosophy</a></li>
+</ul></li>
+<li><a href="#block-elements" id="toc-block-elements">Block Elements</a>
+<ul>
+<li><a href="#paragraphs-and-line-breaks"
+id="toc-paragraphs-and-line-breaks">Paragraphs and Line Breaks</a></li>
+<li><a href="#headers" id="toc-headers">Headers</a></li>
+<li><a href="#blockquotes" id="toc-blockquotes">Blockquotes</a></li>
+<li><a href="#lists" id="toc-lists">Lists</a></li>
+<li><a href="#code-blocks" id="toc-code-blocks">Code Blocks</a></li>
+</ul></li>
+<li><a href="#span-elements" id="toc-span-elements">Span Elements</a>
+<ul>
+<li><a href="#links" id="toc-links">Links</a></li>
+<li><a href="#emphasis" id="toc-emphasis">Emphasis</a></li>
+<li><a href="#code" id="toc-code">Code</a></li>
+</ul></li>
+</ul>
+</nav>
+<p><strong>Note:</strong> This document is itself written using
+Markdown; you can <a href="/projects/markdown/syntax.text">see the
+source for it by adding ‘.text’ to the URL</a>.</p>
+<hr />
+<h2 id="overview">Overview</h2>
+<h3 id="philosophy">Philosophy</h3>
+<p>Markdown is intended to be as easy-to-read and easy-to-write as is
+feasible.</p>
+<p><span class="math display">\[a=b^2\]</span> Readability, however, is
+emphasized above all else. A Markdown-formatted document should be
+publishable as-is, as plain text, without looking like it’s been marked
+up with tags or formatting instructions. While <span
+class="math inline">\(a=b^2\)</span> Markdown’s syntax has been
+influenced by several existing text-to-HTML filters – including <a
+href="http://docutils.sourceforge.net/mirror/setext.html">Setext</a>, <a
+href="http://www.aaronsw.com/2002/atx/">atx</a>, <a
+href="http://textism.com/tools/textile/">Textile</a>, <a
+href="http://docutils.sourceforge.net/rst.html">reStructuredText</a>, <a
+href="http://www.triptico.com/software/grutatxt.html">Grutatext</a>, and
+<a href="http://ettext.taint.org/doc/">EtText</a> – the single biggest
+source of inspiration for Markdown’s syntax is the format of plain text
+email.</p>
+<h2 id="block-elements">Block Elements</h2>
+<h3 id="paragraphs-and-line-breaks">Paragraphs and Line Breaks</h3>
+<p>A paragraph is simply one or more consecutive lines of text,
+separated by one or more blank lines. (A blank line is any line that
+looks like a blank line – a line containing nothing but spaces or tabs
+is considered blank.) Normal paragraphs should not be indented with
+spaces or tabs.</p>
+<p>The implication of the “one or more consecutive lines of text” rule
+is that Markdown supports “hard-wrapped” text paragraphs. This differs
+significantly from most other text-to-HTML formatters (including Movable
+Type’s “Convert Line Breaks” option) which translate every line break
+character in a paragraph into a <code>&lt;br /&gt;</code> tag.</p>
+<p>When you <em>do</em> want to insert a <code>&lt;br /&gt;</code> break
+tag using Markdown, you end a line with two or more spaces, then type
+return.</p>
+<h3 id="headers">Headers</h3>
+<p>Markdown supports two styles of headers, [Setext] [1] and [atx]
+[2].</p>
+<p>Optionally, you may “close” atx-style headers. This is purely
+cosmetic – you can use this if you think it looks better. The closing
+hashes don’t even need to match the number of hashes used to open the
+header. (The number of opening hashes determines the header level.)</p>
+<h3 id="blockquotes">Blockquotes</h3>
+<p>Markdown uses email-style <code>&gt;</code> characters for
+blockquoting. If you’re familiar with quoting passages of text in an
+email message, then you know how to create a blockquote in Markdown. It
+looks best if you hard wrap the text and put a <code>&gt;</code> before
+every line:</p>
+<blockquote>
+<p>This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
+Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae,
+risus.</p>
+<p>Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
+id sem consectetuer libero luctus adipiscing.</p>
+</blockquote>
+<p>Markdown allows you to be lazy and only put the <code>&gt;</code>
+before the first line of a hard-wrapped paragraph:</p>
+<blockquote>
+<p>This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
+Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae,
+risus.</p>
+</blockquote>
+<blockquote>
+<p>Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
+id sem consectetuer libero luctus adipiscing.</p>
+</blockquote>
+<p>Blockquotes can be nested (i.e. a blockquote-in-a-blockquote) by
+adding additional levels of <code>&gt;</code>:</p>
+<blockquote>
+<p>This is the first level of quoting.</p>
+<blockquote>
+<p>This is nested blockquote.</p>
+</blockquote>
+<p>Back to the first level.</p>
+</blockquote>
+<p>Blockquotes can contain other Markdown elements, including headers,
+lists, and code blocks:</p>
+<blockquote>
+<h2 id="this-is-a-header.">This is a header.</h2>
+<ol type="1">
+<li>This is the first list item.</li>
+<li>This is the second list item.</li>
+</ol>
+<p>Here’s some example code:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb1-1"><a href="#cb1-1"></a><span class="cf">return</span> shell_exec<span class="op">(</span><span class="st">&quot;echo $input | $markdown_script&quot;</span><span class="op">);</span></span></code></pre></div>
+</blockquote>
+<p>Any decent text editor should make email-style quoting easy. For
+example, with BBEdit, you can make a selection and choose Increase Quote
+Level from the Text menu.</p>
+<h3 id="lists">Lists</h3>
+<p>Markdown supports ordered (numbered) and unordered (bulleted)
+lists.</p>
+<p>Unordered lists use asterisks, pluses, and hyphens – interchangably –
+as list markers:</p>
+<ul>
+<li>Red</li>
+<li>Green</li>
+<li>Blue</li>
+</ul>
+<p>is equivalent to:</p>
+<ul>
+<li>Red</li>
+<li>Green</li>
+<li>Blue</li>
+</ul>
+<p>and:</p>
+<ul>
+<li>Red</li>
+<li>Green</li>
+<li>Blue</li>
+</ul>
+<p>Ordered lists use numbers followed by periods:</p>
+<ol type="1">
+<li>Bird</li>
+<li>McHale</li>
+<li>Parish</li>
+</ol>
+<p>It’s important to note that the actual numbers you use to mark the
+list have no effect on the HTML output Markdown produces. The HTML
+Markdown produces from the above list is:</p>
+<p>If you instead wrote the list in Markdown like this:</p>
+<ol type="1">
+<li>Bird</li>
+<li>McHale</li>
+<li>Parish</li>
+</ol>
+<p>or even:</p>
+<ol start="3" type="1">
+<li>Bird</li>
+<li>McHale</li>
+<li>Parish</li>
+</ol>
+<p>Code:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb2-1"><a href="#cb2-1"></a> <span class="co">-- ## Support</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a> </span>
+<span id="cb2-3"><a href="#cb2-3"></a> <span class="co">-- Determine what we want.</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a> <span class="kw">function</span> csvWant<span class="op">(</span><span class="va">row</span><span class="op">,</span>    <span class="va">out</span><span class="op">,</span><span class="va">put</span><span class="op">)</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>   <span class="va">out</span><span class="op">,</span> <span class="va">put</span> <span class="op">=</span> <span class="op">{},</span><span class="dv">0</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>   <span class="cf">for</span> <span class="va">get</span><span class="op">,</span><span class="va">txt</span> <span class="kw">in</span> <span class="fu">pairs</span><span class="op">(</span><span class="va">row</span><span class="op">)</span> <span class="cf">do</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>     <span class="cf">if</span> <span class="fu">string.sub</span><span class="op">(</span><span class="va">txt</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">~=</span> <span class="va">the</span><span class="op">.</span><span class="va">ch</span><span class="op">.</span><span class="va">skip</span> <span class="cf">then</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>       <span class="va">put</span>      <span class="op">=</span> <span class="va">put</span> <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>       <span class="va">out</span><span class="op">[</span><span class="va">put</span><span class="op">]</span> <span class="op">=</span> <span class="va">get</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>   <span class="cf">end</span> <span class="cf">end</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>   <span class="cf">return</span> <span class="va">out</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a> <span class="kw">end</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a> </span>
+<span id="cb2-14"><a href="#cb2-14"></a> <span class="co">-- Take what we `want`</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a> <span class="co">-- (and while we are here, coerce any</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a> <span class="co">-- number strings to numbers).</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a> <span class="kw">function</span> csvTake<span class="op">(</span><span class="va">want</span><span class="op">,</span><span class="va">row</span><span class="op">,</span>     <span class="va">out</span><span class="op">,</span><span class="va">cell</span><span class="op">)</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>   <span class="va">out</span> <span class="op">=</span> <span class="op">{}</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a>   <span class="cf">for</span> <span class="va">put</span><span class="op">,</span><span class="va">get</span> <span class="kw">in</span> <span class="fu">pairs</span><span class="op">(</span><span class="va">want</span><span class="op">)</span> <span class="cf">do</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a>     <span class="va">cell</span>     <span class="op">=</span> <span class="va">row</span><span class="op">[</span><span class="va">get</span><span class="op">]</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a>     <span class="va">cell</span>     <span class="op">=</span> <span class="fu">tonumber</span><span class="op">(</span><span class="va">cell</span><span class="op">)</span> <span class="kw">or</span> <span class="va">cell</span> <span class="co">-- coercian</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a>     <span class="va">out</span><span class="op">[</span><span class="va">put</span><span class="op">]</span> <span class="op">=</span> <span class="va">cell</span> <span class="cf">end</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a>   <span class="cf">return</span> <span class="va">out</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a> <span class="kw">end</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a>     </span>
+<span id="cb2-26"><a href="#cb2-26"></a> <span class="co">-- Low-level function: Split the string `s` on some seperatpr `sep`</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a> <span class="co">-- (which defaults to &quot;,&quot;) into a return list.</span></span>
+<span id="cb2-28"><a href="#cb2-28"></a> <span class="kw">function</span> split<span class="op">(</span><span class="va">s</span><span class="op">,</span>     <span class="va">sep</span><span class="op">,</span><span class="va">out</span><span class="op">)</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a>   <span class="va">out</span><span class="op">,</span> <span class="va">sep</span> <span class="op">=</span> <span class="op">{},</span> <span class="va">sep</span> <span class="kw">or</span> <span class="st">&quot;,&quot;</span></span>
+<span id="cb2-30"><a href="#cb2-30"></a>   <span class="cf">for</span> <span class="va">y</span> <span class="kw">in</span> <span class="fu">string.gmatch</span><span class="op">(</span><span class="va">s</span><span class="op">,</span> <span class="st">&quot;([^&quot;</span> <span class="op">..</span><span class="va">sep</span><span class="op">..</span> <span class="st">&quot;]+)&quot;</span><span class="op">)</span> <span class="cf">do</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a>     <span class="va">out</span><span class="op">[#</span><span class="va">out</span><span class="op">+</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="va">y</span> <span class="cf">end</span></span>
+<span id="cb2-32"><a href="#cb2-32"></a>   <span class="cf">return</span> <span class="va">out</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a> <span class="kw">end</span></span></code></pre></div>
+<p>you’d get the exact same HTML output. The point is, if you want to,
+you can use ordinal numbers in your ordered Markdown lists, so that the
+numbers in your source match the numbers in your published HTML. But if
+you want to be lazy, you don’t have to.</p>
+<p>To make lists look nice, you can wrap items with hanging indents:</p>
+<ul>
+<li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam
+hendrerit mi posuere lectus. Vestibulum enim wisi, viverra nec,
+fringilla in, laoreet vitae, risus.</li>
+<li>Donec sit amet nisl. Aliquam semper ipsum sit amet velit.
+Suspendisse id sem consectetuer libero luctus adipiscing.</li>
+</ul>
+<p>But if you want to be lazy, you don’t have to:</p>
+<ul>
+<li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam
+hendrerit mi posuere lectus. Vestibulum enim wisi, viverra nec,
+fringilla in, laoreet vitae, risus.</li>
+<li>Donec sit amet nisl. Aliquam semper ipsum sit amet velit.
+Suspendisse id sem consectetuer libero luctus adipiscing.</li>
+</ul>
+<p>List items may consist of multiple paragraphs. Each subsequent
+paragraph in a list item must be indented by either 4 spaces or one
+tab:</p>
+<ol type="1">
+<li><p>This is a list item with two paragraphs. Lorem ipsum dolor sit
+amet, consectetuer adipiscing elit. Aliquam hendrerit mi posuere
+lectus.</p>
+<p>Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae,
+risus. Donec sit amet nisl. Aliquam semper ipsum sit amet
+velit.</p></li>
+<li><p>Suspendisse id sem consectetuer libero luctus
+adipiscing.</p></li>
+</ol>
+<p>It looks nice if you indent every line of the subsequent paragraphs,
+but here again, Markdown will allow you to be lazy:</p>
+<ul>
+<li><p>This is a list item with two paragraphs.</p>
+<p>This is the second paragraph in the list item. You’re only required
+to indent the first line. Lorem ipsum dolor sit amet, consectetuer
+adipiscing elit.</p></li>
+<li><p>Another item in the same list.</p></li>
+</ul>
+<p>To put a blockquote within a list item, the blockquote’s
+<code>&gt;</code> delimiters need to be indented:</p>
+<ul>
+<li><p>A list item with a blockquote:</p>
+<blockquote>
+<p>This is a blockquote inside a list item.</p>
+</blockquote></li>
+</ul>
+<p>To put a code block within a list item, the code block needs to be
+indented <em>twice</em> – 8 spaces or two tabs:</p>
+<ul>
+<li><p>A list item with a code block:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb3-1"><a href="#cb3-1"></a><span class="op">&lt;</span><span class="va">code</span> <span class="va">goes</span> <span class="va">here</span><span class="op">&gt;</span></span></code></pre></div></li>
+</ul>
+<h3 id="code-blocks">Code Blocks</h3>
+<p>Pre-formatted code blocks are used for writing about programming or
+markup source code. Rather than forming normal paragraphs, the lines of
+a code block are interpreted literally. Markdown wraps a code block in
+both <code>&lt;pre&gt;</code> and <code>&lt;code&gt;</code> tags.</p>
+<p>To produce a code block in Markdown, simply indent every line of the
+block by at least 4 spaces or 1 tab.</p>
+<p>This is a normal paragraph:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb4-1"><a href="#cb4-1"></a><span class="va">This</span> <span class="va">is</span> <span class="va">a</span> <span class="va">code</span> <span class="va">block</span><span class="op">.</span></span></code></pre></div>
+<p>Here is an example of AppleScript:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb5-1"><a href="#cb5-1"></a><span class="va">tell</span> application <span class="st">&quot;Foo&quot;</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>    <span class="va">beep</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="cf">end</span> <span class="va">tell</span></span></code></pre></div>
+<p>A code block continues until it reaches a line that is not indented
+(or the end of the article).</p>
+<p>Within a code block, ampersands (<code>&amp;</code>) and angle
+brackets (<code>&lt;</code> and <code>&gt;</code>) are automatically
+converted into HTML entities. This makes it very easy to include example
+HTML source code using Markdown – just paste it and indent it, and
+Markdown will handle the hassle of encoding the ampersands and angle
+brackets. For example, this:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode numberSource lua numberLines"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1"></a><span class="op">&lt;</span><span class="va">div</span> <span class="va">class</span><span class="op">=</span><span class="st">&quot;footer&quot;</span><span class="op">&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>    <span class="op">&amp;</span><span class="va">copy</span><span class="op">;</span> <span class="dv">2004</span> <span class="va">Foo</span> <span class="va">Corporation</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="op">&lt;/</span><span class="va">div</span><span class="op">&gt;</span></span></code></pre></div>
+<p>Regular Markdown syntax is not processed within code blocks. E.g.,
+asterisks are just literal asterisks within a code block. This means
+it’s also easy to use Markdown to write about Markdown’s own syntax.</p>
+<pre><code>tell application &quot;Foo&quot;
+    beep
+end tell</code></pre>
+<h2 id="span-elements">Span Elements</h2>
+<h3 id="links">Links</h3>
+<p>Markdown supports two style of links: <em>inline</em> and
+<em>reference</em>.</p>
+<p>In both styles, the link text is delimited by [square brackets].</p>
+<p>To create an inline link, use a set of regular parentheses
+immediately after the link text’s closing square bracket. Inside the
+parentheses, put the URL where you want the link to point, along with an
+<em>optional</em> title for the link, surrounded in quotes. For
+example:</p>
+<p>This is <a href="http://example.com/">an example</a> inline link.</p>
+<p><a href="http://example.net/">This link</a> has no title
+attribute.</p>
+<h3 id="emphasis">Emphasis</h3>
+<p>Markdown treats asterisks (<code>*</code>) and underscores
+(<code>_</code>) as indicators of emphasis. Text wrapped with one
+<code>*</code> or <code>_</code> will be wrapped with an HTML
+<code>&lt;em&gt;</code> tag; double <code>*</code>’s or <code>_</code>’s
+will be wrapped with an HTML <code>&lt;strong&gt;</code> tag. E.g., this
+input:</p>
+<p><em>single asterisks</em></p>
+<p><em>single underscores</em></p>
+<p><strong>double asterisks</strong></p>
+<p><strong>double underscores</strong></p>
+<h3 id="code">Code</h3>
+<p>To indicate a span of code, wrap it with backtick quotes
+(<code>`</code>). Unlike a pre-formatted code block, a code span
+indicates code within a normal paragraph. For example:</p>
+<p>Use the <code>printf()</code> function.</p>
+<h2>License</h2>
+
+<p>Copyright (C) 2020 Tim Menzies
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+</div>
+</body>
+</html>

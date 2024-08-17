@@ -1,0 +1,175 @@
+<head> 
+<title> fred</title>
+<style> body { background-color: #0d1117; margin:20px;} </style> <script type="module" src="https://cdn.jsdelivr.net/npm/zero-md@3?register"></script> </head> <body><zero-md><script type="text/markdown">
+
+# Lua Tutorial for First-Year SE Grads
+
+## Introduction to Lua
+
+Lua is a lightweight, high-level, multi-paradigm programming language designed primarily for embedded use in applications. It's known for its simplicity and flexibility.
+
+## Getting Started
+
+### Installing Lua
+
+You can download and install Lua from the [official Lua website](https://www.lua.org/download.html). Follow the instructions for your operating system.
+
+### Running Lua
+
+After installation, you can run Lua scripts from the command line:
+
+```sh
+lua myscript.lua
+```
+
+Or you can enter the interactive Lua interpreter by simply typing `lua` in your terminal.
+
+## Basic Syntax
+
+### Variables and Data Types
+
+Lua is dynamically typed, meaning you don't need to declare variable types.
+
+```lua
+-- Variable declaration
+local number = 10
+local string = "Hello, Lua!"
+local boolean = true
+```
+
+### Comments
+
+Single-line comments start with `--` and multi-line comments are enclosed between `--[[` and `]]`.
+
+```lua
+-- This is a single-line comment
+
+--[[
+This is a 
+multi-line comment
+]]
+```
+
+### Control Structures
+
+#### If-Else Statements
+
+```lua
+local x = 5
+
+if x > 0 then
+    print("x is positive")
+elseif x == 0 then
+    print("x is zero")
+else
+    print("x is negative")
+end
+```
+
+#### Loops
+
+```lua
+-- While loop
+local i = 1
+while i <= 5 do
+    print(i)
+    i = i + 1
+end
+
+-- For loop
+for i = 1, 5 do
+    print(i)
+end
+```
+
+### Functions
+
+Functions are first-class values in Lua.
+
+```lua
+-- Function definition
+local function add(a, b)
+    return a + b
+end
+
+-- Function call
+local sum = add(3, 4)
+print(sum)  -- Output: 7
+```
+
+## Tables
+
+Tables are the only data structure in Lua and can be used as arrays, dictionaries, or even objects.
+
+```lua
+-- Array
+local fruits = {"apple", "banana", "cherry"}
+print(fruits[1])  -- Output: apple
+
+-- Dictionary
+local person = {name = "Alice", age = 30}
+print(person.name)  -- Output: Alice
+
+-- Nested tables
+local company = {
+    name = "TechCorp",
+    employees = {
+        {name = "John", position = "Manager"},
+        {name = "Doe", position = "Developer"}
+    }
+}
+print(company.employees[2].name)  -- Output: Doe
+```
+
+## Metatables and Metamethods
+
+Metatables allow you to change the behavior of tables. Metamethods are functions that are triggered on certain operations.
+
+```lua
+local t1 = {1, 2, 3}
+local t2 = {4, 5, 6}
+
+-- Metamethod for addition
+local mt = {
+    __add = function(t1, t2)
+        local result = {}
+        for i = 1, #t1 do
+            result[i] = t1[i] + t2[i]
+        end
+        return result
+    end
+}
+
+setmetatable(t1, mt)
+setmetatable(t2, mt)
+
+local t3 = t1 + t2
+print(table.concat(t3, ", "))  -- Output: 5, 7, 9
+```
+
+## Error Handling
+
+Lua provides a way to handle errors using `pcall` (protected call) and `xpcall`.
+
+```lua
+local function divide(a, b)
+    if b == 0 then
+        error("Division by zero!")
+    end
+    return a / b
+end
+
+local status, result = pcall(divide, 10, 0)
+if status then
+    print("Result: ", result)
+else
+    print("Error: ", result)
+end
+```
+
+## Conclusion
+
+Lua is a powerful and flexible language that's easy to learn and use. Its simplicity makes it a great choice for embedding in applications and for use in game development, configuration scripts, and more. Explore the [official Lua documentation](https://www.lua.org/manual/5.4/) for more advanced topics and features.
+
+Feel free to modify this tutorial as needed for your specific teaching context.
+
