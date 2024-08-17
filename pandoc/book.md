@@ -147,9 +147,6 @@ or even:
 
 Code:
 
-     -- ## Support
-     
-     -- Determine what we want.
      function csvWant(row,    out,put)
        out, put = {},0
        for get,txt in pairs(row) do
@@ -157,29 +154,21 @@ Code:
            put      = put + 1
            out[put] = get
        end end
-       return out
-     end
-     
-     -- Take what we `want`
-     -- (and while we are here, coerce any
-     -- number strings to numbers).
+       return out end
+
      function csvTake(want,row,     out,cell)
        out = {}
        for put,get in pairs(want) do
          cell     = row[get]
          cell     = tonumber(cell) or cell -- coercian
          out[put] = cell end
-       return out
-     end
-         
-     -- Low-level function: Split the string `s` on some seperatpr `sep`
-     -- (which defaults to ",") into a return list.
+       return out end
+
      function split(s,     sep,out)
        out, sep = {}, sep or ","
        for y in string.gmatch(s, "([^" ..sep.. "]+)") do
          out[#out+1] = y end
-       return out
-     end
+       return out end
 
 you'd get the exact same HTML output. The point is, if you want to,
 you can use ordinal numbers in your ordered Markdown lists, so that
