@@ -1,6 +1,10 @@
 
 # Single-line comments start with a #
 
+stderr.writeLine("Error: ", 42)
+
+flushFile(stderr)
+
 #[
   This is a multiline comment.
   In Nim, multiline comments can be nested, beginning with #[
@@ -49,6 +53,8 @@ var
 child = (name: "Rudiger", age: 2) # Assign all at once with literal ()
 today.sun = "Overcast"            # or individual fields.
 today[1] = 70.1                   # or by index.
+
+echo today[1]
 
 let impostor = ("Rudiger", 2) # Two tuples are the same as long as they have
 assert child == impostor      # the same type and the same contents
@@ -107,16 +113,16 @@ when compileBadCode:
 # Objects are similar to tuples, but they *require* names of the fields
 
 type
-  Room = ref object # reference to an object, useful for big objects or
+  Room =    object  # reference to an object, useful for big objects or
     windows: int    # objects inside objects
     doors: int = 1  # Change the default value of a field (since Nim 2.0)
-  House = object
+  House =    object
     address: string  
     rooms: seq[Room]
 
 var
   defaultHouse = House() # initialize with default values
-  defaultRoom = new Room() # create new instance of ref object
+  defaultRoom =   Room(doors: 1) # create new instance of ref object
   sesameHouse = House(address: "123 Sesame St.", rooms: @[defaultRoom])
 
 # Enumerations allow a type to have one of a limited number of values
@@ -167,9 +173,9 @@ counter[my_roll] += 1
 
 var anotherArray = ["Default index", "starts at", "0"]
 
-# More data structures are available, including tables, sets, lists, queues,
-# and crit bit trees.
-# http://nim-lang.org/docs/lib.html#collections-and-algorithms
+#[More data structures are available, including tables, sets, lists, queues,
+and crit bit trees.
+ http://nim-lang.org/docs/lib.html#collections-and-algorithms ]#
 
 #
 # IO and Control Flow
@@ -216,7 +222,7 @@ for i, elem in ["Yes", "No", "Maybe so"]: # Or just `for elem in`
   echo(elem, " is at index: ", i)
 
 for k, v in items(@[(person: "You", power: 100), (person: "Me", power: 9000)]):
-  echo v
+  echo "=====>",k," ", v
 
 let myString = """
 an <example>
