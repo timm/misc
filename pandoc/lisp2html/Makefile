@@ -1,7 +1,7 @@
 SHELL := bash
 .SILENT:
 
-pull: ; git pull # get content
+pull: ; git pull # get content now
 
 push:
 	read -ep "Why commit> " x; git commit -am "$$x"; git push; git status
