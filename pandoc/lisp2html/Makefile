@@ -1,9 +1,10 @@
+SHELL := bash
 .SILENT:
 
-pull: ; git pull
+pull: ; git pull # get content
 
 push:
-	read -e -p "Why commit> "; git add *; git commit -am "$$x"; git push; git status
+	read -ep "Why commit> " x; git commit -am "$$x"; git push; git status
 
 %.html : %.md
 	cat $<                                             \
