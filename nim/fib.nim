@@ -1,8 +1,7 @@
-# asdas dasdasas
+import strutils, sequtils
 proc fib(n: int): int = 
   if n <= 1: n else: fib(n - 1) + fib(n - 1)
 
-# asdasdsa asdasda
 for i in 0..10: echo i, " ",fib(i)
 
 type Animal = object
@@ -12,3 +11,20 @@ type Animal = object
 var dog = Animal(age: 2)  # 22
 
 echo dog
+ 
+for line in lines "fib.nim":
+  echo line.split(",").mapIt(strip(it))
+
+proc thing(s:string) : int|string|bool|float =
+  try: 
+      return parseInt(s) 
+  except:
+    try: 
+        return parseFloat(s)
+    except: 
+      try: 
+          return parseBool(s)
+      except: 
+          return s
+
+echo thing("1")
