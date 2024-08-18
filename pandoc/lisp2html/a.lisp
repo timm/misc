@@ -14,7 +14,7 @@ das asdas"
     
     (defun fred (&rest aa) 
       (dolist (i aa) (print i)))
-
+     
     (defstruct aa (b 1) (c c))
 
 "sadasd sa sad asd sadasd asasdas asd as as adas dasa

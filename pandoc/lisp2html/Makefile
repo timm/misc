@@ -1,11 +1,16 @@
 .SILENT:
 
+pull: ; git pull
+
+push:
+	echo -n "Why commit> "; read x; git commit -am "$$x"; git push; git status
+
 %.html : %.md
-	cat $<             \
-	| sed -e '1d' -e 's/^[;\"]//' -e 's/\"$$//'  \
-	| pandoc -o $@         \
-		-s                    \
-		-f markdown            \
-		--mathjax               \
-		--highlight-style tango  \
-		--indented-code-classes=lisp,numberlines
+	cat $<                                             \
+	| sed -e 's/;vim.*//' -e 's/^[;\"]//' -e 's/\"$$//' \
+	| pandoc -o $@           \
+		-s                      \
+		-f markdown              \
+		--mathjax                 \
+		--highlight-style tango    \
+		--indented-code-classes=lisp
