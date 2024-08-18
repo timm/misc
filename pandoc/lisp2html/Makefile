@@ -3,7 +3,7 @@
 pull: ; git pull
 
 push:
-	echo -n "Why commit> "; read x; git commit -am "$$x"; git push; git status
+	read -e -p "Why commit> "; git add *; git commit -am "$$x"; git push; git status
 
 %.html : %.md
 	cat $<                                             \
