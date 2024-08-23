@@ -1,29 +1,42 @@
-saved:
-	git commit -am as; git push; git status
+# Default is show help; e.g.
+#
+#    make 
+#
+# prints the help text.
 
-~/tmp/%.html : %.py
-	pycco -d ~/tmp $^
-	echo 'p {text-align: right;}' >> ~/tmp/pycco.css
-	sed -i '' 's/2ez.py : /<img src=2ez.png align=left width=170>&/' $@
-	cp 2ez.png ~/tmp
-	open $@
+SHELL     := bash
+MAKEFLAGS += --warn-undefined-variables
+.SILENT:
 
-~/tmp/%.pdf: %.py  ## .lua ==> .pdf
+Top=$(shell git rev-parse --show-toplevel)
+Tmp  ?= $(HOME)/tmp
+
+help      :  ## show help
+	gawk -f $(Top)/etc/help.awk $(MAKEFILE_LIST) 
+
+pull    : ## download
+	git pull
+
+push    : ## save
+	read -ep "\033[33mWhy this push? \033[0m" x; git commit -am "$$x"; git push; git status
+
+$(Tmp)/%.pdf: %.py  ## make doco: .py ==> .pdf
 	mkdir -p ~/tmp
 	echo "pdf-ing $@ ... "
 	a2ps                 \
 		-Br                 \
-		--chars-per-line 100  \
+		--chars-per-line=90 \
 		--file-align=fill      \
 		--line-numbers=1        \
-		--borders=no             \
 		--pro=color               \
 		--left-title=""            \
-		--columns  3                 \
+		--borders=no             \
+	    --left-footer="$<  "               \
+	    --right-footer="page %s. of %s#"               \
+		--columns 3                 \
 		-M letter                     \
-		--footer=""                    \
-		--right-footer=""               \
 	  -o	 $@.ps $<
-	ps2pdf $@.ps $@; rm $@.ps    
+	ps2pdf $@.ps $@; rm $@.ps
 	open $@
+
 
