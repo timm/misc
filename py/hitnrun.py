@@ -1,7 +1,7 @@
 #!/usr/bin/env python3 -B
 # vim : set et sw=2 ts=2 :
 from fileinput import FileInput as file_or_stdin
-import re,sys,ast,math,random,inspect,datetime
+import os,re,sys,ast,math,random,inspect,datetime
 from math import exp,log,cos,sqrt,pi
 from time import time
 R=random.random
@@ -11,14 +11,14 @@ class o:
   def __init__(i,**d): i.__dict__.update(d)
   def __repr__(i)    : return i.__class__.__name__ + show(i.__dict__)
 
-the = o(k=1, m=2,  train="../data/auto93.csv",seed=123457891)
+the = o(k=1, m=2,  seed=123457891,
+        train="../../../timm/moot/optimize/misc/auto93.csv")
+
 
 #------------------------------------------------------------------------------
 class COL(o): 
   def __init__(i,at=0,txt=" "): 
-    i.at=0; i.txt=" "; i.n=0
-
-  def adds(i,lst): [i.add(x) for x in lst]; return i
+    i.at=at; i.txt=txt; i.n=0
 
 #------------------------------------------------------------------------------
 class SYM(COL): 
@@ -59,6 +59,8 @@ class NUM(COL):
     denom = (2*pi*v) **0.5
     return min(1, nom/(denom + 1E-30))
 
+  def norm(i,x): return (x - i.lo)/(i.hi - i.lo + 1E-32)
+
   def sub(i,x):
     i.n  -= 1
     d     = x - i.mu
@@ -75,9 +77,8 @@ class COLS:
       col = (NUM if a.isupper() else SYM)(at=at, txt=txt)
       i.all.append(col)
       if z != "X":
-        (i.y if z in "!+-" else i.x).append(col)
         if z=="!": i.klass = col
-        if z=="-": col.goal = 0
+        (i.y if z in "!+-" else i.x).append(col)
 
   def add(i, row):
     [col.add(row[col.at]) for cols in [i.x, i.y] for col in cols if row[col.at] != "?"]
@@ -88,11 +89,14 @@ class DATA:
   def __init__(i): i.rows=[]; i.cols=None
 
   def clone(i,rows):
-    return DATA().add(i.cols.names).adds(rows)
+    return adds(DATA().add(i.cols.names), rows)
 
   def add(i,row):
     if     i.cols: i.rows += [i.cols.add(row)]
     else:  i.cols = COLS(row)
+
+  def cheybshev(i,row):
+    return max(abs(col.goal - col.norm(row[col.at])) for col in i.cols.y)
 
   def csv(i,fname):
    infile = sys.stdin if fname=="-" else open(fname)
@@ -104,12 +108,14 @@ class DATA:
    random.shuffle(i.rows)
    return i
 
-  def adds(i,rows): [i.add(row) for row in rows]; return i
-
   def loglike(i, row, nall, nh):
     prior = (len(i.rows) + the.k) / (nall + the.k*nh)
     likes = [c.like(row[c.at], prior) for c in i.cols.x if row[c.at] != "?"]
     return sum(log(x) for x in likes + [prior] if x>0)
+
+  def sort(i):
+    i.rows.sort(key=lambda row:i.cheybshev(row))
+    return i
 
 #------------------------------------------------------------------------------
 def coerce(x):
@@ -125,22 +131,33 @@ def normal(mu,sd):
 
 def show(x):
   if isinstance(x,float) : return f"{x:g}"
-  if isinstance(x,list)  : return str([show(y) for y in x])
+  if isinstance(x,list)  : return ', '.join([show(y) for y in x])
   if isinstance(x,dict)  : 
-    return "{"+' '.join([f":{k} {show(x[k])}" for k in x if k[0] != "_"])+"}"
+    return "{"+' '.join([f":{k} {show(x[k])}" for k in x if str(k)[0] != "_"])+"}"
   return str(x)
 
+def adds(x,lst): [x.add(y) for y in lst]; return x
+
+def some(lst,n=10):
+  return sorted(lst)[:: int(len(lst)/n)]
 #------------------------------------------------------------------------------
 class eg:
-  def noop():  pass
-  def one(): print(1)
-  def num(): 
-    n = NUM().adds([normal(10,1) for x in range(100)]); print(f"{n.mu:g} {n.sd:g}")
+  def bye(_): os.system("git commit -am saving; git push; git status")
+  def noop(_):  pass
+  def one(_): print(1)
+  def num(_): 
+    n = adds(NUM(), [normal(17.5,2.5) for x in range(100)])
+    print(f"{n.mu:g} {n.sd:g}")
 
-  def data():
+  def data(_):
     d=DATA().csv(the.train)
-    print(d.cols.y[0])
-    print(show(set(sorted([d.loglike(row,1000,2) for row in d.rows]))))
+    random.shuffle(d.rows)
+    d.sort()
+    for cols in [d.cols.x,d.cols.y]:
+      print("")
+      for col in cols: print(col)
+    print(show(some([d.loglike(row,1000,2) for row in d.rows],5)))
+    for j,row in enumerate(d.rows):
+      if j % 30 == 0 : print(row)
 
-random.seed(the.seed)
-[getattr(eg, s[1:], eg.noop)() for s in sys.argv]
+[getattr(eg, s[1:], eg.noop)(i+1) for i,s in enumerate(sys.argv)]
