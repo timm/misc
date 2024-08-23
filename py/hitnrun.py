@@ -108,7 +108,7 @@ class DATA:
 
   def loglike(i, row, nall, nh):
     prior = (len(i.rows) + the.k) / (nall + the.k*nh)
-    likes = [c.like(r[c.at], prior) for c in i.cols.x if r[c.at] != "?"]
+    likes = [c.like(row[c.at], prior) for c in i.cols.x if row[c.at] != "?"]
     return sum(log(x) for x in likes + [prior] if x>0)
 
 #------------------------------------------------------------------------------
@@ -124,10 +124,11 @@ def normal(mu,sd):
    if w < 1: return mu + sd * x1 * sqrt((-2*log(w))/w)
 
 def show(x):
-  if isinstance(x,float): return f"{x:g}"
-  if not isinstance(x,dict): return str(x)
-  return "{"+' '.join([f":{k} {show(x[k])}" for k in x if k[0] != "_"])+"}"
-
+  if isinstance(x,float) : return f"{x:g}"
+  if isinstance(x,list)  : return str([show(y) for y in x])
+  if isinstance(x,dict)  : 
+    return "{"+' '.join([f":{k} {show(x[k])}" for k in x if k[0] != "_"])+"}"
+  return str(x)
 
 #------------------------------------------------------------------------------
 class eg:
@@ -139,6 +140,7 @@ class eg:
   def data():
     d=DATA().csv(the.train)
     print(d.cols.y[0])
+    print(show(set(sorted([d.loglike(row,1000,2) for row in d.rows]))))
 
 random.seed(the.seed)
 [getattr(eg, s[1:], eg.noop)() for s in sys.argv]
