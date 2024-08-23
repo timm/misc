@@ -18,7 +18,7 @@ pull    : ## download
 	git pull
 
 push    : ## save
-	read -ep "\033[33mWhy this push? \033[0m" x; git commit -am "$$x"; git push; git status
+	read -ep "Why this push? " x; git commit -am "$$x"; git push; git status
 
 $(Tmp)/%.pdf: %.py  ## make doco: .py ==> .pdf
 	mkdir -p ~/tmp
