@@ -14,18 +14,16 @@ class o:
 the = o(k=1, m=2, seed=123457891, samples0=8, split=0.5, samples=30,
         train="../../../timm/moot/optimize/misc/auto93.csv")
 
-def hitnrun(d, eden=10, budget=30):
-  done,todo = d.rows[:eden], d.rows[eden:]
-  best,rest = d.clone(done).bestRest()
-  for j,row in enumerate(todo):
-    r = rest.loglike(row,len(done),2) 
-    b = best.loglike(row,len(done),2)
-    if r > b : rest.add(row); continue
-    best.add(row)
-    if len(best.rows) >= budget: break
-  for j,row in enumerate(best.sort().rows):
-    if j % 2 == 0 : print(row, d.cheybshev(row))
-  return best.sort().rows[0]
+def hitnrun(d, eden=100):
+  def like(kl,row): return  kl.loglike(row,len(rows),2)
+  def bore(row): b,r=like(best.row),like(rest,row); return  b**2/(b+r)
+  rows = d.rows[:]
+  b4   = d.clone()
+  adds(b4, rows[:eden])
+  best,rest = b4.bestRest()
+  want = d.cheybshev( best.rows[0] )
+  got = max(rows[eden:], key=bore)
+  print(d.cheybshev(got)) 
     
 #------------------------------------------------------------------------------
 class COL(o): 
@@ -185,7 +183,7 @@ class eg:
   def hnr(_):
     d = DATA().csv(the.train)
     random.shuffle(d.rows)
-    print(d.cheybshev(hitnrun(d)))
+    hitnrun(d)
 
 random.seed(the.seed)
 [getattr(eg, s[1:], eg.noop)(i+1) for i,s in enumerate(sys.argv)]
