@@ -11,10 +11,22 @@ class o:
   def __init__(i,**d): i.__dict__.update(d)
   def __repr__(i)    : return i.__class__.__name__ + show(i.__dict__)
 
-the = o(k=1, m=2,  seed=123457891,
+the = o(k=1, m=2, seed=123457891, samples0=8, split=0.5, samples=30,
         train="../../../timm/moot/optimize/misc/auto93.csv")
 
-
+def hitnrun(d, eden=10, budget=30):
+  done,todo = d.rows[:eden], d.rows[eden:]
+  best,rest = d.clone(done).bestRest()
+  for j,row in enumerate(todo):
+    r = rest.loglike(row,len(done),2) 
+    b = best.loglike(row,len(done),2)
+    if r > b : rest.add(row); continue
+    best.add(row)
+    if len(best.rows) >= budget: break
+  for j,row in enumerate(best.sort().rows):
+    if j % 2 == 0 : print(row, d.cheybshev(row))
+  return best.sort().rows[0]
+    
 #------------------------------------------------------------------------------
 class COL(o): 
   def __init__(i,at=0,txt=" "): 
@@ -57,7 +69,7 @@ class NUM(COL):
     v     = i.sd**2 + 1E-30
     nom   = exp(-1*(x - i.mu)**2/(2*v)) + 1E-30
     denom = (2*pi*v) **0.5
-    return min(1, nom/(denom + 1E-30))
+    return max(0,min(1, nom/(denom + 1E-30)))
 
   def norm(i,x): return (x - i.lo)/(i.hi - i.lo + 1E-32)
 
@@ -66,7 +78,7 @@ class NUM(COL):
     d     = x - i.mu
     i.mu -= d/i.n
     i.m2 -= d*(x - i.mu) 
-    i.sd  = 0 if i.x < 2 else (i.m2/(i.n - 1))**.5
+    i.sd  = 0 if i.n < 2 else (i.m2/(i.n - 1))**.5
 
 #------------------------------------------------------------------------------
 class COLS:
@@ -84,19 +96,29 @@ class COLS:
     [col.add(row[col.at]) for cols in [i.x, i.y] for col in cols if row[col.at] != "?"]
     return row
 
+  def sub(i, row):
+    [col.sub(row[col.at]) for cols in [i.x, i.y] for col in cols if row[col.at] != "?"]
+    return row
+
 #------------------------------------------------------------------------------
 class DATA:
   def __init__(i): i.rows=[]; i.cols=None
 
-  def clone(i,rows):
-    return adds(DATA().add(i.cols.names), rows)
-
   def add(i,row):
     if     i.cols: i.rows += [i.cols.add(row)]
     else:  i.cols = COLS(row)
+    return i 
+
+  def bestRest(i):
+    i.sort()
+    n = int(0.5 + len(i.rows)**the.split)
+    return i.clone(i.rows[:n]).sort(), i.clone(i.rows[n:]).sort()
 
   def cheybshev(i,row):
     return max(abs(col.goal - col.norm(row[col.at])) for col in i.cols.y)
+
+  def clone(i,rows=[]):
+    return adds(DATA().add(i.cols.names), rows)
 
   def csv(i,fname):
    infile = sys.stdin if fname=="-" else open(fname)
@@ -160,4 +182,10 @@ class eg:
     for j,row in enumerate(d.rows):
       if j % 30 == 0 : print(row)
 
+  def hnr(_):
+    d = DATA().csv(the.train)
+    random.shuffle(d.rows)
+    print(d.cheybshev(hitnrun(d)))
+
+random.seed(the.seed)
 [getattr(eg, s[1:], eg.noop)(i+1) for i,s in enumerate(sys.argv)]
