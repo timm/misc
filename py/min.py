@@ -11,7 +11,7 @@ class o:
   def __init__(i,**d): i.__dict__.update(d)
   def __repr__(i)    : return i.__class__.__name__ + show(i.__dict__)
 
-the = o(k=1, m=2, seed=123457891, samples0=8, split=0.5, samples=30,
+the = o(cohen=0.35, k=1, m=2, seed=123457891, samples0=8, split=0.5, samples=30, bins=7, 
         train="../../../timm/moot/optimize/misc/auto93.csv")
 
 def hitnrun(d, eden=100):
@@ -30,21 +30,45 @@ class COL(o):
   def __init__(i,at=0,txt=" "): 
     i.at=at; i.txt=txt; i.n=0
 
+  def clone(i):
+    return i.__class__(at=i.at,txt=i.txt)
+
 #------------------------------------------------------------------------------
 class SYM(COL): 
   def __init__(i,**d): 
     super().__init__(**d)
     i.most=0; i.mode=None; i.has={}
 
-  def add(i,x):
-    i.n += 1
-    i.has[x] = i.has.get(x,0) + 1
-    if i.has[x] > i.most: i.most,i.mode = i.has[x], x
+  def add(i,x,n=1):
+    if x != "?":
+      i.has[x] = i.has.get(x,0) + n
+      if i.has[x] > i.most: i.most,i.mode = i.has[x], x
+
+  def bin(i,x):
+    if x != "?": return x
+
+  def bins(i,lst,_): return lst
+
+  def clone(i,rows=[]):
+    return adds(SYM(at=i.at, txt=i.txt), rows) end
 
   def like(i, x, prior): return (i.has.get(x,0) + the.m*prior) / (i.n + the.m)
 
-  def sub(i,x):
-    i.n      -= 1
+  def merge(i,j,small):
+    if i.n < small or j.n < small: return i.merged(j)
+    di = {k:n/i.n for k,n in i.has}
+    dj = {k:n/j.n for k,n in j.has}
+    if max(di, key=di.get) == max(dj, key=dj.get):
+      return i.merged(j)
+
+  def merged(i,j):
+    k = SYM(col.at, col.txt)
+    for sym in [i,j]:
+      for x,n in sym.has.items():
+        k.add(x,n)
+    return k
+
+  def sub1(i,x):
     i.has[x] -= 1
 
 #------------------------------------------------------------------------------
@@ -55,13 +79,35 @@ class NUM(COL):
     i.goal = 0 if i.txt and i.txt[-1] == "-" else 1
 
   def add(i,x):
-    i.n  += 1 
-    d     = x - i.mu
-    i.mu += d/i.n
-    i.m2 += d * (x-i.mu)
-    if x  > i.hi: i.hi = x 
-    if x  < i.lo: i.lo = x 
-    i.sd  = 0 if i.n < 2 else (i.m2/(i.n - 1))**.5
+    if x != "?":
+      d     = x - i.mu
+      i.mu += d/i.n
+      i.m2 += d * (x-i.mu)
+      if x  > i.hi: i.hi = x 
+      if x  < i.lo: i.lo = x 
+      i.sd  = 0 if i.n < 2 else (i.m2/(i.n - 1))**.5
+
+  def bin(i,x):
+    if x != "?": return int(i.cdf(x) * the.bins)
+
+  def bins(i,b4,small):
+    now,i = [], 0
+    while i < len(b4):
+      a = b4[i]
+      if i < len(b4) - 1:
+        b = b4[i+1]
+        if has := a.has.merge(b.has,small):
+          a = o(lo=a.lo, hi=b.hi, has=has)
+          i += 1
+      now += [a]
+      i += 1
+   return b4 if len(now) == len(b4) else i.bins(now,small)
+
+
+  def cdf(i,x):
+    def cdf1(z): return 1 - 0.5*2.718^(-0.717 * z - 0.416 * z * z) 
+    z = (x-mu)/sd
+    return cdf1(z) if z >= 0 else 1 - cdf1(-z) end
 
   def like(i, x, _):
     v     = i.sd**2 + 1E-30
@@ -71,8 +117,7 @@ class NUM(COL):
 
   def norm(i,x): return (x - i.lo)/(i.hi - i.lo + 1E-32)
 
-  def sub(i,x):
-    i.n  -= 1
+  def sub1(i,x):
     d     = x - i.mu
     i.mu -= d/i.n
     i.m2 -= d*(x - i.mu) 
@@ -106,6 +151,23 @@ class DATA:
     if     i.cols: i.rows += [i.cols.add(row)]
     else:  i.cols = COLS(row)
     return i 
+
+  def bins(i, j):
+    for col in i.cols.x:
+      both = col.clone()
+      [both.add(r[col.at]) for y,rows in ((True,i.rows),(False,j.rows)) for r in rows if r[col.at] != "?"]
+      bins = {}
+      for y,rows in ((True,i.rows),(False,j.rows)):
+        for row in rows:
+          x = row[col.at]
+          if x != "?":
+            b = both.bin(x)
+            bins[x] = bins.get(x,None) or o(lo=x,hi=x, has=col.clone())
+            bins[x].has.add(y) 
+      max(col.bins(b.values.sorted(key=lambda z:z.lo)
+               small   = both.n/the.bins),
+XXX have tor eturn best
+        
 
   def bestRest(i):
     i.sort()
