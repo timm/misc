@@ -1,30 +1,30 @@
-import strutils, sequtils
-proc fib(n: int): int = 
-  if n <= 1: n else: fib(n - 1) + fib(n - 1)
+import strutils #, sequtils
+# proc fib(n: int): int = 
+#   if n <= 1: n else: fib(n - 1) + fib(n - 1)
 
-for i in 0..10: echo i, " ",fib(i)
+# #for i in 0..10: echo i, " ",fib(i)
 
-type Animal = object
-       name: string  = "bob"
-       age: int = 23
+# type Animal = object
+#        name: string  = "bob"
+#        age: int = 23
 
-var dog = Animal(age: 2)  # 22
+# var dog = Animal(age: 2)  # 22
 
-echo dog
+# echo dog
  
-for line in lines "fib.nim":
-  echo line.split(",").mapIt(strip(it))
+# for line in lines "fib.nim":
+#   echo line.split(",").mapIt(strip(it))
 
-proc thing(s:string) : int|string|bool|float =
-  try: 
-      return parseInt(s) 
-  except:
-    try: 
-        return parseFloat(s)
-    except: 
-      try: 
-          return parseBool(s)
-      except: 
-          return s
+type Sym = object
+  at: int
+  txt: string
 
-echo thing("1")
+type Num = object
+  at: int
+  txt: string
+
+method add(self:Num; x:string) = add(self, parseFloat(x))
+method add(self:Num; x: float | int) = 
+  echo x 
+   
+add(Sym(at: 2,txt: "aa"), "23")
