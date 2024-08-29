@@ -180,12 +180,12 @@ function DATA:acquire(rows, score,      todo,done)
   for i,row in pairs(rows or self.rows) do 
     push(i <= the.begin and done or todo, row) end
   while #done < the.Break do
-    todo = self:rank(todo, done, score or function(B,R) return B - R end) 
+    todo = self:guessNextBest(todo, done, score or function(B,R) return B - R end) 
     push(done, pop(todo)) end
     done = self:clone(done):sort().rows 
   return done[#done] end
 
-function DATA:rank(todo,done,score,     best,rest,fun,tmp)
+function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp)
   best,rest = self:clone(done):bestRest()
   fun = function(row) return score(best:like(row,#done,2),rest:like(row,#done,2)) end
   tmp = {}
