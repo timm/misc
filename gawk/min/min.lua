@@ -232,6 +232,7 @@ function eg.acq(_,      d,num)
 	  num:add( d:chebyshev(d:shuffle():acquire()) ) end
 	print(num.mu) end
 
+function eg.push(_) os.execute("git commit -am saving; git push; git status") end
 function eg.the(_) oo(the) end
 
 -- ----------------------------------------------------------------------------------
