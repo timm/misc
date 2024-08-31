@@ -17,43 +17,35 @@ OPTIONS:
   -t train  str   csv file        = ../../../moot/optimize/misc/auto93.csv
   -T Top    float best set size   = .5]]
 
-local big,coerce,csv,down,fmt,gt,keys,lt,make,o,oo,pop,push,shuffle,sort,trim,up
-
---  ._ _    _.  |    _  
---  | | |  (_|  |<  (/_ 
-
 local NUM,SYM,COLS,DATA = {},{},{},{}
+local big,coerce,csv,down,fmt,gt,keys,lt,new,o,oo,pop,push,shuffle,sort,trim,up
 
-function SYM:make(i,is)
-  i, is = i or 0, is or " "
-  return make(SYM, {n=0, i=i, is=is, has={}, most=0, mode=nil}) end
+-- -----------------------------------------------------------------------------------
+-- ## Create
 
-function NUM:make(i,is)
+function SYM:new(i,is)
   i, is = i or 0, is or " "
-  return make(NUM, {n=0, i=i, is=is, mu=0, sd=0, m2=0, lo=big, hi=-big,
+  return new(SYM, {n=0, i=i, is=is, has={}, most=0, mode=nil}) end
+
+function NUM:new(i,is)
+  i, is = i or 0, is or " "
+  return new(NUM, {n=0, i=i, is=is, mu=0, sd=0, m2=0, lo=big, hi=-big,
                    goal = is:find"-$" and 0 or 1}) end
 
-function COLS:make(names,     all,x,y,col)
+function COLS:new(names,     all,x,y,col)
   all,x,y = {},{},{}
   for i,is in pairs(names) do
-    col = push(all, (is:find"^[A-Z]" and NUM or SYM):make(i,is))
+    col = push(all, (is:find"^[A-Z]" and NUM or SYM):new(i,is))
     if not is:find"X$" then
       push(is:find"[!+-]$" and y or x, col) end end
-  return make(COLS, {names=names, all=all, x=x, y=y}) end
+  return new(COLS, {names=names, all=all, x=x, y=y}) end
 
-function DATA:make() return make(DATA, {rows={}, cols=nil}) end
+function DATA:new() return new(DATA, {rows={}, cols=nil}) end
 
-function DATA:clone(rows) return DATA:make():from(rows) end
+function DATA:clone(rows) return DATA:new():from(rows) end
 
---   _.        _   ._     
---  (_|  |_|  (/_  |   \/ 
---    |                /  
-
-function NUM:norm(x)
-  return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/big) end
-
---   _.   _|   _| 
---  (_|  (_|  (_| 
+-- -----------------------------------------------------------------------------------
+-- ## Update
 
 function DATA:csv(file)
   csv(file, function(_,t) self:add(t) end)
@@ -66,7 +58,7 @@ function DATA:from(rows)
 function DATA:add(t) 
   if   self.cols 
   then push(self.rows,self.cols:add(t)) 
-  else self.cols=COLS:make(t) end end
+  else self.cols=COLS:new(t) end end
 
 function COLS:add(t)
   for _,cols in pairs{self.x, self.y} do
@@ -90,11 +82,16 @@ function SYM:add(x,  n)
     self.n      = n + self.n 
     self.has[x] = n + (self.has[x] or 0) 
     if self.has[x] > self.most then
-      self.most, self.mode = self.has[x], x end end end
+      self.most, self.mode = self.has[x], x end end end
 
---   _    _    _.  |   _ 
---  (_|  (_)  (_|  |  _> 
---   _|                  
+-- -----------------------------------------------------------------------------------
+-- ## Query
+
+function NUM:norm(x)
+  return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/big) end
+
+-- -----------------------------------------------------------------------------------
+-- ## Goals
 
 function DATA:chebyshev(t,    tmp,d)
   d=0; for _,col in pairs(self.cols.y) do
@@ -118,8 +115,8 @@ function DATA:bestRest(      best,rest)
     (i <= (#self.rows)^the.Top and best or rest):add(t) end
   return best,rest end
 
---  |  o  |    _  
---  |  |  |<  (/_ 
+-- -----------------------------------------------------------------------------------
+-- ## Bayes
 
 function SYM:like(x, prior)
   return ((self.has[x] or 0) + the.m*prior)/(self.n +the.m) end
@@ -155,15 +152,16 @@ function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp)
   tmp, out  = {},{}
   for i,t in pairs(todo) do push(tmp, {t, i <= the.cut and fun(t) or -big}) end
   for _,one in pairs(sort(tmp, lt(1))) do push(out, one[2]) end
-  return out end
---  |  o  |_  
---  |  |  |_) 
+  return out end
+
+-- -----------------------------------------------------------------------------------
+-- ## Lib
 
 big = 1E32
 pop = table.remove
 fmt = string.format
 
-function make(klass,obj)
+function new(klass,obj)
   klass.__index=klass; klass.__tostring=o; return setmetatable(obj,klass) end
 
 function push(t,x)   t[1+#t]=x; return x end
@@ -209,9 +207,8 @@ function o(x,     list,hash)
 
 function oo(x) print(o(x)) end
 
---   _    _  
---  (/_  (_| 
---        _| 
+-- -----------------------------------------------------------------------------------
+-- ## Examples
 
 local eg = {}
 
@@ -228,24 +225,24 @@ function eg.csv(_,     fun)
   csv(the.train, fun) end
 
 function eg.data(_,      d)
-  d = DATA:make():csv(the.train) 
+  d = DATA:new():csv(the.train) 
   for _,col in pairs(d.cols.y) do oo(col) end end
 
 function eg.bayes(_,      d,fun)
-  d   = DATA:make():csv(the.train) 
+  d   = DATA:new():csv(the.train) 
   fun = function(t) return d:like(t,1000,2) end
   for n,t in pairs(sort(d.rows, down(fun))) do
    if n % 30 == 0 then print(n, fun(t)) end end end
 
 function eg.cheb(_,      d,num)
-  d   = DATA:make():csv(the.train) 
-  num = NUM:make()
+  d   = DATA:new():csv(the.train) 
+  num = NUM:new()
   for _,t in pairs(d.rows) do num:add(d:chebyshev(t)) end
   print(num.mu, num.sd) end
 
 function eg.acq(_,      d,num)
-  d   = DATA:make():csv(the.train) 
-  num = NUM:make()
+  d   = DATA:new():csv(the.train) 
+  num = NUM:new()
 	for i=1,20 do
 	  num:add( d:chebyshev(d:shuffle():acquire()) ) end
 	print(num.mu) end
@@ -256,8 +253,8 @@ function eg.pdf(_)  os.execute("make -B ~/tmp/min.pdf; open ~/tmp/min.pdf") end
 function eg.the(_) oo(the) end
 function eg.h(_) print("\n" ..help) end
 
---   _  _|_   _.  ._  _|_ 
---  _>   |_  (_|  |    |_ 
+-- -----------------------------------------------------------------------------------
+-- ## Start
 
 help:gsub("\n%s+-%S%s+(%S+)[^=]+=%s+(%S+)", function(k,v) the[k] = coerce(v) end)
 math.randomseed(the.seed)
