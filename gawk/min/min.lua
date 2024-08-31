@@ -17,33 +17,43 @@ OPTIONS:
   -t train  str   csv file        = ../../../moot/optimize/misc/auto93.csv
   -T Top    float best set size   = .5]]
 
-local big,coerce,csv,down,fmt,gt,keys,lt,new,o,oo,pop,push,shuffle,sort,trim,up
+local big,coerce,csv,down,fmt,gt,keys,lt,make,o,oo,pop,push,shuffle,sort,trim,up
 
---   _  ._   _    _.  _|_   _  
---  (_  |   (/_  (_|   |_  (/_ 
+--  ._ _    _.  |    _  
+--  | | |  (_|  |<  (/_ 
 
 local NUM,SYM,COLS,DATA = {},{},{},{}
 
-function SYM:new(i,is)
+function SYM:make(i,is)
   i, is = i or 0, is or " "
-  return new(SYM, {n=0, i=i, is=is, has={}, most=0, mode=nil}) end
+  return make(SYM, {n=0, i=i, is=is, has={}, most=0, mode=nil}) end
 
-function NUM:new(i,is)
+function NUM:make(i,is)
   i, is = i or 0, is or " "
-  return new(NUM, {n=0, i=i, is=is, mu=0, sd=0, m2=0, lo=big, hi=-big,
+  return make(NUM, {n=0, i=i, is=is, mu=0, sd=0, m2=0, lo=big, hi=-big,
                    goal = is:find"-$" and 0 or 1}) end
 
-function COLS:new(names,     all,x,y,col)
+function COLS:make(names,     all,x,y,col)
   all,x,y = {},{},{}
   for i,is in pairs(names) do
-    col = push(all, (is:find"^[A-Z]" and NUM or SYM):new(i,is))
+    col = push(all, (is:find"^[A-Z]" and NUM or SYM):make(i,is))
     if not is:find"X$" then
       push(is:find"[!+-]$" and y or x, col) end end
-  return new(COLS, {names=names, all=all, x=x, y=y}) end
+  return make(COLS, {names=names, all=all, x=x, y=y}) end
 
-function DATA:new() return new(DATA, {rows={}, cols=nil}) end
+function DATA:make() return make(DATA, {rows={}, cols=nil}) end
 
-function DATA:clone(rows) return DATA:new():from(rows) end
+function DATA:clone(rows) return DATA:make():from(rows) end
+
+--   _.        _   ._     
+--  (_|  |_|  (/_  |   \/ 
+--    |                /  
+
+function NUM:norm(x)
+  return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/big) end
+
+--   _.   _|   _| 
+--  (_|  (_|  (_| 
 
 function DATA:csv(file)
   csv(file, function(_,t) self:add(t) end)
@@ -53,21 +63,10 @@ function DATA:from(rows)
   for _,t in pairs(rows or {}) do self:add(t) end
   return self end
 
---   _.        _   ._     
---  (_|  |_|  (/_  |   \/ 
---    |                /  
-
-function NUM:norm(x)
-  return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/big) end
-
---       ._    _|   _.  _|_   _  
---  |_|  |_)  (_|  (_|   |_  (/_ 
---       |                       
-
 function DATA:add(t) 
   if   self.cols 
   then push(self.rows,self.cols:add(t)) 
-  else self.cols=COLS:new(t) end end
+  else self.cols=COLS:make(t) end end
 
 function COLS:add(t)
   for _,cols in pairs{self.x, self.y} do
@@ -119,9 +118,8 @@ function DATA:bestRest(      best,rest)
     (i <= (#self.rows)^the.Top and best or rest):add(t) end
   return best,rest end
 
---  |_    _.       _    _ 
---  |_)  (_|  \/  (/_  _> 
---            /           
+--  |  o  |    _  
+--  |  |  |<  (/_ 
 
 function SYM:like(x, prior)
   return ((self.has[x] or 0) + the.m*prior)/(self.n +the.m) end
@@ -165,7 +163,7 @@ big = 1E32
 pop = table.remove
 fmt = string.format
 
-function new(klass,obj)
+function make(klass,obj)
   klass.__index=klass; klass.__tostring=o; return setmetatable(obj,klass) end
 
 function push(t,x)   t[1+#t]=x; return x end
@@ -230,24 +228,24 @@ function eg.csv(_,     fun)
   csv(the.train, fun) end
 
 function eg.data(_,      d)
-  d = DATA:new():csv(the.train) 
+  d = DATA:make():csv(the.train) 
   for _,col in pairs(d.cols.y) do oo(col) end end
 
 function eg.bayes(_,      d,fun)
-  d   = DATA:new():csv(the.train) 
+  d   = DATA:make():csv(the.train) 
   fun = function(t) return d:like(t,1000,2) end
   for n,t in pairs(sort(d.rows, down(fun))) do
    if n % 30 == 0 then print(n, fun(t)) end end end
 
 function eg.cheb(_,      d,num)
-  d   = DATA:new():csv(the.train) 
-  num = NUM:new()
+  d   = DATA:make():csv(the.train) 
+  num = NUM:make()
   for _,t in pairs(d.rows) do num:add(d:chebyshev(t)) end
   print(num.mu, num.sd) end
 
 function eg.acq(_,      d,num)
-  d   = DATA:new():csv(the.train) 
-  num = NUM:new()
+  d   = DATA:make():csv(the.train) 
+  num = NUM:make()
 	for i=1,20 do
 	  num:add( d:chebyshev(d:shuffle():acquire()) ) end
 	print(num.mu) end
