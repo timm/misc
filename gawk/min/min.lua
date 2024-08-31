@@ -16,69 +16,7 @@ OPTIONS:
   -t --train  str   csv file        = ../../../moot/optimize/misc/auto93.csv
   -T --Top    float best set size   = .5]]
 
---  |  o  |_  
---  |  |  |_) 
-
 local big,coerce,csv,down,fmt,gt,keys,lt,new,o,oo,pop,push,shuffle,sort,trim,up
-
--- shortcuts
-big = 1E32
-pop = table.remove
-
--- meta
-function new(klass,obj)
-  klass.__index=klass; klass.__tostring=o; return setmetatable(obj,klass) end
-
--- sorting
-function lt(key)     return function(a,b) return a[key] < b[key] end end
-function gt(key)     return function(a,b) return a[key] > b[key] end end
-function up(fun)     return function(a,b) return fun(a) > fun(b) end end
-function down(fun)   return function(a,b) return fun(a) < fun(b) end end
-
-function sort(t,fun) table.sort(t,fun); return t end
-function keys(t,    u) 
-  u={}; for k,_ in pairs(t) do push(u,k) end return sort(u) end   
-
--- strings
-function trim(s)  return s:match"^%s*(.-)%s*$" end
-
--- lists
-function push(t,x)   t[1+#t]=x; return x end
-
-function shuffle(t,    j)
-  for i = #t, 2, -1 do j = math.random(i); t[i], t[j] = t[j], t[i] end
-  return t end
-
--- string to things
-function coerce(s,     fun)   
-  fun = function(s) return s=="true" and true or s ~= "false" and s end
-  return math.tointeger(s) or tonumber(s) or fun(trim(s)) end
-
-help:gsub("[-][-]([%S]+)[^=]+=[%s]+([%S]+)", function(k,v) the[k] = coerce(v) end)
-
-function csv(file,fun,      src,s,cells,n)
-  function cells(s,    t)
-    t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t] = coerce(s1) end; return t end
-  src = io.input(file)
-  n   = -1
-  while true do
-    s = io.read()
-    if s then n=n+1; fun(n,cells(s)) else return io.close(src) end end end
-
--- thing to string
-fmt = string.format
-
-function oo(x) print(o(x)) end
-
-function o(x,     list,hash)
-  list= function(t) for _,v in pairs(x) do t[1+#t] = o(v) end; return t end
-  hash= function(t) for _,k in pairs(keys(x)) do 
-                      if   not o(k):find"^_" 
-                      then t[1+#t] = fmt(":%s %s", k, o(x[k])) end end 
-                    return t end
-  if type(x) == "number" then return fmt("%.3g",x) end
-  if type(x) ~= "table"  then return tostring(x)   end
-  return "{" .. table.concat(#x>0 and list{} or hash{}, " ") .. "}" end
 
 --   _  ._   _    _.  _|_   _  
 --  (_  |   (/_  (_|   |_  (/_ 
@@ -114,7 +52,8 @@ function DATA:csv(file)
 
 function DATA:from(rows)
   for row in pairs(rows or {}) do self:add(row) end
-  return self end
+  return self end
+
 --   _.        _   ._     
 --  (_|  |_|  (/_  |   \/ 
 --    |                /  
@@ -153,10 +92,11 @@ function SYM:add(x,  n)
     self.n      = n + self.n 
     self.has[x] = n + (self.has[x] or 0) 
     if self.has[x] > self.most then
-      self.most, self.mode = self.has[x], x end end end 
+      self.most, self.mode = self.has[x], x end end end
 
---   _|  o   _  _|_ 
---  (_|  |  _>   |_ 
+--   _    _    _.  |   _ 
+--  (_|  (_)  (_|  |  _> 
+--   _|                  
 
 function DATA:chebyshev(row,    tmp,d)
   d=0; for _,col in pairs(self.cols.y) do
@@ -215,13 +155,64 @@ function DATA:acquire(rows, score,      todo,done)
 function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp)
   best,rest = self:clone(done):bestRest()
   fun = function(row) return score(best:like(row,#done,2),rest:like(row,#done,2)) end
-  tmp = {}
+  tmp, out  = {},{}
   for i,row in pairs(todo) do push(tmp, {row, i <= the.cut and fun(row) or -big}) end
-  todo = {}
-  for _,one in pairs(sort(tmp, lt(1))) do push(todo, one[2]) end
-  return todo end
+  for _,one in pairs(sort(tmp, lt(1))) do push(out, one[2]) end
+  return out end
+--  |  o  |_  
+--  |  |  |_) 
 
---   _    _  
+big = 1E32
+pop = table.remove
+fmt = string.format
+
+function new(klass,obj)
+  klass.__index=klass; klass.__tostring=o; return setmetatable(obj,klass) end
+
+function push(t,x)   t[1+#t]=x; return x end
+
+function sort(t,fun) table.sort(t,fun); return t end
+
+function lt(key)   return function(a,b) return a[key] < b[key] end end
+function gt(key)   return function(a,b) return a[key] > b[key] end end
+function up(fun)   return function(a,b) return fun(a) > fun(b) end end
+function down(fun) return function(a,b) return fun(a) < fun(b) end end
+
+function keys(t,    u) 
+  u={}; for k,_ in pairs(t) do push(u,k) end return sort(u) end   
+
+function shuffle(t,    j)
+  for i = #t, 2, -1 do j = math.random(i); t[i], t[j] = t[j], t[i] end
+  return t end
+
+function coerce(s,     fun)   
+  fun = function(s) return s=="true" and true or s ~= "false" and s end
+  return math.tointeger(s) or tonumber(s) or fun(trim(s)) end
+
+function csv(file,fun,      src,s,cells,n)
+  function cells(s,    t)
+    t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t] = coerce(s1) end; return t end
+  src = io.input(file)
+  n   = -1
+  while true do
+    s = io.read()
+    if s then n=n+1; fun(n,cells(s)) else return io.close(src) end end end
+
+function trim(s)  return s:match"^%s*(.-)%s*$" end
+
+function o(x,     list,hash)
+  list= function(t) for _,v in pairs(x) do t[1+#t] = o(v) end; return t end
+  hash= function(t) for _,k in pairs(keys(x)) do 
+                      if   not o(k):find"^_" 
+                      then t[1+#t] = fmt(":%s %s", k, o(x[k])) end end 
+                    return t end
+  if type(x) == "number" then return fmt("%.3g",x) end
+  if type(x) ~= "table"  then return tostring(x)   end
+  return "{" .. table.concat(#x>0 and list{} or hash{}, " ") .. "}" end
+
+function oo(x) print(o(x)) end
+
+--   _    _  
 --  (/_  (_| 
 --        _| 
 
@@ -262,15 +253,15 @@ function eg.acq(_,      d,num)
 	  num:add( d:chebyshev(d:shuffle():acquire()) ) end
 	print(num.mu) end
 
-function eg.push(_, s) 
-  s = "git commit -am saving; git push; git status" 
-  print(s)
-  os.execute(s) end
+function eg.push(_) os.execute("git commit -am saving; git push; git status") end
+function eg.pdf(_)  os.execute("make -B ~/tmp/min.pdf; open ~/tmp/min.pdf") end
 
 function eg.the(_) oo(the) end
 
 --   _  _|_   _.  ._  _|_ 
 --  _>   |_  (_|  |    |_ 
+
+help:gsub("[-][-]([%S]+)[^=]+=[%s]+([%S]+)", function(k,v) the[k] = coerce(v) end)
 
 math.randomseed(the.seed)
 
