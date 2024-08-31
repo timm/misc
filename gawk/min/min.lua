@@ -41,14 +41,12 @@ function COLS:new(names,     all,x,y,col)
       push(is:find"[!+-]$" and y or x, col) end end
   return new(COLS, {names=names, all=all, x=x, y=y}) end
 
-function DATA:new() 
-  return new(DATA, {rows={}, cols=nil}) end
+function DATA:new() return new(DATA, {rows={}, cols=nil}) end
 
-function DATA:clone(rows)
-  return DATA:new():from(rows) end
+function DATA:clone(rows) return DATA:new():from(rows) end
 
 function DATA:csv(file)
-  csv(file, function(n,t) self:add(t) end)
+  csv(file, function(_,t) self:add(t) end)
   return self end
 
 function DATA:from(rows)
