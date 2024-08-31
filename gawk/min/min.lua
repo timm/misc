@@ -1,4 +1,17 @@
 #!/usr/bin/env lua
+-- - Using as few dependent variables as possible...
+-- - ...incrementally build models that recognize (best,rest) examples (where "best" 
+--   can be  defined by  multiple goals). 
+-- ### In this code:
+-- - Settings are stored in `the` (and this variable is parsed from the `help` string at top of file).
+-- - Test cases are stored in the `eg` table and test `eg.X` can be called at the command line using
+--   "`./min.lua -X`" (optionally, with a command-line argument)
+-- - In function arguments, 2 spaces denotes "start of optional args" and 
+--   4 spaces denotes "start of local args".
+-- - Class names are in UPPER CASE.
+-- - atom = bool | str | int | float | "?"  
+-- - row  = list[atom]
+-- - rows = list[row]
 local the,help = {},[[
 min.lua : multiple-objective active learning
 (c) 2024, Tim Menzies <timm@ieee.org>, BSD-2.
@@ -23,15 +36,18 @@ local big,coerce,csv,down,fmt,gt,keys,lt,new,o,oo,pop,push,shuffle,sort,trim,up
 -- -----------------------------------------------------------------------------------
 -- ## Create
 
-function SYM:new(i,is)
+-- (int,str) --> SYM
+function SYM:new(i,is) 
   i, is = i or 0, is or " "
   return new(SYM, {n=0, i=i, is=is, has={}, most=0, mode=nil}) end
 
+-- (int,str) --> SYM
 function NUM:new(i,is)
   i, is = i or 0, is or " "
   return new(NUM, {n=0, i=i, is=is, mu=0, sd=0, m2=0, lo=big, hi=-big,
                    goal = is:find"-$" and 0 or 1}) end
 
+-- (lst[str]) --> COLS
 function COLS:new(names,     all,x,y,col)
   all,x,y = {},{},{}
   for i,is in pairs(names) do
@@ -40,32 +56,39 @@ function COLS:new(names,     all,x,y,col)
       push(is:find"[!+-]$" and y or x, col) end end
   return new(COLS, {names=names, all=all, x=x, y=y}) end
 
+-- () --> DATA
 function DATA:new() return new(DATA, {rows={}, cols=nil}) end
 
-function DATA:clone(rows) return DATA:new():from(rows) end
+-- (rows) --> DATA 
+function DATA:clone(rows) return DATA:new():from({self.cols.names}):from(rows) end
 
 -- -----------------------------------------------------------------------------------
 -- ## Update
 
+-- (str) --> DATA
 function DATA:csv(file)
-  csv(file, function(_,t) self:add(t) end)
+  csv(file, function(_,row) self:add(row) end)
   return self end
 
+-- (?list[row]) --> DATA
 function DATA:from(rows)
-  for _,t in pairs(rows or {}) do self:add(t) end
+  for _,row in pairs(rows or {}) do self:add(row) end
   return self end
 
-function DATA:add(t) 
+-- (row) --> nil
+function DATA:add(row) 
   if   self.cols 
-  then push(self.rows,self.cols:add(t)) 
-  else self.cols=COLS:new(t) end end
+  then push(self.rows,self.cols:add(row)) 
+  else self.cols=COLS:new(row) end end
 
-function COLS:add(t)
+-- (row) --> row
+function COLS:add(row)
   for _,cols in pairs{self.x, self.y} do
     for _,col in pairs(cols) do
-      col:add( t[col.i] ) end end
-  return t end
+      col:add( row[col.i] ) end end
+  return row end
 
+-- (atom) --> nil
 function NUM:add(x,    d)
   if x ~= "?" then
     self.n  = self.n + 1
@@ -76,6 +99,7 @@ function NUM:add(x,    d)
     if x > self.hi then self.hi = x end
     if x < self.lo then self.lo = x end end end  
 
+-- (atom) --> nil
 function SYM:add(x,  n)
   if x ~= "?" then
     n           = n or 1
@@ -87,55 +111,64 @@ function SYM:add(x,  n)
 -- -----------------------------------------------------------------------------------
 -- ## Query
 
+-- ("?" | number) --> 0..1
 function NUM:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/big) end
 
 -- -----------------------------------------------------------------------------------
 -- ## Goals
 
-function DATA:chebyshev(t,    tmp,d)
+-- (row) --> 0..1
+function DATA:chebyshev(row,    tmp,d)
   d=0; for _,col in pairs(self.cols.y) do
-         tmp = math.abs(col.goal - col:norm(t[col.i]))
+         tmp = math.abs(col.goal - col:norm(row[col.i]))
          if tmp > d then d = tmp end end
   return d end
 
+-- () --> DATA
 function DATA:shuffle()
   self.rows = shuffle(self.rows)
 	return self end
 
+-- () --> DATA
 function DATA:sort(    fun)
-  fun = function(t) return self:chebyshev(t) end
+  fun = function(row) return self:chebyshev(row) end
   self.rows = sort(self.rows, function(a,b) return fun(a) < fun(b) end)
   return self end
 
+-- () --> DATA,DATA
 function DATA:bestRest(      best,rest)
   self:sort()
   best,rest = self:clone(), self:clone()
-  for i,t in pairs(self:sort().rows) do
-    (i <= (#self.rows)^the.Top and best or rest):add(t) end
+  for i,row in pairs(self:sort().rows) do
+    (i <= (#self.rows)^the.Top and best or rest):add(row) end
   return best,rest end
 
 -- -----------------------------------------------------------------------------------
 -- ## Bayes
 
+-- (atom,number) --> number
 function SYM:like(x, prior)
   return ((self.has[x] or 0) + the.m*prior)/(self.n +the.m) end
 
+-- (atom, any...) --> number
 function NUM:like(x,...)
   local sd, mu = self.sd, self.mu
   if sd==0 then return x==mu and 1 or 1E-32 end
   return math.exp(-.5*((x - mu)/sd)^2) / (sd*((2*math.pi)^0.5)) end
 
-function DATA:like(t, n, nClasses,     col,prior,out,v,inc)
+-- (row, int, int) --> number
+function DATA:like(row, n, nClasses,     col,prior,out,v,inc)
   prior = (#self.rows + the.k) / (n + the.k * nClasses)
   out   = math.log(prior)
   for _,col in pairs(self.cols.x) do
-    v = t[col.i]
+    v = row[col.i]
     if v ~= "?" then
       inc = col:like(v,prior)
       if inc > 0 then out = out + math.log(inc) end end end
   return out end
 
+-- (rows, function) --> row
 function DATA:acquire(rows, score,      todo,done)
   todo, done = {},{}
   for i,t in pairs(rows or self.rows) do 
@@ -146,6 +179,7 @@ function DATA:acquire(rows, score,      todo,done)
     done = self:clone(done):sort().rows 
   return done[#done] end
 
+-- (rows, rows, function) --> row
 function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp)
   best,rest = self:clone(done):bestRest()
   fun = function(t) return score(best:like(t,#done,2),rest:like(t,#done,2)) end
@@ -157,16 +191,22 @@ function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp)
 -- -----------------------------------------------------------------------------------
 -- ## Lib
 
+-- --> number
 big = 1E32
+-- (table) --> any
 pop = table.remove
+-- (str) --> string
 fmt = string.format
 
+-- (t1,t2) --> t2 
 function new(klass,obj)
   klass.__index=klass; klass.__tostring=o; return setmetatable(obj,klass) end
 
+-- (t,any) --> t
 function push(t,x)   t[1+#t]=x; return x end
 
-function sort(t,fun) table.sort(t,fun); return t end
+-- (t,?function) --> t
+function sort(t,  fun) table.sort(t,fun); return t end
 
 function lt(key)   return function(a,b) return a[key] < b[key] end end
 function gt(key)   return function(a,b) return a[key] > b[key] end end
@@ -249,6 +289,8 @@ function eg.acq(_,      d,num)
 
 function eg.push(_) os.execute("git commit -am saving; git push; git status") end
 function eg.pdf(_)  os.execute("make -B ~/tmp/min.pdf; open ~/tmp/min.pdf") end
+function eg.doc(_)  os.execute(
+  "pycco -d ~/tmp min.lua; echo 'p {text-align:right;}' >> ~/tmp/pycco.css") end
 
 function eg.the(_) oo(the) end
 function eg.h(_) print("\n" ..help) end
@@ -259,7 +301,7 @@ function eg.h(_) print("\n" ..help) end
 help:gsub("\n%s+-%S%s+(%S+)[^=]+=%s+(%S+)", function(k,v) the[k] = coerce(v) end)
 math.randomseed(the.seed)
 
-if arg[0] == "./min.lua" then
-  for i,s in pairs(arg) do 
-    s = s:sub(2)
-    if eg[s] then eg[s]( arg[i+1] ) end end end 
+if arg[0]:find"min.lua" 
+then for i,s in pairs(arg) do 
+       s = s:sub(2)
+       if eg[s] then eg[s]( arg[i+1] ) end end end 
