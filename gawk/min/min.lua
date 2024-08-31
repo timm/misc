@@ -1,17 +1,19 @@
 #!/usr/bin/env lua
 -- - Using as few dependent variables as possible...
--- - ...incrementally build models that recognize (best,rest) examples (where "best" 
---   can be  defined by  multiple goals). 
+-- - ...incrementally build models that recognize (best,rest) 
+--   examples (where "best"  can be  defined by  multiple goals). 
 -- ### In this code:
--- - Settings are stored in `the` (and this variable is parsed from the `help` string at top of file).
--- - Test cases are stored in the `eg` table and test `eg.X` can be called at the command line using
+-- - Settings are stored in `the` (and this variable is 
+--   parsed from the `help` string at top of file).
+-- - Test cases are stored in the `go` table and the test 
+--    `go.X` can be called at the command line using
 --   "`./min.lua -X`" (optionally, with a command-line argument)
--- - In function arguments, 2 spaces denotes "start of optional args" and 
---   4 spaces denotes "start of local args".
+-- - In function arguments, 2 spaces denotes "start of optional args" 
+--   and 4 spaces denotes "start of local args".
 -- - Class names are in UPPER CASE.
--- - atom = bool | str | int | float | "?"  
--- - row  = list[atom]
--- - rows = list[row]
+-- - atom = bool | str | num 
+-- - row  = list[ atom | "?" ]
+-- - rows = list[ row ]
 local the,help = {},[[
 min.lua : multiple-objective active learning
 (c) 2024, Tim Menzies <timm@ieee.org>, BSD-2.
@@ -21,9 +23,11 @@ USAGE:
   ./min.lua [OPTIONS] [ARGS]
 
 OPTIONS:
+  -all            run test suite
   -b begin  int   initial samples = 4
   -B Break  int   max samples     = 30
   -c cut    int   items to sort   = 100
+  -h              show help            
   -k k      int   Bayes param     = 1
   -m m      int   Bayes param     = 2
   -s seed   int   random seed     = 1234567891
@@ -33,21 +37,21 @@ OPTIONS:
 local NUM,SYM,COLS,DATA = {},{},{},{}
 local big,coerce,csv,down,fmt,gt,keys,lt,new,o,oo,pop,push,shuffle,sort,trim,up
 
--- -----------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------
 -- ## Create
 
--- (int,str) --> SYM
-function SYM:new(i,is) 
+-- (int, str) --> SYM
+function SYM:new(  i,is) 
   i, is = i or 0, is or " "
   return new(SYM, {n=0, i=i, is=is, has={}, most=0, mode=nil}) end
 
--- (int,str) --> SYM
-function NUM:new(i,is)
+-- (int, str) --> SYM
+function NUM:new(  i,is)
   i, is = i or 0, is or " "
   return new(NUM, {n=0, i=i, is=is, mu=0, sd=0, m2=0, lo=big, hi=-big,
                    goal = is:find"-$" and 0 or 1}) end
 
--- (lst[str]) --> COLS
+-- (list[str]) --> COLS
 function COLS:new(names,     all,x,y,col)
   all,x,y = {},{},{}
   for i,is in pairs(names) do
@@ -59,8 +63,8 @@ function COLS:new(names,     all,x,y,col)
 -- () --> DATA
 function DATA:new() return new(DATA, {rows={}, cols=nil}) end
 
--- (rows) --> DATA 
-function DATA:clone(rows) return DATA:new():from({self.cols.names}):from(rows) end
+-- ( ?rows ) --> DATA 
+function DATA:clone(  rows) return DATA:new():from({self.cols.names}):from(rows) end
 
 -- -----------------------------------------------------------------------------------
 -- ## Update
@@ -70,8 +74,8 @@ function DATA:csv(file)
   csv(file, function(_,row) self:add(row) end)
   return self end
 
--- (?list[row]) --> DATA
-function DATA:from(rows)
+-- ( ?list[row] ) --> DATA
+function DATA:from(  rows)
   for _,row in pairs(rows or {}) do self:add(row) end
   return self end
 
@@ -111,7 +115,7 @@ function SYM:add(x,  n)
 -- -----------------------------------------------------------------------------------
 -- ## Query
 
--- ("?" | number) --> 0..1
+-- ("?" | num) --> "?" | 0..1
 function NUM:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/big) end
 
@@ -147,17 +151,17 @@ function DATA:bestRest(      best,rest)
 -- -----------------------------------------------------------------------------------
 -- ## Bayes
 
--- (atom,number) --> number
+-- (atom,num) --> num
 function SYM:like(x, prior)
   return ((self.has[x] or 0) + the.m*prior)/(self.n +the.m) end
 
--- (atom, any...) --> number
+-- (atom, any...) --> num
 function NUM:like(x,...)
   local sd, mu = self.sd, self.mu
   if sd==0 then return x==mu and 1 or 1E-32 end
   return math.exp(-.5*((x - mu)/sd)^2) / (sd*((2*math.pi)^0.5)) end
 
--- (row, int, int) --> number
+-- (row, int, int) --> num
 function DATA:like(row, n, nClasses,     col,prior,out,v,inc)
   prior = (#self.rows + the.k) / (n + the.k * nClasses)
   out   = math.log(prior)
@@ -171,8 +175,8 @@ function DATA:like(row, n, nClasses,     col,prior,out,v,inc)
 -- (rows, function) --> row
 function DATA:acquire(rows, score,      todo,done)
   todo, done = {},{}
-  for i,t in pairs(rows or self.rows) do 
-    push(i <= the.begin and done or todo, t) end
+  for i,tbl in pairs(rows or self.rows) do 
+    push(i <= the.begin and done or todo, tbl) end
   while #done < the.Break do
     todo = self:guessNextBest(todo, done, score or function(B,R) return B - R end) 
     push(done, pop(todo)) end
@@ -182,120 +186,139 @@ function DATA:acquire(rows, score,      todo,done)
 -- (rows, rows, function) --> row
 function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp)
   best,rest = self:clone(done):bestRest()
-  fun = function(t) return score(best:like(t,#done,2),rest:like(t,#done,2)) end
+  fun = function(tbl) return score(best:like(tbl,#done,2),rest:like(tbl,#done,2)) end
   tmp, out  = {},{}
-  for i,t in pairs(todo) do push(tmp, {t, i <= the.cut and fun(t) or -big}) end
+  for i,tbl in pairs(todo) do push(tmp, {tbl, i <= the.cut and fun(tbl) or -big}) end
   for _,one in pairs(sort(tmp, lt(1))) do push(out, one[2]) end
   return out end
 
 -- -----------------------------------------------------------------------------------
 -- ## Lib
 
--- --> number
+-- --> num
 big = 1E32
--- (table) --> any
+-- (list) --> any
 pop = table.remove
--- (str) --> string
+-- (str) --> str
 fmt = string.format
 
--- (t1,t2) --> t2 
+-- (t1, t2) --> t2 
 function new(klass,obj)
   klass.__index=klass; klass.__tostring=o; return setmetatable(obj,klass) end
 
--- (t,any) --> t
-function push(t,x)   t[1+#t]=x; return x end
+-- (list, any) --> list
+function push(tbl,x)   tbl[1+#tbl]=x; return x end
 
--- (t,?function) --> t
-function sort(t,  fun) table.sort(t,fun); return t end
+-- (list, ?function) --> list
+function sort(tbl,  fun) table.sort(tbl,fun); return tbl end
 
+-- (str) --> function
 function lt(key)   return function(a,b) return a[key] < b[key] end end
 function gt(key)   return function(a,b) return a[key] > b[key] end end
+
+-- (function) --> function
 function up(fun)   return function(a,b) return fun(a) > fun(b) end end
 function down(fun) return function(a,b) return fun(a) < fun(b) end end
 
-function keys(t,    u) 
-  u={}; for k,_ in pairs(t) do push(u,k) end return sort(u) end   
+-- (list) --> list
+function keys(tbl,    u) 
+  u={}; for k,_ in pairs(tbl) do push(u,k) end return sort(u) end   
 
-function shuffle(t,    j)
-  for i = #t, 2, -1 do j = math.random(i); t[i], t[j] = t[j], t[i] end
-  return t end
+-- (list) --> list
+function shuffle(tbl,    j)
+  for i = #tbl, 2, -1 do j = math.random(i); tbl[i], tbl[j] = tbl[j], tbl[i] end
+  return tbl end
 
+-- (str) --> atom
 function coerce(s,     fun)   
   fun = function(s) return s=="true" and true or s ~= "false" and s end
   return math.tointeger(s) or tonumber(s) or fun(trim(s)) end
 
+-- (str, function) --> nil
 function csv(file,fun,      src,s,cells,n)
-  function cells(s,    t)
-    t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t] = coerce(s1) end; return t end
+  function cells(s,    tbl)
+    tbl={}; for s1 in s:gmatch"([^,]+)" do push(tbl,coerce(s1)) end; return tbl end
   src = io.input(file)
   n   = -1
   while true do
     s = io.read()
     if s then n=n+1; fun(n,cells(s)) else return io.close(src) end end end
 
+-- (str) --> str
 function trim(s)  return s:match"^%s*(.-)%s*$" end
 
+-- (any) --> str
 function o(x,     list,hash)
-  list= function(t) for _,v in pairs(x) do t[1+#t] = o(v) end; return t end
-  hash= function(t) for _,k in pairs(keys(x)) do 
+  list= function(tbl) for _,v in pairs(x) do push(tbl, o(v)) end; return tbl end
+  hash= function(tbl) for _,k in pairs(keys(x)) do 
                       if   not o(k):find"^_" 
-                      then t[1+#t] = fmt(":%s %s", k, o(x[k])) end end 
-                    return t end
+                      then push(tbl, fmt(":%s %s", k, o(x[k]))) end end 
+                    return tbl end
   if type(x) == "number" then return fmt("%.3g",x) end
   if type(x) ~= "table"  then return tostring(x)   end
   return "{" .. table.concat(#x>0 and list{} or hash{}, " ") .. "}" end
 
+-- (any) --> nil
 function oo(x) print(o(x)) end
 
 -- -----------------------------------------------------------------------------------
--- ## Examples
+-- ## Main
 
-local eg = {}
+local go = {}
 
-function eg.train(x) the.train = x end
+function go.h(_) print("\n" ..help) end
+function go.all(_,     status,msg,fails) 
+  fails=0
+  for x in ("sort csv data bayes cheb acq"):gmatch"([^ ]+)" do
+    math.randomseed(the.seed)
+    status,msg = xpcall(go[x], debug.traceback, _)
+    if status == false then 
+      fails=fails+1; print("!!!!! FAIL in "..x.." :"..msg) end end
+  os.exit(fails) end 
 
-function eg.seed(x) the.seed = coerce(x); math.randomseed(the.seed) end
+function go.train(x) the.train = x end
 
-function eg.sort(_,     t)
-  t = sort({10,1,2,3,1,4,1,1,2,4,2,1}, function(a,b) return a>b end)
-  assert(t[1]==10, "sort") end
+function go.seed(x) the.seed = coerce(x); math.randomseed(the.seed) end
 
-function eg.csv(_,     fun) 
-  fun = function(n,t) if (n % 60) == 0 then print(n, o(t)) end end
+function go.sort(_,     tbl)
+  tbl = sort({10,1,2,3,1,4,1,1,2,4,2,1}, function(a,b) return a>b end)
+  assert(tbl[1]==10, "wrong sort") end
+
+function go.csv(_,     fun) 
+  fun = function(n,tbl) if (n % 60) == 0 then print(n, o(tbl)) end end
   csv(the.train, fun) end
 
-function eg.data(_,      d)
+function go.data(_,      d)
   d = DATA:new():csv(the.train) 
   for _,col in pairs(d.cols.y) do oo(col) end end
 
-function eg.bayes(_,      d,fun)
+function go.bayes(_,      d,fun)
   d   = DATA:new():csv(the.train) 
-  fun = function(t) return d:like(t,1000,2) end
-  for n,t in pairs(sort(d.rows, down(fun))) do
-   if n % 30 == 0 then print(n, fun(t)) end end end
+  fun = function(tbl) return d:like(tbl,1000,2) end
+  for n,tbl in pairs(sort(d.rows, down(fun))) do
+   if n % 30 == 0 then print(n, fun(tbl)) end end end
 
-function eg.cheb(_,      d,num)
+function go.cheb(_,      d,num)
   d   = DATA:new():csv(the.train) 
   num = NUM:new()
-  for _,t in pairs(d.rows) do num:add(d:chebyshev(t)) end
+  for _,tbl in pairs(d.rows) do num:add(d:chebyshev(tbl)) end
   print(num.mu, num.sd) end
 
-function eg.acq(_,      d,num)
+function go.acq(_,      d,num)
   d   = DATA:new():csv(the.train) 
   num = NUM:new()
 	for i=1,20 do
 	  num:add( d:chebyshev(d:shuffle():acquire()) ) end
 	print(num.mu) end
 
-function eg.push(_) os.execute("git commit -am saving; git push; git status") end
-function eg.pdf(_)  os.execute("make -B ~/tmp/min.pdf; open ~/tmp/min.pdf") end
-function eg.doc(_)  os.execute(
+function go.push(_) os.execute("git commit -am saving; git push; git status") end
+function go.pdf(_)  os.execute("make -B ~/tmp/min.pdf; open ~/tmp/min.pdf") end
+function go.doc(_)  os.execute(
   "pycco -d ~/tmp min.lua; echo 'p {text-align:right;}' >> ~/tmp/pycco.css") end
 
-function eg.the(_) oo(the) end
-function eg.h(_) print("\n" ..help) end
+function go.the(_) oo(the) end
 
--- -----------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------
 -- ## Start
 
 help:gsub("\n%s+-%S%s+(%S+)[^=]+=%s+(%S+)", function(k,v) the[k] = coerce(v) end)
@@ -304,4 +327,4 @@ math.randomseed(the.seed)
 if arg[0]:find"min.lua" 
 then for i,s in pairs(arg) do 
        s = s:sub(2)
-       if eg[s] then eg[s]( arg[i+1] ) end end end 
+       if go[s] then go[s]( arg[i+1] ) end end end 
