@@ -4,17 +4,18 @@ min.lua : multiple-objective active learning
 (c) 2024, Tim Menzies <timm@ieee.org>, BSD-2.
 
 USAGE:
-  lua min.lua [OPTIONS] [ARGS]
+  chmod +x min.lua
+  ./min.lua [OPTIONS] [ARGS]
 
 OPTIONS:
-  -b --begin  int   initial samples = 4
-  -B --Break  int   max samples     = 30
-  -c --cut    int   items to sort   = 100
-  -k --k      int   Bayes param     = 1
-  -m --m      int   Bayes param     = 2
-  -s --seed   int   random seed     = 1234567891
-  -t --train  str   csv file        = ../../../moot/optimize/misc/auto93.csv
-  -T --Top    float best set size   = .5]]
+  -b begin  int   initial samples = 4
+  -B Break  int   max samples     = 30
+  -c cut    int   items to sort   = 100
+  -k k      int   Bayes param     = 1
+  -m m      int   Bayes param     = 2
+  -s seed   int   random seed     = 1234567891
+  -t train  str   csv file        = ../../../moot/optimize/misc/auto93.csv
+  -T Top    float best set size   = .5]]
 
 local big,coerce,csv,down,fmt,gt,keys,lt,new,o,oo,pop,push,shuffle,sort,trim,up
 
@@ -47,11 +48,11 @@ function DATA:clone(rows)
   return DATA:new():from(rows) end
 
 function DATA:csv(file)
-  csv(file, function(n,row) self:add(row) end)
+  csv(file, function(n,t) self:add(t) end)
   return self end
 
 function DATA:from(rows)
-  for row in pairs(rows or {}) do self:add(row) end
+  for _,t in pairs(rows or {}) do self:add(t) end
   return self end
 
 --   _.        _   ._     
@@ -65,16 +66,16 @@ function NUM:norm(x)
 --  |_|  |_)  (_|  (_|   |_  (/_ 
 --       |                       
 
-function DATA:add(row) 
+function DATA:add(t) 
   if   self.cols 
-  then push(self.rows, self.cols:add(row))
-  else self.cols = COLS:new(row) end end
+  then push(self.rows,self.cols:add(t)) 
+  else self.cols=COLS:new(t) end end
 
-function COLS:add(row)
+function COLS:add(t)
   for _,cols in pairs{self.x, self.y} do
     for _,col in pairs(cols) do
-      col:add( row[col.i] ) end end
-  return row end
+      col:add( t[col.i] ) end end
+  return t end
 
 function NUM:add(x,    d)
   if x ~= "?" then
@@ -98,9 +99,9 @@ function SYM:add(x,  n)
 --  (_|  (_)  (_|  |  _> 
 --   _|                  
 
-function DATA:chebyshev(row,    tmp,d)
+function DATA:chebyshev(t,    tmp,d)
   d=0; for _,col in pairs(self.cols.y) do
-         tmp = math.abs(col.goal - col:norm(row[col.i]))
+         tmp = math.abs(col.goal - col:norm(t[col.i]))
          if tmp > d then d = tmp end end
   return d end
 
@@ -109,15 +110,15 @@ function DATA:shuffle()
 	return self end
 
 function DATA:sort(    fun)
-  fun = function(row) return self:chebyshev(row) end
+  fun = function(t) return self:chebyshev(t) end
   self.rows = sort(self.rows, function(a,b) return fun(a) < fun(b) end)
   return self end
 
 function DATA:bestRest(      best,rest)
   self:sort()
   best,rest = self:clone(), self:clone()
-  for i,row in pairs(self:sort().rows) do
-    (i <= (#self.rows)^the.Top and best or rest):add(row) end
+  for i,t in pairs(self:sort().rows) do
+    (i <= (#self.rows)^the.Top and best or rest):add(t) end
   return best,rest end
 
 --  |_    _.       _    _ 
@@ -132,11 +133,11 @@ function NUM:like(x,...)
   if sd==0 then return x==mu and 1 or 1E-32 end
   return math.exp(-.5*((x - mu)/sd)^2) / (sd*((2*math.pi)^0.5)) end
 
-function DATA:like(row, n, nClasses,     col,prior,out,v,inc)
+function DATA:like(t, n, nClasses,     col,prior,out,v,inc)
   prior = (#self.rows + the.k) / (n + the.k * nClasses)
   out   = math.log(prior)
   for _,col in pairs(self.cols.x) do
-    v = row[col.i]
+    v = t[col.i]
     if v ~= "?" then
       inc = col:like(v,prior)
       if inc > 0 then out = out + math.log(inc) end end end
@@ -144,8 +145,8 @@ function DATA:like(row, n, nClasses,     col,prior,out,v,inc)
 
 function DATA:acquire(rows, score,      todo,done)
   todo, done = {},{}
-  for i,row in pairs(rows or self.rows) do 
-    push(i <= the.begin and done or todo, row) end
+  for i,t in pairs(rows or self.rows) do 
+    push(i <= the.begin and done or todo, t) end
   while #done < the.Break do
     todo = self:guessNextBest(todo, done, score or function(B,R) return B - R end) 
     push(done, pop(todo)) end
@@ -154,9 +155,9 @@ function DATA:acquire(rows, score,      todo,done)
 
 function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp)
   best,rest = self:clone(done):bestRest()
-  fun = function(row) return score(best:like(row,#done,2),rest:like(row,#done,2)) end
+  fun = function(t) return score(best:like(t,#done,2),rest:like(t,#done,2)) end
   tmp, out  = {},{}
-  for i,row in pairs(todo) do push(tmp, {row, i <= the.cut and fun(row) or -big}) end
+  for i,t in pairs(todo) do push(tmp, {t, i <= the.cut and fun(t) or -big}) end
   for _,one in pairs(sort(tmp, lt(1))) do push(out, one[2]) end
   return out end
 --  |  o  |_  
@@ -227,7 +228,7 @@ function eg.sort(_,     t)
   assert(t[1]==10, "sort") end
 
 function eg.csv(_,     fun) 
-  fun = function(n,row) if (n % 60) == 0 then print(n, o(row)) end end
+  fun = function(n,t) if (n % 60) == 0 then print(n, o(t)) end end
   csv(the.train, fun) end
 
 function eg.data(_,      d)
@@ -236,14 +237,14 @@ function eg.data(_,      d)
 
 function eg.bayes(_,      d,fun)
   d   = DATA:new():csv(the.train) 
-  fun = function(row) return d:like(row,1000,2) end
-  for n,row in pairs(sort(d.rows, down(fun))) do
-   if n % 30 == 0 then print(n, fun(row)) end end end
+  fun = function(t) return d:like(t,1000,2) end
+  for n,t in pairs(sort(d.rows, down(fun))) do
+   if n % 30 == 0 then print(n, fun(t)) end end end
 
 function eg.cheb(_,      d,num)
   d   = DATA:new():csv(the.train) 
   num = NUM:new()
-  for _,row in pairs(d.rows) do num:add(d:chebyshev(row)) end
+  for _,t in pairs(d.rows) do num:add(d:chebyshev(t)) end
   print(num.mu, num.sd) end
 
 function eg.acq(_,      d,num)
@@ -257,14 +258,15 @@ function eg.push(_) os.execute("git commit -am saving; git push; git status") en
 function eg.pdf(_)  os.execute("make -B ~/tmp/min.pdf; open ~/tmp/min.pdf") end
 
 function eg.the(_) oo(the) end
+function eg.h(_) print("\n" ..help) end
 
 --   _  _|_   _.  ._  _|_ 
 --  _>   |_  (_|  |    |_ 
 
-help:gsub("[-][-]([%S]+)[^=]+=[%s]+([%S]+)", function(k,v) the[k] = coerce(v) end)
-
+help:gsub("\n%s+-%S%s+(%S+)[^=]+=%s+(%S+)", function(k,v) the[k] = coerce(v) end)
 math.randomseed(the.seed)
 
-for i,s in pairs(arg) do 
-  s = s:sub(2)
-  if eg[s] then eg[s]( arg[i+1] ) end end
+if arg[0] == "./min.lua" then
+  for i,s in pairs(arg) do 
+    s = s:sub(2)
+    if eg[s] then eg[s]( arg[i+1] ) end end end 
