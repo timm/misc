@@ -213,7 +213,7 @@ function BIN:new(goal,lo,hi,col)
   return new(BIN,{goal=goal,score=0,lo=lo, hi=hi, y=SYM:new(col.i, col.is)}) end
 
 function BIN:add(x,y,n)
-  self.score = self.score + (y==goal and n or -n)
+  self.score = self.score + (y==self.goal and n or -n)
   if x < self.lo then self.lo=x end
   if x > self.hi then self.hi=x end
   self.y:add(y,n) end
@@ -235,13 +235,13 @@ function NUM:bin(x) return self:cdf(x) * the.ranges // 1 end
 
 function SYM:merges(bins,_) return bins end
 
-function NUM:merges(bins,small,    out)
-  out={}
-  for i,bin in pairs(bins) do
-    if     i==1                    then out={bin}
-    elseif bin:mergable(out[#out]) then out[#out] = out[#out]:merge(bin)
-    else   push(out,bin) end end 
-  return out end
+function NUM:merges(bins,small,    t)
+  t={} 
+  for i,b in pairs(bins) do
+    if i==1 then t = {b} 
+    else if b:mergable(t[#t],small) then t[#t] = b:merge(t[#t]) 
+    else push(t,b) end end end
+  return t end
 
 function DATA:contrasts(other,both,      bins)
   bins = {}
