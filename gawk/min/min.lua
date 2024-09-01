@@ -256,7 +256,7 @@ function DATA:contrast(other, col,     x,b,n,bins,index)
     for _,row in pairs(rows) do
       x = row[col.i]
       if x ~= "?" then
-        b        = col:bin(x)
+        b = col:bin(x)
         index[b] = index[b] or push(bins, BIN:new("best",x,x,col))
         index[b]:add(x,klass, 1/n) end end end
   return col:merges(sort(bins,lt"lo"), n / the.ranges) end
