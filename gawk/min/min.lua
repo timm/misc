@@ -243,7 +243,7 @@ function NUM:merges(bins,small,    out)
     else   push(out,bin) end end 
   return out end
 
-function DATA:contrast(other,both,      bins)
+function DATA:contrasts(other,both,      bins)
   bins = {}
   for _,col in pairs(both.cols.x) do
     for _,bin in pairs(self:contrast(other, col)) do 
