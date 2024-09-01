@@ -71,7 +71,9 @@ function DATA:clone(  rows) return DATA:new():from({self.cols.names}):from(rows)
 
 -- (str) --> DATA
 function DATA:csv(file)
-  csv(file, function(_,row) self:add(row) end)
+  csv(file, function(n,row) 
+              table.insert(row, n==0 and "idX" or n)
+              self:add(row) end)
   return self end
 
 -- ( ?list[row] ) --> DATA
@@ -173,22 +175,23 @@ function DATA:like(row, n, nClasses,     col,prior,out,v,inc)
   return out end
 
 -- (rows, function) --> row
-function DATA:acquire(rows, score,      todo,done)
+function DATA:acquire(score,rows,       todo,done)
   todo, done = {},{}
-  for i,tbl in pairs(rows or self.rows) do 
-    push(i <= the.begin and done or todo, tbl) end
+  for i,t in pairs(rows or {}) do push( done, t) end
+  for i,t in pairs(self.rows)  do push(#done < the.begin and done or todo, t) end
   while #done < the.Break do
-    todo = self:guessNextBest(todo, done, score or function(B,R) return B - R end) 
+    todo = self:guessNextBest(todo, done, score or function(B,R) return B - R end)
     push(done, pop(todo)) end
     done = self:clone(done):sort().rows 
   return done[#done] end
 
 -- (rows, rows, function) --> row
-function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp)
+function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp,out)
   best,rest = self:clone(done):bestRest()
-  fun = function(tbl) return score(best:like(tbl,#done,2),rest:like(tbl,#done,2)) end
+  print(#best.rows, #rest.rows)
+  fun = function(t) return score(best:like(t,#done,2),rest:like(t,#done,2)) end
   tmp, out  = {},{}
-  for i,tbl in pairs(todo) do push(tmp, {tbl, i <= the.cut and fun(tbl) or -big}) end
+  for i,t in pairs(todo) do push(tmp, {t, i <= the.cut and fun(t) or -big}) end
   for _,one in pairs(sort(tmp, lt(1))) do push(out, one[2]) end
   return out end
 
@@ -207,10 +210,10 @@ function new(klass,obj)
   klass.__index=klass; klass.__tostring=o; return setmetatable(obj,klass) end
 
 -- (list, any) --> list
-function push(tbl,x)   tbl[1+#tbl]=x; return x end
+function push(t,x)   t[1+#t]=x; return x end
 
 -- (list, ?function) --> list
-function sort(tbl,  fun) table.sort(tbl,fun); return tbl end
+function sort(t,  fun) table.sort(t,fun); return t end
 
 -- (str) --> function
 function lt(key)   return function(a,b) return a[key] < b[key] end end
@@ -221,13 +224,13 @@ function up(fun)   return function(a,b) return fun(a) > fun(b) end end
 function down(fun) return function(a,b) return fun(a) < fun(b) end end
 
 -- (list) --> list
-function keys(tbl,    u) 
-  u={}; for k,_ in pairs(tbl) do push(u,k) end return sort(u) end   
+function keys(t,    u) 
+  u={}; for k,_ in pairs(t) do push(u,k) end return sort(u) end   
 
 -- (list) --> list
-function shuffle(tbl,    j)
-  for i = #tbl, 2, -1 do j = math.random(i); tbl[i], tbl[j] = tbl[j], tbl[i] end
-  return tbl end
+function shuffle(t,    j)
+  for i = #t, 2, -1 do j = math.random(i); t[i], t[j] = t[j], t[i] end
+  return t end
 
 -- (str) --> atom
 function coerce(s,     fun)   
@@ -236,8 +239,8 @@ function coerce(s,     fun)
 
 -- (str, function) --> nil
 function csv(file,fun,      src,s,cells,n)
-  function cells(s,    tbl)
-    tbl={}; for s1 in s:gmatch"([^,]+)" do push(tbl,coerce(s1)) end; return tbl end
+  function cells(s,    t)
+    t={}; for s1 in s:gmatch"([^,]+)" do push(t,coerce(s1)) end; return t end
   src = io.input(file)
   n   = -1
   while true do
@@ -249,12 +252,12 @@ function trim(s)  return s:match"^%s*(.-)%s*$" end
 
 -- (any) --> str
 function o(x,     list,hash)
-  list= function(tbl) for _,v in pairs(x) do push(tbl, o(v)) end; return tbl end
-  hash= function(tbl) for _,k in pairs(keys(x)) do 
+  list= function(t) for _,v in pairs(x) do push(t, o(v)) end; return t end
+  hash= function(t) for _,k in pairs(keys(x)) do 
                       if   not o(k):find"^_" 
-                      then push(tbl, fmt(":%s %s", k, o(x[k]))) end end 
-                    return tbl end
-  if type(x) == "number" then return fmt("%.3g",x) end
+                      then push(t, fmt(":%s %s", k, o(x[k]))) end end 
+                    return t end
+  if type(x) == "number" then return fmt("%g",x) end
   if type(x) ~= "table"  then return tostring(x)   end
   return "{" .. table.concat(#x>0 and list{} or hash{}, " ") .. "}" end
 
@@ -267,9 +270,10 @@ function oo(x) print(o(x)) end
 local go = {}
 
 function go.h(_) print("\n" ..help) end
-function go.all(_,     status,msg,fails) 
-  fails=0
-  for x in ("sort csv data bayes cheb acq"):gmatch"([^ ]+)" do
+function go.all(_,     status,msg,fails,todos) 
+  todos = "sort csv data bayes cheb acq"
+  fails = 0
+  for x in todos:gmatch"([^ ]+)" do
     math.randomseed(the.seed)
     status,msg = xpcall(go[x], debug.traceback, _)
     if status == false then 
@@ -280,28 +284,30 @@ function go.train(x) the.train = x end
 
 function go.seed(x) the.seed = coerce(x); math.randomseed(the.seed) end
 
-function go.sort(_,     tbl)
-  tbl = sort({10,1,2,3,1,4,1,1,2,4,2,1}, function(a,b) return a>b end)
-  assert(tbl[1]==10, "wrong sort") end
+function go.sort(_,     t)
+  t = sort({10,1,2,3,1,4,1,1,2,4,2,1}, function(a,b) return a>b end)
+  assert(t[1]==10, "wrong sort") end
 
 function go.csv(_,     fun) 
-  fun = function(n,tbl) if (n % 60) == 0 then print(n, o(tbl)) end end
+  fun = function(n,t) if (n % 60) == 0 then print(n, o(t)) end end
   csv(the.train, fun) end
 
 function go.data(_,      d)
-  d = DATA:new():csv(the.train) 
-  for _,col in pairs(d.cols.y) do oo(col) end end
+  d = DATA:new():csv(the.train):shuffle():sort()
+  for n,row in pairs(d.rows) do 
+    if n==1 or (n%30)==0 then print(n,o(row)) end end
+  print""; for _,col in pairs(d.cols.y) do oo(col) end end
 
 function go.bayes(_,      d,fun)
   d   = DATA:new():csv(the.train) 
-  fun = function(tbl) return d:like(tbl,1000,2) end
-  for n,tbl in pairs(sort(d.rows, down(fun))) do
-   if n % 30 == 0 then print(n, fun(tbl)) end end end
+  fun = function(t) return d:like(t,1000,2) end
+  for n,t in pairs(sort(d.rows, down(fun))) do
+    if n==1 or n==#d.rows or (n%30)==0 then print(n, t[#t], fun(t)) end end end
 
 function go.cheb(_,      d,num)
   d   = DATA:new():csv(the.train) 
   num = NUM:new()
-  for _,tbl in pairs(d.rows) do num:add(d:chebyshev(tbl)) end
+  for _,t in pairs(d.rows) do num:add(d:chebyshev(t)) end
   print(num.mu, num.sd) end
 
 function go.acq(_,      d,num)
@@ -321,7 +327,7 @@ function go.the(_) oo(the) end
 -- -----------------------------------------------------------------------------------
 -- ## Start
 
-help:gsub("\n%s+-%S%s+(%S+)[^=]+=%s+(%S+)", function(k,v) the[k] = coerce(v) end)
+help:gsub("\n%s+-%S%s(%S+)[^=]+=%s+(%S+)", function(k,v) the[k] = coerce(v) end)
 math.randomseed(the.seed)
 
 if arg[0]:find"min.lua" 
