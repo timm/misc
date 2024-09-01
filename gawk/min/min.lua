@@ -14,6 +14,7 @@
 -- - atom = bool | str | num 
 -- - row  = list[ atom | "?" ]
 -- - rows = list[ row ]
+-- - klasses = dict[str,rows]
 local the,help = {},[[
 min.lua : multiple-objective active learning
 (c) 2024, Tim Menzies <timm@ieee.org>, BSD-2.
@@ -24,18 +25,19 @@ USAGE:
 
 OPTIONS:
   -all            run test suite
-  -b begin  int   initial samples = 4
-  -B Break  int   max samples     = 30
-  -c cut    int   items to sort   = 100
+  -b begin  int   initial samples  = 4
+  -B Break  int   max samples      = 30
+  -c cut    int   items to sort    = 100
   -h              show help            
-  -k k      int   Bayes param     = 1
-  -m m      int   Bayes param     = 2
-  -s seed   int   random seed     = 1234567891
-  -t train  str   csv file        = ../../../moot/optimize/misc/auto93.csv
-  -T Top    float best set size   = .5]]
+  -k k      int   Bayes param      = 0
+  -m m      int   Bayes param      = 3
+  -r ranges int   number of ranges = 16
+  -s seed   int   random seed      = 1234567891
+  -t train  str   csv file         = ../../../moot/optimize/misc/auto93.csv
+  -T Top    float best set size    = .5]]
 
 local NUM,SYM,COLS,DATA = {},{},{},{}
-local big,coerce,csv,down,fmt,gt,keys,lt,new,o,oo,pop,push,shuffle,sort,trim,up
+local big,coerce,csv,down,fmt,gt,keys,lt,median,new,o,oo,pop,push,shuffle,sort,trim,up
 
 -- -----------------------------------------------------------------------------------
 -- ## Create
@@ -175,25 +177,81 @@ function DATA:like(row, n, nClasses,     col,prior,out,v,inc)
   return out end
 
 -- (rows, function) --> row
-function DATA:acquire(score,rows,       todo,done)
+function DATA:acquire(score,rows,       todo,done,top)
   todo, done = {},{}
   for i,t in pairs(rows or {}) do push( done, t) end
   for i,t in pairs(self.rows)  do push(#done < the.begin and done or todo, t) end
   while #done < the.Break do
-    todo = self:guessNextBest(todo, done, score or function(B,R) return B - R end)
-    push(done, pop(todo)) end
-    done = self:clone(done):sort().rows 
-  return done[#done] end
+    top, todo = self:guess(todo, done, score or function(B,R) return B-R end)
+    push(done, top) 
+    done = self:clone(done):sort().rows end
+  return done end
 
 -- (rows, rows, function) --> row
-function DATA:guessNextBest(todo,done,score,     best,rest,fun,tmp,out)
+function DATA:guess(todo, done, score,      best,rest,fun,tmp,out)
   best,rest = self:clone(done):bestRest()
-  print(#best.rows, #rest.rows)
-  fun = function(t) return score(best:like(t,#done,2),rest:like(t,#done,2)) end
-  tmp, out  = {},{}
-  for i,t in pairs(todo) do push(tmp, {t, i <= the.cut and fun(t) or -big}) end
-  for _,one in pairs(sort(tmp, lt(1))) do push(out, one[2]) end
-  return out end
+  fun = function(t) return score(best:like(t,#done,2), rest:like(t,#done,2)) end
+  tmp, out = {},{}
+  for i,t in pairs(todo) do push(tmp, {i <= the.cut and fun(t) or 0, t}) end
+  for _,z in pairs(sort(tmp, lt(1))) do push(out, z[2]) end
+  return pop(out), out end
+
+-- -----------------------------------------------------------------------------------
+-- ## Rules
+local RANGE={}
+
+function DATA.ranges(one, two, kombined,     tmp,bins,x,b)
+  for i,col in pairs(kombined.cols.x) do
+    tmp,bins = {},{}
+    for y,rows in pairs{[true]=one.rows, [false]=two.rows} do
+      for _,row in pairs(rows) do
+        x = row[col.i]
+        if x ~= "?" then
+          b = col:bin(x)
+          tmp[b] = tmp.get(b,nil) or push(bins,RANGE:new(x,x,col))
+          tmp[b]:add(x,y) end end end
+    col.bins = col:merges(sort(bins,lt"lo"), #kombined.rows / the.ranges) end end 
+
+function RANGE:new(lo,hi,col)
+  return new(RANGE,{lo=lo, hi=hi or lo, y=getmetatable(col)(col.i,col.is)}) end
+
+function RANGE:add(x,y)
+  if x < self.lo then self.lo=x end
+  if x > self.hi then self.hi=x end
+  self.y:add(y) end
+
+function RANGE.merge(i,j,     k)
+  k = RANGE:new(math.min(i.lo,j.lo), math.max(i.hi,j.hi), i.y)
+  for _,has in pairs{i.y.has, j.y.has} do
+    for x,n in pairs(has) do
+      k.y:add(x,n) end end
+  return k end
+
+function RANGE.merged(i,j,small)
+  if i.y.n < small or j.y.n < small or i.y.mode==j.y.mode then return i:merge() end end
+
+function SYM:bin(x) return x end
+
+function NUM:bin(x,     fun,cdf,z)
+  fun = function(z) return 1 - 0.5 * math.exp(-0.717 * z - 0.416 * z * z) end
+  z   = (x - self.mu) / self.sd
+  cdf = z>=0 and fun(z) or 1 - fun(-z)
+  return cdf * the.ranges // 1 end
+
+function SYM:merges(bins,_) return bins end
+
+function NUM:merges(b4,small,    i,a,b,now) 
+  i, now = 0, {}
+  while i <= #b4 do
+    a = b4[i]
+    if i < #b4 then
+      b = a:merged(b4[i+1], small)
+      if b then
+        a = b
+        i = i + 1 end end
+    push(now,a)
+    i = i + 1 end
+  return #b4 == #now and b4 or self:merges(now,small) end 
 
 -- -----------------------------------------------------------------------------------
 -- ## Lib
@@ -214,6 +272,9 @@ function push(t,x)   t[1+#t]=x; return x end
 
 -- (list, ?function) --> list
 function sort(t,  fun) table.sort(t,fun); return t end
+
+-- (list) --> list
+function median(t) return sort(t)[.5*#t//1] end
 
 -- (str) --> function
 function lt(key)   return function(a,b) return a[key] < b[key] end end
@@ -310,12 +371,12 @@ function go.cheb(_,      d,num)
   for _,t in pairs(d.rows) do num:add(d:chebyshev(t)) end
   print(num.mu, num.sd) end
 
-function go.acq(_,      d,num)
-  d   = DATA:new():csv(the.train) 
-  num = NUM:new()
-	for i=1,20 do
-	  num:add( d:chebyshev(d:shuffle():acquire()) ) end
-	print(num.mu) end
+function go.acq(_,      d,toBe,t,asIs)
+  d    = DATA:new():csv(the.train) 
+  asIs,toBe = {},{}
+  for _,t in pairs(d.rows) do push(asIs, d:chebyshev(t)) end
+	for i=1,30 do push(toBe, d:chebyshev(d:shuffle():acquire()[1])) end
+  oo{asIs=median(asIs), toBe=median(toBe)} end
 
 function go.push(_) os.execute("git commit -am saving; git push; git status") end
 function go.pdf(_)  os.execute("make -B ~/tmp/min.pdf; open ~/tmp/min.pdf") end
@@ -324,13 +385,13 @@ function go.doc(_)  os.execute(
 
 function go.the(_) oo(the) end
 
--- -----------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------
 -- ## Start
 
 help:gsub("\n%s+-%S%s(%S+)[^=]+=%s+(%S+)", function(k,v) the[k] = coerce(v) end)
 math.randomseed(the.seed)
 
-if arg[0]:find"min.lua" 
-then for i,s in pairs(arg) do 
-       s = s:sub(2)
-       if go[s] then go[s]( arg[i+1] ) end end end 
+if arg[0]:find"min.lua" then
+  for i,s in pairs(arg) do 
+    s = s:sub(2)
+    if go[s] then go[s]( arg[i+1] ) end end end
