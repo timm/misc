@@ -124,6 +124,10 @@ function NUM:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/big) end
 
 -- (num) --> num
+function NUM:pdf(x) 
+  return math.exp(-.5*((x - self.mu)/self.sd)^2) / (self.sd*((2*math.pi)^0.5)) end
+
+-- (num) --> num
 function NUM:cdf(x,     fun,z)
   fun = function(z) return 1 - 0.5 * math.exp(-0.717 * z - 0.416 * z * z) end
   z   = (x - self.mu) / self.sd
@@ -167,9 +171,7 @@ function SYM:like(x, prior)
 
 -- (atom, any...) --> num
 function NUM:like(x,...)
-  local sd, mu = self.sd, self.mu
-  if sd==0 then return x==mu and 1 or 1E-32 end
-  return math.exp(-.5*((x - mu)/sd)^2) / (sd*((2*math.pi)^0.5)) end
+  return self.sd==0 and  (x==self.mu and 1 or 1E-32) or math.min(1,self:pdf(x)) end
 
 -- (row, int, int) --> num
 function DATA:like(row, n, nClasses,     col,prior,out,v,inc)
@@ -203,26 +205,29 @@ function DATA:guess(todo, done, score,      best,rest,fun,tmp,out)
   return pop(out), out end
 
 -- -----------------------------------------------------------------------------------
--- ## Rules
+-- ## Contrasts
+
 local BIN={}
 
-function BIN:new(lo,col)
-  return new(BIN,{lo=lo, hi=lo, y=SYM:new(col.i, col.is)}) end
+function BIN:new(goal,lo,hi,col)
+  return new(BIN,{goal=goal,score=0,lo=lo, hi=hi, y=SYM:new(col.i, col.is)}) end
 
-function BIN:add(x,y)
+function BIN:add(x,y,n)
+  self.score = self.score + (y==goal and n or -n)
   if x < self.lo then self.lo=x end
   if x > self.hi then self.hi=x end
-  self.y:add(y) end
+  self.y:add(y,n) end
+
+function BIN.mergable(i,j,small)
+  return i.y.n < small or j.y.n < small or i.y.mode==j.y.mode end
 
 function BIN.merge(i,j,     k)
-  k = BIN:new(math.min(i.lo,j.lo), math.max(i.hi,j.hi), i.y)
+  k = BIN:new(i.goal, math.min(i.lo,j.lo), math.max(i.hi,j.hi), i.y)
+  k.score = i.score + j.score
   for _,has in pairs{i.y.has, j.y.has} do
     for x,n in pairs(has) do
       k.y:add(x,n) end end
   return k end
-
-function BIN.mergable(i,j,small)
-  return i.y.n < small or j.y.n < small or i.y.mode==j.y.mode end
 
 function SYM:bin(x) return x end
 
@@ -238,17 +243,23 @@ function NUM:merges(bins,small,    out)
     else   push(out,bin) end end 
   return out end
 
-function DATA:bins(klasses,goal,      bins,index,x,b)
-  for i,col in pairs(self.cols.x) do
-    bins,index = {},{}
-    for klass,rows in pairs(klasses) do
-      for _,row in pairs(rows) do
-        x = row[col.i]
-        if x ~= "?" then
-          b        = col:bin(x)
-          index[b] = index[b] or push(bins,BIN:new(x,col))
-          index[b]:add(x,klass) end end end
-    bins = col:merges(sort(bins,lt"lo"), #self.rows / the.ranges) end end 
+function DATA:contrast(other,both,      bins)
+  bins = {}
+  for _,col in pairs(both.cols.x) do
+    for _,bin in pairs(self:contrast(other, col)) do 
+      push(bins, bin) end end
+  return sort(bins, gt"score") end
+
+function DATA:contrast(other, col,     x,b,n,bins,index)
+  bins, index, n = {}, {}, #self.rows + #other.rows
+  for klass,rows in pairs{best=self.rows, rest=other.rows} do
+    for _,row in pairs(rows) do
+      x = row[col.i]
+      if x ~= "?" then
+        b        = col:bin(x)
+        index[b] = index[b] or push(bins, BIN:new("best",x,x,col))
+        index[b]:add(x,klass, 1/n) end end end
+  return col:merges(sort(bins,lt"lo"), n / the.ranges) end
 
 -- -----------------------------------------------------------------------------------
 -- ## Lib
