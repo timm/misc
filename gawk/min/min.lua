@@ -229,37 +229,37 @@ function BIN.merge(i,j,     k)
       k.y:add(x,n) end end
   return k end
 
+function DATA:bins4cols(other,both,      out)
+  out = {}
+  for _,col in pairs(both.cols.x) do
+    for _,bin in pairs(self:bins4col(other, col)) do 
+      push(out, bin) end end
+  return sort(out, gt"score") end
+
+function DATA:bins4col(other, col,     x,b,n,out,index)
+  out, index, n = {}, {}, #self.rows + #other.rows
+  for klass,rows in pairs{best=self.rows, rest=other.rows} do
+    for _,row in pairs(rows) do
+      x = row[col.i]
+      if x ~= "?" then
+        b = col:bin(x)
+        index[b] = index[b] or push(out, BIN:new("best",x,x,col))
+        index[b]:add(x,klass, 1/n) end end end
+  return col:mergeBins(sort(out,lt"lo"), n / the.ranges) end
+
 function SYM:bin(x) return x end
 
 function NUM:bin(x) return self:cdf(x) * the.ranges // 1 end
 
-function SYM:merges(bins,_) return bins end
+function SYM:mergeBins(bins,_) return bins end
 
-function NUM:merges(bins,small,    t)
+function NUM:mergeBins(bins,small,    t)
   t={} 
   for i,b in pairs(bins) do
     if i==1 then t = {b} 
     else if b:mergable(t[#t],small) then t[#t] = b:merge(t[#t]) 
     else push(t,b) end end end
   return t end
-
-function DATA:contrasts(other,both,      bins)
-  bins = {}
-  for _,col in pairs(both.cols.x) do
-    for _,bin in pairs(self:contrast(other, col)) do 
-      push(bins, bin) end end
-  return sort(bins, gt"score") end
-
-function DATA:contrast(other, col,     x,b,n,bins,index)
-  bins, index, n = {}, {}, #self.rows + #other.rows
-  for klass,rows in pairs{best=self.rows, rest=other.rows} do
-    for _,row in pairs(rows) do
-      x = row[col.i]
-      if x ~= "?" then
-        b = col:bin(x)
-        index[b] = index[b] or push(bins, BIN:new("best",x,x,col))
-        index[b]:add(x,klass, 1/n) end end end
-  return col:merges(sort(bins,lt"lo"), n / the.ranges) end
 
 -- -----------------------------------------------------------------------------------
 -- ## Lib
