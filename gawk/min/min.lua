@@ -31,7 +31,7 @@ OPTIONS:
   -h              show help            
   -k k      int   Bayes param      = 0
   -m m      int   Bayes param      = 3
-  -r ranges int   number of ranges = 16
+  -r ranges int   max num of bins  = 16
   -s seed   int   random seed      = 1234567891
   -t train  str   csv file         = ../../../moot/optimize/misc/auto93.csv
   -T Top    float best set size    = .5]]
@@ -123,6 +123,12 @@ function SYM:add(x,  n)
 function NUM:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/big) end
 
+-- (num) --> num
+function NUM:cdf(x,     fun,z)
+  fun = function(z) return 1 - 0.5 * math.exp(-0.717 * z - 0.416 * z * z) end
+  z   = (x - self.mu) / self.sd
+  return  z>=0 and fun(z) or 1 - fun(-z) end
+
 -- -----------------------------------------------------------------------------------
 -- ## Goals
 
@@ -198,60 +204,51 @@ function DATA:guess(todo, done, score,      best,rest,fun,tmp,out)
 
 -- -----------------------------------------------------------------------------------
 -- ## Rules
-local RANGE={}
+local BIN={}
 
-function DATA.ranges(one, two, kombined,     tmp,bins,x,b)
-  for i,col in pairs(kombined.cols.x) do
-    tmp,bins = {},{}
-    for y,rows in pairs{[true]=one.rows, [false]=two.rows} do
-      for _,row in pairs(rows) do
-        x = row[col.i]
-        if x ~= "?" then
-          b = col:bin(x)
-          tmp[b] = tmp.get(b,nil) or push(bins,RANGE:new(x,x,col))
-          tmp[b]:add(x,y) end end end
-    col.bins = col:merges(sort(bins,lt"lo"), #kombined.rows / the.ranges) end end 
+function BIN:new(lo,col)
+  return new(BIN,{lo=lo, hi=lo, y=SYM:new(col.i, col.is)}) end
 
-function RANGE:new(lo,hi,col)
-  return new(RANGE,{lo=lo, hi=hi or lo, y=getmetatable(col)(col.i,col.is)}) end
-
-function RANGE:add(x,y)
+function BIN:add(x,y)
   if x < self.lo then self.lo=x end
   if x > self.hi then self.hi=x end
   self.y:add(y) end
 
-function RANGE.merge(i,j,     k)
-  k = RANGE:new(math.min(i.lo,j.lo), math.max(i.hi,j.hi), i.y)
+function BIN.merge(i,j,     k)
+  k = BIN:new(math.min(i.lo,j.lo), math.max(i.hi,j.hi), i.y)
   for _,has in pairs{i.y.has, j.y.has} do
     for x,n in pairs(has) do
       k.y:add(x,n) end end
   return k end
 
-function RANGE.merged(i,j,small)
-  if i.y.n < small or j.y.n < small or i.y.mode==j.y.mode then return i:merge() end end
+function BIN.mergable(i,j,small)
+  return i.y.n < small or j.y.n < small or i.y.mode==j.y.mode end
 
 function SYM:bin(x) return x end
 
-function NUM:bin(x,     fun,cdf,z)
-  fun = function(z) return 1 - 0.5 * math.exp(-0.717 * z - 0.416 * z * z) end
-  z   = (x - self.mu) / self.sd
-  cdf = z>=0 and fun(z) or 1 - fun(-z)
-  return cdf * the.ranges // 1 end
+function NUM:bin(x) return self:cdf(x) * the.ranges // 1 end
 
 function SYM:merges(bins,_) return bins end
 
-function NUM:merges(b4,small,    i,a,b,now) 
-  i, now = 0, {}
-  while i <= #b4 do
-    a = b4[i]
-    if i < #b4 then
-      b = a:merged(b4[i+1], small)
-      if b then
-        a = b
-        i = i + 1 end end
-    push(now,a)
-    i = i + 1 end
-  return #b4 == #now and b4 or self:merges(now,small) end 
+function NUM:merges(bins,small,    out)
+  out={}
+  for i,bin in pairs(bins) do
+    if     i==1                    then out={bin}
+    elseif bin:mergable(out[#out]) then out[#out] = out[#out]:merge(bin)
+    else   push(out,bin) end end 
+  return out end
+
+function DATA:bins(klasses,goal,      bins,index,x,b)
+  for i,col in pairs(self.cols.x) do
+    bins,index = {},{}
+    for klass,rows in pairs(klasses) do
+      for _,row in pairs(rows) do
+        x = row[col.i]
+        if x ~= "?" then
+          b        = col:bin(x)
+          index[b] = index[b] or push(bins,BIN:new(x,col))
+          index[b]:add(x,klass) end end end
+    bins = col:merges(sort(bins,lt"lo"), #self.rows / the.ranges) end end 
 
 -- -----------------------------------------------------------------------------------
 -- ## Lib
