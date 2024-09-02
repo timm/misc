@@ -2,6 +2,7 @@
 -- - Using as few dependent variables as possible...
 -- - ...incrementally build models that recognize (best,rest) 
 --   examples (where "best"  can be  defined by  multiple goals). 
+--         
 -- ### In this code:
 -- - Settings are stored in `the` (and this variable is 
 --   parsed from the `help` string at top of file).
@@ -15,6 +16,7 @@
 -- - row  = list[ atom | "?" ]
 -- - rows = list[ row ]
 -- - klasses = dict[str,rows]
+--     
 local the,help = {},[[
 min.lua : multiple-objective active learning
 (c) 2024, Tim Menzies <timm@ieee.org>, BSD-2.
