@@ -231,11 +231,11 @@ function CONTRAST:add(x,y,n)
   if x > self.hi then self.hi=x end
   self.y:add(y,n) end
 
-function CONTRAST:merged(other,small)
+function CONTRAST:combined(other,small)
   if self.y.n < small or other.y.n < small or self.y.mode==other.y.mode then 
-    return self:merge(other,small) end end
+    return self:combine(other,small) end end
 
-function CONTRAST.merge(i,j,small,      k)
+function CONTRAST.combine(i,j,small,      k)
   k = CONTRAST:new(i.goal, math.min(i.lo,j.lo), math.max(i.hi,j.hi), i.y)
   k.score = i.score + j.score
   for _,has in pairs{i.y.has, j.y.has} do
@@ -259,15 +259,15 @@ function DATA:contrasts4col(col,other,      x,b,out,index)
         b = col:discretize(x)
         index[b] = index[b] or push(out, CONTRAST:new("best",x,x,col))
         index[b]:add(x,klass, 1/col.n) end end end
-  return col:mergeContrasts(sort(out,lt"lo"), col.n / the.ranges) end
+  return col:contrastsCombined(sort(out,lt"lo"), col.n / the.ranges) end
 
-function SYM:mergeContrasts(contrasts,_) return contrasts end
+function SYM:contrastsCombined(contrasts,_) return contrasts end
 
-function NUM:mergeContrasts(contrasts,small,    t,new)
+function NUM:contrastsCombined(contrasts,small,    t,new)
   t={contrasts[1]} 
   for i,contrast in pairs(contrasts) do
     if i > 1 then
-      new = contrast:merged(t[#t], small) 
+      new = contrast:combined(t[#t], small) 
       if new then t[#t] = new else push(t,contrast) end end end
   return t end
 
