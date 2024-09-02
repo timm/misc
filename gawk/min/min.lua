@@ -419,3 +419,5 @@ if arg[0]:find"min.lua" then
   for i,s in pairs(arg) do 
     s = s:sub(2)
     if go[s] then go[s]( arg[i+1] ) end end end
+
+return {NUM=NUM,SYM=SYM,DATA=DATA,the=the,help=help} 
