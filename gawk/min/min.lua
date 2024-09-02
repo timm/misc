@@ -133,6 +133,10 @@ function NUM:cdf(x,     fun,z)
   z   = (x - self.mu) / self.sd
   return  z>=0 and fun(z) or 1 - fun(-z) end
 
+function SYM:discretize(x) return x end
+
+function NUM:discretize(x) return self:cdf(x) * the.ranges // 1 end
+
 -- -----------------------------------------------------------------------------------
 -- ## Goals
 
@@ -207,58 +211,56 @@ function DATA:guess(todo, done, score,      best,rest,fun,tmp,out)
 -- -----------------------------------------------------------------------------------
 -- ## Contrasts
 
-local BIN={}
+local CONTRAST={}
 
-function DATA:contrasts(other,both,      out)
-  out = {}
-  for _,col in pairs(both.cols.x) do
-    for _,bin in pairs(self:contrast(other, col)) do 
-      push(out, bin) end end
-  return sort(out, gt"score") end
+function CONTRAST:new(goal,lo,hi,col)
+  return new(CONTRAST,{goal=goal,score=0,lo=lo, hi=hi, y=SYM:new(col.i, col.is)}) end
 
-function SYM:bin(x) return x end
-function NUM:bin(x) return self:cdf(x) * the.ranges // 1 end
-
-function DATA:contrast(other, col,     x,b,n,out,index)
-  out, index, n = {}, {}, #self.rows + #other.rows
-  for klass,rows in pairs{best=self.rows, rest=other.rows} do
-    for _,row in pairs(rows) do
-      x = row[col.i]
-      if x ~= "?" then
-        b = col:bin(x)
-        index[b] = index[b] or push(out, BIN:new("best",x,x,col))
-        index[b]:add(x,klass, 1/n) end end end
-  return col:bins(sort(out,lt"lo"), n / the.ranges) end
-
-function SYM:contrast(bins,_) return bins end
-
-function NUM:contrast(bins,small,    t)
-  t={} 
-  for i,b in pairs(bins) do
-    if i==1 then t = {b} 
-    else if b:mergable(t[#t],small) then t[#t] = b:merge(t[#t]) 
-    else push(t,b) end end end
-  return t end
-
-function BIN:new(goal,lo,hi,col)
-  return new(BIN,{goal=goal,score=0,lo=lo, hi=hi, y=SYM:new(col.i, col.is)}) end
-
-function BIN:add(x,y,n)
+function CONTRAST:add(x,y,n)
   self.score = self.score + (y==self.goal and n or -n)
   if x < self.lo then self.lo=x end
   if x > self.hi then self.hi=x end
   self.y:add(y,n) end
 
-function BIN.mergable(i,j,small)
-  return i.y.n < small or j.y.n < small or i.y.mode==j.y.mode end
+function CONTRAST:merged(other,small)
+  if self.y.n < small or other.y.n < small or self.y.mode==other.y.mode then 
+    return self:merge(other,small) end end
 
-function BIN.merge(i,j,     k)
-  k = BIN:new(i.goal, math.min(i.lo,j.lo), math.max(i.hi,j.hi), i.y)
+function CONTRAST.merge(i,j,small,      k)
+  k = CONTRAST:new(i.goal, math.min(i.lo,j.lo), math.max(i.hi,j.hi), i.y)
   k.score = i.score + j.score
   for _,has in pairs{i.y.has, j.y.has} do
     for x,n in pairs(has) do
       k.y:add(x,n) end end
-  return k end
+  return k end 
+
+function DATA:contrasts(other,both,      out)
+  out = {}
+  for _,col in pairs(both.cols.x) do
+    for _,contrast in pairs(self:contrasts4col(col,other)) do 
+      push(out, contrast) end end
+  return sort(out, gt"score") end
+
+function DATA:contrasts4col(col,other,      x,b,n,out,index)
+  out, index, n = {}, {}, #self.rows + #other.rows
+  for klass,rows in pairs{best=self.rows, rest=other.rows} do
+    for _,row in pairs(rows) do
+      x = row[col.i]
+      if x ~= "?" then
+        b = col:discretize(x)
+        index[b] = index[b] or push(out, CONTRAST:new("best",x,x,col))
+        index[b]:add(x,klass, 1/n) end end end
+  return col:mergeContrasts(sort(out,lt"lo"), n / the.ranges) end
+
+function SYM:mergeContrasts(contrasts,_) return contrasts end
+
+function NUM:mergeContrasts(contrasts,small,    t,new)
+  t={} 
+  for i,contrast in pairs(contrasts) do
+    if i==1 then t = {contrast} else
+      new = contrast:merged(t[#t], small) 
+      if new then t[#t] = new else push(t,contrast) end end end
+  return t end
 
 -- -----------------------------------------------------------------------------------
 -- ## Lib
