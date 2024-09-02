@@ -200,12 +200,19 @@ function DATA:acquire(score,rows,       todo,done,top)
   return done end
 
 -- (rows, rows, function) --> row
-function DATA:guess(todo, done, score,      best,rest,fun,tmp,out)
+function DATA:guess(todo, done, score,      best,rest,fun,tmp,out,j,k)
   best,rest = self:clone(done):bestRest()
   fun = function(t) return score(best:like(t,#done,2), rest:like(t,#done,2)) end
   tmp, out = {},{}
   for i,t in pairs(todo) do push(tmp, {i <= the.cut and fun(t) or 0, t}) end
   for _,z in pairs(sort(tmp, lt(1))) do push(out, z[2]) end
+  return self:cycle(out) end
+
+function DATA:cycle(out,    j,k)
+  if the.cut > #out then
+    for i= 1, the.cut//2 do
+      j,k = the.cut//2 + i, #out - the.cut//2 + i
+      out[j],out[k] = out[k],out[j] end end
   return pop(out), out end
 
 -- -----------------------------------------------------------------------------------
@@ -255,9 +262,9 @@ function DATA:contrasts4col(col,other,      x,b,out,index)
 function SYM:mergeContrasts(contrasts,_) return contrasts end
 
 function NUM:mergeContrasts(contrasts,small,    t,new)
-  t={} 
+  t={contrasts[1]} 
   for i,contrast in pairs(contrasts) do
-    if i==1 then t = {contrast} else
+    if i > 1 then
       new = contrast:merged(t[#t], small) 
       if new then t[#t] = new else push(t,contrast) end end end
   return t end
@@ -334,6 +341,9 @@ function o(x,     list,hash)
 -- (any) --> nil
 function oo(x) print(o(x)) end
 
+function yellow(s) return "\27[33m" .. s .. "\27[0m" end
+function green(s)  return "\27[32m" .. s .. "\27[0m" end
+function red(s)    return "\27[31m" .. s .. "\27[0m" end
 -- -----------------------------------------------------------------------------------
 -- ## Main
 
@@ -341,13 +351,14 @@ local go = {}
 
 function go.h(_) print("\n" ..help) end
 function go.all(_,     status,msg,fails,todos) 
-  todos = "sort csv data bayes cheb acq"
-  fails = 0
+  todos, fails = "sort csv data bayes cheb acq", 0
   for x in todos:gmatch"([^ ]+)" do
+    print(yellow(x))
     math.randomseed(the.seed)
     status,msg = xpcall(go[x], debug.traceback, _)
     if status == false then 
-      fails=fails+1; print("!!!!! FAIL in "..x.." :"..msg) end end
+      print(red("fail in "..x.." :"..msg)); fails = fails + 1
+    else print(green("pass")) end end
   os.exit(fails) end 
 
 function go.train(x) the.train = x end
@@ -380,12 +391,14 @@ function go.cheb(_,      d,num)
   for _,t in pairs(d.rows) do num:add(d:chebyshev(t)) end
   print(num.mu, num.sd) end
 
-function go.acq(_,      d,toBe,t,asIs)
-  d    = DATA:new():csv(the.train) 
+function go.acq(_,      d,toBe,t,asIs,repeats,start)
+  d = DATA:new():csv(the.train) 
   asIs,toBe = {},{}
   for _,t in pairs(d.rows) do push(asIs, d:chebyshev(t)) end
-	for i=1,30 do push(toBe, d:chebyshev(d:shuffle():acquire()[1])) end
-  oo{asIs=median(asIs), toBe=median(toBe)} end
+  repeats = 20
+  start = os.clock()
+	for i=1,repeats do push(toBe, d:chebyshev(d:shuffle():acquire()[1])) end
+  oo{secs = (os.clock() - start)/repeats, asIs=median(asIs), toBe=median(toBe)} end
 
 function go.push(_) os.execute("git commit -am saving; git push; git status") end
 function go.pdf(_)  os.execute("make -B ~/tmp/min.pdf; open ~/tmp/min.pdf") end
