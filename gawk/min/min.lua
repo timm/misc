@@ -241,16 +241,16 @@ function DATA:contrasts(other,both,      out)
       push(out, contrast) end end
   return sort(out, gt"score") end
 
-function DATA:contrasts4col(col,other,      x,b,n,out,index)
-  out, index, n = {}, {}, #self.rows + #other.rows
+function DATA:contrasts4col(col,other,      x,b,out,index)
+  out, index = {}, {}
   for klass,rows in pairs{best=self.rows, rest=other.rows} do
     for _,row in pairs(rows) do
       x = row[col.i]
       if x ~= "?" then
         b = col:discretize(x)
         index[b] = index[b] or push(out, CONTRAST:new("best",x,x,col))
-        index[b]:add(x,klass, 1/n) end end end
-  return col:mergeContrasts(sort(out,lt"lo"), n / the.ranges) end
+        index[b]:add(x,klass, 1/col.n) end end end
+  return col:mergeContrasts(sort(out,lt"lo"), col.n / the.ranges) end
 
 function SYM:mergeContrasts(contrasts,_) return contrasts end
 
