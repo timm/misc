@@ -27,16 +27,18 @@ USAGE:
 
 OPTIONS:
   -all            run test suite
-  -b begin  int   initial samples  = 4
-  -B Break  int   max samples      = 30
-  -c cut    int   items to sort    = 100
+  -b begin  int   initial samples   = 4
+  -B Break  int   max samples       = 30
+  -c cut    int   items to sort     = 100
+  -C Cohen  float small effect      = .35
+  -e elite  int   elite sample size = 4
   -h              show help            
-  -k k      int   Bayes param      = 0
-  -m m      int   Bayes param      = 3
-  -r ranges int   max num of bins  = 16
-  -s seed   int   random seed      = 1234567891
-  -t train  str   csv file         = ../../../moot/optimize/misc/auto93.csv
-  -T Top    float best set size    = .5]]
+  -k k      int   Bayes param       = 0
+  -m m      int   Bayes param       = 3
+  -r ranges int   max num of bins   = 10
+  -s seed   int   random seed       = 1234567891
+  -t train  str   csv file          = ../../../moot/optimize/misc/auto93.csv
+  -T Top    float best set size     = .5]]
 
 local NUM,SYM,COLS,DATA = {},{},{},{}
 local big,coerce,csv,down,fmt,green,gt,keys,lt,median,new
@@ -227,42 +229,45 @@ function DATA:cycle(out,    j,k)
 
 local CONTRAST={}
 
-function CONTRAST:new(goal,lo,hi,col)
-  return new(CONTRAST,{goal=goal, bests=0, rests=0,
-                       lo=lo, hi=hi, y=SYM:new(col.i, col.is)}) end
+function CONTRAST:new(goal,i,is,lo,hi,B,R)
+  return new(CONTRAST,{goal=goal, i=i, is=is, lo=lo, hi=hi, 
+                       n=0, bests=0, rests=0, B=B, R=R}) end
 
-function CONTRAST:add(x,y,n)
-  n = n or 1
-  if y==self.goal then self.bests = self.bests+n else self.rests = self.rests+n end
+function CONTRAST:__tostring() return "12" end
+function CONTRAST:add(x,y)
   if x < self.lo then self.lo=x end
-  if x > self.hi then self.hi=x end
-  self.y:add(y,n) end
+  if x > self.hi then self.hi=x end 
+  self.n = self.n + 1
+  if y==self.goal then self.bests = self.bests+1 else self.rests = self.rests+1 end end
 
-function CONTRAST:score(     b,r)
-  b,r = self.bests/self.y.n, self.rests/self.y.n
-  return b^2/(b + r + 1E-32) end
+function CONTRAST:entropy(     p1,p2)
+  p1, p2 = self.bests/self.n, self.rests/self.n
+  return -p1*math.log(p1,2) - p2*math.log(p2,2) end 
 
-function CONTRAST:combined(other,small,      k,e0,e1,e2)
-  print("small",small)
-  if self.y.n < small or other.y.n < small then return self:combine(other) end 
-  k = self:combined(other)
+function CONTRAST:score(    b,r)
+  b,r = self.bests/self.B,self.rests/self.R
+  return b>r and b^2/(b + r + 1E-32) or 0 end
+
+function CONTRAST:combined(other,dull,small,      k,e0,e1,e2)
+  k = self:combine(other)
+  if math.abs(self.lo  - other.lo) < dull then return k end
+  if self.n < small or other.n < small    then return k end
   e0, e1, e2 = k:entropy(), self:entropy(), other:entropy()
-  if e0 <= (e1*self.y.n + e2*other.y.n) / e0.y.n then return k end end
+  if e0 <= (e1*self.n + e2*other.n) / k.n then return k end end
 
 function CONTRAST.combine(i,j,      k)
-  k = CONTRAST:new(i.goal, math.min(i.lo,j.lo), math.max(i.hi,j.hi), i.y)
-  k.score = i.score + j.score
-  for _,has in pairs{i.y.has, j.y.has} do
-    for x,n in pairs(has) do
-      k.y:add(x,n) end end
+  k = CONTRAST:new(i.goal, i.i, i.is, math.min(i.lo,j.lo), math.max(i.hi,j.hi),i.B,i.R)
+  k.n     = i.n + j.n
+  k.bests = i.bests + j.bests
+  k.rests = i.rests + j.rests
   return k end 
 
 function DATA:contrasts(other,both,      out)
   out = {}
   for i,col in pairs(both.cols.x) do
-      for _,contrast in pairs(self:contrasts4col(col,other)) do 
+    for _,contrast in pairs(self:contrasts4col(col,other)) do 
         push(out, contrast) end end 
-  return out end --sort(out, up(function(c) return c:score() end)) end
+  return   sort(out, up(function(c) return c:score() end)) end
 
 function DATA:contrasts4col(col,other,      x,b,out,index)
   out, index = {}, {}
@@ -271,22 +276,19 @@ function DATA:contrasts4col(col,other,      x,b,out,index)
       x = row[col.i]
       if x ~= "?" then
         b = col:discretize(x)
-        index[b] = index[b] or push(out, CONTRAST:new("best",x,x,col))
+        index[b] = index[b] or 
+                   push(out,CONTRAST:new("best",col.i,col.is,x,x,#self.rows,#other.rows))
         index[b]:add(x,klass) end end end
-  --for b,con in pairs(index) do print(b,con.y.n) end
-  print(">>",col.n, the.ranges, col.n/the.ranges)
   return col:contrastsCombined(sort(out,lt"lo"), col.n / the.ranges) end
 
 function SYM:contrastsCombined(contrasts,_) return contrasts end
 
-function NUM:contrastsCombined(contrasts,small,    t,new)
+function NUM:contrastsCombined(contrasts,small,    t,new,dull)
+  dull = self.sd * the.Cohen
   t={contrasts[1]} 
-  print("0",0,o(t[1]))
   for i,contrast in pairs(contrasts) do
     if i > 1 then
-      print("c",i,o(contrast))
-      print("c",i,o(t[#t]))
-      new = contrast:combined(t[#t], small) 
+      new = contrast:combined(t[#t], dull,small) 
       if new then t[#t] = new else push(t,contrast) end end end
   return t end
 
@@ -426,8 +428,9 @@ function go.acq(_,      d,toBe,t,asIs,repeats,start)
 
 function go.br(_,     both,best,rest)
   both = DATA:new():csv(the.train)
-  best,rest = both:bestRest(.8)
-  for i,c in pairs(best:contrasts(rest,both)) do print(i, o(c)) end end
+  best,rest = both:bestRest(.5)
+  for i,c in pairs(best:contrasts(rest,both)) do 
+    print(i, c, c:score(#best.rows, #rest.rows)) end end
 
 function go.push(_) os.execute("git commit -am saving; git push; git status") end
 function go.pdf(_)  os.execute("make -B ~/tmp/min.pdf; open ~/tmp/min.pdf") end
