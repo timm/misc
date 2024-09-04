@@ -40,3 +40,21 @@ docs/%.html: %.lua ## make html
 		--footer="page %p."                     \
 		-M letter -o $@.ps $<
 	@ps2pdf $@.ps $@; rm $@.ps
+
+        #-H $(Etc)/favicon.html         \
+        #--include-before=$(Etc)/head.md \
+        #--include-after=$(Etc)/foot.md   \
+        #--css style.css \
+
+Pandoc =      \
+        -s           \
+        -f markdown   \
+        --mathjax      \
+        --highlight-style kate \
+				--css my.css \
+  --indented-code-classes=lua
+
+~/tmp/%.html : %.lua 
+	echo "$@ ... "
+	cp my.css ~/tmp
+	sed -e '1d' -e 's/--\[\[//' -e 's/--\]\]//' $< | gawk -f lua2md.awk | pandoc  -o $@ $(Pandoc)
