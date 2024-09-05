@@ -215,13 +215,13 @@ function DATA:guess(todo, done, score,      best,rest,fun,tmp,out,j,k)
   tmp, out = {},{}
   for i,t in pairs(todo) do push(tmp, {i <= the.cut and fun(t) or 0, t}) end
   for _,z in pairs(sort(tmp, lt(1))) do push(out, z[2]) end
-  return self:cycle(out) end
+  return self:demoteBadGusses(out) end
 
-function DATA:cycle(out,    j,k)
-  if the.cut > #out then
-    for i= 1, the.cut//2 do
-      j,k = the.cut//2 + i, #out - the.cut//2 + i
-      out[j],out[k] = out[k],out[j] end end
+function DATA:demoteBadGusses(out,    half,saved)
+  half,saved = the.cut//2,{}
+  for i=half, the.cut        do push(saved,out[i]) end
+  for i=the.cut+1, #out-half do out[i-half] = out[i] end
+  for i,x in pairs(saved)    do out[#out-half + i ] = x end
   return pop(out), out end
 
 -- -----------------------------------------------------------------------------------
