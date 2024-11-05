@@ -16,7 +16,7 @@ function Cols(i) { #adasasdas
   have(i,"x")
   have(i,"y") }
 
-function Col(i,txt,at) {
+function Col(i,txt,at) { 
   i.n   = 0
   i.at  = at ? at : 0
   i.txt = txt ? txt : " " }
@@ -35,7 +35,6 @@ function Sym(i,txt,at) {
   i.most = i.mode = 0 }
 
 #------------------------------------------------------------------------------
-# asdas
 function addNum(i,x,    d) {
   if (x=="?") return
   i.n++
