@@ -2,43 +2,44 @@
 
 BEGIN{ main() }
 
-function add(i,x,    f) { f="add"i.is; return @f(i,x) }}
+function add(i,x,    f) { f="add"i.is; return @f(i,x) }
 
 function Data(i) {
   i.is = "Data"
   have(i,"rows")
   havE(i,"cols","Cols") }
 
-function Cols(i) {
+function Cols(i) { #adasasdas
   i.is = "Cols"
   have(i,"names")
   have(i,"all")
   have(i,"x")
   have(i,"y") }
 
-function Col(i,at,txt) {
+function Col(i,txt,at) {
   i.n   = 0
   i.at  = at ? at : 0
   i.txt = txt ? txt : " " }
   
-function Num(i,at,txt) {
+function Num(i,txt,at) {
   Col(i,at,txt)
   i.is = "Num"
   i.n = i.mu = i.m2 = i.sd = 0
   i.lo = -(i.hi = -1E32) 
   i.goal = (txt ~ /-$/ ? 0 : 1) }
 
-function Sym(i,at,txt) {
-  Col(i,at,txt)
+function Sym(i,txt,at) {
+  Col(i,txt,at)
   i.is = "Sym"
   have(i,"count")
   i.most = i.mode = 0 }
 
 #------------------------------------------------------------------------------
+# asdas
 function addNum(i,x,    d) {
   if (x=="?") return
   i.n++
-  d = x - i.mu
+  d     = x - i.mu
   i.mu += d/i.n
   i.m2 += d*(x-i.mu)
   i.sd  = i.n < 2 ? 0 : (i.m2/(i.n - 1))^.5
@@ -95,5 +96,5 @@ function main(     j,f) {
 #------------------------------------------------------------------------------
 function eg_one(_) { print 1}
 function eg_data(_,  j) { Data(j); print o(j)} 
-function eg_num(_,  j) { Num(j); print o(j)} 
+function eg_num(_,  j) { Num(j,"num"); print o(j)} 
 function eg_sym(_,  j) { Sym(j); print o(j)} 
