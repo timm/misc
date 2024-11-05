@@ -1,0 +1,1 @@
+! Object methods !oo	^Transcript show: self asString ! !	  1 oo.
