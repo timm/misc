@@ -1,0 +1,47 @@
+# vim: set ft=awk :
+prep() { cat <<'EOF' | defines
+
+function reads(f, data1,     a,n) {
+  while ((getline < f) > 0) {
+    dollars(a)
+    n++ ? row(a, data1): head(a, data1) }
+  complete(data1)
+  close(f) }
+   
+function head(a, data1) {
+  for(k in a) {
+   txt1[k] = a[k]
+   if (a[k] ~ /^[A-Z]/) split("", num1[k],  "") 
+   if (a[k] ~ /-$/)     split("", goal1[k], "") }}
+ 
+function row(a, data1,     r,v,k) {
+  r = 1 + length(rows1)
+  for(k in a) {
+    v = rows1[r][k] = a[k] 
+    if (v != "?") {
+      n1[k]++
+      k in num1 ? sd(data1,k,v) : sym1[k][v]++ }}
+
+function coerce(x,   y) { y=x+0; return x==y ? y : x }
+
+function dollas(a) {
+  split("",a,"")
+  for(i=1; i<=NF; i++) a[i] = coerce($i) }
+
+function has(a,k)  { a[k][0]; delete a[k][0] }
+
+function push(a,x) { a[length(a) + 1] = x; return x }
+
+function  sd(data1,k,v,     d) {
+  d       = v - mu1[k]
+  mu1[k] += d/n1[k]
+  m21[k] += d*(v - mu1[k]) 
+  sd1[k]  = n1[k] < 2 ? 0 : (m21[k] / (n1[k] - 1))^.5 }
+
+EOF
+}
+
+defines() {
+   sed 's/data\([0-9]*\)/txt\1,rows\1,sym\1,num\1,n\1,m2\1,mu\1,sd\1,goal\1/g'; }
+
+prep
