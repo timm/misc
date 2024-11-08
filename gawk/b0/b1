@@ -41,7 +41,8 @@ function readData(i,f,     a,k) {
     add(i,a) }
   close(f) }
 
-function addsData(data1,newRows,    r) {
+function addsData(data1,header,newRows,    r) {
+  add(data1,header)
   for(r in newRows) add(data1,newRows[r]) }
 
 function addData(i,a,     r,v,k) {
