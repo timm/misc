@@ -1,47 +1,92 @@
 # vim: set ft=awk :
-prep() { cat <<'EOF' | defines
+code() { cat <<'EOF'| fields
+BEGIN {main()}
+#--------------------------------------------------------------------
+function have(a,k) { a[k][0]; del a[k][0] }
 
-function reads(f, data1,     a,n) {
-  while ((getline < f) > 0) {
-    dollars(a)
-    n++ ? row(a, data1): head(a, data1) }
-  complete(data1)
-  close(f) }
-   
-function head(a, data1) {
-  for(k in a) {
-   txt1[k] = a[k]
-   if (a[k] ~ /^[A-Z]/) split("", num1[k],  "") 
-   if (a[k] ~ /-$/)     split("", goal1[k], "") }}
+function Data(i,names) {
+  has(i,"rows")
+  havE(i,"cols","Cols",names) }
+
+function Cols(i,names) {
+  has(i,"all")
+  has(i,"txt")
+  has(i,"x")
+  has(i,"y")
+  for(k in names) {
+    v = txt[k] = names
+    if (v ~ /^[A-Z]/) sd[k]=0
+    if (v ~ /[!+-]$/) goal[k] = v ~ /-$/ ? 0 : 1}}
+
  
-function row(a, data1,     r,v,k) {
-  r = 1 + length(rows1)
-  for(k in a) {
-    v = rows1[r][k] = a[k] 
-    if (v != "?") {
-      n1[k]++
-      k in num1 ? sd(data1,k,v) : sym1[k][v]++ }}
+function reads(f, Data,     a,j,seen) {
+  while ((getline < f) > 0) {
+    delete a
+    for(j=1; j<=NF; j++) a[j] = coerce($j) 
+    seen++ ? add(Data,a): head(Data,a) }
+  close(f) }
 
+function head(Data,a ,     k,v) {
+  function adds(Data,txts, newRows,      r,j) {
+  head(Data,txts)
+  for(r in newRows) { add(Data,newRows[r]) }}
+
+function add(Data,a,     r,v,k) {
+  r = 1 + length(rows)
+  for(k in a) {
+    v = rows[r][k] = a[k] 
+    n[k]++
+    k in sd ? addnum(Num,k,v) : addsym(Sym,k,v) }}
+
+#--------------------------------------------------------------------
+function  addsym(Sym,k,v,     now) {
+  n[k]++
+  if ((now = ++sym[k]) > most[k]) {
+     most[k] = now; mode[k] = v }}
+
+function  addnum(Num,k,v,     d) {
+  n[k]++
+  d      = v - mu[k]
+  mu[k] += d/n[k]
+  mm[k] += d*(v - mu[k]) 
+  sd[k]  = n[k] < 2 ? 0 : (mm[k] / (n[k] - 1))^.5 }
+
+#--------------------------------------------------------------------
 function coerce(x,   y) { y=x+0; return x==y ? y : x }
 
-function dollas(a) {
-  split("",a,"")
-  for(i=1; i<=NF; i++) a[i] = coerce($i) }
+function o(a,    j,pre,keyp,k,sep,s) {
+  if (typeof(a) != "array") return a
+  for(j in a) {
+    keyp = (typeof(j) != "number")
+    for(j in a) {
+      k =  keyp ? j"="     : ""
+      j=="is"   ? pre=a[j] : s=s sep k o(a[j])
+      sep=", " }
+    return pre "(" s ")" }}
 
-function has(a,k)  { a[k][0]; delete a[k][0] }
+function has(a,k)        { a[k][1];  delete a[k][1] }
+function have(a,k,f)     { has(a,k); return @f(a[k]) }
+function havE(a,k,f,x)   { has(a,k); return @f(a[k],x) }
+function haVE(a,k,f,x,y) { has(a,k); return @f(a[k],x,y) }
+#--------------------------------------------------------------------
+function main(     j,f) {
+  for(j in ARGV) {
+    f = "eg_" substr(ARGV[j],3)
+    if (f in FUNCTAB) @f(ARGV[j+1]) 
+  }
+  for(j in SYMTAB) 
+   if (j~/^[a-z_]/) print("? " j) }
 
-function push(a,x) { a[length(a) + 1] = x; return x }
-
-function  sd(data1,k,v,     d) {
-  d       = v - mu1[k]
-  mu1[k] += d/n1[k]
-  m21[k] += d*(v - mu1[k]) 
-  sd1[k]  = n1[k] < 2 ? 0 : (m21[k] / (n1[k] - 1))^.5 }
-
+function eg_one(_) {print _}
 EOF
 }
+#--------------------------------------------------------------------
+fields() {
+  sed -e 's/Data\([0-9]*\)/txt\1,rows\1,n\1,Sym\1,Num\1/g' \
+      -e 's/Num\([0-9]*\)/mm\1,mu\1,sd\1,goal\1/g'    \
+      -e 's/Sym\([0-9]*\)/has\1,most\1,mode\1/g'
+}
+#--------------------------------------------------------------------
+code > /tmp/$0
+gawk -f /tmp/$0 $*
 
-defines() {
-   sed 's/data\([0-9]*\)/txt\1,rows\1,sym\1,num\1,n\1,m2\1,mu\1,sd\1,goal\1/g'; }
-
-prep
