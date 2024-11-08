@@ -27,31 +27,35 @@ function Cols(i,names,     v,what,k) {
   has(i,"x")
   has(i,"y")
   for(k in names) {
-    v = i.txt[k] = names
+    v = i.txt[k] = names[k]
     what= v ~ /^A-Z/ ? "Num" : "Sym"
     more(i.all, what, names[k], k)
-    if (v ~ /[!+-]$/) { 
+    if (v ~ /X$/) continue
+    if (v ~ /[!+-]$/) 
       i.y[k] = v ~ /-$/ ? 0 : 1 
-    } else { i.x[k]=1 }}}
+    else 
+      i.x[k]=1 }}
 
-function readData(i,f,     a,k) {
+function readData(i,f,     a,k,what) {
+  what="Data"
   while ((getline < f) >= 0) {
     delete a
     for(k=1; k<=NF; k++) a[k] = coerce($k) 
-    add(i,a) }
+    @what(i,a)
+    what="addData"}
   close(f) }
 
 function addsData(data1,header,newRows,    r) {
-  add(data1,header)
+  addData(data1,header)
   for(r in newRows) add(data1,newRows[r]) }
 
 function addData(i,a,     r,v,k) {
+  if (!("ready" in i)) return Data(i,a)
+  i.ready = 1
   r = 1 + length(i.rows)
-  if ("cols" in i) 
+  if ("cols" in i)  
     for(k in a) 
-      add(i.cols.all[k], (i.rows[r][k] = a[k]))  
-  else  
-    Data(i,a) }
+      add(i.cols.all[k], (i.rows[r][k] = a[k]))  }
 
 function addSym(i,x,     now,v) {
   if (x=="?") return
@@ -75,13 +79,12 @@ function coerce(x,   y) { y=x+0; return x==y ? y : x }
 
 function o(a,    j,pre,keyp,k,sep,s) {
   if (typeof(a) != "array") return a
+  for(j in a) { keyp = (j+0 != j); break }
   for(j in a) {
-    keyp = (j+0 != j)
-    for(j in a) {
       k =  keyp ? j"="     : ""
       j=="is"   ? pre=a[j] : s=s sep k o(a[j])
       sep=", " }
-    return pre "(" s ")" }}
+    return pre "(" s ")" }
 
 function has(a,k)        { a[k][1];  delete a[k][1] }
 function have(a,k,f)     { has(a,k); return @f(a[k]) }
