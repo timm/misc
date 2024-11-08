@@ -1,63 +1,81 @@
 # vim: set ft=awk :
-code() { cat <<'EOF'| fields
-BEGIN {main()}
+code() { cat <<'EOF'| auk
+BEGIN { FS=","
+        BIG=1E32; 
+        DOT=sprintf("%c",46)
+        main() }
 #--------------------------------------------------------------------
-function have(a,k) { a[k][0]; del a[k][0] }
+function Num(i,txt,at) {
+  i.is="Num"
+  i.n=i.sd = i.mu= i.m2 = 0
+  i.hi = -(i.lo = BIG) } 
+
+function Sym(i,txt,at) {
+  i.is="Sym"
+  has(i,"seen")
+  i.most = i.mode }
 
 function Data(i,names) {
+  i.is = "Data"
   has(i,"rows")
   havE(i,"cols","Cols",names) }
 
-function Cols(i,names) {
+function Cols(i,names,     v,what,k) {
+  i.is = "Cols"
   has(i,"all")
   has(i,"txt")
   has(i,"x")
   has(i,"y")
   for(k in names) {
-    v = txt[k] = names
-    if (v ~ /^[A-Z]/) sd[k]=0
-    if (v ~ /[!+-]$/) goal[k] = v ~ /-$/ ? 0 : 1}}
+    v = i.txt[k] = names
+    what= v ~ /^A-Z/ ? "Num" : "Sym"
+    more(i.all, what, names[k], k)
+    if (v ~ /[!+-]$/) { 
+      i.y[k] = v ~ /-$/ ? 0 : 1 
+    } else { i.x[k]=1 }}}
 
- 
-function reads(f, Data,     a,j,seen) {
-  while ((getline < f) > 0) {
+function readData(i,f,     a,k) {
+  while ((getline < f) >= 0) {
     delete a
-    for(j=1; j<=NF; j++) a[j] = coerce($j) 
-    seen++ ? add(Data,a): head(Data,a) }
+    for(k=1; k<=NF; k++) a[k] = coerce($k) 
+    add(i,a) }
   close(f) }
 
-function head(Data,a ,     k,v) {
-  function adds(Data,txts, newRows,      r,j) {
-  head(Data,txts)
-  for(r in newRows) { add(Data,newRows[r]) }}
+function addsData(data1,newRows,    r) {
+  for(r in newRows) add(data1,newRows[r]) }
 
-function add(Data,a,     r,v,k) {
-  r = 1 + length(rows)
-  for(k in a) {
-    v = rows[r][k] = a[k] 
-    n[k]++
-    k in sd ? addnum(Num,k,v) : addsym(Sym,k,v) }}
+function addData(i,a,     r,v,k) {
+  r = 1 + length(i.rows)
+  if ("cols" in i) 
+    for(k in a) 
+      add(i.cols.all[k], (i.rows[r][k] = a[k]))  
+  else  
+    Data(i,a) }
+
+function addSym(i,x,     now,v) {
+  if (x=="?") return
+  i.n++
+  if ((now  = ++i.seen[x]) > i.most) {
+     i.most = now
+     i.mode = x }}
+
+function  addNum(i,x,     d) {
+  if (x=="?") return
+  i.n++
+  d     = x - i.mu
+  i.mu += d/i.n
+  i.m2 += d*(x - i.mu) 
+  i.sd  = i.n < 2 ? 0 : (i.m2 / (i.n - 1))^0.5 }
 
 #--------------------------------------------------------------------
-function  addsym(Sym,k,v,     now) {
-  n[k]++
-  if ((now = ++sym[k]) > most[k]) {
-     most[k] = now; mode[k] = v }}
-
-function  addnum(Num,k,v,     d) {
-  n[k]++
-  d      = v - mu[k]
-  mu[k] += d/n[k]
-  mm[k] += d*(v - mu[k]) 
-  sd[k]  = n[k] < 2 ? 0 : (mm[k] / (n[k] - 1))^.5 }
-
-#--------------------------------------------------------------------
+function add(x,y,    f) {f="add"x.is; return @f(x,y) }
+ 
 function coerce(x,   y) { y=x+0; return x==y ? y : x }
 
 function o(a,    j,pre,keyp,k,sep,s) {
   if (typeof(a) != "array") return a
   for(j in a) {
-    keyp = (typeof(j) != "number")
+    keyp = (j+0 != j)
     for(j in a) {
       k =  keyp ? j"="     : ""
       j=="is"   ? pre=a[j] : s=s sep k o(a[j])
@@ -68,23 +86,31 @@ function has(a,k)        { a[k][1];  delete a[k][1] }
 function have(a,k,f)     { has(a,k); return @f(a[k]) }
 function havE(a,k,f,x)   { has(a,k); return @f(a[k],x) }
 function haVE(a,k,f,x,y) { has(a,k); return @f(a[k],x,y) }
+
+function more(a,f,x,y) { haVE(a,1+length(a),f,x,y) }
+
 #--------------------------------------------------------------------
 function main(     j,f) {
   for(j in ARGV) {
     f = "eg_" substr(ARGV[j],3)
+    print(ARGV[j],f)
     if (f in FUNCTAB) @f(ARGV[j+1]) 
   }
   for(j in SYMTAB) 
    if (j~/^[a-z_]/) print("? " j) }
 
-function eg_one(_) {print _}
+function eg_data(_,   data1,f) {
+  f=  DOT DOT "/" DOT DOT "/data/auto93"DOT"csv"
+  print f
+  readData(data1, DOT DOT "/" DOT DOT "/data/auto93"DOT"csv")
+  print(o(data1))}
+
 EOF
 }
 #--------------------------------------------------------------------
-fields() {
-  sed -e 's/Data\([0-9]*\)/txt\1,rows\1,n\1,Sym\1,Num\1/g' \
-      -e 's/Num\([0-9]*\)/mm\1,mu\1,sd\1,goal\1/g'    \
-      -e 's/Sym\([0-9]*\)/has\1,most\1,mode\1/g'
+auk() {
+  gawk '{print gensub(/\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/,
+                      "[\"\\1\\2\"]","g", $0)}'
 }
 #--------------------------------------------------------------------
 code > /tmp/$0
