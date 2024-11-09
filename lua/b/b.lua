@@ -8,65 +8,15 @@ local the={train="../../data/auto93.csv",
 
 local abs,exp,log     = math.abs,math.exp,math.log
 local max,min,pi,sqrt = math.max,math.min,math.pi,math.sqrt
-local adds, big, coerce, csv, kap, map, new, o, pront, push, sort, split,  sum
+local adds, big, coerce, csv, kap, keysort,lt
+local map, new, o, pront, push, sort, split,  sum
+
+-- local function obj(s,      init,t,__)
+--   init = function(_,...) return t.new(__,...) end 
+--   t={a=s}; t.__index=t; return setmetatable(t,{__call=init(t)}) end
+--
 local Cols, Data, Num, Sym = {},{},{},{}
 
--------------------------------------------------------------------------------
-big = 1E32
-
-function adds(i,t)
-  for _,x in pairs(t) do i:add(x) end; return i end
-
-function split(t,n,     u,v)
-  u,v={},{}; for j,x in pairs(t) do push(j<=n and u or v,x) end; return u,v, end
-
-function sort(t,fn) table.sort(t,fn); return t end
-
-function kap(t,fn,     u) 
-  u={}; for k,v in pairs(t) do u[1+#u] = fn(k,v) end; return u end
-
-function map(t,fn,     u) 
-  u={}; for _,v in pairs(t) do u[1+#u] = fn(v) end; return u end
-
-function sum(t,fn,     n) 
-  n=0; for _,v in pairs(t) do n=n + (fn and fn(v) or v) end; return n end
-
-function lt(x) 
-  return function(a,b) return a[x] < b[x] end end
-
-function l.keysort(t,fn,     decorate,undecorate)
-  decorate   = function(x) return {fn(x),x} end
-  undecorate = function(x) return x[2] end
-  return l.map(l.sort(l.map(t,decorate), lt(1)), undecorate) end
-
-function coerce(s,     f,g) 
-  f = function(s) return s=="true" and true or s ~= "false" and s end
-  g = function(s) return s:match"^%s*(.-)%s*$" end
-  return math.tointeger(s) or tonumber(s) or f(g(s)) end
-
-function csv(file,fun,    s,src,t)
-  if file and file ~="-" then src=io.input(file) end
-  s = io.read()
-  while s do
-    t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=coerce(s1) end
-    fun(t) 
-    s = io.read() end
-  if src then io.close(src) end end
-
-function o(x,     f,g)
-  f = function(x) return #x>0 and map(x,o) or sort(kap(x,g)) end
-  g = function(k,_) return string.format(":%s %s",k,o(x[k])) end 
-  return type(x)=="number" and string.format("%g",x) or
-         type(x)~="table"  and tostring(x) or
-         "{" .. table.concat(f(x)," ") .. "}" end
-
-function pront(x) print(o(x)); return x end
-
-function push(t,x) t[1+#t] = x; return x end
-
-function new(klass, obj)
-  klass.__index    = klass
-  return setmetatable(obj, klass) end
 
 -------------------------------------------------------------------------------
 function Sym:new(txt,at) 
@@ -80,7 +30,7 @@ function Sym:add(x)
   if self.has[x] > self.most then 
     self.most, self.mode=self.has[x], x end end 
 
-function SYM:like(x,prior)
+function Sym:like(x,prior)
   return  ((self.has[x] or 0) + the.bayes.m*prior) / (self.n + the.bayes.m) end
 
 function Sym:mid() return self.mode end
@@ -114,7 +64,7 @@ function Num:norm(x)
 function Cols:new(txts,     col)
   local all,x,y = {},{},{}
   for at,txt in pairs(txts) do
-    col = (txt:find"^[A-Z]" and Num or Sym):new(txt,at)
+    col = (txt:find"^[A-Z]" and Num or Sym)(txt,at)
     push(all, col)
     if not txt:find"X$" then push(txt:find"[!+-]$" and y or x, col) end end
   return new(Cols,{txts=txts, all=all, x=x, y=y}) end
@@ -141,7 +91,7 @@ function Data:adds(rows)
 function Data:add(row) 
   if   self.cols 
   then push(self.rows, self.cols:add(row)) 
-  else self.cols = Cols:new(row) end
+  else self.cols = Cols(row) end
   return self end
 
 function Data:loglike(row, nall, nh,          prior,f,l)
@@ -154,7 +104,7 @@ function Data:ydist(row,     n,d)
   f = function(col) return (col:norm(row[col.at]) - col.goal)^2 end
   return (sum(self.cols.y,f) / #self.cols.y) ^ 0.5 end
 
-function DATA:acquire()
+function Data:acquire()
   local y,br,test,train,todo,done,best,rest,n,
   y  = function(r) return self:ydist(r) end
   br = function(r) return best:loglike(r,#done,2) - rest:loglike(r,#done,2) end
@@ -172,7 +122,61 @@ function DATA:acquire()
       push(done, table.remove(todo,1)) end end
   return done, test, BR end     --- [7]
 
+-------------------------------------------------------------------------------
+big = 1E32
 
+function adds(i,t)
+  for _,x in pairs(t) do i:add(x) end; return i end
+
+function split(t,n,     u,v)
+  u,v={},{}; for j,x in pairs(t) do push(j<=n and u or v,x) end; return u,v end
+
+function sort(t,fn) table.sort(t,fn); return t end
+
+function kap(t,fn,     u) 
+  u={}; for k,v in pairs(t) do u[1+#u] = fn(k,v) end; return u end
+
+function map(t,fn,     u) 
+  u={}; for _,v in pairs(t) do u[1+#u] = fn(v) end; return u end
+
+function sum(t,fn,     n) 
+  n=0; for _,v in pairs(t) do n=n + (fn and fn(v) or v) end; return n end
+
+function lt(x) 
+  return function(a,b) return a[x] < b[x] end end
+
+function keysort(t,fn,     decorate,undecorate)
+  decorate   = function(x) return {fn(x),x} end
+  undecorate = function(x) return x[2] end
+  return map(sort(map(t,decorate), lt(1)), undecorate) end
+
+function coerce(s,     f,g) 
+  f = function(s) return s=="true" and true or s ~= "false" and s end
+  g = function(s) return s:match"^%s*(.-)%s*$" end
+  return math.tointeger(s) or tonumber(s) or f(g(s)) end
+
+function csv(file,fun,    s,src,t)
+  if file and file ~="-" then src=io.input(file) end
+  s = io.read()
+  while s do
+    t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=coerce(s1) end
+    fun(t) 
+    s = io.read() end
+  if src then io.close(src) end end
+
+function o(x,     f,g)
+  f = function(x) return #x>0 and map(x,o) or sort(kap(x,g)) end
+  g = function(k,_) return string.format(":%s %s",k,o(x[k])) end 
+  return type(x)=="number" and string.format("%g",x) or
+         type(x)~="table"  and tostring(x) or
+         (x.a or "") .. "(" .. table.concat(f(x)," ") .. ")" end
+
+function pront(x) print(o(x)); return x end
+
+function push(t,x) t[1+#t] = x; return x end
+
+function new(klass, obj)
+  return setmetatable(obj,klass) end
 
 -------------------------------------------------------------------------------
 local go = {}
@@ -180,15 +184,15 @@ local go = {}
 function go.csv(_) csv(the.train, pront) end
 
 function go.sym(_)
-  pront(adds(Sym:new(),{"a","a","a","a","b","b","c"})) end
+  pront(adds(Sym(),{"a","a","a","a","b","b","c"})) end
 
 function go.num(_,n)
-  n=Num:new()
+  n=Num()
   for i=1,1000 do n:add(i) end
   pront(n) end
 
 function go.data(_,d)
-  d=Data:new():read(the.train) 
+  d=Data():read(the.train) 
   pront(map(d.cols.all, function(c) return {c.txt,c:mid()} end)) end
 
 -------------------------------------------------------------------------------
