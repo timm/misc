@@ -1,7 +1,8 @@
-src() { cat <<'EOF'| fix 
+src() { cat <<'EOF'| fix # vim: set ft=awk :
 BEGIN { FS  = ","
         BIG = 1E32; 
         DOT = sprintf("%c",46)
+        PI  = 355/113
         main() }
 #--------------------------------------------------------------------
 function Num(i,txt,at) {
@@ -22,10 +23,14 @@ function Data(i,names) {
 function Cols(i,names,     v,what,k) {
   i.is = "Cols"
   has(i,"all")
+  has(i,"x")
+  has(i,"y")
+  has(i,"txt")
   for(k in names) {
     v = i.txt[k] = names[k]
     what= v ~ /^A-Z/ ? "Num" : "Sym"
     more(i.all, what, names[k], k)
+    print(o(i,all))
     if (v ~ /X$/) continue
     if (v ~ /[!+-]$/) 
       i.y[k] = v ~ /-$/ ? 0 : 1 
@@ -46,7 +51,6 @@ function addsData(data1,header,newRows,    r) {
 
 function addData(i,a,     r,v,k) {
   if (!("ready" in i)) return Data(i,a)
-  i.ready = 1
   r = 1 + length(i.rows)
   if ("cols" in i)  
     for(k in a) 
@@ -65,7 +69,9 @@ function  addNum(i,x,     d) {
   d     = x - i.mu
   i.mu += d/i.n
   i.m2 += d*(x - i.mu) 
-  i.sd  = i.n < 2 ? 0 : (i.m2 / (i.n - 1))^0.5 }
+  i.sd  = i.n < 2 ? 0 : (i.m2 / (i.n - 1))^0.5
+  if (x > i.hi) i.hi=x
+  if (x < i.lo) i.lo=x }
 
 #--------------------------------------------------------------------
 function add(x,y,    f) {f="add"x.is; return @f(x,y) }
@@ -73,14 +79,13 @@ function add(x,y,    f) {f="add"x.is; return @f(x,y) }
 function coerce(x,   y) { y=x+0; return x==y ? y : x }
 
 function o(a,    j,k,s,pre,sep,keyp) {
+  if (typeof(a) == "number") return sprintf("%g",a)
   if (typeof(a) != "array") return a
-  print(1)
   for(j in a) { keyp = (j+0 != j); break }
   for(j in a) {
     k =  keyp ? j"="     : ""
-    j=="is"   ? pre=j.is : s=s sep k o(a[j])
+    j=="is"   ? pre=a.is : s=s sep k o(a[j])
     sep=", " }
-  print("is",j.is)
   return pre "(" s ")" }
 
 function has(a,k)        { a[k][1];  delete a[k][1] }
@@ -90,29 +95,54 @@ function haVE(a,k,f,x,y) { has(a,k); return @f(a[k],x,y) }
 
 function more(a,f,x,y) { haVE(a,1+length(a),f,x,y) }
 
+function normal(mu,sd) {
+  return mu + (sd ? sd : 1)*sqrt(-2*log(rand()))*cos(2*PI*rand()) }
+
 #--------------------------------------------------------------------
-function main(     j,f) {
-  for(j in ARGV) {
-    f = "eg_" substr(ARGV[j],3)
-    print(ARGV[j],f)
-    if (f in FUNCTAB) @f(ARGV[j+1]) 
-  }
-  for(j in SYMTAB) 
-   if (j~/^[a-z_]/) print("? " j) }
+function eg_norm(_,i) {
+  for(i=1;i<=100;i++) printf("%.3f\n",normal(1,0.2)) | "sort -n | fmt -60 " }
+
+function eg_show(_) { print(o(ARGV)) }
+
+function eg_sym(_,       j,sym1,str) {
+  Sym(sym1)
+  str="abbcccc"
+  for (j = 1; j <= length(str); j++) add(sym1,  substr(str, j, 1)) 
+  print(o(sym1)) }
+
+function eg_num(_,       j,num1) {
+  Num(num1)
+  for(j=1;j<=1000;j++) add(num1,normal(10,2))
+  print(o(num1)) }
 
 function eg_data(_,   data1,f) {
   f=  DOT DOT "/" DOT DOT "/data/auto93"DOT"csv"
-  print f
   readData(data1, DOT DOT "/" DOT DOT "/data/auto93"DOT"csv")
-  #-print(o(data1))
 }
+
+#--------------------------------------------------------------------
+function main() {
+  srand(1234567891); cli(); rogues() }
+
+function cli(   j,f) {
+  for(j in ARGV) {
+    f = "eg_" substr(ARGV[j],3)
+    if (f in FUNCTAB) @f(ARGV[j+1]) }}
+
+function rogues(    j) {
+  for(j in SYMTAB) 
+    if (j~/^[a-z_]/) print("? " j) }
 
 EOF
 
 }
 fix() { sed -E 's/\.([^0-9\\*\$\\+])([a-zA-Z0-9_]*)/["\1\2"]/g'; }
 #--------------------------------------------------------------------
-src > /tmp/$0
-echo /tmp/$0
+src  > /tmp/$0
 gawk -f /tmp/$0 $*
 
+# first things first. code something that runs a function names on command line
+# code in the repl. sh is your repl 
+# code in spirts. 10 lines, run new test(s)
+# N-1 globals is better than N
+# malloc befre assign.
