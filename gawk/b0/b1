@@ -1,17 +1,16 @@
-# vim: set ft=awk :
-code() { cat <<'EOF'| auk
-BEGIN { FS=","
-        BIG=1E32; 
-        DOT=sprintf("%c",46)
+src() { cat <<'EOF'| fix 
+BEGIN { FS  = ","
+        BIG = 1E32; 
+        DOT = sprintf("%c",46)
         main() }
 #--------------------------------------------------------------------
 function Num(i,txt,at) {
-  i.is="Num"
-  i.n=i.sd = i.mu= i.m2 = 0
+  i.is = "Num"
+  i.n  = i.sd = i.mu= i.m2 = 0
   i.hi = -(i.lo = BIG) } 
 
 function Sym(i,txt,at) {
-  i.is="Sym"
+  i.is = "Sym"
   has(i,"seen")
   i.most = i.mode }
 
@@ -23,9 +22,6 @@ function Data(i,names) {
 function Cols(i,names,     v,what,k) {
   i.is = "Cols"
   has(i,"all")
-  has(i,"txt")
-  has(i,"x")
-  has(i,"y")
   for(k in names) {
     v = i.txt[k] = names[k]
     what= v ~ /^A-Z/ ? "Num" : "Sym"
@@ -39,7 +35,6 @@ function Cols(i,names,     v,what,k) {
 function readData(i,f,     a,k,what) {
   what="Data"
   while ((getline < f) >= 0) {
-    delete a
     for(k=1; k<=NF; k++) a[k] = coerce($k) 
     @what(i,a)
     what="addData"}
@@ -77,14 +72,16 @@ function add(x,y,    f) {f="add"x.is; return @f(x,y) }
  
 function coerce(x,   y) { y=x+0; return x==y ? y : x }
 
-function o(a,    j,pre,keyp,k,sep,s) {
+function o(a,    j,k,s,pre,sep,keyp) {
   if (typeof(a) != "array") return a
+  print(1)
   for(j in a) { keyp = (j+0 != j); break }
   for(j in a) {
-      k =  keyp ? j"="     : ""
-      j=="is"   ? pre=a[j] : s=s sep k o(a[j])
-      sep=", " }
-    return pre "(" s ")" }
+    k =  keyp ? j"="     : ""
+    j=="is"   ? pre=j.is : s=s sep k o(a[j])
+    sep=", " }
+  print("is",j.is)
+  return pre "(" s ")" }
 
 function has(a,k)        { a[k][1];  delete a[k][1] }
 function have(a,k,f)     { has(a,k); return @f(a[k]) }
@@ -107,16 +104,15 @@ function eg_data(_,   data1,f) {
   f=  DOT DOT "/" DOT DOT "/data/auto93"DOT"csv"
   print f
   readData(data1, DOT DOT "/" DOT DOT "/data/auto93"DOT"csv")
-  print(o(data1))}
+  #-print(o(data1))
+}
 
 EOF
+
 }
+fix() { sed -E 's/\.([^0-9\\*\$\\+])([a-zA-Z0-9_]*)/["\1\2"]/g'; }
 #--------------------------------------------------------------------
-auk() {
-  gawk '{print gensub(/\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/,
-                      "[\"\\1\\2\"]","g", $0)}'
-}
-#--------------------------------------------------------------------
-code > /tmp/$0
+src > /tmp/$0
+echo /tmp/$0
 gawk -f /tmp/$0 $*
 
