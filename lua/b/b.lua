@@ -12,11 +12,9 @@ local adds, big, coerce, csv, kap, keysort,lt
 local map, new, o, pront, push, sort, split,  sum
 
 -- local function obj(s,      init,t,__)
---   init = function(_,...) return t.new(__,...) end 
 --   t={a=s}; t.__index=t; return setmetatable(t,{__call=init(t)}) end
 --
 local Cols, Data, Num, Sym = {},{},{},{}
-
 
 -------------------------------------------------------------------------------
 function Sym:new(txt,at) 
