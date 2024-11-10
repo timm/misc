@@ -1,4 +1,4 @@
-src() { cat <<'EOF' | xpand # vim: set ft=awk :
+src() { cat <<'EOF' # vim: set ft=awk :
 BEGIN { FS  = ","
         PI  = 355/113
         BIG = 1E32; 
@@ -55,11 +55,10 @@ function addsData(data1,header,newRows,    r) {
 
 function addData(i,a,     r,v,k) {
   r = 1 + length(i.rows)
-  if ("cols" in i)  
-    for(k in a) 
-      add(i.cols.all[k], (i.rows[r][k] = a[k]))  }
+  for(k in a) 
+    add(i.cols.all[k], (i.rows[r][k] = a[k]))  }
 
-function addSym(i,x,     now,v) {
+function addSym(i,x,     now) {
   if (x=="?") return
   i.n++
   if ((now  = ++i.seen[x]) > i.most) {
@@ -83,7 +82,6 @@ function likeSym(i,x,prior) {
 function likeNum(i,x,_,      v,tmp) {
   v = i.sd^2 + 1/BIG
   tmp = exp(-1*(x - i.mu)^2/(2*v)) / (2*PI*v) ^ 0.5
-  print(i.mu, x, tmp)
   return max(0,min(1, tmp + 1/BIG)) }
 
 function loglikeData(i, row, nall, nh,          k,out,prior) {
@@ -94,11 +92,11 @@ function loglikeData(i, row, nall, nh,          k,out,prior) {
 
 function _log(n) { return n>0 ? log(n) : 0 }
 #--------------------------------------------------------------------
-function add(i,x,       f) {f="add"i.is;  return @f(i,x) }
-function like(i,a,b,    f) {f="like"i.is; return @f(i,a,b) }
-
 function max(a,b) { return a>b ? a : b }
 function min(a,b) { return a<b ? a : b }
+
+function normal(mu,sd) {
+  return mu + (sd ? sd : 1)*sqrt(-2*log(rand()))*cos(2*PI*rand()) }
 
 function trim(s) {
   sub(/^[ \t]*/,"",s) 
@@ -117,15 +115,16 @@ function o(a,    j,k,s,pre,sep,keyp) {
     sep=", " }
   return pre "(" s ")" }
 
+#--------------------------------------------------------------------
+function add(i,x,       f) {f="add"i.is;  return @f(i,x) }
+function like(i,a,b,    f) {f="like"i.is; return @f(i,a,b) }
+
 function has(a,k)        { a[k][1];  delete a[k][1] }
 function have(a,k,f)     { has(a,k); return @f(a[k]) }
 function havE(a,k,f,x)   { has(a,k); return @f(a[k],x) }
 function haVE(a,k,f,x,y) { has(a,k); return @f(a[k],x,y) }
 
 function more(a,f,x,y) { haVE(a,1+length(a),f,x,y); }
-
-function normal(mu,sd) {
-  return mu + (sd ? sd : 1)*sqrt(-2*log(rand()))*cos(2*PI*rand()) }
 
 #--------------------------------------------------------------------
 function go_normal(_,i) {
@@ -156,13 +155,14 @@ function go_like(_,   d,r) {
     print loglikeData(d, d.rows[r], 1000,2) }
 
 #--------------------------------------------------------------------
-function main() {
-  srand(THE.seed); go(); rogues() }
-
-function go(   j,f) {
+function main(    fails,j,f) {
+  srand(THE.seed)
   for(j in ARGV) {
     f = "go_" substr(ARGV[j],3)
-    if (f in FUNCTAB) @f(ARGV[j+1]) }}
+    if (f in FUNCTAB) 
+      fails += @f(ARGV[j+1]) }
+  rogues()
+  exit(fails) }
 
 function rogues(    j) {
   for(j in SYMTAB) 
@@ -170,10 +170,9 @@ function rogues(    j) {
 
 EOF
 }
-
-xpand() { sed -E 's/\.([^0-9\\*\$\\+])([a-zA-Z0-9_]*)/["\1\2"]/g'; }
 #--------------------------------------------------------------------
-src > /tmp/$0
+b4() { echo ""; sed -E 's/\.([^0-9\\*\$\\+])([a-zA-Z0-9_]*)/["\1\2"]/g'; }
+src | b4  > /tmp/$0
 gawk -f /tmp/$0 $*
 
 # first things first. code something that runs a function names on command line
