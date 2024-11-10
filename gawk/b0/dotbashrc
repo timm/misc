@@ -1,0 +1,38 @@
+# vim: set ft=bash :
+
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
+#------------------------------------------------------------------------------
+clear
+echo -ne "\033[1;33m"
+cat<<'EOF'
+
+          .--.
+         / ,~a`-,
+         \ \_.-"`
+          ) (
+        ,/ ."\
+       /  (  |   A little auk 
+      /   )  ;   goes a long way.
+ jgs /   /  /
+   ,/_."` /`
+    /_/\ |___
+       `~~~~~`
+
+EOF
+echo -ne "\033[0m"
+tput sgr0
+
+#------------------------------------------------------------------------------
+here() { cd $1; basename `pwd`; }
+PROMPT_COMMAND='echo -ne "🐤  AUK:$(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'
+
+g=`which gawk`
+gawk() {
+ make *.awk
+ if [[  -t 0 ]]
+ then "$g" $*
+ else cat - | "$g" $*
+ fi
+}
+
