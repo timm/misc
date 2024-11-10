@@ -12,15 +12,15 @@ BEGIN { FS  = ","
         main() }
 
 #--------------------------------------------------------------------
-function Num(i,txt,at) {
+function Num(i,name,at) {
   i.is = "Num"
-  i.txt= txt
+  i.name= name
   i.at = at
   i.n  = i.sd = i.mu= i.m2 = 0
-  i.goal = txt ~ /-$/ ? 0 : 1
+  i.goal = name ~ /-$/ ? 0 : 1
   i.hi = -(i.lo = BIG) } 
 
-function Sym(i,txt,at) {
+function Sym(i,name,at) {
   i.is = "Sym"
   has(i,"seen")
   i.most = i.mode }
@@ -30,13 +30,12 @@ function Data(i,names) {
   has(i,"rows")
   havE(i,"cols","Cols",names) }
 
-function Cols(i,txts,     v,klass,role,k) {
+function Cols(i,names,     v,klass,role,k) {
   i.is = "Cols"
-  has(i,"all")
-  for(k in txts) {
-    v = i.txt[k] = txts[k]
+  for(k in names) {
+    v = i.names[k] = names[k]
     klass = v ~ /^[A-Z]/ ? "Num" : "Sym"
-    more(i.all, klass, v, k)
+    haVE(i.all, k, klass, v, k)
     if (v !~ /X$/) { 
       role = v ~ /[!+-]$/ ? "y" : "x"
       i[role][k] = k }}}
@@ -49,10 +48,11 @@ function readData(i,f,     a,k,what) {
     what="addData"}
   close(f) }
 
-function addsData(data1,header,newRows,    r) {
-  addData(data1,header)
+function cloneData(i,j, newRows,    r) {
+  Data(j, i.cols.names)
   for(r in newRows) add(data1,newRows[r]) }
 
+#--------------------------------------------------------------------
 function addData(i,a,     r,v,k) {
   r = 1 + length(i.rows)
   for(k in a) 
