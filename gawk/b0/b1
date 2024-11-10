@@ -7,6 +7,8 @@ BEGIN { FS  = ","
 #--------------------------------------------------------------------
 function Num(i,txt,at) {
   i.is = "Num"
+  i.txt= txt
+  i.at = at
   i.n  = i.sd = i.mu= i.m2 = 0
   i.hi = -(i.lo = BIG) } 
 
@@ -23,14 +25,10 @@ function Data(i,names) {
 function Cols(i,names,     v,what,k) {
   i.is = "Cols"
   has(i,"all")
-  has(i,"x")
-  has(i,"y")
-  has(i,"txt")
   for(k in names) {
-    v = i.txt[k] = names[k]
-    what= v ~ /^A-Z/ ? "Num" : "Sym"
-    more(i.all, what, names[k], k)
-    print(o(i,all))
+    v = i.txt[k] = trim(names[k])
+    what= v ~ /^[A-Z]/ ? "Num" : "Sym"
+    more(i.all, what, v, k)
     if (v ~ /X$/) continue
     if (v ~ /[!+-]$/) 
       i.y[k] = v ~ /-$/ ? 0 : 1 
@@ -39,8 +37,8 @@ function Cols(i,names,     v,what,k) {
 
 function readData(i,f,     a,k,what) {
   what="Data"
-  while ((getline < f) >= 0) {
-    for(k=1; k<=NF; k++) a[k] = coerce($k) 
+  while ((getline < f) > 0) {
+    for(k=1; k<=NF; k++) a[k] = coerce($k)  
     @what(i,a)
     what="addData"}
   close(f) }
@@ -50,7 +48,6 @@ function addsData(data1,header,newRows,    r) {
   for(r in newRows) add(data1,newRows[r]) }
 
 function addData(i,a,     r,v,k) {
-  if (!("ready" in i)) return Data(i,a)
   r = 1 + length(i.rows)
   if ("cols" in i)  
     for(k in a) 
@@ -75,7 +72,12 @@ function  addNum(i,x,     d) {
 
 #--------------------------------------------------------------------
 function add(x,y,    f) {f="add"x.is; return @f(x,y) }
- 
+
+function trim(s) {
+  sub(/^[ \t]*/,"",s) 
+  sub(/[ \t]*$/,"",s) 
+  return s}
+
 function coerce(x,   y) { y=x+0; return x==y ? y : x }
 
 function o(a,    j,k,s,pre,sep,keyp) {
@@ -93,7 +95,7 @@ function have(a,k,f)     { has(a,k); return @f(a[k]) }
 function havE(a,k,f,x)   { has(a,k); return @f(a[k],x) }
 function haVE(a,k,f,x,y) { has(a,k); return @f(a[k],x,y) }
 
-function more(a,f,x,y) { haVE(a,1+length(a),f,x,y) }
+function more(a,f,x,y) { haVE(a,1+length(a),f,x,y); }
 
 function normal(mu,sd) {
   return mu + (sd ? sd : 1)*sqrt(-2*log(rand()))*cos(2*PI*rand()) }
@@ -115,10 +117,11 @@ function eg_num(_,       j,num1) {
   for(j=1;j<=1000;j++) add(num1,normal(10,2))
   print(o(num1)) }
 
-function eg_data(_,   data1,f) {
-  f=  DOT DOT "/" DOT DOT "/data/auto93"DOT"csv"
-  readData(data1, DOT DOT "/" DOT DOT "/data/auto93"DOT"csv")
-}
+function eg_data(_,   data1,f,k) {
+  f = DOT DOT "/" DOT DOT "/data/auto93"DOT"csv"
+  readData(data1, DOT DOT "/" DOT DOT "/data/auto93"DOT"csv") 
+  for(k in data1.cols.all) 
+   print(k,o(data1.cols.all[k])) }
 
 #--------------------------------------------------------------------
 function main() {
