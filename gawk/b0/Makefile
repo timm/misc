@@ -15,6 +15,16 @@ help: ## show help
 %.awk : %.auk Makefile
 	sed -E 's/\.([^0-9\\*\$$\\+])([a-zA-Z0-9_]*)/["\1\2"]/g' $< > $@
 
+~/tmp/%.html : %.lua Makefile head.html
+	pycco -dd ~/tmp $<
+	cp banner.png ~/tmp
+	gawk '/<h1>/ {print "<div class=docs>"; \
+		            while(getline < "head.html") {print} ; \
+				        print( "<h1>'$<'</h1><hr></div>"); \
+					      next} \
+			1' $@ > tmp.tmp
+	mv tmp.tmp $@
+
 ~/tmp/%.html : %.auk Makefile head.html
 	pycco -l bash -d ~/tmp $<
 	cp banner.png ~/tmp
