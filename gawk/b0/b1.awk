@@ -1,4 +1,6 @@
-# vim: set ft=awk :
+# <!-- vim: set ft=awk : -->
+# A Naive Bayes classifier written in Auk (a language that transpiles to Gawk and which
+# adds encapsulated polymorphic objects).
 BEGIN { FS  = ","
         PI  = 355/113
         BIG = 1E32; 
@@ -12,6 +14,7 @@ BEGIN { FS  = ","
         main() }
 
 #--------------------------------------------------------------------
+# asdas
 function Num(i,name,at) {
   i["is"] = "Num"
   i["name"]= name
@@ -30,27 +33,27 @@ function Data(i,names) {
   has(i,"rows")
   havE(i,"cols","Cols",names) }
 
+# asd asd asd as
+# asdadsd
 function Cols(i,names,     v,klass,role,k) {
   i["is"] = "Cols"
   for(k in names) {
-    v = i["name"][k] = names[k]
+    v = i["names"][k] = names[k]
     klass = v ~ /^[A-Z]/ ? "Num" : "Sym"
     haVE(i["all"], k, klass, v, k)
     if (v !~ /X$/) { 
       role = v ~ /[!+-]$/ ? "y" : "x"
       i[role][k] = k }}}
 
-function readData(i,f,     a,k,what) {
-  what="Data"
+function readData(i,f,     a,k,n) {
   while ((getline < f) > 0) {
     for(k=1; k<=NF; k++) a[k] = coerce(trim($k))  
-    @what(i,a)
-    what="addData"}
+    n++ ? addData(i,a) : Data(i,a) }
   close(f) }
 
 function cloneData(i,j, newRows,    r) {
   Data(j, i["cols"]["names"])
-  for(r in newRows) add(data1,newRows[r]) }
+  for(r in newRows) add(j,newRows[r]) }
 
 #--------------------------------------------------------------------
 function addData(i,a,     r,v,k) {
@@ -156,14 +159,18 @@ function go_like(_,   d,r) {
     loglikeData(d, d["rows"][r], 1000,2) }
 
 #--------------------------------------------------------------------
-function main(    fails,j,f) {
+function main(    fails) {
   srand(THE["seed"])
+  fails = cli()
+  rogues()
+  exit(fails) }
+
+function cli (   fails,j,f)  {
   for(j in ARGV) {
     f = "go_" substr(ARGV[j],3)
     if (f in FUNCTAB) 
       fails += @f(ARGV[j+1]) }
-  rogues()
-  exit(fails) }
+  return fails } 
 
 function rogues(    j) {
   for(j in SYMTAB) 
