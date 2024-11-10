@@ -1,4 +1,4 @@
-src() { cat <<'EOF' # vim: set ft=awk :
+# vim: set ft=awk :
 BEGIN { FS  = ","
         PI  = 355/113
         BIG = 1E32; 
@@ -92,8 +92,9 @@ function loglikeData(i, row, nall, nh,          k,out,prior) {
 
 function _log(n) { return n>0 ? log(n) : 0 }
 #--------------------------------------------------------------------
-function max(a,b) { return a>b ? a : b }
-function min(a,b) { return a<b ? a : b }
+function abs(a)   { return a<0 ? -a : a }
+function max(a,b) { return a>b ? a  : b }
+function min(a,b) { return a<b ? a  : b }
 
 function normal(mu,sd) {
   return mu + (sd ? sd : 1)*sqrt(-2*log(rand()))*cos(2*PI*rand()) }
@@ -152,7 +153,7 @@ function go_data(_,   d,k) {
 function go_like(_,   d,r) {
   readData(d, THE.train)
   for(r in d.rows)
-    print loglikeData(d, d.rows[r], 1000,2) }
+    loglikeData(d, d.rows[r], 1000,2) }
 
 #--------------------------------------------------------------------
 function main(    fails,j,f) {
@@ -167,13 +168,6 @@ function main(    fails,j,f) {
 function rogues(    j) {
   for(j in SYMTAB) 
     if (j~/^[a-z_]/) print("? " j) }
-
-EOF
-}
-#--------------------------------------------------------------------
-b4() { echo ""; sed -E 's/\.([^0-9\\*\$\\+])([a-zA-Z0-9_]*)/["\1\2"]/g'; }
-src | b4  > /tmp/$0
-gawk -f /tmp/$0 $*
 
 # first things first. code something that runs a function names on command line
 # code in the repl. sh is your repl 
