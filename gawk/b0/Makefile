@@ -12,7 +12,7 @@ help: ## show help
 	              {sub(/:.*/,"",$$1); \
                  printf("$(LOUD)%10s$(SOFT) %s\n",$$1,$$2)}'
 
-%.awk : %.auk
+%.awk : %.auk Makefile
 	sed -E 's/\.([^0-9\\*\$$\\+])([a-zA-Z0-9_]*)/["\1\2"]/g' $^ > $@
 
 push: ## commit to main
