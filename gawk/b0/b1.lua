@@ -96,6 +96,7 @@ function cloneData(i, j,rows)
   for _,row in pairs(rows or {}) do addData(j, row) end
   return j end
 
+---------------------------------------------------------------------
 function likeCol(i,x,prior,     v,tmp)
   if i.is=="Sym" then
     return ((i.has[x] or 0) + the.m*prior) / (i.n + the.m)  
