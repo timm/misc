@@ -37,8 +37,8 @@ def add(col,x):
 
 class eg:
   def the(_): print(the)
-  def load(i): 
-    d= Data(csv(sys.argv[i]))
+  def load(f): 
+    d= Data(csv(f))
 
 def sd(num,lst):
   num.mu = sum(lst)/len(lst)
@@ -46,4 +46,5 @@ def sd(num,lst):
   return num
 
 for j,s in enumerate(sys.argv):
-  getattr(eg,s[2:], lambda _:_)(j+1)
+  arg = sys.argv[j+1] if j < len(sys.argv)-1 else ""
+  getattr(eg,s[2:], lambda _:_)(coerce(arg))
