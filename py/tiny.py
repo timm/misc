@@ -112,7 +112,7 @@ def lurch(i,rows=None, lives=5, top=5, train=2)
   evals = len(done) 
   n     = int(sqrt(len(done)))
   best,rest = clone(i,done[:n]), clone(i,done[n:])
-  for row in todo:
+  for row in shuffle(todo):
     if bestish(row,best,rest) and y(row) < y(best.rows[-1]):
       evals += 1
       *best.rows, doomed = sorted(best.rows.extend([row]),key=y)
