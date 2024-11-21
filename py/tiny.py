@@ -7,7 +7,9 @@ class Obj:
   __init__ = lambda i,**d: i.__dict__.update(d)
   __repr__ = lambda i    : show(i.__dict__)
 
-the = Obj(train="../../moot/optimize/misc/auto93.csv")
+the = Obj(k-1, m=2,    
+          train="../../moot/optimize/misc/auto93.csv"
+          top=5)
 
 def show(d):
   return '('+' '.join(f":{k} {v}" for k,v in d.items())+')'
@@ -24,19 +26,19 @@ def csv(f):
 def Data(src):
   i = Obj(rows=[], cols = None)
   for row in src:
-    if i.cols: 
-       i.rows += [row]
-       adds(i,row)
-    else: 
-       i.cols = Cols(row)
+    if    i.cols: adds(i,row)
+    else: i.cols = Cols(row)
   return i
 
 def clone(i, rows=[]):
   return Data([i.cols.names] + rows)
 
-def Num(txt=" ",at=0): return Obj(this=Num, at=at, txt=txt, n=0, mu=0, m2=0, lo=BIG, hi= -BIG)
-def Sym(txt=" ",at=0): return Obj(this=Sym, at=at, txt=txt, n=0, has={}, 
-                                  most=0, mode=None, goal= 0 if txt[-1]=="-" else 1)
+def Num(txt=" ",at=0): 
+  return Obj(this=Num, at=at, txt=txt, n=0, mu=0, m2=0, lo=BIG, hi= -BIG)
+
+def Sym(txt=" ",at=0): 
+  return Obj(this=Sym, at=at, txt=txt, n=0, has={}, 
+             most=0, mode=None, goal= 0 if txt[-1]=="-" else 1)
 
 def Cols(names):
   all,x,y = [],[],[]
@@ -46,8 +48,14 @@ def Cols(names):
       (y if s[-1] in "+-!" else x).append(all[-1])
   return Obj(names=names, all=all, x=x, y=y)
 
-def adds(i,row): [add(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
-def subs(i,row): [sub(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
+def adds(i,row,forget): 
+  [add(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
+  if not forget then i.rows += [row]
+  return row
+
+def subs(i,row): 
+  [sub(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
+  return row
 
 def add(i,x):
   i.n += 1
@@ -94,7 +102,7 @@ def bestish(row,best,rest):
   nall= len(best.rows) + len(rest.rows)
   b= likes(best,row, nall, 2)
   r= likes(rest,row, nall, 2)
-  return b > r
+  return b - r
 
 def ydist(i,row):
   return sum(abs(norm(col,row[i.at]) - col.goal)**2 for col in i.cols.y)
@@ -102,33 +110,30 @@ def ydist(i,row):
 def norm(i,x):
   return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1/BIG)
 
-def lurch(i,rows=None, lives=5, top=4):
-  random.shuffle(i.rows)
-  done      = clone(i, i.rows[:top])
-  y         = lambda r: ydist(done,row)
-  maybe     = 0
-  evals     = len(top)
-  n         = int(sqrt(len(top)))
+def lurch(i):
+  done        = clone(i, i.rows[:the.top])
+  maybe,yes,n = 0,0,int(sqrt(the.done)
+  y           = lambda row: ydist(done,row)
+  done.rows.sort(key=y)
   best,rest = clone(done, done.rows[:n]), clone(done, done.rows[n:])
-  for row in i.rows[top:]:
+  for row in i.rows[the.top:]:
     adds(done, row)
-    done.rows += [row]
-    if bestish(row,best,rest):
+    if bestish(row,best,rest) > 0:
       maybe += 1
       if y(row) < y(best.rows[-1]):
-        evals += 1
-        *best.rows, doomed = sorted(best.rows.extend([row]),key=y)
+        lives = 5
+        yes += 1
         adds(best, row)
-        subs(best, doomed)
-        adds(rest, doomed)
-        rest.rows += [doomed]
-        lives += 5
-    else:
-      adds(rest, row)
-      rest.rows += [row]
-      lives -= 1
+        tmp = sorted(best.rows, key=y)
+        n = int(sqrt(len(done.rows)))
+        [adds(rest, sub(best, doomed)) for doomed in tmp[n:]]
+        best.rows = tmp[:n]
+        continue
+    lives -= 1
+    adds(rest, row)
     if lives == 0: break
-  rest.rows = sorted(rest.rows, key=y)
+  best.rows.sort(key=y)
+  rest.rows.sort(key=br)
   return best,rest
       
 def eg_the(_): print(the)
