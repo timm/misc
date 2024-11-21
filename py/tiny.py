@@ -59,11 +59,11 @@ def addData(i:Data,row):
   i.rows += [row]
   return addCols(i, row)
 
-def addCols(i:Cols,row):
+def adds(i:Cols,row):
   [add(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
   return row
 
-def subCols(i:Cols,row):
+def subs(i:Cols,row):
   [sub(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
   return row
 
@@ -120,12 +120,12 @@ def ydist(i,row):
 def norm(i,x):
   return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1/BIG)
 
-def lurch(i):
-  done        = clone(i, i.rows[:the.top])
-  maybe,yes,n = 0,0,int(sqrt(the.done))
-  y           = lambda row: ydist(done,row)
-  done.rows.sort(key=y)
-  best,rest = clone(done, done.rows[:n]), clone(done, done.rows[n:])
+def lurch(i,     done,maybe,yes,Y,N):
+  maybe,yes,done = 0,0, clone(i, i.rows[:the.top])
+  Y = lambda row: ydist(done,row)
+  N = lambda : int(sqrt(len(done.rows)))
+  done.rows.sort(key=Y)
+  best,rest = clone(done, done.rows[:N()]), clone(done, done.rows[N():])
   for row in i.rows[the.top:]:
     adds(done, row)
     if bestish(row,best,rest) > 0:
@@ -134,15 +134,14 @@ def lurch(i):
         lives = 5
         yes += 1
         adds(best, row)
-        tmp = sorted(best.rows, key=y)
-        n = int(sqrt(len(done.rows)))
-        [adds(rest, sub(best, doomed)) for doomed in tmp[n:]]
-        best.rows = tmp[:n]
+        best.rows.sort(key=Y)
+        best.rows = tmp[:N()]
+        [addData(rest, subs(best, row)) for row in tmp[N():]]
         continue
     lives -= 1
     adds(rest, row)
     if lives == 0: break
-  best.rows.sort(key=y)
+  best.rows.sort(key=Y)
   rest.rows.sort(key=br)
   return best,rest
 
