@@ -7,9 +7,16 @@ class Obj:
   __init__ = lambda i,**d: i.__dict__.update(d)
   __repr__ = lambda i    : show(i.__dict__)
 
-the = Obj(k-1, m=2,    
-          train="../../moot/optimize/misc/auto93.csv"
+the = Obj(k=1, m=2,
+          train="../../moot/optimize/misc/auto93.csv",
           top=5)
+
+num  = int | float
+atom = num | bool | str # | "?"
+row  = list[atom]
+rows = list[row]
+Sym,Num,Data,Cols,Col = Obj,Obj,Obj,Obj,Obj
+Col  = Num| Sym
 
 def show(d):
   return '('+' '.join(f":{k} {v}" for k,v in d.items())+')'
@@ -26,7 +33,7 @@ def csv(f):
 def Data(src):
   i = Obj(rows=[], cols = None)
   for row in src:
-    if    i.cols: adds(i,row)
+    if    i.cols: addData(i,row)
     else: i.cols = Cols(row)
   return i
 
@@ -48,28 +55,31 @@ def Cols(names):
       (y if s[-1] in "+-!" else x).append(all[-1])
   return Obj(names=names, all=all, x=x, y=y)
 
-def adds(i,row,forget): 
+def addData(i:Data,row):
+  i.rows += [row]
+  return addCols(i, row)
+
+def addCols(i:Cols,row):
   [add(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
-  if not forget then i.rows += [row]
   return row
 
-def subs(i,row): 
+def subCols(i:Cols,row):
   [sub(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
   return row
 
-def add(i,x):
+def add(i: Col,x):
   i.n += 1
-  if i.this is Sym:  
+  if i.this is Sym:
     now = i.has[x] = 1 + i.has.get(x,0)
     if now > i.most: i.most,i.mode= now, x
-  else: 
+  else:
     if x < i.lo: i.lo = x
     if x > i.hi: i.hi = x
     d = x - i.mu
     i.mu += d / i.n
     i.m2 += d * (x - i.mu)
 
-def sub(i,x):
+def sub(i:Col,x):
   i.n -= 1
   if i.this is Sym:  
     col[x] = col.get(x) - 1
@@ -112,7 +122,7 @@ def norm(i,x):
 
 def lurch(i):
   done        = clone(i, i.rows[:the.top])
-  maybe,yes,n = 0,0,int(sqrt(the.done)
+  maybe,yes,n = 0,0,int(sqrt(the.done))
   y           = lambda row: ydist(done,row)
   done.rows.sort(key=y)
   best,rest = clone(done, done.rows[:n]), clone(done, done.rows[n:])
@@ -135,9 +145,9 @@ def lurch(i):
   best.rows.sort(key=y)
   rest.rows.sort(key=br)
   return best,rest
-      
+
 def eg_the(_): print(the)
-def eg_load(f): d= Data(csv(f))
+def eg_load(f): d= Data(csv(f)); print(d.cols.x)
 
 for j,s in enumerate(sys.argv):
   arg = sys.argv[j+1] if j < len(sys.argv)-1 else ""
