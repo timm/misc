@@ -16,6 +16,7 @@ def eg_help(_): print("\n" + __doc__)
 # -----------------------------------------------------------------------------
 import re,ast,sys
 from math import log,exp,pi
+from typing import Iterable
 
 BIG=1E32
 
@@ -32,16 +33,18 @@ the = Obj(seed= 1234567891,
 def eg_the(_): print(the)
 
 # -----------------------------------------------------------------------------
-num  = int | float
-atom = num | bool | str # | "?"
-row  = list[atom]
-rows = list[row]
-Sym,Num,Data,Cols,Col = Obj,Obj,Obj,Obj,Obj
-Col  = Num| Sym
+toggle    = int # -1 or 1
+num       = int | float
+atom      = num | bool | str # | "?"
+row       = list[atom]
+rows      = list[row]
+Sym,Num   = Obj, Obj
+Data,Cols = Obj, Obj
+Col       = Num | Sym
 
 # -----------------------------------------------------------------------------
 def show(d):
-  return '('+' '.join(f":{k} {v}" for k,v in d.items())+')'
+  return '('+' '.join(f":{k} {v}" for k,v in d.items() if k[0] !_ "_")+')'
 
 def coerce(s):
   try: return ast.literal_eval(s)
@@ -53,24 +56,24 @@ def csv(f):
       yield [coerce(s) for s in line.split(",")]
 
 # -----------------------------------------------------------------------------
-def Data(src):
+def Num(txt=" ",at=0) -> Num: 
+  return Obj(this=Num, at=at, txt=txt, n=0, mu=0, m2=0, lo=BIG, hi= -BIG)
+
+def Sym(txt=" ",at=0) -> Sym: 
+  return Obj(this=Sym, at=at, txt=txt, n=0, has={}, 
+             most=0, mode=None, goal= 0 if txt[-1]=="-" else 1)
+
+def Data(src: Iterable[row]) -> Data:
   i = Obj(rows=[], cols = None)
   for row in src:
     if    i.cols: addData(i,row)
     else: i.cols = Cols(row)
   return i
 
-def clone(i, rows=[]):
+def clone(i: Data, rows=[]) -> Data:
   return Data([i.cols.names] + rows)
 
-def Num(txt=" ",at=0): 
-  return Obj(this=Num, at=at, txt=txt, n=0, mu=0, m2=0, lo=BIG, hi= -BIG)
-
-def Sym(txt=" ",at=0): 
-  return Obj(this=Sym, at=at, txt=txt, n=0, has={}, 
-             most=0, mode=None, goal= 0 if txt[-1]=="-" else 1)
-
-def Cols(names):
+def Cols(names: list[str]) -> Cols:
   all,x,y = [],[],[]
   for at,s in enumerate(names):
     all += [ (Num if s[0].isupper() else Sym)(s,at) ]
@@ -79,23 +82,18 @@ def Cols(names):
   return Obj(names=names, all=all, x=x, y=y)
 
 # -----------------------------------------------------------------------------
-def addData(i:Data,row):
+def addData(i:Data,row:row):
   i.rows += [row]
-  return adds(i, row)
+  return addCols(i, row)
 
-def adds(i:Cols,row):
-  [add(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
+def addCols(i:Data,row:row, n:toggle=1):
+  [addCol(col,x,n) for col,x in zip(i.cols.all, row) if x != "?"]
   return row
 
-def subs(i:Cols,row):
-  [sub(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
-  return row
-
-def add(i: Col,x,  n):
-  n = n or 1
+def addCol(i: Col, x:atom, n:toggle=1):
   i.n += n
   if i.this is Sym:
-    now = i.has[x] = n + i.has.get(x,0)
+    now = i.has[x] = i.has.get(x,0) + n
     if now > i.most: i.most,i.mode= now, x
   else:
     if x < i.lo: i.lo = x
@@ -104,24 +102,30 @@ def add(i: Col,x,  n):
     i.mu += d / i.n
     i.m2 += d * (x - i.mu)
 
-def sub(i:Col,x): add(i,x, -1)
+# some shortcuts
+add = addCol
 
-def eg_load(f): d= Data(csv(f)); print(d.cols.x)
+def adds(i: Col,lst, n:toggle): [addCol(i,x,n) for x in lst]; return i
+
+def eg_load(f: str): d= Data(csv(f)); print(d.cols.x)
 
 # -----------------------------------------------------------------------------
-def mid(i):
+def mid(i:Col):
   return i.mode if i.this is Sym else i.mu
 
-def div(i):
+def div(i:Col):
   if i.this is Sym: 
     return -sum(n/i.n*log(n/i.n) for n in i.has.values() if n > 0) 
   else: 
     return 0 if i.n < 2 else (i.m2/(i.n - 1))**.5
 
-def ydist(i,row):
+def mids(i:Data): return {col.txt:mid(col) for col in i.cols.all}
+def divs(i:Data): return {col.txt:div(col) for col in i.cols.all}
+
+def ydist(i:Data,row):
   return sum(abs(norm(col,row[i.at]) - col.goal)**2 for col in i.cols.y)
 
-def norm(i,x):
+def norm(i:Num,x:num) -> num: # 0..1
   return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1/BIG)
 
 # -----------------------------------------------------------------------------
@@ -145,7 +149,7 @@ def bestish(row,best,rest):
   return b - r
 
 def lurch(i,     done,maybe,yes,Y,N):
-  lives,maybe,yes,done = 0,0,0, clone(i, i.rows[:the.top])
+  lives,maybe,yes,done = 5,0,0, clone(i, i.rows[:the.top])
   Y = lambda row: ydist(done,row)
   N = lambda : int(sqrt(len(done.rows)))
   done.rows.sort(key=Y)
@@ -160,7 +164,7 @@ def lurch(i,     done,maybe,yes,Y,N):
         adds(best, row)
         best.rows.sort(key=Y)
         best.rows = tmp[:N()]
-        [addData(rest, subs(best, row)) for row in tmp[N():]]
+        [addData(rest, adds(best, row, -1)) for row in tmp[N():]]
         continue
     lives -= 1
     adds(rest, row)
