@@ -67,26 +67,20 @@ def subs(i:Cols,row):
   [sub(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
   return row
 
-def add(i: Col,x):
-  i.n += 1
+def add(i: Col,x,  n):
+  n = n or 1
+  i.n += n
   if i.this is Sym:
-    now = i.has[x] = 1 + i.has.get(x,0)
+    now = i.has[x] = n + i.has.get(x,0)
     if now > i.most: i.most,i.mode= now, x
   else:
     if x < i.lo: i.lo = x
     if x > i.hi: i.hi = x
-    d = x - i.mu
+    d = n*(x - i.mu)
     i.mu += d / i.n
     i.m2 += d * (x - i.mu)
 
-def sub(i:Col,x):
-  i.n -= 1
-  if i.this is Sym:  
-    col[x] = col.get(x) - 1
-  else: 
-    d = x - i.mu
-    i.mu -= d / i.n
-    i.m2 -= d * (x - i.mu)
+def sub(i:Col,x): add(i,x, -1)
 
 def mid(i):
   return i.mode if i.this is Sym else i.mu
