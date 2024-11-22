@@ -1,3 +1,19 @@
+"""
+tiny.py : fast active learning
+(c) 2024 Tim Menzies <timm@ieee.org> MIT license
+
+USAGE:
+  lua tiny.py [OPTIONS] [ARG]
+
+OPTIONS:
+ --help    : show help
+ --the num : asddsas
+ --sassads : asd asdas
+"""
+
+def eg_help(_): print("\n" + __doc__)
+
+# -----------------------------------------------------------------------------
 import re,ast,sys
 from math import log,exp,pi
 
@@ -7,10 +23,15 @@ class Obj:
   __init__ = lambda i,**d: i.__dict__.update(d)
   __repr__ = lambda i    : show(i.__dict__)
 
-the = Obj(k=1, m=2,
+the = Obj(seed= 1234567891,
+          k=1, 
+          m=2,
           train="../../moot/optimize/misc/auto93.csv",
           top=5)
 
+def eg_the(_): print(the)
+
+# -----------------------------------------------------------------------------
 num  = int | float
 atom = num | bool | str # | "?"
 row  = list[atom]
@@ -18,6 +39,7 @@ rows = list[row]
 Sym,Num,Data,Cols,Col = Obj,Obj,Obj,Obj,Obj
 Col  = Num| Sym
 
+# -----------------------------------------------------------------------------
 def show(d):
   return '('+' '.join(f":{k} {v}" for k,v in d.items())+')'
 
@@ -30,6 +52,7 @@ def csv(f):
     for line in file.readlines():
       yield [coerce(s) for s in line.split(",")]
 
+# -----------------------------------------------------------------------------
 def Data(src):
   i = Obj(rows=[], cols = None)
   for row in src:
@@ -55,9 +78,10 @@ def Cols(names):
       (y if s[-1] in "+-!" else x).append(all[-1])
   return Obj(names=names, all=all, x=x, y=y)
 
+# -----------------------------------------------------------------------------
 def addData(i:Data,row):
   i.rows += [row]
-  return addCols(i, row)
+  return adds(i, row)
 
 def adds(i:Cols,row):
   [add(col,x) for col,x in zip(i.cols.all, row) if x != "?"]
@@ -82,13 +106,25 @@ def add(i: Col,x,  n):
 
 def sub(i:Col,x): add(i,x, -1)
 
+def eg_load(f): d= Data(csv(f)); print(d.cols.x)
+
+# -----------------------------------------------------------------------------
 def mid(i):
   return i.mode if i.this is Sym else i.mu
 
 def div(i):
-  if i.this is Sym: return -sum(n/i.n*log(n/i.n) for n in i.has.values() if n > 0) 
-  else            : return 0 if i.n < 2 else (i.m2/(i.n - 1))**.5
+  if i.this is Sym: 
+    return -sum(n/i.n*log(n/i.n) for n in i.has.values() if n > 0) 
+  else: 
+    return 0 if i.n < 2 else (i.m2/(i.n - 1))**.5
 
+def ydist(i,row):
+  return sum(abs(norm(col,row[i.at]) - col.goal)**2 for col in i.cols.y)
+
+def norm(i,x):
+  return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1/BIG)
+
+# -----------------------------------------------------------------------------
 def like(i,x,prior):
   if i.this is Sym:
     return (i.has.get(x,0) + the.bayes.m*prior) / (i.n + the.bayes.m)
@@ -108,14 +144,8 @@ def bestish(row,best,rest):
   r= likes(rest,row, nall, 2)
   return b - r
 
-def ydist(i,row):
-  return sum(abs(norm(col,row[i.at]) - col.goal)**2 for col in i.cols.y)
-
-def norm(i,x):
-  return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1/BIG)
-
 def lurch(i,     done,maybe,yes,Y,N):
-  maybe,yes,done = 0,0, clone(i, i.rows[:the.top])
+  lives,maybe,yes,done = 0,0,0, clone(i, i.rows[:the.top])
   Y = lambda row: ydist(done,row)
   N = lambda : int(sqrt(len(done.rows)))
   done.rows.sort(key=Y)
@@ -139,9 +169,8 @@ def lurch(i,     done,maybe,yes,Y,N):
   rest.rows.sort(key=br)
   return best,rest
 
-def eg_the(_): print(the)
-def eg_load(f): d= Data(csv(f)); print(d.cols.x)
-
-for j,s in enumerate(sys.argv):
-  arg = sys.argv[j+1] if j < len(sys.argv)-1 else ""
-  vars().get(re.sub("^--","eg_",s), lambda _:_)(arg)
+# -----------------------------------------------------------------------------
+if __name__== "__main__":
+  for j,s in enumerate(sys.argv):
+    if todo := vars().get(re.sub("^--","eg_",s), None):
+      todo(sys.argv[j+1] if j < len(sys.argv) - 1 else "")
