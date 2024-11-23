@@ -20,6 +20,7 @@ import random,re,ast,sys
 from math import sqrt,log,exp,pi
 from typing import Iterable
 
+R=random.random
 BIG=1E32
 
 class Obj:
@@ -27,12 +28,19 @@ class Obj:
   __repr__ = lambda i    : show(i.__dict__)
 
 the = Obj(seed= 1234567891,
+          cliffs=0.197,
+          boots=512,
+          conf=0.05,
           k=1, 
           m=2,
+          stop=256,
+          loud=True,
           train="../../moot/optimize/misc/auto93.csv",
-          top=5)
+          top=4)
 
-def eg_the(_): print(the)
+def eg_the(_)   : print(the)
+def eg_silent(_): the.loud=False
+def eg_seed(s)  : the.seed=coerce(s); random.seed(the.seed)
 
 # -----------------------------------------------------------------------------
 toggle    = int # -1 or 1
@@ -50,8 +58,7 @@ def show(d):
   if type(d)==type(show) : return  d.__name__+'()'
   if type(d)==dict:
     return '('+' '.join(f":{k} {show(v)}" for k,v in d.items() if str(k)[0] !="_")+')'
-  if d==d//1           : return str(d//1)
-  if type(d)==float    : return f"{d:g}"
+  if type(d)==float: return str(d//1) if d==d//1 else f"{d:.3f}"
   return str(d)
 
 def coerce(s):
@@ -99,7 +106,6 @@ def addCols(i:Data,row:row, n:toggle=1):
   return row
 
 def addCol(i: Col, x:atom, n:toggle=1):
-  print(i)
   i.n += n
   if i.this is Sym:
    i.has[x] = i.has.get(x,0) + n
@@ -114,9 +120,11 @@ def addCol(i: Col, x:atom, n:toggle=1):
 # shortcuts and demos
 add = addCol
 
-def adds(i: Col,lst, n:toggle=1): [addCol(i,x,n) for x in lst]; return i
+def adds(i: Col,lst, n:toggle=1): 
+  [addCol(i,x,n) for x in lst]; return i
 
-def eg_load(f: str): d= Data(csv(f)); [print(col) for col in d.cols.x]
+def eg_load(f: str): 
+  d= Data(csv(f)); [print(col) for col in d.cols.x]
 
 def eg_addSub(_):
   num, at = Num(), {x:add(num,x).mu for x in range(20)}
@@ -164,39 +172,100 @@ def bestish(row,best,rest):
   nall= len(best.rows) + len(rest.rows)
   b= likes(best,row, nall, 2)
   r= likes(rest,row, nall, 2)
-  return b - r
+  return b > r
+
+def fyi(x): 
+  if the.loud: print(x,end="",flush=True)
 
 def zappy(i):
-  lives,maybe,yes,done = 5,0,0, clone(i, i.rows[:the.top])
+  evals,done = the.top,clone(i, i.rows[:the.top])
   Y = lambda row: ydist(done,row)
   N = lambda : int(sqrt(len(done.rows)))
   done.rows.sort(key=Y)
   best,rest = clone(done, done.rows[:N()]), clone(done, done.rows[N():])
-  for row in i.rows[the.top:]:
-    adds(done, row)
-    if bestish(row,best,rest) > 0:
-      maybe += 1
-      if y(row) < y(best.rows[-1]):
-        lives = 5
+  tries,yes = 1/BIG,0
+  for j,row in enumerate(i.rows[the.top:the.stop]):
+    addData(done, row)
+    if bestish(row,best,rest):
+      evals += 1
+      tries += 1
+      if j/the.stop < R() or Y(row) < Y(best.rows[-1]):
         yes += 1
-        adds(best, row)
-        best.rows.sort(key=Y)
-        best.rows = tmp[:N()]
-        print(tmp[N()])
-        [addData(rest, addCols(best, row, -1)) for row in tmp[N():]]
+        addData(best, row)
+        tmp  = sorted(best.rows, key=Y)
+        best = clone(done, tmp[:N()])
+        [addData(rest, row) for row in tmp[N():]]
         continue
-    lives -= 1
-    adds(rest, row)
-    if lives == 0: break
+    addData(rest, row)
   best.rows.sort(key=Y)
-  rest.rows.sort(key=br)
-  return best,rest
+  return best,rest, evals, yes/tries
 
 def eg_zap(f):
-   zappy(Data(csv(f)))
+   d=Data(csv(f))
+   nb4 =adds(Num(), [ydist(d,row) for row in d.rows])
+   Y = lambda row: ydist(d,row)
+   repeats = 20
+   rands,zaps,evals,yess = [],[],[],[]
+   for _ in range(repeats):
+     random.shuffle(d.rows)
+     best,_,evals1,yes= zappy(d)
+     yess  += [yes]
+     evals += [evals1]
+     zaps  += [Y(best.rows[0])]
+     rands += [Y(sorted(random.choices(d.rows, k=evals1), key=Y)[0])]
+   nyes   = adds(Num(),yess)
+   nzaps  = adds(Num(),zaps)
+   nrands = adds(Num(),rands)
+   nevals = adds(Num(),evals)
+   delta  = 100*(nb4.mu - nzaps.mu)/nb4.mu //1
+   diff   = (nrands.mu - nzaps.mu)/div(nb4)
+   height = (nzaps.mu - nb4.lo)/ div(nb4)
+   print(f"{delta}", f"{diff:.2f}", f"{height:.2f}",
+         nzaps.mu < nrands.mu and not same(zaps,rands),
+         nevals.mu//1, f"{nyes.mu:.2f}",re.sub(".*/","",f))
+
+# -----------------------------------------------------------------------------
+def same(y0,z0):
+  return cliffs(y0,z0) and bootstrap(y0,z0) 
+
+def cliffs(y0,z0):
+  """non-parametric effect size. threshold is border between small=.11 and medium=.28 
+  from Table1 of  https://doi.org/10.3102/10769986025002101"""
+  n,lt,gt = 0,0,0
+  for x1 in y0:
+    for y1 in z0:
+      n += 1
+      if x1 > y1: gt += 1
+      if x1 < y1: lt += 1 
+  return abs(lt - gt)/n  < the.cliffs
+
+def  bootstrap(y0,z0):
+  """non-parametric significance test From Introduction to Bootstrap, 
+    Efron and Tibshirani, 1993, chapter 20. https://doi.org/10.1201/9780429246593"""
+  DIFF  = lambda i,j: abs(i.mu - j.mu) / ((div(i)**2/i.n + div(j)**2/j.n)**.5 + 1E-30)
+  SOME  = lambda lst: adds(Num(), random.choices(lst, k=len(lst))) 
+  x,y,z = adds(Num(),y0+z0), adds(Num(),y0), adds(Num(),z0)
+  yhat  = [y1 - y.mu + x.mu for y1 in y0]
+  zhat  = [z1 - z.mu + x.mu for z1 in z0] 
+  n     = sum(DIFF(SOME(yhat), SOME(zhat)) > DIFF(y,z) for _ in range(the.boots)) 
+  return n / the.boots >= the.conf
+
+def eg_stats(_):
+  y =lambda s: "y" if s else "."
+  g = random.gauss
+  d,r= 1,100
+  print("d\tclif\tboot\tcohen")
+  while d< 1.2:
+    t = [g(10,1) + g(10,2)**2 for _ in range(r)]
+    u = [x*d for x in t]
+    d = d*1.01
+    n1,n2 = adds(Num(),t), adds(Num(),u)
+    k = y(abs(n1.mu - n2.mu) < .35*(div(n1)*n1.n + div(n2)*n2.n)/(n1.n+n2.n))
+    print(f"{d:.3f}\t{y(cliffs(t,u))}\t{y(bootstrap(t,u))}\t{k}")
 
 # -----------------------------------------------------------------------------
 if __name__== "__main__":
+  random.seed(the.seed)
   for j,s in enumerate(sys.argv):
     if todo := vars().get(re.sub("^--","eg_",s), None):
       todo(sys.argv[j+1] if j < len(sys.argv) - 1 else None)

@@ -39,4 +39,12 @@ $(Tmp)/%.pdf: %.py  ## make doco: .py ==> .pdf
 	ps2pdf $@.ps $@; rm $@.ps
 	open $@
 
+zapsed:
+	column -t ~/tmp/zap.*
 
+zaps: ../../moot/optimize/[mpch]*/*.csv
+	$(foreach f, $^, $(MAKE) F=$f zap;)
+
+F=../data/auto93.csv
+zap:
+	./zap.py --silent --zap $F  | tee ~/tmp/$@.$(notdir $F)
