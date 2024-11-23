@@ -194,7 +194,7 @@ def zappy(i):
       evals += 1
       tries += 1
       c="?"
-      if Y(row) < Y(best.rows[-1]):
+      if Y(row) < Y(best.rows[0]):
         c="!"
         yes += 1
         addData(best, row)
