@@ -36,7 +36,7 @@ the = Obj(seed= 1234567891,
           stop=256,
           loud=True,
           train="../../moot/optimize/misc/auto93.csv",
-          top=4)
+          top=6)
 
 def eg_the(_)   : print(the)
 def eg_silent(_): the.loud=False
@@ -175,28 +175,34 @@ def bestish(row,best,rest):
   return b > r
 
 def fyi(x): 
-  if the.loud: print(x,end="",flush=True)
+  if the.loud: print(x,end="",file=sys.stderr, flush=True)
 
 def zappy(i):
   evals,done = the.top,clone(i, i.rows[:the.top])
-  Y = lambda row: ydist(done,row)
+  Y = lambda row: ydist(i,row)
   N = lambda : int(sqrt(len(done.rows)))
   done.rows.sort(key=Y)
   best,rest = clone(done, done.rows[:N()]), clone(done, done.rows[N():])
   tries,yes = 1/BIG,0
+  c=""
   for j,row in enumerate(i.rows[the.top:the.stop]):
+    fyi(c)
+    if j % 100 == 0: fyi("\n")
     addData(done, row)
-    if bestish(row,best,rest):
+    c="."
+    if R() < 1-j/30 or bestish(row,best,rest):
       evals += 1
       tries += 1
-      if j/the.stop < R() or Y(row) < Y(best.rows[-1]):
+      c="?"
+      if Y(row) < Y(best.rows[-1]):
+        c="!"
         yes += 1
         addData(best, row)
         tmp  = sorted(best.rows, key=Y)
         best = clone(done, tmp[:N()])
         [addData(rest, row) for row in tmp[N():]]
         continue
-    addData(rest, row)
+    if R() < 1-1/len(best.rows): addData(rest, row)
   best.rows.sort(key=Y)
   return best,rest, evals, yes/tries
 
