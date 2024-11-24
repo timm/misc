@@ -61,11 +61,11 @@ function csv(file,     src)
 function o(x,        t,FMT,NUM,LIST.DICT) 
   FMT  = string.format
   NUM  = function() return x//1 == x and tostring(x) or FMT("%.3g",x) end
-  LIST = function() for k,v in pairs(x) do t[k]    = o(v) end end
+  t    = {}
+  LIST = function() for k,v in pairs(x) do t[k] = o(v) end end
   DICT = function() for k,v in pairs(x) do t[1+#t] = FMT(":%s %s",k, o(v)) end end
   if type(x) == "number" then return NUM() end 
   if type(x) ~= "table"  then return tostring(x) end
-  t = {}
   if #x>0 then LIST() else DICT(); table.sort(t) end
   return "(" .. table.concat(t ," ") .. ")" end
 
