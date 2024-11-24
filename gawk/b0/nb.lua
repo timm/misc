@@ -58,10 +58,21 @@ function csv(file,     src)
     then t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=coerce(s1); return t end
     else if src then io.close(src) end end end end
 
+function o(x,        t,FMT,NUM,LIST.DICT) 
+  FMT  = string.format
+  NUM  = function() return x//1 == x and tostring(x) or FMT("%.3g",x) end
+  LIST = function() for k,v in pairs(x) do t[k]    = o(v) end end
+  DICT = function() for k,v in pairs(x) do t[1+#t] = FMT(":%s %s",k, o(v)) end end
+  if type(x) == "number" then return NUM() end 
+  if type(x) ~= "table"  then return tostring(x) end
+  t = {}
+  if #x>0 then LIST() else DICT(); table.sort(t) end
+  return "(" .. table.concat(t ," ") .. ")" end
+
 function eg_csv(f)
-  for row in csv(f) 
+  for row in csv(f) do o(row) end end
 -------------------------------------------------------------------------------
 for j,s in pairs(arg) do
   s=s:gsub("^--","eg_")
-	if _ENV[s] then _ENV[s](arg[j+1]) end
+  if _ENV[s] then _ENV[s](arg[j+1]) end
 
