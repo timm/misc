@@ -1,5 +1,18 @@
 #!/usr/bin/env lua
 -- vim: set tabstop=2 shiftwidth=2 expandtab :
+local help=[[
+kah.lua : a tiny AI workbench
+(c) 2024, Tim Menzies <timm@ieee.org>, MIT license
+
+USAGE:
+  ./nb.lua [OPTIONS] [x.csv]
+
+OPTIONS:
+  --the         show options
+  --help        show help
+  --csv   x.csv demo: printing rows from csv
+  --cols        demo: show cols initialized from row names
+  --like  x.csv demo: show row liklihood calc]]
 
 local abs,exp,log,min,max = math.abs, math.exp, math.log, math.min, math.max
 local sqrt, pi = math.sqrt,  math.pi
@@ -138,7 +151,7 @@ local l={}
 function l.push(t,x) t[1+#t]=x; return x end
 
 function l.shuffle(t,    k) 
-  for j = #t,2,-1 do k=math.random(j); t[j],t[k] = t[k],t[j] end; return t en
+  for j = #t,2,-1 do k=math.random(j); t[j],t[k] = t[k],t[j] end; return t end
 
 function l.sort(t,FUN) table.sort(t,FUN); return t end
 
@@ -181,6 +194,8 @@ function l.new(kl,t)
   kl.__index=kl; kl.__tostring = l.o; return setmetatable(t,kl) end
 
 -------------------------------------------------------------------------------
+function eg.help(_) print("\n"..help.."\n") end
+
 function eg.the(_) print(o(the)) end
 function eg.csv(f) for row in csv(f) do print(o(row)) end end
 
