@@ -51,9 +51,9 @@ function Num:add(x,    d)
   self.sd = self.n < 2 and 0 or (self.m2 / (self.n - 1))^0.5 end 
 
 function Data:adds(src,      FILE,LIST)
-  if     src == nil or tyoe(src) == "string" 
-  then   for   row in csv(src) do self:add(row) end 
-  else   for _,row in pairs(t) do self:add(row) end end
+  if     src == nil or type(src) == "string" 
+  then   for   row in csv(src)   do self:add(row) end 
+  else   for _,row in pairs(src) do self:add(row) end end
   return self end
     
 function Data:add(row)
@@ -78,17 +78,20 @@ function Cols:initialize(names,    col)
   return self end
 
 -------------------------------------------------------------------------------
-function Sym:like(x,prior,    v,tmp) 
+-- `like(x:atom, ?prior: float) -> float`  
+-- Returns nil if `x` is a missing value.  
+function Sym:like(x,  prior,    v,tmp) --> num
   if x~="?" then
     return ((self.has[x] or 0) + the.m*prior) / (self.n + the.m) end end
 
+-- Ditto. Ignores second argument (the `prior`).
 function Num:like(x,_,     v,tmp)
   if x~="?" then
     v = self.sd^2 + 1/the.big
     tmp = exp(-1*(x - self.mu)^2/(2*v)) / (2*pi*v) ^ 0.5
     return max(0,min(1, tmp + 1/the.big)) end end
 
-function Data:like(row,  nall,nh,    prior,LIKE,LOG) 
+function Data:loglike(row,  nall,nh,    prior,LIKE,LOG)
   LIKE = function(col) return LOG( col:like(row[col.at], prior) ) end
   LOG  = function(x)   return x and x>0 and log(x) or 0 end
   prior= (#self.rows + the.k) / (nall + the.k*nh)
