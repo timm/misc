@@ -40,7 +40,7 @@ $(Tmp)/%.pdf: %.py  ## make doco: .py ==> .pdf
 	open $@
 
 zapr:
-	(echo "#delta diff height same budget good file"; cat ~/tmp/zap.*) | column -t
+	(echo "#gain _2 diff _4 height _6 test _8 evals _10 yes _12  file _14"; cat ~/tmp/zap.*) | column -t
 
 zaps: ../../moot/optimize/[mpch]*/*.csv
 	$(foreach f, $^, $(MAKE) F=$f zap;)

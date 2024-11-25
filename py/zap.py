@@ -31,7 +31,7 @@ the = Obj(seed= 1234567891,
           cliffs=0.197,
           boots=512,
           conf=0.05,
-          k=1, 
+          k=1,
           m=2,
           stop=256,
           loud=True,
@@ -178,33 +178,38 @@ def fyi(x):
   if the.loud: print(x,end="",file=sys.stderr, flush=True)
 
 def zappy(i):
-  evals,done = the.top,clone(i, i.rows[:the.top])
-  Y = lambda row: ydist(i,row)
+  random.shuffle(i.rows)
+  rows=i.rows
+  done = clone(i, rows[:the.top])
+  seen={}
+  def Y(row):  #return ydist(done,row)
+    k = id(row) 
+    seen[k] = seen.get(k,None) or ydist(done,row)
+    return seen[k]
   N = lambda : int(sqrt(len(done.rows)))
   done.rows.sort(key=Y)
   best,rest = clone(done, done.rows[:N()]), clone(done, done.rows[N():])
   tries,yes = 1/BIG,0
   c=""
-  for j,row in enumerate(i.rows[the.top:the.stop]):
+  wait=0
+  for j,row in enumerate(rows[the.top:the.stop]):
     fyi(c)
-    if j % 100 == 0: fyi("\n")
     addData(done, row)
     c="."
-    if R() < 1-j/30 or bestish(row,best,rest):
-      evals += 1
-      tries += 1
-      c="?"
-      if Y(row) < Y(best.rows[0]):
-        c="!"
-        yes += 1
-        addData(best, row)
-        tmp  = sorted(best.rows, key=Y)
-        best = clone(done, tmp[:N()])
-        [addData(rest, row) for row in tmp[N():]]
-        continue
-    if R() < 1-1/len(best.rows): addData(rest, row)
-  best.rows.sort(key=Y)
-  return best,rest, evals, yes/tries
+    if bestish(row,best,rest):
+        c="?"
+        tries += 1
+        if Y(row) <= Y(best.rows[-1]):
+          c="!"
+          yes += 1
+    if bestish(row,best,rest) or R()<(1-j/30) and Y(row) <= Y(best.rows[-1]):
+      addData(best, row)
+      tmp  = sorted(best.rows, key=Y)
+      best = clone(done, tmp[:N()])
+      [addData(rest, row) for row in tmp[N():]]
+      continue
+    if R() < 1/len(best.rows): addData(rest, row)
+  return best,rest, len(seen),  yes/tries
 
 def eg_zap(f):
    d=Data(csv(f))
@@ -226,9 +231,10 @@ def eg_zap(f):
    delta  = 100*(nb4.mu - nzaps.mu)/nb4.mu //1
    diff   = (nrands.mu - nzaps.mu)/div(nb4)
    height = (nzaps.mu - nb4.lo)/ div(nb4)
-   print(f"{delta}", f"{diff:.2f}", f"{height:.2f}",
-         nzaps.mu < nrands.mu and not same(zaps,rands),
-         nevals.mu//1, f"{nyes.mu:.2f}",re.sub(".*/","",f))
+   print("gain",
+        f"{delta}", "diff",f"{diff:.2f}", "height",f"{height:.2f}",
+         "test",nzaps.mu < nrands.mu and not same(zaps,rands),
+         "evals",nevals.mu//1, "yes",f"{nyes.mu:.2f}","file",re.sub(".*/","",f))
 
 # -----------------------------------------------------------------------------
 def same(y0,z0):
