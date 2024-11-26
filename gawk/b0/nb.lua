@@ -226,7 +226,7 @@ function l.sum(t,FUN,   n)
 function l.split(t, n,     u,v) 
   u,v={},{}; for j,x in pairs(t) do l.push(j<=n and u or v,x) end; return u,v end
 
-function l.keysort(t,FUN,       DECORATE, UDECORATE) 
+function l.keysort(t,FUN,       DECORATE, UNDECORATE) 
   DECORATE   = function(x) return {FUN(x),x} end
   UNDECORATE = function(x) return x[2] end
   return map(sort(map(t,DECORATE),lt(1)), UNDECORATE) end
@@ -319,14 +319,14 @@ function eg.ydists(f,    d)
   for k,row in pairs(d:ydists()) do
     if k>20 then break else print(row[#row],d:ydist(row)) end end end
 
-function eg.guess(f,     done,test,d)
+function eg.guess(f,     done,test,d,n)
   d = Data:new():adds(f)
   n = adds(map(d.rows, function(row) return d:ydist(row) end))
   done,test=d:guess() 
   print(n.mu, n.lo, d:ydist(done[1]), d:ydist(test[#test])) end
 
 function eg.stats(   t,u,d,Y,n1,n2)
-  print("d\tclif\tboot\tcohen")
+  print("d\t cliff\tboot\tcohen")
   Y = function(s) return s and "y" or "." end
   d= 1
   while d< 1.2 do
