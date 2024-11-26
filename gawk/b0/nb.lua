@@ -130,7 +130,7 @@ function Data:neighbors(row1,  rows,      X)
   return keysort(rows or self.rows, X) end
 
 function Data:ydist(row,     Y)
-  Y= function(col) return abs(col:norm(row[col.at]) - col.goal)^2 end
+  Y= function(col) return (col:norm(row[col.at]) - col.goal)^2 end
   return sqrt(sum(self.cols.y, Y)) end
 
 function Data:ydists(  rows,     Y)
