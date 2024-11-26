@@ -188,7 +188,7 @@ function Data:guess(sortp)
     best,rest = self:clone(), self:clone()
     for j,row in pairs(done) do (j<=sqrt(#done) and best or rest):add(row) end
     todo = keysort(todo,BR)             
-    for _=1,2 do push(done, pop(todo,1)); push(done, pop(todo)) end end
+    for _=1,3 do push(done, pop(todo,1)); push(done, pop(todo)) end end
   return done, (sortp and keysort(test,BR) or test) end   
 
 -------------------------------------------------------------------------------
