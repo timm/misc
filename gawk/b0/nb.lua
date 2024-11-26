@@ -14,15 +14,24 @@ OPTIONS:
   --cols        demo: show cols initialized from row names
   --like  x.csv demo: show row liklihood calc]]
 
-local abs,exp,log,min,max = math.abs, math.exp, math.log, math.min, math.max
-local sqrt, pi = math.sqrt,  math.pi
-local sum,coerce,csv,o,new,push,shuffle,sort,map,keysort
+local abs,cos,exp,log,min = math.abs, math.cos, math.exp, math.log, math.min
+local max, sqrt, pi,R = math.max, math.sqrt, math.pi, math.random
+local adds,any,bootstrap,cliffs,coerce,csv,keysort,lt,many,map
+local new,normal,o,pop,push,shuffle,sort,split,sum
 local eg, the = {}, {
-  k=1,
-  m=2,
-  p=2,
-  seed=1234567891, 
-  big=1E32}
+  acquire= "exploit",
+  big   = 1E32,
+  boots = 256,
+  cliffs= 0.197,
+  conf  = 0.05,
+  enough = 500,
+  k     = 1,
+  m     = 2,
+  p     = 2,
+  seed  = 1234567891,
+  start = 4,
+  stop  = 30,
+  test  = 0.4}
 
 -------------------------------------------------------------------------------
 local Num,Sym,Cols,Data = {},{},{},{}
@@ -44,7 +53,7 @@ function Data:new()
 function Data:clone(rows)
    return Data:new():add(self.cols.names):adds(rows or {}) end
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 function Sym:add(x)
   self.n = self.n + 1
   self.has[x] = 1 + (self.has[x] or 0)
@@ -57,12 +66,11 @@ function Num:add(x,    d)
   d = x - self.mu
   self.mu = self.mu + d/self.n
   self.m2 = self.m2 + d*(x - self.mu)
-  self.sd = self.n < 2 and 0 or (self.m2 / (self.n - 1))^0.5 end 
+  self.sd = self.n < 2 and 0 or sqrt(self.m2 / (self.n - 1)) end 
 
 function Data:adds(src)
-  if   type(src)=="table" 
-  then for _,row in pairs(src) do self:add(row) end 
-  else for   row in csv(src)   do self:add(row) end end
+  if type(src)=="table" then return adds(src,self) end
+  for row in csv(src) do self:add(row) end 
   return self end
     
 function Data:add(row)
@@ -87,15 +95,49 @@ function Cols:initialize(names,    col)
   return self end
 
 -------------------------------------------------------------------------------
+function Num:div() return self.sd end
+
+function Sym:div() 
+  return -sum(self.has, function(n) return n/self.n * log(n/self.n,2) end) end
+
 function Num:norm(x)
   return x=="?" and x or (x-self.lo) / (self.hi - self.lo + 1/the.big) end
 
 function Num.pooledSd(i,j)
   return sqrt(((i.n-1)*i.sd^2 + (j.n-1)*j.sd^2)/(i.n+j.n-2)) end
 
+function Num.delta(i,j)
+  return abs(i.mu - j.mu) / ((1E-32 + i.sd^2/i.n + j.sd^2/j.n)^.5) end
+
 function Data:klass(row) return row[self.cols.klass.at] end
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+function Sym:dist(a,b) 
+  return  a=="?" and b=="?" and 1 or  (a==b and 0 or 1) end
+
+function Num:dist(a,b)
+  a,b = self:norm(a), self:norm(b)
+  a = a ~= "?" and a or (b<0.5 and 1 or 0)
+  b = b ~= "?" and b or (a<0.5 and 1 or 0)
+  return abs(a-b) end
+
+function Data:xdist(row1,row2,    DIST) 
+  DIST= function(col) return col:dist(row1[col.at], row2[col.at])^the.p  end
+  return (sum(self.cols.x, DIST) / #self.cols.x) ^ (1/the.p) end
+
+function Data:neighbors(row1,  rows,      X) 
+  X= function(row2) return self:xdist(row1,row2) end
+  return keysort(rows or self.rows, X) end
+
+function Data:ydist(row,     Y)
+  Y= function(col) return abs(col:norm(row[col.at]) - col.goal)^2 end
+  return sqrt(sum(self.cols.y, Y)) end
+
+function Data:ydists(  rows,     Y)
+  Y= function(row) return self:ydist(row) end
+  return keysort(rows or self.rows, Y) end
+
+-------------------------------------------------------------------------------
 -- `like(x:atom, ?prior: float) -> float`  
 -- Returns nil if `x` is a missing value.  
 function Sym:like(x,  prior,    v,tmp) --> num
@@ -125,41 +167,64 @@ function Data.classify(row, datas,    most,out,nh,nall,tmp)
      if tmp > most then most,out = tmp,k end end
   return out,most end
 
-function Sym:dist(a,b) 
-  return  a=="?" and b=="?" and 1 or  (a==b and 0 or 1) end
-
-function Num:dist(a,b)
-  a,b = self:norm(a), self:norm(b)
-  a = a ~= "?" and a or (b<0.5 and 1 or 0)
-  b = b ~= "?" and b or (a<0.5 and 1 or 0)
-  return abs(a-b) end
-
-function Data:xdist(row1,row2,    DIST) 
-  DIST= function(col) return col:dist(row1[x.at], row2[x.at])^the.p  end
-  return (sum(self.cols.x, DIST) / #self.cols.x) ^ (1/the.p) end
-
-function Data:neighbors(row1,  rows) 
-  return keysort(rows or self.rows, function(row2) return self:xdist(row1,row2) end) end
-
-function Data:ydist(row,     Y)
-  Y= function(col) return abs(col:norm(row[col.at]) - col.goal)^2 end
-  return sqrt(sum(self.cols.y, Y)) end
+function Data:guess(sortp) 
+  local ACQ,Y,B,R,BR,test,train,done,todo,best,rest,rows
+  rows = shuffle(self.rows)
+  ACQ= {
+    exploit = function(b,r) return b / r end,
+    explore = function(b,r) return (b + r)/(abs(b-r) + 1/the.big) end,
+    adapt   = function(b,r) local w = (1 - #done/the.stop)  
+                             return (b+r*w) / (abs(b*w - r) + 1/the.big) end
+  }
+  Y         = function(row) return self:ydist(row) end
+  B         = function(row) return exp(best:loglike(row, #done, 2)) end 
+  R         = function(row) return exp(rest:loglike(row, #done, 2)) end 
+  BR        = function(row) return -ACQ[the.acquire](B(row), R(row)) end
+  train,test= split(shuffle(rows), min(the.enough, the.test*#rows))
+  done,todo = split(train, the.start) 
+  while true do
+    done = keysort(done, Y) 
+    if #done > the.stop or #todo < 5 then break end 
+    best,rest = self:clone(), self:clone()
+    for j,row in pairs(done) do (j<=sqrt(#done) and best or rest):add(row) end
+    todo = keysort(todo,BR)             
+    for _=1,2 do push(done, pop(todo,1)); push(done, pop(todo)) end end
+  return done, (sortp and keysort(test,BR) or test) end   
 
 -------------------------------------------------------------------------------
 local l={}
 
+function l.adds(t,it) 
+  for _,x in pairs(t) do 
+    it = it or (type(x)=="number" and Num or Sym):new()
+    it:add(x) end
+  return it; end
+
+function l.any(t)  
+  return t[R(#t)] end
+
+function l.many(t,n,  u) 
+  u={}; for i=1,(n or #t) do u[i] = any(t) end; return u end
+
 function l.push(t,x) t[1+#t]=x; return x end
+
+function l.pop(t,n) return table.remove(t,n) end
 
 function l.shuffle(t,    k) 
   for j = #t,2,-1 do k=math.random(j); t[j],t[k] = t[k],t[j] end; return t end
 
 function l.sort(t,FUN) table.sort(t,FUN); return t end
 
+function l.lt(x) return function(a,b) return a[x] < b[x] end end
+
 function l.map(t,FUN,   u) 
   u={}; for _,v in pairs(t) do u[1+#u]=FUN(v) end; return u end
 
-function l.sum(t,f,   n)
-  n=0; for _,x in pairs(t) do n=n+f(x) end; return n end
+function l.sum(t,FUN,   n)
+  n=0; for _,x in pairs(t) do n=n+FUN(x) end; return n end
+
+function l.split(t, n,     u,v) 
+  u,v={},{}; for j,x in pairs(t) do l.push(j<=n and u or v,x) end; return u,v end
 
 function l.keysort(t,FUN,       DECORATE, UDECORATE) 
   DECORATE   = function(x) return {FUN(x),x} end
@@ -193,10 +258,46 @@ function l.o(x,        t,FMT,NUM,LIST,DICT)
 function l.new(kl,t)
   kl.__index=kl; kl.__tostring = l.o; return setmetatable(t,kl) end
 
+function l.same(x,y)
+  return l.cliffs(x,y) and l.bootstrap(x,y) end
+
+function l.cliffs(xs,ys)
+  local lt,gt,n = 0,0,0
+  for _,x in pairs(xs) do
+      for _,y in pairs(ys) do
+        n = n + 1
+        if y > x then gt = gt + 1 end
+        if y < x then lt = lt + 1 end end end
+  return abs(gt - lt)/n <= the.cliffs end -- 0.195 
+      
+-- Taken from non-parametric significance test From Introduction to Bootstrap,
+-- Efron and Tibshirani, 1993, chapter 20. https://doi.org/10.1201/9780429246593
+-- Checks how rare are  the observed differences between samples of this data.
+-- If not rare, then these sets are the same.
+function l.bootstrap(y0,z0,         x,y,z,yhat,zhat,n,b)
+  z,y,x= adds(z0), adds(y0), adds(y0,adds(z0))
+  yhat = map(y0, function(y1) return y1 - y.mu + x.mu end)
+  zhat = map(z0, function(z1) return z1 - z.mu + x.mu end)
+  n    = 0
+  for i=1, the.boots do 
+    if adds(many(yhat)):delta(adds(many(zhat))) > y:delta(z) then n=n+1 end end
+  return n / the.boots >= the.conf end
+
+function l.normal(mu,sd) --> (num, num) --> 0..1
+  return (mu or 0) + (sd or 1) * sqrt(-2*log(R())) * cos(2*pi*R()) end
+
 -------------------------------------------------------------------------------
 function eg.help(_) print("\n"..help.."\n") end
+function eg.the(_)  print(o(the)) end
 
-function eg.the(_) print(o(the)) end
+function eg.num(_, n) 
+  n = Num:new(); for _=1,100 do n:add(normal(20,2)) end
+  assert(abs(n.sd - 1.96) < 0.01) end
+
+function eg.sym(_, s) 
+  s = Sym:new(); for _,x in pairs{"a","a","a","a","b","b","c"} do s:add(x) end
+  assert(abs(1.379 - s:div()) < 0.01) end
+
 function eg.csv(f) for row in csv(f) do print(o(row)) end end
 
 function eg.data(f)
@@ -209,13 +310,40 @@ function eg.cols(_,    names)
   for _,col in pairs(Cols:new():initialize(names).all) do print(o(col)) end end
 
 function eg.like(f,    d)
-  d=Data:new():adds(f)
+  d = Data:new():adds(f)
   for k,row in pairs(shuffle(d.rows)) do 
-    if k>20 then break else print(row[#row],d:like(row,1000,2)) end end end
+    if k>20 then break else print(row[#row],d:loglike(row,1000,2)) end end end
+
+function eg.ydists(f,    d)
+  d = Data:new():adds(f)
+  for k,row in pairs(d:ydists()) do
+    if k>20 then break else print(row[#row],d:ydist(row)) end end end
+
+function eg.guess(f,     done,test,d)
+  d = Data:new():adds(f)
+  n = adds(map(d.rows, function(row) return d:ydist(row) end))
+  done,test=d:guess() 
+  print(n.mu, n.lo, d:ydist(done[1]), d:ydist(test[#test])) end
+
+function eg.stats(   t,u,d,Y,n1,n2)
+  print("d\tclif\tboot\tcohen")
+  Y = function(s) return s and "y" or "." end
+  d= 1
+  while d< 1.2 do
+    t={}; for i=1,100 do t[1+#t] = normal(10,1) + normal(10,2)^2 end 
+    u={}; for i,x in pairs(t) do  u[i] = x*d end
+    d=d*1.01
+    n1,n2 = adds(t), adds(u)
+    print(string.format("%.3f\t%s\t%s\t%s", 
+                        d, Y(cliffs(t,u)), Y(bootstrap(t,u)), 
+                           Y(abs(n1.mu - n2.mu) < .35*n1:pooledSd(n2)))) end end
 
 -------------------------------------------------------------------------------
-sum,coerce,csv,o,new,push = l.sum,l.coerce,l.csv,l.o,l.new,l.push
-shuffle,sort,map,keysort = l.shuffle, l.sort, l.map, l.keysort
+adds, any, bootstrap        = l.adds, l.any, l.bootstrap
+cliffs, coerce, csv         = l.cliffs, l.coerce, l.csv
+keysort, lt, many, map, new = l.keysort, l.lt, l.many, l.map, l.new
+normal,o, pop,push, shuffle = l.normal, l.o, l.pop, l.push, l.shuffle
+sort, split, sum            = l.sort, l.split, l.sum
 
 math.randomseed(the.seed)
 
