@@ -58,12 +58,12 @@ sh:
 	@ps2pdf $@.ps $@; rm $@.ps
 	open $@
 
-eg30: ../../../moot/optimize/[chmp]*/*.csv
-	$(foreach f,$^, (lua nb.lua --stop 30 --guess $f &);)
-
 eg20: ../../../moot/optimize/[chmp]*/*.csv
 	$(foreach f,$^, (lua nb.lua --stop 20 --guess $f &);)
 
 eg60: ../../../moot/optimize/[chmp]*/*.csv
 	$(foreach f,$^, (lua nb.lua --stop 60 --guess $f &);)
+
+eg30: ../../../moot/optimize/[chmp]*/*.csv
+	$(foreach f,$^, (lua nb.lua --stop 30 --guess $f &);)
 

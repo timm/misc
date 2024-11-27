@@ -16,9 +16,9 @@ OPTIONS:
 
 local abs,cos,exp,log,min = math.abs, math.cos, math.exp, math.log, math.min
 local max, sqrt, pi,R = math.max, math.sqrt, math.pi, math.random
-local adds,any,bootstrap,cliffs,coerce,csv,keysort,lt,many,map
-local new,normal,o,pop,push,shuffle,sort,split,printf,sum
-local eg, the = {}, {
+local adds,any,bootstrap,cliffs,coerce,csv,gt,keysort,lt,many,map
+local new,normal,o,pop,push,shuffle,same,sort,split,printf,sum
+local l, eg, the = {}, {}, {
   acquire= "exploit",
   big   = 1E32,
   boots = 256,
@@ -53,10 +53,11 @@ function Data:new()
 function Data:clone(rows)
    return Data:new():add(self.cols.names):adds(rows or {}) end
 
--------------------------------------------------------------------------------
-function Sym:add(x)
-  self.n = self.n + 1
-  self.has[x] = 1 + (self.has[x] or 0)
+-------------------------------------------------------------------------------
+function Sym:add(x,  n)
+  n = n or 1
+  self.n = self.n + n
+  self.has[x] = n + (self.has[x] or 0)
   if self.has[x] > self.most then self.most, self.mode=self.has[x], x end end 
 
 function Num:add(x,    d)
@@ -95,10 +96,11 @@ function Cols:initialize(names,    col)
   return self end
 
 -------------------------------------------------------------------------------
-function Num:div() return self.sd end
-
+     
 function Sym:div() 
   return -sum(self.has, function(n) return n/self.n * log(n/self.n,2) end) end
+
+function Num:div() return self.sd end
 
 function Num:norm(x)
   return x=="?" and x or (x-self.lo) / (self.hi - self.lo + 1/the.big) end
@@ -192,7 +194,60 @@ function Data:guess(sortp)
   return done, (sortp and keysort(test,BR) or test) end   
 
 -------------------------------------------------------------------------------
-local l={}
+function Num:keeps(t)
+  for _,x in pairs(t) do self:keep(x) end
+  return self end
+
+function Num:keep(x)
+  self._nums = self._nums or {}
+  push(self._nums, x)
+  self:add(x) end
+
+function Num.merge(i,j,  eps,     k)
+  if abs(i.mu - j.mu) < (eps or 0) or same(i._nums, j._nums) then
+    k = Num:new(i.txt,i.at)
+    k._nums = {}
+    for _,nums in pairs{i._nums, j._nums} do
+      for _,n in pairs(nums) do k:keep(n) end end end 
+  return k end
+
+function Num.merges(nums,  maxp,eps,     t,merged)
+  for _,num in pairs(sort(nums, maxp and gt"mu" or lt"mu")) do
+    if   t 
+    then merged = num:merge(t[#t],eps)
+         if merged then t[#t] = merged else push(t,num) end
+    else t= {num} end 
+    num.rank = string.format("%c",96+#t) end
+  return t end
+
+function l.same(x,y)
+  return l.cliffs(x,y) and l.bootstrap(x,y) end
+
+function l.cliffs(xs,ys,     lt,gt,n)
+  lt,gt,n = 0,0,0
+  for _,x in pairs(xs) do
+      for _,y in pairs(ys) do
+        n = n + 1
+        if y > x then gt = gt + 1 end
+        if y < x then lt = lt + 1 end end end
+  return abs(gt - lt)/n <= the.cliffs end -- 0.195 
+      
+-- Taken from non-parametric significance test From Introduction to Bootstrap,
+-- Efron and Tibshirani, 1993, chapter 20. https://doi.org/10.1201/9780429246593
+-- Checks how rare are  the observed differences between samples of this data.
+-- If not rare, then these sets are the same.
+function l.bootstrap(y0,z0,         x,y,z,yhat,zhat,n,b)
+  z,y,x= adds(z0), adds(y0), adds(y0,adds(z0))
+  yhat = map(y0, function(y1) return y1 - y.mu + x.mu end)
+  zhat = map(z0, function(z1) return z1 - z.mu + x.mu end)
+  n    = 0
+  for i=1, the.boots do 
+    if adds(many(yhat)):delta(adds(many(zhat))) > y:delta(z) then n=n+1 end end
+  return n / the.boots >= the.conf end
+
+-------------------------------------------------------------------------------
+function l.normal(mu,sd) --> (num, num) --> 0..1
+  return (mu or 0) + (sd or 1) * sqrt(-2*log(R())) * cos(2*pi*R()) end
 
 function l.printf(...) print(string.format(...)) end
 
@@ -218,6 +273,7 @@ function l.shuffle(t,    k)
 function l.sort(t,FUN) table.sort(t,FUN); return t end
 
 function l.lt(x) return function(a,b) return a[x] < b[x] end end
+function l.gt(x) return function(a,b) return a[x] > b[x] end end
 
 function l.map(t,FUN,   u) 
   u={}; for _,v in pairs(t) do u[1+#u]=FUN(v) end; return u end
@@ -246,12 +302,17 @@ function l.csv(file,     src)
     then t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=l.coerce(s1) end; return t 
     else if src then io.close(src) end end end end
 
-function l.o(x,        t,FMT,NUM,LIST,DICT) 
+function l.o(x,  n,        t,FMT,NUM,LIST,DICT,PUB) 
   t = {}
+  n = n or 0
+  assert(n<50,"recursive string error")
   FMT = string.format
   NUM = function() return x//1 == x and tostring(x) or FMT("%.3g",x) end
-  LIST= function() for k,v in pairs(x) do t[1+#t] = l.o(v) end end
-  DICT= function() for k,v in pairs(x) do t[1+#t] = FMT(":%s %s",k, l.o(v)) end end
+  LIST= function() for k,v in pairs(x) do t[1+#t] = l.o(v,n+1) end end
+  DICT= function() for k,v in pairs(x) do 
+                     if PUB(k) 
+                     then t[1+#t] = FMT(":%s %s",k, l.o(v,n+1)) end end end
+  PUB= function(s) return  not tostring(s):find"^_" end
   if type(x) == "number" then return NUM() end 
   if type(x) ~= "table"  then return tostring(x) end
   if #x>0 then LIST() else DICT(); table.sort(t) end
@@ -260,33 +321,6 @@ function l.o(x,        t,FMT,NUM,LIST,DICT)
 function l.new(kl,t)
   kl.__index=kl; kl.__tostring = l.o; return setmetatable(t,kl) end
 
-function l.same(x,y)
-  return l.cliffs(x,y) and l.bootstrap(x,y) end
-
-function l.cliffs(xs,ys)
-  local lt,gt,n = 0,0,0
-  for _,x in pairs(xs) do
-      for _,y in pairs(ys) do
-        n = n + 1
-        if y > x then gt = gt + 1 end
-        if y < x then lt = lt + 1 end end end
-  return abs(gt - lt)/n <= the.cliffs end -- 0.195 
-      
--- Taken from non-parametric significance test From Introduction to Bootstrap,
--- Efron and Tibshirani, 1993, chapter 20. https://doi.org/10.1201/9780429246593
--- Checks how rare are  the observed differences between samples of this data.
--- If not rare, then these sets are the same.
-function l.bootstrap(y0,z0,         x,y,z,yhat,zhat,n,b)
-  z,y,x= adds(z0), adds(y0), adds(y0,adds(z0))
-  yhat = map(y0, function(y1) return y1 - y.mu + x.mu end)
-  zhat = map(z0, function(z1) return z1 - z.mu + x.mu end)
-  n    = 0
-  for i=1, the.boots do 
-    if adds(many(yhat)):delta(adds(many(zhat))) > y:delta(z) then n=n+1 end end
-  return n / the.boots >= the.conf end
-
-function l.normal(mu,sd) --> (num, num) --> 0..1
-  return (mu or 0) + (sd or 1) * sqrt(-2*log(R())) * cos(2*pi*R()) end
 
 -------------------------------------------------------------------------------
 function eg.help(_) print("\n"..help.."\n") end
@@ -322,7 +356,7 @@ function eg.ydists(f,    d)
   for k,row in pairs(d:ydists()) do
     if k>20 then break else print(row[#row],d:ydist(row)) end end end
 
-function eg.guess(f,     done,test,d,n,dones,tests,N)
+function eg.guess(f,     done,test,d,n,train,trains,tests,N)
   d = Data:new():adds(f)
   n = adds(sort(map(d.rows, function(row) return d:ydist(row) end)))
   N = function (x)  return (x-n.lo)/n.sd end
@@ -338,21 +372,31 @@ function eg.stats(   t,u,d,Y,n1,n2)
   print("d\t cliff\tboot\tcohen")
   Y = function(s) return s and "y" or "." end
   d= 1
-  while d< 1.2 do
-    t={}; for i=1,100 do t[1+#t] = normal(10,1) + normal(10,2)^2 end 
+  while d< 1.3 do
+    t={}; for i=1,100 do t[1+#t] = normal(10,1) + normal(15,4)^2 end 
     u={}; for i,x in pairs(t) do  u[i] = x*d end
-    d=d*1.01
+    d=d*1.02
     n1,n2 = adds(t), adds(u)
     print(string.format("%.3f\t%s\t%s\t%s", 
                         d, Y(cliffs(t,u)), Y(bootstrap(t,u)), 
                            Y(abs(n1.mu - n2.mu) < .35*n1:pooledSd(n2)))) end end
 
+function eg.keeps(   t)
+  t= {Num:new("x1"):keeps{0.34, 0.49 ,0.51, 0.6},
+      Num:new("x2"):keeps{0.6  ,0.7 , 0.8 , 0.89},
+      Num:new("x3"):keeps{0.13 ,0.23, 0.38, 0.38},
+      Num:new("x4"):keeps{0.6  ,0.7,  0.8 , 0.9},
+      Num:new("x5"):keeps{0.1  ,0.2,  0.3 , 0.4}} 
+  Num.merges(t,true)
+  for _,num in pairs(t) do
+    print(num.mu, num.rank) end end
+
 -------------------------------------------------------------------------------
-adds, any, bootstrap        = l.adds, l.any, l.bootstrap
-cliffs, coerce, csv         = l.cliffs, l.coerce, l.csv
-keysort, lt, many, map, new = l.keysort, l.lt, l.many, l.map, l.new
-normal,o, pop,push, shuffle = l.normal, l.o, l.pop, l.push, l.shuffle
-sort, split, sum, printf    = l.sort, l.split, l.sum, l.printf
+adds, any, bootstrap          = l.adds, l.any, l.bootstrap
+cliffs, coerce, csv, gt       = l.cliffs, l.coerce, l.csv, l.gt
+keysort, lt, many, map, new   = l.keysort, l.lt, l.many, l.map, l.new
+normal,o, pop,push, shuffle   = l.normal, l.o, l.pop, l.push, l.shuffle
+same,sort, split, sum, printf = l.same, l.sort, l.split, l.sum, l.printf
 
 math.randomseed(the.seed)
 
