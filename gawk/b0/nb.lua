@@ -17,7 +17,7 @@ OPTIONS:
 local abs,cos,exp,log,min = math.abs, math.cos, math.exp, math.log, math.min
 local max, sqrt, pi,R = math.max, math.sqrt, math.pi, math.random
 local adds,any,bootstrap,cliffs,coerce,csv,keysort,lt,many,map
-local new,normal,o,pop,push,shuffle,sort,split,sum
+local new,normal,o,pop,push,shuffle,sort,split,printf,sum
 local eg, the = {}, {
   acquire= "exploit",
   big   = 1E32,
@@ -131,7 +131,7 @@ function Data:neighbors(row1,  rows,      X)
 
 function Data:ydist(row,     Y)
   Y= function(col) return (col:norm(row[col.at]) - col.goal)^2 end
-  return sqrt(sum(self.cols.y, Y)) end
+  return sqrt(sum(self.cols.y, Y)/#(self.cols.y)) end
 
 function Data:ydists(  rows,     Y)
   Y= function(row) return self:ydist(row) end
@@ -193,6 +193,8 @@ function Data:guess(sortp)
 
 -------------------------------------------------------------------------------
 local l={}
+
+function l.printf(...) print(string.format(...)) end
 
 function l.adds(t,it) 
   for _,x in pairs(t) do 
@@ -289,6 +291,7 @@ function l.normal(mu,sd) --> (num, num) --> 0..1
 -------------------------------------------------------------------------------
 function eg.help(_) print("\n"..help.."\n") end
 function eg.the(_)  print(o(the)) end
+function eg.stop(x)  the.stop = coerce(x) end
 
 function eg.num(_, n) 
   n = Num:new(); for _=1,100 do n:add(normal(20,2)) end
@@ -319,11 +322,17 @@ function eg.ydists(f,    d)
   for k,row in pairs(d:ydists()) do
     if k>20 then break else print(row[#row],d:ydist(row)) end end end
 
-function eg.guess(f,     done,test,d,n)
+function eg.guess(f,     done,test,d,n,dones,tests,N)
   d = Data:new():adds(f)
-  n = adds(map(d.rows, function(row) return d:ydist(row) end))
-  done,test=d:guess() 
-  print(n.mu, n.lo, d:ydist(done[1]), d:ydist(test[#test])) end
+  n = adds(sort(map(d.rows, function(row) return d:ydist(row) end)))
+  N = function (x)  return (x-n.lo)/n.sd end
+  trains,tests = Num:new(),Num:new()
+  for _=1,20 do
+    train,test = d:guess(true)
+    trains:add(N(d:ydist(train[1])))
+    tests:add(N(d:ydist(test[1]))) end
+  printf("%s, %.2f, %.2f,  %.2f, %.2f", f:gsub("^.*/",""), 
+         N(n.mu), trains.mu, tests.mu, tests.mu - trains.mu)  end 
 
 function eg.stats(   t,u,d,Y,n1,n2)
   print("d\t cliff\tboot\tcohen")
@@ -343,7 +352,7 @@ adds, any, bootstrap        = l.adds, l.any, l.bootstrap
 cliffs, coerce, csv         = l.cliffs, l.coerce, l.csv
 keysort, lt, many, map, new = l.keysort, l.lt, l.many, l.map, l.new
 normal,o, pop,push, shuffle = l.normal, l.o, l.pop, l.push, l.shuffle
-sort, split, sum            = l.sort, l.split, l.sum
+sort, split, sum, printf    = l.sort, l.split, l.sum, l.printf
 
 math.randomseed(the.seed)
 
