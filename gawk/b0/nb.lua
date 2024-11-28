@@ -204,20 +204,23 @@ function SYM:bin(x) return x end
 
 function Data:bins(klasses,    x,b)
   for klass,rows in pairs(klasses) do n[klass]=#rows end
+  tmp={}
   for _,col in pairs(self.cols.x) do
-    t={}
+    for _,bin in sort(col:bins(klasses, lt"lo",{})) do
+      push(tmp,bint) end end
     for klass,rows in pairs(klasses) do
       for _,row in pairs(rows) do
         x = row[col.at]
         if x ~= "?" then
           b = col:bin(x)
           t[b] = t[b] or Sym:new(col.txt,col.at)
-          t[b]:keep(x,y) and end end
-    t=keysort(Sym.merges(sort(t,lt"lo"), col.n/the.bins),
+          t[b]:xy(x,y) and end end
+    t= sort(t,lt"lo")
+    t= t.has and t or Sym.merges(t, col.n/the.bins)
+
               #all to t , sort akk
               
-
-function Sym:keep(x,y)
+function Sym:xy(x,y)
   self.lo = self.lo and min(x, self.lo) or x
   self.hi = self.hi and max(x, self.hi) or x
   self:add(y) end
