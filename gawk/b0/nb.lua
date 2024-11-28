@@ -194,31 +194,56 @@ function Data:guess(sortp)
   return done, (sortp and keysort(test,BR) or test) end   
 
 -------------------------------------------------------------------------------
+function Sym:keep(x,y)
+  self.lo = self.lo and min(x, self.lo) or x
+  self.hi = self.hi and max(x, self.hi) or x
+  self:add(y) end
+
+function Sym.merge(i,j,want,     k)
+  k = Sym:new(i.txt,i.at)
+  for _,has in pairs{i.has, j.has} do
+    for x,n in pairs(has) do k:add(x,n) end end 
+  k.lo = min(i.lo, j.lo)
+  k.hi = max(i.hi, j.hi)
+  if i.n<want or j.n<want then return k end
+  if k:div() <= (i.n * i:div() + j.n * j:div())/k.n then return k end end
+
+function Sym.merges(syms,  want,     t,merged)
+  for _,sym in pairs(sort(syms, lt"lo")) do
+    if   t 
+    then merged = sym:merge(t[#t],want)
+         if merged then t[#t] = merged else push(t,sym) end
+    else t= {sym} end end 
+  return t end
+
 function Num:keeps(t)
   for _,x in pairs(t) do self:keep(x) end
   return self end
 
 function Num:keep(x)
-  self._nums = self._nums or {}
-  push(self._nums, x)
+  self._kept = self._kept or {}
+  push(self._kept, x)
   self:add(x) end
 
 function Num.merge(i,j,  eps,     k)
-  if abs(i.mu - j.mu) < (eps or 0) or same(i._nums, j._nums) then
+  if abs(i.mu - j.mu) < (eps or 0) or same(i._kept, j._kept) then
     k = Num:new(i.txt,i.at)
-    k._nums = {}
-    for _,nums in pairs{i._nums, j._nums} do
-      for _,n in pairs(nums) do k:keep(n) end end end 
+    k._kept = {}
+    for _,kept in pairs{i._kept, j._kept} do
+      for _,n in pairs(kept) do k:keep(n) end end end 
   return k end
 
-function Num.merges(nums,  maxp,eps,     t,merged)
+function Num.merges(nums,  maxp,eps,     t,merged,mus)
+  mu={}
   for _,num in pairs(sort(nums, maxp and gt"mu" or lt"mu")) do
     if   t 
     then merged = num:merge(t[#t],eps)
          if merged then t[#t] = merged else push(t,num) end
     else t= {num} end 
-    num.rank = string.format("%c",96+#t) end
-  return t end
+    num.rank = string.format("%c",96+#t) 
+    mu[num.rank] = t[#t].mu 
+  end
+  return nums,mu end
 
 function l.same(x,y)
   return l.cliffs(x,y) and l.bootstrap(x,y) end
@@ -387,9 +412,9 @@ function eg.keeps(   t)
       Num:new("x3"):keeps{0.13 ,0.23, 0.38, 0.38},
       Num:new("x4"):keeps{0.6  ,0.7,  0.8 , 0.9},
       Num:new("x5"):keeps{0.1  ,0.2,  0.3 , 0.4}} 
-  Num.merges(t,true)
+  t,mu = Num.merges(t,true)
   for _,num in pairs(t) do
-    print(num.mu, num.rank) end end
+    print(num.mu, num.rank, mu[num.rank]) end end
 
 -------------------------------------------------------------------------------
 adds, any, bootstrap          = l.adds, l.any, l.bootstrap
