@@ -206,19 +206,19 @@ function Data:bins(klasses,    x,b)
   for klass,rows in pairs(klasses) do n[klass]=#rows end
   tmp={}
   for _,col in pairs(self.cols.x) do
-    for _,bin in sort(col:bins(klasses, lt"lo",{})) do
-      push(tmp,bint) end end
-    for klass,rows in pairs(klasses) do
-      for _,row in pairs(rows) do
-        x = row[col.at]
-        if x ~= "?" then
-          b = col:bin(x)
-          t[b] = t[b] or Sym:new(col.txt,col.at)
-          t[b]:xy(x,y) and end end
-    t= sort(t,lt"lo")
-    t= t.has and t or Sym.merges(t, col.n/the.bins)
+    for _,bin in sort(col:bins(self:bins1(klasses), lt"lo",{})) do
+      push(tmp,bin) end end
+  return sort(tmp,SCORE)[#tmp] end
 
-              #all to t , sort akk
+function Data:bins1(klasses 
+  for klass,rows in pairs(klasses) do
+    for _,row in pairs(rows) do
+      x = row[col.at]
+      if x ~= "?" then
+        b = col:bin(x)
+        t[b] = t[b] or Sym:new(col.txt,col.at)
+        t[b]:xy(x,y) and end end
+  return t end
               
 function Sym:xy(x,y)
   self.lo = self.lo and min(x, self.lo) or x
