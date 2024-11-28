@@ -96,6 +96,7 @@ function Cols:initialize(names,    col)
   return self end
 
 -------------------------------------------------------------------------------
+function Data:klass(row) return row[self.cols.klass.at] end
      
 function Sym:div() 
   return -sum(self.has, function(n) return n/self.n * log(n/self.n,2) end) end
@@ -111,7 +112,10 @@ function Num.pooledSd(i,j)
 function Num.delta(i,j)
   return abs(i.mu - j.mu) / ((1E-32 + i.sd^2/i.n + j.sd^2/j.n)^.5) end
 
-function Data:klass(row) return row[self.cols.klass.at] end
+function NUM:cdf(x,     z,FUN)
+  FUN = function(z) return 1 - 0.5*math.exp(-0.717*z - 0.416*z*z) end
+  z = (x - self.mu)/self.sd
+  return z >=  0 and fun(z) or 1 - fun(-z) end
 
 -------------------------------------------------------------------------------
 function Sym:dist(a,b) 
@@ -194,6 +198,25 @@ function Data:guess(sortp)
   return done, (sortp and keysort(test,BR) or test) end   
 
 -------------------------------------------------------------------------------
+
+function NUM:bin(x) return self:cdf(x) * the.bins // 1  end
+function SYM:bin(x) return x end
+
+function Data:bins(klasses,    x,b)
+  for klass,rows in pairs(klasses) do n[klass]=#rows end
+  for _,col in pairs(self.cols.x) do
+    t={}
+    for klass,rows in pairs(klasses) do
+      for _,row in pairs(rows) do
+        x = row[col.at]
+        if x ~= "?" then
+          b = col:bin(x)
+          t[b] = t[b] or Sym:new(col.txt,col.at)
+          t[b]:keep(x,y) and end end
+    t=keysort(Sym.merges(sort(t,lt"lo"), col.n/the.bins),
+              #all to t , sort akk
+              
+
 function Sym:keep(x,y)
   self.lo = self.lo and min(x, self.lo) or x
   self.hi = self.hi and max(x, self.hi) or x
@@ -295,7 +318,9 @@ function l.pop(t,n) return table.remove(t,n) end
 function l.shuffle(t,    k) 
   for j = #t,2,-1 do k=math.random(j); t[j],t[k] = t[k],t[j] end; return t end
 
-function l.sort(t,FUN) table.sort(t,FUN); return t end
+function l.sort(t,FUN,    u) 
+  u = #t>0 and u or map(t,function(x) return x end)
+  table.sort(u,FUN); return u end
 
 function l.lt(x) return function(a,b) return a[x] < b[x] end end
 function l.gt(x) return function(a,b) return a[x] > b[x] end end
@@ -345,7 +370,6 @@ function l.o(x,  n,        t,FMT,NUM,LIST,DICT,PUB)
 
 function l.new(kl,t)
   kl.__index=kl; kl.__tostring = l.o; return setmetatable(t,kl) end
-
 
 -------------------------------------------------------------------------------
 function eg.help(_) print("\n"..help.."\n") end
