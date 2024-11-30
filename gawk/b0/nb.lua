@@ -16,11 +16,12 @@ OPTIONS:
 
 local abs,cos,exp,log,min = math.abs, math.cos, math.exp, math.log, math.min
 local max, sqrt, pi,R = math.max, math.sqrt, math.pi, math.random
-local adds,any,bootstrap,cliffs,coerce,csv,gt,keysort,lt,many,map
+local adds,any,bootstrap,cliffs,coerce,csv,gt,keysort,list,lt,many,map
 local new,normal,o,pop,push,shuffle,same,sort,split,printf,sum
 local l, eg, the = {}, {}, {
   acquire= "exploit",
   big   = 1E32,
+  bins  = 17,
   boots = 256,
   cliffs= 0.197,
   conf  = 0.05,
@@ -112,7 +113,7 @@ function Num.pooledSd(i,j)
 function Num.delta(i,j)
   return abs(i.mu - j.mu) / ((1E-32 + i.sd^2/i.n + j.sd^2/j.n)^.5) end
 
-function NUM:cdf(x,     z,FUN)
+function Num:cdf(x,     z,FUN)
   FUN = function(z) return 1 - 0.5*math.exp(-0.717*z - 0.416*z*z) end
   z = (x - self.mu)/self.sd
   return z >=  0 and fun(z) or 1 - fun(-z) end
@@ -198,28 +199,36 @@ function Data:guess(sortp)
   return done, (sortp and keysort(test,BR) or test) end   
 
 -------------------------------------------------------------------------------
-
-function NUM:bin(x) return self:cdf(x) * the.bins // 1  end
 function SYM:bin(x) return x end
+function NUM:bin(x) return self:cdf(x) * the.bins // 1  end
 
-function Data:bins(klasses,    x,b)
-  for klass,rows in pairs(klasses) do n[klass]=#rows end
-  tmp={}
+function Data:bins(goal,klasses,    x,b)
+  for klass,rows in pairs(klasses) do all[klass]=#rows end
+  SCORE = function(range,     b,r) 
+            b,r = 0,0
+            for k,n in pairs(range.has) do
+              if k == goal then b=b+0 else r=r+n end end 
+            b= b/((all[b] or 0) +1/the.big)
+            r= r/((all[r] or 0) +1/the.big)
+            return b*b/r end  
+  -- BINS = function (col,    t,x,b)
+  --          t={}
+  --          for y,rows in pairs(klasses) do
+  --            for _,row in pairs(rows) do
+  --              x = row[col.at]
+  --              if x ~= "?" then
+  --                b = col:bin(x)
+  --                t[b] = t[b] or Sym:new(col.txt,col.at) 
+  --                t[b]:xy(x,y) end end end 
+  --          return sort(t, lt"lo") end
+  tmp = {}
   for _,col in pairs(self.cols.x) do
-    for _,bin in sort(col:bins(self:bins1(klasses), lt"lo",{})) do
-      push(tmp,bin) end end
-  return sort(tmp,SCORE)[#tmp] end
-
-function Data:bins1(klasses 
-  for klass,rows in pairs(klasses) do
-    for _,row in pairs(rows) do
-      x = row[col.at]
-      if x ~= "?" then
-        b = col:bin(x)
-        t[b] = t[b] or Sym:new(col.txt,col.at)
-        t[b]:xy(x,y) and end end
-  return t end
-              
+    bins = BINS(col)
+    if #bins > 1 then
+      for _,bin in pairs(col.mu and Sym.merges(bins) or bins) do 
+        push(tmp,bin) end end end 
+  return keysort(tmp,SCORE) end
+             
 function Sym:xy(x,y)
   self.lo = self.lo and min(x, self.lo) or x
   self.hi = self.hi and max(x, self.hi) or x
@@ -231,7 +240,7 @@ function Sym.merge(i,j,want,     k)
     for x,n in pairs(has) do k:add(x,n) end end 
   k.lo = min(i.lo, j.lo)
   k.hi = max(i.hi, j.hi)
-  if i.n<want or j.n<want then return k end
+  if i.n < want or j.n < want then return k end
   if k:div() <= (i.n * i:div() + j.n * j:div())/k.n then return k end end
 
 function Sym.merges(syms,  want,     t,merged)
@@ -267,8 +276,7 @@ function Num.merges(nums,  maxp,eps,     t,merged,mus)
          if merged then t[#t] = merged else push(t,num) end
     else t= {num} end 
     num.rank = string.format("%c",96+#t) 
-    mu[num.rank] = t[#t].mu 
-  end
+    mu[num.rank] = t[#t].mu end
   return nums,mu end
 
 function l.same(x,y)
@@ -321,9 +329,12 @@ function l.pop(t,n) return table.remove(t,n) end
 function l.shuffle(t,    k) 
   for j = #t,2,-1 do k=math.random(j); t[j],t[k] = t[k],t[j] end; return t end
 
+function l.list(t,    u)
+ if #t>0 then return t end
+ u={}; for _,x in pairs(t) do u[1+#u] = x end; return u end
+
 function l.sort(t,FUN,    u) 
-  u = #t>0 and u or map(t,function(x) return x end)
-  table.sort(u,FUN); return u end
+  table.sort(l.list(u),FUN); return u end
 
 function l.lt(x) return function(a,b) return a[x] < b[x] end end
 function l.gt(x) return function(a,b) return a[x] > b[x] end end
@@ -446,7 +457,7 @@ function eg.keeps(   t)
 -------------------------------------------------------------------------------
 adds, any, bootstrap          = l.adds, l.any, l.bootstrap
 cliffs, coerce, csv, gt       = l.cliffs, l.coerce, l.csv, l.gt
-keysort, lt, many, map, new   = l.keysort, l.lt, l.many, l.map, l.new
+keysort, list, lt, many, map, new = l.keysort, l.list, l.lt, l.many, l.map, l.new
 normal,o, pop,push, shuffle   = l.normal, l.o, l.pop, l.push, l.shuffle
 same,sort, split, sum, printf = l.same, l.sort, l.split, l.sum, l.printf
 
