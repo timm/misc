@@ -5,61 +5,68 @@ local the = {
 
 math.randomseed(the.seed)
 
-local Cols,Data,Num,Sym
-local add, adds,row,rows
+local Cols,Data,Num,Sym = {},{},{},{}
+local adds,push,coerce,cells,o,new
+local ok,norm,mid,per,hi,lo,div,mids,csv
+
 --------------------------------------------------------------------------
 
-function Num(s,at)   return {n=0, txt=s, at=at, has={}, max=128, ok=false} end
-function Sym(s,at)   return {n=0, txt=s, at=at, has={}, mode=nil, most=0} end
-function Data(names) return {cols=Cols(names), rows={}} end
+function Num:new(s,at)   
+  return new(Num,  {n=0, txt=s, at=at, has={}, max=128, ok=false}) end
 
-function Cols(names,      it,col)
-  it = {names=names, all={}, x={}, y={}, klass=nil}
+function Sym:new(s,at)   
+  return new(Sym,  {n=0, txt=s, at=at, has={}, mode=nil, most=0}) end
+
+function Data:new(names) 
+  return new(Data, {cols=Cols(names), rows={}}) end
+
+function Cols:new(names,      it,col)
+  it = new(Cols, {names=names, all={}, x={}, y={}, klass=nil})
   for at,s in pairs(it.names) do
-    col = push(it.all, (s:find"^[A-Z]" and Num or Sym)(s,at))
+    col = push(it.all, (s:find"^[A-Z]" and Num or Sym):new(s,at))
     if not s:find"X$" then
-      if s:find"!$" then klass = col end
+      if s:find"!$" then it.klass = col end
       push(s:find"[!+-]$" and it.y or it.x, col) end end
   return it end
 
---------------------------------------------------------------------------
-function add(x,  col1,      SYM,NUM)
-  SYM= function(a)
-         a[x] = (a[x] or 0) + 1 
-         if a[x] > col1.most then col1.most,col1.mode = a[x],x end end
-  NUM= function(a,     pos)
-         if #a < col1.max then pos=#a+1 
-         elseif math.random() < #a/n then pos=math.random(#a) end
-         if pos then
-           a[pos] = x
-           col1.ok = false end end 
-  if x ~= "?" then
-    col1   = col1 or type(x)=="number" and Num() or Sym()
-    col1.n = col1.n + 1
-    (col1.mode and SYM or NUM)(col1.has) end 
-  return col1 end  
+function Data:clone(rows) return adds(rows or {}, Data(self.cols.names)) end
 
-function row(row1,  data1)
-  if not data1 then return Data(row1) end
-  push(data1.rows, row1)
-  for _,col1 in pairs(data1.cols.all) do add(row1[col1.at], col1) end
+--------------------------------------------------------------------------
+function Num:add(x,   pos)
+  if x ~= "?" then
+    self.n = self.n + 1
+    if #self.has < self.max then pos=#self.has+1 
+    elseif math.random() < #self.has/self.n then pos=math.random(#self.has) end
+    if pos then
+      self.has[pos] = x
+      self.ok = false end end end
+
+function Sym:add(x)
+  if x ~= "?" then
+    self.n = self.n + 1
+    self.has[x] = (self.has[x] or 0) + 1 
+    if self.has[x] > self.most then self.most,self.mode = self.has[x],x end end end
+
+function Data:add(row)
+  push(self.rows, row)
+  for _,col in pairs(self.cols.all) do col:add(row[col.at]) end
+  return self end
+
+function adds(t,it)
+  if type(t[1])=="number" then it=Num() end
+  if type(t[1])=="string" then it=Sym() end
+  for _,x in pairs(t) do it:add(x) end; return it end
+
+local function reads(        data1) 
+  for _,row1 in csv() do 
+    if data1 then data1:add(row1) else data1=Data:new(row1) end end 
   return data1 end
 
-function adds(t,  col1) 
-  for _,x in pairs(t or {}) do col1=adds(x,col1) end; return col1 end
-
-function rows(t,  data1) 
-  for _,row1 in pairs(t or {}) do data1=row(row1,data1) end; return data1 end
-
-function reads(        data1) 
-  for _,row1 in csv() do data1=row(row1,data1) end; return data1 end
-
 --------------------------------------------------------------------------
-function ok(it)  if not it.ok then table.sort(it.has); it.ok=true end; return it end
+function ok(it) if not it.ok then table.sort(it.has); it.ok=true end; return it end
 
 function norm(it,x)      return x=="?" and x or (x - lo(it))/(hi(it) - lo(it) + 1E-32) end
-function clone(it,rows1) return rows(rows1,  Data(it.cols.names)) end
-function mid(it)         return it.mode and it.mode or per(i,0.5) end
+function mid(it)         return it.mode and it.mode or per(it,0.5) end
 function per(it,n)       return ok(it).has[#it.has*n//1] end
 function hi(it)          return ok(it).has[#it.has] end
 function lo(it)          return ok(it).has[1] end
@@ -68,8 +75,9 @@ function div(it,      e)
   then e=0; for _,n in pairs(it.has) do e = e - n/it.n*math.log(n/it.n,2) end; return e 
   else return (per(it,0.9) - per(it,0.1)) / 2.58 end end
 
-function mids(data1,    t={}
+function mids(data1,    t)
   t={}; for _,col in pairs(data1.cols.all) do push(t, mid(col)) end; return t end
+
 ------------------------------------------------------------------------------------------
 function push(t,x) t[1+#t]=x; return x end
 
@@ -95,3 +103,6 @@ function o(t,     u,fmt)
   u={}; for k,v in pairs(t) do u[1+#u] = #t==0 and fmt(":%s %s",k, o(v)) or o(v) end
   if #t==0 then table.sort(u) end
   return "{" .. table.concat(u," ") .. "}" end
+
+function new(kl,t)
+  kl.__index=kl; kl.__tostring = o; return setmetatable(t,kl) end
