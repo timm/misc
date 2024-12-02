@@ -295,6 +295,7 @@ function l.cliffs(xs,ys,     lt,gt,n)
 -- Efron and Tibshirani, 1993, chapter 20. https://doi.org/10.1201/9780429246593
 -- Checks how rare are  the observed differences between samples of this data.
 -- If not rare, then these sets are the same.
+
 function l.bootstrap(y0,z0,         x,y,z,yhat,zhat,n,b)
   z,y,x= adds(z0), adds(y0), adds(y0,adds(z0))
   yhat = map(y0, function(y1) return y1 - y.mu + x.mu end)
@@ -353,30 +354,30 @@ function l.keysort(t,FUN,       DECORATE, UNDECORATE)
   UNDECORATE = function(x) return x[2] end
   return map(sort(map(t,DECORATE),lt(1)), UNDECORATE) end
 
-function l.coerce(s,     FUN,TRIM) 
-  TRIM= function(s) return s:match"^%s*(.-)%s*$" end
-  FUN = function(s) return s=="true" and true or s ~= "false" and s end
-  return math.tointeger(s) or tonumber(s) or FUN(TRIM(s)) end
+function l.coerce(s)
+  return math.tointeger(s) or tonumber(s) or 
+         s=="true" and true or s ~= "false" and s end
 
 function l.csv(file,     src) 
   if file ~="-" then src=io.input(file) end
   return function(     s,t)
     s = io.read()
     if s 
-    then t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=l.coerce(s1) end; return t 
+    then t={}; for s1 in s:gmatch"([^,]+)" do 
+                 t[1+#t] = l.coerce(s:match"^%s*(.-)%s*$") end; return t 
     else if src then io.close(src) end end end end
 
 function l.o(x,  n,        t,FMT,NUM,LIST,DICT,PUB) 
   t = {}
   n = n or 0
-  assert(n<50,"recursive string error")
+  assert(n<20,"recursive string error")
   FMT = string.format
   NUM = function() return x//1 == x and tostring(x) or FMT("%.3g",x) end
   LIST= function() for k,v in pairs(x) do t[1+#t] = l.o(v,n+1) end end
   DICT= function() for k,v in pairs(x) do 
-                     if PUB(k) 
+                     if not HIDE(k) 
                      then t[1+#t] = FMT(":%s %s",k, l.o(v,n+1)) end end end
-  PUB= function(s) return  not tostring(s):find"^_" end
+  HIDE= function(s) return tostring(s):find"^_" end
   if type(x) == "number" then return NUM() end 
   if type(x) ~= "table"  then return tostring(x) end
   if #x>0 then LIST() else DICT(); table.sort(t) end

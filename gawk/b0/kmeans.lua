@@ -95,8 +95,9 @@ function csv()
     s = io.read()
     if s then return cells(s) end end end
 
+fmt=string.format
+
 function o(t,     u,fmt)
-  fmt=string.format
   if type(t) == "number" then 
     return t//1 == t and tostring(t//1) or fmt("%.3f",t) end
   if type(t) ~= "table"  then return tostring(t) end
