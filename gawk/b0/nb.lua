@@ -116,7 +116,7 @@ function Num.delta(i,j)
 function Num:cdf(x,     z,FUN)
   FUN = function(z) return 1 - 0.5*math.exp(-0.717*z - 0.416*z*z) end
   z = (x - self.mu)/self.sd
-  return z >=  0 and fun(z) or 1 - fun(-z) end
+  return z >=  0 and FUN(z) or 1 - FUN(-z) end
 
 -------------------------------------------------------------------------------
 function Sym:dist(a,b) 
@@ -230,21 +230,22 @@ function Data:bins(goal,klasses,    x,b)
   return keysort(tmp,SCORE) end
              
 function Sym:xy(x,y)
-  self.lo = self.lo and min(x, self.lo) or x
-  self.hi = self.hi and max(x, self.hi) or x
+  self.xlo = self.xlo and min(x, self.xlo) or x
+  self.xhi = self.xhi and max(x, self.xhi) or x
   self:add(y) end
 
 function Sym.merge(i,j,want,     k)
   k = Sym:new(i.txt,i.at)
   for _,has in pairs{i.has, j.has} do
     for x,n in pairs(has) do k:add(x,n) end end 
-  k.lo = min(i.lo, j.lo)
-  k.hi = max(i.hi, j.hi)
+  k.xlo = min(i.xlo, j.xlo)
+  k.xhi = max(i.xhi, j.xhi)
   if i.n < want or j.n < want then return k end
   if k:div() <= (i.n * i:div() + j.n * j:div())/k.n then return k end end
 
+-- the two merges can be unified with a cpreMerge and postMerge method. preMerge sorts, post merge does nothing or calls merge for the numbers
 function Sym.merges(syms,  want,     t,merged)
-  for _,sym in pairs(sort(syms, lt"lo")) do
+  for _,sym in pairs(sort(syms, lt"xlo")) do
     if   t 
     then merged = sym:merge(t[#t],want)
          if merged then t[#t] = merged else push(t,sym) end
