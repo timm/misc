@@ -21,7 +21,7 @@ cat<<'EOF'
         <div class="sidebar">
             <center>
               <img src ="skin/me.png" width="100%">
-              <h1>Timm's Tricks for Smarter Scripts</h1> 
+              <h2 style="color: #CC000;" >Shorter, Smarter, Faster: the Craft of Sleek Scripting</h2>
             </center>
             <hr>
             <h2>Felidae (Cats)</h2>
