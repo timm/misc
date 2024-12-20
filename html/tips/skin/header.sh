@@ -1,23 +1,29 @@
+cat<<'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animal Index</title>
+    <title>
+EOF
+head -1 $1 | sed 's/# //'
+cat<<'EOF'
+    are Smarter</title>
     <link rel="stylesheet" href="skin/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/lua.min.js"></script>
-    <script src="code.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <link rel="icon" href="favicon.png" sizes="32x32">
 </head>
 <body>
-    <header>
-        <div class="header-text">
-            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">(c) Tim Menzies CC 4.0</a>
-        </div>
-    </header>
     <div class="container">
         <div class="sidebar">
+            <center>
+              <img src ="skin/me.png" width="100%">
+              <h1>Tips 'n Tricks for Smarter Scripts</h1> 
+            </center>
+            <hr>
             <h2>Felidae (Cats)</h2>
             <ul>
                 <li><a href="domesticcat.html">Domestic</a></li>
@@ -40,3 +46,7 @@
             </ul>
         </div>
         <div class="content">
+          <p style="text-align: right">
+              <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">(c) 2024, Tim Menzies CC 4.0</a>
+          </p>
+EOF

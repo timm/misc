@@ -1,3 +1,6 @@
+SHELL=/bin/bash
+.SILENT:
+
 MD_FILES=$(wildcard *.md)
 HTML_FILES=$(MD_FILES:.md=.html)
 
@@ -10,7 +13,8 @@ check-marked:
 	fi
 
 %.html: %.md
-	cat skin/header.html > $@
+	echo "$< to $@..."
+	sh skin/header.sh $< > $@; \
 	marked $< >> $@
 	cat skin/footer.html >> $@
 
