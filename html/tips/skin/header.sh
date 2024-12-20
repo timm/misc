@@ -21,7 +21,7 @@ cat<<'EOF'
         <div class="sidebar">
             <center>
               <img src ="skin/me.png" width="100%">
-              <h1>Tips 'n Tricks for Smarter Scripts</h1> 
+              <h1>Timm's Tricks for Smarter Scripts</h1> 
             </center>
             <hr>
             <h2>Felidae (Cats)</h2>
@@ -47,6 +47,6 @@ cat<<'EOF'
         </div>
         <div class="content">
           <p style="text-align: right">
-              <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">(c) 2024, Tim Menzies CC 4.0</a>
+              <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">(c)2024, Tim Menzies <timm@ieee.org>,  CC 4.0</a>
           </p>
 EOF

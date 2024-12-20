@@ -12,7 +12,7 @@ check-marked:
 		npm install -g marked; \
 	fi
 
-%.html: %.md
+%.html: %.md skin/header.sh skin/footer.html
 	echo "$< to $@..."
 	sh skin/header.sh $< > $@; \
 	marked $< >> $@

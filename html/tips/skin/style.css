@@ -33,6 +33,7 @@ header a:hover {
 
 .sidebar {
     width: 20%;
+    max-width:250px;
     background-color: #d0d0d0;
     padding: 10px;
     box-sizing: border-box;
@@ -43,7 +44,9 @@ header a:hover {
     margin: 0;
     padding: 10px 0;
 }
-
+.sidebar h1 {
+    color: #CC0000;
+}
 .sidebar ul {
     list-style-type: none;
     padding-left: 20px;
