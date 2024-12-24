@@ -8,48 +8,34 @@ class Sym {
   constructor(name="", pos=0) {
     this.pos  = pos
     this.name = name
-    this.n    = this.most = 0
+    this.n    = 0
+    this.most = 0
     this.mode = null
-    this.all  = {}}}
+    this.all  = {}}
+
+ add(x) {
+   if (x === "?") return x
+   this.n++
+   let tmp = this.all[x] = (this.all[x] || 0) + 1
+   if (tmp > this.most) {
+     this.most=tmp; this.mode =x }
+   return x }
+}
 
 class Num {
   constructor(name="", pos=0) {
     this.pos  = pos
     this.name = name
-    this.n    = this.mu = this.m2 = this.sd = 0
+    this.n    = 0
+    this.mu   = this.m2 = this.sd = 0
     this.lo   = Infinity
     this.hi   = -Infinity
-    this.goal = name.at(-1) == "-" ? 0 : 1 }}
+    this.goal = name.at(-1) == "-" ? 0 : 1 }
 
-class Cols {
-  constructor(names) {
-    this.klass = null
-    this.names = names
-    this.all   = []
-    this.x     = []
-    this.y     = []
-    names.forEach((txt,pos) => { push(this.all, this.init(txt,pos))})}}
-
-Cols.prototype.init = (txt,pos) => {
-  let col = push(this.all, (/^[A-Z]/.test(txt) ? Num : Sym)(txt,pos))
-  if (txt.at(-1) != "X") {
-    push(/[!+-]$/.test(txt) ? this.y : this.x, col)
-    if (txt.at(-1) == "!") this.klass = col }}
-
-Sym.prototype.add = (x) => {
-    if (x === "?") return
+  add(x) {
+    if (x === "?") return x
     this.n++
-    let tmp = this.all[x] = (this.all[x] || 0) + 1
-    if (tmp > this.most) {
-       this.most=tmp; this.mode =x }
-    return x }
-
-say(isUpper("Aas"))
-
-Num.prototype.add = (x) => {
-    if (x === "?") return
     x = +x
-    this.n++
     this.lo  = min(this.lo, x)
     this.hi  = max(this.hi, x)
     let d    = x - this.mu
@@ -57,7 +43,22 @@ Num.prototype.add = (x) => {
     this.m2 += d * (x - this.mu) 
     this.sd  = this.n < 2 ? 0 : (this.m2/(this.n - 1))**.5
     return x }
+}
 
+class Cols {
+  constructor(names) {
+    this.klass = null
+    this.names = names
+    this.x     = []
+    this.y     = []
+    this.all   = []
+    names.forEach((txt,pos) => {
+      let col = push(this.all, (/^[A-Z]/.test(txt) ? Num : Sym)(txt,pos))
+      if (txt.at(-1) != "X") {
+        push(/[!+-]$/.test(txt) ? this.y : this.x, col)
+        if (txt.at(-1) == "!") this.klass = col }}}}
+
+// ----------------------------------------------------------------------------
 class Data {
   constructor() {
     this.dep = {};
