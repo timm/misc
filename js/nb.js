@@ -20,6 +20,11 @@ class Sym {
    if (tmp > this.most) {
      this.most=tmp; this.mode =x }
    return x }
+
+  mid = () => this.mode
+  spread = (    n=0) => for (let k in self.all) { n+= self.a
+    if (data.hasOwnProperty(key)) {
+        keys.push(key);{Object.values(self.all).reduce((n, x) => n + x/self.n*Math.log(x,2)), 0);self.all.this.sd
 }
 
 class Num {
@@ -43,6 +48,9 @@ class Num {
     this.m2 += d * (x - this.mu) 
     this.sd  = this.n < 2 ? 0 : (this.m2/(this.n - 1))**.5
     return x }
+
+  mid = () => this.mu
+  spread = () => this.sd
 }
 
 class Cols {
@@ -56,7 +64,7 @@ class Cols {
       let col = push(this.all, (/^[A-Z]/.test(txt) ? Num : Sym)(txt,pos))
       if (txt.at(-1) != "X") {
         push(/[!+-]$/.test(txt) ? this.y : this.x, col)
-        if (txt.at(-1) == "!") this.klass = col }}}}
+        if (txt.at(-1) == "!") this.klass = col }})}}
 
 // ----------------------------------------------------------------------------
 class Data {
@@ -174,7 +182,7 @@ function clean(str) {
 }
 
 function arrayIt(input) {
-  return (typeof input === 'string') ?  csv(input) : items(item) }
+  yield return (typeof input === 'string') ?  csv(input) : items(item) }
 
 function* items(arrayOfArrays) {
   for (const arr of arrayOfArrays) { yield arr }}
