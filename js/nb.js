@@ -6,9 +6,9 @@ min = Math.min; max = Math.max
 
 class Sym {
   constructor(name="", pos=0) {
+    this.n    = 0
     this.pos  = pos
     this.name = name
-    this.n    = 0
     this.most = 0
     this.mode = null
     this.all  = {}}
@@ -21,21 +21,24 @@ class Sym {
      this.most=tmp; this.mode =x }
    return x }
 
-  mid = () => this.mode
-  spread = (    n=0) => for (let k in self.all) { n+= self.a
-    if (data.hasOwnProperty(key)) {
-        keys.push(key);{Object.values(self.all).reduce((n, x) => n + x/self.n*Math.log(x,2)), 0);self.all.this.sd
+  mid() { return this.mode }
+
+  spread() {
+    let n=0
+    let a=self.all
+    for (let k in self.all) { n -= a[k]/self.n * Math.log(a[k]/self.n,2) }
+    return n }
 }
 
 class Num {
   constructor(name="", pos=0) {
+    this.n    = 0
     this.pos  = pos
     this.name = name
-    this.n    = 0
+    this.goal = name.at(-1) == "-" ? 0 : 1 
     this.mu   = this.m2 = this.sd = 0
     this.lo   = Infinity
-    this.hi   = -Infinity
-    this.goal = name.at(-1) == "-" ? 0 : 1 }
+    this.hi   = -Infinity }
 
   add(x) {
     if (x === "?") return x
@@ -49,8 +52,9 @@ class Num {
     this.sd  = this.n < 2 ? 0 : (this.m2/(this.n - 1))**.5
     return x }
 
-  mid = () => this.mu
-  spread = () => this.sd
+  mid() { return this.mu }
+
+  spread() { return this.sd }
 }
 
 class Cols {
