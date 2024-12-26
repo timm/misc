@@ -1,4 +1,4 @@
-Outlook,Temperature,Humidity,Windy,Play!
+outlook,Temperature,Humidity,windy,play!
 sunny,85,85,FALSE,no
 sunny,80,90,TRUE,no
 overcast,83,86,FALSE,yes
