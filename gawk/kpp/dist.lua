@@ -1,11 +1,5 @@
-local l = require"lib"
-local data=require"data"
-
-local the = require("about").the
-local Num,Sym,Cols,Data = data.Num,data.Sym,data.Cols,data.Data
-
-the.k = 24
-the.samples = 32
+local l=require"lib"
+local the=requre"about"
 
 function Sym:dist(p,q)
   return (p=="?" and q=="?" and 1) or (p==q and 0 or 1) end
@@ -50,16 +44,4 @@ function Data:around(budget,  rows,      z)
     push(z, one) end
   return z end
 
--------------------------------------------------------------------------------  
-local go={}
-
-go["--data"] = function(file) 
-                 print(o(Data:new(file or the.file).cols.y[1])) end
-
-go["--around"] = function(file) 
-                   print(Data:new(file or the.file):around(the.k)) end
-
-for k,s in pairs(arg) do
-  math.randomseed(the.seed)
-  if go[s] then go[s]( arg[k+1] ) end end
 
