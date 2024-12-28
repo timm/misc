@@ -52,7 +52,7 @@ function Cols:add(row)
 function Data:new(src)
   self = l.new(Data, {rows={}, cols=nil})
   if type(src)=="string" 
-  then for   row in csv(src)   do self:add(row) end
+  then for   row in l.csv(src)   do self:add(row) end
   else for _,row in pairs(src) do self:add(row) end end
   return self end
 

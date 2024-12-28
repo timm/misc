@@ -16,7 +16,7 @@ function l.cli(t)
 
 function l.coerce(s,     f)
   f = function(s) return s=="true" or s~="false" and s  end
-  return math.tointeger(s) or tonumber(s) or f(trim(s)) end
+  return math.tointeger(s) or tonumber(s) or f(l.trim(s)) end
 
 function l.csv(src)
   src = io.input(src)

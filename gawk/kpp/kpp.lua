@@ -1,43 +1,17 @@
-local l = require"lib"
-local data=require"data"
+local l=require"lib"
+local the=require"about"
+local Data=require("data").Data
 
-local the = require("about").the
-local Num,Sym,Cols,Data = data.Num,data.Sym,data.Cols,data.Data
+local any,min,push = l.lib,l.min,l.push
 
-the.k = 24
 the.samples = 32
 
-function Sym:dist(p,q)
-  return (p=="?" and q=="?" and 1) or (p==q and 0 or 1) end
-
-function Num:dist(p,q)
-  if (p=="?" and q=="?") then return 1 end 
-  print(">>",p,q)
-  p,q = self:norm(p), self:norm(q)
-  p = p ~= "?" and p or (q<0.5 and 1 or 0)
-  q = q ~= "?" and q or (p<0.5 and 1 or 0)
-  return math.abs(p - q) end
-
-function Data:xdist(row1,row2,      d)
-  d = 0
-  for _,col in pairs(self.cols.x) do
-    print("::",col.pos,row2[col.pos])
-    d = d + col:dist(row1[col.pos], row2[col.pos])^2 end
-  return (d / #self.cols.x) ^ 0.5 end
-
-function Data:ydist(row,      d)
-  d = 0
-  for _,col in pairs(self.cols.y) do
-    print(col.pos)
-    d = d + col:dist(col:norm(row[col.pos]) - col.goal)^2 end
-  return (d / #self.cols.y) ^ 0.5 end
 function Data:around(budget,  rows,      z)
   rows = rows or self.rows
   z = {any(rows)}
   for _ = 2,budget do 
     local all,u = 0,{}
     for _ = 1,math.min(the.samples, #rows) do
-      print("!!",_,o(z))
       local row = any(rows)
       local closest = min(z, function(maybe) return self:xdist(row,maybe) end) 
       all = all + push(u,{row=row, d=self:xdist(row,closest)^2}).d end 
@@ -50,16 +24,9 @@ function Data:around(budget,  rows,      z)
     push(z, one) end
   return z end
 
--------------------------------------------------------------------------------  
-local go={}
+local function main(file)
+  Data:new(file):around(25) end
 
-go["--data"] = function(file) 
-                 print(o(Data:new(file or the.file).cols.y[1])) end
-
-go["--around"] = function(file) 
-                   print(Data:new(file or the.file):around(the.k)) end
-
-for k,s in pairs(arg) do
-  math.randomseed(the.seed)
-  if go[s] then go[s]( arg[k+1] ) end end
-
+if not pcall(debug.getlocal,4,1) then
+  main(arg[1] or the.file)
+end

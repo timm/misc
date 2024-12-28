@@ -1,5 +1,10 @@
 local l=require"lib"
-local the=requre"about"
+local the=require"about"
+local data=require"data"
+
+local Data, Num, Sym = data.Data, data.Num, data.Sym
+
+the.p=2
 
 function Sym:dist(p,q)
   return (p=="?" and q=="?" and 1) or (p==q and 0 or 1) end
@@ -16,15 +21,16 @@ function Data:xdist(row1,row2,      d)
   d = 0
   for _,col in pairs(self.cols.x) do
     print("::",col.pos,row2[col.pos])
-    d = d + col:dist(row1[col.pos], row2[col.pos])^2 end
-  return (d / #self.cols.x) ^ 0.5 end
+    d = d + col:dist(row1[col.pos], row2[col.pos])^the.p end
+  return (d / #self.cols.x) ^ (1/the.p) end
 
 function Data:ydist(row,      d)
   d = 0
   for _,col in pairs(self.cols.y) do
     print(col.pos)
-    d = d + col:dist(col:norm(row[col.pos]) - col.goal)^2 end
-  return (d / #self.cols.y) ^ 0.5 end
+    d = d + col:dist(col:norm(row[col.pos]) - col.goal)^the.p end
+  return (d / #self.cols.y) ^ (1/the.p) end
+
 function Data:around(budget,  rows,      z)
   rows = rows or self.rows
   z = {any(rows)}
