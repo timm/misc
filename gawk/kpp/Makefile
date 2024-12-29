@@ -39,7 +39,7 @@ word: ## commit to main
 	@mkdir -p docs
 	@echo "pdfing : $@ ... "
 	@a2ps -Bj -A virtual --landscape                           \
-		--chars-per-line=90 \
+		--chars-per-line=80 \
 		--line-numbers=1                    \
 		--highlight-level=normal  \
 		--columns 3                 \

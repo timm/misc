@@ -5,7 +5,7 @@ local l = require"lib"
 local the = require"about"
 local Sym,Num,Cols,Data = {},{},{},{}
 
--------------------------------------------------------------------------------  
+-------------------------------------------------------------------------------
 function Sym:new(txt,pos)
   return l.new(Sym, {txt=txt or "", pos=pos or 0, n=0,
                    has={}, most=0, mode=nil}) end
@@ -17,7 +17,7 @@ function Sym:add(x)
  if self.has[x] > self.most then
    self.most, self.mode = self.has[x], x end end
 
--------------------------------------------------------------------------------  
+-------------------------------------------------------------------------------
 function Num:new(txt,pos)
   return l.new(Num, {txt=txt or "",pos=pos or 0, n=0,
                    mu=0, m2=0, sd=0, lo=the.big, hi= -the.big,
@@ -36,7 +36,7 @@ function Num:add(n)
 function Num:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/the.big) end
 
--------------------------------------------------------------------------------  
+--------------------------------------------------------------------------------
 function Cols:new(names)
   local all,x,y,klass = {}, {}, {}, nil
   for n,s in pairs(names) do
@@ -50,7 +50,7 @@ function Cols:add(row)
   for _,col in pairs(self.all) do col:add(row[col.pos]) end 
   return row end
 
--------------------------------------------------------------------------------  
+--------------------------------------------------------------------------------
 function Data:new(src)
   self = l.new(Data, {rows={}, cols=nil})
   if type(src)=="string" 

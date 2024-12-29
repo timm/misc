@@ -3,7 +3,9 @@
 
 local l=require"lib"
 local the=require"about"
-local Data=require("dist").Data
+local dist=require("dist")
+
+local Data,Num,Sym = dist.Data, dist.Num, dist.Sym
 
 local any, cli, min, push, shuffle = l.any, l.cli, l.min, l.push, l.shuffle
 
@@ -31,7 +33,7 @@ function Data:around(budget,  rows,      z)
   end
   return z end
 
-local function main(file,    data,y)
+local function kseed(file,    data,Y)
   data = Data:new(file)
   Y = function(row) return data:ydist(row) end
   for _=1,50 do 
@@ -42,4 +44,4 @@ end
 if not pcall(debug.getlocal,4,1) then 
   main(cli(the).file) end
 
-return {Data=Data}
+require  {Data=Data, Num=Num, Sym=Sym, kseed=kseed}
