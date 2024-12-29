@@ -1,3 +1,6 @@
+--     |  o  |_  
+--     |  |  |_) 
+
 local l={}
 
 function l.any(t) return t[math.random(#t)] end
@@ -15,7 +18,9 @@ function l.cli(t)
   return t end
 
 function l.coerce(s,     f)
-  f = function(s) return s=="true" or s~="false" and s  end
+  f = function(s) if s=="true" then return true end
+                  if s=="false" then return false end
+                  return s end
   return math.tointeger(s) or tonumber(s) or f(l.trim(s)) end
 
 function l.csv(src)
@@ -29,7 +34,7 @@ function l.map(t,f,    z)
   z={}; for _,x in pairs(t) do z[1+#z] = f(x) end; return z end
 
 function l.min(t,f,    lo,n,z)
-  lo = Big
+  lo = 1E32
   for _,x in pairs(t) do 
     z= z or x
     n=f(x); if n < lo then lo,z = n,x end end
@@ -37,8 +42,8 @@ function l.min(t,f,    lo,n,z)
 
 function l.new(mt,a) 
   mt.__index = mt
-	mt.__tostring = mt.__tostring or l.o
-	return setmetatable(a,mt) end
+  mt.__tostring = mt.__tostring or l.o
+  return setmetatable(a,mt) end
 
 function l.o(x,          t,f,g)
   t= {}
@@ -50,6 +55,12 @@ function l.o(x,          t,f,g)
   return "{" .. table.concat(t, " ") .. "}" end
 
 function l.push(t,x) t[1+#t]=x; return x end
+
+function l.shuffle(t,    u,j)
+  u={}
+  for _,x in pairs(t) do u[1+#u]=x; end;
+  for i = #u,2,-1 do j=math.random(i); u[i],u[j] = u[j],u[i] end
+  return u end
 
 function l.trim(s) return s:match"^%s*(.-)%s*$" end
 

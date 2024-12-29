@@ -1,5 +1,8 @@
-local l = require"lib"
+--     _|   _.  _|_   _. 
+--    (_|  (_|   |_  (_| 
 
+local l = require"lib"
+local the = require"about"
 local Sym,Num,Cols,Data = {},{},{},{}
 
 -------------------------------------------------------------------------------  
@@ -17,7 +20,7 @@ function Sym:add(x)
 -------------------------------------------------------------------------------  
 function Num:new(txt,pos)
   return l.new(Num, {txt=txt or "",pos=pos or 0, n=0,
-                   mu=0, m2=0, sd=0, lo=Big, hi= -Big,
+                   mu=0, m2=0, sd=0, lo=the.big, hi= -the.big,
                    goal = (txt or ""):find"-$" and 0 or 1}) end
 
 function Num:add(n)
@@ -31,8 +34,7 @@ function Num:add(n)
   self.hi = math.max(n, self.hi) end
 
 function Num:norm(x)
-  print(">",x)
-  return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/Big) end
+  return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/the.big) end
 
 -------------------------------------------------------------------------------  
 function Cols:new(names)

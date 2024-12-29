@@ -35,18 +35,17 @@ word: ## commit to main
 	echo "p { text-align: right; }" >> ~/tmp/pycco.css
 	open $@
 
-~/tmp/%.pdf : %.awk  Makefile
+~/tmp/all.pdf : *.lua  
 	@mkdir -p docs
 	@echo "pdfing : $@ ... "
-	@a2ps -Bj --landscape                           \
+	@a2ps -Bj -A virtual --landscape                           \
 		--chars-per-line=90 \
 		--line-numbers=1                    \
 		--highlight-level=normal  \
 		--columns 3                 \
 		--borders=no --pro=color \
 		--right-footer="" --left-footer=""    \
+			--pretty-print="lua.ssh"     \
 		--footer="page %p."                     \
-		-M letter -o $@.ps $<
+		-M letter -o $@.ps $^
 	@ps2pdf $@.ps $@; rm $@.ps
-
-
