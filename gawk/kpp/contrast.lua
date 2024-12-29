@@ -28,20 +28,23 @@ function Sym:merged(other,  tiny)
   if k:ent() <= (i.n * i:ent() + j.n * j:ent()) / k.n then return k end end
 
 
-function Data:contrast(rows,bins) 
-  ADD = function(b,x,y)
-          b.lo = math.min(b.lo, x)
-          b.hi = math.max(b.hi, x)
-          b.y:add(y) end
-  DIV = function(col,rowss,t)
+function Data:contrast(rows,bins,all) 
+  local ADD,DIV
+  ADD = function(z,x,y)
+          z.lo = math.min(b.lo, x)
+          z.hi = math.max(b.hi, x)
+          z.y:add(y) end
+  DIV = function(col,rowss)
+          local z,all = {},{}
+          IS = function(col, x,y,    k)
+                k   = col:bin(x,bins) or 
+                z[k]= z[k] or push(all, {lo=x, hi=x, y=Sym:new(col.txt,col.pos)})
+                return ADD(z[k],x,y) end
           for y,rows in pairs(rowss) do
             for _,row in pairs(rows) do
-              local x,k
-              x = row[col.pos]
+              local x = row[col.pos]
               if x ~= "?" then
-                k = col:bin(x, bins)
-                t[k] = t[k] or {lo=x, hi=x, y=Sym:new(col.txt, col.pos)}
-                ADD(t[k], x, y) end end end 
+                ADD(IS(col,x),x,y) end end end 
         end 
           
   data = Data:new(file)
