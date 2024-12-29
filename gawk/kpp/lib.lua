@@ -62,6 +62,11 @@ function l.shuffle(t,    u,j)
   for i = #u,2,-1 do j=math.random(i); u[i],u[j] = u[j],u[i] end
   return u end
 
+function l.sort(t,f,    u)
+  u=map(t, function(x) return x end) 
+  table.sort(u,f)
+  return u end
+  
 function l.trim(s) return s:match"^%s*(.-)%s*$" end
 
 return l

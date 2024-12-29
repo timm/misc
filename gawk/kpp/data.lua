@@ -10,12 +10,17 @@ function Sym:new(txt,pos)
   return l.new(Sym, {txt=txt or "", pos=pos or 0, n=0,
                    has={}, most=0, mode=nil}) end
 
-function Sym:add(x)
+function Sym:add(x,  n)
  if x=="?" then return x end
- self.n = self.n + 1
- self.has[x] = 1 + (self.has[x] or 0)
+ n = n or 1
+ self.n = self.n + n
+ self.has[x] = n + (self.has[x] or 0)
  if self.has[x] > self.most then
    self.most, self.mode = self.has[x], x end end
+
+function Sym:ent(       e)
+  e=0; for _,n in pairs(i.has) do e = e - n/i.n * math.log(n/i.n, 2) end
+  return e end
 
 -------------------------------------------------------------------------------
 function Num:new(txt,pos)
