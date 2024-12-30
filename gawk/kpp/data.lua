@@ -22,6 +22,15 @@ function Sym:ent(       e)
   e=0; for _,n in pairs(i.has) do e = e - n/i.n * math.log(n/i.n, 2) end
   return e end
 
+function Sym:merged(other,  tiny,      i,j,k)
+  tiny = tiny or 0
+  i,j,k = self, other, Sym:new(self.txt, self.pos)
+  for _,has in pairs{i.has, j.has} do
+    for x,n in pairs(has) do
+      k:add(x,n) end end
+  if i.n < tiny or j.n < tiny or k:ent() <= (i.n*i:ent() + j.n*j:ent()) / k.n 
+  then return k end end
+
 -------------------------------------------------------------------------------
 function Num:new(txt,pos)
   return l.new(Num, {txt=txt or "",pos=pos or 0, n=0,
@@ -69,4 +78,4 @@ function Data:add(row)
   else self.cols = Cols:new(row) end
   return self end
 
-return {Num=Num, Sym=Sym, Cols=Cols, Data=Data}
+return {Num=Num, Sym=Sym, Data=Data}

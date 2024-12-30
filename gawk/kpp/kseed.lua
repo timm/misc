@@ -44,4 +44,4 @@ end
 if not pcall(debug.getlocal,4,1) then 
   main(cli(the).file) end
 
-require  {Data=Data, Num=Num, Sym=Sym, kseed=kseed}
+require  {kseed=kseed}

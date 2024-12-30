@@ -30,6 +30,13 @@ function l.csv(src)
 
 l.fmt=string.format
 
+function l.keysort(a,f)
+  local decorate   = function(x) return {f(x),x} end
+  local undecorate = function(x) return x[2] end
+  return map(sort(map(a, decorate), l.lt(1)), undecorate) end
+,
+function l.lt(f) return function(a,b) return f(a) < f(b) end end
+
 function l.map(t,f,    z)
   z={}; for _,x in pairs(t) do z[1+#z] = f(x) end; return z end
 
@@ -68,5 +75,7 @@ function l.sort(t,f,    u)
   return u end
   
 function l.trim(s) return s:match"^%s*(.-)%s*$" end
+
+
 
 return l
