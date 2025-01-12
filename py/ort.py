@@ -67,14 +67,24 @@ def xp(s)   : return s[-1] not in "+-!"
 def yp(s)   : return not xp(s)
 def nump(s) : return s[0].isupper()
 def symp(s) : return not nump(s)
-def nums(n) : return 1E-32 if n=="?" else n
+def nums(n) : return 1/BIG if n=="?" else n
+
+class Span(Obj):
+  def __init__(i, lo=lo, hi=None, pos=0, txt=s, n=0):
+    i.lo, i.hi, i.pos, i.txt, i.n = lo, hi or lo, pos, s, n
+  def __repr__(i):
+    lo,hi,s = self.lo, self.hi,self.txt
+    if lo == -BIG then return f"{s} <= {hi}" end
+    if hi ==  BIG then return f"{s}  > {lo}" end
+    if lo ==  hi   then return f"{s} == {lo}" end
+    return f"{lo} < {s} <= {hi}" end
 
 def merges(lst, eps,nough,  out=None):
   def grow(x, lo,hi,n):
     if n < eps and (hi - lo) < nough: return (lo,x,n+1)
 
   for x in lst:
-   if x != "?":
+   if x != "?": continue
      if out:
         if it := grow(x, *out[-1]): out[-1] = it
         else                      : out += [(x,x,1)]
@@ -82,7 +92,8 @@ def merges(lst, eps,nough,  out=None):
   out 
 
 def eg_one(_): 
-  head,*rows = [r for r in csv(the.train)]
+  src = csv(the.train)
+  head,*rows = [r for r in src]
   for i,h in enumerate(head):
     if of(h, usep,xp,nump):
        print(*[r[i] for r in sorted(rows, key=lambda r: nums(r[i]))]) 
