@@ -19,7 +19,7 @@ function Num:bin(x,bins)
 --------------------------------------------------------------------------------
 local BIN = {}
 
-function BIN.new(col,  lo, hi)
+function BIN:new(col,  lo, hi)
   hi = hi or lo or -1E32
   lo = lo or 1E32
   return l.new(BIN,{lo=lo, hi=hi or lo, y=Sym:new(col.txt, col.pos)}) end
