@@ -69,9 +69,17 @@ def nump(s) : return s[0].isupper()
 def symp(s) : return not nump(s)
 def nums(n) : return 1/BIG if n=="?" else n
 
+class Num(Obj):
+  def __init__(i): i.lo,i.hi = -BIG, BIG
+  def add(i,x):
+    if x!="?":
+      i.lo = min(i.lo,x)
+      i.hi = max(i.hi,x)
+
 class Span(Obj):
   def __init__(i, lo=lo, hi=None, pos=0, txt=s, n=0):
     i.lo, i.hi, i.pos, i.txt, i.n = lo, hi or lo, pos, s, n
+
   def __repr__(i):
     lo,hi,s = self.lo, self.hi,self.txt
     if lo == -BIG then return f"{s} <= {hi}" end
@@ -79,16 +87,18 @@ class Span(Obj):
     if lo ==  hi   then return f"{s} == {lo}" end
     return f"{lo} < {s} <= {hi}" end
 
-def merges(lst, eps,nough,  out=None):
+  def full(i,depth,width):
+    return i.hi - i.lo > width and i.n > depth
+
+def merges(lst, depth,width,  out=None):
   def grow(x, lo,hi,n):
     if n < eps and (hi - lo) < nough: return (lo,x,n+1)
-
   for x in lst:
    if x != "?": continue
-     if out:
-        if it := grow(x, *out[-1]): out[-1] = it
-        else                      : out += [(x,x,1)]
-     else: out = [(x,x,1)]
+   if not out: out=[Span(x)]; continue
+   if out[-1].full(depth,width): out += [Span(x)]
+   out[-1].hi  = x
+   out[-1].n  += 1
   out 
 
 def eg_one(_): 
