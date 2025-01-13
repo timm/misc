@@ -57,7 +57,7 @@ def csv(f):
     for line in file.readlines():
       yield [coerce(s) for s in line.split(",")]
 
-def of(s,*fn): 
+def And(s,*fn): 
   for f in fn:
     if not f(s): return False
   return True
@@ -67,7 +67,6 @@ def xp(s)   : return s[-1] not in "+-!"
 def yp(s)   : return not xp(s)
 def nump(s) : return s[0].isupper()
 def symp(s) : return not nump(s)
-def nums(n) : return 1/BIG if n=="?" else n
 
 class Num(Obj):
   def __init__(i): i.lo,i.hi = -BIG, BIG
@@ -75,6 +74,16 @@ class Num(Obj):
     if x!="?":
       i.lo = min(i.lo,x)
       i.hi = max(i.hi,x)
+
+  def norm(i,x): 
+    return x if x=="?" else (x - i.lo)/(i.hi - i.lo + 1/BIG)
+
+  def dist(i,x,y):
+    if x=="?" and y=="?": return 1
+    x,y = i.norm(x), i.norm(y)
+    x   = x if x!="?" else (1 if y < .5 else 0)
+    y   = y if y!="?" else (1 if x < .5 else 0)
+    return abs(x - y)
 
 class Span(Obj):
   def __init__(i, lo=lo, hi=None, pos=0, txt=s, n=0):
@@ -101,9 +110,37 @@ def merges(lst, depth,width,  out=None):
    out[-1].n  += 1
   out 
 
+# disttance to best!!!
+def border(head,rows):
+  def ydist(x,y):
+    d,n=0,0
+    for i,y in ynums.items():
+      n += 1
+      d += y.dist( x[i], y[i])**2
+    return (d/n)**.5
+
+  ynums = {y:Num() for y,s in enumerate(head) if And(s,usep,yp,nump)}
+  [ynum.add(row[i]) for i,ynum in ynums.items() for row in rows]
+  rows = sorted(rows, key=lambda r: ydist(r))[int(len(rows)**.5)]
+  borderline = ydist(ynums, rows[int(len(row))**.5])
+  return lambda r: ydist(ynums, r) <= borderline
+
+def ordered(rows)
+  def nums(n) : return 1/BIG if n=="?" else n
+  return sorted(rows, key=lambda r:nums(r[i]))
+
 def eg_one(_): 
   src = csv(the.train)
   head,*rows = [r for r in src]
+  klass = border(head,rows)
+  for x,s in enumerate(head):
+    if And(s,usep,xp):
+      for i, row in enumerate(ordered(rows)):
+        y = klass(row)
+         
+  
+
+
   for i,h in enumerate(head):
     if of(h, usep,xp,nump):
        print(*[r[i] for r in sorted(rows, key=lambda r: nums(r[i]))]) 
