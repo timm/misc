@@ -100,38 +100,42 @@ def merges(lst, depth,width,  out=None):
   out 
 
 def klass(head,rows):
-  ys= {(y,BIG,-BIG,goal) for c,goal in (("-",0),("+",1)) 
-                         for y,s in enumerate(head) if s[-1] == c}
+  ys= {(col,BIG,-BIG,goal) for c,goal in (("-",0),("+",1)) 
+                           for col,s in enumerate(head) 
+                           if s[-1] == c and s[-1] != "X"}
   def norm(z,lo,hi: 
     return (z-lo)/(hi - lo + 1/BIG)
 
   def ydist(row):
-    d = sum(abs(norm(row[y],lo,hi)  - goal)**2 for y,(lo,hi,goal) in ynums.items())
-    return (d / len(ys))**.5
+    d = sum((norm(row[col],lo,hi)  - goal)**2 for col,(lo,hi,goal) in ys.items())
+    return (d / len(ys))**0.5
   
-  for y,etc in ys.items():
+  for col,etc in ys.items():
     for row in rows:
-      etc[1] = min(etc[1], row[y])
-      etc[2] = max(etc[2], row[y])
-  at = int(len(rows)**.5)
-  borderline = ydist(sorted(rows, key=ydist)[at])
-  return lambda row: ydist(row) <= borderline
+      etc[1] = min(etc[1], row[col])
+      etc[2] = max(etc[2], row[col])
+  stop = int(len(rows)**.5)
+  border = ydist(sorted(rows, key=ydist)[stop])
+  return lambda row: ydist(row) <= border
 
 def ordered(rows)
   def nums(n) : return 1/BIG if n=="?" else n
   return sorted(rows, key=lambda r:nums(r[i]))
 
 def eg_one(_): 
+  def Q(s): return -BIG if s=="?" else s 
+  def X(col,row): 
+   x=row[col]; if x != "?": return x
+
   src = csv(the.train)
   head,*rows = [r for r in src]
-  klass = border(head,rows)
-  for x,s in enumerate(head):
-    if And(s,usep,xp):
-      for i, row in enumerate(ordered(rows)):
-        y = klass(row)
-         
-  
-
+  y = klass(head,rows)
+  for col,s in enumerate(head):
+    if s[-1] not in "+-X":
+      bins = []
+      for row in sorted(rows, key=q):
+        if x:=X(col,row):
+          bins = bins or [(x,x,0)]
 
   for i,h in enumerate(head):
     if of(h, usep,xp,nump):
