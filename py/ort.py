@@ -57,17 +57,6 @@ def csv(f):
     for line in file.readlines():
       yield [coerce(s) for s in line.split(",")]
 
-def And(s,*fn): 
-  for f in fn:
-    if not f(s): return False
-  return True
-
-def usep(s) : return s[-1] != "X"
-def xp(s)   : return s[-1] not in "+-!"
-def yp(s)   : return not xp(s)
-def nump(s) : return s[0].isupper()
-def symp(s) : return not nump(s)
-
 class Num(Obj):
   def __init__(i): i.lo,i.hi = -BIG, BIG
   def add(i,x):
@@ -110,20 +99,23 @@ def merges(lst, depth,width,  out=None):
    out[-1].n  += 1
   out 
 
-# disttance to best!!!
-def border(head,rows):
-  def ydist(x,y):
-    d,n=0,0
-    for i,y in ynums.items():
-      n += 1
-      d += y.dist( x[i], y[i])**2
-    return (d/n)**.5
+def klass(head,rows):
+  ys= {(y,BIG,-BIG,goal) for c,goal in (("-",0),("+",1)) 
+                         for y,s in enumerate(head) if s[-1] == c}
+  def norm(z,lo,hi: 
+    return (z-lo)/(hi - lo + 1/BIG)
 
-  ynums = {y:Num() for y,s in enumerate(head) if And(s,usep,yp,nump)}
-  [ynum.add(row[i]) for i,ynum in ynums.items() for row in rows]
-  rows = sorted(rows, key=lambda r: ydist(r))[int(len(rows)**.5)]
-  borderline = ydist(ynums, rows[int(len(row))**.5])
-  return lambda r: ydist(ynums, r) <= borderline
+  def ydist(row):
+    d = sum(abs(norm(row[y],lo,hi)  - goal)**2 for y,(lo,hi,goal) in ynums.items())
+    return (d / len(ys))**.5
+  
+  for y,etc in ys.items():
+    for row in rows:
+      etc[1] = min(etc[1], row[y])
+      etc[2] = max(etc[2], row[y])
+  at = int(len(rows)**.5)
+  borderline = ydist(sorted(rows, key=ydist)[at])
+  return lambda row: ydist(row) <= borderline
 
 def ordered(rows)
   def nums(n) : return 1/BIG if n=="?" else n
