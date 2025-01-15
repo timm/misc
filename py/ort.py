@@ -122,7 +122,13 @@ def ordered(rows)
   def nums(n) : return 1/BIG if n=="?" else n
   return sorted(rows, key=lambda r:nums(r[i]))
 
-def eg_one(_): 
+def first(l): return l[0]
+def stdev(l,key=first):
+  l.sort(key=key)
+  ten = len(l)//10
+  return (l[9*ten] - l[ten])/2.56
+
+def eg_one(_, cohen=0.35,bins=17): 
   src = csv(the.train)
   head,*rows = [r for r in src]
   Y = klass(head,rows)
@@ -130,8 +136,12 @@ def eg_one(_):
   for col,s in enumerate(head):
     if s[-1] not in "+-X":
       xy = [(row[col], Y(row)) for row in rows if row[col] != "?"]
-      for x,y in sorted(xy,key=lambda z[0]) do
+      small = stdev(xy,key=first) * cohen
+      few = len(xy) // bins
+      for i,(x,y) in enumerate(xy):
         bins = bins or [(x,x,{y:0})]
+        b = bins[-1]
+        if  b[1]  - b[0] > - bins
         bins[-1][1] = x
         bins[-1][2] = bins[-1][2].get(y,0) + 1
 
