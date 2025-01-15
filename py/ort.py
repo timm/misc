@@ -30,16 +30,6 @@ def eg_silent(_): the.loud=False
 def eg_seed(s)  : the.seed=coerce(s); random.seed(the.seed)
 
 # -----------------------------------------------------------------------------
-toggle    = int # -1 or 1
-num       = int | float
-atom      = num | bool | str # | "?"
-row       = list[atom]
-rows      = list[row]
-Sym,Num   = Obj, Obj
-Data,Cols = Obj, Obj
-Col       = Num | Sym
-
-# -----------------------------------------------------------------------------
 def show(d):
   if type(d)==str        : return d
   if type(d)==type(show) : return  d.__name__+'()'
@@ -57,47 +47,28 @@ def csv(f):
     for line in file.readlines():
       yield [coerce(s) for s in line.split(",")]
 
-class Num(Obj):
-  def __init__(i): i.lo,i.hi = -BIG, BIG
-  def add(i,x):
-    if x!="?":
-      i.lo = min(i.lo,x)
-      i.hi = max(i.hi,x)
+def first(l): return l[0]
 
-  def norm(i,x): 
-    return x if x=="?" else (x - i.lo)/(i.hi - i.lo + 1/BIG)
+def stdev(l,key=first):
+  ten = len(l)//10
+  return (key(l[9*ten]) - key(l[ten]))/2.56
 
-  def dist(i,x,y):
-    if x=="?" and y=="?": return 1
-    x,y = i.norm(x), i.norm(y)
-    x   = x if x!="?" else (1 if y < .5 else 0)
-    y   = y if y!="?" else (1 if x < .5 else 0)
-    return abs(x - y)
+def ent(d):
+ N = sum(d.values())
+ return - sum(n/N * math.log(n/N,2) for n in d.values())
 
-class Span(Obj):
-  def __init__(i, lo=lo, hi=None, pos=0, txt=s, n=0):
-    i.lo, i.hi, i.pos, i.txt, i.n = lo, hi or lo, pos, s, n
+def powerset(nums):
+  result = [[]]
+  for num in nums:
+    result += [subset + [num] for subset in result]
+  return result
 
-  def __repr__(i):
-    lo,hi,s = self.lo, self.hi,self.txt
-    if lo == -BIG then return f"{s} <= {hi}" end
-    if hi ==  BIG then return f"{s}  > {lo}" end
-    if lo ==  hi   then return f"{s} == {lo}" end
-    return f"{lo} < {s} <= {hi}" end
-
-  def full(i,depth,width):
-    return i.hi - i.lo > width and i.n > depth
-
-def merges(lst, depth,width,  out=None):
-  def grow(x, lo,hi,n):
-    if n < eps and (hi - lo) < nough: return (lo,x,n+1)
-  for x in lst:
-   if x != "?": continue
-   if not out: out=[Span(x)]; continue
-   if out[-1].full(depth,width): out += [Span(x)]
-   out[-1].hi  = x
-   out[-1].n  += 1
-  out 
+# -----------------------------------------------------------------------------
+def show(s,lo,hi,*_):
+  if lo == -BIG then return f"{s} <= {hi}" end
+  if hi ==  BIG then return f"{s}  > {lo}" end
+  if lo ==  hi   then return f"{s} == {lo}" end
+  return f"{lo} < {s} <= {hi}" end
 
 def klass(head,rows):
     ys= {col:(BIG,-BIG,goal) for c,goal in (("-",0),("+",1)) 
@@ -118,36 +89,75 @@ def klass(head,rows):
   border = ydist(sorted(rows, key=ydist)[stop])
   return lambda row: ydist(row) <= border
 
-def ordered(rows)
-  def nums(n) : return 1/BIG if n=="?" else n
-  return sorted(rows, key=lambda r:nums(r[i]))
-
-def first(l): return l[0]
-def stdev(l,key=first):
-  l.sort(key=key)
-  ten = len(l)//10
-  return (l[9*ten] - l[ten])/2.56
-
-def eg_one(_, cohen=0.35,bins=17): 
-  src = csv(the.train)
+def data(src, **keys):
   head,*rows = [r for r in src]
   Y = klass(head,rows)
-  d = {}
   for col,s in enumerate(head):
     if s[-1] not in "+-X":
-      xy = [(row[col], Y(row)) for row in rows if row[col] != "?"]
-      small = stdev(xy,key=first) * cohen
-      few = len(xy) // bins
-      for i,(x,y) in enumerate(xy):
-        bins = bins or [(x,x,{y:0})]
-        b = bins[-1]
-        if  b[1]  - b[0] > - bins
-        bins[-1][1] = x
-        bins[-1][2] = bins[-1][2].get(y,0) + 1
+      xys = [(r[col], Y(r)) for r in rows if r[col] != "?" ]
+      return spans(col,xys, **keys) if s[0].isupper() else syms(col,xys)
 
-  for i,h in enumerate(head):
-    if of(h, usep,xp,nump):
-       print(*[r[i] for r in sorted(rows, key=lambda r: nums(r[i]))]) 
+def syms(col,xys):
+  ds={}
+  for x,y in xys:
+    key = (col,x,x)
+    d = ds[y] = ds.get(y,{})
+    d[key] = d.get(key,0) + 1
+  return ds
+    
+def spans(col,xys, cohen=0.35, bins=17)
+  xys       = sorted(xys, key=first)
+  small     = stdev(xys, key=first) * cohen
+  few       = len(xys) / bins
+  (x,_),*__ = xys
+  b         = (x,x,0,{})
+  bins      = [b]
+  for i,(x,y) in enumerate(xys):
+    if i < len(xys) - few and x != xys[i+1][0] and b[1] - b[0] > small and b[2] > few:
+      b = (x,x,0,{})
+      bins += [b]
+    b[1]  = x
+    b[2] += 1
+    b[3]  = b[3].get(y,0) + 1
+  return count(col,bridge(merges(bins)))
+
+def count(col, fours):
+  ds={}
+  for lo,hi,_,d in fours:
+    for y,n in d.items():
+      key=(col,lo,hi)
+      d = ds[y] = ds.get(y,{})
+      d[key] = d.get(key,0) + 1
+  return ds
+
+def bridge(bins):
+  for i,four in enumerate(bins):
+    if i>0:
+       bins[i-1][1] = bins[i][0]
+  bins[0][0] = -BIG
+  bins[-1][1] = BIG
+  return bins
+
+def merges(b4)
+  now,i = [],0
+  while i < len(b4):
+    lo1, hi1, n1, d1 = b4[i]
+    if i < len(b4) - 1:
+      __, hi2, ___, d2 = b4[i+1]
+      if d3 := merge(d1,d2):
+        hi1,  d1 = hi2, d3
+        i += 1
+    new += [(lo1,hi1,n1,d1)]
+    i += 1
+  return b4 if len(now) == len(b4) else merges(now)
+
+def merge(i,j):
+  k = {}
+  for d in [i,j]:
+    for x,n in d.items():
+      k[x] = k.get(x,0)  + n
+  n1,n2 = sum(i.values()), sum(j.values())
+  if ent(k) <= (n1*ent(i) + n2*ent(j))/(n1+n2): return k
 
 if __name__== "__main__":
   random.seed(the.seed)
