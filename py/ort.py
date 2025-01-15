@@ -100,7 +100,7 @@ def merges(lst, depth,width,  out=None):
   out 
 
 def klass(head,rows):
-  ys= {(col,BIG,-BIG,goal) for c,goal in (("-",0),("+",1)) 
+    ys= {col:(BIG,-BIG,goal) for c,goal in (("-",0),("+",1)) 
                            for col,s in enumerate(head) 
                            if s[-1] == c and s[-1] != "X"}
   def norm(z,lo,hi: 
@@ -123,19 +123,17 @@ def ordered(rows)
   return sorted(rows, key=lambda r:nums(r[i]))
 
 def eg_one(_): 
-  def Q(s): return -BIG if s=="?" else s 
-  def X(col,row): 
-   x=row[col]; if x != "?": return x
-
   src = csv(the.train)
   head,*rows = [r for r in src]
-  y = klass(head,rows)
+  Y = klass(head,rows)
+  d = {}
   for col,s in enumerate(head):
     if s[-1] not in "+-X":
-      bins = []
-      for row in sorted(rows, key=q):
-        if x:=X(col,row):
-          bins = bins or [(x,x,0)]
+      xy = [(row[col], Y(row)) for row in rows if row[col] != "?"]
+      for x,y in sorted(xy,key=lambda z[0]) do
+        bins = bins or [(x,x,{y:0})]
+        bins[-1][1] = x
+        bins[-1][2] = bins[-1][2].get(y,0) + 1
 
   for i,h in enumerate(head):
     if of(h, usep,xp,nump):
