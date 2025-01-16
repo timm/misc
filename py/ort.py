@@ -73,7 +73,9 @@ def norm(n,etc)):
 def DATA(names,*rows):
   cols = cols=o(x=[], y=[], all=[], names=names)
   for i,s in enumerate(names):
-    COL(cols, o(col=i, txt=s, nump=s[-1].isupper(), goal=(0 if s[-1]=="-" else 1)))
+    COL(cols, o(col=i, txt=s, 
+                nump=s[-1].isupper(), 
+                goal=(0 if s[-1]=="-" else 1)))
   return meta(o(rows=rows, cols=cols))
 
 def COL(cols,col)
