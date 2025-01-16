@@ -76,29 +76,25 @@ def klass(head,rows):
                             for col,s in enumerate(head) 
                             if s[-1] == c and s[-1] != "X"}
     
-  def norm(z,lo,hi): 
+  def norm(z,lo,hi):
     return (z-lo)/(hi - lo + 1/BIG)
 
   def ydist(row):
     d = sum(abs(norm(row[col],lo,hi) - goal)**2 for col,(lo,hi,goal) in ys.items())
     return (d / len(ys))**0.5
-  
+
   for col,etc in ys.items():
     for row in rows:
       etc[0] = min(etc[0], row[col])
       etc[1] = max(etc[1], row[col])
-  print(100,ys)
-  stop = int(len(rows)**.5)
-  border = ydist(sorted(rows, key=ydist)[stop])
-  print(stop)
-  return ydist,lambda row: ydist(row) <= border
+  return ydist, dist(sorted(rows, key=ydist)[ int(len(rows)**0.5) ])
 
 def data(src, **keys):
   head,*rows = [r for r in src]
-  Y = klass(head,rows)
+  Y,border = klass(head,rows)
   for col,s in enumerate(head):
     if s[-1] not in "+-X":
-      xys = [(r[col], Y(r)) for r in rows if r[col] != "?" ]
+      xys = [(r[col], Y(r) < border) for r in rows if r[col] != "?" ]
       return spans(col,xys, **keys) if s[0].isupper() else syms(col,xys)
 
 def syms(col,xys):
