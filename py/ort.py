@@ -9,11 +9,11 @@ from typing import Iterable
 R=random.random
 BIG=1E32
 
-class Obj:
+class o:
   __init__ = lambda i,**d: i.__dict__.update(d)
   __repr__ = lambda i    : show(i.__dict__)
 
-the = Obj(seed= 1234567891,
+the = o(seed= 1234567891,
           cliffs=0.197,
           boots=512,
           conf=0.05,
@@ -67,29 +67,46 @@ def show(s,lo,hi,*_):
   if lo ==  hi   : return f"{s} == {lo}"  
   return f"{lo} < {s} <= {hi}"  
 
-def norm(n,lo,hi):
-   return (n-lo)/(hi - lo + 1/BIG)
+def norm(n,etc)):
+   return (n-etc.lo)/(etc.hi - etc.lo + 1/BIG)
 
-def klass(head,rows):
-  ys = {col:[BIG,-BIG,goal] for c,goal in (("-",0),("+",1)) 
-                            for col,s in enumerate(head) 
-                            if s[-1] == c and s[-1] != "X"}
-    def ydist(row):
-    d = sum(abs(norm(row[col],lo,hi) - goal)**2 for col,(lo,hi,goal) in ys.items())
-    return (d / len(ys))**0.5
+def DATA(names,*rows):
+  cols = cols=o(x=[], y=[], all=[], names=names)
+  for i,s in enumerate(names):
+    COL(cols, o(col=i, txt=s, nump=s[-1].isupper(), goal=(0 if s[-1]=="-" else 1)))
+  return meta(o(rows=rows, cols=cols))
 
-  for col,etc in ys.items():
-    for row in rows:
-      etc[0] = min(etc[0], row[col])
-      etc[1] = max(etc[1], row[col])
-  return ydist, dist(sorted(rows, key=ydist)[ int(len(rows)**0.5) ])
+def COL(cols,col)
+  if col.nump:
+    col.lo, col.hi = BIG, -BIG
+  if col.txt[-1] != "X": 
+    (cols.y if col.txt[-1] in "+-" else cols.x).append(col)
+  cols.all += [col]
+
+def meta(data):
+  def ydist(row):
+    d = sum(abs(norm(row[y.col],y) - y.goal)**2 for y in data.cols.y)
+    return (d / len(data.cols.y))**0.5
+
+  for y in data.cols.all:
+    if y.isNum:
+      for r in rows:
+        z = r[y.col]
+        if z != "?":
+          y.lo = min(y.lo, z)
+          y.hi = max(y.hi, z)
+
+  n = ydist(sorted(rows, key=ydist)[ int(len(rows)**0.5)])
+  data.ydist = ydist
+  data.classify = lambda r: ydist(r) < n
+  return data
 
 def data(src, **keys):
-  head,*rows = [r for r in src]
-  Y,border = klass(head,rows)
+  head, *rows = [r for r in src]
+  Y,ISA = DATA(head,rows)
   for col,s in enumerate(head): 
     if s[-1] not in "+-X"]:
-      xys = sorted([(r[col],Y(r) < border) for r in rows if r[col] != "?"],key=first)
+      xys = sorted([(r[col], ISA(r)) for r in rows if r[col] != "?"],key=first)
       nums(col,xys,**keys) if  s[0].isupper() else syms(col,sys)
 
 def syms(col,xys):
@@ -102,16 +119,17 @@ def syms(col,xys):
 
 def nums(col,xys, cohen=0.35, bins=17):
   ten   = len(xys) // 10
-  small = ((xys[9*ten][0] - xys[ten][0])/2.56) * cohen
+  ten,ninety = (ten,9*ten) if ten>1 else (0,-1)
+  small = ((xys[ninety][0] - xys[ten][0])/2.56) * cohen
   few   = len(xys) / bins
   x     = xys[0][0]
   b     = (x,x,col)
   bins  = {b:0}
   for i,(x,y) in enumerate(xys):
     if i < len(xys) - few and x != xys[i+1][0] and b[1] - b[0] > small and bins[b] > few:
-      if last 
+      if last dull(
       b1 = (x,x,col)
-      if last: then ....
+      if last: ....
       last = b
       bins[b] = 0
     b[1]  = x
