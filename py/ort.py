@@ -1,5 +1,4 @@
 #!/usr/bin/env python3.13 -B
-
 def eg_help(_): print("\n" + __doc__)
 
 # -----------------------------------------------------------------------------
@@ -29,6 +28,8 @@ def eg_the(_)   : print(the)
 def eg_silent(_): the.loud=False
 def eg_seed(s)  : the.seed=coerce(s); random.seed(the.seed)
 
+
+
 # -----------------------------------------------------------------------------
 def show(d):
   if type(d)==str        : return d
@@ -55,7 +56,7 @@ def stdev(l,key=first):
 
 def ent(d):
  N = sum(d.values())
- return - sum(n/N * math.log(n/N,2) for n in d.values())
+ return - sum(n/N * log(n/N,2) for n in d.values())
 
 def powerset(nums):
   result = [[]]
@@ -65,29 +66,32 @@ def powerset(nums):
 
 # -----------------------------------------------------------------------------
 def show(s,lo,hi,*_):
-  if lo == -BIG then return f"{s} <= {hi}" end
-  if hi ==  BIG then return f"{s}  > {lo}" end
-  if lo ==  hi   then return f"{s} == {lo}" end
-  return f"{lo} < {s} <= {hi}" end
+  if lo == -BIG : return f"{s} <= {hi}"  
+  if hi ==  BIG : return f"{s}  > {lo}"  
+  if lo ==  hi   : return f"{s} == {lo}"  
+  return f"{lo} < {s} <= {hi}"  
 
 def klass(head,rows):
-    ys= {col:(BIG,-BIG,goal) for c,goal in (("-",0),("+",1)) 
-                           for col,s in enumerate(head) 
-                           if s[-1] == c and s[-1] != "X"}
-  def norm(z,lo,hi: 
+  ys = {col:[BIG,-BIG,goal] for c,goal in (("-",0),("+",1)) 
+                            for col,s in enumerate(head) 
+                            if s[-1] == c and s[-1] != "X"}
+    
+  def norm(z,lo,hi): 
     return (z-lo)/(hi - lo + 1/BIG)
 
   def ydist(row):
-    d = sum((norm(row[col],lo,hi)  - goal)**2 for col,(lo,hi,goal) in ys.items())
+    d = sum(abs(norm(row[col],lo,hi) - goal)**2 for col,(lo,hi,goal) in ys.items())
     return (d / len(ys))**0.5
   
   for col,etc in ys.items():
     for row in rows:
-      etc[1] = min(etc[1], row[col])
-      etc[2] = max(etc[2], row[col])
+      etc[0] = min(etc[0], row[col])
+      etc[1] = max(etc[1], row[col])
+  print(100,ys)
   stop = int(len(rows)**.5)
   border = ydist(sorted(rows, key=ydist)[stop])
-  return lambda row: ydist(row) <= border
+  print(stop)
+  return ydist,lambda row: ydist(row) <= border
 
 def data(src, **keys):
   head,*rows = [r for r in src]
@@ -105,13 +109,13 @@ def syms(col,xys):
     d[key] = d.get(key,0) + 1
   return ds
     
-def spans(col,xys, cohen=0.35, bins=17)
-  xys       = sorted(xys, key=first)
-  small     = stdev(xys, key=first) * cohen
-  few       = len(xys) / bins
-  (x,_),*__ = xys
-  b         = (x,x,0,{})
-  bins      = [b]
+def spans(col,xys, cohen=0.35, bins=17):
+  xys   = sorted(xys, key=first)
+  small = stdev(xys, key=first) * cohen
+  few   = len(xys) / bins
+  x     = xys[0][0]
+  b     = (x,x,0,{})
+  bins  = [b]
   for i,(x,y) in enumerate(xys):
     if i < len(xys) - few and x != xys[i+1][0] and b[1] - b[0] > small and b[2] > few:
       b = (x,x,0,{})
@@ -138,16 +142,16 @@ def bridge(bins):
   bins[-1][1] = BIG
   return bins
 
-def merges(b4)
+def merges(b4):
   now,i = [],0
   while i < len(b4):
-    lo1, hi1, n1, d1 = b4[i]
+    lo, hi, n, d = b4[i]
     if i < len(b4) - 1:
-      __, hi2, ___, d2 = b4[i+1]
+      __, hi1, ___, d1 = b4[i+1]
       if d3 := merge(d1,d2):
-        hi1,  d1 = hi2, d3
+        hi,  d = hi1, d3
         i += 1
-    new += [(lo1,hi1,n1,d1)]
+    new += [(lo,hi,n,d)]
     i += 1
   return b4 if len(now) == len(b4) else merges(now)
 
@@ -159,6 +163,17 @@ def merge(i,j):
   n1,n2 = sum(i.values()), sum(j.values())
   if ent(k) <= (n1*ent(i) + n2*ent(j))/(n1+n2): return k
 
+#------------------------------------------------------------------------------
+def eg_csv(_):
+  for row in csv(the.train): print(row)
+
+def eg_data(_):
+  head,*rows = [r for r in csv(the.train)]
+  print(head)
+  Y,K = klass(head,rows)
+  for i,row in enumerate(sorted(rows, key=Y)):
+    if i % 30 == 0: print(i,K(row),row)
+  
 if __name__== "__main__":
   random.seed(the.seed)
   for j,s in enumerate(sys.argv):
