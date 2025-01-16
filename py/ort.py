@@ -50,10 +50,6 @@ def csv(f):
 
 def first(l): return l[0]
 
-def stdev(l,key=first):
-  ten = len(l)//10
-  return (key(l[9*ten]) - key(l[ten]))/2.56
-
 def ent(d):
  N = sum(d.values())
  return - sum(n/N * log(n/N,2) for n in d.values())
@@ -71,15 +67,14 @@ def show(s,lo,hi,*_):
   if lo ==  hi   : return f"{s} == {lo}"  
   return f"{lo} < {s} <= {hi}"  
 
+def norm(n,lo,hi):
+   return (n-lo)/(hi - lo + 1/BIG)
+
 def klass(head,rows):
   ys = {col:[BIG,-BIG,goal] for c,goal in (("-",0),("+",1)) 
                             for col,s in enumerate(head) 
                             if s[-1] == c and s[-1] != "X"}
-    
-  def norm(z,lo,hi):
-    return (z-lo)/(hi - lo + 1/BIG)
-
-  def ydist(row):
+    def ydist(row):
     d = sum(abs(norm(row[col],lo,hi) - goal)**2 for col,(lo,hi,goal) in ys.items())
     return (d / len(ys))**0.5
 
@@ -92,43 +87,36 @@ def klass(head,rows):
 def data(src, **keys):
   head,*rows = [r for r in src]
   Y,border = klass(head,rows)
-  for col,s in enumerate(head):
-    if s[-1] not in "+-X":
-      xys = [(r[col], Y(r) < border) for r in rows if r[col] != "?" ]
-      return spans(col,xys, **keys) if s[0].isupper() else syms(col,xys)
+  for col,s in enumerate(head): 
+    if s[-1] not in "+-X"]:
+      xys = sorted([(r[col],Y(r) < border) for r in rows if r[col] != "?"],key=first)
+      nums(col,xys,**keys) if  s[0].isupper() else syms(col,sys)
 
 def syms(col,xys):
   ds={}
   for x,y in xys:
-    key = (col,x,x)
     d = ds[y] = ds.get(y,{})
+    key = (x,x,col)
     d[key] = d.get(key,0) + 1
   return ds
-    
-def spans(col,xys, cohen=0.35, bins=17):
-  xys   = sorted(xys, key=first)
-  small = stdev(xys, key=first) * cohen
+
+def nums(col,xys, cohen=0.35, bins=17):
+  ten   = len(xys) // 10
+  small = ((xys[9*ten][0] - xys[ten][0])/2.56) * cohen
   few   = len(xys) / bins
   x     = xys[0][0]
-  b     = (x,x,0,{})
-  bins  = [b]
+  b     = (x,x,col)
+  bins  = {b:0}
   for i,(x,y) in enumerate(xys):
-    if i < len(xys) - few and x != xys[i+1][0] and b[1] - b[0] > small and b[2] > few:
-      b = (x,x,0,{})
-      bins += [b]
+    if i < len(xys) - few and x != xys[i+1][0] and b[1] - b[0] > small and bins[b] > few:
+      if last 
+      b1 = (x,x,col)
+      if last: then ....
+      last = b
+      bins[b] = 0
     b[1]  = x
-    b[2] += 1
-    b[3]  = b[3].get(y,0) + 1
-  return count(col,bridge(merges(bins)))
-
-def count(col, fours):
-  ds={}
-  for lo,hi,_,d in fours:
-    for y,n in d.items():
-      key=(col,lo,hi)
-      d = ds[y] = ds.get(y,{})
-      d[key] = d.get(key,0) + 1
-  return ds
+    bins[b] += 1
+  return bridge(merges(bins)))
 
 def bridge(bins):
   for i,four in enumerate(bins):
@@ -138,24 +126,10 @@ def bridge(bins):
   bins[-1][1] = BIG
   return bins
 
-def merges(b4):
-  now,i = [],0
-  while i < len(b4):
-    lo, hi, n, d = b4[i]
-    if i < len(b4) - 1:
-      __, hi1, ___, d1 = b4[i+1]
-      if d3 := merge(d1,d2):
-        hi,  d = hi1, d3
-        i += 1
-    new += [(lo,hi,n,d)]
-    i += 1
-  return b4 if len(now) == len(b4) else merges(now)
-
-def merge(i,j):
+def dull(i,j):
   k = {}
   for d in [i,j]:
-    for x,n in d.items():
-      k[x] = k.get(x,0)  + n
+    for x,n in d.items(): k[x] = k.get(x,0)  + n
   n1,n2 = sum(i.values()), sum(j.values())
   if ent(k) <= (n1*ent(i) + n2*ent(j))/(n1+n2): return k
 
