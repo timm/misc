@@ -65,8 +65,6 @@ def show(s,lo,hi,*_):
   if lo ==  hi   : return f"{s} == {lo}"  
   return f"{lo} < {s} <= {hi}"  
 
-def norm(n,etc):
-   return (n-etc.lo)/(etc.hi - etc.lo + 1/BIG)
 
 class Num(o):
   def __init__(i,txt=" ",pos=0): 
