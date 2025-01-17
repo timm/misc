@@ -11,7 +11,7 @@ BIG=1E32
 
 class o:
   __init__ = lambda i,**d: i.__dict__.update(d)
-  __repr__ = lambda i    : show(i.__dict__)
+  __repr__ = lambda i    : i.__class__.__name__ + show(i.__dict__)
 
 the = o(seed= 1234567891,
           cliffs=0.197,
@@ -27,8 +27,6 @@ the = o(seed= 1234567891,
 def eg_the(_)   : print(the)
 def eg_silent(_): the.loud=False
 def eg_seed(s)  : the.seed=coerce(s); random.seed(the.seed)
-
-
 
 # -----------------------------------------------------------------------------
 def show(d):
@@ -67,10 +65,70 @@ def show(s,lo,hi,*_):
   if lo ==  hi   : return f"{s} == {lo}"  
   return f"{lo} < {s} <= {hi}"  
 
-def norm(n,etc)):
+def norm(n,etc):
    return (n-etc.lo)/(etc.hi - etc.lo + 1/BIG)
 
-def DATA(names,*rows):
+class Num(o):
+  def __init__(i,txt=" ",pos=0): 
+    i.pos,i.txt,i.n,i.mu,i.m2,i.sd = pos,txt,0,0,0,0
+    i.lo, i.hi = BIG, -BIG
+    i.goal = 0 if txt[-1] == "-" else 1
+    
+  def add(i,n):
+    if n !="?": 
+      i.n  += 1
+      d     = n - self.mu
+      i.mu += d/i.n
+      i.m2 += d*(n - i.mu)
+      i.sd  = 0 if i.n < 2 else (i.m2/(i.n - 1))**0.5
+      i.lo  = min(i.lo, n)
+      i.hi  = max(i.hi, n)
+    return n
+
+  def norm(i,x):
+    return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1/BIG)
+     
+class Sym(o):
+  def __init__(i,txt=" ",pos=0): 
+    i.pos,i.txt,i.n = pos,txt,0
+    i.mode, i.most, i.has = 0,0,{}
+
+  def add(i,x):
+    if n != "?":
+      i.n += 1
+      tmp = i.has[x] = i.has.get(x,0) + 1
+      if tmp > i.most:
+        i.most, i.mode = tmp,x
+    return x
+           
+class DATA(o):
+  def __init__(i, rows=[], order=None)
+    i.cols,i.rows = None,[]
+    i.adds(rows)
+    if order: i.sort(order)
+
+  def sort(i,fun):
+    i.rows.sort(key=fun)
+    return i
+
+  def adds(i,rows): [i.add(row) for row in rows]    
+
+  def add(i,row):
+    if i.cols: 
+       [col.add(row[col.pos]) for col in i.cols.all] 
+       i.rows.append( row )
+    else:
+       all = [(Num if s[0].isupper() else Sym)(s,i) for i,s in enumerate(rows)]
+       i.cols = i.head(all,row)
+      
+  def i.head(i,all,row):
+    for col in all:
+      z = col.txt[-1]
+      if z != "X": 
+        (y if z in "+-" else x).append(col)
+    return o(names=row, all=all, x=x, y=y)
+
+names,*rows):
   cols = cols=o(x=[], y=[], all=[], names=names)
   for i,s in enumerate(names):
     COL(cols, o(col=i, txt=s, 
