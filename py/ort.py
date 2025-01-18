@@ -57,9 +57,9 @@ class Num(o):
 
 # switch whn y 1= y
   def bins(i,Y,rows):
-    X    = lambda row: -Big if row[i.pos]=="?" else row[i.pos]
+    X    = lambda row: -BIG if row[i.pos]=="?" else row[i.pos]
     rows = sorted(rows, key=X)
-    bin =  o(pos=i.pos,lo=i.lo,hi=i.lo,y=True,n=0,has={})
+    bin  = o(pos=i.pos, lo=i.lo, hi=i.lo, n=0, has={})
     bins = [bin]
     for j,row in enumerate(rows):
       x = row[i.pos]
