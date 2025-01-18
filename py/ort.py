@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.13 -B
-def eg_help(_): print("\n" + __doc__)
+def cli_h(_): print("\n" + __doc__)
 
 # -----------------------------------------------------------------------------
 import random,re,ast,sys
@@ -24,48 +24,11 @@ the = o(seed= 1234567891,
           train="../../moot/optimize/misc/auto93.csv",
           top=6)
 
-def eg_the(_)   : print(the)
-def eg_silent(_): the.loud=False
-def eg_seed(s)  : the.seed=coerce(s); random.seed(the.seed)
+def cli_the(_)    : print(the)
+def cli_s(_) : the.loud=False
+def cli_r(s) : the.seed=coerce(s); random.seed(the.seed)
 
 # -----------------------------------------------------------------------------
-def show(d):
-  if type(d)==str        : return d
-  if type(d)==type(show) : return  d.__name__+'()'
-  if type(d)==dict:
-    return '('+' '.join(f":{k} {show(v)}" for k,v in d.items() if str(k)[0] !="_")+')'
-  if type(d)==float: return str(d//1) if d==d//1 else f"{d:.3f}"
-  return str(d)
-
-def coerce(s):
-  try: return ast.literal_eval(s)
-  except: return s.strip()
-
-def csv(f):
-  with open(f, "r") as file:
-    for line in file.readlines():
-      yield [coerce(s) for s in line.split(",")]
-
-def first(l): return l[0]
-
-def ent(d):
- N = sum(d.values())
- return - sum(n/N * log(n/N,2) for n in d.values())
-
-def powerset(nums):
-  result = [[]]
-  for num in nums:
-    result += [subset + [num] for subset in result]
-  return result
-
-# -----------------------------------------------------------------------------
-def show(s,lo,hi,*_):
-  if lo == -BIG : return f"{s} <= {hi}"  
-  if hi ==  BIG : return f"{s}  > {lo}"  
-  if lo ==  hi   : return f"{s} == {lo}"  
-  return f"{lo} < {s} <= {hi}"  
-
-
 class Num(o):
   def __init__(i,txt=" ",pos=0): 
     i.pos,i.txt,i.n,i.mu,i.m2,i.sd = pos,txt,0,0,0,0
@@ -86,6 +49,35 @@ class Num(o):
   def norm(i,x):
     return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1/BIG)
      
+  def __repr__(i):
+    if i.lo == -BIG : return f"{i.s} <= {i.hi}"  
+    if i.hi ==  BIG : return f"{i.s}  > {i.lo}"  
+    if i.lo ==  i.hi: return f"{i.s} == {i.lo}"  
+    return f"{i.lo} < {i.s} <= {i.hi}"  
+
+# switch whn y 1= y
+  def bins(i,Y,rows):
+    X    = lambda row: -Big if row[i.pos]=="?" else row[i.pos]
+    rows = sorted(rows, key=X)
+    bin =  o(pos=i.pos,lo=i.lo,hi=i.lo,y=True,n=0,has={})
+    bins = [bin]
+    for j,row in enumerate(rows):
+      x = row[i.pos]
+      bin.y,_ = Y(row)
+      if x=="?": continue
+      y,support  = Y(row)
+
+      if x != rows[j][i.pos] and bin.n > i.n/the.bins and \
+                                 (bin.hi - bin.lo) > i.sd*i.cohen:
+        bin.hi = x
+        bin    = o(pos=i.pos,lo=x,hi=x,n=0,has={})
+        bins  += [bins]
+      b.n       += 1
+      bin.hi     = x
+      bin.has[y] = bin.has.get(y,0) + support
+    return i.merge(bins)
+     
+# -----------------------------------------------------------------------------
 class Sym(o):
   def __init__(i,txt=" ",pos=0): 
     i.pos,i.txt,i.n = pos,txt,0
@@ -98,102 +90,50 @@ class Sym(o):
       if tmp > i.most:
         i.most, i.mode = tmp,x
     return x
-           
+           Y
+# -----------------------------------------------------------------------------
 class DATA(o):
-  def __init__(i, rows=[], order=None)
+  def __init__(i): 
     i.cols,i.rows = None,[]
-    i.adds(rows)
-    if order: i.sort(order)
 
-  def sort(i,fun):
-    i.rows.sort(key=fun)
+  def clone(i):
+    return Data().add(i.cols.names)
+
+  def sorted(i, rows=None):
+    return (rows or i.rows).sort(key=lambda r: i.ydist(r))
+
+  def adds(i,rows): 
+    [i.add(row) for row in rows]    
     return i
-
-  def adds(i,rows): [i.add(row) for row in rows]    
 
   def add(i,row):
     if i.cols: 
        [col.add(row[col.pos]) for col in i.cols.all] 
        i.rows.append( row )
     else:
-       all = [(Num if s[0].isupper() else Sym)(s,i) for i,s in enumerate(rows)]
-       i.cols = i.head(all,row)
+       x,y,all = [],[],[(Num if s[0].isupper() else Sym)(s,i) for i,s in enumerate(row)]
+       for c in all:
+         if c.txt[-1] != "X":
+           (y if c.txt[-1] in "+-" else x).append(c)
+       i.cols = o(names=row, all=all, x=x, y=y)
+
+  def ydist(i,row)
+    return (sum((row[y.pos] - y.goal)**the.p for y in i.cols.y) /len(i.cols.y))**(1/the.p)
+
+  def klassify(i, rows=None)
+    rows = i.sorted(rows)
+    m    = int(len(rows)**0.5)
+    n    = len(rows) - m
+    y    = i.ydist(rows[m])
+    return lambda r: (True,1/m) if i.ydist(r) < y else (False,1/n)
+
+  def bins(i):
+    Y = i.klassify(i.rows),
+    for col in i.cols.x:
+      bins=col.bins(col,i.rows)
+
       
-  def i.head(i,all,row):
-    for col in all:
-      z = col.txt[-1]
-      if z != "X": 
-        (y if z in "+-" else x).append(col)
-    return o(names=row, all=all, x=x, y=y)
-
-names,*rows):
-  cols = cols=o(x=[], y=[], all=[], names=names)
-  for i,s in enumerate(names):
-    COL(cols, o(col=i, txt=s, 
-                nump=s[-1].isupper(), 
-                goal=(0 if s[-1]=="-" else 1)))
-  return meta(o(rows=rows, cols=cols))
-
-def COL(cols,col)
-  if col.nump:
-    col.lo, col.hi = BIG, -BIG
-  if col.txt[-1] != "X": 
-    (cols.y if col.txt[-1] in "+-" else cols.x).append(col)
-  cols.all += [col]
-
-def meta(data):
-  def ydist(row):
-    d = sum(abs(norm(row[y.col],y) - y.goal)**2 for y in data.cols.y)
-    return (d / len(data.cols.y))**0.5
-
-  for y in data.cols.all:
-    if y.isNum:
-      for r in rows:
-        z = r[y.col]
-        if z != "?":
-          y.lo = min(y.lo, z)
-          y.hi = max(y.hi, z)
-
-  n = ydist(sorted(rows, key=ydist)[ int(len(rows)**0.5)])
-  data.ydist = ydist
-  data.classify = lambda r: ydist(r) < n
-  return data
-
-def data(src, **keys):
-  head, *rows = [r for r in src]
-  Y,ISA = DATA(head,rows)
-  for col,s in enumerate(head): 
-    if s[-1] not in "+-X"]:
-      xys = sorted([(r[col], ISA(r)) for r in rows if r[col] != "?"],key=first)
-      nums(col,xys,**keys) if  s[0].isupper() else syms(col,sys)
-
-def syms(col,xys):
-  ds={}
-  for x,y in xys:
-    d = ds[y] = ds.get(y,{})
-    key = (x,x,col)
-    d[key] = d.get(key,0) + 1
-  return ds
-
-def nums(col,xys, cohen=0.35, bins=17):
-  ten   = len(xys) // 10
-  ten,ninety = (ten,9*ten) if ten>1 else (0,-1)
-  small = ((xys[ninety][0] - xys[ten][0])/2.56) * cohen
-  few   = len(xys) / bins
-  x     = xys[0][0]
-  b     = (x,x,col)
-  bins  = {b:0}
-  for i,(x,y) in enumerate(xys):
-    if i < len(xys) - few and x != xys[i+1][0] and b[1] - b[0] > small and bins[b] > few:
-      if last dull(
-      b1 = (x,x,col)
-      if last: ....
-      last = b
-      bins[b] = 0
-    b[1]  = x
-    bins[b] += 1
-  return bridge(merges(bins)))
-
+   
 def bridge(bins):
   for i,four in enumerate(bins):
     if i>0:
@@ -209,11 +149,42 @@ def dull(i,j):
   n1,n2 = sum(i.values()), sum(j.values())
   if ent(k) <= (n1*ent(i) + n2*ent(j))/(n1+n2): return k
 
+# -----------------------------------------------------------------------------
+def show(d):
+  if type(d)==str        : return d
+  if type(d)==type(show) : return  d.__name__+'()'
+  if type(d)==dict:
+    return '('+' '.join(f":{k} {show(v)}" for k,v in d.items() if str(k)[0] !="_")+')'
+  if type(d)==float: return str(d//1) if d==d//1 else f"{d:.3f}"
+  return str(d)
+
+def coerce(s):
+  try: return ast.literal_eval(s)
+  except: return s.strip()
+
+def csv(f):
+  with open(f, "r") as file:
+    for line in file.readlines():
+      yield [coerce(s) for s in line.split(",")]
+
+def first(l): return l[0]
+def second(l): return l[1]
+
+def ent(d):
+ N = sum(d.values())
+ return - sum(n/N * log(n/N,2) for n in d.values())
+
+def powerset(nums):
+  result = [[]]
+  for num in nums:
+    result += [subset + [num] for subset in result]
+  return result
+
 #------------------------------------------------------------------------------
-def eg_csv(_):
+def cli_csv(_):
   for row in csv(the.train): print(row)
 
-def eg_data(_):
+def cli_data(_):
   head,*rows = [r for r in csv(the.train)]
   print(head)
   Y,K = klass(head,rows)
@@ -221,7 +192,7 @@ def eg_data(_):
     if i % 30 == 0: print(i,K(row),row)
   
 if __name__== "__main__":
-  random.seed(the.seed)
   for j,s in enumerate(sys.argv):
-    if todo := vars().get(re.sub("^--","eg_",s)):
-      todo(sys.argv[j+1] if j < len(sys.argv) - 1 else None)
+    if todo := vars().get(re.sub("^-","cli_",s)):
+      random.seed(the.seed)
+      todo( sys.argv[j+1] if j < len(sys.argv) - 1 else None )
