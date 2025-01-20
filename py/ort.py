@@ -66,7 +66,7 @@ class SPAN(o):
     i.ys[y] = i.ys.get(y,0) + n
 
   def klass(i, goal=True):
-    best, rest = 0, 1/BIG
+    best, rest = 0, 0
     for y,n in i.ys.items():
       if y==goal: best += n
       else      : rest += n
@@ -171,8 +171,8 @@ class DATA(o):
   def sorted(i, rows=None):
     return (rows or i.rows).sort(key=lambda r: i.ydist(r))
 
-  def adds(i,rows): 
-    [i.add(row) for row in rows]    
+  def adds(i,src): 
+    [i.add(row) for row in src]    
     return i
 
   def add(i,row):
@@ -227,9 +227,6 @@ def powerset(nums):
   for num in nums:
     result += [subset + [num] for subset in result]
   return result
-
-def say(*arg):
-  if the.loud: print(*arg,)
 
 def fyi(*args, **kwargs):
   say(*args, file=sys.stderr, **kwargs)
