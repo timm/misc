@@ -1,29 +1,29 @@
 #!/usr/bin/env python3.13 -B
 """
 
-ort.py:  multi=objective contrast rule generator
-(c) 2025 Tim Menzies <timm@ieee.org>, MIT Licene
+ort.py:  multi=objective contrast rule generator  
+(c) 2025 Tim Menzies <timm@ieee.org>, MIT Licene  
+  
+USAGE:   
+  python3 ./ort.py [OPTIONS]  
 
-USAGE: 
-  python3 ./ort.py [OPTIONS]
-
-OPTIONS:
-  -o      print current settings 
-  -q      guiet mode (suppresses output).
-  -r INT  set random number seed
-  -s FILE set example file
-  -csv    test: can we read csv files
-  -data   test: can we read our data files
-
-INSTALL:
-  Download this file.
-  For example data, see http://github.com/timm/moot/optimize/config
-
-DATA FORMAT:
-  The code reas csv files, defined by their first row. Upper case 
-  names are numeric (the rest are symbolic). An 'X' suffix means 'ignore'.
-  '+-' suffixes are goals to be maximized or minimzing. '?' denotes
-  'don't know'.
+OPTIONS:  
+  -o      print current settings   
+  -q      guiet mode (suppresses output).  
+  -r INT  set random number seed  
+  -s FILE set example file  
+  -csv    test: can we read csv files  
+  -data   test: can we read our data files  
+  
+INSTALL:  
+  Download this file.   
+  For example data, see http://github.com/timm/moot/optimize/config   
+  
+DATA FORMAT:  
+  The code reas csv files, defined by their first row. Upper case   
+  names are numeric (the rest are symbolic). An 'X' suffix means 'ignore'.    
+  '+-' suffixes are goals to be maximized or minimzing. '?' denotes   
+  'don't know'.    
 """
 import random,re,ast,sys
 from math import sqrt,log,exp,pi
@@ -188,10 +188,10 @@ class DATA(o):
          if c.txt[-1] != "X":
            (i.cols.y if c.txt[-1] in "+-" else i.cols.x).append(c)
 
-  def ydist(i,row)
+  def ydist(i,row):
     return (sum((row[y.pos] - y.goal)**the.p for y in i.cols.y) /len(i.cols.y))**(1/the.p)
 
-  def klassify(i, rows=None)
+  def klassify(i, rows=None):
     rows = i.sorted(rows)
     m = int(len(rows)**0.5)
     n = len(rows) - m
@@ -201,7 +201,7 @@ class DATA(o):
   def bins(i):
     Y,ys = i.klassify(i.rows),
     for col in i.cols.x:
-      bins = sorted(bin for bin in _bins(col, Y, i.rows, ys)):
+      bins = sorted(bin for bin in _bins(col, Y, i.rows, ys))
         
 # -----------------------------------------------------------------------------
 def show(d):

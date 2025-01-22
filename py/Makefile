@@ -48,3 +48,6 @@ zaps: ../../moot/optimize/[mpch]*/*.csv
 F=../data/auto93.csv
 zap:
 	./zap.py  --zap $F  | tee ~/tmp/$@.$(notdir $F)
+
+html:
+	pdoc --logo ort.png -o ~/tmp/x ort.py
