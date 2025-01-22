@@ -9,7 +9,7 @@ USAGE:
 
 OPTIONS:
   -o      print current settings 
-  -s      silent mode (suppresses output).
+  -q      guiet mode (suppresses output).
   -r INT  set random number seed
   -s FILE set example file
   -csv    test: can we read csv files
@@ -25,7 +25,6 @@ DATA FORMAT:
   '+-' suffixes are goals to be maximized or minimzing. '?' denotes
   'don't know'.
 """
-
 import random,re,ast,sys
 from math import sqrt,log,exp,pi
 from typing import Iterable
@@ -50,7 +49,7 @@ the = o(seed= 1234567891,
 
 def cli_h(_) : print("\n" + __doc__)
 def cli_o(_) : print(the)
-def cli_s(_) : the.loud=False
+def cli_q(_) : the.loud=False
 def cli_r(s) : the.seed=coerce(s); random.seed(the.seed)
 def cli_t(s) : the.train=s
 
@@ -79,6 +78,14 @@ class SPAN(o):
         k.ys[y] = k.ys.get(y,0) + n
     return k
 
+  def __repr__(i):
+    s = i.col.txt
+    if i.lo == -BIG : return f"{s} <= {i.hi}"  
+    if i.hi ==  BIG : return f"{s}  > {i.lo}"  
+    if i.lo ==  i.hi: return f"{s} == {i.lo}"  
+    return f"{i.lo} < {s} <= {i.hi}"  
+
+# -----------------------------------------------------------------------------
 class COL(o):
   def __init__(i,txt=" ",pos=0): 
     i.pos,i.txt,i.n = pos,txt,0
@@ -89,9 +96,10 @@ class COL(o):
     for row in sorted(rows, key=X):
       x = row[i.pos]
       if x != "?": 
+        y   = Y(row)
         key = i.bin(x)
         bin = bins[key] = bins.get(key) or SPAN(col,x)
-        bin.add(x, Y(row), 1/ys[y])
+        bin.add(x, y, 1/ys[y])
     return i.merges(sorted(bins.values, key=lambda bin: bin.lo))
 
 # -----------------------------------------------------------------------------
@@ -132,12 +140,6 @@ class NUM(COL):
   def norm(i,x):
     return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1/BIG)
      
-  def __repr__(i):
-    if i.lo == -BIG : return f"{i.s} <= {i.hi}"  
-    if i.hi ==  BIG : return f"{i.s}  > {i.lo}"  
-    if i.lo ==  i.hi: return f"{i.s} == {i.lo}"  
-    return f"{i.lo} < {i.s} <= {i.hi}"  
-
   def bin(i, x): 
     return x if x=="?" else i.norm(x) * the.bins // 1
 
@@ -201,7 +203,7 @@ class DATA(o):
     for col in i.cols.x:
       bins = sorted(bin for bin in _bins(col, Y, i.rows, ys)):
         
-# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def show(d):
   if type(d)==str        : return d
   if type(d)==type(show) : return  d.__name__+'()'
