@@ -2,14 +2,14 @@
 """
 
 ort.py:  multi=objective contrast rule generator  
-(c) 2025 Tim Menzies <timm@ieee.org>, MIT Licene  
+(c) 2025 Tim Menzies <timm@ieee.org>, MIT License  
   
 USAGE:   
   python3 ./ort.py [OPTIONS]  
 
 OPTIONS:  
   -o      print current settings   
-  -q      guiet mode (suppresses output).  
+  -q      quiet mode (suppresses output).  
   -r INT  set random number seed  
   -s FILE set example file  
   -csv    test: can we read csv files  
@@ -20,9 +20,9 @@ INSTALL:
   For example data, see http://github.com/timm/moot/optimize/config   
   
 DATA FORMAT:  
-  The code reas csv files, defined by their first row. Upper case   
+  The code reads csv files, defined by their first row. Upper case   
   names are numeric (the rest are symbolic). An 'X' suffix means 'ignore'.    
-  '+-' suffixes are goals to be maximized or minimzing. '?' denotes   
+  '+-' suffixes are goals to be maximized or minimizing. '?' denotes   
   'don't know'.    
 """
 import random,re,ast,sys
@@ -98,7 +98,7 @@ class COL(o):
       if x != "?": 
         y   = Y(row)
         key = i.bin(x)
-        bin = bins[key] = bins.get(key) or SPAN(col,x)
+        bin = bins[key] = bins.get(key) or SPAN(i,x)
         bin.add(x, y, 1/ys[y])
     return i.merges(sorted(bins.values, key=lambda bin: bin.lo))
 
@@ -109,7 +109,7 @@ class SYM(COL):
     i.mode, i.most, i.has = 0,0,{}
 
   def add(i,x):
-    if n != "?":
+    if x != "?":
       i.n += 1
       tmp = i.has[x] = i.has.get(x,0) + 1
       if tmp > i.most:
@@ -129,7 +129,7 @@ class NUM(COL):
   def add(i,n):
     if n !="?": 
       i.n  += 1
-      d     = n - self.mu
+      d     = n - i.mu
       i.mu += d/i.n
       i.m2 += d*(n - i.mu)
       i.sd  = 0 if i.n < 2 else (i.m2/(i.n - 1))**0.5
@@ -170,7 +170,7 @@ class DATA(o):
     i.cols,i.rows = None,[]
 
   def clone(i):
-    return Data().add(i.cols.names)
+    return DATA().add(i.cols.names)
 
   def sorted(i, rows=None):
     return (rows or i.rows).sort(key=lambda r: i.ydist(r))
@@ -193,7 +193,7 @@ class DATA(o):
   def ydist(i,row):
     return (sum((row[y.pos] - y.goal)**the.p for y in i.cols.y) /len(i.cols.y))**(1/the.p)
 
-  def klassify(i, rows=None):
+  def classify(i, rows=None):
     rows = i.sorted(rows)
     m = int(len(rows)**0.5)
     n = len(rows) - m
@@ -201,9 +201,12 @@ class DATA(o):
     return lambda r: i.ydist(r) < y, {True:m, False:n}
 
   def bins(i):
-    Y,ys = i.klassify(i.rows),
+    Y,ys = i.classify(i.rows)
+    all = []
     for col in i.cols.x:
-      bins = sorted(bin for bin in _bins(col, Y, i.rows, ys))
+      tmp =  col.bins(Y, i.rows, ys)
+      if len(tmp) > 1:
+        all.extend(tmp)
         
 # -----------------------------------------------------------------------------
 def show(d):
