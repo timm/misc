@@ -153,14 +153,16 @@ class NUM(COL):
           a = a.merge(b)
           j = j + 1
       now += [a]
-      j = j+1
-    if len(now) < len(b4): return  i.merges(now)
-    for j,span in enumerate(now):
-      if j > 0:
-        now[j-1].hi = span.lo
-    span[ 0].lo = -BIG
-    span[-1].hi =  BIG
-    return now
+      j = j + 1
+    return _bridge(b4) if len(now) == len(b4) else i.merges(now)
+
+def _bridge(spans):
+  for j,span in enumerate(spans):
+    if j > 0:
+      spans[j-1].hi = span.lo
+  spans[ 0].lo = -BIG
+  spans[-1].hi =  BIG
+  return spans
 
 # -----------------------------------------------------------------------------
 class DATA(o):
