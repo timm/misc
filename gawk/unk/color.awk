@@ -1,0 +1,111 @@
+BEGIN {
+    # Default Color Scheme
+    color["default"]["logic"] = "#008000"
+    color["default"]["control"] = "#008000"
+    color["default"]["builtins"] = "#6f42c1"
+    color["default"]["specials"] = "#999988"
+    color["default"]["output"] = "#ba2121"
+    color["default"]["constants"] = "#008080"
+    color["default"]["fileops"] = "#008000"
+    color["default"]["function"] = "#6f42c1"
+    color["default"]["comments"] = "#AAA"
+
+    # Friendly Color Scheme
+    color["friendly"]["logic"] = "#008000"
+    color["friendly"]["control"] = "#008000"
+    color["friendly"]["builtins"] = "#990000"
+    color["friendly"]["specials"] = "#888888"
+    color["friendly"]["output"] = "#dd1144"
+    color["friendly"]["constants"] = "#660e7a"
+    color["friendly"]["fileops"] = "#008000"
+    color["friendly"]["function"] = "#990000"
+    color["friendly"]["comments"] = "#AAA"
+
+    # Colorful Color Scheme
+    color["colorful"]["logic"] = "#0000ff"
+    color["colorful"]["control"] = "#0000ff"
+    color["colorful"]["builtins"] = "#6f42c1"
+    color["colorful"]["specials"] = "#408080"
+    color["colorful"]["output"] = "#a31515"
+    color["colorful"]["constants"] = "#008080"
+    color["colorful"]["fileops"] = "#0000ff"
+    color["colorful"]["function"] = "#6f42c1"
+    color["colorful"]["comments"] = "#AAA"
+
+    # Pastie Color Scheme
+    color["pastie"]["logic"] = "#008000"
+    color["pastie"]["control"] = "#008000"
+    color["pastie"]["builtins"] = "#900"
+    color["pastie"]["specials"] = "#888"
+    color["pastie"]["output"] = "#d14"
+    color["pastie"]["constants"] = "#700"
+    color["pastie"]["fileops"] = "#008000"
+    color["pastie"]["function"] = "#900"
+    color["pastie"]["comments"] = "#AAA"
+
+    # Tango Color Scheme
+    color["tango"]["logic"] = "#204a87"
+    color["tango"]["control"] = "#204a87"
+    color["tango"]["builtins"] = "#d01"
+    color["tango"]["specials"] = "#a4a4a4"
+    color["tango"]["output"] = "#4e9a06"
+    color["tango"]["constants"] = "#c4a000"
+    color["tango"]["fileops"] = "#204a87"
+    color["tango"]["function"] = "#d01"
+    color["tango"]["comments"] = "#AAA"
+
+    # Perldoc Color Scheme
+    color["perldoc"]["logic"] = "#a31515"
+    color["perldoc"]["control"] = "#a31515"
+    color["perldoc"]["builtins"] = "#0077aa"
+    color["perldoc"]["specials"] = "#999988"
+    color["perldoc"]["output"] = "#006400"
+    color["perldoc"]["constants"] = "#008080"
+    color["perldoc"]["fileops"] = "#a31515"
+    color["perldoc"]["function"] = "#0077aa"
+    color["perldoc"]["comments"] = "#AAA"
+
+    # Lovelace Color Scheme
+    color["lovelace"]["logic"] = "#000080"
+    color["lovelace"]["control"] = "#000080"
+    color["lovelace"]["builtins"] = "#000000"
+    color["lovelace"]["specials"] = "#888888"
+    color["lovelace"]["output"] = "#dd1144"
+    color["lovelace"]["constants"] = "#0055ff"
+    color["lovelace"]["fileops"] = "#000080"
+    color["lovelace"]["function"] = "#000000"
+    color["lovelace"]["comments"] = "#AAA"
+
+    # Vim Color Scheme
+    color["vim"]["logic"] = "#000080"
+    color["vim"]["control"] = "#000080"
+    color["vim"]["builtins"] = "#000000"
+    color["vim"]["specials"] = "#408080"
+    color["vim"]["output"] = "#dd1144"
+    color["vim"]["constants"] = "#800000"
+    color["vim"]["fileops"] = "#000080"
+    color["vim"]["function"] = "#000000"
+    color["vim"]["comments"] = "#AAA"
+
+    # Autumn Color Scheme
+    color["autumn"]["logic"] = "#b34c00"
+    color["autumn"]["control"] = "#b34c00"
+    color["autumn"]["builtins"] = "#b08000"
+    color["autumn"]["specials"] = "#888"
+    color["autumn"]["output"] = "#4e9a06"
+    color["autumn"]["constants"] = "#008080"
+    color["autumn"]["fileops"] = "#b34c00"
+    color["autumn"]["function"] = "#b08000"
+    color["autumn"]["comments"] = "#AAA"
+
+    # Monokai Light Color Scheme
+    color["monokai_light"]["logic"] = "#66d9ef"
+    color["monokai_light"]["control"] = "#66d9ef"
+    color["monokai_light"]["builtins"] = "#e6db74"
+    color["monokai_light"]["specials"] = "#75715e"
+    color["monokai_light"]["output"] = "#a6e22e"
+    color["monokai_light"]["constants"] = "#fd971f"
+    color["monokai_light"]["fileops"] = "#66d9ef"
+    color["monokai_light"]["function"] = "#e6db74"
+    color["monokai_light"]["comments"] = "#AAA"
+}
