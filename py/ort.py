@@ -1,7 +1,30 @@
 #!/usr/bin/env python3.13 -B
-def eg_help(_): print("\n" + __doc__)
+"""
 
-# -----------------------------------------------------------------------------
+ort.py:  multi=objective contrast rule generator  
+(c) 2025 Tim Menzies <timm@ieee.org>, MIT License  
+  
+USAGE:   
+  python3 ./ort.py [OPTIONS]  
+
+OPTIONS:  
+  -o      print current settings   
+  -q      quiet mode (suppresses output).  
+  -r INT  set random number seed  
+  -s FILE set example file  
+  -csv    test: can we read csv files  
+  -data   test: can we read our data files  
+  
+INSTALL:  
+  Download this file.   
+  For example data, see http://github.com/timm/moot/optimize/config   
+  
+DATA FORMAT:  
+  The code reads csv files, defined by their first row. Upper case   
+  names are numeric (the rest are symbolic). An 'X' suffix means 'ignore'.    
+  '+-' suffixes are goals to be maximized or minimizing. '?' denotes   
+  'don't know'.    
+"""
 import random,re,ast,sys
 from math import sqrt,log,exp,pi
 from typing import Iterable
@@ -9,11 +32,11 @@ from typing import Iterable
 R=random.random
 BIG=1E32
 
-class Obj:
+class o:
   __init__ = lambda i,**d: i.__dict__.update(d)
-  __repr__ = lambda i    : show(i.__dict__)
+  __repr__ = lambda i    : i.__class__.__name__ + show(i.__dict__)
 
-the = Obj(seed= 1234567891,
+the = o(seed= 1234567891,
           cliffs=0.197,
           boots=512,
           conf=0.05,
@@ -24,13 +47,168 @@ the = Obj(seed= 1234567891,
           train="../../moot/optimize/misc/auto93.csv",
           top=6)
 
-def eg_the(_)   : print(the)
-def eg_silent(_): the.loud=False
-def eg_seed(s)  : the.seed=coerce(s); random.seed(the.seed)
-
-
+def cli_h(_) : print("\n" + __doc__)
+def cli_o(_) : print(the)
+def cli_q(_) : the.loud=False
+def cli_r(s) : the.seed=coerce(s); random.seed(the.seed)
+def cli_t(s) : the.train=s
 
 # -----------------------------------------------------------------------------
+class SPAN(o):
+  "Rules are conjunctions of SPANs"
+  def __init__(i,col,lo,hi=None):
+    i.col,i.lo,i.hi,i.ys = col, lo, hi or lo, {}
+
+  def add(i,x,y,n=1):
+    i.lo = min(x,i.lo)
+    i.hi = max(x,i.hi)
+    i.ys[y] = i.ys.get(y,0) + n
+
+  def klass(i, goal=True):
+    best, rest = 0, 0
+    for y,n in i.ys.items():
+      if y==goal: best += n
+      else      : rest += n
+    return best > rest
+
+  def merge(i,j):
+    k = SPAN(i.col, i.lo, j.hi)
+    for ys in [i.ys, j.ys]:
+      for y,n in ys.items():
+        k.ys[y] = k.ys.get(y,0) + n
+    return k
+
+  def __repr__(i):
+    s = i.col.txt
+    if i.lo == -BIG : return f"{s} <= {i.hi}"  
+    if i.hi ==  BIG : return f"{s}  > {i.lo}"  
+    if i.lo ==  i.hi: return f"{s} == {i.lo}"  
+    return f"{i.lo} < {s} <= {i.hi}"  
+
+# -----------------------------------------------------------------------------
+class COL(o):
+  def __init__(i,txt=" ",pos=0): 
+    i.pos,i.txt,i.n = pos,txt,0
+  
+  def bins(i,Y,rows,ys):
+    bins = {}
+    X = lambda row: -BIG if row[i.pos]=="?" else row[i.pos]
+    for row in sorted(rows, key=X):
+      x = row[i.pos]
+      if x != "?": 
+        y   = Y(row)
+        key = i.bin(x)
+        bin = bins[key] = bins.get(key) or SPAN(i,x)
+        bin.add(x, y, 1/ys[y])
+    return i.merges(sorted(bins.values, key=lambda bin: bin.lo))
+
+# -----------------------------------------------------------------------------
+class SYM(COL):
+  def __init__(i,**keys):
+    super().__init__(**keys)
+    i.mode, i.most, i.has = 0,0,{}
+
+  def add(i,x):
+    if x != "?":
+      i.n += 1
+      tmp = i.has[x] = i.has.get(x,0) + 1
+      if tmp > i.most:
+        i.most, i.mode = tmp,x
+    return x
+
+  def bin(i,x)   : return x
+  def merges(i,x): return x
+
+# -----------------------------------------------------------------------------
+class NUM(COL):
+  def __init__(i,**keys):
+    super().__init__(**keys)
+    i.mu, i.m2, i.sd, i.lo, i.hi = 0, 0, 0, BIG, -BIG
+    i.goal = 0 if i.txt[-1] == "-" else 1
+    
+  def add(i,n):
+    if n !="?": 
+      i.n  += 1
+      d     = n - i.mu
+      i.mu += d/i.n
+      i.m2 += d*(n - i.mu)
+      i.sd  = 0 if i.n < 2 else (i.m2/(i.n - 1))**0.5
+      i.lo  = min(i.lo, n)
+      i.hi  = max(i.hi, n)
+    return n
+
+  def norm(i,x):
+    return x if x=="?" else (x - i.lo) / (i.hi - i.lo + 1/BIG)
+     
+  def bin(i, x): 
+    return x if x=="?" else i.norm(x) * the.bins // 1
+
+  def merges(i, b4):
+    now,j = [],0
+    while j < len(b4):
+      a = b4[j]
+      if j < len(b4) - 1:
+        b = b4[j+1]
+        if a.klass() == b.klass():
+          a = a.merge(b)
+          j = j + 1
+      now += [a]
+      j = j + 1
+    return _bridge(b4) if len(now) == len(b4) else i.merges(now)
+
+def _bridge(spans):
+  for j,span in enumerate(spans):
+    if j > 0:
+      spans[j-1].hi = span.lo
+  spans[ 0].lo = -BIG
+  spans[-1].hi =  BIG
+  return spans
+
+# -----------------------------------------------------------------------------
+class DATA(o):
+  def __init__(i): 
+    i.cols,i.rows = None,[]
+
+  def clone(i):
+    return DATA().add(i.cols.names)
+
+  def sorted(i, rows=None):
+    return (rows or i.rows).sort(key=lambda r: i.ydist(r))
+
+  def adds(i,src): 
+    [i.add(row) for row in src]    
+    return i
+
+  def add(i,row):
+    if i.cols: 
+       [col.add(row[col.pos]) for col in i.cols.all] 
+       i.rows.append( row )
+    else:
+       i.cols = o(names=row, all=[], x=[], y=[])
+       i.cols.all = [(NUM if s[0].isupper() else SYM)(s,i) for i,s in enumerate(row)]
+       for c in i.cols.all:
+         if c.txt[-1] != "X":
+           (i.cols.y if c.txt[-1] in "+-" else i.cols.x).append(c)
+
+  def ydist(i,row):
+    return (sum((row[y.pos] - y.goal)**the.p for y in i.cols.y) /len(i.cols.y))**(1/the.p)
+
+  def classify(i, rows=None):
+    rows = i.sorted(rows)
+    m = int(len(rows)**0.5)
+    n = len(rows) - m
+    y = i.ydist(rows[n])
+    return lambda r: i.ydist(r) < y, {True:m, False:n}
+
+  def bins(i):
+    Y,ys = i.classify(i.rows)
+    all = []
+    for col in i.cols.x:
+      tmp =  col.bins(Y, i.rows, ys)
+      if len(tmp) > 1:
+        all.extend(tmp)
+        
+# -----------------------------------------------------------------------------
 def show(d):
   if type(d)==str        : return d
   if type(d)==type(show) : return  d.__name__+'()'
@@ -49,10 +227,7 @@ def csv(f):
       yield [coerce(s) for s in line.split(",")]
 
 def first(l): return l[0]
-
-def ent(d):
- N = sum(d.values())
- return - sum(n/N * log(n/N,2) for n in d.values())
+def second(l): return l[1]
 
 def powerset(nums):
   result = [[]]
@@ -60,84 +235,17 @@ def powerset(nums):
     result += [subset + [num] for subset in result]
   return result
 
-# -----------------------------------------------------------------------------
-def show(s,lo,hi,*_):
-  if lo == -BIG : return f"{s} <= {hi}"  
-  if hi ==  BIG : return f"{s}  > {lo}"  
-  if lo ==  hi   : return f"{s} == {lo}"  
-  return f"{lo} < {s} <= {hi}"  
+def fyi(*args, **kwargs):
+  say(*args, file=sys.stderr, **kwargs)
 
-def norm(n,lo,hi):
-   return (n-lo)/(hi - lo + 1/BIG)
-
-def klass(head,rows):
-  ys = {col:[BIG,-BIG,goal] for c,goal in (("-",0),("+",1)) 
-                            for col,s in enumerate(head) 
-                            if s[-1] == c and s[-1] != "X"}
-    def ydist(row):
-    d = sum(abs(norm(row[col],lo,hi) - goal)**2 for col,(lo,hi,goal) in ys.items())
-    return (d / len(ys))**0.5
-
-  for col,etc in ys.items():
-    for row in rows:
-      etc[0] = min(etc[0], row[col])
-      etc[1] = max(etc[1], row[col])
-  return ydist, dist(sorted(rows, key=ydist)[ int(len(rows)**0.5) ])
-
-def data(src, **keys):
-  head,*rows = [r for r in src]
-  Y,border = klass(head,rows)
-  for col,s in enumerate(head): 
-    if s[-1] not in "+-X"]:
-      xys = sorted([(r[col],Y(r) < border) for r in rows if r[col] != "?"],key=first)
-      nums(col,xys,**keys) if  s[0].isupper() else syms(col,sys)
-
-def syms(col,xys):
-  ds={}
-  for x,y in xys:
-    d = ds[y] = ds.get(y,{})
-    key = (x,x,col)
-    d[key] = d.get(key,0) + 1
-  return ds
-
-def nums(col,xys, cohen=0.35, bins=17):
-  ten   = len(xys) // 10
-  small = ((xys[9*ten][0] - xys[ten][0])/2.56) * cohen
-  few   = len(xys) / bins
-  x     = xys[0][0]
-  b     = (x,x,col)
-  bins  = {b:0}
-  for i,(x,y) in enumerate(xys):
-    if i < len(xys) - few and x != xys[i+1][0] and b[1] - b[0] > small and bins[b] > few:
-      if last 
-      b1 = (x,x,col)
-      if last: then ....
-      last = b
-      bins[b] = 0
-    b[1]  = x
-    bins[b] += 1
-  return bridge(merges(bins)))
-
-def bridge(bins):
-  for i,four in enumerate(bins):
-    if i>0:
-       bins[i-1][1] = bins[i][0]
-  bins[0][0] = -BIG
-  bins[-1][1] = BIG
-  return bins
-
-def dull(i,j):
-  k = {}
-  for d in [i,j]:
-    for x,n in d.items(): k[x] = k.get(x,0)  + n
-  n1,n2 = sum(i.values()), sum(j.values())
-  if ent(k) <= (n1*ent(i) + n2*ent(j))/(n1+n2): return k
+def say(*args, **kwargs):
+  if the.loud: print(*args, **kwargs)
 
 #------------------------------------------------------------------------------
-def eg_csv(_):
+def cli_csv(_):
   for row in csv(the.train): print(row)
 
-def eg_data(_):
+def cli_data(_):
   head,*rows = [r for r in csv(the.train)]
   print(head)
   Y,K = klass(head,rows)
@@ -145,7 +253,7 @@ def eg_data(_):
     if i % 30 == 0: print(i,K(row),row)
   
 if __name__== "__main__":
-  random.seed(the.seed)
   for j,s in enumerate(sys.argv):
-    if todo := vars().get(re.sub("^--","eg_",s)):
-      todo(sys.argv[j+1] if j < len(sys.argv) - 1 else None)
+    if todo := vars().get(re.sub("^-","cli_",s)):
+      random.seed(the.seed)
+      todo( sys.argv[j+1] if j < len(sys.argv) - 1 else None )
