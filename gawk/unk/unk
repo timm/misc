@@ -1,0 +1,17 @@
+#!/bin/sh -e
+alias c=cat q=test e=echo  # Define aliases
+rm -rf O; mkdir -p O  # Clean up and create output directory
+q -f TM || e '`<$F`' > TM  # Ensure the template file exists
+q -d S && cp -r S O/  # Copy directory S to O if it exists
+
+X() { eval "$(e 'c<<ZZ'; c "$@"; e; e ZZ)"; }  # Function to process files
+
+for F in I/*; do
+    q -f "$F" && (  # Check if file exists
+        e $F  # Echo file name
+        N="${F#I/}"  # Strip "I/" prefix
+        T() { sed 1q "$F"; }  # Extract first line
+        B() { sed 1d "$F"; }  # Extract all but the first line
+        X TM > "O/${N%%.*}.htm"  # Process file using template
+    )
+done

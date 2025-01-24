@@ -1,0 +1,33 @@
+#!/usr/bin/awk -f
+
+# Function to process tags in the text
+function s(t, i) {
+    while (match($0, t)) {
+        if (I[ni] == i) {
+            ni -= sub(t, "</" i ">")  # Close tag
+        } else if (sub(t, "<" i ">")) {
+            I[++ni] = i  # Open tag
+        }
+    }
+}
+
+# BEGIN block to initialize field and record separators and index
+BEGIN {
+    FS = "\n"      # Field separator: newline
+    RS = ""        # Record separator: blank lines (paragraph mode)
+    ni = 0         # Initialize nesting index
+}
+
+# Main block to process each record
+{
+    # Wrap non-tagged text in <p> tags
+    $0 = (match($0, /^<.*>$/)) ? $0 : "<p>" $0 "</p>"
+
+    # Process formatting for strong, em, and code tags
+    s("__", "strong")
+    s("\\*", "em")
+    s("`", "code")
+
+    # Print the processed record
+    print
+}
