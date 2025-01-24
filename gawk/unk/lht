@@ -1,4 +1,4 @@
-#!/usr/bin/awk -f
+#!/usr/bin/env gawk   -f
 
 # Function to process tags in the text
 function s(t, i) {
@@ -19,6 +19,20 @@ BEGIN {
 }
 
 # Main block to process each record
+/^<pre>/   { 
+    gsub(/</,"\\&lt;"); 
+    gsub(/\<(and|or|not|in|is)\>/, "<b><font color=black>&</font></b>")
+    gsub(/\<(if|else|while|for|do|break|continue|exit)\>/, "<b><font color=blue>&</font></b>")
+    gsub(/\<(length|substr|match|split|index|sprintf|gsub|sub|tolower|toupper|system|close)\>/, "<b><font color=green>&</font></b>")
+    gsub(/\<(BEGIN|END|NR|NF|FS|OFS|RS|ORS|FILENAME|ARGV|ARGC)\>/, "<b><font color=purple>&</font></b>")
+    gsub(/\<(print|printf|getline)\>/, "<b><font color=red>&</font></b>")
+    gsub(/\<(true|false|null)\>/, "<b><font color=olive>&</font></b>")
+    gsub(/\<(getline|next|nextfile|close)\>/, "<b><font color=teal>&</font></b>")
+    print "<pre>"
+    for(i=2;i<NF;i++) {print $i } 
+    print "</pre>"
+    next}
+
 {
     # Wrap non-tagged text in <p> tags
     $0 = (match($0, /^<.*>$/)) ? $0 : "<p>" $0 "</p>"

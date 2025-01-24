@@ -3,8 +3,13 @@
 <title><h1>UNK</h1></title>
 
 <style>
-      body { max-width: 70ch; padding: 1em; margin: auto; }
-      #toc { background: pink; padding: 1em; display: block; }
+      body { max-width: 70ch; padding: 1em; margin: auto; 
+            font-family:  -apple-system, BlinkMacSystemFont, avenir next, avenir,
+                        segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, 
+                        arial, sans-serif;
+            background-color: #c0c0c0; } /* Classic HTML 1.0 gray */
+      pre { border: 1px dotted blue; padding:5px; background-color: #FFF; }
+      #toc { background: white; padding: 2em; display: block; }
     </style>
 
 <h1><h1>UNK</h1></h1>
@@ -34,6 +39,40 @@ and involved as you like, but it's pretty good already:</p>
         <code>&lt;title&gt;</code>, and a <code>&lt;h1&gt;</code>
         in the generated HTML</li>
 </ul>
+<pre>
+#!/usr/bin/awk -f
+# Function to process tags <b><font color=black>in</font></b> the text
+function s(t, i) {
+    <b><font color=blue>while</font></b> (<b><font color=green>match</font></b>($0, t)) {
+        <b><font color=blue>if</font></b> (I[ni] == i) {
+            ni -= <b><font color=green>sub</font></b>(t, "&lt;/" i ">")  # Close tag
+        } <b><font color=blue>else</font></b> <b><font color=blue>if</font></b> (<b><font color=green>sub</font></b>(t, "&lt;" i ">")) {
+            I[++ni] = i  # Open tag
+        }
+    }
+}
+    
+# <b><font color=purple>BEGIN</font></b> block to initialize field <b><font color=black>and</font></b> record separators <b><font color=black>and</font></b> <b><font color=green>index</font></b>
+<b><font color=purple>BEGIN</font></b> {
+    <b><font color=purple>FS</font></b> = "\n"      # Field separator: newline
+    <b><font color=purple>RS</font></b> = ""        # Record separator: blank lines (paragraph mode)
+    ni = 0         # Initialize nesting <b><font color=green>index</font></b>
+}
+    
+# Main block to process each record
+{
+    # Wrap non-tagged text <b><font color=black>in</font></b> tags
+    $0 = (<b><font color=green>match</font></b>($0, /^&lt;.*>$/)) ? $0 : "&lt;p>" $0 "&lt;/p>"
+    
+    # Process formatting <b><font color=blue>for</font></b> strong, em, <b><font color=black>and</font></b> code tags
+    s("*", "strong")
+    s("\\_", "em")
+    s("`", "code")
+    
+    # Print the processed record
+    <b><font color=red>print</font></b>
+}
+</pre>
 <h1>INSTALLING &amp; RUNNING</h1>
 <a href="https://git.sr.ht/~acdw/unk"><strong>OFFICIAL REPO</strong></a> //
 <a href="https://github.com/duckwork/unk"><strong>GITHUB MIRROR</strong></a>

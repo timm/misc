@@ -31,6 +31,41 @@ and involved as you like, but it's pretty good already:
         in the generated HTML</li>
 </ul>
 
+<pre>
+#!/usr/bin/awk -f
+# Function to process tags in the text
+function s(t, i) {
+    while (match($0, t)) {
+        if (I[ni] == i) {
+            ni -= sub(t, "</" i ">")  # Close tag
+        } else if (sub(t, "<" i ">")) {
+            I[++ni] = i  # Open tag
+        }
+    }
+}
+    
+# BEGIN block to initialize field and record separators and index
+BEGIN {
+    FS = "\n"      # Field separator: newline
+    RS = ""        # Record separator: blank lines (paragraph mode)
+    ni = 0         # Initialize nesting index
+}
+    
+# Main block to process each record
+{
+    # Wrap non-tagged text in tags
+    $0 = (match($0, /^<.*>$/)) ? $0 : "<p>" $0 "</p>"
+    
+    # Process formatting for strong, em, and code tags
+    s("*", "strong")
+    s("\\_", "em")
+    s("`", "code")
+    
+    # Print the processed record
+    print
+}
+</pre>
+
 <h1>INSTALLING &amp; RUNNING</h1>
 
 <a href="https://git.sr.ht/~acdw/unk"><strong>OFFICIAL REPO</strong></a> //
