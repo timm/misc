@@ -1,4 +1,5 @@
 #!/usr/bin/env gawk   -f
+@include "color.awk"
 
 # Function to process tags in the text
 function s(t, i) {
@@ -6,42 +7,53 @@ function s(t, i) {
         if (I[ni] == i) {
             ni -= sub(t, "</" i ">")  # Close tag
         } else if (sub(t, "<" i ">")) {
-            I[++ni] = i  # Open tag
-        }
-    }
-}
+            I[++ni] = i  }}}  # Open tag
 
 # BEGIN block to initialize field and record separators and index
 BEGIN {
+    scheme="colorful"
     FS = "\n"      # Field separator: newline
     RS = ""        # Record separator: blank lines (paragraph mode)
     ni = 0         # Initialize nesting index
 }
-
+    
 # Main block to process each record
 /^<pre>/   { 
     gsub(/</,"\\&lt;"); 
-    gsub(/\<(and|or|not|in|is)\>/, "<b><font color=black>&</font></b>")
-    gsub(/\<(if|else|while|for|do|break|continue|exit)\>/, "<b><font color=blue>&</font></b>")
-    gsub(/\<(length|substr|match|split|index|sprintf|gsub|sub|tolower|toupper|system|close)\>/, "<b><font color=green>&</font></b>")
-    gsub(/\<(BEGIN|END|NR|NF|FS|OFS|RS|ORS|FILENAME|ARGV|ARGC)\>/, "<b><font color=purple>&</font></b>")
-    gsub(/\<(print|printf|getline)\>/, "<b><font color=red>&</font></b>")
-    gsub(/\<(true|false|null)\>/, "<b><font color=olive>&</font></b>")
-    gsub(/\<(getline|next|nextfile|close)\>/, "<b><font color=teal>&</font></b>")
     print "<pre>"
-    for(i=2;i<NF;i++) {print $i } 
+    for(i=2;i<NF;i++) {print colors($i,scheme) } 
     print "</pre>"
-    next}
-
-{
-    # Wrap non-tagged text in <p> tags
+    next
+}
+{   # Wrap non-tagged text in <p> tags
     $0 = (match($0, /^<.*>$/)) ? $0 : "<p>" $0 "</p>"
-
+    
     # Process formatting for strong, em, and code tags
     s("__", "strong")
     s("\\*", "em")
     s("`", "code")
-
+   
     # Print the processed record
     print
+}
+
+# Function to apply colors based on the selected color scheme
+function colors(line, scheme,       the,x) {
+    # Define the for each this
+    the["logic"] = "\\<(and|or|not|in|is)\\>"
+    the["control"] = "\\<(if|else|while|for|do|break|continue|exit)\\>"
+    the["builtins"] = "\\<(length|substr|match|split|index|sprintf|gsub|sub|tolower|toupper|system|close)\\>"
+    the["specials"] = "\\<(BEGIN|END|NR|NF|FS|OFS|RS|ORS|FILENAME|ARGV|ARGC)\\>"
+    the["output"] = "\\<(print|printf|getline)\\>"
+    the["constants"] = "\\<(true|false|null)\\>"
+    the["fileops"] = "\\<(getline|next|nextfile|close)\\>"
+    the["function"] = "\\<function\\>"
+    if (!(scheme in color)) {
+        print "Error: Invalid color scheme '" scheme "'"
+        exit 1 }
+    for (x in the) {
+        if (x in color[scheme]) {
+            gsub(the[x], "<b><font color=\"" color[scheme][x]          "\">&</font></b>", line) }}
+    gsub(/# .*$/,        "<b><font color=\"" color[scheme]["comments"] "\">&</font></b>", line)
+    return line
 }

@@ -37,15 +37,15 @@ class o:
   __repr__ = lambda i    : i.__class__.__name__ + show(i.__dict__)
 
 the = o(seed= 1234567891,
-          cliffs=0.197,
-          boots=512,
-          conf=0.05,
-          k=1,
-          m=2,
-          stop=256,
-          loud=True,
-          train="../../moot/optimize/misc/auto93.csv",
-          top=6)
+        cliffs=0.197,
+        boots=512,
+        conf=0.05,
+        k=1,
+        m=2,
+        stop=256,
+        loud=True,
+        train="../../moot/optimize/misc/auto93.csv",
+        top=6)
 
 def cli_h(_) : print("\n" + __doc__)
 def cli_o(_) : print(the)
@@ -193,7 +193,7 @@ class DATA(o):
   def ydist(i,row):
     return (sum((row[y.pos] - y.goal)**the.p for y in i.cols.y) /len(i.cols.y))**(1/the.p)
 
-  def classify(i, rows=None):
+  def klassify(i, rows=None):
     rows = i.sorted(rows)
     m = int(len(rows)**0.5)
     n = len(rows) - m
@@ -201,7 +201,7 @@ class DATA(o):
     return lambda r: i.ydist(r) < y, {True:m, False:n}
 
   def bins(i):
-    Y,ys = i.classify(i.rows)
+    Y,ys = i.klassify(i.rows)
     all = []
     for col in i.cols.x:
       tmp =  col.bins(Y, i.rows, ys)

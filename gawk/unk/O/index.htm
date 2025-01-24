@@ -7,9 +7,14 @@
             font-family:  -apple-system, BlinkMacSystemFont, avenir next, avenir,
                         segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, 
                         arial, sans-serif;
-            background-color: #c0c0c0; } /* Classic HTML 1.0 gray */
-      pre { border: 1px dotted blue; padding:5px; background-color: #FFF; }
-      #toc { background: white; padding: 2em; display: block; }
+            background-color: #c0c0c0; 
+            background-color: #EEE;
+            } /* Classic HTML 1.0 gray */
+      pre { padding:7px; background-color: #FFF;
+            padding-left:15px;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            }
+      #toc { background: white; padding: 2.2em; display: block; }
     </style>
 
 <h1><h1>UNK</h1></h1>
@@ -39,38 +44,34 @@ and involved as you like, but it's pretty good already:</p>
         <code>&lt;title&gt;</code>, and a <code>&lt;h1&gt;</code>
         in the generated HTML</li>
 </ul>
+<p>----</p>
 <pre>
 #!/usr/bin/awk -f
-# Function to process tags <b><font color=black>in</font></b> the text
-function s(t, i) {
-    <b><font color=blue>while</font></b> (<b><font color=green>match</font></b>($0, t)) {
-        <b><font color=blue>if</font></b> (I[ni] == i) {
-            ni -= <b><font color=green>sub</font></b>(t, "&lt;/" i ">")  # Close tag
-        } <b><font color=blue>else</font></b> <b><font color=blue>if</font></b> (<b><font color=green>sub</font></b>(t, "&lt;" i ">")) {
-            I[++ni] = i  # Open tag
-        }
-    }
+<b><font color="#AAA"># Function to process tags <b><font color="#0000ff">in</font></b> the text</font></b>
+<b><font color="#6f42c1">function</font></b> s(t, i) {
+    <b><font color="#0000ff">while</font></b> (<b><font color="#6f42c1">match</font></b>($0, t)) {
+        <b><font color="#0000ff">if</font></b> (I[ni] == i) {
+            ni -= <b><font color="#6f42c1">sub</font></b>(t, "&lt;/" i ">")  <b><font color="#AAA"># Close tag</font></b>
+        } <b><font color="#0000ff">else</font></b> <b><font color="#0000ff">if</font></b> (<b><font color="#6f42c1">sub</font></b>(t, "&lt;" i ">")) {
+            I[++ni] = i  }}} <b><font color="#AAA"># Open tag</font></b>
+    
+<b><font color="#408080">BEGIN</font></b> { <b><font color="#AAA"># initialize field <b><font color="#0000ff">and</font></b> record separators <b><font color="#0000ff">and</font></b> <b><font color="#6f42c1">index</font></b></font></b>
+  <b><font color="#408080">FS</font></b> = "\n"      <b><font color="#AAA"># Field separator: newline</font></b>
+  <b><font color="#408080">RS</font></b> = ""        <b><font color="#AAA"># Record separator: blank lines (paragraph mode)</font></b>
+  ni = 0         <b><font color="#AAA"># Initialize nesting <b><font color="#6f42c1">index</font></b></font></b>
 }
     
-# <b><font color=purple>BEGIN</font></b> block to initialize field <b><font color=black>and</font></b> record separators <b><font color=black>and</font></b> <b><font color=green>index</font></b>
-<b><font color=purple>BEGIN</font></b> {
-    <b><font color=purple>FS</font></b> = "\n"      # Field separator: newline
-    <b><font color=purple>RS</font></b> = ""        # Record separator: blank lines (paragraph mode)
-    ni = 0         # Initialize nesting <b><font color=green>index</font></b>
-}
+{ <b><font color="#AAA"># Main block to process each record</font></b>
+  <b><font color="#AAA"># Wrap non-tagged text <b><font color="#0000ff">in</font></b> tags</font></b>
+  $0 = (<b><font color="#6f42c1">match</font></b>($0, /^&lt;.*>$/)) ? $0 : "&lt;p>" $0 "&lt;/p>"
     
-# Main block to process each record
-{
-    # Wrap non-tagged text <b><font color=black>in</font></b> tags
-    $0 = (<b><font color=green>match</font></b>($0, /^&lt;.*>$/)) ? $0 : "&lt;p>" $0 "&lt;/p>"
-    
-    # Process formatting <b><font color=blue>for</font></b> strong, em, <b><font color=black>and</font></b> code tags
-    s("*", "strong")
-    s("\\_", "em")
-    s("`", "code")
-    
-    # Print the processed record
-    <b><font color=red>print</font></b>
+  <b><font color="#AAA"># Process formatting <b><font color="#0000ff">for</font></b> strong, em, <b><font color="#0000ff">and</font></b> code tags</font></b>
+  s("*", "strong")
+  s("\\_", "em")
+  s("`", "code")
+  
+  <b><font color="#AAA"># Print the processed record</font></b>
+  <b><font color="#a31515">print</font></b>
 }
 </pre>
 <h1>INSTALLING &amp; RUNNING</h1>
