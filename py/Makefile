@@ -51,3 +51,8 @@ zap:
 
 html:
 	pdoc --logo ort.png -o ~/tmp/x ort.py
+
+scikitInstall:
+	python3 -m venv sklearn-env
+	- source sklearn-env/bin/activate
+	- pip3 install -U scikit-learn

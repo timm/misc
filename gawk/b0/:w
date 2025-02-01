@@ -1,0 +1,99 @@
+local the = {
+  train="../../data/auto93.csv",
+  seed=1234567891,
+  max=256}
+
+math.randomseed(the.seed)
+
+local o,csv,cells,csv,o,new
+
+--------------------------------------------------------------------------
+local Num,Sym,Cols,Data
+
+function Num(s,at) return {n=0, txt=s, at=at, has={}, max=128, ok=false} end
+function Sym(s,at) return {n=0, txt=s, at=at, has={}, mode=nil, most=0} end
+
+function Cols(names,    t,x,y,klass)
+  t,x,y = {},{},{}
+  for at,s in pairs(names) do
+    t[1 + #t] = (s:find"^[A-Z]" and Num or Sym)(s,at)
+    if not s:find"X$" then
+      if s:find"!$" then klass = t[#t] end
+      push(s:find"[!+-]$" and i.y or i.x, t[#t]) end end
+  return  {names=names, all=t, x=x, y=y, klass=klass} end
+
+function Data(names) return {cols=Cols(names), rows={}} end
+
+function add(i,x,      SYM,NUM)
+  SYM= function(a)
+         a[x] = (a[x] or 0) + 1 
+         if a[x] > i.most then i.most,i.mode = a[x],x end end
+  NUM= function(a,     pos)
+         if #a < i.max then pos=#a+1 
+         elseif math.random() < #a/n then pos=math.random(#a) end
+         if pos then
+           a[pos] = x
+           i.ok = false end end 
+  if x ~= "?" then
+    i.n = i.n + 1
+    (i.mode and SYM or NUM)(i.has) end end  
+
+function adds(t, col)   
+  col = col or type(t[1])=="number" and Num() or Sym()
+  for _,x in pairs(t) do add(col,x) end
+  return col end
+
+function ok(i)          if not i.ok then table.sort(i.has); i.ok=true end; return i end
+function norm(i,x)      return x=="?" and x or (x - lo(i))/(hi(i) - lo(i)) end
+function clone(i, rows) return adds(Data(i.cols.names), rows or {}) end
+function mid(i)         return i.mode and i.mode or per(i,0.5) end
+function per(i,n)       return ok(i).has[#i.has*n//1] end
+function hi(i)          return ok(i).has[#i.has] end
+function lo(i)          return ok(i).has[1] end
+function div(i,    e) 
+  if i.mode 
+  then e=0; for _,n in pairs(i.has) do e = e - n/i.n*math.log(n/i.n,2) end; return e 
+  else return (per(i,0.9) - per(i,0.1)) / 2.58 end end
+
+--------------------------------------------------------------------------
+function words(s,     t)
+  if s then
+    t={}
+    for s1 in s:gmatch"([^,]+)" do t[1+#t] = s:match"^%s*(.-)%s*$" end
+    return t end end
+
+function csv(      row,data,rows)
+  rows={}
+  while true do
+    row = words(io.read())
+    if row then 
+      if data then data:add( data.cols:coerce(row)) else data=Data:new(row) end
+    else return data end end end
+
+function Cols:coerce(t)
+  u={}; for k,x in pairs(t) do u[1+#u] = self.all[k]:coerce(x) end; return u end
+
+function New:coerce(s)
+  return s=="?" and s or math.tointeger(s) or tonumber(s) end
+
+function Sym:coerce(s)
+  return s=="?" and s or s=="true" and true or s ~= "false" and s end
+
+function Data:clone(rows,     mew)
+  new=Data:new(self.cols.names)
+  for _,row in pairs(rows or {}) do new:add(row) end
+  return new self
+
+function Data:add(row)
+ for _,col in pairs(self.cols.all) do
+   if col[row.at] ~= "?" then
+     col:add(row[row.at]) end end end
+
+function o(t,     u,fmt)
+  fmt=string.format
+  if type(t) == "number" then 
+    return t//1 == t and tostring(t//1) or fmt("%.3f",t) end
+  if type(t) ~= "table"  then return tostring(t) end
+  u={}; for k,v in pairs(t) do u[1+#u] = #t==0 and fmt(":%s %s",k, o(v)) or o(v) end
+  if #t==0 then table.sort(u) end
+  return "{" .. table.concat(u," ") .. "}" end
