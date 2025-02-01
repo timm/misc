@@ -11,14 +11,23 @@ def DICT(): return field(default_factory=dict)
 
 @dataclass
 class SETTINGS:
+  far:float=0.95
   file:str = "../data/auto93.csv"
   p:int    = 2
   seed:int = 1234567891
   start:int= 4
   step:int = 4
   stop:int = 100
+  xys:int = 32
 
 the = SETTINGS()
+
+#------------------------------------------------------------------------------
+@dataclass
+class ROW: 
+  cells:List=LIST(); x:int=0, y:int=0
+
+  def at(col): return self.cells[col.at])
 
 #------------------------------------------------------------------------------
 @dataclass
@@ -121,11 +130,18 @@ class DATA:
   def drop(self,row1,row2):
      return abs(self.ydist(row1) - self.ydist(row2)) / (d.dist(row1,row2) + 1/Big)
 
-  def cos(self,rowc, rowa,rowb,c=None):
-    a = self.dist(rowc,rowa)
-    b = self.dist(rowc,rowb)
-    c = c or self.dist(rowa,rowb)
-    return (a**2 + c**2 - b**2) / (2*c)
+  def twoFar(rows):
+    far   = int(len(rows) * the.far) 
+    order = lambda two: self.dist(*two)
+    A,B   = sorted(((any(rows), any(rows)) for _ in range(the.xys)), key=order)[far]
+    return A,B, self.dist(A,B)
+
+  def xys(self,rows=None):
+    rows = rows or the.rows
+    A,B,c = self.twoFar(rows)
+    for C in rows:
+      C.x = max(0, min(1, (self.dist(C,A)**2 + c**2 - self.dist(C,B)**2) / (2*c)))
+      C.y = (A**2 - C.x**2)**0.5
 
 #------------------------------------------------------------------------------
 def slope(d):
