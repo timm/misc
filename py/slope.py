@@ -1,3 +1,16 @@
+"""
+  ____    _        ___    ____    _____
+ / ___|  | |      / _ \  |  _ \  | ____|
+ \___ \  | |     | | | | | |_) | |  _|
+  ___) | | |___  | |_| | |  __/  | |___
+ |____/  |_____|  \___/  |_|     |_____|
+
+ Tim Menzies,
+ 2025
+
+
+"""
+
 import re,ast,sys,math,random
 from dataclasses import dataclass, field, fields
 
@@ -24,14 +37,14 @@ the = SETTINGS()
 
 #------------------------------------------------------------------------------
 @dataclass
-class ROW: 
+class ROW:
   cells:List=LIST(); x:int=0, y:int=0
 
   def at(col): return self.cells[col.at])
 
 #------------------------------------------------------------------------------
 @dataclass
-class COL: 
+class COL:
   n:int=0; at:int=9; txt:str=" "
 
   def add(self, v):
@@ -45,22 +58,22 @@ class COL:
 
 #------------------------------------------------------------------------------
 @dataclass
-class SYM(COL): 
+class SYM(COL):
   most:int=0; mode:atom=None; has:dict=DICT()
 
   def add1(self,v):
     self.has[v] = self.has.get(v,0) + 1
-    if self.has[v] > self.most: 
+    if self.has[v] > self.most:
       self.mode, self.most = v, self.has[v]
 
   def dist1(self, u,v): return u != v
 
 #------------------------------------------------------------------------------
 @dataclass
-class NUM(COL): 
+class NUM(COL):
   mu:num=0; m2:num=0; sd:num=0; lo:num=Big; hi:num=-Big; goal:int=1
 
-  def __post_init__(self):  
+  def __post_init__(self):
     if  self.txt and self.txt[-1] == "-": self.goal=0
 
   def add1(self,v):
@@ -83,8 +96,8 @@ class NUM(COL):
 #------------------------------------------------------------------------------
 @dataclass
 class COLS:
-  names : list[str]   
-  all   : list[COL] = LIST() 
+  names : list[str]
+  all   : list[COL] = LIST()
   x     : list[COL] = LIST()
   y     : list[COL] = LIST()
   klass : COL = None
@@ -106,11 +119,11 @@ class COLS:
 #------------------------------------------------------------------------------
 @dataclass
 class DATA:
-  cols:COLS = None; rows:LIST = LIST() 
+  cols:COLS = None; rows:LIST = LIST()
 
   def add(self,row):
     if    self.cols: self.rows += [self.cols.add(row)]
-    else: self.cols = COLS(names=row) 
+    else: self.cols = COLS(names=row)
     return self
 
   def clone(self, rows=[]):
@@ -131,7 +144,7 @@ class DATA:
      return abs(self.ydist(row1) - self.ydist(row2)) / (d.dist(row1,row2) + 1/Big)
 
   def twoFar(rows):
-    far   = int(len(rows) * the.far) 
+    far   = int(len(rows) * the.far)
     order = lambda two: self.dist(*two)
     A,B   = sorted(((any(rows), any(rows)) for _ in range(the.xys)), key=order)[far]
     return A,B, self.dist(A,B)
@@ -147,7 +160,7 @@ class DATA:
 def slope(d):
   rows = shuffle(d.rows)
   done, todo = rows[:the.start], rows[the.start:]
-  _,A,B = sorted([(d.drop(r1,r2),r1,r2) for r1 in done for r2 in done if id(r1) > id(r2)], 
+  _,A,B = sorted([(d.drop(r1,r2),r1,r2) for r1 in done for r2 in done if id(r1) > id(r2)],
                    key=of(0), reversed=True)[0]
   c = d.dist(A,B)
   for _ in range(256):
@@ -155,7 +168,7 @@ def slope(d):
      tmp += [(abs(d.cos(todo[i],A,B,c) - 0.5),i)]
   done += [ todo.pop( sorted(tmp,key=of(0))[0][1] )]
 
-  
+
 #------------------------------------------------------------------------------
 def adds(it,what=None):
   it=iter(it)
@@ -163,7 +176,7 @@ def adds(it,what=None):
   what = what or (NUM if isinstance(one, (float,int)) else SYM)()
   what.add(one)
   [what.add(v) for v in it]
-  return what 
+  return what
 
 def coerce(s):
   try: return ast.literal_eval(s)
@@ -181,7 +194,7 @@ def any(lst)     : return random.choice(lst)
 def it(v,k)      : return v.__dict__[k]
 def rit(v,k,n)   : return round(it(v,k),n)
 def shuffle(lst) : random.shuffle(lst); return lst
-def of(n): 
+def of(n):
   return lambda v: v[n]
 
 def xval(lst, m:int=5, n:int=5, some=10**6):
@@ -208,8 +221,8 @@ class eg:
     assert adds("aaaabbc",SYM()).mode == "a"
 
   def num(_) :
-    N=lambda mu,sd: ((mu or 0) + 
-                     (sd or 1) * math.sqrt(-2*math.log(rand())) 
+    N=lambda mu,sd: ((mu or 0) +
+                     (sd or 1) * math.sqrt(-2*math.log(rand()))
                                * math.cos(2*math.pi*rand()))
     num1 = NUM()
     for _ in range(10000): num1.add(N(10,2))
@@ -228,7 +241,7 @@ class eg:
   def xdist(_):
      d=adds(csv(the.file),DATA())
      n = NUM()
-     for _ in range(1000): 
+     for _ in range(1000):
        n.add( d.dist( any(d.rows), any(d.rows)))
      print({k: it(n,k,3) for k in "mu sd lo hi n".split()})
 
