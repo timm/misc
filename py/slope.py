@@ -1,6 +1,15 @@
+#!/usr/bin/env python3 -B
+"""
+slope.py : active learning, focusing on regions of max dy/dx   
+(c) Tim Menzies <timm@ieee.org>, MIT license.   
+
+OPTIONS:  
+"""
+
 import re,ast,sys,math,random
 from dataclasses import dataclass, field, fields
 
+PYTHONDONTWRITEBYTECODE = False
 rand=random.random
 
 num  = float | int
@@ -15,6 +24,8 @@ def DICT(): return field(default_factory=dict)
 class SETTINGS:
   far:float = 0.95
   file:str  = "../data/auto93.csv"
+  k:int     = 1
+  m:int     = 2
   p:int     = 2
   seed:int  = 1234567891
   start:int = 4
@@ -24,7 +35,22 @@ class SETTINGS:
 
 the = SETTINGS()
 
-#------------------------------------------------------------------------------
+def eg__the(_)  :   
+  "show settings"
+  print(the)
+
+def eg__seed(n=None): 
+  "reset seed      : int"
+  the.seed = n or the.seed
+
+def eg_h(_):
+  "show help"
+  print(__doc__)
+  for k,f in sorted(globals().items()):
+    if k[:2] == "eg":
+      print("    {:10s} {:s}".format(k[2:].replace("_","-"), f.__doc__ or ""))
+
+#------------------------------------------------------------------------------
 @dataclass
 class ROW:
   cells:list=LIST(); x:int=0; y:int=0
@@ -57,6 +83,13 @@ class SYM(COL):
 
   def dist1(self, u,v): return u != v
 
+  def like(self, v, prior):
+    return (self.has.get(v,0) + the.m*prior) / (self.n + the.m)
+
+def eg__sym(_): 
+  "test SYMs"
+  assert adds("aaaabbc",SYM()).mode == "a"
+
 #------------------------------------------------------------------------------
 @dataclass
 class NUM(COL):
@@ -79,8 +112,24 @@ class NUM(COL):
     v = v if v !="?" else (1 if u<0.5 else 0)
     return abs(u-v)
 
+  def like(self, v, _):
+    sd    = self.sd + 1/Big
+    nom   = math.exp(-1*(v - self.mu)**2/(2*sd*sd))
+    denom = (2*math.pi*sd*sd) ** 0.5
+    return max(0, min(1, nom/denom))
+
   def norm(self,v):
     return v if v=="?" else  ((v - self.lo) / (self.hi - self.lo + 1/Big))
+
+def eg__num(_) :
+  "test NUMs"
+  N=lambda mu,sd: ((mu or 0) +
+                   (sd or 1) * math.sqrt(-2*math.log(rand()))
+                             * math.cos(2*math.pi*rand()))
+  num1 = NUM()
+  for _ in range(10000): num1.add(N(10,2))
+  assert abs(10- num1.mu) < 0.05
+  assert abs(2 - num1.sd) < 0.05
 
 #------------------------------------------------------------------------------
 @dataclass
@@ -122,15 +171,16 @@ class DATA:
     tmp = sum(col.dist(row1[col.at], row2[col.at])**the.p for col in self.cols.x)
     return (tmp / len(self.cols.x))**(1/the.p)
 
-  def ydist(self, row):
-    tmp = sum((col.norm(row[col.at]) - col.goal)**the.p for col in self.cols.y)
-    return (tmp / len(self.cols.y))**(1/the.p)
+  def drop(self,row1,row2):
+    return abs(self.ydist(row1) - self.ydist(row2)) / (self.dist(row1,row2) + 1/Big)
+
+  def loglike(self, row, nall=1000, nh=2):
+    prior = (len(self.rows) + the.k) / (nall + the.k*nh)
+    likes = [col.like(row[col.at], prior) for col in self.cols.x if row[col.at] != "?"]
+    return sum(math.log(v) for v in likes + [prior] if v>0)
 
   def neighbors(self, row1, rows=None):
-     return sorted(rows or self.rows, key=lambda row2:self.dist(row1,row2))
-
-  def drop(self,row1,row2):
-     return abs(self.ydist(row1) - self.ydist(row2)) / (self.dist(row1,row2) + 1/Big)
+    return sorted(rows or self.rows, key=lambda row2:self.dist(row1,row2))
 
   def twoFar(self,rows):
     far   = int(len(rows) * the.far)
@@ -145,6 +195,38 @@ class DATA:
       C.x = max(0, min(1, (self.dist(C,A)**2 + c**2 - self.dist(C,B)**2) / (2*c)))
       C.y = (A**2 - C.x**2)**0.5
 
+  def ydist(self, row):
+    tmp = sum((col.norm(row[col.at]) - col.goal)**the.p for col in self.cols.y)
+    return (tmp / len(self.cols.y))**(1/the.p)
+
+
+def eg__data(_):
+   "test DATA"
+   d = adds(csv(the.file),DATA())
+   [print(col) for col in d.cols.x]
+
+def eg__ysort(_):
+   "sort rows by distance to goal"
+   d = adds(csv(the.file),DATA())
+   for i,row in enumerate(sorted(d.rows, key=lambda row: d.ydist(row))):
+     if i % 30==0 : print(row)
+
+def eg__xdist(_):
+   "test distance calcs"
+   d = adds(csv(the.file),DATA())
+   n = NUM()
+   for _ in range(1000):
+     n.add( d.dist( any(d.rows), any(d.rows)))
+   print({k: rit(n,k,3) for k in "mu sd lo hi n".split()})
+
+def eg__bayes(_):
+   "test bayes"
+   d = adds(csv(the.file),DATA())
+   n = NUM()
+   for row in d.rows:
+     n.add( d.loglike(row,10000,2))
+   print({k: rit(n,k,3) for k in "mu sd lo hi n".split()})
+
 #------------------------------------------------------------------------------
 def slope(d):
   rows = shuffle(d.rows)
@@ -156,7 +238,6 @@ def slope(d):
      i = random.randint(0,len(todo)-1)
      tmp += [(abs(d.cos(todo[i],A,B,c) - 0.5),i)]
   done += [ todo.pop( sorted(tmp,key=of(0))[0][1] )]
-
 
 #------------------------------------------------------------------------------
 def adds(it,what=None):
@@ -177,6 +258,10 @@ def csv(file):
     for line in src:
       line = re.sub(r'([\n\t\r ]|#.*)', '', line)
       if line: yield [coerce(s.strip()) for s in line.split(",")]
+
+def eg__csv(_): 
+  "test csv load"
+  [print(row) for row in csv(the.file)]
 
 def rand(n=1)    : return n*random.random()
 def any(lst)     : return random.choice(lst)
@@ -200,44 +285,9 @@ def xval(lst, m:int=5, n:int=5, some=10**6):
       yield train,test
 
 #------------------------------------------------------------------------------
-class eg:
-  def the(_)  : print(the)
-  def seed(n) : the.seed = n
-  def csv(_)  :
-    for row in csv(the.file): print(row)
-
-  def sym(_) :
-    assert adds("aaaabbc",SYM()).mode == "a"
-
-  def num(_) :
-    N=lambda mu,sd: ((mu or 0) +
-                     (sd or 1) * math.sqrt(-2*math.log(rand()))
-                               * math.cos(2*math.pi*rand()))
-    num1 = NUM()
-    for _ in range(10000): num1.add(N(10,2))
-    assert abs(10- num1.mu) < 0.05
-    assert abs(2 - num1.sd) < 0.05
-
-  def data(_):
-     d=adds(csv(the.file),DATA())
-     [print(col) for col in d.cols.x]
-
-  def ysort(_):
-     d=adds(csv(the.file),DATA())
-     for i,row in enumerate(sorted(d.rows, key=lambda row: d.ydist(row))):
-       if i % 30==0 : print(row)
-
-  def xdist(_):
-     d=adds(csv(the.file),DATA())
-     n = NUM()
-     for _ in range(1000):
-       n.add( d.dist( any(d.rows), any(d.rows)))
-     print({k: it(n,k,3) for k in "mu sd lo hi n".split()})
-
-#------------------------------------------------------------------------------
 if __name__ == "__main__":
   for i,s in enumerate(sys.argv):
-    if fun := getattr(eg, re.sub("^[-]+","",s), None):
+    if fun := vars().get("eg" + s.replace("-","_")):
        arg = None if i==len(sys.argv) - 1 else sys.argv[i+1]
        random.seed(the.seed)
        fun(coerce(arg))
