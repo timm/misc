@@ -1,18 +1,7 @@
-"""
-  ____    _        ___    ____    _____
- / ___|  | |      / _ \  |  _ \  | ____|
- \___ \  | |     | | | | | |_) | |  _|
-  ___) | | |___  | |_| | |  __/  | |___
- |____/  |_____|  \___/  |_|     |_____|
-
- Tim Menzies,
- 2025
-
-
-"""
-
 import re,ast,sys,math,random
 from dataclasses import dataclass, field, fields
+
+rand=random.random
 
 num  = float | int
 atom = num | bool | str # and sometimes "?"
@@ -24,23 +13,23 @@ def DICT(): return field(default_factory=dict)
 
 @dataclass
 class SETTINGS:
-  far:float=0.95
-  file:str = "../data/auto93.csv"
-  p:int    = 2
-  seed:int = 1234567891
-  start:int= 4
-  step:int = 4
-  stop:int = 100
-  xys:int = 32
+  far:float = 0.95
+  file:str  = "../data/auto93.csv"
+  p:int     = 2
+  seed:int  = 1234567891
+  start:int = 4
+  step:int  = 4
+  stop:int  = 100
+  xys:int   = 32
 
 the = SETTINGS()
 
 #------------------------------------------------------------------------------
 @dataclass
 class ROW:
-  cells:List=LIST(); x:int=0, y:int=0
+  cells:list=LIST(); x:int=0; y:int=0
 
-  def at(col): return self.cells[col.at])
+  def at(self,col): return self.cells[col.at]
 
 #------------------------------------------------------------------------------
 @dataclass
@@ -93,7 +82,7 @@ class NUM(COL):
   def norm(self,v):
     return v if v=="?" else  ((v - self.lo) / (self.hi - self.lo + 1/Big))
 
-#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 @dataclass
 class COLS:
   names : list[str]
@@ -141,9 +130,9 @@ class DATA:
      return sorted(rows or self.rows, key=lambda row2:self.dist(row1,row2))
 
   def drop(self,row1,row2):
-     return abs(self.ydist(row1) - self.ydist(row2)) / (d.dist(row1,row2) + 1/Big)
+     return abs(self.ydist(row1) - self.ydist(row2)) / (self.dist(row1,row2) + 1/Big)
 
-  def twoFar(rows):
+  def twoFar(self,rows):
     far   = int(len(rows) * the.far)
     order = lambda two: self.dist(*two)
     A,B   = sorted(((any(rows), any(rows)) for _ in range(the.xys)), key=order)[far]
@@ -164,7 +153,7 @@ def slope(d):
                    key=of(0), reversed=True)[0]
   c = d.dist(A,B)
   for _ in range(256):
-     i = random.randit(0,len(todo)-1)
+     i = random.randint(0,len(todo)-1)
      tmp += [(abs(d.cos(todo[i],A,B,c) - 0.5),i)]
   done += [ todo.pop( sorted(tmp,key=of(0))[0][1] )]
 
