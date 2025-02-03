@@ -3,7 +3,7 @@
 slope.py : active learning, focusing on regions of max dy/dx   
 (c) Tim Menzies <timm@ieee.org>, MIT license.   
 
-OPTIONS:  
+OPTIONS:   
 """
 
 import re,ast,sys,math,random
