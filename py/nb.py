@@ -17,7 +17,7 @@ Big  = 1E32
 
 class o:
   __init__ = lambda i,**d: i.__dict__.update(**d)
-  __repr__ = lambda i    : i.__class__.__name__ + str(i.__dict__)
+  __repr__ = lambda i    : show(i)
 
 #----------------------------------------------------------------------------------------
 def Num(txt=" ", at=0): 
@@ -31,8 +31,9 @@ def Data(src):
   return adds(src, o(it=Data, n=0, rows={}, cols=None))
 
 def Cols(names):
-  x,y,all = [], [], [(Num if s[0].isUpper(0) else Sym)(s,n) for n,s in enumerate(names)]
-  for col in all:
+  x,y,all = [], [],[]
+  for col in [(Num if s[0].isUpper(0) else Sym)(s,n) for n,s in enumerate(names)]:
+    all.append(col)
     if col.txt[-1] != "X":
       (y if col.txt[-1] in "+-!" else x).append(col)
       if col.txt[-1] == "!": klass=col
@@ -40,27 +41,65 @@ def Cols(names):
 
 #----------------------------------------------------------------------------------------
 def add(v,i):
-  def _data( row ):
-    if    i.cols: i.rows += [ [add(row[col.at], col) for col in i.cols.all] ]
-    else: i.cols = Cols(row)
+  def _data():
+    if i.cols: i.rows += [ [add( v[col.at], col) for col in i.cols.all] ]
+    else: i.cols = Cols(v)
 
-  def _sym( sym ):
-   n = i.has[sym] = 1 + i.has.get(sym,0)
+  def _sym():
+   n = i.has[v] = 1 + i.has.get(v,0)
    if n > i.most: i.most, i.mode = n, v
 
-  def _num( num ):
-    i.lo  = min(num, i.lo)
-    i.hi  = max(num, i.hi)
-    d     = num - i.mu
+  def _num():
+    i.lo  = min(v, i.lo)
+    i.hi  = max(v, i.hi)
+    d     = v - i.mu
     i.mu += d / i.n
-    i.m2 += d * (num -  i.mu)
+    i.m2 += d * (v -  i.mu)
     i.sd  = 0 if i.n <2 else (i.m2/(i.n-1))**.5
 
-  if v=="?": return v
-  i.n += 1
-  (_sym if i.it is Sym else (_num if i.it is Num else _data)(v)
-  return v 
+  if v != "?":
+    i.n += 1 
+    _sym()  if i.it is Sym else ( _num()  if i.it is Num else _data())
+  return i 
 
+def norm(v,col):
+  return v if (v=="?" or col.it is Sym) else (v - col.lo) /  (col.hi - col.lo + 1/Big)
+
+def mid(col): return col.mu if col.it is Num else col.mode
+
+def spread(col): return col.sd if col.it is Num else ent(col.has)
+
+def eg__data(_):
+  adds(csv(the.file), Data())
+
+#----------------------------------------------------------------------------------------
+def like(lst, data, nall=100, nh=2):
+  def _like1(v,col):
+    if col.it is Sym: 
+      return (sym.has.get(v,0) + the.m*prior) / (sym.n + the.m)
+    else:
+      sd    = col.sd + 1/Big
+      nom   = math.exp(-1*(v - col.mu)**2/(2*sd*sd))
+      denom = (2*math.pi*sd*sd) ** 0.5
+      return max(0, min(1, nom/denom))
+
+  prior= (data.n + the.k) / (nall + the.k*nh)
+  likes= [like1(lst[col.at], col) for col in data.cols.x if lst[col.at]!="?"]
+  return sum(math.log(like) for like in likes + [prior] if like>0)
+
+def activeLearning(data):
+  bests, todos = data.rows[:8],  random.shuffle(rows[8:])
+  rests, todos = todos[:32], todos[32:]
+  best,  rest  = adds(bests,Data()), adds(rests,Data())
+  maybe = []
+  for _ in range(the.actives):
+    n = best.n + rest.n
+    j = random.randint(0,len(todos))
+    row = todo[j]
+    maybe += [(likes(row,best,n, 2) / likes(row,rest,n,2), row,j)]
+  _,_,j = max(maybe, key = lambda lrowj: lrowj[0])
+  done += [todo.pop(j)]
+  
 #----------------------------------------------------------------------------------------
 def adds(src, i=None):
   for x in src:
@@ -68,7 +107,9 @@ def adds(src, i=None):
     add(x,i)
   return i
 
-def mode(d): return max(d, key=d.get)
+def ent(d):
+  N = sum(n for n in d.values())
+  return -sum(n/N * math.log(n/N.2) for n in d.values())
 
 def coerce(s):
   try: return ast.literal_eval(s)
@@ -81,6 +122,16 @@ def cli(d):
         d[k] = coerce("False" if str(v) == "True"  else (
                       "True"  if str(v) == "False" else (
                       sys.argv[c+1] if c < len(sys.argv) - 1 else str(v))))
+
+def show(x):
+  it = type(x)
+  if it == float: return str(round(x,the.decs))
+  if it == list:  return ', '.join([show(v) for v in x])
+  if it == dict:  return "("+' '.join([f":{k} {show(v)}" for k,v in x.items()])+")"
+  if it == o:     return x.__class__.__name__ + show(x.__dict__)
+  if it == str:   return '"'+str(x)+'"'
+  if callable(x): return x.__name__
+  return str(x)
 
 #----------------------------------------------------------------------------------------
 def eg__the(_): 
