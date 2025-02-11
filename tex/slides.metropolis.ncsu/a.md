@@ -11,6 +11,7 @@ aspectratio: 169
 colorlinks: true
 header-includes:
   - \input{header.tex}
+  - \usepackage{minted}
 ---
 
 
@@ -45,22 +46,34 @@ Conditional statements are used to perform different actions based on different 
 
 # Let's Build that
 
-<tiny>
+\begingroup
+\tiny
+```python
+# Define a numerical column with statistics.
+def Num(txt: str = " ", at: int = 0) -> Obj:
+   return Obj(it=Num, txt=txt, at=at, n=0, mu=0, sd=0, m2=0, hi=-BIG, lo=BIG,
+             goal = 0 if txt[-1]=="-" else 1)
 
-```jsx
-Bot.send("Are you going out to play?")  # 
-async function respond(inputText){
-    if (inputText == "yes"){
-        Bot.send("Wear a hat");
-    }
-    else {
-        Bot.send("ok");
-    }
+# Define a symbolic column with frequency counts.
+def Sym(txt: str = " ", at: int = 0) -> Obj:
+   return Obj(it=Sym, txt=txt, at=at, n=0, has={}, most=0, mode=None)
 
- }
+# Define a collection of columns with metadata.
+def Cols(names: List[str]) -> Obj:
+   x,y,lst,klass = [], [], [], None
+   for col in [(Num if s[0].isupper() else Sym)(s,n) for n,s in enumerate(names)]:
+      lst.append(col)
+      if col.txt[-1] != "X":
+         (y if col.txt[-1] in "+-!" else x).append(col)
+         if col.txt[-1] == "!": klass=col
+   return Obj(it=Cols, names=names, all=lst, x=x, y=y, klass=klass)
+
+# Define a dataset with rows and columns.
+def Data(src: List[row], txt: str = "") -> Obj:
+   return adds(src, Obj(it=Data, txt=txt or "", n=0, rows=[], cols=None))
 ``` 
 
-</tiny>
+\endgroup
 
 What we learned. - Bot.send() method - if else statements.
 
