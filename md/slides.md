@@ -5,29 +5,58 @@ institute: "My home office"
 topic: "Pandoc how-to"
 fonttheme: "professionalfonts"
 mainfont: "Hack Nerd Font"
-fontsize: "9pt"
-urlcolor: red
+fontsize: "10pt"  # Slightly larger font for better readability
+urlcolor: blue  # Change link color
 linkstyle: bold
 aspectratio: 169
-titlegraphic: img/aleph0.png
-logo: img/aleph0-small.png
 date: Jan 22
 lang: en-US
 ---
+
 # Slide 1 title
 
-Some super quickly created demo slides
+asd asdasaddass
 
-* Do not need anything else than markdown
-    * Slides title starts with # (also starts a new slide)
-    * Bullet points, newlines, empty lines: all standard markdown
-* However, can also use other stuff, e.g.:
-    * Some HTML (e.g. \<center\>)
-    * When using pandoc beamer, can use latex commands (e.g. \\center, \\large, etc)\dots
+asd asdasaddass
 
-colortheme: "beaver"
-theme: "Frankfurt"
+asd asdasaddass
+
+- asdas
+- adas
+
+```python
+def Num(txt: str = " ", at: int = 0) -> Obj:
+   return Obj(it=Num, txt=txt, at=at, n=0, mu=0, sd=0, m2=0, hi=-BIG, lo=BIG,
+             goal = 0 if txt[-1]=="-" else 1)
+
+# Define a symbolic column with frequency counts.
+def Sym(txt: str = " ", at: int = 0) -> Obj:
+   return Obj(it=Sym, txt=txt, at=at, n=0, has={}, most=0, mode=None)
+
+# Define a collection of columns with metadata.
+def Cols(names: List[str]) -> Obj:
+   ...
+    return Obj(it=Cols, names=names, all=lst, x=x, y=y, klass=klass)
+
+# Define a dataset with rows and columns.
+def Data(src: List[row], txt: str = "") -> Obj:
+   return adds(src, Obj(it=Data, txt=txt or "", n=0, rows=[], cols=None))
+```
+
+# Slide 1 title
+
+Some super quickly created demo slides. The syntax is simple and effective for creating slides on the fly.
+
+- **No special tools needed**:
+  * Use basic markdown to create slides.
+  * Start slide titles with `#` and use bullet points for content.
+- **Advanced Options**:
+  * Add custom HTML tags like `<center>` for alignment.
+  * Use LaTeX commands in Pandoc Beamer format (e.g., `\\center`, `\\large`).
+
 
 # Slide 2 title
 
-\center The slide syntax is so simple that you can quickly create a handful of slides on basically any device in any editor. E.g. on your mobile on the way to the meeting where you need the slides. Right before the meeting starts you use pandoc to create the actual slides from your source.
+\center The slide syntax is so simple that you can quickly create a handful of slides on basically any device in any editor. E.g., on your mobile on the way to the meeting where you need the slides. Right before the meeting starts you use pandoc to create the actual slides from your source.
+
+
