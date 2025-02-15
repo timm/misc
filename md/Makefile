@@ -8,3 +8,5 @@ go:
 slides.html:
 	pandoc -t revealjs -s slides.md -o slides.html --variable theme="beige" --css style.css
 
+push:
+	git commit -am as; git push
