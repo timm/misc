@@ -1,0 +1,131 @@
+\begin{frame}{What's AI x?}
+\phantomsection\label{whats-ai-x}
+\begin{itemize}
+\tightlist
+\item
+  Artificial Intelligence- The ability of machine to think and behave
+  like humans.
+\item
+  How does the machine learn on its own? - That is called Machine
+  Learning. ML is the study of computer algorithms that improve
+  automatically with experience.
+\item
+  Just like humans learn with experience - Machines also learn with
+  experience!
+\item
+  Examples of common AI? Alexa, Siri, Google Home, Self Driving Cars,
+  Robots etc.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{What's out there?}
+\phantomsection\label{whats-out-there}
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{art1.png}}
+\caption{Verticles}
+\end{figure}
+\end{frame}
+
+\begin{frame}{How do computers make decisions?}
+\phantomsection\label{how-do-computers-make-decisions}
+\begin{wrapfigure}{r}{0.3\textwidth}  % 'r' for right, width 30% of text width
+  \centering
+  \includegraphics[width=.2\textwidth]{art1.png}
+\end{wrapfigure}
+
+Conditional statements are used to perform different actions based on
+different conditions.
+
+\begin{itemize}
+\tightlist
+\item
+  In many programming languages, decisions (also called conditionals)
+  take the form of an if-then construct. They start with a condition,
+  which is then evaluated as either True or False.
+\item
+  Conditional statements are used to perform different actions based on
+  different conditions.
+\item
+  In many programming languages, decisions (also called conditionals)
+  take the form of an if-then construct. They start with a condition,
+  which is then evaluated as either True or False.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Let's Build that}
+\phantomsection\label{lets-build-that}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Bot}\OperatorTok{.}\FunctionTok{send}\NormalTok{(}\StringTok{"Are you going out to play?"}\NormalTok{)  \# }
+\KeywordTok{async} \KeywordTok{function} \FunctionTok{respond}\NormalTok{(inputText)\{}
+    \ControlFlowTok{if}\NormalTok{ (inputText }\OperatorTok{==} \StringTok{"yes"}\NormalTok{)\{}
+\NormalTok{        Bot}\OperatorTok{.}\FunctionTok{send}\NormalTok{(}\StringTok{"Wear a hat"}\NormalTok{)}\OperatorTok{;}
+\NormalTok{    \}}
+    \ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{        Bot}\OperatorTok{.}\FunctionTok{send}\NormalTok{(}\StringTok{"ok"}\NormalTok{)}\OperatorTok{;}
+\NormalTok{    \}}
+
+\NormalTok{ \}}
+\end{Highlighting}
+\end{Shaded}
+
+What we learned. - Bot.send() method - if else statements.
+\end{frame}
+
+\begin{frame}{Build a basic greetings bot}
+\phantomsection\label{build-a-basic-greetings-bot}
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{banner.png}}
+\caption{Flow chart}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Benefits of AI Playground}
+\phantomsection\label{benefits-of-ai-playground}
+\begin{itemize}
+\tightlist
+\item
+  Streamlines a lot of back end operations, so that the you can just
+  learn what AI is --- and can get immediate results!
+\item
+  User friendly!
+\item
+  Designed to suit students needs.
+\item
+  Students can see and publish new projects and thus learn from each
+  other.
+\end{itemize}
+
+\begin{block}{How does learning AI help?}
+\phantomsection\label{how-does-learning-ai-help}
+\begin{itemize}
+\tightlist
+\item
+  Logical reasoning and Sequencing
+\item
+  Critical thinking
+\item
+  Problem solving
+\item
+  Mental Mathematics
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The above skills are implicit skills that students learn along with
+    AI. And this helps them in academics, life, etc.
+  \end{itemize}
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Extra}
+\phantomsection\label{extra}
+The well known Pythagorean theorem \(x^2 + y^2 = z^2\) was proved to be
+invalid for other exponents. Meaning the next equation has no integer
+solutions: \[x^n + y^n = z^n\]
+
+Can AI, help find near misses for this equation?
+\end{frame}
