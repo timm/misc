@@ -10,22 +10,25 @@ local the = {
 }
 
 ------------------------------------------------------------------------------
-local fmt,olist,odict,o,word,words,csv
+local fmt,lt,sort,olist,odict,o,word,words,csv
 
 fmt=string.format
+
+function lt(x) return function(t) return t[x] < t[y] end end
+
+function sort(t,fun) table.sort(t,fun); return t end
 
 function olist(x,   t)
   t={}; for k,v in pairs(x) do t[1+#t]=o(v) end; return t end
 
 function odict(x,   t)
   t={}; for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end
-  table.sort(t)
-  return t end
+  return sort(t) end
 
 function o(x)
-  if type(x) == "number" then return fmt(x//1 == x and "%s" or "%.3g",x) end
-  if type(x) ~= "table"  then return tostring(x) end
-  return "{" .. table.concat(#x>0 and olist(x) or odict(x)," ") .. "}" end 
+  return type(x) == "number" and fmt(x//1 == x and "%s" or "%.3g",x) or (
+         type(x) ~= "table"  and tostring(x)                         or (
+         "{".. table.concat(#x>0 and olist(x) or odict(x)," ") .."}" )) end 
 
 function word(s) return tonumber(s) or s:match("^%s*(.-)%s*$") end
 
@@ -38,8 +41,6 @@ function csv(src,     s,t)
   while s do t[1+#t]=words(s); s=io.read() end
   io.close(src) 
   return t end
-
-function lt(x) return function(t) return t[x] < t[y] end end
 
 function sd(t,at,    a,b)
   table.sort(t, lt(at))
