@@ -1,0 +1,65 @@
+local the = {
+  what = "new.lua",
+  why  = "simple inference",
+  when = "(c) 2025, MIT License",
+  who  = "Tim Menzies"},
+  rseed = 1234567891, 
+  file  = "../../fred.csv", 
+  m     = 2, 
+  k     = 1} 
+}
+
+------------------------------------------------------------------------------
+local fmt,olist,odict,o,word,words,csv
+
+fmt=string.format
+
+function olist(x,   t)
+  t={}; for k,v in pairs(x) do t[1+#t]=o(v) end; return t end
+
+function odict(x,   t)
+  t={}; for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end
+  table.sort(t)
+  return t end
+
+function o(x)
+  if type(x) == "number" then return fmt(x//1 == x and "%s" or "%.3g",x) end
+  if type(x) ~= "table"  then return tostring(x) end
+  return "{" .. table.concat(#x>0 and olist(x) or odict(x)," ") .. "}" end 
+
+function word(s) return tonumber(s) or s:match("^%s*(.-)%s*$") end
+
+function words(s,   t) 
+  t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=word(s1) end; return t end
+
+function csv(src,     s,t)
+  src = io.input(src)
+  s,t = io.read(), {}
+  while s do t[1+#t]=words(s); s=io.read() end
+  io.close(src) 
+  return t end
+
+function lt(x) return function(t) return t[x] < t[y] end end
+
+function sd(t,at,    a,b)
+  table.sort(t, lt(at))
+  a,b = #t<10 and 1,#t or #t/10//1, #t//90//1 
+  return (t[b] - t[a]) / 2.56 end
+
+------------------------------------------------------------------------------
+local isNum, isSym
+
+function isNum(s): return s:find"^[A-Z]" end
+function isSym(s): return not isNum(s) end
+
+------------------------------------------------------------------------------
+local eg={}
+
+eg["--csv"] = function() csv(the.file) end
+
+if not pcall(debug.getlocal,4,1) then  
+  for n,s in pairs(arg) do
+    math.randomseed(the.rseed)
+    if eg[s] then eg[s](arg[n+1]) else
+      for k,_ in pairs(the) do 
+        if s == "-"..k:sub(1,1) then the[k]=word(arg[n+1]) end end end end end
