@@ -186,19 +186,19 @@ eg["--data"] = function(_,d)
   d= Data:new(the.csv) 
   map(d.cols.y, oo) end
 
-eg["--ydata"] = function(_,  d,rows,fun,r) 
+eg["--ydata"] = function(_,  d,rows,fun,r,t) 
   d = Data:new(the.csv) 
   oo(sort(map(d.rows, function(r) return d:ydist(r) end))) end
 
-eg["--kmeans"] = function(_,  d,rows,fun,tmp) 
-  d = Data:new(the.csv) ; print(">>")
-  fun = function(r) return d:ydist(r) end
-  print("mid:",per(map(d.rows, fun)))
-  rows = d:centroids(16)
-  tmp={}; for _=1,16 do push(tmp,d:ydist(any(rows))) end
-  print(oo(sort(tmp)))
-  for _,row in pairs(keysort(rows, fun)) do
-    print(d:ydist(row)) end end
+eg["--kmeans"] = function(_,  k,d,yfun,rows)
+  k    = 32
+  d    = Data:new(the.csv) 
+  yfun = function(r) return d:ydist(r) end
+  print("mid:",per(map(d.rows, yfun))) 
+  rows = keysort(d:centroids(k), yfun)
+  t={}; for n,row in pairs(d:neighbors(rows[1], d.rows)) do 
+            if n> 10 then return oo(sort(t)) end
+            push(t, d:ydist(row)) end end
 
 ------------------------------------------------------------------------------
 if not pcall(debug.getlocal,4,1) then  
