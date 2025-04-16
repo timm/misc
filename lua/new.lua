@@ -52,8 +52,38 @@ function Num:div()
 function Num:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo) end
 
+function Num:cut(other)
+  local i,j,lo,ho,least,like1,like2,tmp,cut
+  i,j   = self,other
+  lo    = min(i.lo, j.lo)
+  hi    = max(i.hi, j.hi)
+  least = BIG
+  for x = lo,hi,(hi-lo)/50 do
+    if x > i.mu and x < j.mu then
+      like1 = i:like(x)
+      like2 = j:like(x)
+      tmp   = abs(like1 - like2)
+      if tmp < least then
+	least,cut = tmp,x end end end
+          
+function NUM:cdf(x,     z,fun)
+  fun = function(z) return 1 - 0.5*exp(-0.717*z - 0.416*z*z) end
+  z = (x - self.mu)/self.sd
+  return z >=  0 and fun(z) or 1 - fun(-z) end
+
+function Sym:like(x,nPrior)
+  return ((self.has[x] or 0) + the.m*nPrior) / (self.n + the.m)  end
+
+function Num:like(x,_,      v,tmp)
+  v = self.sd^2 + 1/Big
+  tmp = math.exp(-1*(x - self.mu)^2/(2*v)) / (2*math.pi*v) ^ 0.5
+
+  return math.max(0, math.min(1, tmp + 1/Big)) end
+
+
 function Num:dist(x,y)
-  if x=="?" and y=="?" then return 1 end
+  if x=="?" and y=="?" then	
+  n return 1 end
   x,y = self:norm(x), self:norm(y)
   x   = x ~= "?" and x or (y < 0.5 and 1 or 0)
   y   = y ~= "?" and y or (x < 0.5 and 1 or 0)
@@ -174,12 +204,14 @@ function new(isa,i) isa.__index=isa; setmetatable(i,isa); return i end
 
 -- maths
 abs = math.abs
+exp = math.exp
 log = math.log
 max = math.max
+min = math.min
 random = math.random
 randomseed = math.randomseed
 
-function any(t) return t[math.random(#t)] end
+function any(t) return t[random(#t)] end
 
 -- list
 function push(t,x) t[1+#t] = x; return x end
@@ -214,7 +246,7 @@ function adds(t,  col)
     else return adds(t, type(x)=="number" and Num() or Sym()) end end
   return col end
 
-function over(a,n) 
+function over(a,n)
   return fmt("%a > %a",a,n), function(x) return x=="?" or x>= n end
 
 function upto(a,n) 
