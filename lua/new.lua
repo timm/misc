@@ -53,18 +53,18 @@ function Num:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo) end
 
 function Num:cut(other)
-  local i,j   = self,other
-  local lo    = min(i.lo, j.lo)
-  local hi    = max(i.hi, j.hi)
-  local step  = (hi - lo)/30
-  local overlap,least = 0,BIG
-  local cut
+  local i,j,lo,hi,step,overlap,least,cut,f1,f2,tmp
+  i,j   = self,other
+  lo    = min(i.lo, j.lo)
+  hi    = max(i.hi, j.hi)
+  step  = (hi - lo)/30
+  overlap,least = 0,BIG
   for x = lo,hi,step, do
-    local f1 = i:pdf(x)
-    local f2 = j:pdf(x)
+    f1 = i:pdf(x)
+    f2 = j:pdf(x)
     overlap = overlap + min(f1,f2)*step
     if x > i.mu and x < j.mu then
-      local tmp = abs(f1 - f2)
+      tmp = abs(f1 - f2)
       if tmp < least then
 	least,cut = tmp,x end end end 
   return overlap,cut end 
