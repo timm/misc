@@ -47,7 +47,7 @@ function Num:sub(x)
 function Num:mid() return self.mu end
 
 function Num:div() 
-  return self.n < 2 and 0 or (max(0,self.m2)/(self.n - 1))^.5 end
+  return self.n < 2 and 0 or (max(0,self.m2)/(self.n - 1))^.5 end 
 
 function Num:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo) end
@@ -178,12 +178,12 @@ function Data:centroids(k,  rows,      out)--> rows
 function new(isa,i) isa.__index=isa; setmetatable(i,isa); return i end
 
 -- maths
-pi  = math.pi
 abs = math.abs
 exp = math.exp
 log = math.log
 max = math.max
 min = math.min
+pi  = math.pi
 random = math.random
 randomseed = math.randomseed
 
