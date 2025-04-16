@@ -53,33 +53,26 @@ function Num:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo) end
 
 function Num:cut(other)
-  local i,j,lo,ho,least,like1,like2,tmp,cut
-  i,j   = self,other
-  lo    = min(i.lo, j.lo)
-  hi    = max(i.hi, j.hi)
-  least = BIG
-  for x = lo,hi,(hi-lo)/50 do
+  local i,j   = self,other
+  local lo    = min(i.lo, j.lo)
+  local hi    = max(i.hi, j.hi)
+  local step  = (hi - lo)/30
+  local overlap,least = 0,BIG
+  local cut
+  for x = lo,hi,step, do
+    local f1 = i:pdf(x)
+    local f2 = j:pdf(x)
+    overlap = overlap + min(f1,f2)*step
     if x > i.mu and x < j.mu then
-      like1 = i:like(x)
-      like2 = j:like(x)
-      tmp   = abs(like1 - like2)
+      local tmp = abs(f1 - f2)
       if tmp < least then
-	least,cut = tmp,x end end end
-          
-function NUM:cdf(x,     z,fun)
-  fun = function(z) return 1 - 0.5*exp(-0.717*z - 0.416*z*z) end
-  z = (x - self.mu)/self.sd
-  return z >=  0 and fun(z) or 1 - fun(-z) end
-
-function Sym:like(x,nPrior)
-  return ((self.has[x] or 0) + the.m*nPrior) / (self.n + the.m)  end
-
-function Num:like(x,_,      v,tmp)
-  v = self.sd^2 + 1/Big
-  tmp = math.exp(-1*(x - self.mu)^2/(2*v)) / (2*math.pi*v) ^ 0.5
-
-  return math.max(0, math.min(1, tmp + 1/Big)) end
-
+	least,cut = tmp,x end end end 
+  return overlap,cut end 
+ 
+function Num:pdf(x,      v,tmp)
+  v = self.sd^2 + 1/BIG
+  tmp = exp(-1*(x - self.mu)^2/(2*v)) / (2*pi*v) ^ 0.5
+  return max(0, min(1, tmp + 1/BIG)) end
 
 function Num:dist(x,y)
   if x=="?" and y=="?" then	
@@ -89,24 +82,6 @@ function Num:dist(x,y)
   y   = y ~= "?" and y or (x < 0.5 and 1 or 0)
   return abs(x - y) end
 
-function Num:cuts(rows, Y,Klass,epsN,epsY)
-  local _xy, lhs,rhs,least,cut,tmp
-  _xy = function(row) return {x=row[self.at], y=rhs:add(Y(row))} end
-  lhs, rhs = Num(), Klass()
-  xys = map(sort(rows, lt(self.at)), _xy)
-  least,cut = BIG,nil
-  for n,xy in pairs(xys) do
-    if xy.x == "?" then break end
-    lhs:add( rhs:sub(xy.y) )
-    if n > epsN and n < #xys - epsN then
-      if xy.x ~= xys[n+1].x then
-        if abs(lhs.mu - rhs.mu) > epsY then
-          tmp = (lhs.n * lhs:div() + rhs.n * rhs:div()) / self.n     
-          if tmp < least then
-             least, cut = tmp, xys[n+1].x end end end end end
-  if cut then
-    return least, [upto(self.txt, xy.x), over(self.txt, xy.x)] end end
- 
 ------------------------------------------------------------------------------
 function Sym:new(txt, at)
    return new(Sym, {txt=txt or "", at=at or 0, n=0, has={}}) end
@@ -135,14 +110,14 @@ function Sym:div(     _p)
   _p = function(x) return x<=0 and 0 or n/self.n * log(n/self.n,2) end
   return - sum(self.has, _p) end
 
-function Sym:cuts(rows, Y,Klass,_,__)
-  local tmp = {}
-  for _,row in pairs(rows) do
-    local x = row[self.at]
-    tmp[x] = tmp[x] or Klass()
-    if x ~= "?" then tmp[x]:add(Y(row)) end end 
-  return (sum(tmp, function(x) return tmp[x].n*tmp[x]:div()/self.n end), 
-          map(tmp, function(x) return eq(self.txt.x) end))
+function Sym:cut(other)
+  local overlap,t,f1,f2 = 0,{}
+  for x in pairs(self.has)  do t[x] end
+  for x in pairs(other.has) do t[x] end
+  for x in pairs(t) do overlap = overlap + min(self:pdf(x),other:pdf(x)) end
+  return overlap end
+          
+function Sym:pdf(x) return (i.has[x] or 0)/i.n end
 
 ------------------------------------------------------------------------------
 function Cols:new(names)
@@ -203,6 +178,7 @@ function Data:centroids(k,  rows,      out)--> rows
 function new(isa,i) isa.__index=isa; setmetatable(i,isa); return i end
 
 -- maths
+pi  = math.pi
 abs = math.abs
 exp = math.exp
 log = math.log
