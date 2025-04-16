@@ -47,7 +47,7 @@ function Num:sub(x)
 function Num:mid() return self.mu end
 
 function Num:div() 
-  return self.n < 2 and 0 or (max(0,self.m2)/(self.n - 1))^.5 end
+  return self.n < 2 and 0 or (max(0,self.m2)/(self.n - 1))^.5 end 
 
 function Num:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo) end
@@ -55,19 +55,19 @@ function Num:norm(x)
 function Num:cut(other)
   local i,j,lo,hi,step,overlap,least,cut,f1,f2,tmp
   i,j   = self,other
-  lo    = min(i.lo, j.lo)
-  hi    = max(i.hi, j.hi)
-  step  = (hi - lo)/30
-  overlap,least = 0,BIG
-  for x = lo,hi,step, do
+  if i.mu > j.mu then return j:cut(i) end 
+  least, cut, sym1,sym2 = BIG,nil,Sym(),Sym()
+  step = (j.hi - i.lo)/32
+  for x = i.lo,j.hi,step, do
     f1 = i:pdf(x)
     f2 = j:pdf(x)
-    overlap = overlap + min(f1,f2)*step
+    sym1:add(x,f1*step)
+    sym2:add(x,f2*step)
     if x > i.mu and x < j.mu then
       tmp = abs(f1 - f2)
       if tmp < least then
-	least,cut = tmp,x end end end 
-  return overlap,cut end 
+	    least,cut = tmp,x end end end 
+  return sym1:overlap(sym2), cut end 
  
 function Num:pdf(x,      v,tmp)
   v = self.sd^2 + 1/BIG
@@ -86,16 +86,16 @@ function Num:dist(x,y)
 function Sym:new(txt, at)
    return new(Sym, {txt=txt or "", at=at or 0, n=0, has={}}) end
 
-function Sym:add(x)
+function Sym:add(x,n)
   if x ~= "?" then
-    self.n = self.n + 1 
-    self.has[x] = (self.has[x] or 0) + 1 end
+    self.n = self.n + (n or 1) 
+    self.has[x] = (self.has[x] or 0) + (n or 1) end
   return x end
 
-function Sym:sub(x)
+function Sym:sub(x,n)
   if x ~= "?" then
-    self.n = self.n - 1 
-    self.has[x] = self.has[x] - 1 end 
+    self.n = self.n - (n or 1) 
+    self.has[x] = self.has[x] - (n or 1)  end 
   return x end
 
 function Sym:dist(x,y)
@@ -111,7 +111,7 @@ function Sym:div(     _p)
   return - sum(self.has, _p) end
 
 function Sym:cut(other)
-  local overlap,t,f1,f2 = 0,{}
+  local overlap,t = 0,{}
   for x in pairs(self.has)  do t[x] end
   for x in pairs(other.has) do t[x] end
   for x in pairs(t) do overlap = overlap + min(self:pdf(x),other:pdf(x)) end
@@ -178,12 +178,12 @@ function Data:centroids(k,  rows,      out)--> rows
 function new(isa,i) isa.__index=isa; setmetatable(i,isa); return i end
 
 -- maths
-pi  = math.pi
 abs = math.abs
 exp = math.exp
 log = math.log
 max = math.max
 min = math.min
+pi  = math.pi
 random = math.random
 randomseed = math.randomseed
 
