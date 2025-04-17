@@ -56,10 +56,10 @@ function Data.cols(i,row)
     else i.has[c] = {} end end
   return row end 
   
-function Data.add(i,row,     x,d,_sym,_num)
-  _sym = function(c,x) 
+function Data.add(i,row)
+  local _sym = function(c,x) 
      i.has[c][x] = (i.has[c][x] or 0) + 1 end
-  _num = function(c,x,     d)
+  local _num = function(c,x,     d)
      row[c]  = x + 0
      d       = x - i.mu[c]
      i.mu[c] = i.mu[c] + d / i.n 
@@ -72,7 +72,7 @@ function Data.add(i,row,     x,d,_sym,_num)
     if x ~= "?" then (x.mu[c] and _num or _sym)(c,x) end end
 	return row end	 
 
-function Data.sub(i,row,     x,d,_sym,_num)
+function Data.sub(i,row)
   _sym = function(c,x) 
      i.has[c][x] = i.has[c][x] - 1 end
   _num = function(c,x,     d)
@@ -97,11 +97,13 @@ function Data.mid(i,c,     most,out)
     return out end end
        
 function Data.div(i,c) 
-  if   i.mu[c] 
-  then return i.n[c]<2 and 0 or (max(0,i.m2[c]) / (i.n[c] - 1))^.5 
-  else e = 0
-       for _,n in pairs(i.has[c]) do e = e - n/i.n[c] * log(n/i.n[c],2) end
-       return e end end
+  _sym = function(    e)
+    for _,n in pairs(i.has[c]) do e = e - n/i.n[c] * log(n/i.n[c],2) end
+    return e end 
+  _num = function()
+    return i.n[c]<2 and 0 or (max(0,i.m2[c]) / (i.n[c] - 1))^.5 end
+    
+  return i.mu[c] and _num(0) or _sym() end 
 
 function Num:cut(other)
   local i,j,lo,hi,step,overlap,least,cut,f1,f2,tmp
