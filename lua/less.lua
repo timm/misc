@@ -1,3 +1,5 @@
+-- vim: set ts=2 sw=2 sts=2 et:
+
 local the = {
   about   = {what = "new.lua", 
              why  = "simple inference", 
@@ -40,52 +42,55 @@ function o(x,    _list,_dict)
 function oo(x) print(o(x)); return x end
 
 ------------------------------------------------------------------------------
-function Data:new()
-   return new(Data, {n={}, txt={}, x={}, y={}, has={},
-                     mu={}, m2={}, hi={}, lo={}} ) end
+function Sym(txt,at) 
+  return {is=Sym, symp=True, txt=txt or " ", at=at or 1, n=0, has={}} end
 
-function Data.cols(i,row)
-  i.txt = row
-  for c,s in pairs(row) do
-    i[s:find"[!+-]$" and "y" or "x"][c] = s:find"-$" and 0 or 1 
-    if   s:find"^[A-Z]" 
-    then i.mu[c], i.m2[c], i.lo[c], i.hi[c] = 0, 0, BIG, -BIG 
-    else i.has[c] = {} end end
-  return row end 
-  
-function Data.add(i,row)
-  local _sym = function(c,x) 
-     i.has[c][x] = (i.has[c][x] or 0) + 1 end
-  local _num = function(c,x,     d)
-     row[c]  = x + 0
-     d       = x - i.mu[c]
-     i.mu[c] = i.mu[c] + d / i.n 
-	   i.m2[c] = i.m2[c] + d * (x - i.mu[c])	 	  
-	 	 if x < i.lo[c] then i.lo[c] = x end 	  
-	 	 if x > i.hi[c] then i.hi[c] = x end end
-	 	 
-  i.n[c] = i.n[c] + 1
-  for c,x in pairs(row) do 
-    if x ~= "?" then (x.mu[c] and _num or _sym)(c,x) end end
-	return row end	 
+function Num(txt,at) 
+  return {is=Num, txt=txt or " ", at=at or 1, n=0, mu=0, m2=0, lo=BIG, hi=-BIG,
+          goal=tostring(txt or " "):find"-$" and 0 or 1} end
 
-function Data.sub(i,row)
-  _sym = function(c,x) 
-     i.has[c][x] = i.has[c][x] - 1 end
-  _num = function(c,x,     d)
-     if   i.n[c] < 2
-     then i.mu[c], i.m2[c] = 0,0
-     else d = x - i.mu[c]
-          i.mu[c] = i.mu[c] - d / i.n
-          i.m2[c] = i.m2[c] - d * (x - i.mu[c]) end end
-	 	 
-  i.n[c] = i.n[c] - 1
-  for c,x in pairs(row) do 
-    if x ~= "?" then (x.mu[c] and _num or _sym)(c,x) end end
-	return row end	 	  	 	  	 	  
+function Data(src, rows,    data,_add) 
+  data= {is=Data, cols=nil, rows={}} 
+  _add = function(row)
+    if data.cols then add(data,row) else data.cols=Cols(row) end 
+    return row end
 
-function Data.norm(i,c,x)
-  return x=="?" and x or (x - i.lo[c]) / (i.hi[c] - i.lo[c] + 1/BIG) end
+  if   type(src)=="string" 
+  then csv(str, _add) 
+  else for _,row in pairs(src or {}) do _add(row) end end
+  return data end 
+
+function Cols(row,    cols,one)
+  cols = {is=Cols, all={}, x={}, y={}, names=row}
+  for at,txt in pairs(row) do
+    one = push(cols.all, (s:find"^[A-Z]" and Num or Sym)(txt,at))
+    if not txt:find"X$" then
+      push(txt:find"[!-+]$" and cols.y or cols.x, one)
+      if txt:find"!$" then cols.klass = one end end end
+  return cols end 
+ 
+function add(data,row,   n,twist)
+  n = n or 1
+  twist = twist or 1
+  for _,col in pairs(data.cols.all) do 
+    if x ~= "?" then 
+      if   col.is == Sym 
+      then col.has[x] = (col.has[x] or 0) + twist*n 
+      else row[col.at]  = x + 0
+           if   twist < 0 and col.n < 2
+           then col.mu, col.m2 = 0,0
+           else d      = x - col.mu
+                col.mu = col.mu + twist*(d / col.n)
+                col.m2 = col.m2 + twist*(d * (x - col.mu))	 	  
+                if x < col.lo then col.lo = x end 	  
+                if x > col.hi then col.hi = x end end end
+	      _sym or _num)(col,x) end end
+  return row end	 
+
+function sub(data,row,   n) return add(data,row,n,-1)
+
+function norm(col,x)
+  return x=="?" and x or (x - col.lo) / (col.hi - col.lo + 1/BIG) end
   
 function Data.mid(i,c,     most,out)
   if i.mu[c] then return i.mu[c] else 
