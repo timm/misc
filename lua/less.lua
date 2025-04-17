@@ -17,28 +17,25 @@ local eg, Data = {},{}
 ------------------------------------------------------------------------------
 local csv,fmt,olist,dlist,o,oo	  	 	  	 	  
 
+function words(s,    t)
+  t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=s1 end; return t end
+
 function csv(src,_fun,     s,t,src)
   src = io.input(src)
-  s = io.read()
-  while s do 
-    t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=s1 end
-    _fun(t) 
-    s = io.read() end
+  repeat s = _fun(words(io.read())) until not s 
   io.close(src) end
 
 fmt=string.format
 
-function olist(x,   t)
-  t={}; for _,v in pairs(x) do t[1+#t]=o(v) end; return t end
-
-function odict(x,   t)
-  t={}; for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end
-  return sort(t) end
-
-function o(x)
+function o(x,    _list,_dict)
+  _list = function(x,   t)
+    t={}; for _,v in pairs(x) do t[1+#t]=o(v) end; return t end
+  _dict = function(x,   t)
+    t={}; for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end
+    return sort(t) end
   return type(x) == "number" and fmt(x//1 == x and "%s" or "%.3g",x) or (
          type(x) ~= "table"  and tostring(x)                         or (
-         "{".. table.concat(#x>0 and olist(x) or odict(x)," ") .."}" )) end 
+         "{".. table.concat(#x>0 and _list(x) or _dict(x)," ") .."}" )) end 
 
 function oo(x) print(o(x)); return x end
 
