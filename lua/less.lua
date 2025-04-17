@@ -11,67 +11,97 @@ local the = {
   samples = 256               
 }
 
-local BIG=1E32
-local eg, Data, Num, Sym, Cols = {},{},{},{},{}
+local BIG = 1E32
+local eg, Data = {},{}
 
-local abs, adds, eq, fmt, any, log, lt, max, num, new, 
-local o, oo, olist, odict, per, push, random, randomseed
-local sort, sum, words, word, keysort, map, over, under, csv
+------------------------------------------------------------------------------
+local csv,fmt,olist,dlist,o,oo	  	 	  	 	  
+
+function csv(src,_fun,     s,t,src)
+  src = io.input(src)
+  s = io.read()
+  while s do 
+    t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=s1 end
+    _fun(t) 
+    s = io.read() end
+  io.close(src) end
+
+fmt=string.format
+
+function olist(x,   t)
+  t={}; for _,v in pairs(x) do t[1+#t]=o(v) end; return t end
+
+function odict(x,   t)
+  t={}; for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end
+  return sort(t) end
+
+function o(x)
+  return type(x) == "number" and fmt(x//1 == x and "%s" or "%.3g",x) or (
+         type(x) ~= "table"  and tostring(x)                         or (
+         "{".. table.concat(#x>0 and olist(x) or odict(x)," ") .."}" )) end 
+
+function oo(x) print(o(x)); return x end
 
 ------------------------------------------------------------------------------
 function Data:new()
-   return new(Data,{n=0, x={}, y={}, mu={}, m2={}, txt={},
-                    goal={}, hi={}, lo={}, has={}}) end
+   return new(Data, {n={}, txt={}, x={}, y={}, has={},
+                     mu={}, m2={}, hi={}, lo={}} ) end
 
 function Data.cols(i,row)
-  	 	  i.m2[c] = i.m2[c] + d * (x - i.mu[c])
-  	 	  
-function Data.prep(i,row,     x)
-  for c in pairs(i.mu) do 
-    x = row[c]; if x ~="?" then row[c] = x + 0 end; end; 
-  return row end
-
-function Data.add(i,row,     x,d)
-  i.n = i.n + 1
+  i.txt = row
+  for c,s in pairs(row) do
+    i[s:find"[!+-]$" and "y" or "x"][c] = s:find"-$" and 0 or 1 
+    if   s:find"^[A-Z]" 
+    then i.mu[c], i.m2[c], i.lo[c], i.hi[c] = 0, 0, BIG, -BIG 
+    else i.has[c] = {} end end
+  return row end 
+  
+function Data.add(i,row,     x,d,_sym,_num)
+  _sym = function(c,x) 
+     i.has[c][x] = (i.has[c][x] or 0) + 1 end
+  _num = function(c,x,     d)
+     row[c]  = x + 0
+     d       = x - i.mu[c]
+     i.mu[c] = i.mu[c] + d / i.n 
+	   i.m2[c] = i.m2[c] + d * (x - i.mu[c])	 	  
+	 	 if x < i.lo[c] then i.lo[c] = x end 	  
+	 	 if x > i.hi[c] then i.hi[c] = x end end
+	 	 
+  i.n[c] = i.n[c] + 1
   for c,x in pairs(row) do 
-    if x ~= "?" then
-      if x.mu   
-      then d = x - i.mu[c]
-           i.mu[c] = i.mu[c] + d/i.n 
-	 	       i.m2[c] = i.m2[c] + d * (x - i.mu[c])	 	  
-	 	       if x < i.lo[c] then i.lo[c] = x end 	  
-	 	       if x > i.hi[c] then i.hi[c] = x end
-	 	  else
-	 	  	 	i.has[c][x] = (i.has[c][x] or 0) + 1 	 	  	 	  
+    if x ~= "?" then (x.mu[c] and _num or _sym)(c,x) end end
+	return row end	 
 
-	 	    
-function Num:add(x)
-  if x ~= "?" then
-    self.n  = self.n + 1
-    local d = x - self.mu
-    self.mu = self.mu + d / self.n
-    self.m2 = self.m2 + d * (x - self.mu)
-    if x > self.hi then self.hi = x end
-    if x < self.lo then self.lo = x end end
-  return x end
+function Data.sub(i,row,     x,d,_sym,_num)
+  _sym = function(c,x) 
+     i.has[c][x] = i.has[c][x] - 1 end
+  _num = function(c,x,     d)
+     if   i.n[c] < 2
+     then i.mu[c], i.m2[c] = 0,0
+     else d = x - i.mu[c]
+          i.mu[c] = i.mu[c] - d / i.n
+          i.m2[c] = i.m2[c] - d * (x - i.mu[c]) end end
+	 	 
+  i.n[c] = i.n[c] - 1
+  for c,x in pairs(row) do 
+    if x ~= "?" then (x.mu[c] and _num or _sym)(c,x) end end
+	return row end	 	  	 	  	 	  
 
-function Num:sub(x)
-  if x ~= "?" then
-    self.n = self.n - 1
-    if   self.n < 2
-    then self.mu, self.m2 = 0,0
-    else local d = x - self.mu
-         self.mu = self.mu - d / self.n
-         self.m2 = self.m2 - d * (x - self.mu) end end
-  return x end
-
-function Num:mid() return self.mu end
-
-function Num:div() 
-  return self.n < 2 and 0 or (max(0,self.m2)/(self.n - 1))^.5 end
-
-function Num:norm(x)
-  return x=="?" and x or (x - self.lo) / (self.hi - self.lo) end
+function Data.norm(i,c,x)
+  return x=="?" and x or (x - i.lo[c]) / (i.hi[c] - i.lo[c] + 1/BIG) end
+  
+function Data.mid(i,c,     most,out)
+  if i.mu[c] then return i.mu[c] else 
+    most = -BIG
+    for x1,n in pairs(i.has[c]) do if n > most then out,most = x1,n end end
+    return out end end
+       
+function Data.div(i,c) 
+  if   i.mu[c] 
+  then return i.n[c]<2 and 0 or (max(0,i.m2[c]) / (i.n[c] - 1))^.5 
+  else e = 0
+       for _,n in pairs(i.has[c]) do e = e - n/i.n[c] * log(n/i.n[c],2) end
+       return e end end
 
 function Num:cut(other)
   local i,j,lo,hi,step,overlap,least,cut,f1,f2,tmp
@@ -103,34 +133,6 @@ function Num:dist(x,y)
   y   = y ~= "?" and y or (x < 0.5 and 1 or 0)
   return abs(x - y) end
 
-------------------------------------------------------------------------------
-function Sym:new(txt, at)
-   return new(Sym, {txt=txt or "", at=at or 0, n=0, has={}}) end
-
-function Sym:add(x)
-  if x ~= "?" then
-    self.n = self.n + 1 
-    self.has[x] = (self.has[x] or 0) + 1 end
-  return x end
-
-function Sym:sub(x)
-  if x ~= "?" then
-    self.n = self.n - 1 
-    self.has[x] = self.has[x] - 1 end 
-  return x end
-
-function Sym:dist(x,y)
-  return x=="?" and y=="?" and 1 or x==y and 0 or 1 end
-
-function Sym:mid()
-  local most, mode = 0, nil
-  for x,n in pairs(self.has) do if n>most then most,mode = n,x end end
-  return mode end
-
-function Sym:div(     _p)
-  _p = function(x) return x<=0 and 0 or n/self.n * log(n/self.n,2) end
-  return - sum(self.has, _p) end
-
 function Sym:cut(other)
   local overlap,t,f1,f2 = 0,{}
   for x in pairs(self.has)  do t[x] end
@@ -139,20 +141,6 @@ function Sym:cut(other)
   return overlap end
           
 function Sym:pdf(x) return (i.has[x] or 0)/i.n end
-
-------------------------------------------------------------------------------
-function Cols:new(names)
-  local x,y,all,klass = {}, {}, {}, nil
-  for n,s in pairs(names) do
-    local col = push(all, (s:find"^[A-Z]" and Num or Sym):new(s,n))
-    if not s:find"X$" then 
-      push(s:find"[!+-]$" and y or x, col)
-      if s:find"!$" then klass=col end end end
-  return new(Cols, {x=x, y=y, all=all, klass=klass, names=names}) end 
-
-function Cols:add(row)
-  for _,col in pairs(self.all) do col:add(row[col.at]) end
-  return row end
 
 ------------------------------------------------------------------------------
 function Data:new(src,    _add)
