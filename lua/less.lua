@@ -14,13 +14,21 @@ local the = {
 }
 
 local BIG = 1E32
-local eg, Data = {},{}
-
+local Data,Sym,Num,Cols = {},{},{},{}
 ------------------------------------------------------------------------------
-local csv,fmt,olist,dlist,o,oo	  	 	  	 	  
+
+local new,csv,fmt,olist,dlist,o,oo	  	 	  	 	  
+
+function new(isa,t) isa.__index = isa; return setmetatable(t,isa) end
 
 function words(s,    t)
-  t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=s1 end; return t end
+  t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=s1 end; return t end 
+
+function csv(file,      src,s)
+  src = io.input(file)
+  while true do
+    s = io.read()
+    return s and words(s) or io.close(src) end end 
 
 function csv(src,_fun,     s,t,src)
   src = io.input(src)
@@ -30,67 +38,82 @@ function csv(src,_fun,     s,t,src)
 fmt=string.format
 
 function o(x,    _list,_dict)
-  _list = function(x,   t)
+  _list = function(x,t)
     t={}; for _,v in pairs(x) do t[1+#t]=o(v) end; return t end
-  _dict = function(x,   t)
+  _dict = function(x,t)
     t={}; for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end
     return sort(t) end
+
   return type(x) == "number" and fmt(x//1 == x and "%s" or "%.3g",x) or (
          type(x) ~= "table"  and tostring(x)                         or (
-         "{".. table.concat(#x>0 and _list(x) or _dict(x)," ") .."}" )) end 
+         "{".. table.concat(#x>0 and _list(x) or _dist(x)," ") .."}" )) end 
 
 function oo(x) print(o(x)); return x end
 
+function map(t,f,   u) 
+  u={}; for _,x in pairs(t) do u[1+#u]= f(x) end; return u end 
+
 ------------------------------------------------------------------------------
-function Sym(txt,at) 
-  return {is=Sym, symp=True, txt=txt or " ", at=at or 1, n=0, has={}} end
+function SYM(txt,at) 
+  return new(Sym, {txt=txt or " ", at=at or 1, n=0, has={}}) end
 
-function Num(txt,at) 
-  return {is=Num, txt=txt or " ", at=at or 1, n=0, mu=0, m2=0, lo=BIG, hi=-BIG,
-          goal=tostring(txt or " "):find"-$" and 0 or 1} end
+function NUM(txt,at) 
+  return new(Num, {txt=txt or " ",at=at or 1, n=0,mu=0,m2=0,lo=BIG,hi=-BIG,
+                   goal=tostring(txt or " "):find"-$" and 0 or 1}) end
 
-function Data(src, rows,    data,_add) 
-  data= {is=Data, cols=nil, rows={}} 
-  _add = function(row)
-    if data.cols then add(data,row) else data.cols=Cols(row) end 
-    return row end
-
+function DATA(src,    self)
+  local self = new(Data,{cols=nil, rows={}})
   if   type(src)=="string" 
-  then csv(str, _add) 
-  else for _,row in pairs(src or {}) do _add(row) end end
-  return data end 
+  then for   row in csv(src)         do self:add(row) end
+  else for _,row in pairs(src or {}) do self:add(row) end end
+  return self end 
 
-function Cols(row,    cols,one)
-  cols = {is=Cols, all={}, x={}, y={}, names=row}
+function COLS(row,    self,col)
+  self = new(Cols, {all={}, x={}, y={}, names=row})
   for at,txt in pairs(row) do
-    one = push(cols.all, (s:find"^[A-Z]" and Num or Sym)(txt,at))
+    col = push(cols.all, (s:find"^[A-Z]" and Num or Sym)(txt,at))
     if not txt:find"X$" then
       push(txt:find"[!-+]$" and cols.y or cols.x, one)
       if txt:find"!$" then cols.klass = one end end end
-  return cols end 
- 
-function add(data,row,   n,twist)
-  n = n or 1
-  twist = twist or 1
-  for _,col in pairs(data.cols.all) do 
-    if x ~= "?" then 
-      if   col.is == Sym 
-      then col.has[x] = (col.has[x] or 0) + twist*n 
-      else row[col.at]  = x + 0
-           if   twist < 0 and col.n < 2
-           then col.mu, col.m2 = 0,0
-           else d      = x - col.mu
-                col.mu = col.mu + twist*(d / col.n)
-                col.m2 = col.m2 + twist*(d * (x - col.mu))	 	  
-                if x < col.lo then col.lo = x end 	  
-                if x > col.hi then col.hi = x end end end
-	      _sym or _num)(col,x) end end
-  return row end	 
+  return self end 
 
-function sub(data,row,   n) return add(data,row,n,-1)
+------------------------------------------------------------------------------
+function Data:add(row)
+  if self.cols 
+  then push(self.rows, self.cols:add(row)) 
+  else self.cols = COLS(row) end end
 
-function norm(col,x)
-  return x=="?" and x or (x - col.lo) / (col.hi - col.lo + 1/BIG) end
+function Cols:add(row)
+  for _,col in pairs(cols.all) do row[col.at] = col:add(row[col.at]) end 
+  return row end
+
+function Sym:add(x,  n,twist)
+  n,twist = n or 1, twist or 1
+  if x ~= "?" then
+    self.n = self.n + twist*n
+    self.has[x] = (self.has[x] or 0) + twist*n  end
+  return x end
+
+function Num:add(x,  n,twist)
+  n,twist = n or 1, twist or 1
+  if x ~= "?" then
+    self.n = self.n + twist*n
+    x = x + 0
+    if twist < 0 and self.n < 2
+    then self.mu,self.m2 = 0,0
+    else 
+      d = x - self.mu
+      self.mu = self.mu + twist*(d / self.n)
+      self.m2 = self.m2 + twist*(d * (x - self.mu))	 	  
+      if x < self.lo then self.lo = x end 	  
+      if x > self.hi then self.hi = x end end end
+  return x end
+
+function Num:sub(x,n) return Num:add(x,n,-1) end
+function Sym:sub(x,n) return Sym:add(x,n,-1) end
+
+function Nun:norm(x)
+  return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/BIG) end
   
 function Data.mid(i,c,     most,out)
   if i.mu[c] then return i.mu[c] else 
