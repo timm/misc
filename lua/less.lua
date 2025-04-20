@@ -262,6 +262,10 @@ eg["--the"] = function(_) print(o(the)) end
 eg["--csv"] = function(_)
   for row in csvFile(the.data, out) do out(row) end end
 
+eg["--cols"] = function(_,     t)
+  t = {"name", "age", "Shoesize", "Mpg-"}
+  for _,col in pairs(Cols:new(t).all) do out(col) end end
+
 eg["--data"] = function(_,d)
   d= Data:new(the.data)
   map(d.cols.y, out) end
