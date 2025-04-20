@@ -67,7 +67,7 @@ function l.csvFile(src)
   src = io.input(src)
   return function(    s)
     s = io.read()
-    return s and l.csv(s) or io.close(src) end end
+    if s then return l.csv(s) else io.close(src) end end end
 
 local coerce,csv,csvFile = l.coerce,l.csv,l.csvFile
 
@@ -84,7 +84,7 @@ function l.olist(x,t)
 function l.o(x)
   if type(x)=="number" then return l.fmt(x//1 == x and "%s" or "%.3g",x) end
   if type(x)~="table"  then return tostring(x) end
-  return "{"..table.concat(#x>0 and l.olist(x) or l.odist(x)," ").."}" end
+  return "{"..table.concat(#x>0 and l.olist(x) or l.odict(x)," ").."}" end
 
 function l.out(x) print(l.o(x)); return x end
 
@@ -121,7 +121,7 @@ function Cols:new(row,   col)
 function Data:add(row)
   if self.cols
   then push(self.rows, self.cols:add(row))
-  else self.cols = Cols(row) end end
+  else self.cols = Cols:new(row) end end
 
 function Cols:add(row)
   return map(self.all, function(col) return col:add(row[row.at]) end) end
@@ -136,7 +136,6 @@ function Num:add(x,  n,yes,     d)
   if x ~= "?" then
     n, yes = n or 1, yes or 1
     self.n = self.n + yes * n
-    x = x + 0
     if yes < 0 and self.n < 2
     then self.mu,self.m2 = 0,0
     else
@@ -264,15 +263,15 @@ eg["--csv"] = function(_)
   for row in csvFile(the.data, out) do out(row) end end
 
 eg["--data"] = function(_,d)
-  d= Data(the.data)
+  d= Data:new(the.data)
   map(d.cols.y, out) end
 
 eg["--ydata"] = function(_,  d)
-  d = Data(the.data)
+  d = Data:new(the.data)
   out(sort(map(d.rows, function(r) return d:ydist(r) end))) end
 
 eg["--addSub"] = function(_, n1,t)
-  n1=Sym()
+  n1=Sym:new()
   t={};for _=1,100 do n1:add(push(t, R(10))) end
   out(n1); for _,x in pairs(t) do n1:sub(x) end
   out(n1); for _,x in pairs(t) do n1:add(x) end
@@ -280,7 +279,7 @@ eg["--addSub"] = function(_, n1,t)
 
 eg["--kmeans"] = function(_,  k,d,yfun,rows,t)
   k    = 32
-  d    = Data(the.data)
+  d    = Data:new(the.data)
   yfun = function(r) return d:ydist(r) end
   print("mid:",per(map(d.rows, yfun)))
   rows = keysort(d:centroids(k), yfun)
