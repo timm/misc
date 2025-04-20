@@ -181,7 +181,7 @@ function Num:cut(other)
   for x = lo,hi,step do
     f1 = i:pdf(x)
     f2 = j:pdf(x)
-    overlap = overlap + min(f1,f2)*step
+    overlap = overlap + min(f1,f2)*step -- xxx<D-s>
     if x > i.mu and x < j.mu then
       tmp = abs(f1 - f2)
       if tmp < least then
