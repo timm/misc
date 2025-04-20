@@ -16,7 +16,8 @@ local the = {
 
 local BIG = 1E32
 local Data,Sym,Num,Cols = {},{},{},{}
-local R=math.random
+local pi, R = math.pi, math.random
+local abs,exp,log,max,min = math.abs, math.exp,math.log, math.max, math.min
 
 ------------------------------------------------------------------------------
 local l={}
@@ -40,16 +41,16 @@ function l.map(t,f,   u)
 function l.sum(t,f,   n)
   n=0; for _,x in pairs(t) do n = n + f(x) end; return n end
 
-function l.lt(x,    _num)
-  _num = function(x) return x=="?" and BIG or x end
+function l.lt(x)
+  local _num = function(x) return x=="?" and BIG or x end
   return function(t,u) return _num(t[x]) < _num(u[x]) end end
 
 function l.sort(t) table.sort(t); return t end
 
-function l.keysort(a,  _fun,     _decorate,_undecorate)
+function l.keysort(t,  _fun,     _decorate,_undecorate)
   _decorate   = function(x) return {_fun(x),x} end
   _undecorate = function(x) return x[2] end
-  return  map(sort(map(a, _decorate), lt(1)), _undecorate) end
+  return  l.map(l.sort(l.map(t, _decorate),l.lt(1)),_undecorate) end
 
 local map,sum,lt,sort,keysort = l.map,l.sum,l.lt,l.sort,l.keysort
 
@@ -57,7 +58,7 @@ local map,sum,lt,sort,keysort = l.map,l.sum,l.lt,l.sort,l.keysort
 function l.coerce(s,   _trim,_fun)
   _trim = function(s) return s:match"^%s*(.-)%s*$" end
   _fun  = function(s) return s=="true" or s ~= "false" and s end
-  return math.tointeger(s) or tonumber(s) or _fun(_trim(s)) end  
+  return math.tointeger(s) or tonumber(s) or _fun(_trim(s)) end
 
 function l.csv(s,    t)
   t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=s1 end; return t end
@@ -74,11 +75,11 @@ local coerce,csv,csvFile = l.coerce,l.csv,l.csvFile
 l.fmt=string.format
 
 function l.odict(x,    t)
-  t={}; for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end
+  t={}; for k,v in pairs(x) do t[1+#t]=l.fmt(":%s %s",k,l.o(v)) end
   return l.sort(t) end
 
 function l.olist(x,t)
-  t={}; for _,v in pairs(x) do t[1+#t]=o(v) end; return t end
+  t={}; for _,v in pairs(x) do t[1+#t]=l.o(v) end; return t end
 
 function l.o(x)
   if type(x)=="number" then return l.fmt(x//1 == x and "%s" or "%.3g",x) end
@@ -99,30 +100,30 @@ function Data:new(src)
   return self end
 
 function Num:new(s,n)
-  return new(NUM, {txt=s or " ", at=n or 1, n=0,
+  return new(Num, {txt=s or " ", at=n or 1, n=0,
                    mu=0, m2=0, lo=BIG, hi=-BIG,
                    goal=tostring(s or " "):find"-$" and 0 or 1}) end
 
 function Sym:new(s,n)
-  return new(SYM, {txt=s or " ", at=n or 1, n=0,
+  return new(Sym, {txt=s or " ", at=n or 1, n=0,
                    has={}}) end
 
-function Cols:new(t,    col)
-  self = new(COLS, {all={}, x={}, y={}, names=t})
+function Cols:new(row,   col)
+  self = new(Cols, {all={}, x={}, y={}, names=row})
   for n,s in pairs(row) do
-    col = push(cols.all, (s:find"^[A-Z]" and Num or Sym):new(s,n))
+    col = push(self.all, (s:find"^[A-Z]" and Num or Sym):new(s,n))
     if not s:find"X$" then
-      push(s:find"[!-+]$" and cols.y or cols.x, one)
-      if s:find"!$" then cols.klass = one end end end
+      push(s:find"[!-+]$" and self.y or self.x, col)
+      if s:find"!$" then self.klass = col end end end
   return self end
 
 ------------------------------------------------------------------------------
 function Data:add(row)
   if self.cols
   then push(self.rows, self.cols:add(row))
-  else self.cols = COLS(row) end end
+  else self.cols = Cols(row) end end
 
-function Cols.add(row) 
+function Cols:add(row)
   return map(self.all, function(col) return col:add(row[row.at]) end) end
 
 function Cols:sub(row)
@@ -155,8 +156,8 @@ function Sym:add(x,  n,yes)
 
 ------------------------------------------------------------------------------
 function Sym:div(     _p)
-  _p = function(k,     p) p=i.has[k]/i.n; return p*log(p,2) end
-  return -sum(i.has, _p) end
+  _p = function(k,     p) p=self.has[k]/self.n; return p*log(p,2) end
+  return -sum(self.has, _p) end
 
 function Num:div()
     return self.n < 2 and 0 or (max(0,self.m2) / (self.n - 1))^.5 end
@@ -164,7 +165,7 @@ function Num:div()
 function Num:mid() return self.mu end
 function Sym:mid(     most,out)
   most = -BIG
-  for x,n in pairs(i.has) do if n > most then out,most = x,n end end
+  for x,n in pairs(self.has) do if n > most then out,most = x,n end end
   return out end 
 
 function Num:norm(x)
@@ -187,7 +188,7 @@ function Num:cut(other)
 	least,cut = tmp,x end end end
   return overlap,cut end
 
-function Sym:pdf(x) return (i.has[x] or 0)/i.n end
+function Sym:pdf(x) return (self.has[x] or 0)/self.n end
 
 function Num:pdf(x,      v,tmp)
   v = self.sd^2 + 1/BIG
@@ -238,6 +239,8 @@ function Data:centroids(k,  rows,      out)
   return out end
 
 ------------------------------------------------------------------------------
+local adds,over,upto,eq
+
 function adds(t,  col)
   for _,x in pairs(t) do
     col = col or (type(x)=="number" and Num or Sym):new()
@@ -258,22 +261,22 @@ local eg={}
 eg["--the"] = function(_) print(o(the)) end
 
 eg["--csv"] = function(_)
-  for row in csvFile(the.data, oo) do out(row) end end
+  for row in csvFile(the.data, out) do out(row) end end
 
 eg["--data"] = function(_,d)
   d= Data(the.data)
-  map(d.cols.y, oo) end
+  map(d.cols.y, out) end
 
 eg["--ydata"] = function(_,  d)
   d = Data(the.data)
-  oo(sort(map(d.rows, function(r) return d:ydist(r) end))) end
+  out(sort(map(d.rows, function(r) return d:ydist(r) end))) end
 
-eg["--addSub"] = function(_, n1)
+eg["--addSub"] = function(_, n1,t)
   n1=Sym()
   t={};for _=1,100 do n1:add(push(t, R(10))) end
-  oo(n1); for _,x in pairs(t) do n1:sub(x) end
-  oo(n1); for _,x in pairs(t) do n1:add(x) end
-  oo(n1); end
+  out(n1); for _,x in pairs(t) do n1:sub(x) end
+  out(n1); for _,x in pairs(t) do n1:add(x) end
+  out(n1); end
 
 eg["--kmeans"] = function(_,  k,d,yfun,rows,t)
   k    = 32
@@ -282,7 +285,7 @@ eg["--kmeans"] = function(_,  k,d,yfun,rows,t)
   print("mid:",per(map(d.rows, yfun)))
   rows = keysort(d:centroids(k), yfun)
   t={}; for n,row in pairs(d:neighbors(rows[1], d.rows)) do
-            if n> 10 then return oo(sort(t)) end
+            if n> 10 then return out(sort(t)) end
             push(t, d:ydist(row)) end end
 
 ------------------------------------------------------------------------------
@@ -291,4 +294,5 @@ if not pcall(debug.getlocal,4,1) then
     math.randomseed(the.rseed)
     if eg[s] then eg[s](arg[n+1]) else
       for k,_ in pairs(the) do
-        if s=="-"..k:sub(1,1) then the[k]=coerce(arg[n+1]) end end end end end
+        if s=="-"..k:sub(1,1) then
+          the[k] = coerce(arg[n+1]) end end end end end
