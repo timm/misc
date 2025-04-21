@@ -1,293 +1,301 @@
 -- vim: set ts=2 sw=2 sts=2 et:
 
 -- all the "top" vars (used across the whole module)
-local THE = {
-  about   = {what = "new.lua", 
-             why  = "simple inference", 
-             when = "(c) 2025, MIT License", 
-             who  = "Tim Menzies"}, 
+local the = {
+  about   = {what = "new.lua",
+             why  = "simple inference",
+             when = "(c) 2025, MIT License",
+             who  = "Tim Menzies"},
   rseed   = 1234567891,
-  data    = "../data/auto93.csv", 
-  k       = 1,                   
-  m       = 2,                  
-  p       = 2,                 
-  samples = 256               
+  data    = "../data/auto93.csv",
+  k       = 1,
+  m       = 2,
+  p       = 2,
+  samples = 256
 }
 
 local BIG = 1E32
-local DATA,SYM,NUM,COLS = {},{},{},{}
+local Data,Sym,Num,Cols = {},{},{},{}
+local pi, R = math.pi, math.random
+local abs,exp,log,max,min = math.abs, math.exp,math.log, math.max, math.min
 
 ------------------------------------------------------------------------------
+local l={}
+
 -- ## Library
--- ### Maths
-local pi  = math.pi
-local abs = math.abs
-local exp = math.exp
-local log = math.log
-local max = math.max
-local min = math.min
-local random = math.random
-local randomseed = math.randomseed
-
-local function per(t,  p) table.sort(t); return t[#t*(p or 0.5)//1] end
-
 -- ### Misc
-local function any(t) return t[random(#t)] end
+function l.per(t,  p) table.sort(t); return t[#t*(p or 0.5)//1] end
 
-local fmt=string.format
+function l.any(t) return t[math.random(#t)] end
 
-local function new(isa,t) isa.__index = isa; return setmetatable(t,isa) end
+function l.new(isa,t) isa.__index = isa; return setmetatable(t,isa) end
 
-local function push(t,x) t[1+#t]=x; return x end 
+function l.push(t,x) t[1+#t]=x; return x end
+
+local per,any,new,push = l.per,l.any,l.new,l.push
 
 -- ### Mapping
-local function map(t,f,   u) 
-  u={}; for _,x in pairs(t) do u[1+#u]= f(x) end; return u end 
+function l.map(t,f,   u)
+  u={}; for _,x in pairs(t) do u[1+#u]= f(x) end; return u end
 
-local function mop(t,f,o,...)
-  local u={}
-  for _,x in pairs(t) do u[1+#u]=getmetatable(o)[f](o,...) end; return u end 
+function l.sum(t,f,   n)
+  n=0; for _,x in pairs(t) do n = n + f(x) end; return n end
 
-local function sum(t,f,   n) 
-  n=0; for _,x in pairs(t) do n = n + f(x) end; return n end 
-
--- ### Sorting
-local function lt(x,    _num) 
-  _num = function(x) return x=="?" and BIG or x end
+function l.lt(x)
+  local _num = function(x) return x=="?" and BIG or x end
   return function(t,u) return _num(t[x]) < _num(u[x]) end end
 
-local function sort(t) table.sort(t); return t end
+function l.sort(t) table.sort(t); return t end
 
-local function keysort(a,  _fun)
-  local _decorate   = function(x) return {_fun(x),x} end
-  local _undecorate = function(x) return x[2] end
-  return  map(sort(map(a, _decorate), lt(1)), _undecorate) end
+function l.keysort(t,  _fun,     _decorate,_undecorate)
+  _decorate   = function(x) return {_fun(x),x} end
+  _undecorate = function(x) return x[2] end
+  return  l.map(l.sort(l.map(t, _decorate),l.lt(1)),_undecorate) end
+
+local map,sum,lt,sort,keysort = l.map,l.sum,l.lt,l.sort,l.keysort
 
 -- ### csv
-local function csv(s,    t)
-  t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=s1 end; return t end 
+function l.coerce(s,   _trim,_fun)
+  _trim = function(s) return s:match"^%s*(.-)%s*$" end
+  _fun  = function(s) return s=="true" or s ~= "false" and s end
+  return math.tointeger(s) or tonumber(s) or _fun(_trim(s)) end
 
-local function csvFile(src)
+function l.csv(s,    t)
+  t={}; for s1 in s:gmatch"([^,]+)" do t[1+#t]=s1 end; return t end
+
+function l.csvFile(src)
   src = io.input(src)
   return function(    s)
     s = io.read()
-    return s and csv(s) or io.close(src) end end 
+    if s then return l.csv(s) else io.close(src) end end end
 
--- ### Printing anything
-local function odict(x,    t)
-  t={}; for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end
-  return sort(t) end
+local coerce,csv,csvFile = l.coerce,l.csv,l.csvFile
 
-local function olist(x,t)
-  t={}; for _,v in pairs(x) do t[1+#t]=o(v) end; return t end
+-- ### Pretty printing
+l.fmt=string.format
 
-local function o(x)
-  if type(x)=="number" then return fmt(x//1 == x and "%s" or "%.3g",x) end
+function l.odict(x,    t)
+  t={}; for k,v in pairs(x) do t[1+#t]=l.fmt(":%s %s",k,l.o(v)) end
+  return l.sort(t) end
+
+function l.olist(x,t)
+  t={}; for _,v in pairs(x) do t[1+#t]=l.o(v) end; return t end
+
+function l.o(x)
+  if type(x)=="number" then return l.fmt(x//1 == x and "%s" or "%.3g",x) end
   if type(x)~="table"  then return tostring(x) end
-  return "{".. table.concat(#x>0 and olist(x) or odist(x)," ") .."}" )) end 
+  return "{"..table.concat(#x>0 and l.olist(x) or l.odict(x)," ").."}" end
 
-local function out(x) print(o(x)); return x end
+function l.out(x) print(l.o(x)); return x end
+
+local fmt,o,out = l.fmt, l.o, l.out
 
 ------------------------------------------------------------------------------
 -- ## Constructors
-local function Data(src,    self)
-  local self = new(DATA,{cols=nil, rows={}})
-  if   type(src)=="string" 
-  then for   t in csvFile(src)     do self:add(t) end
+function Data:new(src)
+  self = new(Data,{cols=nil, rows={}})
+  if   type(src)=="string"
+  then for   t in l.csvFile(src)   do self:add(t) end
   else for _,t in pairs(src or {}) do self:add(t) end end
-  return self end 
+  return self end
 
-local function Num(s,n) 
-  return new(NUM, {txt=s or " ", at=n or 1, n=0,
+function Num:new(s,n)
+  return new(Num, {txt=s or " ", at=n or 1, n=0,
                    mu=0, m2=0, lo=BIG, hi=-BIG,
                    goal=tostring(s or " "):find"-$" and 0 or 1}) end
 
-local function Sym(s,n) 
-  return new(SYM, {txt=s or " ", at=n or 1, n=0, 
+function Sym:new(s,n)
+  return new(Sym, {txt=s or " ", at=n or 1, n=0,
                    has={}}) end
 
-local function Cols(t,    self,col)
-  self = new(COLS, {all={}, x={}, y={}, names=t})
+function Cols:new(row,   col)
+  self = new(Cols, {all={}, x={}, y={}, names=row})
   for n,s in pairs(row) do
-    col = push(cols.all, (s:find"^[A-Z]" and Num or Sym)(s,n))
+    col = push(self.all, (s:find"^[A-Z]" and Num or Sym):new(s,n))
     if not s:find"X$" then
-      push(s:find"[!-+]$" and cols.y or cols.x, one)
-      if s:find"!$" then cols.klass = one end end end
-  return self end 
+      push(s:find"[!-+]$" and self.y or self.x, col)
+      if s:find"!$" then self.klass = col end end end
+  return self end
 
 ------------------------------------------------------------------------------
-function COLS:add(row)
-  for _,col in pairs(cols.all) do row[col.at] = col:add(row[col.at]) end 
-  return row end
+function Data:add(row)
+  if self.cols
+  then push(self.rows, self.cols:add(row))
+  else self.cols = Cols:new(row) end end
 
-function DATA:add(row)
-  if self.cols 
-  then push(self.rows, self.cols:add(row)) 
-  else self.cols = COLS(row) end end
+function Cols:add(row)
+  return map(self.all, function(col) return col:add(row[row.at]) end) end
 
-function NUM:sub(x,n) return Num:add(x,n,-1) end
-function SYM:sub(x,n) return Sym:add(x,n,-1) end
+function Cols:sub(row)
+  return map(self.all, function(col) return col:sub(row[col.at]) end) end
 
-function NUM:add(x,  n,twist)
+function Num:sub(x,n) return Num:add(x,n,-1) end
+function Sym:sub(x,n) return Sym:add(x,n,-1) end
+
+function Num:add(x,  n,yes,     d)
   if x ~= "?" then
-    n,twist = n or 1, twist or 1
-    self.n = self.n + twist*n
-    x = x + 0
-    if twist < 0 and self.n < 2
+    n, yes = n or 1, yes or 1
+    self.n = self.n + yes * n
+    if yes < 0 and self.n < 2
     then self.mu,self.m2 = 0,0
-    else 
+    else
       d = x - self.mu
-      self.mu = self.mu + twist*(d / self.n)
-      self.m2 = self.m2 + twist*(d * (x - self.mu))	 	  
-      if x < self.lo then self.lo = x end 	  
+      self.mu = self.mu + yes * (d / self.n)
+      self.m2 = self.m2 + yes * (d * (x - self.mu))	 	
+      if x < self.lo then self.lo = x end 	
       if x > self.hi then self.hi = x end end end
   return x end
 
-function SYM:add(x,  n,twist)
+function Sym:add(x,  n,yes)
   if x ~= "?" then
-    n,twist = n or 1, twist or 1
-    self.n = self.n + twist*n
-    self.has[x] = (self.has[x] or 0) + twist*n  end
-  return x end
+    n,yes = n or 1, yes or 1
+    self.n = self.n + yes * n
+    self.has[x] = (self.has[x] or 0) + yes*n  end
+  return x end 
 
 ------------------------------------------------------------------------------
-function SYM:div(     _p) 
-  _p = function(k,     p) p=i.has[k]/i.n; return p*log(p,2) end
-  return -sum(i.has, _p) end
+function Sym:div(     _p)
+  _p = function(k,     p) p=self.has[k]/self.n; return p*log(p,2) end
+  return -sum(self.has, _p) end
 
-function NUM:div()
-    return self.n < 2 and 0 or (max(0.self.m2) / (self.n - 1))^.5 end
+function Num:div()
+    return self.n < 2 and 0 or (max(0,self.m2) / (self.n - 1))^.5 end
 
-function NUM:mid() return self.mu end
-function SYM:mid(     most,out)
+function Num:mid() return self.mu end
+function Sym:mid(     most,out)
   most = -BIG
-  for x,n in pairs(i.has) do if n > most then out,most = x,n end end
-  return out end end
-  
-function NUM:norm(x)
+  for x,n in pairs(self.has) do if n > most then out,most = x,n end end
+  return out end 
+
+function Num:norm(x)
   return x=="?" and x or (x - self.lo) / (self.hi - self.lo + 1/BIG) end
-     
-function NUM:cut(other)
+
+function Num:cut(other)
   local i,j,lo,hi,step,overlap,least,cut,f1,f2,tmp
   i,j   = self,other
   lo    = min(i.lo, j.lo)
   hi    = max(i.hi, j.hi)
   step  = (hi - lo)/30
   overlap,least = 0,BIG
-  for x = lo,hi,step, do
+  for x = lo,hi,step do
     f1 = i:pdf(x)
     f2 = j:pdf(x)
-    overlap = overlap + min(f1,f2)*step
+    overlap = overlap + min(f1,f2)*step -- xxx<D-s>
     if x > i.mu and x < j.mu then
       tmp = abs(f1 - f2)
       if tmp < least then
-	least,cut = tmp,x end end end 
-  return overlap,cut end 
- 
-function SYM:pdf(x) return (i.has[x] or 0)/i.n end
+	least,cut = tmp,x end end end
+  return overlap,cut end
 
-function NUM:pdf(x,      v,tmp)
+function Sym:pdf(x) return (self.has[x] or 0)/self.n end
+
+function Num:pdf(x,      v,tmp)
   v = self.sd^2 + 1/BIG
   tmp = exp(-1*(x - self.mu)^2/(2*v)) / (2*pi*v) ^ 0.5
   return max(0, min(1, tmp + 1/BIG)) end
 
-function NUM:dist(x,y)
+function Num:dist(x,y)
   if x=="?" and y=="?" then	return 1 end
   x,y = self:norm(x), self:norm(y)
   x   = x ~= "?" and x or (y < 0.5 and 1 or 0)
   y   = y ~= "?" and y or (x < 0.5 and 1 or 0)
   return abs(x - y) end
 
-function SYM:cut(other)
-  local overlap,t,f1,f2 = 0,{}
-  for x in pairs(self.has)  do t[x] end
-  for x in pairs(other.has) do t[x] end
+function Sym:cut(other)
+  local overlap,t = 0,{}
+  for x in pairs(self.has)  do t[x]=1 end
+  for x in pairs(other.has) do t[x]=1 end
   for x in pairs(t) do overlap = overlap + min(self:pdf(x),other:pdf(x)) end
-  return overlap end
-          
+  return overlap end 
+
 ------------------------------------------------------------------------------
-function DATA:xdist(row1,row2,    _x)
+function Data:xdist(row1,row2,    _x)
   _x = function(c) return c:dist(row1[c.at], row2[c.at]) end
-  return (sum(self.cols.x, _x) / #self.cols.x) ^ (1/THE.p) end
+  return (sum(self.cols.x, _x) / #self.cols.x) ^ (1/the.p) end
 
-function DATA:ydist(row,    _y)
-  _y = function(c) return abs(c:norm(row[c.at]) - c.goal) ^ THE.p  end
-  return (sum(self.cols.y, _y) / #self.cols.y) ^ (1/THE.p) end
+function Data:ydist(row,    _y)
+  _y = function(c) return abs(c:norm(row[c.at]) - c.goal) ^ the.p  end
+  return (sum(self.cols.y, _y) / #self.cols.y) ^ (1/the.p) end
 
-function DATA:neighbors(row1,rows)
-  return keysort(rows or self.rows, 
+function Data:neighbors(row1,rows)
+  return keysort(rows or self.rows,
                  function(row2) return self:xdist(row1,row2) end) end
 
-function DATA:centroids(k,  rows,      out)--> rows
+function Data:centroids(k,  rows,      out)
   rows = rows or self.rows
   out = {any(rows),any(rows)}
-  for _ = 2,k do 
+  for _ = 2,k do
     local all,u = 0,{}
-    for _ = 1, THE.samples do
+    for _ = 1, the.samples do
       local row = any(rows)
       local closest = self:neighbors(row, out)[2]
-      all = all + push(u, {row=row, d=self:xdist(row,closest)^2}).d end 
-    local i,r = 1,all * random()
+      all = all + push(u, {row=row, d=self:xdist(row,closest)^2}).d end
+    local i,r = 1,all * R()
     for j,x in pairs(u) do
       r = r - x.d
-      if r <= 0 then i=j; break end end 
+      if r <= 0 then i=j; break end end
     push(out, u[i].row) end
   return out end
 
 ------------------------------------------------------------------------------
+local adds,over,upto,eq
 
 function adds(t,  col)
   for _,x in pairs(t) do
-    if   col 
-    then col:add(x) 
-    else return adds(t, type(x)=="number" and Num() or Sym()) end end
-  return col end
+    col = col or (type(x)=="number" and Num or Sym):new()
+    col:add(x) end
+  return col end 
 
 function over(a,n)
-  return fmt("%a > %a",a,n), function(x) return x=="?" or x>= n end
+  return fmt("%a > %a",a,n), function(x) return x=="?" or x>= n end end
 
-function upto(a,n) 
-  return fmt("%a <= %a",a,n), function(x) return x=="?" or x < n end
+function upto(a,n)
+  return fmt("%a <= %a",a,n), function(x) return x=="?" or x < n end end
 
-function eq(a,n)   
-  return fmt("%a == $a"a,n), function(x) return x=="?" or x==n end
+function eq(a,n)
+  return fmt("%a == $a",a,n), function(x) return x=="?" or x==n end end
 
 ------------------------------------------------------------------------------
 local eg={}
-eg["--the"] = function(_) print(o(THE)) end
+eg["--the"] = function(_) print(o(the)) end
 
-eg["--csv"] = function(_) 
-  for row in csvFile(THE.data, oo) do out(row) end end
+eg["--csv"] = function(_)
+  for row in csvFile(the.data, out) do out(row) end end
 
-eg["--data"] = function(_,d) 
-  d= Data:new(THE.data) 
-  map(d.cols.y, oo) end
+eg["--cols"] = function(_,     t)
+  t = {"name", "age", "Shoesize", "Mpg-"}
+  for _,col in pairs(Cols:new(t).all) do out(col) end end
 
-eg["--ydata"] = function(_,  d,rows,fun,r,t) 
-  d = Data:new(THE.data) 
-  oo(sort(map(d.rows, function(r) return d:ydist(r) end))) end
+eg["--data"] = function(_,d)
+  d= Data:new(the.data)
+  map(d.cols.y, out) end
 
-eg["--addSub"] = function(_, n1)
+eg["--ydata"] = function(_,  d)
+  d = Data:new(the.data)
+  out(sort(map(d.rows, function(r) return d:ydist(r) end))) end
+
+eg["--addSub"] = function(_, n1,t)
   n1=Sym:new()
-  t={};for _=1,100 do n1:add(push(t, random(10))) end 
-  oo(n1); for _,x in pairs(t) do n1:sub(x) end
-  oo(n1); for _,x in pairs(t) do n1:add(x) end
-  oo(n1); end
+  t={};for _=1,100 do n1:add(push(t, R(10))) end
+  out(n1); for _,x in pairs(t) do n1:sub(x) end
+  out(n1); for _,x in pairs(t) do n1:add(x) end
+  out(n1); end
 
 eg["--kmeans"] = function(_,  k,d,yfun,rows,t)
   k    = 32
-  d    = Data:new(THE.data) 
+  d    = Data:new(the.data)
   yfun = function(r) return d:ydist(r) end
-  print("mid:",per(map(d.rows, yfun))) 
+  print("mid:",per(map(d.rows, yfun)))
   rows = keysort(d:centroids(k), yfun)
-  t={}; for n,row in pairs(d:neighbors(rows[1], d.rows)) do 
-            if n> 10 then return oo(sort(t)) end
+  t={}; for n,row in pairs(d:neighbors(rows[1], d.rows)) do
+            if n> 10 then return out(sort(t)) end
             push(t, d:ydist(row)) end end
 
 ------------------------------------------------------------------------------
-if not pcall(debug.getlocal,4,1) then  
+if not pcall(debug.getlocal,4,1) then
   for n,s in pairs(arg) do
-    randomseed(THE.rseed)
+    math.randomseed(the.rseed)
     if eg[s] then eg[s](arg[n+1]) else
-      for k,_ in pairs(THE) do 
-        if s=="-"..k:sub(1,1) then THE[k]=word(arg[n+1]) end end end end end
+      for k,_ in pairs(the) do
+        if s=="-"..k:sub(1,1) then
+          the[k] = coerce(arg[n+1]) end end end end end
