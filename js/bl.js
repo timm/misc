@@ -3,10 +3,6 @@ const out = console.log
 const min = Math.min, max = Math.max, sqrt = Math.sqrt, abs = Math.abs;
 const log = Math.log, exp = Math.exp, PI = Math.PI;
 
-function o(x, y = {}) { 
-  for (let k in y) x[k] = y[k]; 
-  return x}
-
 const the = { 
   Few:   50, Stop:  32, acq: "xploit", bins: 16, boots: 512, 
   cliff: 0.147, conf: 0.05, file: "data.csv", guess: 0.5, 
@@ -47,7 +43,7 @@ Num.add = function(v, n = 1, f = 1) {
       this.mu += f * d / this.n;
       this.m2 += f * d * (v - this.mu);
       this.sd  = this.n <= 2 ? 0 : sqrt(max(0, this.m2 / (this.n - 1)))}}
-  return v; };
+  return v; }
 
 Sym.add = function(v, n = 1, f = 1) {
   if (v === "?") return v;
