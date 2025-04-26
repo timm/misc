@@ -97,8 +97,7 @@ const csv = file => fs.readFileSync(file === "-" ? 0 : file, "utf-8")
 
 const adds = (rows, i) => rows.reduce((r, x) => (r ??= isNum(x) ? Num() : Sym(), r.add(x), r), i);
 const sub = (v, i, n = 1) => i.add(v, n, -1);
-const clone = (data, rows = []) => adds(rows, Data([data.cols.names]));
-
+const clone = (data, rows = []) => adds(rows, Data([data.cols.names]))
 const norm = (v, col) => (v === "?" || col.it === "Sym") ? v : (v - col.lo) / (col.hi - col.lo + 1 / BIG);
 const mid = col => col.it === "Num" ? col.mu : Object.entries(col.has).reduce((a, b) => a[1] > b[1] ? a : b)[0];
 const spread = c => c.it === "Num" ? c.sd : -Object.values(c.has).reduce((acc, n) => acc + (n / c.n) * log(n / c.n), 0);
