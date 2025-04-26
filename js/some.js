@@ -47,6 +47,27 @@ Sym.add = function(v, n=1, f=1) {
     return v}
     
 //---------------------------------------------------------------------------
+function cli(obj, args = process.argv.slice(2)) {}
+  for (let i = 0; i < args.length; i++)
+    if (args[i][0] === "-")
+      for (let k in obj)
+        if (args[i][1] === k[0])
+          obj[k] = typeof obj[k] === "boolean" ? !obj[k] : coerce(args[++i]);
+  return obj }
+
+function coerce(x) {
+  if (x === "?") return "?"
+  if (x === "true") return true
+  if (x === "false") return false
+  if (!isNaN(x)) return Number(x)
+  return x }
+
+function settings(str) {
+  let out = {}, m
+  let reg = /-\w+\s+(\w+)[^\n]*=\s*(\S+)/g
+  while ((m = reg.exec(str)))  out[m[1]] = coerce(m[2])
+  return out }
+
 let a = Num._("age-");
 let b = Num._("Mph+");
 let c = Sym._("color");
