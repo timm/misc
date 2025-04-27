@@ -14,9 +14,7 @@ OPTIONS:
       -f file       training csv file           = ../test/data/auto93.csv  
       -F Few        search a few items in a list = 50
       -g guess      size of guess               = 0.5  
-      -G go         start up action             = nothing
       -k k          low frequency Bayes hack    = 1  
-      -K Kuts       max discretization zones    = 17
       -l leaf       min size of tree leaves     = 2
       -m m          low frequency Bayes hack    = 2  
       -p p          distance formula exponent   = 2  
@@ -30,7 +28,6 @@ const out = console.log
 const min = Math.min, max = Math.max, sqrt = Math.sqrt, abs = Math.abs
 const log = Math.log, exp = Math.exp, PI = Math.PI
 const isa = (x,a) => Object.assign(Object.create(x),a)
-const O   = Object, entries=O.entries, values=O.values, keys=O.keys
 
 //---------------------------------------------------------------------------------------
 const Num = {
@@ -56,9 +53,8 @@ Num.add = function(v, n=1, f=1) {
     
 //---------------------------------------------------------------------------------------
 const Sym = {
-  _(txt=" ", at=0) { return isa(Sym, 
-             { txt, at, n:0, has:{}})}, 
-  mid()      { return mode(this.has) }
+  _(txt=" ", at=0) { return isa(Sym, { txt, at, n:0, has:{}})}, 
+  mid()      { return mode(this.has) },
   sub(v,n=1) { return this.add(v,n=n,f=-1) },
   var()      { return entropy(this.has) } }
 
@@ -70,12 +66,11 @@ Sym.add = function(v, n=1, f=1) {
     
 //--------------------------------------------------------------------------------------
 function mode(obj) {
-  return keys(obj).reduce((a,b) => this.has[b] > this.has[a]?b:a)}
+  return Object.keys(obj).reduce((a,b) => obj[b] > obj[a]?b:a)}
 
-function entrop(obj) {
-  let m=0; for (let k in obj) m += obj[k];
-  let e=0; for (let k in obj) e += obj[k]/m*log(obj[k]/m,2);
-  return -e }
+function entropy(obj) {
+  let m=0; for (let k in obj) { m += obj[k] };
+  let e=0; for (let k in obj) { e -= obj[k]/m*log(obj[k]/m,2) }; return e }
   
 function cli(obj = {}, eg = {}, args = process.argv.slice(2)) {
   for (let i = 0, a; i < args.length; i++)
@@ -98,8 +93,8 @@ function is(x) {
   let y = +x;
   return isNaN(y) ? x : y }
 
-function settings(str=help, it={}, reg=/-\w+\s+(\w+)[^\n]*=\s*(\S+)/g) {
-  let m
+function settings(str=help, reg=/-\w+\s+(\w+)[^\n]*=\s*(\S+)/g) {
+  let it={},m 
   while (m = reg.exec(str)) it[m[1]] = is(m[2]); 
   return it }
 
@@ -112,9 +107,16 @@ function rand(n=1) {
   return n * (SEED - 1) / 2147483646 }
   
 //---------------------------------------------------------------------------------------
+let eg={}
 
 eg.the = arg => console.log("THE called with", arg);
 
+eg.seed = function(_) {
+  let nums = []; SEED = the.rseed
+  for(let i =1; i< 10; i++) nums.push(i*rand()); out(nums) 
+  nums = []; SEED = the.rseed
+  for(let i =1; i< 10; i++) nums.push(i*rand()); out(nums) }
+  
 eg.misc = function(_) {
 	out(the)
 	let a = Num._("age-");
@@ -132,3 +134,5 @@ eg.misc = function(_) {
 	out(c.var()) }
 
 //---------------------------------------------------------------------------	-----------
+
+if (require.main === module) cli(the, eg)
