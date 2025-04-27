@@ -136,7 +136,7 @@ eg.seed = function(_) { // does SEED reset mean same numbers, same order?
   SEED = the.rseed; for (let i = 0; i < 30; i++) m += a[i] - round(rand(100));
   assert(m===0,"bad seed reset") }
 
-eg.csv = (f) => csv(f || the.file).forEach( a => out(a.join(", "))) 
+eg.csv = (f) => csv(f || the.file).forEach(a => out(a.join(", "))) 
 
 eg.cols = (_) => 
   Cols("name age Mpg+ Acc+ Lbs-".split(" ")).all.forEach(col => out(col))
