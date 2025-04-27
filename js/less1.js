@@ -65,7 +65,6 @@ Sym.add = function (v, n = 1, f = 1) {
   this.has[v] = (this.has[v] || 0) + f * n;
   return v; };
 
-
 Cols.add = function (row, n = 1, f = 1) {
   this.all.forEach(col => col.add(row[col.at], n, f));
   return row; };
