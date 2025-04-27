@@ -92,7 +92,7 @@ function cli(obj = {}, eg = {}, args = process.argv.slice(2)) {
       if (a[1] === "-") {
         let f = eg[a.slice(2)];
         if (f) {
-          SEED = the.rseed;  // <-- use RNG here
+          SEED = the.rseed;  
           f((!args[i+1] || args[i+1][0] === "-") ? undefined : is(args[++i]))}
       } else
           for (let k in obj)
