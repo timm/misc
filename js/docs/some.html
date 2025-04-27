@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>some.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>some.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-1">&#x00a7;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+<span class="hljs-keyword">const</span> help=<span class="hljs-string">`
+bl.py : barelogic, XAI for active learning + multi-objective optimization
+(c) 2025, Tim Menzies &lt;timm@ieee.org&gt;, MIT License  
+
+OPTIONS:  
+
+      -a acq        xploit or xplore or adapt   = xploit  
+      -b bootstraps num of bootstrap samples    = 512
+      -B BootConf   bootstrap threshold         = 0.95
+      -B BootConf   bootstrap threshold         = 0.95
+      -c cliffConf  cliffs delta threshold     = 0.197
+      -C Cohen      Cohen threshold             = 0.35
+      -d decs       decimal places for printing = 3  
+      -f file       training csv file           = ../test/data/auto93.csv  
+      -F Few        search a few items in a list = 50
+      -g guess      size of guess               = 0.5  
+      -k k          low frequency Bayes hack    = 1  
+      -K Kuts       max discretization zones    = 17
+      -l leaf       min size of tree leaves     = 2
+      -m m          low frequency Bayes hack    = 2  
+      -p p          distance formula exponent   = 2  
+      -r rseed      random number seed          = 1234567891  
+      -s start      where to begin              = 4  
+      -S Stop       where to end                = 32  
+      -t tiny       min size of leaves of tree  = 4
+`</span>
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;fs&quot;</span>);
+<span class="hljs-keyword">const</span> out = <span class="hljs-variable language_">console</span>.<span class="hljs-property">log</span>
+<span class="hljs-keyword">const</span> min = <span class="hljs-title class_">Math</span>.<span class="hljs-property">min</span>, max = <span class="hljs-title class_">Math</span>.<span class="hljs-property">max</span>, sqrt = <span class="hljs-title class_">Math</span>.<span class="hljs-property">sqrt</span>, abs = <span class="hljs-title class_">Math</span>.<span class="hljs-property">abs</span>
+<span class="hljs-keyword">const</span> log = <span class="hljs-title class_">Math</span>.<span class="hljs-property">log</span>, exp = <span class="hljs-title class_">Math</span>.<span class="hljs-property">exp</span>, <span class="hljs-variable constant_">PI</span> = <span class="hljs-title class_">Math</span>.<span class="hljs-property">PI</span>
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">isa</span> = (<span class="hljs-params">x,a</span>) =&gt; <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">assign</span>(<span class="hljs-title class_">Object</span>.<span class="hljs-title function_">create</span>(x),a)
+<span class="hljs-keyword">const</span> O   = <span class="hljs-title class_">Object</span>, entries=O.<span class="hljs-property">entries</span>, values=O.<span class="hljs-property">values</span>, keys=O.<span class="hljs-property">keys</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-2">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-3">&#x00a7;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-title class_">Num</span> = {
+  <span class="hljs-title function_">_</span>(<span class="hljs-params">txt=<span class="hljs-string">&quot; &quot;</span>, at=<span class="hljs-number">0</span></span>) { <span class="hljs-keyword">return</span> <span class="hljs-title function_">isa</span>(<span class="hljs-title class_">Num</span>, 
+             { txt, at, <span class="hljs-attr">n</span>:<span class="hljs-number">0</span>, <span class="hljs-attr">mu</span>:<span class="hljs-number">0</span>, <span class="hljs-attr">m2</span>:<span class="hljs-number">0</span>, <span class="hljs-attr">lo</span>:<span class="hljs-number">1e30</span>, <span class="hljs-attr">hi</span>:-<span class="hljs-number">1e30</span>, <span class="hljs-attr">rank</span>:<span class="hljs-number">0</span>, 
+               <span class="hljs-attr">goal</span>: txt.<span class="hljs-title function_">at</span>(-<span class="hljs-number">1</span>) === <span class="hljs-string">&quot;-&quot;</span> ? <span class="hljs-number">0</span> : <span class="hljs-number">1</span>})},             
+  <span class="hljs-title function_">mid</span>(<span class="hljs-params"></span>)      { <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">mu</span>},
+  <span class="hljs-title function_">sub</span>(<span class="hljs-params">v,n=<span class="hljs-number">1</span></span>) { <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">add</span>(v,n=n,f=-<span class="hljs-number">1</span>)},
+  <span class="hljs-title function_">var</span>(<span class="hljs-params"></span>)      { <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">n</span> &lt;= <span class="hljs-number">2</span> ? <span class="hljs-number">0</span> : <span class="hljs-title function_">sqrt</span>(<span class="hljs-title function_">max</span>(<span class="hljs-number">0</span>,<span class="hljs-variable language_">this</span>.<span class="hljs-property">m2</span> / (<span class="hljs-variable language_">this</span>.<span class="hljs-property">n</span> - <span class="hljs-number">1</span>)))}}
+
+ <span class="hljs-title class_">Num</span>.<span class="hljs-property">add</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params">v, n=<span class="hljs-number">1</span>, f=<span class="hljs-number">1</span></span>) {
+    <span class="hljs-keyword">if</span> (v !== <span class="hljs-string">&quot;?&quot;</span>) {
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">n</span> += f * n
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">lo</span> = <span class="hljs-title function_">min</span>(v, <span class="hljs-variable language_">this</span>.<span class="hljs-property">lo</span>)
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">hi</span> = <span class="hljs-title function_">max</span>(v, <span class="hljs-variable language_">this</span>.<span class="hljs-property">hi</span>)
+      <span class="hljs-keyword">if</span> (f &lt; <span class="hljs-number">0</span> &amp;&amp; <span class="hljs-variable language_">this</span>.<span class="hljs-property">n</span> &lt; <span class="hljs-number">2</span>) 
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">mu</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">sd</span> = <span class="hljs-number">0</span>
+      <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">let</span> d = v - <span class="hljs-variable language_">this</span>.<span class="hljs-property">mu</span>
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">mu</span> += f * d / <span class="hljs-variable language_">this</span>.<span class="hljs-property">n</span>
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">m2</span> += f * d * (v - <span class="hljs-variable language_">this</span>.<span class="hljs-property">mu</span>)}}
+    <span class="hljs-keyword">return</span> v}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-4">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-title class_">Sym</span> = {
+  <span class="hljs-title function_">_</span>(<span class="hljs-params">txt=<span class="hljs-string">&quot; &quot;</span>, at=<span class="hljs-number">0</span></span>) { <span class="hljs-keyword">return</span> <span class="hljs-title function_">isa</span>(<span class="hljs-title class_">Sym</span>, 
+             { txt, at, <span class="hljs-attr">n</span>:<span class="hljs-number">0</span>, <span class="hljs-attr">has</span>:{}})}, 
+  <span class="hljs-title function_">mid</span>(<span class="hljs-params"></span>)      { <span class="hljs-keyword">return</span> <span class="hljs-title function_">keys</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">has</span>).<span class="hljs-title function_">reduce</span>(<span class="hljs-function">(<span class="hljs-params">a,b</span>) =&gt;</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">has</span>[b] &gt; <span class="hljs-variable language_">this</span>.<span class="hljs-property">has</span>[a]?<span class="hljs-attr">b</span>:a)},
+  <span class="hljs-title function_">sub</span>(<span class="hljs-params">v,n=<span class="hljs-number">1</span></span>) { <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">add</span>(v,n=n,f=-<span class="hljs-number">1</span>)},
+  <span class="hljs-title function_">var</span>(<span class="hljs-params"></span>)      { <span class="hljs-keyword">return</span> -<span class="hljs-title function_">values</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">has</span>).<span class="hljs-title function_">reduce</span>(<span class="hljs-function">(<span class="hljs-params">e,n</span>) =&gt;</span> e + (n/<span class="hljs-variable language_">this</span>.<span class="hljs-property">n</span>)*<span class="hljs-title function_">log</span>(n/<span class="hljs-variable language_">this</span>.<span class="hljs-property">n</span>),<span class="hljs-number">0</span>)}}
+
+<span class="hljs-title class_">Sym</span>.<span class="hljs-property">add</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params">v, n=<span class="hljs-number">1</span>, f=<span class="hljs-number">1</span></span>) {
+    <span class="hljs-keyword">if</span> (v !== <span class="hljs-string">&quot;?&quot;</span>) {
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">n</span> += f * n
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">has</span>[v] = (<span class="hljs-variable language_">this</span>.<span class="hljs-property">has</span>[v] || <span class="hljs-number">0</span>) + f * n} 
+    <span class="hljs-keyword">return</span> v}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-7">&#x00a7;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">function</span> <span class="hljs-title function_">cli</span>(<span class="hljs-params">obj, args = process.argv.slice(<span class="hljs-number">2</span>)</span>) {
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; args.<span class="hljs-property">length</span>; i++)
+    <span class="hljs-keyword">if</span> (args[i][<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>)
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> k <span class="hljs-keyword">in</span> obj)
+        <span class="hljs-keyword">if</span> (args[i][<span class="hljs-number">1</span>] === k[<span class="hljs-number">0</span>])
+          obj[k] = <span class="hljs-keyword">typeof</span> obj[k] === <span class="hljs-string">&quot;boolean&quot;</span> ? !obj[k] : <span class="hljs-title function_">coerce</span>(args[++i]);
+  <span class="hljs-keyword">return</span> obj }
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">coerce</span>(<span class="hljs-params">x</span>) {
+  <span class="hljs-keyword">if</span> (x === <span class="hljs-string">&quot;?&quot;</span>) <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;?&quot;</span>
+  <span class="hljs-keyword">if</span> (x === <span class="hljs-string">&quot;true&quot;</span>) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  <span class="hljs-keyword">if</span> (x === <span class="hljs-string">&quot;false&quot;</span>) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+  <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">isNaN</span>(x)) <span class="hljs-keyword">return</span> <span class="hljs-title class_">Number</span>(x)
+  <span class="hljs-keyword">return</span> x }
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">cli</span>(<span class="hljs-params">obj = {}, eg = {}, args = process.argv.slice(<span class="hljs-number">2</span>)</span>) {
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; args.<span class="hljs-property">length</span>; i++) {
+    <span class="hljs-keyword">if</span> (args[i][<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>) <span class="hljs-keyword">continue</span>
+    <span class="hljs-keyword">if</span> (args[i][<span class="hljs-number">1</span>] === <span class="hljs-string">&quot;-&quot;</span>) { <span class="hljs-comment">// --the</span>
+      <span class="hljs-keyword">let</span> key = args[i].<span class="hljs-title function_">slice</span>(<span class="hljs-number">2</span>)
+      <span class="hljs-keyword">if</span> (eg[key]) {
+        <span class="hljs-keyword">let</span> next = args[i + <span class="hljs-number">1</span>]
+        eg[key](!next || next[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> ? <span class="hljs-literal">undefined</span> : <span class="hljs-title function_">coerce</span>(args[++i])) }
+   } <span class="hljs-keyword">else</span> { <span class="hljs-comment">// -F</span>
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> k <span class="hljs-keyword">in</span> obj)
+        <span class="hljs-keyword">if</span> (args[i][<span class="hljs-number">1</span>] === k[<span class="hljs-number">0</span>])
+          obj[k] = <span class="hljs-keyword">typeof</span> obj[k] === <span class="hljs-string">&quot;boolean&quot;</span> ? !obj[k] : <span class="hljs-title function_">coerce</span>(args[++i]) }
+   } <span class="hljs-keyword">return</span> obj}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">settings</span>(<span class="hljs-params">str=help, it={}, reg = /-\w+\s+(\w+)[^\n]*=\s*(\S+)/g</span>) {
+  <span class="hljs-keyword">let</span> m; <span class="hljs-keyword">while</span> (m = reg.<span class="hljs-title function_">exec</span>(str)) it[m[<span class="hljs-number">1</span>]] = <span class="hljs-title function_">coerce</span>(m[<span class="hljs-number">2</span>]); <span class="hljs-keyword">return</span> it; }
+
+<span class="hljs-keyword">const</span> the=<span class="hljs-title function_">settings</span>(help)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-8">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-9">&#x00a7;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> eg = {};
+
+eg.<span class="hljs-property">the</span> = <span class="hljs-function"><span class="hljs-params">arg</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;THE called with&quot;</span>, arg);
+
+eg.<span class="hljs-property">misc</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params">_</span>) {
+	<span class="hljs-title function_">out</span>(the)
+	<span class="hljs-keyword">let</span> a = <span class="hljs-title class_">Num</span>.<span class="hljs-title function_">_</span>(<span class="hljs-string">&quot;age-&quot;</span>);
+	<span class="hljs-keyword">let</span> b = <span class="hljs-title class_">Num</span>.<span class="hljs-title function_">_</span>(<span class="hljs-string">&quot;Mph+&quot;</span>);
+	<span class="hljs-keyword">let</span> c = <span class="hljs-title class_">Sym</span>.<span class="hljs-title function_">_</span>(<span class="hljs-string">&quot;color&quot;</span>);	
+	a.<span class="hljs-title function_">add</span>(<span class="hljs-number">10</span>);
+	a.<span class="hljs-title function_">add</span>(<span class="hljs-number">20</span>);
+	b.<span class="hljs-title function_">add</span>(<span class="hljs-number">400</span>);
+	c.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;red&quot;</span>);
+	c.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;blue&quot;</span>);
+	<span class="hljs-title function_">out</span>(a)
+	<span class="hljs-title function_">out</span>(b)
+	<span class="hljs-title function_">out</span>(c)
+	<span class="hljs-title function_">out</span>(c.<span class="hljs-title function_">mid</span>())
+	<span class="hljs-title function_">out</span>(c.<span class="hljs-title function_">var</span>()) }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-10">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> (<span class="hljs-built_in">require</span>.<span class="hljs-property">main</span> === <span class="hljs-variable language_">module</span>) {
+  <span class="hljs-title function_">cli</span>(the,eg)
+  <span class="hljs-title function_">out</span>(the) }</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

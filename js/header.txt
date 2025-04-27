@@ -1,0 +1,5 @@
+// SOME.JS
+// BareLogic XAI system
+// (c) 2025, Tim Menzies
+// Licensed under MIT
+//
