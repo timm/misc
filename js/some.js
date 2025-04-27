@@ -11,7 +11,7 @@ OPTIONS:
       -c cliffConf  cliffs delta threshold     = 0.197
       -C Cohen      Cohen threshold             = 0.35
       -d decs       decimal places for printing = 3  
-      -f file       training csv file           = ../test/data/auto93.csv  
+      -f file       training csv file           = auto93.csv  
       -F Few        search a few items in a list = 50
       -g guess      size of guess               = 0.5  
       -k k          low frequency Bayes hack    = 1  
@@ -23,19 +23,20 @@ OPTIONS:
       -S Stop       where to end                = 32  
       -t tiny       min size of leaves of tree  = 4
 `
-const fs = require("fs");
-const out = console.log
-const min = Math.min, max = Math.max, sqrt = Math.sqrt, abs = Math.abs
-const log = Math.log, exp = Math.exp, PI = Math.PI
-const isa = (x,a) => Object.assign(Object.create(x),a)
-
+fs = require("fs");
+out = console.log
+min = Math.min, max = Math.max, sqrt = Math.sqrt, abs = Math.abs
+round = Math.round
+log = Math.log, exp = Math.exp, PI = Math.PI
+isa = (x,a) => Object.assign(Object.create(x),a)
+assert = (test,txt) => {if (!test) throw new Error(txt)}
 //---------------------------------------------------------------------------------------
-const Num = {
+Num = {
   _(txt=" ", at=0) { return isa(Num, 
              { txt, at, n:0, mu:0, m2:0, lo:1e30, hi:-1e30, rank:0, 
                goal: txt.at(-1) === "-" ? 0 : 1})},             
   mid()      { return this.mu},
-  sub(v,n=1) { return this.add(v,n=n,f=-1)},
+  sub(v,n=1) { return this.add(v,n=n,f = -1)},
   var()      { return this.n <= 2 ? 0 : sqrt(max(0,this.m2 / (this.n - 1)))}}
 
 Num.add = function(v, n=1, f=1) {
@@ -52,10 +53,10 @@ Num.add = function(v, n=1, f=1) {
     return v}
     
 //---------------------------------------------------------------------------------------
-const Sym = {
+Sym = {
   _(txt=" ", at=0) { return isa(Sym, { txt, at, n:0, has:{}})}, 
   mid()      { return mode(this.has) },
-  sub(v,n=1) { return this.add(v,n=n,f=-1) },
+  sub(v,n=1) { return this.add(v,n=n,f = -1) },
   var()      { return entropy(this.has) } }
 
 Sym.add = function(v, n=1, f=1) {
@@ -63,7 +64,20 @@ Sym.add = function(v, n=1, f=1) {
       this.n += f * n
       this.has[v] = (this.has[v] || 0) + f * n} 
     return v}
-    
+
+//---------------------------------------------------------------------------------------
+function Cols(names) { 
+  return names.reduce((cols, s, n) => {
+    let col = (/^[A-Z]/.test(s) ? Num : Sym)._(s, n)
+    cols.all.push(col);
+    if (!s.endsWith("X")) {
+      (/[!+-]/.test(s.at(-1)) ? cols.y : cols.x).push(col);
+      if (s.endsWith("!")) cols.klass = col; }
+    return cols;
+  }, isa(Cols, {names, all: [], x: [], y: [], klass: -1 })) }
+
+ Cols.add = a => this.cols.all.forEach(col => col.add(a[col.at]))
+ 
 //--------------------------------------------------------------------------------------
 function mode(obj) {
   return Object.keys(obj).reduce((a,b) => obj[b] > obj[a]?b:a)}
@@ -93,8 +107,13 @@ function is(x) {
   let y = +x;
   return isNaN(y) ? x : y }
 
+function csv(file) { 
+  return fs.readFileSync(file === "-" ? 0 : file, "utf-8")
+    .split(/\r?\n/).map(x => x.replace(/[\t\r ]|#.*$/g, ""))
+    .filter(x => x).map(x => x.split(",").map(is)) }
+
 function settings(str=help, reg=/-\w+\s+(\w+)[^\n]*=\s*(\S+)/g) {
-  let it={},m 
+  let it = {},m 
   while (m = reg.exec(str)) it[m[1]] = is(m[2]); 
   return it }
 
@@ -109,14 +128,19 @@ function rand(n=1) {
 //---------------------------------------------------------------------------------------
 let eg={}
 
-eg.the = arg => console.log("THE called with", arg);
+eg.eg = arg => console.log("--eg called with", arg)
 
-eg.seed = function(_) {
-  let nums = []; SEED = the.rseed
-  for(let i =1; i< 10; i++) nums.push(i*rand()); out(nums) 
-  nums = []; SEED = the.rseed
-  for(let i =1; i< 10; i++) nums.push(i*rand()); out(nums) }
-  
+eg.seed = function(_) { // does SEED reset mean same numbers, same order?
+  let a=[], m=0
+  SEED = the.rseed; for (let i = 0; i < 30; i++)      a[i] = round(rand(100));
+  SEED = the.rseed; for (let i = 0; i < 30; i++) m += a[i] - round(rand(100));
+  assert(m===0,"bad seed reset") }
+
+eg.csv = (f) => csv(f || the.file).forEach( a => out(a.join(", "))) 
+
+eg.cols = (_) => 
+  Cols("name age Mpg+ Acc+ Lbs-".split(" ")).all.forEach(col => out(col))
+
 eg.misc = function(_) {
 	out(the)
 	let a = Num._("age-");
