@@ -23,21 +23,23 @@ OPTIONS:
       -S Stop       where to end                = 32  
       -t tiny       min size of leaves of tree  = 4
 `
-fs = require("fs");
-out = console.log
-min = Math.min, max = Math.max, sqrt = Math.sqrt, abs = Math.abs
-round = Math.round
-log = Math.log, exp = Math.exp, PI = Math.PI
-isa = (x,a) => Object.assign(Object.create(x),a)
+fs     = require("fs");
+out    = console.log
+min    = Math.min, max = Math.max, sqrt = Math.sqrt, abs = Math.abs
+round  = Math.round
+log    = Math.log, exp = Math.exp, PI = Math.PI
+isa    = (x,a) => Object.assign(Object.create(x),a)
 assert = (test,txt) => {if (!test) throw new Error(txt)}
+
 //---------------------------------------------------------------------------------------
 Num = {
   _(txt=" ", at=0) { return isa(Num, 
              { txt, at, n:0, mu:0, m2:0, lo:1e30, hi:-1e30, rank:0, 
                goal: txt.at(-1) === "-" ? 0 : 1})},             
-  mid()      { return this.mu},
+  mid()      { return this.mu},  
+  norm(v)    { return  v==="?" ? v :(v - this.lo) / (this.hi - this.lo + 1 / BIG) },
   sub(v,n=1) { return this.add(v,n=n,f = -1)},
-  var()      { return this.n <= 2 ? 0 : sqrt(max(0,this.m2 / (this.n - 1)))}}
+  div()      { return this.n <= 2 ? 0 : sqrt(max(0,this.m2 / (this.n - 1)))}}
 
 Num.add = function(v, n=1, f=1) {
     if (v !== "?") {
@@ -51,13 +53,14 @@ Num.add = function(v, n=1, f=1) {
         this.mu += f * d / this.n
         this.m2 += f * d * (v - this.mu)}}
     return v}
-    
+
 //---------------------------------------------------------------------------------------
 Sym = {
   _(txt=" ", at=0) { return isa(Sym, { txt, at, n:0, has:{}})}, 
   mid()      { return mode(this.has) },
+  norm(x)    { return x },  
   sub(v,n=1) { return this.add(v,n=n,f = -1) },
-  var()      { return entropy(this.has) } }
+  div()      { return entropy(this.has) } }
 
 Sym.add = function(v, n=1, f=1) {
     if (v !== "?") {
@@ -68,17 +71,32 @@ Sym.add = function(v, n=1, f=1) {
 //---------------------------------------------------------------------------------------
 function Cols(names) { 
   return names.reduce((cols, s, n) => {
-    let col = (/^[A-Z]/.test(s) ? Num : Sym)._(s, n)
+    let col = (/^[A-Z]/.test(s) ? Num : Sym)._(s, n)
     cols.all.push(col);
-    if (!s.endsWith("X")) {
-      (/[!+-]/.test(s.at(-1)) ? cols.y : cols.x).push(col);
-      if (s.endsWith("!")) cols.klass = col; }
-    return cols;
+    if (!s.endsWith("X")) {
+      (/[!+-]/.test(s.at(-1)) ? cols.y : cols.x).push(col);
+      if (s.endsWith("!")) cols.klass = col 
+    }
+    return cols;
   }, isa(Cols, {names, all: [], x: [], y: [], klass: -1 })) }
 
- Cols.add = a => this.cols.all.forEach(col => col.add(a[col.at]))
- 
+ Cols.add = row => this.cols.all.forEach(col => col.add(row[col.at]))
+
+//---------------------------------------------------------------------------------------
+Data = (src = []) => src.reduce((d, x) => (d.add(x), d),
+  isa(Data, { n: 0, rows: [], cols: null }))
+
+Data.add = function (row, n = 1, f = 1) {
+  if (!this.cols) this.cols = Cols(row)
+  else this.rows.push(this.cols.add(row, n, f));
+  return row }
+
+Data.clone = (src=[]) => src.reduce((d,x) => (d.add(x),d), Data([this.cols.names]))
 //--------------------------------------------------------------------------------------
+function adds(rows, i) {
+  return rows.reduce((r, x) => 
+           (r ??= (typeof r=='number') ? Num() : Sym(), r.add(x), r), i))}
+           
 function mode(obj) {
   return Object.keys(obj).reduce((a,b) => obj[b] > obj[a]?b:a)}
 
@@ -155,7 +173,7 @@ eg.misc = function(_) {
 	out(b)
 	out(c)
 	out(c.mid())
-	out(c.var()) }
+	out(c.div()) }
 
 //---------------------------------------------------------------------------	-----------
 
