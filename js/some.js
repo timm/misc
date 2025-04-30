@@ -70,15 +70,14 @@ Sym.add = function(v, n=1, f=1) {
 
 //---------------------------------------------------------------------------------------
 function Cols(names) { 
-  return names.reduce((cols, s, n) => {
+  let all=[], x=[], y=[], klass=null
+  names.forEach((n,s)  => {
     let col = (/^[A-Z]/.test(s) ? Num : Sym)._(s, n)
-    cols.all.push(col);
+    all.push(col);
     if (!s.endsWith("X")) {
-      (/[!+-]/.test(s.at(-1)) ? cols.y : cols.x).push(col);
-      if (s.endsWith("!")) cols.klass = col 
-    }
-    return cols;
-  }, isa(Cols, {names, all: [], x: [], y: [], klass: -1 })) }
+      (/[!+-]/.test(s.at(-1)) ? y : x).push(col);
+      if (s.endsWith("!")) cols.klass = col }}) 
+  return isa(Cols, {names:names, all: all, x: x, y: y, klass: klass})}
 
  Cols.add = row => this.cols.all.forEach(col => col.add(row[col.at]))
 
