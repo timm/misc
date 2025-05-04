@@ -10,18 +10,24 @@ def col(txt=' ',at=0): return (Num if txt[0].isupper() else Sym)(txt,at)
 class Col(o):
   def __init__(i,txt=' ',at=0): 
     i.txt, i.at, i.n, i.w, i.goal = txt, at, 0, 0, txt[-1] in "!+-"
+  def sub(i,x,n=1): 
+    return i.add(x, n=n, flip=-1)
 
 class Num(Col):
   def __init__(i,*_):
     super().__init__(*_); 
     i.lo, i.hi, i.mu, i.m2 = 1e32, -1e32, 0, 0 
     i.goal = 0 if txt[-1]=="-" else 1
-  def add(i,x): 
+  def add(i,x, n=1,flip=1): 
     if x!="?": 
-     i.n+=1
-     d = x-i.mu
-     i.mu += d/i.n; i.m2 += d*(x - i.mu)
+     i.n+= flip*n
      i.lo = min(i.lo,x); i.hi=max(i.hi,x)
+     if flip < 0 and i.n < 2:
+       i.mu = i.sd = 0
+     else:
+       d = x-i.mu
+       i.mu += flip*d/i.n
+       i.m2 += flip*d*(x - i.mu)
   def norm(i,x): 
     return x if x=="?" else (x-i.lo)/(i.hi-i.lo+1e-32)
   def dist(i,a,b):
@@ -34,9 +40,10 @@ class Num(Col):
 
 class Sym(Col):
   def __init__(i,*_): super().__init__(*_); i.has={}
-  def add(i,x): 
+  def add(i,x, n=1,flip=1): 
     if x!="?": 
-      i.n+=1; i.has[x]=i.has.get(x,0)+1
+      i.n += flip*n
+      i.has[x] = i.has.get(x,0) + flip*n
   def norm(i,x): return x
   def dist(i,a,b): return a!=b
   def mid(i): max(i.has, key=i.has.get)
@@ -46,22 +53,28 @@ class Data(o):
   def __init__(i,src=[]): 
     i.rows,i.cols = [],None
     [i.add(row) for row in src]
+  def clone(i, rows=[]):
+    return Data([[o.cols.name] + rows])
   def add(i,row):
     if i.cols: i.rows += [i.cols.add(row)]
-    else: i.cols=Cols(row)
+    else i.cols=Cols(row)
+  def sub(i,row,purge=True):
+    i.cols.sub(row)
+    if purge: i.rows.remove(row)
   def dist(i,a, b, p=the.p):
     def fun(c): return c.w * c.dist(a[c.at], b[c.at])
     return (sum(fun(c)**p for c in i.cols.x) / len(i.cols.x))**(1/p)
   def kpp(i,k, rows=None):
-    row1,*rows = rows or shuffle(i.rows)[:128]
+    rows = rows or i.rows
+    row1,*rows = random.choices(rows, k=min(len(rows,128))
     out = [row1]
     while len(out) < k:
       tmp = [min(i.dist(x, y)**2 for y in out) for x in rows]
       r = random.random() * sum(tmp)
-      for i, x in enumerate(tmp):
+      for j, x in enumerate(tmp):
         r -= x
         if r < 0:
-          out += [rows[i]]
+          out += [rows[j]]
           break
     return out
   
@@ -71,12 +84,11 @@ class Cols(o):
     i.all = [col(s, j) for j, s in enumerate(names)]
     for c in i.all: 
       if c.txt[-1] != "X":
-        (y if c.txt in "!+-" else x).append(c)
-      if c.txt[-1] == "!": i.klass=col
-  def add(i,row):
-    for c in i.all: c.add(row[c.at])
-    return row
-
+        if c.txt[-1] == "!": i.klass = c
+        (i.y if c.txt in "!+-" else i.x).append(c)
+  def add(i,row): return [c.add(row[c.at]) for c in i.all]
+  def sub(,row) : return [c.sub(row[c.at]) for c in i.all]
+  
 def csv(file):
   for line in open(file):
     if s := line.strip():
@@ -88,31 +100,54 @@ def coerce(x):
     try: return float(x) 
     except: return x
 
+def adds(src=[], out=None):
+  for x in src:
+    out = out or (Sym if type(x)=="string" else Num)()
+    out.add(x)
+  return out
+  
 the = o(p=2)
 
-def any(a): return random.choice(a)
+def eq(x,y): return x == y
+def le(x,y): return x <= y
+def gt(x,y): return x >  y
 
-def ent(rows):
-  f = {}
-  for x in rows: f[x[-1]] = f.get(x[-1], 0) + 1
-  n = len(rows)
-  return -sum((v / n) * math.log2(v / n) for v in f.values())
+# too har d wirred into nums
+def tree(rows,data, Y,Klass):
+  bestE, out = 1e32, None
+  cuts = sorted([c.cuts(rows,Y,Klass)                        
+                 for c in data.cols.x], key=lambda x:x.var)
+  if cuts:
+    for cut in all[0]:
 
-def tree(rows):
-  bestE, bestJ, bestV = 1e9, None, None
-  m = len(rows[0]) - 1
-  for j in range(m):
-    for v in {x[j] for x in rows}:
-      L = [x for x in rows if x[j] <= v]
-      R = [x for x in rows if x[j] > v]
-      if L and R:
-        e = (len(L) * ent(L) + len(R) * ent(R)) / len(rows)
-        if e < bestE:
-          bestE, bestJ, bestV = e, j, v
-  if bestJ is None: return set()
-  L = [x for x in rows if x[bestJ] <= bestV]
-  return {bestJ} | tree(L)
+def values(i,rows):
+  for row in rows:
+    x = row[i.at]
+    if x != "?": yield x,row
 
+def Sym.cuts(i,rows,Y,Klass):
+  tmp={}
+  for x,row in i.values(rows):
+    tmp[x] = tmp.get(x) or Klass()
+    tmp[x].add(Y(row))
+  return o(var = tmp[x].var(), X WRONG has to be the sum
+          decisions = [o(at=i.at, txt=i.txt.x=x, decide=eq)]
+                         for x in tmp)
+      
+def Num.cuts(i,rows,Y,Klass):
+  least,out = 1E32, None,
+  L, R = Klass(), adds([Y(row) for row in rows], Klass())
+  for x,row in i.values(rows):
+    R.sub(L.add(Y(row)))
+    if x != b4:
+      e = (L.n * L.var() + R.n * R.var()) / len(rows)
+      if e < least:
+        least, out = e, o(var = e, 
+                         decisions = [o(at=i.at, txt=i.txt, x=x, decide=le),
+                                      o(at=i.at, txt=i.txt, x=x, decide=gt)])
+    b4 = x
+  return out
+  
 def select(data, cols, k=16, g=5):
   m = len(data[0])
   w = [1] * m
