@@ -1,21 +1,86 @@
 import random, math
 random.seed()
 
-class o: __init__ = lambda i,**d:  i.__dict__.update(**d)
+class o: 
+  __init__ = lambda i,**d: i.__dict__.update(**d)
+  __repr__ = lambda i: i.__class__.__name__ + str(i.__dict__)
 
-def Sym(txt=' ',at=0) 
-  return o(nump=False, txt=txt, at=at, n=0, w=1, has={})
+def col(txt=' ',at=0): return (Num if txt[0].isupper() else Sym)(txt,at)
+
+class Col(o):
+  def __init__(i,txt=' ',at=0): 
+    i.txt, i.at, i.n, i.w, i.goal = txt, at, 0, 0, txt[-1] in "!+-"
+
+class Num(Col):
+  def __init__(i,*_):
+    super().__init__(*_); 
+    i.lo, i.hi, i.mu, i.m2 = 1e32, -1e32, 0, 0 
+    i.goal = 0 if txt[-1]=="-" else 1
+  def add(i,x): 
+    if x!="?": 
+     i.n+=1
+     d = x-i.mu
+     i.mu += d/i.n; i.m2 += d*(x - i.mu)
+     i.lo = min(i.lo,x); i.hi=max(i.hi,x)
+  def norm(i,x): 
+    return x if x=="?" else (x-i.lo)/(i.hi-i.lo+1e-32)
+  def dist(i,a,b):
+    a,b = i.norm(a), i.norm(b)
+    a = a if a!="?" else (1 if b<.5 else 0)
+    b = b if b!="?" else (1 if a<.5 else 0)
+    return abs(a - b)
+  def mid(i): return i.mu
+  def var(i): return i.n < 2 and 0 or (max(0,i.m2)/(i.n - 1))^0.5
+
+class Sym(Col):
+  def __init__(i,*_): super().__init__(*_); i.has={}
+  def add(i,x): 
+    if x!="?": 
+      i.n+=1; i.has[x]=i.has.get(x,0)+1
+  def norm(i,x): return x
+  def dist(i,a,b): return a!=b
+  def mid(i): max(i.has, key=i.has.get)
+  def var(i): return -sum(n/i.n * math.log(n/i.n,2) for n in i.has.values())
+
+class Data(o):
+  def __init__(i,src=[]): 
+    i.rows,i.cols = [],None
+    [i.add(row) for row in src]
+  def add(i,row):
+    if i.cols: i.rows += [i.cols.add(row)]
+    else: i.cols=Cols(row)
+  def dist(i,a, b, p=the.p):
+    def fun(c): return c.w * c.dist(a[c.at], b[c.at])
+    return (sum(fun(c)**p for c in i.cols.x) / len(i.cols.x))**(1/p)
+  def kpp(i,k, rows=None):
+    row1,*rows = rows or shuffle(i.rows)[:128]
+    out = [row1]
+    while len(out) < k:
+      tmp = [min(i.dist(x, y)**2 for y in out) for x in rows]
+      r = random.random() * sum(tmp)
+      for i, x in enumerate(tmp):
+        r -= x
+        if r < 0:
+          out += [rows[i]]
+          break
+    return out
   
-def Num(txt=' ',at=0) 
-  return o(nump=True,  txt=txt, at=at, n=0, w=1, goal=0 if txt[=1]=="-" else 1, lo=1E32, hi=-1Es32)
-
-def Data(src=[]):
-  return o(rows=[], head=)
+class Cols(o):
+  def __init__(i,names):
+    i.x, i.y, i.names,i.klass = [],[],names,None
+    i.all = [col(s, j) for j, s in enumerate(names)]
+    for c in i.all: 
+      if c.txt[-1] != "X":
+        (y if c.txt in "!+-" else x).append(c)
+      if c.txt[-1] == "!": i.klass=col
+  def add(i,row):
+    for c in i.all: c.add(row[c.at])
+    return row
 
 def csv(file):
   for line in open(file):
     if s := line.strip():
-      yield [coerce(x) for x in s.split(",")]  head=None
+      yield [coerce(x) for x in s.split(",")]  
 
 def coerce(x):
   try: return int(x) 
@@ -23,68 +88,41 @@ def coerce(x):
     try: return float(x) 
     except: return x
 
-def isY(s): return s[-1] in "!+-"
-def isNum(s):  return s[0].isUpper()
+the = o(p=2)
 
-def csv(file,cols=None):
-  for line in open(file):
-    if s := line.strip():
-      line = [coerce(x) for x in s.split(",")]
-      if cols: yield cols,line
-      else: all = [(Num if isNum(s) else Sym)(s,i) for i,s in enumerate(line)]
-            cols = o(all=all, x=[col for col in all if not isY(col.txt)])
+def any(a): return random.choice(a)
 
-def d(a,b,cols):
-  def _sym(a,b): return a==b
-  def _num(a,b): 
-    a = a if a != "?" else (0 if b > .5 else 1)
-    b = b if b != "?" else (0 if a > .5 else 1)
-    return abs(a-b)
-  def _col(a,b,col):
-    return col.w*(_sym(a,b) if col.isNum else _num(norm(a,col), norm(b,col)))
-  return (sum(_col(a[c.at],b[c.at])**the.p for c in cols.x) / len(cols.x))**(1/the.p)
+def ent(rows):
+  f = {}
+  for x in rows: f[x[-1]] = f.get(x[-1], 0) + 1
+  n = len(rows)
+  return -sum((v / n) * math.log2(v / n) for v in f.values())
 
-def norm(x,num): return x if x=="?" else (x=num.lo) / (num.hi - num.lo + 1E-32) 
-def rand(a): return random.choice(a)
-def kpp(k,d,w):
-  c=[rand(d)]
-  while len(c)<k:
-    D=[min(d(x,y,w) for y in c)**2 for x in d]
-    s=sum(D); r=random.random()*s
-    for i,x in enumerate(D):
-      r-=x
-      if r<0: c.append(d[i]); break
-  return c
-
-def near(c,d,w,n): return sorted(d,key=lambda x:d(x,c,w))[:n]
-def label(cs,d,w,n): return [x+[chr(97+i)] for i,c in enumerate(cs) for x in near(c,d,w,n)]
-
-def ent(r):
-  f,n={},len(r)
-  for x in r: f[x[-1]]=f.get(x[-1],0)+1
-  return -sum((v/n)*math.log2(v/n) for v in f.values())
-
-def tree(r):
-  bestE,bestJ,bestV=1e9,None,None
-  m=len(r[0])-1
+def tree(rows):
+  bestE, bestJ, bestV = 1e9, None, None
+  m = len(rows[0]) - 1
   for j in range(m):
-    vals={x[j] for x in r}
-    for v in vals:
-      L=[x for x in r if x[j]<=v]
-      R=[x for x in r if x[j]>v]
+    for v in {x[j] for x in rows}:
+      L = [x for x in rows if x[j] <= v]
+      R = [x for x in rows if x[j] > v]
       if L and R:
-        e=(len(L)*ent(L)+len(R)*ent(R))/len(r)
-        if e<bestE: bestE,bestJ,bestV=e,j,v
+        e = (len(L) * ent(L) + len(R) * ent(R)) / len(rows)
+        if e < bestE:
+          bestE, bestJ, bestV = e, j, v
   if bestJ is None: return set()
-  L=[x for x in r if x[bestJ]<=bestV]
+  L = [x for x in rows if x[bestJ] <= bestV]
   return {bestJ} | tree(L)
 
-def select(data,k=8,n=2,g=5):
-  m=len(data[0]); w=[1]*m
+def select(data, cols, k=16, g=5):
+  m = len(data[0])
+  w = [1] * m
   for _ in range(g):
-    cs=kpp(k,data,lambda x,y,w=w:d(x,y,w))
-    rows=label(cs,data,lambda x,y,w=w:d(x,y,w),n)
-    keep=tree(rows)
-    w=[w[i] if i in keep else 0 for i in range(m)]
-  return [i for i,v in enumerate(w) if v>0]
+    centers = kpp(k, data, cols)
+    rows = []
+    for x in data:
+      i = min(range(k), key=lambda j: dist(x, centers[j], cols))
+      rows.append(x + [chr(97 + i)])
+    keep = tree(rows)
+    w = [w[i] if i in keep else 0 for i in range(m)]
+  return [i for i, v in enumerate(w) if v > 0]
 
