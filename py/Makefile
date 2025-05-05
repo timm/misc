@@ -25,7 +25,7 @@ $(Tmp)/%.pdf: %.py  ## make doco: .py ==> .pdf
 	echo "pdf-ing $@ ... "
 	a2ps                 \
 		-Br                 \
-		--chars-per-line=90 \
+		--chars-per-line=80 \
 		--file-align=fill      \
 		--line-numbers=1        \
 		--pro=color               \

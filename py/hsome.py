@@ -1,5 +1,5 @@
 import random, math
-random.seed() #---
+random.seed() 
 
 class o: 
   __init__ = lambda i,**d: i.__dict__.update(**d)
@@ -65,7 +65,7 @@ class Sym(Col):
   def dist(i,a,b): return a!=b
   def mid(i)     : max(i.has, key=i.has.get)
   def norm(i,x)  : return x
-  def var(i)     : return -sum(n/i.n * math.log(n/i.n,2) for n in i.has.values())
+  def var(i)     : return -sum(n/i.n*math.log(n/i.n,2) for n in i.has.values())
 
   def add(i,x, n=1,flip=1): 
     if x!="?": 
@@ -81,8 +81,21 @@ class Sym(Col):
     if n:
       return o(var= sum(x.var()*x.n for x in tmp.values())/n,
                tests= [o(at=i.at, txt=i.txt, x=x, test=eq) for x in tmp])
-   
+
 #------------------------------------------------------------------------------
+class Cols(o):
+  def __init__(i,names):
+    i.x, i.y, i.names,i.klass = [],[],names,None
+    i.all = [col(s, j) for j, s in enumerate(names)]
+    for c in i.all: 
+      if c.txt[-1] != "X":
+        if c.txt[-1] == "!": i.klass = c
+        (i.y if c.txt in "!+-" else i.x).append(c)
+
+  def add(i,row): return [c.add(row[c.at]) for c in i.all]
+  def sub(i,row): return [c.sub(row[c.at]) for c in i.all]
+
+#------------------------------------------------------------------------------
 class Data(o):
   def __init__(i,src=[]): 
     i.rows,i.cols = [],None
@@ -95,10 +108,39 @@ class Data(o):
     if i.cols: i.rows += [i.cols.add(row)]
     else: i.cols=Cols(row)
 
-  def sub(i,row,purge=True):
+  def kpp(i, k, rows=None):
+    row1,*rows = shuffle(rows or i.rows)[:the.some]
+    out = [row1]
+    while len(out) < k:
+      tmp = [min(i.xdist(x, y)**2 for y in out) for x in rows]
+      r = random.random() * sum(tmp)
+      for j,x in enumerate(tmp):
+        r -= x
+        if r < 0:
+          out.append(rows.pop(j))
+          break
+    return out
+
+  def sub(i, row, purge=True):
     i.cols.sub(row)
     if purge: i.rows.remove(row)
 
+  def tree(i, rows, Y, Klass, test=lambda _: True):
+    here      = i.clone(rows)
+    here.kids = []
+    here.test = test
+    if len(rows) >= the.leaf:
+      splits = []
+      for col in i.cols.x:
+        if tmp := col.cuts(rows, Y,Klass): 
+          splits += [tmp]
+      if splits:
+        for t in sorted(splits,key=lambda x:x.var)[0].tests:
+          rows1 = [r for r in rows if t.test(r[t.at],t.x)]
+          if the.leaf <= len(rows1) < len(rows):
+            here.kids += [i.tree(rows1, Y, Klass, test=t)]
+    return here
+  
   def xdist(i,a,b):
     p = the.p
     def fun(c): return c.w * c.dist(a[c.at], b[c.at])
@@ -109,32 +151,6 @@ class Data(o):
     def fun(c): return abs(c.goal - c.norm(row[c.at]))
     return (sum(fun(c)**p for c in i.cols.y) / len(i.cols.y))**(1/p)
 
-  def kpp(i,k,rows=None):
-    row1,*rows = shuffle(rows or i.rows)[:the.some]
-    out = [row1]
-    while len(out) < k:
-      tmp = [min(i.xdist(x, y)**2 for y in out) for x in rows]
-      r = random.random() * sum(tmp)
-      for j,x in enumerate(tmp):
-        r -= x
-        if r < 0:
-          out += [rows.pop(j)]
-          break
-    return out
-  
-#------------------------------------------------------------------------------
-class Cols(o):
-  def __init__(i,names):
-    i.x, i.y, i.names,i.klass = [],[],names,None
-    i.all = [col(s, j) for j, s in enumerate(names)]
-    for c in i.all: 
-      if c.txt[-1] != "X":
-        if c.txt[-1] == "!": i.klass = c
-        (i.y if c.txt in "!+-" else i.x).append(c)
-
-  def add(i,row): return [c.add(row[c.at]) for c in i.all]
-  def sub(i,row): return [c.sub(row[c.at]) for c in i.all]
-  
 #------------------------------------------------------------------------------
 def shuffle(lst): random.shuffle(lst); return lst
 
@@ -166,21 +182,7 @@ def gt(x,y): return x >  y
 
 #------------------------------------------------------------------------------
 # too har d   nums
-def tree(rows, data, Y,Klass,  test=lambda _: True):
-  here      = data.clone(data.rows)
-  here.kids = []
-  here.test = test
-  if len(rows) >= the.leaf:
-    splits = []
-    for col in data.cols.x:
-      if tmp:=col.cuts(rows, Y,Klass): 
-        splits += [tmp]
-    if splits:
-      for t in sorted(splits,key=lambda x:x.var)[0].tests:
-        rows1 = [r for r in rows if t.test(r[t.at],t.x)]
-        if the.leaf <= len(rows1) < len(rows):
-          here.kids += [tree(rows1,data,Y,Klass,test=t)]
-  return here
+
 
 def select(data, cols, k=16, g=5):
   m = len(data[0])
