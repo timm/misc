@@ -71,6 +71,11 @@ class Data(o):
   def dist(i,a, b, p=the.p):
     def fun(c): return c.w * c.dist(a[c.at], b[c.at])
     return (sum(fun(c)**p for c in i.cols.x) / len(i.cols.x))**(1/p)
+  def ydist(i,row):
+    def fun(c): return abs(c.goal - c.norm(row[c.at]))
+    return (sum(fun(c)**p for c in i.cols.y) / len(i.cols.y))**(1/p)
+  def ydists(i,rows=None):
+    return adds(i.ydist(row) for row in rows or i.rows) 
   def kpp(i,k, rows=None):
     rows = rows or i.rows
     row1,*rows = random.choices(rows, k=min(len(rows,the.some))
@@ -85,7 +90,12 @@ class Data(o):
           break
     return out
   
+<<<<<<< HEAD
 #------------------------------------------------------------------------------
+=======
+  
+  
+>>>>>>> ac44c6971698aa32c2de550a36f18c027363f4d1
 class Cols(o):
   def __init__(i,names):
     i.x, i.y, i.names,i.klass = [],[],names,None
@@ -120,13 +130,22 @@ def eq(x,y): return x == y
 def le(x,y): return x <= y
 def gt(x,y): return x >  y
 
-# too har d wirred into nums
-def tree(rows,data, Y,Klass):
-  bestE, out = 1e32, None
-  cuts = sorted([c.cuts(rows,Y,Klass)                        
-                 for c in data.cols.x], key=lambda x:x.var)
-  if cuts:
-    for cut in all[0]:
+# too har d wnodeirred intnodeo nums
+def tree(rows, data, Y,Klass,  test=lambda _: True):
+  here = clone(data.rows)
+  here.kids =[]
+  here.test = test
+  if len(rows) >= the.leaf:
+    splits = []
+    for col in data.cols.x:
+      if tmp:=col.cuts(rows, Y,Klass): 
+        splits += [tmp]
+    if splits:
+      for t in sorted(splits,key=lambda x:x.var)[0].tests:
+        rows1 = [r for r in rows if t.test(r[t.at],t.x)]
+        if the.leaf <= len(rows1) < len(rows:
+          here.kids += [tree(rows1,data,Y,Klass,test=t)]
+  return here
 
 def values(i,rows):
   for row in rows:
@@ -134,13 +153,14 @@ def values(i,rows):
     if x != "?": yield x,row
 
 def Sym.cuts(i,rows,Y,Klass):
-  tmp={}
+  n,tmp = 0,{}
   for x,row in i.values(rows):
+    n += 1 
     tmp[x] = tmp.get(x) or Klass()
     tmp[x].add(Y(row))
-  return o(var = tmp[x].var(), X WRONG has to be the sum
-          decisions = [o(at=i.at, txt=i.txt.x=x, decide=eq)]
-                         for x in tmp)
+  if n:
+    return o(var = sum(x.var()*x.n for x in tmp.values())/n,
+             tests = [o(at=i.at, txt=i.txt. x=x, test=eq) for x in tmp])
       
 def Num.cuts(i,rows,Y,Klass):
   least,out = 1E32, None,
@@ -151,8 +171,8 @@ def Num.cuts(i,rows,Y,Klass):
       e = (L.n * L.var() + R.n * R.var()) / len(rows)
       if e < least:
         least, out = e, o(var = e, 
-                         decisions = [o(at=i.at, txt=i.txt, x=x, decide=le),
-                                      o(at=i.at, txt=i.txt, x=x, decide=gt)])
+                          tests = [o(at=i.at, txt=i.txt, x=x, test=le),
+                                   o(at=i.at, txt=i.txt, x=x, tes=gt)])
     b4 = x
   return out
   
