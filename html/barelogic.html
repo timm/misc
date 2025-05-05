@@ -13,12 +13,33 @@ body {
 </head>
 <body>
 <main>
-  <p align=right> <a href="asdsa">Home</a> |
+  <script>
+  const pages = [
+    { title: "Home", url: "index.html" },
+    { title: "About Us", url: "about.html" },
+    { title: "Products", url: "products.html" },
+    { title: "Contact", url: "contact.html" }
+  ];
+
+  document.getElementById("searchBox").addEventListener("input", function () {
+    const query = this.value.toLowerCase();
+    const results = pages.filter(p => p.title.toLowerCase().includes(query));
+
+    const ul = document.getElementById("searchResults");
+    ul.innerHTML = results.map(p =>
+      `<li><a href="${p.url}">${p.title}</a></li>`
+    ).join("");
+  });
+</script>
+
+<p style="margin:0; overflow: hidden;"> <span style="float: left;"><a href="asdsa">Home</a> |
      <a href="asdsa">Products</a> |
      <a href="asdsa">Code</a> |
      <a href="asdsa">People</a> |
-     <a href="asdsa">&copy; 2025</a> 
-  </p>
+     <a href="asdsa">&copy; 2025</a></span><span style="float: right;"<>
+<input type="text" id="searchBox" placeholder="Search..." />
+<ul id="searchResults"></ul></span>
+   </p>
 
 <h2>BareLogic, Inc.</h2>
 <img align="right" 
