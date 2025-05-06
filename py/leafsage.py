@@ -1,5 +1,5 @@
 """
-bare: active learning for explainable multi-objective optimization
+leafsage: active learning for explainable multi-objective optimization
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
 Options:
