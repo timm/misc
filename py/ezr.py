@@ -182,7 +182,7 @@ def shuffle(lst): random.shuffle(lst); return lst
 def csv(file=None):
   buf = ""
   for line in fileinput.input(file):
-    if line := line.split("#")[0].replace(" ", "").strip()
+    if line := line.split("#")[0].replace(" ", "").strip():
       buf += line
       if buf and buf[-1] != ",": 
         yield [coerce(x) for x in buf.split(",")]
