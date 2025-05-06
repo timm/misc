@@ -1,5 +1,5 @@
 """
-leafsage: active learning for explainable multi-objective optimization
+ezr: active learning for explainable multi-objective optimization
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
 Options:
@@ -16,12 +16,23 @@ sys.dont_write_bytecode = True
 # Simple structs (with names fields) that can print themselves.
 class o: 
   __init__ = lambda i,**d: i.__dict__.update(**d)
-  __repr__ = lambda i: i.__class__.__name__ + str(i.__dict__)
+  __repr__ = lambda i: i.__class__.__name__ + '(' + ' '.join(
+                       [f":{k} {show(v)}" for k,v in i.__dict__.items()]) + ')'
+
+def show(x):
+  if type(x) == float:
+    y=x//1; x = y if x==y else f"{x:.3f}".rstrip("0").rstrip(".")
+  return str(x)
+
+def eq(x,y): return x == y
+def le(x,y): return x <= y 
+def gt(x,y): return x >  y
+
+def test(t,row) : return t.test(t.x. row[t.at])
+
+def col(txt=' ',at=0): return (Num if txt[0].isupper() else Sym)(txt,at)
 
 #------------------------------------------------------------------------------
-def col(txt=' ',at=0): 
-  return (Num if txt[0].isupper() else Sym)(txt,at)
-
 class Col(o):
   def __init__(i,txt=' ',at=0):
     i.txt, i.at, i.n = txt, at, 0
@@ -98,7 +109,7 @@ class Sym(Col):
 #------------------------------------------------------------------------------
 class Cols(o):
   def __init__(i,names):
-    i.x, i.y, i.names,i.klass = [],[],names,None
+    i.x, i.y, i.names,i.klass,i.ok = [],[],names,None,True
     i.all = [col(s, j) for j, s in enumerate(names)]
     for c in i.all: 
       if c.txt[-1] != "X":
@@ -138,7 +149,8 @@ class Data(o):
     i.cols.sub(row)
     if purge: i.rows.remove(row)
 
-  def tree(i, rows, Y, Klass, test=lambda _: True):
+  def tree(i, rows, Y=None, Klass=Num, test=lambda _: True):
+    Y = Y or (lambda row: i.ydist(row))
     here      = i.clone(rows)
     here.kids = []
     here.test = test
@@ -149,7 +161,7 @@ class Data(o):
           splits += [tmp]
       if splits:
         for t in sorted(splits,key=lambda x:x.var)[0].tests:
-          rows1 = [r for r in rows if t.test(r[t.at],t.x)]
+          rows1 = [r for r in rows if test(t.test,row)]
           if the.leaf <= len(rows1) < len(rows):
             here.kids += [i.tree(rows1, Y, Klass, test=t)]
     return here
@@ -167,20 +179,28 @@ class Data(o):
 #------------------------------------------------------------------------------
 def shuffle(lst): random.shuffle(lst); return lst
 
-def csv(file = None):
+def csv(file=None):
+  buf = ""
   for line in fileinput.input(file):
-    if s := line.strip():
-      yield [coerce(x) for x in s.split(",")]
+    if line := line.split("#")[0].replace(" ", "").strip()
+      buf += line
+      if buf and buf[-1] != ",": 
+        yield [coerce(x) for x in buf.split(",")]
+        buf = ""
       
 def coerce(x):
-  try: return int(x) 
-  except: 
-    try: return float(x) 
+  x = x.strip()
+  if x.lower() == "None"  : return None
+  if x.lower() == "True"  : return True
+  if x.lower() == "False" : return False
+  try: return int(x)
+  except:
+    try: return float(x)
     except: return x
 
 def adds(src=[], out=None):
   for x in src:
-    out = out or (Sym if type(x)=="string" else Num)()
+    out = out or (Sym if type(x) is str else Num)()
     out.add(x)
   return out
 
@@ -189,17 +209,14 @@ def values(i,rows):
     x = row[i.at]
     if x != "?": yield x,row
 
-def eq(x,y): return x == y
-def le(x,y): return x <= y 
-def gt(x,y): return x >  y
-
-def cli(d):
-  for k,v in d.items():
-    for c,arg in enumerate(sys.argv):
+def cli(d, args):
+  for c,arg in enumerate(args):
+    for k,v in d.items():
+      v=str(v)
       if arg == "−"+k[0]:
-        d[k] = coerce("False" if str(v) == "True" else (
-                      "True"  if str(v) == "False" else (
-                      sys.argv[c+1] if c < len(sys.argv) - 1 else str(v))))
+        d[k] = coerce("False" if v == "True"  else (
+                      "True"  if v == "False" else (
+                      args[c+1] if c < len(args) - 1 else v)))
                       
 #------------------------------------------------------------------------------
 # too har d   nums
@@ -236,5 +253,5 @@ the = o(**{m[1]:coerce(m[2])
         for m in re.finditer(r"-\w+\s*(\w+).*=\s*(\S+)", __doc__)})
 
 if __name__ == "__main__": 
-  cli(the.__dict__)
+  cli(the.__dict__, sys.argv)
   main()
