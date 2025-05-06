@@ -1,17 +1,17 @@
 """
-lowx: XAI active learning for multi-objective optimziation
+lowx: active learning for explainable multi-objective optimization
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
 Options:
   -h         show help
-  -p p       distance coeffecient           = 2
+  -p p       distance coefficient           = 2
   -f file    csv data file                  = "data.csv"
   -s some    sub-samples used for distances = 128
   -l leaf    min number leaves per tree     = 2
   -r rseed   random number seed             = 1234567890
 """
-import random, math, re
-random.seed() G
+import random, math, sys, re
+random.seed() 
 
 # Simple structs (with names fields) that can print themselves.
 class o: 
@@ -197,7 +197,7 @@ def gt(x,y): return x >  y
 def cli(d):
   for k,v in d.items():
     for c,arg in enumerate(sys.argv):
-      if arg == "−"+first(k):
+      if arg == "−"+k[0]:
         new = sys.argv[c+1] if c < len(sys.argv) - 1 else str(v)
         d[k] = coerce("False" if str(v) == "True" else (
                       "True"  if str(v) == "False" else new))
@@ -213,7 +213,7 @@ def select(data, cols, k=16, g=5):
     for x in data:
       i = min(range(k), key=lambda j: data.xdist(x, centers[j], cols))
       rows.append(x + [chr(97 + i)])
-    keep = tree(rows)
+    keep = data.tree(rows)
     w = [w[i] if i in keep else 0 for i in range(m)]
   return [i for i, v in enumerate(w) if v > 0]
 
