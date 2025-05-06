@@ -13,33 +13,32 @@ body {
 </head>
 <body>
 <main>
+
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+  <!-- Menu bar -->
+  <nav style="flex-grow: 1;">
+    <a href="asdsa">Home</a> |
+    <a href="asdsa">Products</a> |
+    <a href="asdsa">Code</a> |
+    <a href="asdsa">People</a> |
+    <a href="asdsa">&copy; 2025</a>
+  </nav>
+
+  <!-- Search Form -->
+  <form action="https://www.google.com/search" method="get" style="display: flex; align-items: center;">
+    <input type="text" name="q" placeholder="Search..." required style="margin-right: 5px; height: 25px;">
+    <button type="submit" style="height: 30px;">Go</button>
+  </form>
+
   <script>
-  const pages = [
-    { title: "Home", url: "index.html" },
-    { title: "About Us", url: "about.html" },
-    { title: "Products", url: "products.html" },
-    { title: "Contact", url: "contact.html" }
-  ];
+    // Modify the form's query before submitting to include site:4gotn.net
+    document.querySelector('form').onsubmit = function(e) {
+      var searchInput = document.querySelector('input[name="q"]');
+      searchInput.value = 'site:4gotn.net ' + searchInput.value;
+    }
+  </script>
+</div>
 
-  document.getElementById("searchBox").addEventListener("input", function () {
-    const query = this.value.toLowerCase();
-    const results = pages.filter(p => p.title.toLowerCase().includes(query));
-
-    const ul = document.getElementById("searchResults");
-    ul.innerHTML = results.map(p =>
-      `<li><a href="${p.url}">${p.title}</a></li>`
-    ).join("");
-  });
-</script>
-
-<p style="margin:0; overflow: hidden;"> <span style="float: left;"><a href="asdsa">Home</a> |
-     <a href="asdsa">Products</a> |
-     <a href="asdsa">Code</a> |
-     <a href="asdsa">People</a> |
-     <a href="asdsa">&copy; 2025</a></span><span style="float: right;"<>
-<input type="text" id="searchBox" placeholder="Search..." />
-<ul id="searchResults"></ul></span>
-   </p>
 
 <h2>BareLogic, Inc.</h2>
 <img align="right" 
@@ -68,7 +67,7 @@ management, and defect prediction, all while ensuring that the
 algorithms remain understandable and easy to implement.</p>
 
 <p>We are committed to advancing the state of the art in software
-engineering by providing tools that empower both engineers and AI
+ngineering by providing tools that empower both engineers and AI
 to work together effectively. The broader impact of our work will
 be seen in the efficiency and scalability of software systems,
 reducing the time and effort required for development while improving

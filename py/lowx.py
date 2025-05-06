@@ -1,31 +1,45 @@
-import random, math
-random.seed() 
+"""
+lowx: XAI active learning for multi-objective optimziation
+(c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
+Options:
+  -h         show help
+  -p p       distance coeffecient           = 2
+  -f file    csv data file                  = "data.csv"
+  -s some    sub-samples used for distances = 128
+  -l leaf    min number leaves per tree     = 2
+  -r rseed   random number seed             = 1234567890
+"""
+import random, math, re
+random.seed() G
+
+# Simple structs (with names fields) that can print themselves.
 class o: 
   __init__ = lambda i,**d: i.__dict__.update(**d)
   __repr__ = lambda i: i.__class__.__name__ + str(i.__dict__)
 
-the = o(p=2, file="data.csv", some=128, leaf=2)
-
 #------------------------------------------------------------------------------
-def col(txt=' ',at=0): return (Num if txt[0].isupper() else Sym)(txt,at)
+def col(txt=' ',at=0): 
+  return (Num if txt[0].isupper() else Sym)(txt,at)
 
 class Col(o):
   def __init__(i,txt=' ',at=0):
-    i.txt, i.at, i.n, i.w, i.goal = txt, at, 0, 0, txt[-1] in "!+-" 
-        
-  def sub(i,x,n=1): return i.add(x, n=n, flip=-1) 
-  
-  def add(i,x,n=1.flip=1): 
-    if x != "?": i.n += flip*n; i.add1(x,n,flip)
-    return x 
+    i.txt, i.at, i.n = txt, at, 0
+    i.w = 1 # if zero, then ignore this column
 
+  def add(i,x,n=1, flip=1): 
+    if x != "?": i.n += flip*n; i.add1(x,n,flip)
+    return x
+
+  def sub(i,x,n=1): 
+    return i.add(x, n=n, flip = -1) 
+     
 #------------------------------------------------------------------------------
 class Num(Col):
   def __init__(i,*_):
     super().__init__(*_); 
     i.lo, i.hi, i.mu, i.m2 = 1e32, -1e32, 0, 0   
-    i.goal = 0 if i.txt[-1]=="-" else 1 
+    i.goal = 0 if i.txt[-1]=="-" else 1 # define the utopia point  
 
   def mid(i)   : return i.mu
   def norm(i,x): return x if x=="?" else (x-i.lo)/(i.hi-i.lo+1e-32)
@@ -180,10 +194,16 @@ def eq(x,y): return x == y
 def le(x,y): return x <= y 
 def gt(x,y): return x >  y
 
+def cli(d):
+  for k,v in d.items():
+    for c,arg in enumerate(sys.argv):
+      if arg == "−"+first(k):
+        new = sys.argv[c+1] if c < len(sys.argv) - 1 else str(v)
+        d[k] = coerce("False" if str(v) == "True" else (
+                      "True"  if str(v) == "False" else new))
+                      
 #------------------------------------------------------------------------------
 # too har d   nums
-
-
 def select(data, cols, k=16, g=5):
   m = len(data[0])
   w = [1] * m
@@ -197,3 +217,20 @@ def select(data, cols, k=16, g=5):
     w = [w[i] if i in keep else 0 for i in range(m)]
   return [i for i, v in enumerate(w) if v > 0]
 
+def main():
+  for n,s in enumerate(sys.argv):
+    if fun := globals().get("eg" + s.replace("−","_")):
+      arg = "" if n==len(sys.argv) - 1 else sys.argv[n+1]
+      random.seed(the.rseed) 
+      fun(coerce(arg))
+
+#------------------------------------------------------------------------------
+def eg_h(_): print(__doc__)
+      
+#------------------------------------------------------------------------------
+the = o(**{m[1]:coerce(m[2]) 
+        for m in re.finditer(r"−\w+\s*(\w+).*=\s*(\S+)",__doc__)})
+
+if __name__ == "__main__": 
+  cli(the.__dict__)
+  main()
