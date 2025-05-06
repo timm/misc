@@ -5,13 +5,13 @@ bare: active learning for explainable multi-objective optimization
 Options:
   -h         show help
   -p p       distance coefficient           = 2
-  -f file    csv data file                  = "data.csv"
+  -f file    csv data file                  = auto93.csv
   -s some    sub-samples used for distances = 128
   -l leaf    min number leaves per tree     = 2
   -r rseed   random number seed             = 1234567890
 """
-import random, math, sys, re
-random.seed() 
+import fileinput, random, math, sys, re
+sys.dont_write_bytecode = True
 
 # Simple structs (with names fields) that can print themselves.
 class o: 
@@ -31,8 +31,7 @@ class Col(o):
     if x != "?": i.n += flip*n; i.add1(x,n,flip)
     return x
 
-  def sub(i,x,n=1): 
-    return i.add(x, n=n, flip = -1) 
+  def sub(i,x,n=1): return i.add(x, n=n, flip = -1) 
      
 #------------------------------------------------------------------------------
 class Num(Col):
@@ -168,11 +167,11 @@ class Data(o):
 #------------------------------------------------------------------------------
 def shuffle(lst): random.shuffle(lst); return lst
 
-def csv(file):
-  for line in open(file):
+def csv(file = None):
+  for line in fileinput.input(file):
     if s := line.strip():
-      yield [coerce(x) for x in s.split(",")]  
-
+      yield [coerce(x) for x in s.split(",")]
+      
 def coerce(x):
   try: return int(x) 
   except: 
@@ -198,9 +197,9 @@ def cli(d):
   for k,v in d.items():
     for c,arg in enumerate(sys.argv):
       if arg == "−"+k[0]:
-        new = sys.argv[c+1] if c < len(sys.argv) - 1 else str(v)
         d[k] = coerce("False" if str(v) == "True" else (
-                      "True"  if str(v) == "False" else new))
+                      "True"  if str(v) == "False" else (
+                      sys.argv[c+1] if c < len(sys.argv) - 1 else str(v))))
                       
 #------------------------------------------------------------------------------
 # too har d   nums
@@ -219,17 +218,22 @@ def select(data, cols, k=16, g=5):
 
 def main():
   for n,s in enumerate(sys.argv):
-    if fun := globals().get("eg" + s.replace("−","_")):
+    if fun := globals().get("eg" + s.replace("-","_")):
       arg = "" if n==len(sys.argv) - 1 else sys.argv[n+1]
       random.seed(the.rseed) 
       fun(coerce(arg))
 
 #------------------------------------------------------------------------------
 def eg_h(_): print(__doc__)
-      
+
+def eg__the(_): print(the)
+
+def eg__csv(_): 
+  print(the.file)
+  [print(row) for row in csv(the.file)]      
 #------------------------------------------------------------------------------
 the = o(**{m[1]:coerce(m[2]) 
-        for m in re.finditer(r"−\w+\s*(\w+).*=\s*(\S+)",__doc__)})
+        for m in re.finditer(r"-\w+\s*(\w+).*=\s*(\S+)", __doc__)})
 
 if __name__ == "__main__": 
   cli(the.__dict__)
