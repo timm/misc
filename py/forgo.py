@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 """
-ezr: active learning for explainable multi-objective optimization
+forgo: active learning for explainable multi-objective optimization
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
 Options:
@@ -53,13 +54,13 @@ class Num(Col):
 
   def mid(i)   : return i.mu
   def norm(i,x): return x if x=="?" else (x-i.lo)/(i.hi-i.lo+1e-32)
-  def var(i)   : return i.n < 2 and 0 or (max(0,i.m2)/(i.n - 1))^0.5
+  def var(i)   : return i.n < 2 and 0 or (max(0,i.m2)/(i.n - 1))**0.5
     
   def add1(i, x, n=1, flip=1):  
     i.lo = min(i.lo,x)
     i.hi = max(i.hi,x)
     if flip < 0 and i.n < 2:
-      i.mu = i.sd = 0
+      i.n = i.mu = i.sd = 0
     else:
       d = x-i.mu
       i.mu += flip*d/i.n
@@ -110,11 +111,12 @@ class Sym(Col):
 class Cols(o):
   def __init__(i,names):
     i.x, i.y, i.names,i.klass,i.ok = [],[],names,None,True
-    i.all = [col(s, j) for j, s in enumerate(names)]
+    i.all = [(Num if s[0].isupper() else Sym)(s, j) 
+              for j, s in enumerate(names)]
     for c in i.all: 
       if c.txt[-1] != "X":
         if c.txt[-1] == "!": i.klass = c
-        (i.y if c.txt in "!+-" else i.x).append(c)
+        (i.y if c.txt[-1] in "!+-" else i.x).append(c)
 
   def add(i,row): return [c.add(row[c.at]) for c in i.all]
   def sub(i,row): return [c.sub(row[c.at]) for c in i.all]
@@ -125,17 +127,18 @@ class Data(o):
     i.rows,i.cols = [],None
     [i.add(row) for row in src]
 
-  def clone(i, rows=[]): return Data([[i.cols.name] + rows])
+  def clone(i,rows=[]): return Data([i.cols.names]+rows)
   def ydists(i,rows=None): return adds(i.ydist(row) for row in rows or i.rows) 
 
   def add(i,row):
     if i.cols: i.rows += [i.cols.add(row)]
     else: i.cols=Cols(row)
+    return row
 
-  def kpp(i, k, rows=None):
-    row1,*rows = shuffle(rows or i.rows)[:the.some]
+  def kpp(i, k=10, rows=None):
+    row1, *rows = shuffle(rows or i.rows)[:the.some]
     out = [row1]
-    while len(out) < k:
+    for _ in range(k):
       tmp = [min(i.xdist(x, y)**2 for y in out) for x in rows]
       r = random.random() * sum(tmp)
       for j,x in enumerate(tmp):
@@ -212,7 +215,7 @@ def values(i,rows):
 def cli(d, args):
   for c,arg in enumerate(args):
     for k,v in d.items():
-      v=str(v)
+      v = str(v)
       if arg == "−"+k[0]:
         d[k] = coerce("False" if v == "True"  else (
                       "True"  if v == "False" else (
@@ -236,18 +239,41 @@ def select(data, cols, k=16, g=5):
 def main():
   for n,s in enumerate(sys.argv):
     if fun := globals().get("eg" + s.replace("-","_")):
-      arg = "" if n==len(sys.argv) - 1 else sys.argv[n+1]
       random.seed(the.rseed) 
-      fun(coerce(arg))
+      fun(None if n==len(sys.argv) - 1 else sys.argv[n+1])
 
 #------------------------------------------------------------------------------
 def eg_h(_): print(__doc__)
 
 def eg__the(_): print(the)
 
-def eg__csv(_): 
-  print(the.file)
-  [print(row) for row in csv(the.file)]      
+def eg__csv(f=None): 
+  [print(row) for row in csv(f or the.file)]  
+
+def eg__cols(_) :
+  for col in Cols("age,name,heightX,Wealth+,Sadness-".split(",")).all:
+     print(col)  
+
+def eg__data(_) :
+  [print(col) for col in Data(csv(the.file)).cols.all]
+
+def eg__data(_) :
+  a = Data(csv(the.file))
+  b,c = a.clone(), a.clone()
+  for j,row in enumerate(a.rows):
+    c.add(b.add(row))
+    if len(c.rows)==200: [print(c) for c in c.cols.x]
+  for j,row in enumerate(a.rows[::-1]):
+    c.sub(row)
+    if len(c.rows)==200: [print(c) for c in c.cols.x]
+
+def eg__kpp(k=None):
+  k = coerce(k or "64")
+  d = Data(csv(the.file))
+  for rows in [d.kpp(k=k), 
+               random.choices(d.rows,k=k)]:
+    print(k,adds([d.xdist(*random.choices(rows,k=2)) for _ in range(100)]))
+
 #------------------------------------------------------------------------------
 the = o(**{m[1]:coerce(m[2]) 
         for m in re.finditer(r"-\w+\s*(\w+).*=\s*(\S+)", __doc__)})
