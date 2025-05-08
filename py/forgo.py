@@ -22,16 +22,15 @@ class o:
 
 def show(x):
   if type(x) == float:
-    y=x//1; x = y if x==y else f"{x:.3f}".rstrip("0").rstrip(".")
+    less = x // 1
+    return str(less) if x==less else f"{x:.3f}".rstrip("0").rstrip(".")
   return str(x)
 
-def eq(x,y): return x == y
-def le(x,y): return x <= y 
-def gt(x,y): return x >  y
+def eq(v,x): return v == x
+def le(v,x): return v <= x 
+def gt(v,x): return v >  x
 
-def test(t,row) : return t.test(t.x. row[t.at])
-
-def col(txt=' ',at=0): return (Num if txt[0].isupper() else Sym)(txt,at)
+def test(row,t) : return t.test(row[t.at],t.x)
 
 #------------------------------------------------------------------------------
 class Col(o):
@@ -67,10 +66,10 @@ class Num(Col):
       i.m2 += flip*d*(x - i.mu) 
 
   def cuts(i, rows, Y, Klass):
-    least, out, b4 = 1E32, None, None
+    least, b4, out = 1E32, None, o(var=1E32, tests=[])
     L, R = Klass(), adds([Y(row) for row in rows], Klass())
     for x,row in i.values(rows):
-      R.sub(L.add(Y(row)))
+      R.sub( L.add( Y(row)))
       if x != b4:
         e = (L.n * L.var() + R.n * R.var()) / len(rows)
         if e < least:
@@ -103,9 +102,9 @@ class Sym(Col):
       n += 1 
       tmp[x] = tmp.get(x) or Klass()
       tmp[x].add(Y(row))
-    if n:
-      return o(var= sum(x.var()*x.n for x in tmp.values())/n,
-               tests= [o(at=i.at, txt=i.txt, x=x, test=eq) for x in tmp])
+    return  o(
+      var= 1E32 if n==0 else sum(x.var()*x.n for x in tmp.values())/n,
+      tests= [] if n==0 else [o(at=i.at,txt=i.txt,x=x,test=eq) for x in tmp])
 
 #------------------------------------------------------------------------------
 class Cols(o):
@@ -135,38 +134,38 @@ class Data(o):
     else: i.cols=Cols(row)
     return row
 
-  def kpp(i, k=10, rows=None):
-    row1, *rows = shuffle(rows or i.rows)[:the.some]
-    out = [row1]
-    for _ in range(k):
-      tmp = [min(i.xdist(x, y)**2 for y in out) for x in rows]
-      r = random.random() * sum(tmp)
-      for j,x in enumerate(tmp):
-        r -= x
-        if r < 0:
+  def kpp(i, k, rows=None):
+    def D(x, y):
+      key = tuple(sorted((id(x), id(y))))
+      if key not in mem: mem[key] = i.xdist(x,y)
+      return mem[key] 
+      
+    row, *rows = shuffle(rows or i.rows)[:the.some]
+    out, mem = [row], {}
+    for _ in range(1, k):
+      dists = [min(D(x, y)**2 for y in out) for x in rows]
+      r = random.random() * sum(dists)
+      for j, d in enumerate(dists):
+        r -= d
+        if r <= 0:
           out.append(rows.pop(j))
           break
-    return out
+    return out, mem
 
   def sub(i, row, purge=True):
     i.cols.sub(row)
     if purge: i.rows.remove(row)
 
   def tree(i, rows, Y=None, Klass=Num, test=lambda _: True):
-    Y = Y or (lambda row: i.ydist(row))
+    Y         = Y or (lambda row: i.ydist(row))
     here      = i.clone(rows)
+    here.test = test 
     here.kids = []
-    here.test = test
-    if len(rows) >= the.leaf:
-      splits = []
-      for col in i.cols.x:
-        if tmp := col.cuts(rows, Y,Klass): 
-          splits += [tmp]
-      if splits:
-        for t in sorted(splits,key=lambda x:x.var)[0].tests:
-          rows1 = [r for r in rows if test(t.test,row)]
-          if the.leaf <= len(rows1) < len(rows):
-            here.kids += [i.tree(rows1, Y, Klass, test=t)]
+    for test1 in min([col.cuts(rows,Y,Klass) for col in i.cols.x],
+                     key=lambda x:x.var).tests:
+      rows1 = [row for row in rows if test(row,test1)]
+      if the.leaf <= len(rows1) < len(rows):
+        here.kids += [i.tree(rows1, Y, Klass, test1)]
     return here
   
   def xdist(i,a,b):
@@ -213,6 +212,7 @@ def values(i,rows):
     if x != "?": yield x,row
 
 def cli(d, args):
+  "CLI flags for boolean settings need no arg (we just reverse)"
   for c,arg in enumerate(args):
     for k,v in d.items():
       v = str(v)
@@ -243,7 +243,8 @@ def main():
       fun(None if n==len(sys.argv) - 1 else sys.argv[n+1])
 
 #------------------------------------------------------------------------------
-def eg_h(_): print(__doc__)
+def eg_h(_)    : eg__help(_)
+def eg__help(_): print(__doc__)
 
 def eg__the(_): print(the)
 
