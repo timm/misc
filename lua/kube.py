@@ -18,12 +18,12 @@ many= random.choices
 
 BIG = 1E32
 
-class o(dict):
-    def __getattr__(i, k)   : return i[k]
-    def __setattr__(i, k, v): i[k] = v
+class o:
+  __init__ = lambda i,**d: i.__dict__.update(**d)
+  __repr__ = lambda i: cat(i)
 
 #----------------------------------------------------------------------------------------
-class Sym:
+class Sym(o):
   def __init__(i, has=[], at=0, txt= " "): 
     i.at, i.txt, i.n = at, txt, 0
     i.has = {}
@@ -40,7 +40,7 @@ class Sym:
   def dist(i,x,y): return x=="?" and y=="?" and 1 or x != y
 
 #----------------------------------------------------------------------------------------
-class Num:
+class Num(o):
   def __init__(i,has=[],at=0,txt=" "):
     i.at, i.txt, i.n = at, txt, 0
     i.mu = i.m2 = 0
@@ -73,7 +73,7 @@ class Num:
     return abs(x - y)
 
 #----------------------------------------------------------------------------------------
-class Data:
+class Data(o):
   def __init__(i,src):
     src = iter(src)
     i.names, i.all, i.x, i.y, i._rows = next(src),[],[],[],[]
@@ -94,7 +94,10 @@ class Data:
     return row
   
   def ydist(i,row):
-    return minkowski([abs(col.norm(row[col.at]) - col.goal)**the.p for col in i.y])
+    return minkowski([abs(col.norm(row[col.at]) - col.goal) for col in i.y])
+
+  def ydists(i,rows=None):
+    return Num(i.ydist(row) for row in rows or i._rows)
 
   def xdist(i,row1,row2):
     return minkowski([col.dist(row1[col.at], row2[col.at]) for col in i.x])
@@ -150,14 +153,20 @@ def cli(d):
 
 #---------------------------------------------------------------------------------------/
 def eg_h(_): print(__doc__)
-def eg__the(_): print(cat(the))
+def eg__the(_): print(the)
 
 def eg__csv(_): [print(row) for row in csv(the.file)]
+
 def eg__data(_): 
   d = Data(csv(the.file))
-  [print("all",cat(col))  for col in d.all]
-  [print("x",cat(col))  for col in d.x]
-  [print("y",cat(col))  for col in d.y]
+  [print("x",col)  for col in d.x]
+  [print("y",col)  for col in d.y]
+
+def eg__ydist(_):
+  d = Data(csv(the.file))
+  lst = sorted(d._rows,key=lambda row: d.ydist(row))
+  for row in lst[:4] : print("good",row)
+  for row in lst[-4:] : print("bad",row)
 
 def eg__poles(file=None):
   d = Data(csv(file or the.file))
@@ -168,18 +177,20 @@ def eg__poles(file=None):
 
 def eg__counts(file=None):
   d = Data(csv(file or the.file))
+  print(file or the.file)
   p = d.poles()
   c = {}
   for rowp in d.projects(p):
     c[rowp.at] = c.get(rowp.at,[]) or d.clone()
-    c[rowp.at].add(row)
-  for data in c.values(): print(data)
+    c[rowp.at].add(rowp.row)
+  for data in c.values(): 
+    if len(data._rows) > 1: print(data.ydists())
 
 #---------------------------------------------------------------------------------------/
 the = o(**{m[1]:cast(m[2]) for m in re.finditer(r"-\w+\s*(\w+).*=\s*(\S+)",__doc__)})
 
 if __name__ == "__main__":
-  cli(the)
+  cli(the.__dict__)
   for n,s in enumerate(sys.argv):
     if fun := globals().get("eg" + s.replace("-","_")):
       random.seed(the.rseed)
