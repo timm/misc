@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -B
 """
 kube.py : barelogic, XAI for active learning + multi-objective optimization
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License  
@@ -35,10 +35,10 @@ class Sym(o):
       i.has[x] = inc + (i.has[x] if x in i.has else 0) 
     return x
 
-  def var(i): return -sum(v/i.n * math.log(v/i.n,2) for v in i.has.values() if v > 0)
-  def mid(i): return max(i.has, key=i.has.get)
   def dist(i,x,y): return x=="?" and y=="?" and 1 or x != y
-
+  def mid(i): return max(i.has, key=i.has.get)
+  def var(i): return -sum(v/i.n * math.log(v/i.n,2) for v in i.has.values() if v > 0)
+ 
 #----------------------------------------------------------------------------------------
 class Num(o):
   def __init__(i,has=[],at=0,txt=" "):
@@ -61,46 +61,36 @@ class Num(o):
         i.m2 += inc * d * (x - i.mu)
     return x
 
-  def var(i): return 0 if i.n <=2  else (max(0,i.m2)/(i.n-1))**.5
-  def mid(i): return i.mu 
-    
-  def norm(i,x): return  (x - i.lo) / (i.hi - i.lo + 1/BIG)
-
   def dist(i,x,y):
     if x == "?" and y == "?": return 1
     x = i.norm(x) if x != "?" else (0 if y > 0.5 else 1)
     y = i.norm(y) if y != "?" else (0 if x > 0.5 else 1)
     return abs(x - y)
 
+  def mid(i): return i.mu 
+  def norm(i,x): return  (x - i.lo) / (i.hi - i.lo + 1/BIG)
+  def var(i): return 0 if i.n <=2  else (max(0,i.m2)/(i.n-1))**.5
+
 #----------------------------------------------------------------------------------------
 class Data(o):
-  def __init__(i,src):
+  def __init__(i,src): 
     src = iter(src)
-    i.names, i.all, i.x, i.y, i._rows = next(src),[],[],[],[]
-    for c, s in enumerate(i.names):
+    names, i.all, i.x, i.y, i._rows = next(src),[],[],[],[]
+    for c, s in enumerate(names):
       col = (Num if s[0].isupper() else Sym)(at=c,txt=s)
       i.all += [col]
       if s[-1] != "X":
         (i.y if s[-1] in "-+" else i.x).append(col)
     [i.add(row) for row in src]
 
-  def clone(i, rows=[]): 
-     return Data([i.names] + rows)
-
   def add(i,row,inc=1,purge=False):
     if purge: i._rows.remove(row)
     else: i._rows += [row]
     for col in i.all: col.add(row[col.at], inc)
     return row
-  
-  def ydist(i,row):
-    return minkowski([abs(col.norm(row[col.at]) - col.goal) for col in i.y])
 
-  def ydists(i,rows=None):
-    return Num(i.ydist(row) for row in rows or i._rows)
-
-  def xdist(i,row1,row2):
-    return minkowski([col.dist(row1[col.at], row2[col.at]) for col in i.x])
+  def clone(i, rows=[]): 
+    return Data([col.txt for col in i.all] + rows)
 
   def poles(i):
     r0, *some = many(i._rows, k=the.some+1)
@@ -110,18 +100,19 @@ class Data(o):
     return out
 
   def project(i,row,a,b):
-      c = i.xdist(a,b)
-      x = (i.xdist(row,a)**2 + c**2 - i.xdist(row,b)**2) / (2*c*c)
-      return min(int(x*the.bins), the.bins - 1)
+    c = i.xdist(a,b)
+    x = (i.xdist(row,a)**2 + c**2 - i.xdist(row,b)**2) / (2*c*c)
+    return min(int(x*the.bins), the.bins - 1)
 
   def projects(i,poles):
-     return [o(row=row, at=tuple([i.project(row,a,b) for a, b in zip(poles, poles[1:])]))
-             for row in i._rows]
+    return [o(row=r, at=tuple([i.project(r,a,b) for a,b in zip(poles, poles[1:])]))
+            for r in i._rows]
+
+  def xdist(i,row1,row2): return minkowski([c.dist(row1[c.at],row2[c.at]) for c in i.x])
+  def ydist(i,r): return minkowski([abs(col.norm(r[col.at]) - col.goal) for col in i.y])
+  def ydists(i,rows=None): return Num(i.ydist(row) for row in rows or i._rows)
 
 #----------------------------------------------------------------------------------------
-def minkowski(dims):
-    return (sum(d**the.P for d in dims) / len(dims)) ** (1/the.P)
-
 def cat(x):
   isa=isinstance
   if isa(x, list): return "{" + ", ".join(map(cat, x)) + "}"
@@ -130,7 +121,14 @@ def cat(x):
   if hasattr(x,"__dict__"): return x.__class__.__name__ + cat(x.__dict__)
   return str(x)
 
-def cast(x):
+def cli(d):
+  for k,v in d.items():
+    for c,arg in enumerate(sys.argv):
+      if arg == "-"+k[0]: 
+        d[k] = coerce("False" if str(v) == "True"  else (
+                      "True"  if str(v) == "False" else (
+                      sys.argv[c+1] if c < len(sys.argv) - 1 else str(v))))
+def coerce(x):
   for what in (int, float):
     try: return what(x)
     except: pass
@@ -141,18 +139,18 @@ def cast(x):
 def csv(path):
   with open(path) as f:
     for line in f:
-      yield [cast(x) for x in line.strip().split(",")]
+      yield [coerce(x) for x in line.strip().split(",")]
 
-def cli(d):
-  for k,v in d.items():
-    for c,arg in enumerate(sys.argv):
-      if arg == "-"+k[0]: 
-        d[k] = cast("False" if str(v) == "True"  else (
-                    "True"  if str(v) == "False" else (
-                    sys.argv[c+1] if c < len(sys.argv) - 1 else str(v))))
-
+def minkowski(dims):
+    return (sum(d**the.P for d in dims) / len(dims)) ** (1/the.P)
 #---------------------------------------------------------------------------------------/
 def eg_h(_): print(__doc__)
+
+def eg__all(_):
+  for f in [eg__the, eg__csv,eg__data,eg__ydist,eg__poles, eg__counts]:
+    random.seed(the.rseed)
+    f(_)
+
 def eg__the(_): print(the)
 
 def eg__csv(_): [print(row) for row in csv(the.file)]
@@ -184,14 +182,15 @@ def eg__counts(file=None):
     c[rowp.at] = c.get(rowp.at,[]) or d.clone()
     c[rowp.at].add(rowp.row)
   for data in c.values(): 
-    if len(data._rows) > 1: print(data.ydists())
+    ys = data.ydists()
+    if len(data._rows) > 1: print(ys.div(),ys)
 
-#---------------------------------------------------------------------------------------/
-the = o(**{m[1]:cast(m[2]) for m in re.finditer(r"-\w+\s*(\w+).*=\s*(\S+)",__doc__)})
+#---------------------------------------------------------------------------------------
+the = o(**{m[1]:coerce(m[2]) for m in re.finditer(r"-\w+\s*(\w+).*=\s*(\S+)",__doc__)})
 
 if __name__ == "__main__":
   cli(the.__dict__)
   for n,s in enumerate(sys.argv):
     if fun := globals().get("eg" + s.replace("-","_")):
       random.seed(the.rseed)
-      fun(None if n==len(sys.argv) - 1 else cast(sys.argv[n+1]))
+      fun(None if n==len(sys.argv) - 1 else coerce(sys.argv[n+1]))
