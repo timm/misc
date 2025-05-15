@@ -88,7 +88,7 @@ class Num(o):
     i.m2: float = 0           # Sum of squared differences from mean
     i.lo: float = BIG         # Lowest value seen
     i.hi: float = -BIG        # Highest value seen
-    i.goal: int = 0 if txt[-1] == "-" else 1  # Optimization direction (0=minimize, 1=maximize)
+    i.heaven: int = 0 if txt[-1] == "-" else 1  # Optimization goal (0=min, 1=max)
     [i.add(x) for x in has]
 
   def add(i, x: Atom, inc: bool = True) -> Atom:
@@ -126,7 +126,7 @@ class Num(o):
     """Calculate standard deviation as diversity measure."""
     return 0 if i.n <= 2 else (max(0, i.m2) / (i.n - 1))**0.5
 
-# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
 class Data(o):
   """Data class for handling collections of rows."""
   def __init__(i, src: Iterator[Row]):
@@ -189,7 +189,7 @@ class Data(o):
 
   def ydist(i, row: Row) -> float:
     """Calculate the distance to heaven for this row."""
-    return dist(abs(c.norm(row[c.at]) - c.goal) for c in i.cols.y)
+    return dist(abs(c.norm(row[c.at]) - c.heaven) for c in i.cols.y)
 
   def ydists(i, rows: Optional[Rows] = None) -> 'Num':
     """Get numeric stats on y-distances for rows."""
@@ -228,7 +228,7 @@ def dist(dims: Iterator[float]) -> float:
     total += x**the.P
   return (total / n)**(1 / the.P)
 
-# ---------------------------------------------------------------------------------------/
+# ---------------------------------------------------------------------------------------/
 def eg_h(_: Any) -> None:
   """Print help text."""
   print(__doc__)
