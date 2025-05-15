@@ -140,6 +140,7 @@ def cli(d):
         d[k] = coerce("False" if str(v) == "True"  else (
                       "True"  if str(v) == "False" else (
                       sys.argv[c+1] if c < len(sys.argv) - 1 else str(v))))
+
 def coerce(x):
   for what in (int, float):
     try: return what(x)
