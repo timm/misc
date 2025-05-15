@@ -5,11 +5,12 @@ kube.py : barelogic, XAI for active learning + multi-objective optimization
 
 Options:  
 
-      -b bins    number of bins              = 5
-      -r rseed  random number seed           = 1234567891
-      -P P       distance formula exponent   = 2  
-      -p poles   number of dimensions        = 4
-      -s some    search space size for poles = 30
+      -b bins    number of bins                        = 5
+      -m min     minPoints per cluster (0=auto choose) = 0
+      -P P       distance formula exponent             = 2  
+      -d dims    number of dimensions                  = 4
+      -r rseed  random number seed                     = 1234567891
+      -s some    search space size for poles           = 30
       -f file    training csv file = ../../moot/optimize/misc/auto93.csv  
 """
 import random, sys, re
@@ -97,7 +98,7 @@ class Data(o):
   def poles(i):
     r0, *some = many(i._rows, k=the.some+1)
     out = [max(some, key = lambda r1: i.xdist(r1,r0))]
-    for _ in range(the.poles):
+    for _ in range(the.dims):
       out += [max(some, key=lambda r2: sum(i.xdist(r2,r1) for r1 in out))]
     return out
 
@@ -183,9 +184,14 @@ def eg__counts(file=None):
   for rowp in d.projects(p):
     c[rowp.at] = c.get(rowp.at,[]) or d.clone()
     c[rowp.at].add(rowp.row)
+  m = the.min
+  if m == 0:
+    if len(d._rows) < 30: m=2
+    elif len(d._rows) < 100: m=3
+    else: m= 2*the.dims
   for data in c.values():
     ys = data.ydists()
-    if len(data._rows) > 1:
+    if len(data._rows) >= m:
       print(o(mid=ys.mid(), div=ys.div(),n=ys.n))
 
 #---------------------------------------------------------------------------------------
