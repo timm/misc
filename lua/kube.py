@@ -3,12 +3,12 @@
 kube.py : barelogic, XAI for active learning + multi-objective optimization
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License  
 
-OPTIONS:  
+Options:  
 
-      -b bins    number of bns = 5
-      -r rseed  random number seed = 1234567891
-      -P P       distance formula exponent = 2  
-      -p poles   number of dimensions = 4
+      -b bins    number of bins              = 5
+      -r rseed  random number seed           = 1234567891
+      -P P       distance formula exponent   = 2  
+      -p poles   number of dimensions        = 4
       -s some    search space size for poles = 30
       -f file    training csv file = ../../moot/optimize/misc/auto93.csv  
 """
@@ -37,7 +37,7 @@ class Sym(o):
 
   def dist(i,x,y): return x=="?" and y=="?" and 1 or x != y
   def mid(i): return max(i.has, key=i.has.get)
-  def var(i): return -sum(v/i.n * math.log(v/i.n,2) for v in i.has.values() if v > 0)
+  def div(i): return -sum(v/i.n * math.log(v/i.n,2) for v in i.has.values() if v > 0)
  
 #----------------------------------------------------------------------------------------
 class Num(o):
@@ -69,7 +69,7 @@ class Num(o):
 
   def mid(i): return i.mu 
   def norm(i,x): return  (x - i.lo) / (i.hi - i.lo + 1/BIG)
-  def var(i): return 0 if i.n <=2  else (max(0,i.m2)/(i.n-1))**.5
+  def div(i): return 0 if i.n <=2  else (max(0,i.m2)/(i.n-1))**.5
 
 #----------------------------------------------------------------------------------------
 class Data(o):
@@ -90,7 +90,7 @@ class Data(o):
     return row
 
   def clone(i, rows=[]): 
-    return Data([col.txt for col in i.all] + rows)
+    return Data([[col.txt for col in i.all]] + rows)
 
   def poles(i):
     r0, *some = many(i._rows, k=the.some+1)
@@ -181,9 +181,10 @@ def eg__counts(file=None):
   for rowp in d.projects(p):
     c[rowp.at] = c.get(rowp.at,[]) or d.clone()
     c[rowp.at].add(rowp.row)
-  for data in c.values(): 
+  for data in c.values():
     ys = data.ydists()
-    if len(data._rows) > 1: print(ys.div(),ys)
+    if len(data._rows) > 1:
+      print(o(mid=ys.mid(), div=ys.div(),n=ys.n))
 
 #---------------------------------------------------------------------------------------
 the = o(**{m[1]:coerce(m[2]) for m in re.finditer(r"-\w+\s*(\w+).*=\s*(\S+)",__doc__)})
