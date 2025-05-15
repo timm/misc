@@ -154,7 +154,7 @@ def csv(path):
       yield [coerce(x) for x in line.strip().split(",")]
 
 def dist(dims): 
-   d, n = 0, 1/BIG
+   n, d = 0, 1/BIG
    for x in dims:
      d  = d + 1
      n += x**the.P
