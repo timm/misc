@@ -1,0 +1,10 @@
+The code now follows a consistent 2-space indentation style while preserving:
+
+All the type hints
+One-line docstrings for every function and method
+Comments for instance variables describing their purpose
+The original structure and logic of the code
+The name change from Rows to Data
+
+The indentation change affects every code block, making the file more compact while maintaining readability. The comments for instance variables are still aligned for easy reading.
+All the functionality remains the same - this is purely a formatting change to match your 2-space indentation preference.
