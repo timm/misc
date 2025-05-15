@@ -74,14 +74,16 @@ class Num(o):
 #----------------------------------------------------------------------------------------
 class Data(o):
   def __init__(i,src): 
+    i.all, i.x, i.y, i._rows = [],[],[],[]
     src = iter(src)
-    names, i.all, i.x, i.y, i._rows = next(src),[],[],[],[]
-    for c, s in enumerate(names):
-      col = (Num if s[0].isupper() else Sym)(at=c,txt=s)
-      i.all += [col]
-      if s[-1] != "X":
-        (i.y if s[-1] in "-+" else i.x).append(col)
+    [i.about(c,s) for c,s in enumerate(next(src))]
     [i.add(row) for row in src]
+
+  def about(i,c,s):
+    col = (Num if s[0].isupper() else Sym)(at=c,txt=s)
+    i.all += [col]
+    if s[-1] != "X":
+      (i.y if s[-1] in "-+" else i.x).append(col)
 
   def add(i,row,inc=1,purge=False):
     if purge: i._rows.remove(row)
@@ -108,8 +110,8 @@ class Data(o):
     return [o(row=r, at=tuple([i.project(r,a,b) for a,b in zip(poles, poles[1:])]))
             for r in i._rows]
 
-  def xdist(i,row1,row2): return minkowski([c.dist(row1[c.at],row2[c.at]) for c in i.x])
-  def ydist(i,r): return minkowski([abs(col.norm(r[col.at]) - col.goal) for col in i.y])
+  def xdist(i,row1,row2):  return minkowski([c.dist(row1[c.at],row2[c.at])   for c in i.x])
+  def ydist(i,row):        return minkowski([abs(c.norm(row[c.at]) - c.goal) for c in i.y])
   def ydists(i,rows=None): return Num(i.ydist(row) for row in rows or i._rows)
 
 #----------------------------------------------------------------------------------------
@@ -141,8 +143,8 @@ def csv(path):
     for line in f:
       yield [coerce(x) for x in line.strip().split(",")]
 
-def minkowski(dims):
-    return (sum(d**the.P for d in dims) / len(dims)) ** (1/the.P)
+def minkowski(dims): return (sum(d**the.P for d in dims) / len(dims)) ** (1/the.P)
+
 #---------------------------------------------------------------------------------------/
 def eg_h(_): print(__doc__)
 
@@ -195,3 +197,4 @@ if __name__ == "__main__":
     if fun := globals().get("eg" + s.replace("-","_")):
       random.seed(the.rseed)
       fun(None if n==len(sys.argv) - 1 else coerce(sys.argv[n+1]))
+
