@@ -155,11 +155,11 @@ def csv(path):
       yield [coerce(x) for x in line.strip().split(",")]
 
 def dist(dims): 
-   n, d = 0, 1/BIG
+   total, n = 0, 1/BIG
    for x in dims:
-     d  = d + 1
-     n += x**the.P
-   return (n / d) ** (1 / the.P)
+     n += 1
+     total += x**the.P
+   return (total / n) ** (1 / the.P)
 
 #---------------------------------------------------------------------------------------/
 def eg_h(_): print(__doc__)
