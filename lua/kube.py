@@ -248,6 +248,9 @@ def eg__all(_: Any) -> None:
     random.seed(the.rseed)
     f(_)
 
+def eg__about(_): 
+  import pydoc, sys; print(pydoc.render_doc(sys.modules[__name__]))
+
 def eg__the(_: Any) -> None: 
   """Print the configuration."""
   print(the)
