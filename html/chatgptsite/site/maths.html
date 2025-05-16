@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Mathematical Foundations</title>
@@ -32,7 +45,7 @@
         <p>Kube uses the Minkowski distance metric as the foundation for measuring 
         similarity between data points. The formula is:</p>
 
-<pre>d(x, y) = (Σ|x_i - y_i|^P)^(1/P)</pre>
+<pre><code class="language-html">d(x, y) = (Σ|x_i - y_i|^P)^(1/P)</code></pre>
 
         <p>Where:</p>
         <ul>
@@ -42,7 +55,7 @@
         </ul>
 
         <p>When P=2, this becomes the familiar Euclidean distance. Different P values 
-        create different distance spaces, affecting how clusters form.<a href="references.html#21">[21]</a></p>
+        create different distance spaces, affecting how clusters form.[21]</p>
 
         <h2>Locality-Sensitive Hashing (LSH)</h2>
 
@@ -57,14 +70,14 @@
         </ol>
 
         <p>This approach has O(n) complexity versus the O(n²) of traditional clustering 
-        methods, making it efficient for large datasets.<a href="references.html#22">[22]</a></p>
+        methods, making it efficient for large datasets.[22]</p>
 
         <h2>Active Learning</h2>
 
         <p>The code implements active learning principles by finding the most informative 
         examples in the data space. The <code>poles()</code> method identifies data points at 
         maximum distances from each other, effectively sampling the boundaries of the 
-        data space.<a href="references.html#23">[23]</a></p>
+        data space.[23]</p>
 
         <p>Active learning focuses on selecting the most informative examples for labeling, 
         rather than randomly sampling the data space. This is particularly useful in domains 
@@ -76,7 +89,7 @@
         <p>Kube optimizes for multiple objectives through the "heaven" concept. For each 
         column marked with "+" or "-" in the CSV header, kube attempts to maximize or 
         minimize those values, respectively. The <code>ydist()</code> method calculates how far 
-        each data point is from the ideal point ("heaven").<a href="references.html#24">[24]</a></p>
+        each data point is from the ideal point ("heaven").[24]</p>
 
         <p>In multi-objective optimization, there is rarely a single solution that optimizes all 
         objectives simultaneously. Instead, we seek Pareto-optimal solutions - those where improving 
@@ -86,7 +99,7 @@
         <h2>Dimensionality Reduction</h2>
 
         <p>At its core, kube implements a form of dimensionality reduction through projection. This 
-        is related to the Johnson-Lindenstrauss lemma<a href="references.html#15">[15]</a>, which proves that high-dimensional data can 
+        is related to the Johnson-Lindenstrauss lemma[15], which proves that high-dimensional data can 
         be projected into significantly lower dimensions while mostly preserving distances between points.</p>
 
         <p>By representing complex, high-dimensional data in a lower-dimensional space, kube makes it 

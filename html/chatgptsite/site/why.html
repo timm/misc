@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Why</title>
@@ -50,12 +63,12 @@
            for one cent? Kube.py demonstrates this principle by implementing 
            sophisticated clustering and optimization with minimal code and computational 
            overhead. Research has shown that simpler approaches often outperform complex 
-           ones, as demonstrated by Fu and Menzies<a href="references.html#1">[1]</a>, where simpler learners found 
+           ones, as demonstrated by Fu and Menzies[1], where simpler learners found 
            better configurations more efficiently.</li>
 
         <li><strong>Speed & Interactivity:</strong> When data analysis is expensive and slow, iterative 
            discovery suffers. Interactive exploration, crucial for refining ideas, is 
-           lost<a href="references.html#2">[2]</a>. Waiting hours for cloud computations only to realize a minor tweak 
+           lost[2]. Waiting hours for cloud computations only to realize a minor tweak 
            is needed reminds us of the frustratingly slow batch processing of the 1960s.</li>
 
         <li><strong>Explainability & Trust:</strong> Simpler systems are inherently easier to understand, 
@@ -68,13 +81,13 @@
            the more challenging reproducibility becomes. This directly impacts the 
            trustworthiness of scientific findings. History warns us about relying on 
            inadequately scrutinized systems, as seen in failures like the Space Shuttle 
-           Columbia disaster<a href="references.html#3">[3]</a>. Kube's lightweight approach enables rapid 
+           Columbia disaster[3]. Kube's lightweight approach enables rapid 
            experimentation and validation.</li>
 
         <li><strong>Environmental Sustainability:</strong> The energy footprint of "Big AI" is alarming. 
            Projections show data center energy requirements doubling, with some AI 
            applications already consuming petajoules annually. Such exponential growth 
-           is simply unsustainable<a href="references.html#4">[4]</a>.</li>
+           is simply unsustainable[4].</li>
         </ol>
 
         <h2>Menzies's 4th Law: Throw Most Data Away</h2>
@@ -93,7 +106,7 @@
 
         <p>As Menzies has observed, the practical reality is often more dramatic than even 
         Pareto suggested – not just 80:20 but closer to 1000:1, where a tiny fraction of 
-        factors dictates almost everything in complex systems<a href="references.html#5">[5]</a>. This extreme 
+        factors dictates almost everything in complex systems[5]. This extreme 
         concentration of influence has been documented across multiple domains:</p>
 
         <h2>Historical Evidence</h2>
@@ -103,30 +116,30 @@
           – small sets of essential variable settings that, once discovered, drastically 
           simplified the search space. His innovation was creating "macros" to jump 
           between these narrows, effectively creating shortcuts through complex problem 
-          spaces<a href="references.html#6">[6]</a>.</li>
+          spaces[6].</li>
 
         <li><strong>Variable Pruning (1990s):</strong> Kohavi and John demonstrated that removing up to 80% 
           of variables in certain datasets still maintained excellent classification 
           accuracy, reinforcing the idea that most variables contribute negligible 
-          information<a href="references.html#7">[7]</a>.</li>
+          information[7].</li>
 
         <li><strong>ISAMP and Constraint Satisfaction (1990s):</strong> Crawford and Baker's ISAMP tool 
           used random search with strategic restarts, which proved surprisingly 
           effective for constraint satisfaction problems. The key insight was that 
           models have a few "master variables" controlling overall behavior, making 
-          exhaustive searching inefficient<a href="references.html#8">[8]</a>.</li>
+          exhaustive searching inefficient[8].</li>
 
         <li><strong>Backdoors in Satisfiability (2000s):</strong> Williams and colleagues found that 
           running random searches repeatedly revealed the same few variable settings in 
           successful solutions. Setting these "backdoor" variables first made previously 
           intractable problems suddenly manageable, providing another demonstration of 
-          the power of identifying key variables<a href="references.html#9">[9]</a>.</li>
+          the power of identifying key variables[9].</li>
 
         <li><strong>Modern Feature Selection and Dimensionality Reduction:</strong> Contemporary machine 
           learning continues to build on these foundations with techniques like LASSO 
           regression (which can reduce coefficients to zero) and Random Forest 
           importance metrics that identify the handful of features driving most 
-          predictions<a href="references.html#10">[10]</a>.</li>
+          predictions[10].</li>
         </ul>
 
         <h2>Empirical Support</h2>
@@ -135,25 +148,25 @@
         accurate predictions for software engineering tasks like predicting GitHub issue 
         close times, effort estimation, and defect prediction remained possible even 
         after discarding labels for 80%, 91%, 97%, and sometimes 98-100% of project 
-        data<a href="references.html#11">[11]</a><a href="references.html#12">[12]</a><a href="references.html#13">[13]</a><a href="references.html#14">[14]</a>. This dramatic data reduction without significant 
+        data[11][12][13][14]. This dramatic data reduction without significant 
         performance loss demonstrates the concentrated nature of information in 
         real-world datasets.</p>
 
         <p>The mathematical foundation for this phenomenon is also well-established. The 
-        Johnson-Lindenstrauss lemma<a href="references.html#15">[15]</a> proves that high-dimensional data can be 
+        Johnson-Lindenstrauss lemma[15] proves that high-dimensional data can be 
         projected into significantly lower dimensions while mostly preserving distances 
-        between points. Similarly, research on the "naturalness" of software<a href="references.html#16">[16]</a> has 
+        between points. Similarly, research on the "naturalness" of software[16] has 
         shown that code contains significant repetition and predictable patterns, 
         explaining why small samples can capture essential behaviors of much larger 
         systems.</p>
 
         <p>This principle finds further support in studies of software bugs by Ostrand et 
-        al.<a href="references.html#17">[17]</a>, which demonstrated that typically 80% of defects occur in just 20% of 
-        modules, and in Lin and Robles' work<a href="references.html#18">[18]</a> showing how open-source development 
+        al.[17], which demonstrated that typically 80% of defects occur in just 20% of 
+        modules, and in Lin and Robles' work[18] showing how open-source development 
         follows power laws, where a small fraction of components receive most 
         development activity.</p>
 
-        <p>Menzies et al.<a href="references.html#19">[19]</a><a href="references.html#20">[20]</a> have demonstrated across multiple studies that static 
+        <p>Menzies et al.[19][20] have demonstrated across multiple studies that static 
         code attributes can be highly compressed while still maintaining predictive 
         power for defect models, and that local models built on small subsets of data 
         can outperform global models trained on everything. The essence of this work is 

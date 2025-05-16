@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Inference Tools</title>
@@ -34,7 +47,7 @@
 
         <p>The <code>poles()</code> method selects representative data points that span the data space:</p>
 
-<pre>
+<pre><code class="language-html">
 def poles(i) -> Rows:
     """Select poles at max distance to poles picked so far."""
     r0, *some = many(i._rows, k=the.some + 1)
@@ -42,7 +55,7 @@ def poles(i) -> Rows:
     for _ in range(the.dims):
         out += [max(some, key=lambda r2: sum(i.xdist(r2, r1) for r1 in out))]
     return out
-</pre>
+</code></pre>
 
         <p>This algorithm:</p>
         <ol>
@@ -62,13 +75,13 @@ def poles(i) -> Rows:
 
         <p>The <code>project()</code> method projects a data point onto the line connecting two poles:</p>
 
-<pre>
+<pre><code class="language-html">
 def project(i, row: Row, a: Row, b: Row) -> int:
     """Project a row onto the line connecting two poles, a and b"""
     c = i.xdist(a, b)
     x = (i.xdist(row, a)**2 + c**2 - i.xdist(row, b)**2) / (2 * c)
     return min(int(x / c * the.bins), the.bins - 1)
-</pre>
+</code></pre>
 
         <p>This method:</p>
         <ol>
@@ -85,7 +98,7 @@ def project(i, row: Row, a: Row, b: Row) -> int:
 
         <p>The <code>lsh()</code> method implements locality-sensitive hashing for efficient clustering:</p>
 
-<pre>
+<pre><code class="language-html">
 def lsh(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
     """Locality sensitive hashing to group rows by projection."""
     clusters: Dict[Tuple[int, ...], 'Data'] = {}
@@ -94,7 +107,7 @@ def lsh(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
         clusters[k] = clusters.get(k) or i.clone()
         clusters[k].add(row)
     return clusters
-</pre>
+</code></pre>
 
         <p>This approach creates efficient approximate clusterings by:</p>
         <ol>
@@ -112,11 +125,11 @@ def lsh(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
 
         <p>The <code>ydist()</code> method calculates how far a point is from the ideal:</p>
 
-<pre>
+<pre><code class="language-html">
 def ydist(i, row: Row) -> float:
     """Calculate the distance to heaven for this row."""
     return dist(abs(c.norm(row[c.at]) - c.heaven) for c in i.cols.y)
-</pre>
+</code></pre>
 
         <p>This creates a single objective function from multiple objectives by:</p>
         <ol>
@@ -133,7 +146,7 @@ def ydist(i, row: Row) -> float:
 
         <p>The <code>minPts()</code> method determines how many points are needed for a valid cluster:</p>
 
-<pre>
+<pre><code class="language-html">
 def minPts(i) -> int:
     """Report how many points are needed for each bucket."""
     out = the.min
@@ -142,7 +155,7 @@ def minPts(i) -> int:
       elif len(i._rows) < 100: out= 3
       else: out = 2 + the.dims
     return out
-</pre>
+</code></pre>
 
         <p>This heuristic ensures that clusters have enough points to be statistically significant 
         without being too restrictive. It adapts to the dataset size and dimensionality, making 

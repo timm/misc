@@ -5,6 +5,19 @@ cat << 'EOF' > 'site/why.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Why</title>
@@ -54,12 +67,12 @@ cat << 'EOF' > 'site/why.html'
            for one cent? Kube.py demonstrates this principle by implementing 
            sophisticated clustering and optimization with minimal code and computational 
            overhead. Research has shown that simpler approaches often outperform complex 
-           ones, as demonstrated by Fu and Menzies<a href="references.html#1">[1]</a>, where simpler learners found 
+           ones, as demonstrated by Fu and Menzies[1], where simpler learners found 
            better configurations more efficiently.</li>
 
         <li><strong>Speed & Interactivity:</strong> When data analysis is expensive and slow, iterative 
            discovery suffers. Interactive exploration, crucial for refining ideas, is 
-           lost<a href="references.html#2">[2]</a>. Waiting hours for cloud computations only to realize a minor tweak 
+           lost[2]. Waiting hours for cloud computations only to realize a minor tweak 
            is needed reminds us of the frustratingly slow batch processing of the 1960s.</li>
 
         <li><strong>Explainability & Trust:</strong> Simpler systems are inherently easier to understand, 
@@ -72,13 +85,13 @@ cat << 'EOF' > 'site/why.html'
            the more challenging reproducibility becomes. This directly impacts the 
            trustworthiness of scientific findings. History warns us about relying on 
            inadequately scrutinized systems, as seen in failures like the Space Shuttle 
-           Columbia disaster<a href="references.html#3">[3]</a>. Kube's lightweight approach enables rapid 
+           Columbia disaster[3]. Kube's lightweight approach enables rapid 
            experimentation and validation.</li>
 
         <li><strong>Environmental Sustainability:</strong> The energy footprint of "Big AI" is alarming. 
            Projections show data center energy requirements doubling, with some AI 
            applications already consuming petajoules annually. Such exponential growth 
-           is simply unsustainable<a href="references.html#4">[4]</a>.</li>
+           is simply unsustainable[4].</li>
         </ol>
 
         <h2>Menzies's 4th Law: Throw Most Data Away</h2>
@@ -97,7 +110,7 @@ cat << 'EOF' > 'site/why.html'
 
         <p>As Menzies has observed, the practical reality is often more dramatic than even 
         Pareto suggested – not just 80:20 but closer to 1000:1, where a tiny fraction of 
-        factors dictates almost everything in complex systems<a href="references.html#5">[5]</a>. This extreme 
+        factors dictates almost everything in complex systems[5]. This extreme 
         concentration of influence has been documented across multiple domains:</p>
 
         <h2>Historical Evidence</h2>
@@ -107,30 +120,30 @@ cat << 'EOF' > 'site/why.html'
           – small sets of essential variable settings that, once discovered, drastically 
           simplified the search space. His innovation was creating "macros" to jump 
           between these narrows, effectively creating shortcuts through complex problem 
-          spaces<a href="references.html#6">[6]</a>.</li>
+          spaces[6].</li>
 
         <li><strong>Variable Pruning (1990s):</strong> Kohavi and John demonstrated that removing up to 80% 
           of variables in certain datasets still maintained excellent classification 
           accuracy, reinforcing the idea that most variables contribute negligible 
-          information<a href="references.html#7">[7]</a>.</li>
+          information[7].</li>
 
         <li><strong>ISAMP and Constraint Satisfaction (1990s):</strong> Crawford and Baker's ISAMP tool 
           used random search with strategic restarts, which proved surprisingly 
           effective for constraint satisfaction problems. The key insight was that 
           models have a few "master variables" controlling overall behavior, making 
-          exhaustive searching inefficient<a href="references.html#8">[8]</a>.</li>
+          exhaustive searching inefficient[8].</li>
 
         <li><strong>Backdoors in Satisfiability (2000s):</strong> Williams and colleagues found that 
           running random searches repeatedly revealed the same few variable settings in 
           successful solutions. Setting these "backdoor" variables first made previously 
           intractable problems suddenly manageable, providing another demonstration of 
-          the power of identifying key variables<a href="references.html#9">[9]</a>.</li>
+          the power of identifying key variables[9].</li>
 
         <li><strong>Modern Feature Selection and Dimensionality Reduction:</strong> Contemporary machine 
           learning continues to build on these foundations with techniques like LASSO 
           regression (which can reduce coefficients to zero) and Random Forest 
           importance metrics that identify the handful of features driving most 
-          predictions<a href="references.html#10">[10]</a>.</li>
+          predictions[10].</li>
         </ul>
 
         <h2>Empirical Support</h2>
@@ -139,25 +152,25 @@ cat << 'EOF' > 'site/why.html'
         accurate predictions for software engineering tasks like predicting GitHub issue 
         close times, effort estimation, and defect prediction remained possible even 
         after discarding labels for 80%, 91%, 97%, and sometimes 98-100% of project 
-        data<a href="references.html#11">[11]</a><a href="references.html#12">[12]</a><a href="references.html#13">[13]</a><a href="references.html#14">[14]</a>. This dramatic data reduction without significant 
+        data[11][12][13][14]. This dramatic data reduction without significant 
         performance loss demonstrates the concentrated nature of information in 
         real-world datasets.</p>
 
         <p>The mathematical foundation for this phenomenon is also well-established. The 
-        Johnson-Lindenstrauss lemma<a href="references.html#15">[15]</a> proves that high-dimensional data can be 
+        Johnson-Lindenstrauss lemma[15] proves that high-dimensional data can be 
         projected into significantly lower dimensions while mostly preserving distances 
-        between points. Similarly, research on the "naturalness" of software<a href="references.html#16">[16]</a> has 
+        between points. Similarly, research on the "naturalness" of software[16] has 
         shown that code contains significant repetition and predictable patterns, 
         explaining why small samples can capture essential behaviors of much larger 
         systems.</p>
 
         <p>This principle finds further support in studies of software bugs by Ostrand et 
-        al.<a href="references.html#17">[17]</a>, which demonstrated that typically 80% of defects occur in just 20% of 
-        modules, and in Lin and Robles' work<a href="references.html#18">[18]</a> showing how open-source development 
+        al.[17], which demonstrated that typically 80% of defects occur in just 20% of 
+        modules, and in Lin and Robles' work[18] showing how open-source development 
         follows power laws, where a small fraction of components receive most 
         development activity.</p>
 
-        <p>Menzies et al.<a href="references.html#19">[19]</a><a href="references.html#20">[20]</a> have demonstrated across multiple studies that static 
+        <p>Menzies et al.[19][20] have demonstrated across multiple studies that static 
         code attributes can be highly compressed while still maintaining predictive 
         power for defect models, and that local models built on small subsets of data 
         can outperform global models trained on everything. The essence of this work is 
@@ -201,6 +214,19 @@ cat << 'EOF' > 'site/eg.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Example</title>
@@ -235,7 +261,7 @@ cat << 'EOF' > 'site/eg.html'
         <p>Kube.py works with CSV data where the column headers contain important metadata. 
         Here's a sample of the auto93.csv dataset:</p>
 
-<pre>
+<pre><code class="language-html">
  Clndrs  Volume  HpX  Model  origin  Lbs-  Acc+  Mpg+  ydist
 ------  ------  ---  -----  ------  ----  ----  ----  -----
 4       90      48   80     2       2085  21.7  40    0.17
@@ -247,7 +273,7 @@ cat << 'EOF' > 'site/eg.html'
 8       350     165  70     1       3693  11.5  20    0.77
 8       455     225  70     1       4425  10.0  10    0.77
 8       454     220  70     1       4354  9.0   10    0.79
-</pre>
+</code></pre>
 
         <h2>Column Naming Conventions</h2>
 
@@ -275,7 +301,7 @@ cat << 'EOF' > 'site/eg.html'
 
         <h2>Running the Example</h2>
 
-<pre>
+<pre><code class="language-html">
 $ python kube.py --counts
 
 # Results might look like:
@@ -283,7 +309,7 @@ $ python kube.py --counts
 # {mid: 0.45, div: 0.15, n: 12}
 # {mid: 0.19, div: 0.08, n: 10}
 # ...
-</pre>
+</code></pre>
 
         <h2>What Happened?</h2>
 
@@ -306,7 +332,7 @@ $ python kube.py --counts
 
         <p>Explore other example functions to understand different capabilities:</p>
 
-<pre>
+<pre><code class="language-html">
 # Print the current configuration 
 $ python kube.py --the
 
@@ -318,7 +344,7 @@ $ python kube.py --ydist
 
 # See the clustering structure
 $ python kube.py --poles
-</pre>
+</code></pre>
 
         <p>Check the <a href="details.html">Details</a> page for more information about these example functions.</p>
     </main>
@@ -336,6 +362,19 @@ cat << 'EOF' > 'site/index.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py</title>
@@ -407,6 +446,19 @@ cat << 'EOF' > 'site/details.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Details</title>
@@ -511,7 +563,7 @@ cat << 'EOF' > 'site/details.html'
 
         <h3>Examples of CLI Usage</h3>
 
-<pre>
+<pre><code class="language-html">
 # Use more bins for finer clustering
 $ python kube.py --counts -b 8
 
@@ -526,7 +578,7 @@ $ python kube.py --counts -m 5
 
 # Use a different dataset
 $ python kube.py --counts -f path/to/other/data.csv
-</pre>
+</code></pre>
 
         <h2>Part 2: Example Functions</h2>
 
@@ -580,39 +632,39 @@ $ python kube.py --counts -f path/to/other/data.csv
         <h3>Example Functions in Detail</h3>
 
         <h4>1. <code>eg_h</code>: Help Text</h4>
-<pre>
+<pre><code class="language-html">
 $ python kube.py -h
-</pre>
+</code></pre>
         <p>This displays the docstring and lists all available example functions.</p>
 
         <h4>2. <code>eg__the</code>: Current Configuration</h4>
-<pre>
+<pre><code class="language-html">
 $ python kube.py --the
 # Output: {b: 5, m: 0, P: 2, d: 4, r: 1234567891, s: 30, f: ../../moot/optimize/misc/auto93.csv}
-</pre>
+</code></pre>
         <p>This is useful for verifying your current settings.</p>
 
         <h4>3. <code>eg__csv</code>: Raw Data</h4>
-<pre>
+<pre><code class="language-html">
 $ python kube.py --csv
 # Output: Shows all rows from the CSV file
-</pre>
+</code></pre>
         <p>This shows the raw input data without any processing.</p>
 
         <h4>4. <code>eg__data</code>: Column Information</h4>
-<pre>
+<pre><code class="language-html">
 $ python kube.py --data
 # Output:
 # x Num(at=0, txt=Clndrs, n=398, mu=5.45, m2=2400.31, lo=3, hi=8, heaven=1)
 # x Num(at=1, txt=Volume, n=398, mu=193.43, m2=1786554.97, lo=68, hi=455, heaven=1)
 # ...
 # y Num(at=5, txt=Lbs-, n=398, mu=2970.42, m2=19431245.76, lo=1613, hi=5140, heaven=0)
-</pre>
+</code></pre>
         <p>This reveals how kube interprets each column (Num or Sym) and whether it's 
         considered an input (x) or output (y) variable.</p>
 
         <h4>5. <code>eg__ydist</code>: Ranking by Distance to Heaven</h4>
-<pre>
+<pre><code class="language-html">
 $ python kube.py --ydist
 # Output:
 # good [4, 90, 48, 80, 2, 2085, 21.7, 40]
@@ -620,30 +672,30 @@ $ python kube.py --ydist
 # ...
 # bad [8, 455, 225, 70, 1, 4425, 10.0, 10]
 # bad [8, 454, 220, 70, 1, 4354, 9.0, 10]
-</pre>
+</code></pre>
         <p>This shows which data points are closest to optimal (good) and furthest from 
         optimal (bad).</p>
 
         <h4>6. <code>eg__poles</code>: Pole Selection and Clustering</h4>
-<pre>
+<pre><code class="language-html">
 $ python kube.py --poles
 # Output:
 # (0, 0, 0)
 # (0, 1, 1)
 # ...
 # 14
-</pre>
+</code></pre>
         <p>This shows the hash keys generated for different clusters and the total 
         number of clusters found.</p>
 
         <h4>7. <code>eg__counts</code>: Full Clustering with Statistics</h4>
-<pre>
+<pre><code class="language-html">
 $ python kube.py --counts
 # Output:
 # {mid: 0.29, div: 0.11, n: 8}
 # {mid: 0.45, div: 0.15, n: 12}
 # ...
-</pre>
+</code></pre>
         <p>This is the primary analysis function, showing each valid cluster (meeting 
         minimum size) with its:</p>
         <ul>
@@ -666,6 +718,19 @@ cat << 'EOF' > 'site/how.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Inference Tools</title>
@@ -699,7 +764,7 @@ cat << 'EOF' > 'site/how.html'
 
         <p>The <code>poles()</code> method selects representative data points that span the data space:</p>
 
-<pre>
+<pre><code class="language-html">
 def poles(i) -> Rows:
     """Select poles at max distance to poles picked so far."""
     r0, *some = many(i._rows, k=the.some + 1)
@@ -707,7 +772,7 @@ def poles(i) -> Rows:
     for _ in range(the.dims):
         out += [max(some, key=lambda r2: sum(i.xdist(r2, r1) for r1 in out))]
     return out
-</pre>
+</code></pre>
 
         <p>This algorithm:</p>
         <ol>
@@ -727,13 +792,13 @@ def poles(i) -> Rows:
 
         <p>The <code>project()</code> method projects a data point onto the line connecting two poles:</p>
 
-<pre>
+<pre><code class="language-html">
 def project(i, row: Row, a: Row, b: Row) -> int:
     """Project a row onto the line connecting two poles, a and b"""
     c = i.xdist(a, b)
     x = (i.xdist(row, a)**2 + c**2 - i.xdist(row, b)**2) / (2 * c)
     return min(int(x / c * the.bins), the.bins - 1)
-</pre>
+</code></pre>
 
         <p>This method:</p>
         <ol>
@@ -750,7 +815,7 @@ def project(i, row: Row, a: Row, b: Row) -> int:
 
         <p>The <code>lsh()</code> method implements locality-sensitive hashing for efficient clustering:</p>
 
-<pre>
+<pre><code class="language-html">
 def lsh(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
     """Locality sensitive hashing to group rows by projection."""
     clusters: Dict[Tuple[int, ...], 'Data'] = {}
@@ -759,7 +824,7 @@ def lsh(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
         clusters[k] = clusters.get(k) or i.clone()
         clusters[k].add(row)
     return clusters
-</pre>
+</code></pre>
 
         <p>This approach creates efficient approximate clusterings by:</p>
         <ol>
@@ -777,11 +842,11 @@ def lsh(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
 
         <p>The <code>ydist()</code> method calculates how far a point is from the ideal:</p>
 
-<pre>
+<pre><code class="language-html">
 def ydist(i, row: Row) -> float:
     """Calculate the distance to heaven for this row."""
     return dist(abs(c.norm(row[c.at]) - c.heaven) for c in i.cols.y)
-</pre>
+</code></pre>
 
         <p>This creates a single objective function from multiple objectives by:</p>
         <ol>
@@ -798,7 +863,7 @@ def ydist(i, row: Row) -> float:
 
         <p>The <code>minPts()</code> method determines how many points are needed for a valid cluster:</p>
 
-<pre>
+<pre><code class="language-html">
 def minPts(i) -> int:
     """Report how many points are needed for each bucket."""
     out = the.min
@@ -807,7 +872,7 @@ def minPts(i) -> int:
       elif len(i._rows) < 100: out= 3
       else: out = 2 + the.dims
     return out
-</pre>
+</code></pre>
 
         <p>This heuristic ensures that clusters have enough points to be statistically significant 
         without being too restrictive. It adapts to the dataset size and dimensionality, making 
@@ -844,6 +909,19 @@ cat << 'EOF' > 'site/readme.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py Website</title>
@@ -1162,6 +1240,19 @@ cat << 'EOF' > 'site/what.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Data Model</title>
@@ -1193,12 +1284,12 @@ cat << 'EOF' > 'site/what.html'
         <h2>Base Classes</h2>
 
         <h3><code>o</code> Class</h3>
-        <pre>
+        <pre><code class="language-html">
 class o:
   """Base class providing dictionary update and string representation."""
   __init__ = lambda i, **d: i.__dict__.update(**d)
   __repr__ = cat
-</pre>
+</code></pre>
         <p>This is the foundation class that all other classes inherit from. It provides:</p>
         <ul>
             <li>A simple way to update object attributes with dictionary items</li>
@@ -1206,13 +1297,13 @@ class o:
         </ul>
 
         <h3>Type Aliases</h3>
-        <pre>
+        <pre><code class="language-html">
 # Type aliases
 Atom = Union[int, float, str, bool]
 Row  = List[Atom]
 Rows = List[Row]
 Col  = Union['Sym', 'Num']
-</pre>
+</code></pre>
         <p>These type aliases provide clear definitions for the basic data structures:</p>
         <ul>
             <li><code>Atom</code>: A primitive data type (int, float, str, bool)</li>
@@ -1224,7 +1315,7 @@ Col  = Union['Sym', 'Num']
         <h2>Column Classes</h2>
 
         <h3><code>Sym</code> Class</h3>
-        <pre>
+        <pre><code class="language-html">
 class Sym(o):
   """Symbol class for handling categorical attributes."""
 
@@ -1234,7 +1325,7 @@ class Sym(o):
     i.txt: str = txt          # Column name
     i.n: int = 0              # Count of items seen
     i.has: Dict[Atom, int] = {}  # Frequency counts of values
-    [i.add(x) for x in has]</pre>
+    [i.add(x) for x in has]</code></pre>
         <p>The <code>Sym</code> class handles categorical attributes with methods for:</p>
         <ul>
             <li>Frequency counting (<code>has</code> dictionary)</li>
@@ -1244,7 +1335,7 @@ class Sym(o):
         </ul>
 
         <h3><code>Num</code> Class</h3>
-        <pre>
+        <pre><code class="language-html">
 class Num(o):
   """Number class for handling numeric attributes."""
   def __init__(i, has: List[Atom] = [], at: int = 0, txt: str = " "):
@@ -1257,7 +1348,7 @@ class Num(o):
     i.lo: float = BIG         # Lowest value seen
     i.hi: float = -BIG        # Highest value seen
     i.heaven: int = 0 if txt[-1] == "-" else 1  # Optimization goal (0=min, 1=max)
-    [i.add(x) for x in has]</pre>
+    [i.add(x) for x in has]</code></pre>
         <p>The <code>Num</code> class handles numerical attributes with methods for:</p>
         <ul>
             <li>Online calculation of mean and standard deviation</li>
@@ -1271,7 +1362,7 @@ class Num(o):
         <h2>Data Container</h2>
 
         <h3><code>Data</code> Class</h3>
-        <pre>
+        <pre><code class="language-html">
 class Data(o):
   """Data class for handling collections of rows."""
   def __init__(i, src: Iterator[Row]):
@@ -1280,7 +1371,7 @@ class Data(o):
     i.cols = o(x=[], y=[], all=[]) # Track columns (x=independent, y=dependent, all=all)
     src = iter(src)
     [i.about(c, s) for c, s in enumerate(next(src))]
-    [i.add(row) for row in src]</pre>
+    [i.add(row) for row in src]</code></pre>
         <p>The <code>Data</code> class is the main container for rows and columns with methods for:</p>
         <ul>
             <li>Parsing CSV files</li>
@@ -1319,6 +1410,19 @@ cat << 'EOF' > 'site/references.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - References</title>
@@ -1421,6 +1525,19 @@ cat << 'EOF' > 'site/who.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Credits</title>
@@ -1453,7 +1570,7 @@ cat << 'EOF' > 'site/who.html'
         of software analytics and search-based software engineering.</p>
 
         <h2>License</h2>
-        <pre>
+        <pre><code class="language-html">
 MIT License
 
 Copyright (c) 2025 Tim Menzies
@@ -1475,7 +1592,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-</pre>
+</code></pre>
 
         <h2>Intellectual Foundations</h2>
 
@@ -1540,6 +1657,19 @@ cat << 'EOF' > 'site/maths.html'
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Mathematical Foundations</title>
@@ -1571,7 +1701,7 @@ cat << 'EOF' > 'site/maths.html'
         <p>Kube uses the Minkowski distance metric as the foundation for measuring 
         similarity between data points. The formula is:</p>
 
-<pre>d(x, y) = (Σ|x_i - y_i|^P)^(1/P)</pre>
+<pre><code class="language-html">d(x, y) = (Σ|x_i - y_i|^P)^(1/P)</code></pre>
 
         <p>Where:</p>
         <ul>
@@ -1581,7 +1711,7 @@ cat << 'EOF' > 'site/maths.html'
         </ul>
 
         <p>When P=2, this becomes the familiar Euclidean distance. Different P values 
-        create different distance spaces, affecting how clusters form.<a href="references.html#21">[21]</a></p>
+        create different distance spaces, affecting how clusters form.[21]</p>
 
         <h2>Locality-Sensitive Hashing (LSH)</h2>
 
@@ -1596,14 +1726,14 @@ cat << 'EOF' > 'site/maths.html'
         </ol>
 
         <p>This approach has O(n) complexity versus the O(n²) of traditional clustering 
-        methods, making it efficient for large datasets.<a href="references.html#22">[22]</a></p>
+        methods, making it efficient for large datasets.[22]</p>
 
         <h2>Active Learning</h2>
 
         <p>The code implements active learning principles by finding the most informative 
         examples in the data space. The <code>poles()</code> method identifies data points at 
         maximum distances from each other, effectively sampling the boundaries of the 
-        data space.<a href="references.html#23">[23]</a></p>
+        data space.[23]</p>
 
         <p>Active learning focuses on selecting the most informative examples for labeling, 
         rather than randomly sampling the data space. This is particularly useful in domains 
@@ -1615,7 +1745,7 @@ cat << 'EOF' > 'site/maths.html'
         <p>Kube optimizes for multiple objectives through the "heaven" concept. For each 
         column marked with "+" or "-" in the CSV header, kube attempts to maximize or 
         minimize those values, respectively. The <code>ydist()</code> method calculates how far 
-        each data point is from the ideal point ("heaven").<a href="references.html#24">[24]</a></p>
+        each data point is from the ideal point ("heaven").[24]</p>
 
         <p>In multi-objective optimization, there is rarely a single solution that optimizes all 
         objectives simultaneously. Instead, we seek Pareto-optimal solutions - those where improving 
@@ -1625,7 +1755,7 @@ cat << 'EOF' > 'site/maths.html'
         <h2>Dimensionality Reduction</h2>
 
         <p>At its core, kube implements a form of dimensionality reduction through projection. This 
-        is related to the Johnson-Lindenstrauss lemma<a href="references.html#15">[15]</a>, which proves that high-dimensional data can 
+        is related to the Johnson-Lindenstrauss lemma[15], which proves that high-dimensional data can 
         be projected into significantly lower dimensions while mostly preserving distances between points.</p>
 
         <p>By representing complex, high-dimensional data in a lower-dimensional space, kube makes it 

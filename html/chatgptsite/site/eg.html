@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Example</title>
@@ -35,7 +48,7 @@
         <p>Kube.py works with CSV data where the column headers contain important metadata. 
         Here's a sample of the auto93.csv dataset:</p>
 
-<pre>
+<pre><code class="language-html">
  Clndrs  Volume  HpX  Model  origin  Lbs-  Acc+  Mpg+  ydist
 ------  ------  ---  -----  ------  ----  ----  ----  -----
 4       90      48   80     2       2085  21.7  40    0.17
@@ -47,7 +60,7 @@
 8       350     165  70     1       3693  11.5  20    0.77
 8       455     225  70     1       4425  10.0  10    0.77
 8       454     220  70     1       4354  9.0   10    0.79
-</pre>
+</code></pre>
 
         <h2>Column Naming Conventions</h2>
 
@@ -75,7 +88,7 @@
 
         <h2>Running the Example</h2>
 
-<pre>
+<pre><code class="language-html">
 $ python kube.py --counts
 
 # Results might look like:
@@ -83,7 +96,7 @@ $ python kube.py --counts
 # {mid: 0.45, div: 0.15, n: 12}
 # {mid: 0.19, div: 0.08, n: 10}
 # ...
-</pre>
+</code></pre>
 
         <h2>What Happened?</h2>
 
@@ -106,7 +119,7 @@ $ python kube.py --counts
 
         <p>Explore other example functions to understand different capabilities:</p>
 
-<pre>
+<pre><code class="language-html">
 # Print the current configuration 
 $ python kube.py --the
 
@@ -118,7 +131,7 @@ $ python kube.py --ydist
 
 # See the clustering structure
 $ python kube.py --poles
-</pre>
+</code></pre>
 
         <p>Check the <a href="details.html">Details</a> page for more information about these example functions.</p>
     </main>

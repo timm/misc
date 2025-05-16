@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<style>
+code, pre {
+  font-family: "Fira Code", "Source Code Pro", "Menlo", "Consolas", monospace;
+  font-size: 0.95em;
+  background-color: #f5f5f5;
+  padding: 0.5em;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kube.py - Data Model</title>
@@ -32,12 +45,12 @@
         <h2>Base Classes</h2>
 
         <h3><code>o</code> Class</h3>
-        <pre>
+        <pre><code class="language-html">
 class o:
   """Base class providing dictionary update and string representation."""
   __init__ = lambda i, **d: i.__dict__.update(**d)
   __repr__ = cat
-</pre>
+</code></pre>
         <p>This is the foundation class that all other classes inherit from. It provides:</p>
         <ul>
             <li>A simple way to update object attributes with dictionary items</li>
@@ -45,13 +58,13 @@ class o:
         </ul>
 
         <h3>Type Aliases</h3>
-        <pre>
+        <pre><code class="language-html">
 # Type aliases
 Atom = Union[int, float, str, bool]
 Row  = List[Atom]
 Rows = List[Row]
 Col  = Union['Sym', 'Num']
-</pre>
+</code></pre>
         <p>These type aliases provide clear definitions for the basic data structures:</p>
         <ul>
             <li><code>Atom</code>: A primitive data type (int, float, str, bool)</li>
@@ -63,7 +76,7 @@ Col  = Union['Sym', 'Num']
         <h2>Column Classes</h2>
 
         <h3><code>Sym</code> Class</h3>
-        <pre>
+        <pre><code class="language-html">
 class Sym(o):
   """Symbol class for handling categorical attributes."""
 
@@ -73,7 +86,7 @@ class Sym(o):
     i.txt: str = txt          # Column name
     i.n: int = 0              # Count of items seen
     i.has: Dict[Atom, int] = {}  # Frequency counts of values
-    [i.add(x) for x in has]</pre>
+    [i.add(x) for x in has]</code></pre>
         <p>The <code>Sym</code> class handles categorical attributes with methods for:</p>
         <ul>
             <li>Frequency counting (<code>has</code> dictionary)</li>
@@ -83,7 +96,7 @@ class Sym(o):
         </ul>
 
         <h3><code>Num</code> Class</h3>
-        <pre>
+        <pre><code class="language-html">
 class Num(o):
   """Number class for handling numeric attributes."""
   def __init__(i, has: List[Atom] = [], at: int = 0, txt: str = " "):
@@ -96,7 +109,7 @@ class Num(o):
     i.lo: float = BIG         # Lowest value seen
     i.hi: float = -BIG        # Highest value seen
     i.heaven: int = 0 if txt[-1] == "-" else 1  # Optimization goal (0=min, 1=max)
-    [i.add(x) for x in has]</pre>
+    [i.add(x) for x in has]</code></pre>
         <p>The <code>Num</code> class handles numerical attributes with methods for:</p>
         <ul>
             <li>Online calculation of mean and standard deviation</li>
@@ -110,7 +123,7 @@ class Num(o):
         <h2>Data Container</h2>
 
         <h3><code>Data</code> Class</h3>
-        <pre>
+        <pre><code class="language-html">
 class Data(o):
   """Data class for handling collections of rows."""
   def __init__(i, src: Iterator[Row]):
@@ -119,7 +132,7 @@ class Data(o):
     i.cols = o(x=[], y=[], all=[]) # Track columns (x=independent, y=dependent, all=all)
     src = iter(src)
     [i.about(c, s) for c, s in enumerate(next(src))]
-    [i.add(row) for row in src]</pre>
+    [i.add(row) for row in src]</code></pre>
         <p>The <code>Data</code> class is the main container for rows and columns with methods for:</p>
         <ul>
             <li>Parsing CSV files</li>
