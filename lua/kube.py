@@ -33,7 +33,7 @@ def cat(x: Any) -> str:
   isa = isinstance
   if isa(x, list): return "{" + ", ".join(map(cat, x)) + "}"
   if isa(x, (float, int)): return str(int(x)) if x == int(x) else f"{x:.3g}"
-  if isa(x, dict): return cat([f":{k} {cat(v)}" for k, v in x.items() if str(k)[0] != "_"])
+  if isa(x, dict): return cat([f":{k} {cat(v)}" for k, v in x.items() if str(k)[0]!="_"])
   if hasattr(x, "__dict__"): return x.__class__.__name__ + cat(x.__dict__)
   return str(x)
 
