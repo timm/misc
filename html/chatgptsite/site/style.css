@@ -1,0 +1,234 @@
+/* 
+   style.css for Kube.py - Brutalist style website
+   Inspired by mechanize.work
+*/
+
+/* Base styles */
+:root {
+    --primary-font: 'Courier New', monospace;
+    --heading-font: 'Helvetica', sans-serif;
+    --background-color: #f9f9f9;
+    --text-color: #111;
+    --link-color: #0000EE;
+    --link-visited: #551A8B;
+    --light-gray: #eee;
+    --code-bg: #f5f5f5;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: var(--primary-font);
+    xline-height: 1.5;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    font-size: 16px;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+    font-family: var(--heading-font);
+    font-weight: bold;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 2rem;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.5rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+h3 {
+    font-size: 1.2rem;
+}
+
+h4 {
+    font-size: 1rem;
+}
+
+p, ul, ol, table {
+    margin-bottom: 1.5rem;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+a:visited {
+    color: var(--link-visited);
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #000;
+    margin: 1rem 0;
+}
+
+small {
+    font-size: 0.85rem;
+}
+
+/* Code blocks and syntax */
+pre, code {
+    font-family: var(--primary-font);
+    overflow-x: auto;
+}
+
+pre {
+    background-color: var(--code-bg);
+    padding: 1rem;
+    margin: 1rem 0;
+    white-space: pre-wrap;
+    border-left: 2px solid #ccc;
+}
+
+code {
+    background-color: var(--code-bg);
+    padding: 0.2rem 0.4rem;
+}
+
+/* Header and navigation */
+header {
+    margin-bottom: 2rem;
+}
+
+.menu {
+    padding: 0.5rem 0;
+    font-family: var(--heading-font);
+}
+
+.menu a {
+    margin: 0 0.5rem;
+}
+
+.menu a:first-child {
+    margin-left: 0;
+}
+
+/* GitHub corner */
+.github-corner svg {
+    fill: #151513;
+    color: #fff;
+    position: absolute;
+    top: 0;
+    border: 0;
+    right: 0;
+}
+
+.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+}
+
+@keyframes octocat-wave {
+    0%, 100% { transform: rotate(0); }
+    20%, 60% { transform: rotate(-25deg); }
+    40%, 80% { transform: rotate(10deg); }
+}
+
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none;
+    }
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+    }
+}
+
+/* Home page specific styles */
+.mantra {
+    font-size: 1.2rem;
+    margin: 2rem 0;
+    font-style: italic;
+    text-align: center;
+}
+
+.docstring {
+    background-color: var(--light-gray);
+    border-left: 3px solid #999;
+    padding: 1rem;
+    margin: 1rem 0;
+    white-space: pre-wrap;
+    font-family: var(--primary-font);
+}
+
+/* Tables */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+th {
+    text-align: left;
+    border-bottom: 2px solid #000;
+    padding: 0.5rem;
+    font-weight: bold;
+}
+
+td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ccc;
+}
+
+tr:nth-child(even) {
+    background-color: var(--light-gray);
+}
+
+/* Lists */
+ul, ol {
+    padding-left: 2rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
+}
+
+/* Footer */
+footer {
+    margin-top: 4rem;
+    padding-top: 1rem;
+    text-align: center;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background-color: white;
+        color: black;
+        font-size: 12pt;
+    }
+    
+    a {
+        color: black;
+        text-decoration: underline;
+    }
+    
+    .github-corner {
+        display: none;
+    }
+    
+    pre, code {
+        background-color: white;
+        border: 1px solid #ddd;
+    }
+}
+

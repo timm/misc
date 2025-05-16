@@ -1,21 +1,21 @@
 #!/usr/bin/env python3 -B
+# In this code "i" == "self". Also "_x" is a hidden var (to big, or to secret, to show).
 """
 kube.py : barelogic, XAI for active learning + multi-objective optimization
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
 Options:
-
       -b bins    number of bins                     = 5
       -m min     minPts per cluster (0=auto choose) = 0
       -P P       distance formula exponent          = 2
       -d dims    number of dimensions               = 4
-      -r rseed  random number seed                  = 1234567891
+      -r rseed   random number seed                 = 1234567891
       -s some    search space size for poles        = 30
       -f file    training csv file = ../../moot/optimize/misc/auto93.csv
 """
 import random, sys, re
 import math
-from typing import List, Dict, Any, Union, Tuple, Optional, Callable, Iterator, TypeVar, cast
+from typing import List,Dict,Any,Union,Tuple,Optional,Callable,Iterator,TypeVar,cast
 
 any = random.choice
 many = random.choices
@@ -23,11 +23,10 @@ many = random.choices
 BIG = 1e32
 
 # Type aliases
-Col = Union['Sym', 'Num']
-Digits = Union[int, float]
-Atom = Union[Digits, str, bool]
-Row = List[Atom]
+Atom = Union[int, float, str, bool]
+Row  = List[Atom]
 Rows = List[Row]
+Col  = Union['Sym', 'Num']
 
 def cat(x: Any) -> str:
   """Convert any object to a string representation."""
@@ -42,7 +41,6 @@ class o:
   """Base class providing dictionary update and string representation."""
   __init__ = lambda i, **d: i.__dict__.update(**d)
   __repr__ = cat
-
 
 # ----------------------------------------------------------------------------------------
 class Sym(o):
@@ -94,17 +92,16 @@ class Num(o):
   def add(i, x: Atom, inc: bool = True) -> Atom:
     """Add a value to the numeric column."""
     if x != "?":
-      x_num = float(x)  # Convert to float for calculations
-      i.lo = min(x_num, i.lo)
-      i.hi = max(x_num, i.hi)
+      i.lo = min(x, i.lo)
+      i.hi = max(x, i.hi)
       if not inc and i.n <= 2:
         i.n = i.mu = i.m2 = 0
       else:
         step = 1 if inc else -1
         i.n += step
-        d = x_num - i.mu
+        d = x - i.mu
         i.mu += step * d / i.n
-        i.m2 += step * d * (x_num - i.mu)
+        i.m2 += step * d * (x - i.mu)
     return x
 
   def dist(i, x: Atom, y: Atom) -> float:
@@ -147,7 +144,7 @@ class Data(o):
   def add(i, row: Row, inc: bool = True, purge: bool = False) -> Row:
     """Add a row to the data."""
     if purge: i._rows.remove(row)  # can be slow. disabled by default
-    else: i._rows += [row]
+    elif inc: i._rows += [row]
     for col in i.cols.all: col.add(row[col.at], inc)
     return row
 
@@ -166,11 +163,20 @@ class Data(o):
 
   def mid(i) -> Row:
     """Find the central tendency row."""
-    middle = [col.mid() for col in i.all.cols]
+    middle = [col.mid() for col in i.cols.all]
     return min(i._rows, key=lambda row: i.xdist(row, middle))
 
+  def minPts(i) -> int:
+    """Report how many points are needed for each bucket."""
+    out = the.min
+    if out==0:
+      if   len(i._rows) <  30: out= 2
+      elif len(i._rows) < 100: out= 3
+      else: out = 2 + the.dims
+    return out
+
   def poles(i) -> Rows:
-    """Select a pole at max distance to poles picked so far."""
+    """Select poles at max distance to poles picked so far."""
     r0, *some = many(i._rows, k=the.some + 1)
     out = [max(some, key=lambda r1: i.xdist(r1, r0))]
     for _ in range(the.dims):
@@ -178,10 +184,10 @@ class Data(o):
     return out
 
   def project(i, row: Row, a: Row, b: Row) -> int:
-    """Project a row onto the line connecting two poles."""
+    """Project a row onto the line connecting two poles, a and b"""
     c = i.xdist(a, b)
     x = (i.xdist(row, a)**2 + c**2 - i.xdist(row, b)**2) / (2 * c)
-    return min(int(x / c * the.bins), the.bins - 1)
+    return min(int(x / c * the.bins), the.bins - 1) # return 0..the.bins-1
 
   def xdist(i, row1: Row, row2: Row) -> float:
     """Calculate distance between rows using only X columns."""
@@ -191,9 +197,9 @@ class Data(o):
     """Calculate the distance to heaven for this row."""
     return dist(abs(c.norm(row[c.at]) - c.heaven) for c in i.cols.y)
 
-  def ydists(i, rows: Optional[Rows] = None) -> 'Num':
+  def ydists(i) -> Num:
     """Get numeric stats on y-distances for rows."""
-    return Num(i.ydist(row) for row in rows or i._rows)
+    return Num(i.ydist(row) for row in i._rows)
 
 # ----------------------------------------------------------------------------------------
 def cli(d: Dict[str, Any]) -> None:
@@ -231,7 +237,10 @@ def dist(dims: Iterator[float]) -> float:
 # ---------------------------------------------------------------------------------------/
 def eg_h(_: Any) -> None:
   """Print help text."""
-  print(__doc__)
+  print(__doc__,"\nExamples:")
+  for s,fun in globals().items():
+    if s.startswith("eg__"): 
+      print(f"  {re.sub('eg__','--',s):>11}    {fun.__doc__}")
 
 def eg__all(_: Any) -> None:
   """Run all examples."""
@@ -260,7 +269,7 @@ def eg__ydist(_: Any) -> None:
   for row in lst[:4]: print("good", row)
   for row in lst[-4:]: print("bad", row)
 
-def eg__poles(file: Optional[str] = None) -> None:
+def eg__poles(file: str = None) -> None:
   """Show clustering dimensions."""
   d = Data(csv(file or the.file))
   p = d.poles()
@@ -268,20 +277,13 @@ def eg__poles(file: Optional[str] = None) -> None:
   [print(k) for k in dims]
   print(len(dims))
 
-def eg__counts(file: Optional[str] = None) -> None:
+def eg__counts(file: str = None) -> None:
   """Show cluster counts and stats."""
   d = Data(csv(file or the.file))
-  print(file or the.file)
-  p = d.poles()
-  clusters = d.lsh(p)
-  m = the.min
-  if m == 0:
-    if len(d._rows) < 30: m = 2
-    elif len(d._rows) < 100: m = 3
-    else: m = 2 * the.dims
+  clusters = d.lsh(d.poles())
   for data in clusters.values():
     ys = data.ydists()
-    if len(data._rows) >= m:
+    if len(data._rows) >= d.minPts():
       print(o(mid=ys.mid(), div=ys.div(), n=ys.n))
 
 

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kube.py - Data Model</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="menu">
+            <small><a href="index.html">Home</a> | <a href="why.html">Why</a> | <a href="eg.html">Eg</a> | <a href="maths.html">Maths</a> | <a href="what.html">What</a> | <a href="how.html">How</a> | <a href="who.html">Who</a> | <a href="details.html">Details</a></small>
+        </div>
+        <hr>
+    </header>
+
+    <div class="github-corner">
+        <a href="https://github.com/timm/kube" aria-label="Fork me on GitHub">
+            <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+                <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+                <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+                <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+            </svg>
+        </a>
+    </div>
+
+    <main>
+        <h1>Data Model</h1>
+
+        <p>Kube's data model consists of several key classes designed for efficiency and clarity:</p>
+
+        <h2>Base Classes</h2>
+
+        <h3><code>o</code> Class</h3>
+        <pre>
+class o:
+  """Base class providing dictionary update and string representation."""
+  __init__ = lambda i, **d: i.__dict__.update(**d)
+  __repr__ = cat
+</pre>
+        <p>This is the foundation class that all other classes inherit from. It provides:</p>
+        <ul>
+            <li>A simple way to update object attributes with dictionary items</li>
+            <li>String representation via the <code>cat</code> function that formats objects for display</li>
+        </ul>
+
+        <h3>Type Aliases</h3>
+        <pre>
+# Type aliases
+Atom = Union[int, float, str, bool]
+Row  = List[Atom]
+Rows = List[Row]
+Col  = Union['Sym', 'Num']
+</pre>
+        <p>These type aliases provide clear definitions for the basic data structures:</p>
+        <ul>
+            <li><code>Atom</code>: A primitive data type (int, float, str, bool)</li>
+            <li><code>Row</code>: A list of Atoms representing a single data entry</li>
+            <li><code>Rows</code>: A list of Row objects</li>
+            <li><code>Col</code>: Either a Sym or Num column type</li>
+        </ul>
+
+        <h2>Column Classes</h2>
+
+        <h3><code>Sym</code> Class</h3>
+        <pre>
+class Sym(o):
+  """Symbol class for handling categorical attributes."""
+
+  def __init__(i, has: List[Atom] = [], at: int = 0, txt: str = " "):
+    """Initialize a symbol column."""
+    i.at: int = at            # Column position
+    i.txt: str = txt          # Column name
+    i.n: int = 0              # Count of items seen
+    i.has: Dict[Atom, int] = {}  # Frequency counts of values
+    [i.add(x) for x in has]</pre>
+        <p>The <code>Sym</code> class handles categorical attributes with methods for:</p>
+        <ul>
+            <li>Frequency counting (<code>has</code> dictionary)</li>
+            <li>Distance calculation between symbols</li>
+            <li>Finding most common value (<code>mid()</code>)</li>
+            <li>Calculating entropy as diversity measure (<code>div()</code>)</li>
+        </ul>
+
+        <h3><code>Num</code> Class</h3>
+        <pre>
+class Num(o):
+  """Number class for handling numeric attributes."""
+  def __init__(i, has: List[Atom] = [], at: int = 0, txt: str = " "):
+    """Initialize a numeric column."""
+    i.at: int = at            # Column position
+    i.txt: str = txt          # Column name
+    i.n: int = 0              # Count of items seen
+    i.mu: float = 0           # Mean of values
+    i.m2: float = 0           # Sum of squared differences from mean
+    i.lo: float = BIG         # Lowest value seen
+    i.hi: float = -BIG        # Highest value seen
+    i.heaven: int = 0 if txt[-1] == "-" else 1  # Optimization goal (0=min, 1=max)
+    [i.add(x) for x in has]</pre>
+        <p>The <code>Num</code> class handles numerical attributes with methods for:</p>
+        <ul>
+            <li>Online calculation of mean and standard deviation</li>
+            <li>Normalization to 0-1 range</li>
+            <li>Distance calculation between numbers</li>
+            <li>Optimization direction via <code>heaven</code> attribute (0=minimize, 1=maximize)</li>
+        </ul>
+        <p>Note the clever use of the column name suffix ("-" or "+") to determine the optimization 
+        direction via the <code>heaven</code> attribute.</p>
+
+        <h2>Data Container</h2>
+
+        <h3><code>Data</code> Class</h3>
+        <pre>
+class Data(o):
+  """Data class for handling collections of rows."""
+  def __init__(i, src: Iterator[Row]):
+    """Initialize from data source."""
+    i._rows: Rows = []             # Storage for data rows
+    i.cols = o(x=[], y=[], all=[]) # Track columns (x=independent, y=dependent, all=all)
+    src = iter(src)
+    [i.about(c, s) for c, s in enumerate(next(src))]
+    [i.add(row) for row in src]</pre>
+        <p>The <code>Data</code> class is the main container for rows and columns with methods for:</p>
+        <ul>
+            <li>Parsing CSV files</li>
+            <li>Separating columns into independent (x) and dependent (y) variables</li>
+            <li>Finding central tendency rows</li>
+            <li>Calculating distances between rows</li>
+            <li>Implementing cluster analysis via <code>lsh()</code> method</li>
+        </ul>
+
+        <h2>Design Philosophy</h2>
+
+        <p>Kube's data model is designed with several key principles in mind:</p>
+
+        <ol>
+            <li><strong>Minimalism</strong>: Each class does one thing well, with a minimum of methods and attributes.</li>
+            <li><strong>Self-documenting</strong>: Code is written to be readable and understandable, with clear variable names.</li>
+            <li><strong>Type safety</strong>: Python type hints provide documentation and enable static type checking.</li>
+            <li><strong>Online algorithms</strong>: Statistical calculations like mean and standard deviation use online 
+            algorithms that don't require storing all data points.</li>
+            <li><strong>Functional style</strong>: Many operations use functional programming idioms like list comprehensions.</li>
+        </ol>
+
+        <p>This design allows kube to handle large datasets efficiently while remaining easy to understand and modify.</p>
+    </main>
+
+    <footer>
+        <hr>
+        <small>&copy; 2025 Tim Menzies. MIT License.</small>
+    </footer>
+</body>
+</html>

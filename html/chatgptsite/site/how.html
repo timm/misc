@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kube.py - Inference Tools</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="menu">
+            <small><a href="index.html">Home</a> | <a href="why.html">Why</a> | <a href="eg.html">Eg</a> | <a href="maths.html">Maths</a> | <a href="what.html">What</a> | <a href="how.html">How</a> | <a href="who.html">Who</a> | <a href="details.html">Details</a></small>
+        </div>
+        <hr>
+    </header>
+
+    <div class="github-corner">
+        <a href="https://github.com/timm/kube" aria-label="Fork me on GitHub">
+            <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+                <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+                <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+                <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+            </svg>
+        </a>
+    </div>
+
+    <main>
+        <h1>Inference Tools</h1>
+
+        <p>Kube provides several powerful inference tools built on its core data model. These tools 
+        enable efficient clustering, optimization, and exploration of multi-dimensional data spaces.</p>
+
+        <h2>Pole Selection</h2>
+
+        <p>The <code>poles()</code> method selects representative data points that span the data space:</p>
+
+<pre>
+def poles(i) -> Rows:
+    """Select poles at max distance to poles picked so far."""
+    r0, *some = many(i._rows, k=the.some + 1)
+    out = [max(some, key=lambda r1: i.xdist(r1, r0))]
+    for _ in range(the.dims):
+        out += [max(some, key=lambda r2: sum(i.xdist(r2, r1) for r1 in out))]
+    return out
+</pre>
+
+        <p>This algorithm:</p>
+        <ol>
+            <li>Samples <code>the.some</code> random rows</li>
+            <li>Finds the two most distant points</li>
+            <li>Iteratively adds points that maximize the sum of distances to previously 
+            selected poles</li>
+            <li>Continues until <code>the.dims</code> poles are selected</li>
+        </ol>
+
+        <p>This approach efficiently explores the boundaries of the data space, selecting 
+        points that represent extreme or distinctive characteristics. It's similar to how 
+        principal component analysis identifies dimensions of maximum variance, but uses 
+        a simpler, more intuitive approach.</p>
+
+        <h2>Projection and Hashing</h2>
+
+        <p>The <code>project()</code> method projects a data point onto the line connecting two poles:</p>
+
+<pre>
+def project(i, row: Row, a: Row, b: Row) -> int:
+    """Project a row onto the line connecting two poles, a and b"""
+    c = i.xdist(a, b)
+    x = (i.xdist(row, a)**2 + c**2 - i.xdist(row, b)**2) / (2 * c)
+    return min(int(x / c * the.bins), the.bins - 1)
+</pre>
+
+        <p>This method:</p>
+        <ol>
+            <li>Uses the law of cosines to find where a point projects onto a line</li>
+            <li>Calculates the normalized position (0 to 1) along that line</li>
+            <li>Discretizes this position into <code>the.bins</code> bins (default: 5)</li>
+        </ol>
+
+        <p>The collection of bin assignments across multiple pole pairs forms a unique hash 
+        for clustering. This discretization step is crucial for efficient approximate clustering, 
+        as it allows similar points to share the same hash despite small differences.</p>
+
+        <h2>Locality-Sensitive Hashing</h2>
+
+        <p>The <code>lsh()</code> method implements locality-sensitive hashing for efficient clustering:</p>
+
+<pre>
+def lsh(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
+    """Locality sensitive hashing to group rows by projection."""
+    clusters: Dict[Tuple[int, ...], 'Data'] = {}
+    for row in i._rows:
+        k = tuple(i.project(row, a, b) for a, b in zip(poles, poles[1:]))
+        clusters[k] = clusters.get(k) or i.clone()
+        clusters[k].add(row)
+    return clusters
+</pre>
+
+        <p>This approach creates efficient approximate clusterings by:</p>
+        <ol>
+            <li>Computing projections for each row onto the lines between consecutive poles</li>
+            <li>Using these projections as a hash key</li>
+            <li>Grouping rows with identical hash keys into the same cluster</li>
+        </ol>
+
+        <p>This method has O(n) complexity versus the O(n²) of traditional clustering methods, 
+        making it efficient for large datasets. It's a form of dimensionality reduction that 
+        preserves local relationships, similar to techniques like t-SNE or UMAP but with much 
+        lower computational cost.</p>
+
+        <h2>Distance to Heaven</h2>
+
+        <p>The <code>ydist()</code> method calculates how far a point is from the ideal:</p>
+
+<pre>
+def ydist(i, row: Row) -> float:
+    """Calculate the distance to heaven for this row."""
+    return dist(abs(c.norm(row[c.at]) - c.heaven) for c in i.cols.y)
+</pre>
+
+        <p>This creates a single objective function from multiple objectives by:</p>
+        <ol>
+            <li>Normalizing each attribute to a 0-1 scale</li>
+            <li>Measuring how far each attribute is from its ideal value (0 for minimization, 1 for maximization)</li>
+            <li>Combining these distances using the Minkowski distance formula</li>
+        </ol>
+
+        <p>This approach to multi-objective optimization is elegant in its simplicity. 
+        Rather than using complex Pareto-front calculations, it creates an intuitive distance 
+        metric that can be used to rank solutions. This fits with the minimalist philosophy of kube.</p>
+
+        <h2>Minimum Points Heuristic</h2>
+
+        <p>The <code>minPts()</code> method determines how many points are needed for a valid cluster:</p>
+
+<pre>
+def minPts(i) -> int:
+    """Report how many points are needed for each bucket."""
+    out = the.min
+    if out==0:
+      if   len(i._rows) <  30: out= 2
+      elif len(i._rows) < 100: out= 3
+      else: out = 2 + the.dims
+    return out
+</pre>
+
+        <p>This heuristic ensures that clusters have enough points to be statistically significant 
+        without being too restrictive. It adapts to the dataset size and dimensionality, making 
+        kube's clustering robust across different applications.</p>
+
+        <h2>How It All Works Together</h2>
+
+        <p>The complete clustering process in kube follows these steps:</p>
+
+        <ol>
+            <li>Select representative poles using <code>poles()</code></li>
+            <li>Project each point onto the lines between consecutive poles using <code>project()</code></li>
+            <li>Cluster points with identical projections using <code>lsh()</code></li>
+            <li>Calculate statistics for each cluster</li>
+            <li>Filter clusters to retain only those with at least <code>minPts()</code> points</li>
+            <li>Present results sorted by cluster quality (lowest <code>ydist()</code> first)</li>
+        </ol>
+
+        <p>This pipeline exemplifies the "small data" philosophy: It efficiently identifies key 
+        structures in the data without requiring exhaustive pairwise comparisons or complex 
+        optimization procedures.</p>
+    </main>
+
+    <footer>
+        <hr>
+        <small>&copy; 2025 Tim Menzies. MIT License.</small>
+    </footer>
+</body>
+</html>

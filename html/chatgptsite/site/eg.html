@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kube.py - Example</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="menu">
+            <small><a href="index.html">Home</a> | <a href="why.html">Why</a> | <a href="eg.html">Eg</a> | <a href="maths.html">Maths</a> | <a href="what.html">What</a> | <a href="how.html">How</a> | <a href="who.html">Who</a> | <a href="details.html">Details</a></small>
+        </div>
+        <hr>
+    </header>
+
+    <div class="github-corner">
+        <a href="https://github.com/timm/kube" aria-label="Fork me on GitHub">
+            <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+                <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+                <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+                <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+            </svg>
+        </a>
+    </div>
+
+    <main>
+        <h1>Practical Example</h1>
+
+        <p>Let's start with a practical example of how kube.py can be used to analyze and 
+        cluster automobile data.</p>
+
+        <h2>Input Data Format</h2>
+
+        <p>Kube.py works with CSV data where the column headers contain important metadata. 
+        Here's a sample of the auto93.csv dataset:</p>
+
+<pre>
+ Clndrs  Volume  HpX  Model  origin  Lbs-  Acc+  Mpg+  ydist
+------  ------  ---  -----  ------  ----  ----  ----  -----
+4       90      48   80     2       2085  21.7  40    0.17
+4       91      67   80     3       1850  13.8  40    0.17
+4       86      65   80     3       2019  16.4  40    0.17
+4       86      64   81     1       1875  16.4  40    0.18
+...
+8       429     198  70     1       4341  10.0  20    0.77
+8       350     165  70     1       3693  11.5  20    0.77
+8       455     225  70     1       4425  10.0  10    0.77
+8       454     220  70     1       4354  9.0   10    0.79
+</pre>
+
+        <h2>Column Naming Conventions</h2>
+
+        <ul>
+            <li>Capitalized headers (like "Clndrs", "Volume") indicate numeric columns</li>
+            <li>Lowercase headers (like "origin") indicate symbolic/categorical columns</li>
+            <li>A trailing "-" (like "Lbs-") indicates values to be minimized</li>
+            <li>A trailing "+" (like "Acc+", "Mpg+") indicates values to be maximized</li>
+            <li>A trailing "X" (not shown) would indicate columns to be ignored</li>
+        </ul>
+
+        <h2>Data Interpretation</h2>
+
+        <ul>
+            <li>The example shows cars with different attributes (cylinders, volume, 
+            horsepower, etc.)</li>
+            <li>Lower rows show larger cars (8 cylinders, high weight) with poor fuel 
+            economy (10-20 MPG)</li>
+            <li>Upper rows show smaller cars (4 cylinders, lower weight) with better fuel 
+            economy (40 MPG)</li>
+            <li>The "ydist" column (distance to heaven) shows that the top cars (0.17) are 
+            much closer to ideal than bottom cars (0.79)</li>
+            <li>The "origin" column uses codes (1=American, 2=European, 3=Japanese)</li>
+        </ul>
+
+        <h2>Running the Example</h2>
+
+<pre>
+$ python kube.py --counts
+
+# Results might look like:
+# {mid: 0.29, div: 0.11, n: 8}
+# {mid: 0.45, div: 0.15, n: 12}
+# {mid: 0.19, div: 0.08, n: 10}
+# ...
+</pre>
+
+        <h2>What Happened?</h2>
+
+        <p>In this example, kube.py has:</p>
+        <ol>
+            <li>Loaded the auto93.csv dataset</li>
+            <li>Selected representative "poles" from the data</li>
+            <li>Used locality-sensitive hashing (LSH) to cluster similar items</li>
+            <li>Computed statistics for each cluster</li>
+            <li>Displayed clusters with their central tendency (mid), diversity (div), 
+            and size (n)</li>
+        </ol>
+
+        <p>Each cluster represents automobiles with similar characteristics, and the "mid" 
+        value represents how close each cluster is to an ideal car (lower is better). 
+        This demonstrates kube's ability to automatically organize complex 
+        multi-dimensional data into meaningful groups.</p>
+
+        <h2>Try More Examples</h2>
+
+        <p>Explore other example functions to understand different capabilities:</p>
+
+<pre>
+# Print the current configuration 
+$ python kube.py --the
+
+# See how kube understands your columns
+$ python kube.py --data
+
+# Find the best and worst examples in your data
+$ python kube.py --ydist
+
+# See the clustering structure
+$ python kube.py --poles
+</pre>
+
+        <p>Check the <a href="details.html">Details</a> page for more information about these example functions.</p>
+    </main>
+
+    <footer>
+        <hr>
+        <small>&copy; 2025 Tim Menzies. MIT License.</small>
+    </footer>
+</body>
+</html>

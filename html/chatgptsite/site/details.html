@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kube.py - Details</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="menu">
+            <small><a href="index.html">Home</a> | <a href="why.html">Why</a> | <a href="eg.html">Eg</a> | <a href="maths.html">Maths</a> | <a href="what.html">What</a> | <a href="how.html">How</a> | <a href="who.html">Who</a> | <a href="details.html">Details</a></small>
+        </div>
+        <hr>
+    </header>
+
+    <div class="github-corner">
+        <a href="https://github.com/timm/kube" aria-label="Fork me on GitHub">
+            <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+                <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+                <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+                <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+            </svg>
+        </a>
+    </div>
+
+    <main>
+        <h1>Details: CLI Options and Example Functions</h1>
+
+        <h2>Part 1: CLI Options</h2>
+
+        <p>Kube.py provides several command-line options to customize its behavior:</p>
+
+        <table>
+            <tr>
+                <th>Option</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Effect of Increase</th>
+                <th>Effect of Decrease</th>
+            </tr>
+            <tr>
+                <td><code>-b bins</code></td>
+                <td>Number of bins</td>
+                <td>5</td>
+                <td>More granular clustering, potentially more clusters</td>
+                <td>Coarser clustering, fewer clusters</td>
+            </tr>
+            <tr>
+                <td><code>-m min</code></td>
+                <td>Minimum points per cluster</td>
+                <td>0 (auto)</td>
+                <td>Larger minimum cluster size, fewer reported clusters</td>
+                <td>Smaller minimum cluster size, more reported clusters</td>
+            </tr>
+            <tr>
+                <td><code>-P P</code></td>
+                <td>Distance formula exponent</td>
+                <td>2</td>
+                <td>Higher values emphasize larger differences</td>
+                <td>Lower values give more equal weight to all differences</td>
+            </tr>
+            <tr>
+                <td><code>-d dims</code></td>
+                <td>Number of dimensions</td>
+                <td>4</td>
+                <td>More clustering dimensions, potentially more precise clusters</td>
+                <td>Fewer dimensions, potentially faster but less precise</td>
+            </tr>
+            <tr>
+                <td><code>-r rseed</code></td>
+                <td>Random number seed</td>
+                <td>1234567891</td>
+                <td>Different random selections</td>
+                <td>Different random selections</td>
+            </tr>
+            <tr>
+                <td><code>-s some</code></td>
+                <td>Search space size for poles</td>
+                <td>30</td>
+                <td>Larger sample for pole selection, potentially better poles</td>
+                <td>Smaller sample, faster but potentially less optimal poles</td>
+            </tr>
+            <tr>
+                <td><code>-f file</code></td>
+                <td>Training CSV file</td>
+                <td>../../moot/optimize/misc/auto93.csv</td>
+                <td>N/A (changes input file)</td>
+                <td>N/A (changes input file)</td>
+            </tr>
+        </table>
+
+        <h3>Automatic MinPts Selection</h3>
+
+        <p>When <code>-m</code> is set to 0 (default), kube automatically selects an appropriate 
+        minimum cluster size:</p>
+        <ul>
+            <li>For datasets < 30 rows: minPts = 2</li>
+            <li>For datasets < 100 rows: minPts = 3</li>
+            <li>For larger datasets: minPts = 2 + the.dims</li>
+        </ul>
+
+        <p>This heuristic ensures that clusters have enough points to be statistically significant 
+        without being too restrictive.</p>
+
+        <h3>Examples of CLI Usage</h3>
+
+<pre>
+# Use more bins for finer clustering
+$ python kube.py --counts -b 8
+
+# Use Manhattan distance instead of Euclidean
+$ python kube.py --counts -P 1
+
+# Use more dimensions for clustering
+$ python kube.py --counts -d 6
+
+# Set a fixed minimum cluster size
+$ python kube.py --counts -m 5
+
+# Use a different dataset
+$ python kube.py --counts -f path/to/other/data.csv
+</pre>
+
+        <h2>Part 2: Example Functions</h2>
+
+        <p>Kube.py includes several example functions (prefixed with <code>eg__</code>) that 
+        demonstrate different capabilities of the tool. These can be run directly from the 
+        command line:</p>
+
+        <table>
+            <tr>
+                <th>Function</th>
+                <th>Command</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><code>eg__all</code></td>
+                <td><code>python kube.py --all</code></td>
+                <td>Runs all example functions in sequence</td>
+            </tr>
+            <tr>
+                <td><code>eg__the</code></td>
+                <td><code>python kube.py --the</code></td>
+                <td>Prints the current configuration settings</td>
+            </tr>
+            <tr>
+                <td><code>eg__csv</code></td>
+                <td><code>python kube.py --csv</code></td>
+                <td>Prints the raw CSV data from the input file</td>
+            </tr>
+            <tr>
+                <td><code>eg__data</code></td>
+                <td><code>python kube.py --data</code></td>
+                <td>Prints column information, showing which are independent (x) and dependent (y) variables</td>
+            </tr>
+            <tr>
+                <td><code>eg__ydist</code></td>
+                <td><code>python kube.py --ydist</code></td>
+                <td>Prints rows sorted by distance to heaven, showing the 4 best and 4 worst examples</td>
+            </tr>
+            <tr>
+                <td><code>eg__poles</code></td>
+                <td><code>python kube.py --poles</code></td>
+                <td>Shows clustering dimensions by displaying the results of pole selection and LSH</td>
+            </tr>
+            <tr>
+                <td><code>eg__counts</code></td>
+                <td><code>python kube.py --counts</code></td>
+                <td>Shows cluster counts and statistics - the main clustering functionality</td>
+            </tr>
+        </table>
+
+        <h3>Example Functions in Detail</h3>
+
+        <h4>1. <code>eg_h</code>: Help Text</h4>
+<pre>
+$ python kube.py -h
+</pre>
+        <p>This displays the docstring and lists all available example functions.</p>
+
+        <h4>2. <code>eg__the</code>: Current Configuration</h4>
+<pre>
+$ python kube.py --the
+# Output: {b: 5, m: 0, P: 2, d: 4, r: 1234567891, s: 30, f: ../../moot/optimize/misc/auto93.csv}
+</pre>
+        <p>This is useful for verifying your current settings.</p>
+
+        <h4>3. <code>eg__csv</code>: Raw Data</h4>
+<pre>
+$ python kube.py --csv
+# Output: Shows all rows from the CSV file
+</pre>
+        <p>This shows the raw input data without any processing.</p>
+
+        <h4>4. <code>eg__data</code>: Column Information</h4>
+<pre>
+$ python kube.py --data
+# Output:
+# x Num(at=0, txt=Clndrs, n=398, mu=5.45, m2=2400.31, lo=3, hi=8, heaven=1)
+# x Num(at=1, txt=Volume, n=398, mu=193.43, m2=1786554.97, lo=68, hi=455, heaven=1)
+# ...
+# y Num(at=5, txt=Lbs-, n=398, mu=2970.42, m2=19431245.76, lo=1613, hi=5140, heaven=0)
+</pre>
+        <p>This reveals how kube interprets each column (Num or Sym) and whether it's 
+        considered an input (x) or output (y) variable.</p>
+
+        <h4>5. <code>eg__ydist</code>: Ranking by Distance to Heaven</h4>
+<pre>
+$ python kube.py --ydist
+# Output:
+# good [4, 90, 48, 80, 2, 2085, 21.7, 40]
+# good [4, 91, 67, 80, 3, 1850, 13.8, 40]
+# ...
+# bad [8, 455, 225, 70, 1, 4425, 10.0, 10]
+# bad [8, 454, 220, 70, 1, 4354, 9.0, 10]
+</pre>
+        <p>This shows which data points are closest to optimal (good) and furthest from 
+        optimal (bad).</p>
+
+        <h4>6. <code>eg__poles</code>: Pole Selection and Clustering</h4>
+<pre>
+$ python kube.py --poles
+# Output:
+# (0, 0, 0)
+# (0, 1, 1)
+# ...
+# 14
+</pre>
+        <p>This shows the hash keys generated for different clusters and the total 
+        number of clusters found.</p>
+
+        <h4>7. <code>eg__counts</code>: Full Clustering with Statistics</h4>
+<pre>
+$ python kube.py --counts
+# Output:
+# {mid: 0.29, div: 0.11, n: 8}
+# {mid: 0.45, div: 0.15, n: 12}
+# ...
+</pre>
+        <p>This is the primary analysis function, showing each valid cluster (meeting 
+        minimum size) with its:</p>
+        <ul>
+            <li><code>mid</code>: central tendency of y-distances (lower is better)</li>
+            <li><code>div</code>: diversity/spread of the cluster</li>
+            <li><code>n</code>: number of data points in the cluster</li>
+        </ul>
+    </main>
+
+    <footer>
+        <hr>
+        <small>&copy; 2025 Tim Menzies. MIT License.</small>
+    </footer>
+</body>
+</html>
