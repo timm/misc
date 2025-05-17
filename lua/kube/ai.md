@@ -1,4 +1,4 @@
-[SE Concepts](se.md) | [AI Concepts](ai.md) | [Code Overview](code.md) | [Tutorials](tutorial.md) | [License](license.md) | [Generation Prompt](prompt.txt)
+(Notes ([SE](se.md) [AI](ai.md) Code ([overview](code.md) [tutorial](tutorial.md)))  [License](license.md)  [REgen](prompt.txt)
 ---
 
 # Artificial Intelligence Concepts in `kube.py`
@@ -6,18 +6,7 @@
 `kube.py` implements what its author terms "barelogic" – foundational components and algorithms for Explainable AI (XAI), active learning, and multi-objective optimization. This page details the core AI and Machine Learning (ML) concepts embedded in the script.
 
 ## Terms to watch for
-* Active Learning
-* Clustering
-* Data Normalization
-* Distance Metric
-* Entropy
-* Explainable AI (XAI)
-* Heaven (optimization goal)
-* Locality Sensitive Hashing (LSH)
-* Minkowski Distance
-* Multi-Objective Optimization
-* Poles (clustering)
-* Projection (clustering)
+* Active Learning\n* Clustering\n* Data Normalization\n* Distance Metric\n* Entropy\n* Explainable AI (XAI)\n* Heaven (optimization goal)\n* Locality Sensitive Hashing (LSH)\n* Minkowski Distance\n* Multi-Objective Optimization\n* Poles (clustering)\n* Projection (clustering)
 
 ## 1. Data Representation & Preprocessing for AI
 Effective AI application begins with how data is structured and prepared.
@@ -56,7 +45,7 @@ The script is designed to evaluate data instances against multiple, possibly con
 ## 5. Foundations for Explainable AI (XAI) & Active Learning
 `kube.py` provides "barelogic" that could support XAI and Active Learning.
 
-* **XAI**: The transparent calculations for distances, cluster assignments, and `ydist` scores can contribute to explaining *why* certain data instances are considered good or grouped together.
+* **XAI**: The transparent calculations for distances, cluster assignments, and `ydist` scores can contribute to explaining *why* certain data instances are considered good or grouped together. The importance of understanding "what is best" in data models is a recurring theme in AI research [^4^](#fnai4).
 * **Active Learning**: Techniques like identifying diverse 'poles' or evaluating rows via `ydist` could be adapted for query strategies in active learning, aiming to select the most informative data points for labeling.
 
 ---
@@ -64,7 +53,9 @@ The script is designed to evaluate data instances against multiple, possibly con
 <a name="fnai1"></a>[^1^]: Witten, I. H., Frank, E., Hall, M. A., & Pal, C. J. (2017). *Data Mining: Practical Machine Learning Tools and Techniques* (4th ed.). Morgan Kaufmann.
 <a name="fnai2"></a>[^2^]: Menzies, T., Greenwald, J., & Frank, A. (2007). Data mining static code attributes to learn defect predictors. *IEEE Transactions on Software Engineering, 33*(1), 2-13.
 <a name="fnai3"></a>[^3^]: Deb, K. (2001). *Multi-Objective Optimization using Evolutionary Algorithms*. John Wiley & Sons.
-<a name="fnai4"></a>[^4^]: Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.
+<a name="fnai4"></a>[^4^]: Menzies, T., & Kocaguneli, E. (2013). The better generalizer: a thousand times we asked "what is best?". *Journal of Systems and Software, 86*(12), 3099-3110.
+<a name="fnai5"></a>[^5^]: Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.
+
 
 **Review Questions:**
 1.  Explain the importance of normalizing numeric features before calculating distances in `kube.py`.

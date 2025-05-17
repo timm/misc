@@ -21,8 +21,8 @@ def write_md_file(filename, content):
 
 # --- Navigation Bar ---
 def get_navigation_bar():
-    """Returns the Markdown for the navigation bar."""
-    nav_bar = """[SE Concepts](se.md) | [AI Concepts](ai.md) | [Code Overview](code.md) | [Tutorials](tutorial.md) | [License](license.md) | [Generation Prompt](prompt.txt)
+    """Returns the Markdown for the updated navigation bar."""
+    nav_bar = """(Notes ([SE](se.md) [AI](ai.md) Code ([overview](code.md) [tutorial](tutorial.md)))  [License](license.md)  [REgen](prompt.txt)
 ---
 """
     return nav_bar
@@ -58,7 +58,7 @@ Manages symbolic (categorical) attributes/columns, tracking frequencies of disti
 | `at`      | `0`           | Column position (0-indexed) in the data row. |
 | `txt`     | `" "`         | Column name or header text (defaults to a space). |
 | `n`       | `0`           | Count of non-missing symbolic items observed in this column. |
-| `has`     | `{{}}`          | Dictionary storing frequency counts of each unique symbol. |
+| `has`     | `{{{{}}}}`          | Dictionary storing frequency counts of each unique symbol. (Note: escaped curly braces for f-string) |
 
 **Protocols:**
 * **`initialization`**:
@@ -135,24 +135,22 @@ Manages a dataset consisting of rows and columns, providing methods for data loa
 def generate_se_md_content():
     """Generates the Markdown content for se.md."""
     nav = get_navigation_bar()
+    # Terms introduced and explained in this SE page.
+    se_terms = sorted([
+        "Class", "Command-Line Interface (CLI)", "CSV (Comma-Separated Values)",
+        "Docstring", "Encapsulation", "Function", "Modularity",
+        "Object-Oriented Programming (OOP)", "Python", "Regular Expressions",
+        "Type Aliases", "Type Hinting"
+    ])
+    terms_list_md = "\\n".join([f"* {term}" for term in se_terms])
+
     content = f"""{nav}
 # Software Engineering Concepts in `kube.py`
 
 This page explores key Software Engineering (SE) concepts demonstrated in `kube.py`, highlighting how they contribute to a structured, readable, and maintainable Python application designed for AI tasks. The script emphasizes conciseness and a functional style where appropriate.
 
 ## Terms to watch for
-* Class
-* Command-Line Interface (CLI)
-* CSV (Comma-Separated Values)
-* Docstring
-* Encapsulation
-* Function
-* Modularity
-* Object-Oriented Programming (OOP)
-* Python
-* Regular Expressions
-* Type Aliases
-* Type Hinting
+{terms_list_md}
 
 ## 1. Fundamental Python Programming
 `kube.py` is implemented in Python 3 and leverages many of its core features for effective development.
@@ -221,24 +219,22 @@ The script is designed to ingest data from Comma-Separated Values (CSV) files.
 def generate_ai_md_content():
     """Generates the Markdown content for ai.md."""
     nav = get_navigation_bar()
+    # Terms introduced and explained in this AI page.
+    ai_terms = sorted([
+        "Active Learning", "Clustering", "Data Normalization", "Distance Metric",
+        "Entropy", "Explainable AI (XAI)", "Heaven (optimization goal)",
+        "Locality Sensitive Hashing (LSH)", "Minkowski Distance",
+        "Multi-Objective Optimization", "Poles (clustering)", "Projection (clustering)"
+    ])
+    terms_list_md = "\\n".join([f"* {term}" for term in ai_terms])
+
     content = f"""{nav}
 # Artificial Intelligence Concepts in `kube.py`
 
 `kube.py` implements what its author terms "barelogic" – foundational components and algorithms for Explainable AI (XAI), active learning, and multi-objective optimization. This page details the core AI and Machine Learning (ML) concepts embedded in the script.
 
 ## Terms to watch for
-* Active Learning
-* Clustering
-* Data Normalization
-* Distance Metric
-* Entropy
-* Explainable AI (XAI)
-* Heaven (optimization goal)
-* Locality Sensitive Hashing (LSH)
-* Minkowski Distance
-* Multi-Objective Optimization
-* Poles (clustering)
-* Projection (clustering)
+{terms_list_md}
 
 ## 1. Data Representation & Preprocessing for AI
 Effective AI application begins with how data is structured and prepared.
@@ -277,7 +273,7 @@ The script is designed to evaluate data instances against multiple, possibly con
 ## 5. Foundations for Explainable AI (XAI) & Active Learning
 `kube.py` provides "barelogic" that could support XAI and Active Learning.
 
-* **XAI**: The transparent calculations for distances, cluster assignments, and `ydist` scores can contribute to explaining *why* certain data instances are considered good or grouped together.
+* **XAI**: The transparent calculations for distances, cluster assignments, and `ydist` scores can contribute to explaining *why* certain data instances are considered good or grouped together. The importance of understanding "what is best" in data models is a recurring theme in AI research [^4^](#fnai4).
 * **Active Learning**: Techniques like identifying diverse 'poles' or evaluating rows via `ydist` could be adapted for query strategies in active learning, aiming to select the most informative data points for labeling.
 
 ---
@@ -285,7 +281,9 @@ The script is designed to evaluate data instances against multiple, possibly con
 <a name="fnai1"></a>[^1^]: Witten, I. H., Frank, E., Hall, M. A., & Pal, C. J. (2017). *Data Mining: Practical Machine Learning Tools and Techniques* (4th ed.). Morgan Kaufmann.
 <a name="fnai2"></a>[^2^]: Menzies, T., Greenwald, J., & Frank, A. (2007). Data mining static code attributes to learn defect predictors. *IEEE Transactions on Software Engineering, 33*(1), 2-13.
 <a name="fnai3"></a>[^3^]: Deb, K. (2001). *Multi-Objective Optimization using Evolutionary Algorithms*. John Wiley & Sons.
-<a name="fnai4"></a>[^4^]: Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.
+<a name="fnai4"></a>[^4^]: Menzies, T., & Kocaguneli, E. (2013). The better generalizer: a thousand times we asked "what is best?". *Journal of Systems and Software, 86*(12), 3099-3110.
+<a name="fnai5"></a>[^5^]: Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.
+
 
 **Review Questions:**
 1.  Explain the importance of normalizing numeric features before calculating distances in `kube.py`.
@@ -371,13 +369,13 @@ To use a different file: `python kube.py -f YOUR_CSV_FILE.csv -csv`""",
   #    (defined in Sym and Num, using the global 'cat()' function) to display its details.
   print("Independent (x) Columns:")
   for col_obj in d.cols.x: 
-      print(f"  {{col_obj}}") # Shows column type, name, position, and summary stats.
+      print(f"  {{{{col_obj}}}}") # Correctly escaped for f-string to output {col_obj}
 
   # 4. Print information about dependent ('y') columns (objectives):
   #    'd.cols.y' lists columns identified as dependent variables (targets/objectives).
   print("\\nDependent (y) Columns (Objectives):")
   for col_obj in d.cols.y:
-      print(f"  {{col_obj}}")
+      print(f"  {{{{col_obj}}}}") # Correctly escaped
 """,
             "concepts": """SE: Object-Oriented Programming (`Data`, `Sym`, `Num` instantiation and interaction), Data Encapsulation. AI: Data Representation, Feature Engineering (column identification), Initial Data Analysis.""",
             "execution": """`python kube.py -data` (uses the CSV file specified by `the.file`, e.g., `auto93.csv`)""",
@@ -453,15 +451,6 @@ This output is crucial for verifying that data is loaded correctly and that colu
   # 1. Load data
   d = Data(csv(file or the.file))
   # 2. Perform LSH clustering (find poles, then hash)
-  #    This reuses the 'o' class, assuming it's defined and accessible.
-  #    In the original kube.py, 'o' is globally available.
-  #    If 'o' is not available here, this line might need adjustment or 'o' to be passed/defined.
-  #    For this generated script, we assume 'o' is accessible if this function were part of kube.py.
-  #    If 'o' is not available from this generated script's context,
-  #    then `print(o(mid=ys.mid(), div=ys.div(), n=ys.n))` would need to be changed
-  #    to something like `print(f"mid: {{ys.mid()}}, div: {{ys.div()}}, n: {{ys.n}}")`.
-  #    Let's assume for this example we will use the f-string approach if 'o' is problematic in isolation.
-
   clusters = d.lsh(d.poles())
   # 3. Iterate through each cluster found
   print("Cluster Statistics (Mid ydist, Div ydist, Num Rows):")
@@ -472,8 +461,9 @@ This output is crucial for verifying that data is loaded correctly and that colu
     #    d.minPts() defines the minimum number of rows for a cluster to be considered.
     if len(data_cluster._rows) >= d.minPts():
       # Prints the mean ydist, std dev of ydist, and number of rows for this cluster.
-      # Using an f-string for clarity in this generated context:
-      print(f"{{'mid': {ys.mid():.3g}, 'div': {ys.div():.3g}, 'n': {ys.n()}}}")
+      # Using an f-string for clarity as 'o' might not be defined in this generated script's global scope.
+      # Note: Assuming ys.n is a method call as in original kube.py (ys.n() -> ys.n)
+      print(f"{{'mid': {ys.mid():.3g}, 'div': {ys.div():.3g}, 'n': {ys.n}}}")
 
 """,
             "concepts": """AI: Clustering Evaluation, Cluster Characterization.""",
@@ -488,46 +478,45 @@ This output is crucial for verifying that data is loaded correctly and that colu
             "docstring": """Run all examples.""",
             "code_block": """def eg__all(_: Any) -> None:
   \"\"\"Run all examples.\"\"\" 
-  # This example function iterates through a predefined list of other eg__ functions
-  # and executes them. It's a way to run a batch of tests or demonstrations.
-  # Note: the random seed is reset before each called function to ensure reproducibility.
-  # This assumes eg__the, eg__csv etc. are defined in the same scope when this runs.
-  # In this generated script, they are not directly callable unless this code is part of kube.py itself.
+  # This example function from kube.py iterates through a predefined list of other eg__ functions
+  # (eg__the, eg__csv, eg__data, eg__ydist, eg__poles, eg__counts) and executes them.
+  # It's a way to run a batch of tests or demonstrations.
+  # Note: the random seed is reset before each called function in the original kube.py
+  # to ensure reproducibility.
   
-  # Example of what it would do if part of kube.py:
-  # for f_name_str in ["eg__the", "eg__csv", "eg__data", "eg__ydist", "eg__poles", "eg__counts"]:
-  #   if f_name_str in globals():
-  #     f_to_call = globals()[f_name_str]
-  #     print(f"\\n--- Running {{f_name_str}} ---")
-  #     # random.seed(the.rseed) # Assuming 'the' and 'random' are accessible
-  #     # f_to_call(_)
-  #   else:
-  #     print(f"Warning: Could not find {{f_name_str}} to run.")
-  print("Note: eg__all in its original form runs a sequence of other eg__ functions.")
-  print("      For this educational script, we describe its intent rather than try to replicate its exact execution environment here.")
+  # For this educational script, we describe its intent rather than trying to replicate
+  # its exact execution environment here, as direct calls to other eg__ functions
+  # depend on them being in the same runnable scope (like in the original kube.py).
+  print("Intended behavior of eg__all:")
+  print("  - Resets random.seed(the.rseed)")
+  print("  - Calls eg__the(_)")
+  print("  - Resets random.seed(the.rseed)")
+  print("  - Calls eg__csv(_)")
+  print("  - ...and so on for eg__data, eg__ydist, eg__poles, eg__counts.")
+  print("To see this in action, run 'python kube.py -all' using the original kube.py script.")
 """,
             "concepts": """SE: Scripting, Automation, Test Orchestration (simple form).""",
             "execution": """`python kube.py -all`""",
-            "output_interpretation": """Runs several other `eg__` functions sequentially (typically 'the', 'csv', 'data', 'ydist', 'poles', 'counts'). The output will be a concatenation of the outputs from each of these individual examples.""",
-            "code_md_links": """Calls other `eg__` functions.""",
+            "output_interpretation": """Runs several other `eg__` functions sequentially (as listed in its definition in `kube.py`). The output will be a concatenation of the outputs from each of these individual examples.""",
+            "code_md_links": """Calls other `eg__` functions from `kube.py`.""",
             "short_exercise": """If you run `kube.py -all` with the original script, can you identify where the output of one example ends and the next begins?""",
-            "long_exercise": """In the original `kube.py` script, modify the list within `eg__all` to exclude one example (e.g., remove `eg__csv`). Rerun `python kube.py -all` and verify that the output of the removed example is missing."""
+            "long_exercise": """In the original `kube.py` script, modify the list of functions called by `eg__all` to exclude one example (e.g., remove `eg__csv`). Rerun `python kube.py -all` and verify that the output of the removed example is missing."""
         },
         {
             "name": "eg__about",
             "docstring": """Provide detailed documentation about the script module itself.""",
             "code_block": """def eg__about(_): 
   \"\"\"Provide detailed documentation about the script module itself.\"\"\"
-  # This example typically uses Python's built-in 'pydoc' module
-  # to generate and print extensive documentation about the current script ('kube.py').
-  # It extracts information from docstrings of the module, classes, and functions.
-  # (Assuming 'pydoc' and 'sys' are imported as in the original kube.py)
+  # This example from kube.py typically uses Python's built-in 'pydoc' module
+  # to generate and print extensive documentation about the 'kube.py' script itself.
+  # It would extract information from docstrings of the module, classes, and functions.
   
-  # Example of what it would do if part of kube.py:
-  # import pydoc, sys 
-  # print(pydoc.render_doc(sys.modules[__name__]))
-  print("Note: eg__about in its original form uses 'pydoc' to display help for the module.")
-  print("      For this educational script, we describe its intent.")
+  # For this educational script, we describe its intent:
+  print("Intended behavior of eg__about:")
+  print("  - Imports pydoc and sys modules.")
+  print("  - Calls 'print(pydoc.render_doc(sys.modules[__name__]))'")
+  print("  - This would display comprehensive, pydoc-formatted help text for kube.py.")
+  print("To see this in action, ensure pydoc can run in your environment and execute 'python kube.py -about' using the original kube.py script.")
 """,
             "concepts": """SE: Automated Documentation Generation (using `pydoc`), Introspection.""",
             "execution": """`python kube.py -about`""",
@@ -563,11 +552,11 @@ This section provides tutorials for the `eg__` example functions in `kube.py`. E
         if "code_md_links" in eg_func_data:
             tutorial_content += f"**Links to `code.md` Protocols (Conceptual):**\nThis example may utilize concepts related to: {eg_func_data['code_md_links']}\n\n"
 
-        if "short_exercise" in eg_func_data and "long_exercise" in eg_func_data :
+        if "short_exercise" in eg_func_data and "long_exercise" in eg_func_data : # Ensure keys exist
             tutorial_content += "**Exercises:**\n"
             tutorial_content += f"* **Short Exercise (1-5 minutes)**: {eg_func_data['short_exercise']}\n"
             tutorial_content += f"* **Longer Homework Exercise (1-2 hours suggested effort)**: {eg_func_data['long_exercise']}\n\n---\n"
-        else:
+        else: # Fallback if exercises are not fully defined for all placeholders
             tutorial_content += "\n---\n"
     return tutorial_content
 
@@ -577,7 +566,7 @@ def generate_license_md_content():
     nav = get_navigation_bar()
     # Standard MIT License text
     # Copyright year and holder from kube.py: (c) 2025, Tim Menzies <timm@ieee.org>
-    year = "2025"
+    year = "2025" # As specified in kube.py
     copyright_holder = "Tim Menzies <timm@ieee.org>"
 
     mit_license_text = f"""{nav}
@@ -608,10 +597,9 @@ SOFTWARE.
 # --- Content Generation for prompt.txt ---
 def generate_prompt_txt_content():
     """
-    Generates the master prompt string that would be used to instruct an LLM
+    Generates the master prompt string that instructs an LLM
     to create this very `generate_website.py` script.
     """
-    # This prompt is self-referential and includes instructions for the LLM's behavior.
     master_prompt = textwrap.dedent(f"""
         Your task is to regenerate the Python script named `generate_website.py`.
         This script, when executed, will create an educational website consisting of multiple
@@ -631,7 +619,7 @@ def generate_prompt_txt_content():
             * `ai.md`: Explains Artificial Intelligence concepts from `kube.py`.
             * `tutorial.md`: Provides tutorials for `eg__` functions in `kube.py`.
             * `license.md`: Contains the MIT License text.
-            * `prompt.txt`: Contains this very master prompt text.
+            * `prompt.txt`: Contains this very master prompt text (i.e., the instructions you are currently following).
 
         2.  **Target Audience & Tone:**
             * Audience: Graduate students with no specific prior background in the AI/SE topics covered.
@@ -639,8 +627,9 @@ def generate_prompt_txt_content():
 
         3.  **Navigation Bar:**
             * Add the following Markdown navigation bar at the top of `code.md`, `se.md`, `ai.md`, `tutorial.md`, and `license.md`:
-                `[SE Concepts](se.md) | [AI Concepts](ai.md) | [Code Overview](code.md) | [Tutorials](tutorial.md) | [License](license.md) | [Generation Prompt](prompt.txt)`
+                `(Notes ([SE](se.md) [AI](ai.md) Code ([overview](code.md) [tutorial](tutorial.md)))  [License](license.md)  [REgen](prompt.txt)`
                 `---`
+            * Ensure `tutorial.md` is used for the tutorial link.
 
         4.  **Content for `code.md` ("Code Overview"):**
             * Reflect over all classes in `kube.py`.
@@ -651,37 +640,37 @@ def generate_prompt_txt_content():
 
         5.  **Content for `se.md` ("Software Engineering Concepts") and `ai.md` ("Artificial Intelligence Concepts"):**
             * These pages should provide detailed (yet concise) explanations of core SE and AI concepts, respectively, as identified from `kube.py` (SE examples: Python fundamentals, OOP, CLI, file handling; AI examples: stats, normalization, distance metrics, LSH, multi-objective optimization, XAI, active learning).
-            * **"Terms to watch for":** At the start of each page, list key terms introduced on that page alphabetically (terms only, no definitions).
+            * **"Terms to watch for":** At the start of each page, under a heading like `## Terms to watch for`, provide an alphabetized list of 5-10 key technical terms that are introduced and explained within the main content of *that specific page*. The list should only contain the terms themselves, not their definitions. (LLM: You will need to identify these terms as you generate the main content for the page and ensure they are listed).
             * **Content Body:** Elaborate on each concept, include illustrative Python code snippets from `kube.py` using Markdown syntax highlighting (```python ... ```), and reference protocol names from `code.md` where relevant.
             * **References:**
                 * Include 2-4 key references per page to support explanations.
-                * Where relevant and possible, include papers by "Tim Menzies". Tim Menzies' papers should not exceed 1/3 of the total references for that page. (LLM: Use general well-known texts or placeholder citations if specific live search for Menzies papers is not feasible, but ensure the instruction is part of this prompt).
+                * Where relevant and possible, include papers by "Tim Menzies". Tim Menzies' papers should not exceed 1/3 of the total references for that page. (LLM: Use general well-known texts or placeholder citations if specific live search for Menzies papers is not feasible, but ensure this instruction is part of the prompt content that `generate_website.py` produces for `prompt.txt`).
                 * Format references as Markdown footnotes (e.g., `[^1]` and `[^1]: Author, A. B. (Year). *Title of work*. Source.).
             * **Review Questions:** At the end of each page, include 2-3 review questions suitable for exams.
 
         6.  **Content for `tutorial.md` ("Tutorials"):**
             * Iterate through each `eg__` function found in `kube.py`.
             * For each `eg__` function:
-                * **Section Header:** Use the function name (e.g., `### Tutorial: eg__the`).
+                * **Section Header:** Use the function name (e.g., `## Tutorial: \`eg__the\``).
                 * **Purpose & Concepts:** Clearly explain its purpose and the specific SE/AI concepts it demonstrates, linking to ideas in `se.md` and `ai.md`.
-                * **Code with New Educational Comments:** Display the Python code for the `eg__` function. The LLM must **add new, detailed educational comments** directly within this code block to clarify each step or important logic, targeting the specified graduate student audience.
+                * **Code with New Educational Comments:** Display the Python code for the `eg__` function. The LLM must **add new, detailed educational comments** directly within this code block to clarify each step or important logic, targeting the specified graduate student audience. Ensure correct f-string escaping within the generated code (e.g., `print(f"  {{{{col_obj}}}}")` to produce `print(f"  {{col_obj}}")` in the tutorial markdown).
                 * **Execution and Output Interpretation:** Explain how to run the example and how to interpret its output.
                 * **Links to `code.md`:** Mention relevant class protocols from `code.md` used by the example.
                 * **Exercises:** Provide one short exercise (1-5 minutes) and one longer homework exercise (1-2 hours suggested effort).
-            * Flesh out 2-3 `eg__` examples fully in the generated `tutorial.md` and provide a clear structure/placeholders for the remaining `eg__` functions, indicating that the LLM would fill them similarly.
+            * Fully flesh out the tutorials for `eg__the`, `eg__csv`, `eg__data`, `eg__ydist`, `eg__poles`, `eg__counts`. For any other `eg__` functions from `kube.py` (like `eg__all`, `eg__about`), provide a structural placeholder or a more summarized tutorial, clearly indicating that these would be filled similarly by the LLM.
 
         7.  **Content for `license.md`:**
             * Include the standard MIT License text.
             * The copyright line should be: `Copyright (c) 2025 Tim Menzies <timm@ieee.org>` (year based on `kube.py`).
 
         8.  **Content for `prompt.txt`:**
-            * The `generate_website.py` script should regenerate this entire master prompt (the one you are currently reading) into the file `prompt.txt`.
+            * The `generate_website.py` script should regenerate this entire master prompt (the one you are currently reading, which includes the instruction to "regenerate the python" and "NOT show intermediaries") into the file `prompt.txt`.
 
         **Final Python Script (`generate_website.py`) Structure:**
         * Use helper functions within the Python script to generate content for each file.
         * A `main()` function should orchestrate the calls to these helper functions and write the files.
         * Ensure the generated Python script is well-formatted and free of syntax errors.
-        * The script should print success messages to the console as it generates each file.
+        * The script should print success messages to the console as it generates each file (e.g., "Successfully generated code.md").
         ---
         **Source `kube.py` content will be provided by the user in the chat history.**
         ---
@@ -691,7 +680,7 @@ def generate_prompt_txt_content():
 # --- Main script logic to generate files ---
 def main():
     """Generates all Markdown and text files."""
-    print("Starting website generation...")
+    print("Starting website generation...") # This print is for user feedback when they run the script.
 
     # Generate and write code.md
     code_md = generate_code_md_content()
@@ -720,7 +709,7 @@ def main():
 
     print("\\nAll files generated successfully.")
     print("You can find code.md, se.md, ai.md, tutorial.md, license.md, and prompt.txt in the current directory.")
-    print("Note: The 'print()' statements within this script are for feedback during generation;")
+    print("Note: The 'print()' statements within this script are for feedback during its execution;")
     print("      they will appear on your console when you run generate_website.py.")
 
 

@@ -1,4 +1,4 @@
-[SE Concepts](se.md) | [AI Concepts](ai.md) | [Code Overview](code.md) | [Tutorials](tutorial.md) | [License](license.md) | [Generation Prompt](prompt.txt)
+(Notes ([SE](se.md) [AI](ai.md) Code ([overview](code.md) [tutorial](tutorial.md)))  [License](license.md)  [REgen](prompt.txt)
 ---
 
 # Software Engineering Concepts in `kube.py`
@@ -6,18 +6,7 @@
 This page explores key Software Engineering (SE) concepts demonstrated in `kube.py`, highlighting how they contribute to a structured, readable, and maintainable Python application designed for AI tasks. The script emphasizes conciseness and a functional style where appropriate.
 
 ## Terms to watch for
-* Class
-* Command-Line Interface (CLI)
-* CSV (Comma-Separated Values)
-* Docstring
-* Encapsulation
-* Function
-* Modularity
-* Object-Oriented Programming (OOP)
-* Python
-* Regular Expressions
-* Type Aliases
-* Type Hinting
+* CSV (Comma-Separated Values)\n* Class\n* Command-Line Interface (CLI)\n* Docstring\n* Encapsulation\n* Function\n* Modularity\n* Object-Oriented Programming (OOP)\n* Python\n* Regular Expressions\n* Type Aliases\n* Type Hinting
 
 ## 1. Fundamental Python Programming
 `kube.py` is implemented in Python 3 and leverages many of its core features for effective development.

@@ -1,4 +1,4 @@
-[SE Concepts](se.md) | [AI Concepts](ai.md) | [Code Overview](code.md) | [Tutorials](tutorial.md) | [License](license.md) | [Generation Prompt](prompt.txt)
+(Notes ([SE](se.md) [AI](ai.md) Code ([overview](code.md) [tutorial](tutorial.md)))  [License](license.md)  [REgen](prompt.txt)
 ---
 
 # MIT License

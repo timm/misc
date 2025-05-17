@@ -1,4 +1,4 @@
-[SE Concepts](se.md) | [AI Concepts](ai.md) | [Code Overview](code.md) | [Tutorials](tutorial.md) | [License](license.md) | [Generation Prompt](prompt.txt)
+(Notes ([SE](se.md) [AI](ai.md) Code ([overview](code.md) [tutorial](tutorial.md)))  [License](license.md)  [REgen](prompt.txt)
 ---
 
 # `kube.py` Code Structure Overview
@@ -27,7 +27,7 @@ Manages symbolic (categorical) attributes/columns, tracking frequencies of disti
 | `at`      | `0`           | Column position (0-indexed) in the data row. |
 | `txt`     | `" "`         | Column name or header text (defaults to a space). |
 | `n`       | `0`           | Count of non-missing symbolic items observed in this column. |
-| `has`     | `{}`          | Dictionary storing frequency counts of each unique symbol. |
+| `has`     | `{{}}`          | Dictionary storing frequency counts of each unique symbol. (Note: escaped curly braces for f-string) |
 
 **Protocols:**
 * **`initialization`**:
