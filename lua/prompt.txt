@@ -31,3 +31,133 @@ Prefer short, descriptive protocol names (e.g., stats, distance, projection, set
 Format the output clearly using Markdown-style layout, with a table of attributes and bullet-lists for each protocol.
 
 Important: Include attributes created anywhere in the class (not just in __init__) — especially private fields like _rows.
+
+
+====
+
+Here is your **final, full prompt**, incorporating everything discussed — with focus on pedagogy, insight, low LOC, and internal consistency:
+
+---
+
+## 🧠 Prompt: Generate an Educational Website from a Python Script
+
+> Given a Python script (e.g., `kube.py`), along with optional `README.md` and `LICENSE` files, generate a `.zip` file containing a compact, beginner-friendly HTML website that teaches and documents the code.
+>
+> Prioritize **brevity**, **clarity**, and **pedagogical value**. Avoid verbosity. Use minimal markup and **maximum insight per line**.
+
+---
+
+### 📑 `index.html`
+
+* Built from:
+
+  * The **module-level docstring** at the top of the Python script
+  * The full contents of `README.md`
+* **Convert the first paragraph of `README.md` to HTML**, and **prepend it to the top of every HTML file** on the site.
+* Convert the rest of the Markdown to HTML.
+* The final section of `README.md` will be `## Refs`, containing entries like `### Menzies,2007`.
+
+  * Convert each reference into an anchor (`<h3 id="menzies2007">Menzies,2007</h3>`)
+  * Convert all in-text mentions like `Menzies,2007` to links: `index.html#menzies2007`
+
+---
+
+### 🎨 `style.css`
+
+* Minimal CSS for:
+
+  * Clean typography
+  * Readable tables
+  * Syntax-highlighted code blocks
+  * Mobile-responsive layout
+* Keep it lightweight, elegant, and consistent across all pages
+
+---
+
+### 🧱 `classes.html`
+
+* Reflect over all classes in the script.
+* For each class:
+
+  * Include a **compact table of attributes**:
+
+    * Include both public and private (e.g., `_rows`) attributes
+    * Show default values (if present)
+    * Add **short, paraphrased descriptions** of each attribute's purpose
+  * Group methods into **conceptual protocols**:
+
+    * Do **not** use hardcoded protocol categories
+    * **Infer sensible, reusable names** from method names and docstrings
+    * Favor minimal, shared protocol names (e.g., `core`, `stats`, `distance`, `projection`, `manage`, `density`)
+    * List each method under its protocol with a **one-line summary**
+
+---
+
+### 📚 `theory.html`
+
+* Reflect over all functions beginning with `eg__`
+* For each function:
+
+  * Detect **any concept a beginner might not know** (e.g., entropy, memoization, cosine distance)
+  * For each concept:
+
+    * Create a **mini tutorial**, including:
+
+      * A heading (linkable)
+      * A concise definition
+      * A motivating example
+      * A compact code snippet (with syntax highlighting)
+      * A one-sentence “why it matters”
+* Include a **TOC at the top** of all concept headings
+* At the end of the page, list **5–10 review questions** appropriate for an exam or quiz:
+
+  * Use a mix of multiple choice, short answer, or conceptual fill-in-the-blank
+  * Target concepts covered in the tutorials
+
+---
+
+### 🧪 `tut.html`
+
+* For each `eg__*` function:
+
+  * Present a **walkthrough**:
+
+    * Break the function into chunks with **commented code blocks**
+    * Explain each part with **compact inline commentary**
+    * Link to related concepts in `theory.html`
+  * Propose two tasks:
+
+    * A **simple 1–10 minute task** (e.g., small variation or experiment)
+    * A **harder assignment-level task** (e.g., suitable for a week-long project or homework)
+    * Frame both tasks clearly and concisely
+
+---
+
+### ⚖️ `license.html`
+
+* Use the contents of `LICENSE`
+* Prepend the first paragraph of `README.md` (converted to HTML) as an introductory note
+
+---
+
+### 📦 Output Requirements
+
+* Bundle all HTML and CSS files into a single `.zip` archive
+* Use only **relative links**
+* Ensure all content is fully **offline-capable**
+* No external fonts, CDNs, or JavaScript dependencies
+
+---
+
+### 🧠 Global Constraints
+
+* **Minimize total lines of code (LOC)** across all outputs
+* Prefer compact tables, bullet points, and short paragraphs
+* Avoid repetition and boilerplate
+* Use insightful phrasing over exhaustive explanation
+* **Teach like a human professor, not a static analyzer**
+
+---
+
+Let me know if you want this turned into an automated script or API pipeline.
+
