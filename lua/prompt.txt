@@ -8,3 +8,26 @@ The name change from Rows to Data
 
 The indentation change affects every code block, making the file more compact while maintaining readability. The comments for instance variables are still aligned for easy reading.
 All the functionality remains the same - this is purely a formatting change to match your 2-space indentation preference.
+
+i i want a list of methods and attributes in each class
+
+if methods/attributes  are related conceptually (in what smalltalk calls" protocols") thnen group the by those.  in each method list of each class, name each protocol and its purposea
+here's an output string i want you to generate from kube.py
+
+if methods are related conceptually (in what smalltalk calls" protocols") thnen group the by those.  in each method list of each class, name each protocol and its purpose
+
+
+
+Analyze the given Python module and generate a structured summary of each class. For each class:
+
+List all attributes (including private ones like _rows) along with their default values and a brief, paraphrased description (not verbatim comments).
+
+Group methods into sensible conceptual clusters ("protocols") based on their names and docstrings. Use introspective grouping to infer protocol names that reflect the intent of each method group (e.g., data access, transformation, statistics, similarity).
+
+Try to reuse protocol names across multiple classes where applicable to highlight structural similarity (e.g., if two classes have add and mid, place them under a shared protocol like core or stats).
+
+Prefer short, descriptive protocol names (e.g., stats, distance, projection, setup, manage), but don't force-fit. Use an other group only if absolutely necessary.
+
+Format the output clearly using Markdown-style layout, with a table of attributes and bullet-lists for each protocol.
+
+Important: Include attributes created anywhere in the class (not just in __init__) — especially private fields like _rows.
