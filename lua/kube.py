@@ -25,17 +25,19 @@ import random, sys, re
 import math
 from typing import List,Dict,Any,Union,Tuple,Optional,Callable,Iterator,TypeVar,cast
 
+# Short cuts
 BIG  = 1e32
 any  = random.choice
 many = random.choices
 
+# Types
 Atom = Union[int, float, str, bool]
 Row  = List[Atom]
 Rows = List[Row]
 Col  = Union['Sym', 'Num']
 
 def cat(x: Any) -> str:
-  """Convert any object to a string representation."""
+  "Convert any object to a string representation."
   isa = isinstance
   if isa(x, list): return "{" + ", ".join(map(cat, x)) + "}"
   if isa(x, (float, int)): return str(int(x)) if x == int(x) else f"{x:.3g}"
@@ -44,17 +46,17 @@ def cat(x: Any) -> str:
   return str(x)
 
 class o:
-  """Base class providing dictionary update and string representation."""
+  "Base class providing dictionary update and string representation."
   __init__    = lambda i, **d: i.__dict__.update(**d)
   __getitem__ = lambda i, k  : i.__dict__[k]
   __repr__    = cat
 
 # ----------------------------------------------------------------------------------------
 class Sym(o):
-  """Symbol class for handling categorical attributes."""
+  "Symbol class for handling categorical attributes."
 
-  def __init__(i, has: List[Atom] = [], at: int = 0, txt: str = " "):
-    """Initialize a symbol column."""
+  def __init__(i, has = [], at: int = 0, txt: str = " "):
+    "*Init* Initialize a symbol column."
     i.at: int = at            # Column position
     i.txt: str = txt          # Column name
     i.n: int = 0              # Count of items seen
@@ -62,7 +64,7 @@ class Sym(o):
     [i.add(x) for x in has]
 
   def add(i, x: Atom, inc: bool = True) -> Atom:
-    """Add a value to the symbol column."""
+    "Add a value to the symbol column."
     if x != "?":
       step = 1 if inc else -1
       i.n += step
@@ -70,25 +72,25 @@ class Sym(o):
     return x
 
   def dist(i, x: Atom, y: Atom) -> float:
-    """Calculate distance between two symbols."""
+    "Calculate distance between two symbols."
     return x == "?" and y == "?" and 1 or x != y
 
   def like(i, x:str, prior:float):
     return (i.has.get(x,0) + the.m*prior) / (i.n + the.m + 1/BIG)
   
   def mid(i) -> Atom:
-    """Get the most common value."""
+    "Get the most common value."
     return max(i.has, key=i.has.get)
 
   def div(i) -> float:
-    """Calculate entropy as diversity measure."""
+    "Calculate entropy as diversity measure."
     return -sum(v / i.n * math.log(v / i.n, 2) for v in i.has.values() if v > 0)
 
 # ----------------------------------------------------------------------------------------
 class Num(o):
-  """Number class for handling numeric attributes."""
+  "Number class for handling numeric attributes."
   def __init__(i, has: List[Atom] = [], at: int = 0, txt: str = " "):
-    """Initialize a numeric column."""
+    "Initialize a numeric column."
     i.at: int = at            # Column position
     i.txt: str = txt          # Column name
     i.n: int = 0              # Count of items seen
@@ -100,7 +102,7 @@ class Num(o):
     [i.add(x) for x in has]
 
   def add(i, x: Atom, inc: bool = True) -> Atom:
-    """Add a value to the numeric column."""
+    "Add a value to the numeric column."
     if x != "?":
       i.lo = min(x, i.lo)
       i.hi = max(x, i.hi)
@@ -115,7 +117,7 @@ class Num(o):
     return x
 
   def dist(i, x: Atom, y: Atom) -> float:
-    """Calculate distance between two numeric values."""
+    "Calculate distance between two numeric values."
     if x == "?" and y == "?": return 1
     x = i.norm(x) if x != "?" else (0 if y > 0.5 else 1)
     y = i.norm(y) if y != "?" else (0 if x > 0.5 else 1)
@@ -128,22 +130,22 @@ class Num(o):
     return min(1, max(0, math.exp(-z) / (math.tau * var) ** 0.5))
     
   def mid(i) -> float:
-    """Get the mean value."""
+    "Get the mean value."
     return i.mu
 
   def norm(i, x: Atom) -> float:
-    """Normalize value to range 0-1."""
+    "Normalize value to range 0-1."
     return (float(x) - i.lo) / (i.hi - i.lo + 1 / BIG)
 
   def div(i) -> float:
-    """Calculate standard deviation as diversity measure."""
+    "Calculate standard deviation as diversity measure."
     return 0 if i.n <= 2 else (max(0, i.m2) / (i.n - 1))**0.5
 
 # ----------------------------------------------------------------------------------------
 class Data(o):
-  """Data class for handling collections of rows."""
+  "Data class for handling collections of rows."
   def __init__(i, src: Iterator[Row]):
-    """Initialize from data source."""
+    "Initialize from data source."
     i._rows: Rows = []             # Storage for data rows
     i.cols = o(x=[], y=[], all=[]) # Track columns (x=independent, y=dependent, all=all)
     src = iter(src)
@@ -151,27 +153,23 @@ class Data(o):
     [i.add(row) for row in src]
 
   def about(i, c: int, s: str) -> None:
-    """Set up column information."""
+    "Set up column information."
     col: Col = (Num if s[0].isupper() else Sym)(at=c, txt=s)
     i.cols.all += [col]
     if s[-1] != "X":
       (i.cols.y if s[-1] in "-+" else i.cols.x).append(col)
 
   def add(i, row: Row, inc: bool = True, purge: bool = False) -> Row:
-    """Add a row to the data."""
+    "Add a row to the data."
     if purge: i._rows.remove(row)  # can be slow. disabled by default
     elif inc: i._rows += [row]
     for col in i.cols.all: col.add(row[col.at], inc)
     return row
 
-  def acquires(i):
-    """Loop, dividing rows to best,rest. Label row that's e.g. max best/rest."""
+  def guesses(i):
+    "Loop, dividing rows to best,rest. Label row that's e.g. max best/rest."
     def _guess(row):
-      return _acq(n/the['1'], best.like(row,n,2), rest.like(row,n,2))
-    def _acq(p, b, r):
-      b,r = math.e**b, math.e**r
-      q = 0 if the.acq=="xploit" else (0 if the.acq=="xplor" else 1-p)
-      return (b + r*q) / abs(b*q - r + 1/BIG)
+      return acquire(best.like(row,n,2), rest.like(row,n,2), the.acq, n/the['1'])
 
     random.shuffle(i._rows)
     n         = the['0']
@@ -188,14 +186,14 @@ class Data(o):
       best._rows = bestrest.ysort(best._rows)
       if len(best._rows) >= round(n**the.guess):
          rest.add( best.add( best._rows.pop(-1), inc=False))
-    return o(best=best, rest=rest, todo=todo)
+    return o(best=best, rest=rest, test=todo)
   
   def clone(i, rows: Rows = []) -> 'Data':
-    """Create a new data with same structure but different rows."""
+    "Create a new data with same structure but different rows."
     return Data([[col.txt for col in i.cols.all]] + rows)
 
   def like(i,row:Row, nall:int, nh:int) -> float:
-    """Return how much this data likes `row`."""
+    "Return how much this data likes `row`."
     prior = (len(i._rows) + the.k) / (nall + the.k*nh)
     tmp = [col.like(row[col.at],prior) for col in i.cols.x if row[col.at] != "?"]
     return sum(math.log(n) for n in tmp + [prior] if n>0)
@@ -205,7 +203,7 @@ class Data(o):
     return max(datas, key=lambda data: data.like(row, n, len(datas)))
 
   def clusters(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
-    """Locality sensitive hashing to cluster rows by projection."""
+    "Locality sensitive hashing to cluster rows by projection."
     clusters: Dict[Tuple[int, ...], 'Data'] = {}
     for row in i._rows:
       k = tuple(i.project(row, a, b) for a, b in zip(poles, poles[1:]))
@@ -214,12 +212,12 @@ class Data(o):
     return clusters
 
   def mid(i) -> Row:
-    """Find the central tendency row."""
+    "Find the central tendency row."
     middle = [col.mid() for col in i.cols.all]
     return min(i._rows, key=lambda row: i.xdist(row, middle))
 
   def minPts(i) -> int:
-    """Report how many points are needed for each bucket."""
+    "Report how many points are needed for each bucket."
     out = the.Min
     if out==0:
       if   len(i._rows) <  30: out= 2
@@ -228,7 +226,7 @@ class Data(o):
     return out
 
   def poles(i) -> Rows:
-    """Select poles at max distance to poles picked so far."""
+    "Select poles at max distance to poles picked so far."
     r0, *some = many(i._rows, k=the.some + 1)
     out = [max(some, key=lambda r1: i.xdist(r1, r0))]
     for _ in range(the.dims):
@@ -236,29 +234,35 @@ class Data(o):
     return out
 
   def project(i, row: Row, a: Row, b: Row) -> int:
-    """Project a row onto the line connecting two poles, a and b"""
+    "Project a row onto the line connecting two poles, a and b"
     c = i.xdist(a, b)
     x = (i.xdist(row, a)**2 + c**2 - i.xdist(row, b)**2) / (2 * c)
     return min(int(x / c * the.Bins), the.Bins - 1) # return 0..the.Bins-1
 
   def xdist(i, row1: Row, row2: Row) -> float:
-    """Calculate distance between rows using only X columns."""
+    "Calculate distance between rows using only X columns."
     return dist(c.dist(row1[c.at], row2[c.at]) for c in i.cols.x)
 
   def ydist(i, row: Row) -> float:
-    """Calculate the distance to heaven for this row."""
+    "Calculate the distance to heaven for this row."
     return dist(abs(c.norm(row[c.at]) - c.heaven) for c in i.cols.y)
 
-  def ydists(i) -> Num:
-    """Get numeric stats on y-distances for rows."""
-    return Num(i.ydist(row) for row in i._rows)
+  def ydists(i,rows:Rows=None) -> Num:
+    "Get numeric stats on y-distances for rows."
+    return Num(i.ydist(row) for row in rows or i._rows)
 
-  def ysort(i, rows=None) -> List[Row]:
+  def ysort(i, rows=None) -> Rows:
+    "Return rows sorted by distance to heaven."
     return sorted(rows or i._rows, key=lambda row: i.ydist(row))
 
 # ----------------------------------------------------------------------------------------
+def acquire(b, r,acq="xploit",p=1):
+      b,r = math.e**b, math.e**r
+      q = 0 if acq=="xploit" else (1 if acq=="xplor" else 1-p)
+      return (b + r*q) / abs(b*q - r + 1/BIG)
+
 def cli(d: Dict[str, Any]) -> None:
-  """Process command line arguments."""
+  "Process command line arguments."
   for k, v in d.items():
     for c, arg in enumerate(sys.argv):
       if arg == "-" + k[0]:
@@ -267,7 +271,7 @@ def cli(d: Dict[str, Any]) -> None:
                        sys.argv[c + 1] if c < len(sys.argv) - 1 else str(v))))
 
 def coerce(x: str) -> Atom:
-  """Convert string to appropriate type."""
+  "Convert string to appropriate type."
   for what in (int, float):
     try: return what(x)
     except: pass
@@ -276,13 +280,13 @@ def coerce(x: str) -> Atom:
   return (y == "true") if y in ("true", "false") else x
 
 def csv(path: str) -> Iterator[Row]:
-  """Read csv file into a generator of rows."""
+  "Read csv file into a generator of rows."
   with open(path) as f:
     for line in f:
       yield [coerce(x) for x in line.strip().split(",")]
 
 def dist(dims: Iterator[float]) -> float:
-  """Calculate Minkowski distance."""
+  "Calculate Minkowski distance."
   total, n = 0, 1 / BIG
   for x in dims:
     n += 1
@@ -291,14 +295,14 @@ def dist(dims: Iterator[float]) -> float:
 
 # ---------------------------------------------------------------------------------------/
 def eg_h(_) -> None:
-  """Print help text."""
+  "Print help text."
   print(__doc__,"\nExamples:")
   for s,fun in globals().items():
     if s.startswith("eg__"): 
       print(f"  {re.sub('eg__','--',s):>11}    {fun.__doc__}")
 
 def eg__all(_) -> None:
-  """Run all examples."""
+  "Run all examples."
   for f in [eg__the, eg__csv, eg__data, eg__ydist, eg__poles, eg__counts]:
     random.seed(the.rseed)
     print(f"\n\n{'-'*80}\n\n## {f.__name__}\n\n# {f.__doc__}\n")
@@ -308,15 +312,15 @@ def eg__about(_):
   import pydoc, sys; print(pydoc.render_doc(sys.modules[__name__]))
 
 def eg__the(_) -> None: 
-  """Print the configuration."""
+  "Print the configuration."
   print(the)
 
 def eg__csv(_) -> None:
-  """Print csv data."""
+  "Print csv data."
   [print(row) for row in csv(the.file)]
 
 def eg__sym(_) -> None:
-  """Illustrates `Sym` column operations: creation, mode, and entropy."""
+  "Illustrates `Sym` column operations: creation, mode, and entropy."
   sym = Sym("aaaabbc")       
   print("OLD:", o(mode=sym.mid(), sd=sym.div()))
   [sym.add(x) for x in "dde"]
@@ -324,7 +328,7 @@ def eg__sym(_) -> None:
   assert 2.12 < sym.div() < 2.13 and sym.mid() == "a" 
 
 def eg__num(_) -> None:
-  """Illustrates `Num` column operations: creation, normalization, mean, std dev."""
+  "Illustrates `Num` column operations: creation, normalization, mean, std dev."
   mu, sd, n = 10, 1, 10**3
   num = Num(random.gauss(mu,sd) for _ in range(n))
   print("OLD:",o(mu=num.mid(), sd=num.div(), like=num.like(10,1)))
@@ -333,21 +337,21 @@ def eg__num(_) -> None:
   assert (10 < num.mid() < 10.03) and (1 < num.div() < 1.03)
  
 def eg__data(_) -> None:
-  """Print column information."""
+  "Print column information."
   d = Data(csv(the.file))
   [print("x", col) for col in d.cols.x]
   [print("y", col) for col in d.cols.y]
   assert len(d._rows)==398 and d.cols.x[0].lo==3 and d.cols.y[0].heaven==0
 
 def eg__data(_) -> None:
-  """Print column information."""
+  "Print column information."
   d = Data(csv(the.file))
   [print("x", col) for col in d.cols.x]
   [print("y", col) for col in d.cols.y]
   assert len(d._rows)==398 and d.cols.x[0].lo==3 and d.cols.y[0].heaven==0
 
 def eg__incFalse(_) -> None:
-  """Show that rows can be incrementally added and deleted to a Data.""" 
+  "Show that rows can be incrementally added and deleted to a Data." 
   d   = Data(csv(the.file))
   d1  = d.clone()
   two = lambda c: (round(c.mid(),3), round(c.div(),3))
@@ -365,7 +369,7 @@ def eg__likes(_) -> None:
   assert -18 < num.lo and num.hi < -11
   
 def eg__ydist(_) -> None:
-  """Print rows sorted by distance to heaven."""
+  "Print rows sorted by distance to heaven."
   def gap(row): 
       out = d.ydist(row)
       assert 0 <= out <= 1
@@ -376,16 +380,21 @@ def eg__ydist(_) -> None:
   for row in rows[-3:]: print("bad", row)
   assert abs(gap(rows[0]) - gap(rows[-1])) > 0.5
 
-def eg__acquires(file=None) -> None:
+def eg__guesses(file=None) -> None:
   d = Data(csv(file or the.file))
-  best, rest, todo= d.acquires() 
-  print(o(b4    = d.ydists().mu,
-          bbest = best.ydists().mu, 
-          rest  = rest.ydists().mu, 
-          test  = d.clone(todo[:the['2']]).ydists().mu))
+  for _ in range(20):
+    out =  d.guesses() 
+    def guess(row):
+        return out.best.like(row,the['1'],2) - out.rest.like(row,the['1'],2)
+    some= sorted(out.test, key=guess, reverse=True)[:the['2']]
+    print(o(b4    = d.ydists().mu,
+            lo    = d.ydists().lo,
+            best  = d.ydists(out.best._rows).mu, 
+            rest  = d.ydists(out.rest._rows).mu, 
+            test  = d.ydists(some).mu))
 
 def eg__xdist(_) -> None:
-  """Illustrate `dist` operations"""
+  "Illustrate `dist` operations"
   def gap(row2): 
       out = d.xdist(row1,row2)
       assert 0 <= out <= 1
@@ -398,19 +407,19 @@ def eg__xdist(_) -> None:
   assert 1 == abs(col.norm(rows[0][col.at]) - col.norm(rows[-1][col.at]))
   
 def eg__poles(_) -> None:
-  """Show clustering dimensions."""
+  "Show clustering dimensions."
   d = Data(csv(the.file))
   poles = d.poles()
   for n,(row1,row2) in enumerate(zip(poles, poles[1:])):
     print(o(dim=n, length=d.xdist(row1,row2), pole=row1))
 
 def eg__centroids(_) -> None:
-  """Show clustering dimensions."""
+  "Show clustering dimensions."
   d = Data(csv(the.file))
   for centroid in d.clusters(d.poles()): print(centroid)
 
 def eg__counts(file: str = None) -> None:
-  """Show cluster counts and stats."""
+  "Show cluster counts and stats."
   d = Data(csv(file or the.file))
   enough = d.minPts()
   twos = [ (d1.ydists(),pos)  for pos,d1 in d.clusters(d.poles()).items()]
