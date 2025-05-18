@@ -5,24 +5,30 @@ kube.py : barelogic, XAI for active learning + multi-objective optimization
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
 Options:
-      -b bins    number of bins                     = 5
-      -m min     minPts per cluster (0=auto choose) = 0
+      -a acq     acq function (xploit,xplor,adapt)  = xplot
+      -B Bins    number of bins                     = 5
+      -M Min     minPts per cluster (0=auto choose) = 0
       -P P       distance formula exponent          = 2
+      -0 0       sample size, cold starts           = 4
+      -1 1       sample size, active learning       = 30
+      -2 2       sample size, test suite            = 5
       -d dims    number of dimensions               = 4
+      -F Few     how many to test in acquire        = 100
+      -f file    training csv file = ../../moot/optimize/misc/auto93.csv
+      -g guess   how to divide best/rest            = 0.5
+      -k k       Bayes hack (for rare classes)      = 1
+      -m m       Bayes hack (for rare frequencies)  = 2
       -r rseed   random number seed                 = 1234567891
       -s some    search space size for poles        = 30
-      -f file    training csv file = ../../moot/optimize/misc/auto93.csv
 """
 import random, sys, re
 import math
 from typing import List,Dict,Any,Union,Tuple,Optional,Callable,Iterator,TypeVar,cast
 
-any = random.choice
+BIG  = 1e32
+any  = random.choice
 many = random.choices
 
-BIG = 1e32
-
-# Type aliases
 Atom = Union[int, float, str, bool]
 Row  = List[Atom]
 Rows = List[Row]
@@ -39,8 +45,9 @@ def cat(x: Any) -> str:
 
 class o:
   """Base class providing dictionary update and string representation."""
-  __init__ = lambda i, **d: i.__dict__.update(**d)
-  __repr__ = cat
+  __init__    = lambda i, **d: i.__dict__.update(**d)
+  __getitem__ = lambda i, k  : i.__dict__[k]
+  __repr__    = cat
 
 # ----------------------------------------------------------------------------------------
 class Sym(o):
@@ -66,6 +73,9 @@ class Sym(o):
     """Calculate distance between two symbols."""
     return x == "?" and y == "?" and 1 or x != y
 
+  def like(i, x:str, prior:float):
+    return (i.has.get(x,0) + the.m*prior) / (i.n + the.m + 1/BIG)
+  
   def mid(i) -> Atom:
     """Get the most common value."""
     return max(i.has, key=i.has.get)
@@ -111,6 +121,12 @@ class Num(o):
     y = i.norm(y) if y != "?" else (0 if x > 0.5 else 1)
     return abs(x - y)
 
+  def like(i, x:(int|float), _ ):
+    sd = i.div() or 1 / BIG
+    var = 2 * sd * sd
+    z = (x - i.mu) ** 2 / var
+    return min(1, max(0, math.exp(-z) / (math.tau * var) ** 0.5))
+    
   def mid(i) -> float:
     """Get the mean value."""
     return i.mu
@@ -148,12 +164,48 @@ class Data(o):
     for col in i.cols.all: col.add(row[col.at], inc)
     return row
 
+  def acquires(i):
+    """Loop, dividing rows to best,rest. Label row that's e.g. max best/rest."""
+    def _guess(row):
+      return _acq(n/the['1'], best.like(row,n,2), rest.like(row,n,2))
+    def _acq(p, b, r):
+      b,r = math.e**b, math.e**r
+      q = 0 if the.acq=="xploit" else (0 if the.acq=="xplor" else 1-p)
+      return (b + r*q) / abs(b*q - r + 1/BIG)
+
+    random.shuffle(i._rows)
+    n         = the['0']
+    todo      = i._rows[n:]
+    bestrest  = i.clone( i._rows[:n] )
+    done      = bestrest.ysort()
+    cut       = round(n**the.guess)
+    best,rest = i.clone(done[:cut]), i.clone(done[cut:])
+    while len(todo) > 2 and n < the['1']:
+      n      += 1
+      hi, *lo = sorted(todo[:the.Few*2], key=_guess, reverse=True)
+      todo    = lo[:the.Few] + todo[the.Few*2:] + lo[the.Few:]
+      bestrest.add( best.add(hi))
+      best._rows = bestrest.ysort(best._rows)
+      if len(best._rows) >= round(n**the.guess):
+         rest.add( best.add( best._rows.pop(-1), inc=False))
+    return o(best=best, rest=rest, todo=todo)
+  
   def clone(i, rows: Rows = []) -> 'Data':
     """Create a new data with same structure but different rows."""
     return Data([[col.txt for col in i.cols.all]] + rows)
 
-  def lsh(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
-    """Locality sensitive hashing to group rows by projection."""
+  def like(i,row:Row, nall:int, nh:int) -> float:
+    """Return how much this data likes `row`."""
+    prior = (len(i._rows) + the.k) / (nall + the.k*nh)
+    tmp = [col.like(row[col.at],prior) for col in i.cols.x if row[col.at] != "?"]
+    return sum(math.log(n) for n in tmp + [prior] if n>0)
+
+  def likes(i,row, datas):
+    n = sum(len(data._rows) for data in datas)
+    return max(datas, key=lambda data: data.like(row, n, len(datas)))
+
+  def clusters(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
+    """Locality sensitive hashing to cluster rows by projection."""
     clusters: Dict[Tuple[int, ...], 'Data'] = {}
     for row in i._rows:
       k = tuple(i.project(row, a, b) for a, b in zip(poles, poles[1:]))
@@ -168,7 +220,7 @@ class Data(o):
 
   def minPts(i) -> int:
     """Report how many points are needed for each bucket."""
-    out = the.min
+    out = the.Min
     if out==0:
       if   len(i._rows) <  30: out= 2
       elif len(i._rows) < 100: out= 3
@@ -187,7 +239,7 @@ class Data(o):
     """Project a row onto the line connecting two poles, a and b"""
     c = i.xdist(a, b)
     x = (i.xdist(row, a)**2 + c**2 - i.xdist(row, b)**2) / (2 * c)
-    return min(int(x / c * the.bins), the.bins - 1) # return 0..the.bins-1
+    return min(int(x / c * the.Bins), the.Bins - 1) # return 0..the.Bins-1
 
   def xdist(i, row1: Row, row2: Row) -> float:
     """Calculate distance between rows using only X columns."""
@@ -201,7 +253,10 @@ class Data(o):
     """Get numeric stats on y-distances for rows."""
     return Num(i.ydist(row) for row in i._rows)
 
-# ----------------------------------------------------------------------------------------
+  def ysort(i, rows=None) -> List[Row]:
+    return sorted(rows or i._rows, key=lambda row: i.ydist(row))
+
+# ----------------------------------------------------------------------------------------
 def cli(d: Dict[str, Any]) -> None:
   """Process command line arguments."""
   for k, v in d.items():
@@ -235,60 +290,133 @@ def dist(dims: Iterator[float]) -> float:
   return (total / n)**(1 / the.P)
 
 # ---------------------------------------------------------------------------------------/
-def eg_h(_: Any) -> None:
+def eg_h(_) -> None:
   """Print help text."""
   print(__doc__,"\nExamples:")
   for s,fun in globals().items():
     if s.startswith("eg__"): 
       print(f"  {re.sub('eg__','--',s):>11}    {fun.__doc__}")
 
-def eg__all(_: Any) -> None:
+def eg__all(_) -> None:
   """Run all examples."""
   for f in [eg__the, eg__csv, eg__data, eg__ydist, eg__poles, eg__counts]:
     random.seed(the.rseed)
+    print(f"\n\n{'-'*80}\n\n## {f.__name__}\n\n# {f.__doc__}\n")
     f(_)
 
 def eg__about(_): 
   import pydoc, sys; print(pydoc.render_doc(sys.modules[__name__]))
 
-def eg__the(_: Any) -> None: 
+def eg__the(_) -> None: 
   """Print the configuration."""
   print(the)
 
-def eg__csv(_: Any) -> None:
+def eg__csv(_) -> None:
   """Print csv data."""
   [print(row) for row in csv(the.file)]
 
-def eg__data(_: Any) -> None:
+def eg__sym(_) -> None:
+  """Illustrates `Sym` column operations: creation, mode, and entropy."""
+  sym = Sym("aaaabbc")       
+  print("OLD:", o(mode=sym.mid(), sd=sym.div()))
+  [sym.add(x) for x in "dde"]
+  print("NEW:", o(mode=sym.mid(), sd=sym.div()))  
+  assert 2.12 < sym.div() < 2.13 and sym.mid() == "a" 
+
+def eg__num(_) -> None:
+  """Illustrates `Num` column operations: creation, normalization, mean, std dev."""
+  mu, sd, n = 10, 1, 10**3
+  num = Num(random.gauss(mu,sd) for _ in range(n))
+  print("OLD:",o(mu=num.mid(), sd=num.div(), like=num.like(10,1)))
+  [num.add(random.gauss(mu,sd))  for _ in range(n)]
+  print("New:",o(mu=num.mid(), sd=num.div()))
+  assert (10 < num.mid() < 10.03) and (1 < num.div() < 1.03)
+ 
+def eg__data(_) -> None:
   """Print column information."""
   d = Data(csv(the.file))
   [print("x", col) for col in d.cols.x]
   [print("y", col) for col in d.cols.y]
+  assert len(d._rows)==398 and d.cols.x[0].lo==3 and d.cols.y[0].heaven==0
 
-def eg__ydist(_: Any) -> None:
-  """Print rows sorted by distance to heaven."""
+def eg__data(_) -> None:
+  """Print column information."""
   d = Data(csv(the.file))
-  lst = sorted(d._rows, key=lambda row: d.ydist(row))
-  for row in lst[:4]: print("good", row)
-  for row in lst[-4:]: print("bad", row)
+  [print("x", col) for col in d.cols.x]
+  [print("y", col) for col in d.cols.y]
+  assert len(d._rows)==398 and d.cols.x[0].lo==3 and d.cols.y[0].heaven==0
 
-def eg__poles(file: str = None) -> None:
-  """Show clustering dimensions."""
+def eg__incFalse(_) -> None:
+  """Show that rows can be incrementally added and deleted to a Data.""" 
+  d   = Data(csv(the.file))
+  d1  = d.clone()
+  two = lambda c: (round(c.mid(),3), round(c.div(),3))
+  for row in d._rows: 
+    d1.add(row)
+    if len(d1._rows) == 100: a1,a2 = two(d1.cols.y[0]), two(d1.cols.x[3])
+  for row in d._rows[::-1]: 
+    d1.add(row,inc=False,purge=True)
+    if len(d1._rows) == 100: 
+      assert (a1,a2) == (two(d1.cols.y[0]), two(d1.cols.x[3]))
+
+def eg__likes(_) -> None:
+  d = Data(csv(the.file))
+  num = Num(d.like(row, 1000, 2) for row in d._rows)
+  assert -18 < num.lo and num.hi < -11
+  
+def eg__ydist(_) -> None:
+  """Print rows sorted by distance to heaven."""
+  def gap(row): 
+      out = d.ydist(row)
+      assert 0 <= out <= 1
+      return out      
+  d    = Data(csv(the.file))
+  rows = sorted(d._rows, key=gap)
+  for row in rows[:3]: print("good", row)
+  for row in rows[-3:]: print("bad", row)
+  assert abs(gap(rows[0]) - gap(rows[-1])) > 0.5
+
+def eg__acquires(file=None) -> None:
   d = Data(csv(file or the.file))
-  p = d.poles()
-  dims = d.lsh(p)
-  [print(k) for k in dims]
-  print(len(dims))
+  best, rest, todo= d.acquires() 
+  print(o(b4    = d.ydists().mu,
+          bbest = best.ydists().mu, 
+          rest  = rest.ydists().mu, 
+          test  = d.clone(todo[:the['2']]).ydists().mu))
+
+def eg__xdist(_) -> None:
+  """Illustrate `dist` operations"""
+  def gap(row2): 
+      out = d.xdist(row1,row2)
+      assert 0 <= out <= 1
+      return out
+  d    = Data(csv(the.file))
+  row1 = d._rows[0]
+  rows = sorted(d._rows, key=gap)
+  for row2 in rows[:3] + rows[-3:]: print(o(row=row2, gap=gap(row2)))
+  col = d.cols.x[0]
+  assert 1 == abs(col.norm(rows[0][col.at]) - col.norm(rows[-1][col.at]))
+  
+def eg__poles(_) -> None:
+  """Show clustering dimensions."""
+  d = Data(csv(the.file))
+  poles = d.poles()
+  for n,(row1,row2) in enumerate(zip(poles, poles[1:])):
+    print(o(dim=n, length=d.xdist(row1,row2), pole=row1))
+
+def eg__centroids(_) -> None:
+  """Show clustering dimensions."""
+  d = Data(csv(the.file))
+  for centroid in d.clusters(d.poles()): print(centroid)
 
 def eg__counts(file: str = None) -> None:
   """Show cluster counts and stats."""
   d = Data(csv(file or the.file))
-  clusters = d.lsh(d.poles())
-  for data in clusters.values():
-    ys = data.ydists()
-    if len(data._rows) >= d.minPts():
-      print(o(mid=ys.mid(), div=ys.div(), n=ys.n))
-
+  enough = d.minPts()
+  twos = [ (d1.ydists(),pos)  for pos,d1 in d.clusters(d.poles()).items()]
+  for num,pos in sorted(twos, key=lambda two:two[0].mid()):
+    if num.n >= enough:
+      print(o(pos=pos, n=num.n, mid=num.mid()))
 
 # ---------------------------------------------------------------------------------------
 the = o(**{m[1]: coerce(m[2])
