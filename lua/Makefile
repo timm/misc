@@ -9,6 +9,12 @@ publish:
 	git commit -am new
 	git push
 
+~/tmp/%.html : %.py
+	cat $^ | lua updent.lua > ~/tmp/$^; (cd ~/tmp; docco -o . $^)
+	echo "p { text-align: right;  }" >> ~/tmp/docco.css
+	echo "h3 { border-top: 1px solid #CCC;  }" >> ~/tmp/docco.css
+	open $@
+
 # changes to 3 cols and 101 chars/line
 ~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
 	mkdir -p ~/tmp

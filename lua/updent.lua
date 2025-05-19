@@ -7,7 +7,7 @@ while i <= #a do
   local doc        = after:match('^%s*"(.-)"')
 
   if isClass and doc then
-    print("## " .. isClass .. "\n\n# " .. doc .. "\n" .. now)    
+    print("# ### " .. isClass .. "\n\n# " .. doc .. "\n" .. now)    
     i = i + 2
   elseif isDef and doc then
     local indent = now:match("^(%s*)") or ""
