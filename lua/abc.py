@@ -1,17 +1,18 @@
 #!/usr/bin/env python3 -B
 # In this code "i" == "self". Also "_x" is a hidden var (to big, or to secret, to show).
 """
-kube.py : barelogic, XAI for active learning + multi-objective optimization
+abc.py : XAI for active learning + multi-objective optimization
+A=a few random choices; B=build a model incrementally, C=check it on new data
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
 Options:
+      -A A       sample size, cold starts           = 4
+      -B B       sample size, active learning       = 30
+      -C C       sample size, test suite            = 5
       -a acq     acq function (xploit,xplor,adapt)  = xplot
-      -B Bins    number of bins                     = 5
+      -b bins    number of bins                     = 5
       -M Min     minPts per cluster (0=auto choose) = 0
       -P P       distance formula exponent          = 2
-      -0 0       sample size, cold starts           = 4
-      -1 1       sample size, active learning       = 30
-      -2 2       sample size, test suite            = 5
       -d dims    number of dimensions               = 4
       -F Few     how many to test in acquire        = 100
       -f file    training csv file = ../../moot/optimize/misc/auto93.csv
@@ -87,6 +88,18 @@ class Sym(o):
     "STATS: Calculate entropy as diversity measure."
     return -sum(v / i.n * math.log(v / i.n, 2) for v in i.has.values() if v > 0)
 
+  def cuts(i,rows,Y,Klass) -> o:
+    "TREE: report results of splitting rows on this column."
+    n,d = 0,{}
+    for row in rows:
+      x = row[i.at] 
+      if x != "?":
+        n = n + 1
+        d[x] = d.get(x) or Klass()
+        d[x].add(Y(row))
+    return o(div = sum(v.n/n * c.div() for c   in d.values()),
+             decisions= [("==",c.at,k) for k,v in d.items()])
+
 class Num(o):
   "Number class for handling numeric attributes."
 
@@ -143,6 +156,23 @@ class Num(o):
     "STATS: Normalize value to range 0-1."
     return (float(x) - i.lo) / (i.hi - i.lo + 1 / BIG)
 
+  def cuts(i,rows,Y,Klass) -> o:
+    "TREE: report results of splitting rows on this column."
+    out,b4 = None,None 
+    lhs, rhs = Klass(), Klass()
+    xys = [(r[i.at], rhs.add(r[i.at]) for r in rows if r[i.at] != "?"]
+    xpect = rhs.div()
+    for x,y in sorted(xys, key=lambda xy: x[0]):
+      if the.leaf <= lhs.n <= len(xys) - the.leaf: 
+        if x != b4:
+          tmp = (lhs.n * spread(lhs) + rhs.n * spread(rhs)) / len(xys)
+          if tmp < xpect:
+            xpect, out = tmp,[("<=",i.at,b4),(">",i.at,b4)]
+      add(sub(y, rhs),lhs)
+      b4 = x
+    if out:
+      return o(mid=xpect, decisions=out)
+ 
 class Data(o):
   "Data class for handling collections of rows."
 
@@ -179,16 +209,16 @@ class Data(o):
       q = 0 if acq=="xploit" else (1 if acq=="xplor" else 1-p)
       return (b + r*q) / abs(b*q - r + 1/BIG)
     def _guess(row):
-      return _acq(best.like(row,n,2), rest.like(row,n,2), the.acq, n/the['1'])
+      return _acq(best.like(row,n,2), rest.like(row,n,2), the.acq, n/the.B)
 
     random.shuffle(i._rows)
-    n         = the['0']
+    n         = the.A
     todo      = i._rows[n:]
     bestrest  = i.clone( i._rows[:n] )
     done      = bestrest.ysort()
     cut       = round(n**the.guess)
     best,rest = i.clone(done[:cut]), i.clone(done[cut:])
-    while len(todo) > 2 and n < the['1']:
+    while len(todo) > 2 and n < the.B:
       n      += 1
       hi, *lo = sorted(todo[:the.Few*2], key=_guess, reverse=True)
       todo    = lo[:the.Few] + todo[the.Few*2:] + lo[the.Few:]
@@ -234,7 +264,7 @@ class Data(o):
     "CLUSTER: Project a row onto the line connecting two poles, a and b"
     c = i.xdist(a, b)
     x = (i.xdist(row, a)**2 + c**2 - i.xdist(row, b)**2) / (2 * c)
-    return min(int(x / c * the.Bins), the.Bins - 1) # return 0..the.Bins-1
+    return min(int(x / c * the.bins), the.bins - 1) # return 0..the.bins-1
 
   def xdist(i, row1: Row, row2: Row) -> float:
     "DIST: Calculate distance between rows using only X columns."
@@ -259,20 +289,9 @@ class Data(o):
 
 # ## Functions
 
-def v(col,row) : 
-  return row[c.at]
-{'<=':lambda x,y: x <=y,
- "==":lambda x,y: x==y,
- '>': lambda x,y: x>y}
-
-def upto(c,x): 
-  return f"{c.txt} <= {x} ", lambda z:V(c,z)=="?" or V(c,z)<=x
-
-def over(c,x): 
-  return f"{c.txt} >  {x} ", lambda z:V(c,z)=="?" or V(c,z)>x
-
-def eq(c.x)  : 
-  return f"{c.txt} == {x} ", lambda z:V(c,z)=="?" or V(c,z)==x
+op = {'<=' : lambda x,y: x <=y,
+      "==" : lambda x,y: x==y,
+      '>'  : lambda x,y: x>y}
 
 def likes(datas, row):
   "BAYES: Return the `data` that most `likes` the `row."
@@ -404,8 +423,8 @@ def eg__guesses(file=None) -> None:
   for _ in range(20):
     out =  d.guesses() 
     def guess(row):
-        return out.best.like(row,the['1'],2) - out.rest.like(row,the['1'],2)
-    some= sorted(out.test, key=guess, reverse=True)[:the['2']]
+        return out.best.like(row,the.B,2) - out.rest.like(row,the.B,2)
+    some= sorted(out.test, key=guess, reverse=True)[:the.C]
     print(o(b4    = d.ydists().mu,
             lo    = d.ydists().lo,
             best  = d.ydists(out.best._rows).mu, 
