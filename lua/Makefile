@@ -39,9 +39,9 @@ publish:
 ~/tmp/%.pdf: %.py  ## .py ==> .pdf
 	mkdir -p ~/tmp
 	echo "pdf-ing $@ ... "
-	a2ps                \
-		-Br                \
-		--quiet             \
+	a2ps               \
+		-Br               \
+		--quiet            \
 		--portrait          \
 		--chars-per-line=100 \
 		--line-numbers=1      \
