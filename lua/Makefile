@@ -10,9 +10,10 @@ publish:
 	git push
 
 ~/tmp/%.html : %.py
-	cat $^ | lua updent.lua > ~/tmp/$^; (cd ~/tmp; docco -o . $^)
+	gawk '/^##/ {gsub("-", ""); print $$0"\n\n\n"; next} 1' $^  > ~/tmp/$^
+	cd ~/tmp; docco -o . $^
 	echo "p { text-align: right;  }" >> ~/tmp/docco.css
-	echo "h3 { border-top: 1px solid #CCC;  }" >> ~/tmp/docco.css
+	echo "h2 { border-top: 1px solid #CCC;  }" >> ~/tmp/docco.css
 	open $@
 
 # changes to 3 cols and 101 chars/line
