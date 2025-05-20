@@ -6,9 +6,9 @@ A=a few random choices; B=build a model incrementally, C=check it on new data
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
 Options:
-      -A A       sample size, cold starts           = 4
-      -B B       sample size, active learning       = 30
-      -C C       sample size, test suite            = 5
+      -A A       samples for a few random picks     = 4
+      -B B       samples for active learning build  = 30
+      -C C       samples for tests                  = 5
       -a acq     acq function (xploit,xplor,adapt)  = xplot
       -b bins    number of bins                     = 5
       -M Min     minPts per cluster (0=auto choose) = 0
@@ -18,6 +18,7 @@ Options:
       -f file    training csv file = ../../moot/optimize/misc/auto93.csv
       -g guess   how to divide best/rest            = 0.5
       -k k       Bayes hack (for rare classes)      = 1
+      -l leaf    min leaf size                      = 2
       -m m       Bayes hack (for rare frequencies)  = 2
       -r rseed   random number seed                 = 1234567891
       -s some    search space size for poles        = 30
@@ -52,7 +53,9 @@ class o:
   __getitem__ = lambda i, k  : i.__dict__[k]
   __repr__    = cat
 
-# ## Classes
+#----------------------------------------------------------------------------
+# ## Sym
+
 class Sym(o):
   "Symbol class for handling categorical attributes."
 
@@ -97,8 +100,11 @@ class Sym(o):
         n = n + 1
         d[x] = d.get(x) or Klass()
         d[x].add(Y(row))
-    return o(div = sum(v.n/n * c.div() for c   in d.values()),
+    return o(div = sum(c.n/n * c.div() for c   in d.values()),
              decisions= [("==",c.at,k) for k,v in d.items()])
+
+#----------------------------------------------------------------------------
+# ## Num
 
 class Num(o):
   "Number class for handling numeric attributes."
@@ -156,23 +162,25 @@ class Num(o):
     "STATS: Normalize value to range 0-1."
     return (float(x) - i.lo) / (i.hi - i.lo + 1 / BIG)
 
-  def cuts(i,rows,Y,Klass) -> o:
-    "TREE: report results of splitting rows on this column."
-    out,b4 = None,None 
-    lhs, rhs = Klass(), Klass()
-    xys = [(r[i.at], rhs.add(r[i.at]) for r in rows if r[i.at] != "?"]
-    xpect = rhs.div()
-    for x,y in sorted(xys, key=lambda xy: x[0]):
-      if the.leaf <= lhs.n <= len(xys) - the.leaf: 
-        if x != b4:
-          tmp = (lhs.n * spread(lhs) + rhs.n * spread(rhs)) / len(xys)
-          if tmp < xpect:
-            xpect, out = tmp,[("<=",i.at,b4),(">",i.at,b4)]
-      add(sub(y, rhs),lhs)
-      b4 = x
-    if out:
-      return o(mid=xpect, decisions=out)
- 
+def cuts(i, rows, Y, Klass) -> o:
+  "TREE: report results of splitting rows on this column."
+  out, b4, lhs, rhs = None, None, Klass(), Klass()
+  xys = [(r[i.at], rhs.add( i.ydist(r))) for r in rows if r[i.at] != "?"]
+  xpect = rhs.div()
+  for x, y in sorted(xys, key=lambda xy: x[0]):
+    if x != b4:
+      if the.leaf <= lhs.n <= len(xys) - the.leaf:
+        tmp = (lhs.n * lhs.div() + rhs.n * rhs.div()) / len(xys)
+        if tmp < xpect:
+          xpect, out = tmp, [("<=", i.at, b4), (">", i.at, b4)]
+    lhs.add( rhs.add(y, inc=False))
+    b4 = x
+  if out:
+    return o(div=xpect, decisions=out)
+
+#----------------------------------------------------------------------------
+# ## Data
+
 class Data(o):
   "Data class for handling collections of rows."
 
@@ -195,6 +203,14 @@ class Data(o):
     "INIT: Create a new data with same structure but different rows."
     return Data([[col.txt for col in i.cols.all]] + rows)
 
+  def minPts(i) -> int:
+    "INIT: Report how many points are needed for each bucket."
+    out = the.Min
+    if out==0:
+      out = 2 if len(i._rows) <  30 else (
+            3 if len(i._rows) < 100 else 2 + the.dims)
+    return out
+    
   def add(i, row: Row, inc: bool = True, purge: bool = False) -> Row:
     "ADD: Add a row to the data."
     if purge: i._rows.remove(row)  # can be slow. disabled by default
@@ -243,15 +259,6 @@ class Data(o):
       clusters[k].add(row)
     return clusters
 
-  def minPts(i) -> int:
-    "INIT: Report how many points are needed for each bucket."
-    out = the.Min
-    if out==0:
-      if   len(i._rows) <  30: out= 2
-      elif len(i._rows) < 100: out= 3
-      else: out = 2 + the.dims
-    return out
-
   def poles(i) -> Rows:
     "CLUSTER: Select poles at max distance to poles picked so far."
     r0, *some = many(i._rows, k=the.some + 1)
@@ -286,12 +293,40 @@ class Data(o):
     "STATS: Find the central tendency row."
     middle = [col.mid() for col in i.cols.all]
     return min(i._rows, key=lambda row: i.xdist(row, middle))
+    
+  def tree(i, rows, Klass=Num, decision=None):
+    "TREE: grow a tree from here."
+    t = i.clone(rows)
+    t.kids = []
+    t.decision = decision
+    t.ys = i.ydists(rows)
+    if len(rows) >= the.leaf:
+      cuts = [tmp for c in t.cols.x if (tmp := c.cuts(rows,i.dist,Klass=Klass))]    
+      if cuts:
+        for decision in sorted(cuts, key=lambda cut: cut.div)[0].decisions:
+          rows1 = [row for row in rows if selects(row, *decision)]
+          if the.leaf <= len(rows1) < len(rows):
+            t.kids += [i.tree(rows1, Klass=Klass, decision=decision)]  
+    return t
 
+  def nodes(i, lvl=0, key=None):
+    "TREE: interate over the tree."
+    yield lvl,i
+    for kid in (sorted(i.kids, key=key) if key else i.kids):
+      for j in kid.nodes(lvl+1, key=key):
+        yield j
+                  
+#----------------------------------------------------------------------------
 # ## Functions
 
-op = {'<=' : lambda x,y: x <=y,
-      "==" : lambda x,y: x==y,
-      '>'  : lambda x,y: x>y}
+ops = {'<=' : lambda x,y: x <= y,
+       "==" : lambda x,y: x == y,
+       '>'  : lambda x,y: x >  y}
+
+def selects(row, op, at, y):
+  "LIB: return true if `(op,at,y)` selects for row."
+  x = row[op]
+  return  x=="?" or ops[op](x,y) 
 
 def likes(datas, row):
   "BAYES: Return the `data` that most `likes` the `row."
@@ -329,7 +364,8 @@ def dist(dims: Iterator[float]) -> float:
     n += 1
     total += x**the.P
   return (total / n)**(1 / the.P)
-
+                  
+#----------------------------------------------------------------------------
 # ## Examples
 
 def eg_h(_) -> None:
@@ -465,9 +501,11 @@ def eg__counts(file: str = None) -> None:
     if num.n >= enough:
       print(o(pos=pos, n=num.n, mid=num.mid()))
 
-## Start-up
-the = o(**{m[1]: coerce(m[2])
-           for m in re.finditer(r"-\w+\s*(\w+).*=\s*(\S+)", __doc__)}) # Parse docstring
+#----------------------------------------------------------------------------
+# ## Start-up
+
+the= o(**{m[1]: coerce(m[2])
+          for m in re.finditer(r"-\w+\s*(\w+).*=\s*(\S+)", __doc__)}) 
 
 if __name__ == "__main__":
   cli(the.__dict__)

@@ -35,25 +35,40 @@ publish:
 	  -o	 $@.ps $<
 	ps2pdf $@.ps $@; rm $@.ps    
 	open $@
-
-# changes to 3 cols and 101 chars/line
-~/tmp/%.pdf: %.py  ## .lua ==> .pdf
+#
+# # changes to 3 cols and 101 chars/line
+# ~/tmp/%.pdf: %.py  ## .lua ==> .pdf
+# 	mkdir -p ~/tmp
+# 	echo "pdf-ing $@ ... "
+# 	a2ps                 \
+# 		-Br                 \
+# 		--chars-per-line 100  \
+# 		--file-align=fill      \
+# 		--line-numbers=1        \
+# 		--borders=no             \
+# 		--pro=color               \
+# 		--left-title=""            \
+# 		--columns  2                 \
+# 		-M letter                     \
+# 		--footer=""                    \
+# 		--right-footer=""               \
+# 	  -o	 $@.ps $<
+# 	ps2pdf $@.ps $@; rm $@.ps    
+# 	open $@
+#
+~/tmp/%.pdf: %.py  ## .py ==> .pdf
 	mkdir -p ~/tmp
 	echo "pdf-ing $@ ... "
-	a2ps                 \
-		-Br                 \
-		--chars-per-line 100  \
+	a2ps                \
+		-Br                \
+		--quiet             \
+		--portrait           \
+		--chars-per-line=100  \
 		--file-align=fill      \
 		--line-numbers=1        \
 		--borders=no             \
 		--pro=color               \
-		--left-title=""            \
-		--columns  3                 \
-		-M letter                     \
-		--footer=""                    \
-		--right-footer=""               \
-	  -o	 $@.ps $<
-	ps2pdf $@.ps $@; rm $@.ps    
+		--columns=2                \
+		-M letter                   \
+		-o - $< | ps2pdf - $@
 	open $@
-
-
