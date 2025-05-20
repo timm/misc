@@ -1,95 +1,132 @@
+from pprint import pformat as say
+import random
+
+any=random.choice
+many=random.choices
+
 class o:
-  __init__    = lambda i, **d: i.__dict__.update(**d)
-  __getitem__ = lambda i, k  : i.__dict__[k]
-  __repr__    = lambda i: i.__class__.__name__.o(i.__dict__)
+  __init__ = lambda i, **d: i.__dict__.update(**d)
+  __repr__ = f.__name__ if (f:=i.__dict__.get("it")) else "").say(i.__dict__) 
 
 the = o(p=2)
 
 #------------------------------------------------------------------------------
-def Data(src=[]):
-  src = iter(src)
-  return adds(src, o(it=Data, cols=Cols(next(src)),rows=[]))
-
-def Cols(names)
-  i = o(it=Cols, all=[], x=[], y=[])
-  for c,s in enumerate(names):
-    i.all += [(Num if s[0].isupper() else Sym)(txt=s,at=c)]
-    if s[-1] != "X":
-      (i.y if s[-1] in "-" else i.x).append(i.all[-1])
-  return i
-
 def Num(lst=[], txt=" ",at=0):
-  return adds(lst,o(it=Num, n=0, at=at, txt=txt, 
-                    heaven=(0 if txt[-1]=="-" else 1),
-                    mu=0, m2=0, lo=-BIG, hi=BIG))
+  return adds(o(it=Num, 
+                n=0,      ## count of items
+                at=at,    ## column position
+                txt=txt,  ## column name 
+                mu=0,     ## mean of what what seen
+                _m2=0,    ## second moment (used to calcuate sd)
+                lo =-BIG, ## lowest seen
+                hi =BIG,  ## largest
+                heaven=(0 if txt[-1]=="-" else 1)), ## 0,1 = minimize,maximize
+              lst)
 
 def Sym(lst=[], txt=" ",at=0): 
-  return adds(lst, o(it=Num, n=0, at=at, txt=txt, has={}))
+  return adds(o(it=Sym,n=0,     ## count of items
+                       at=at,   ## column position
+                       txt=txt, ## column name
+                       has={}), ## hold symbol counts
+              lst)
 
+def Cols(names):
+  x,y,all = [],[],[] 
+  for c,s in enumerate(names):
+    all += [(Num if s[0].isupper() else Sym)(txt=s,at=c)]
+    if s[-1] != "X": 
+      (y if s[-1] in "+-" else x).append(all[-1])
+  return o(it=Cols,all=all ## all the columns
+                   x=x,    ## just the x columns
+                   y=y)))  ## just the y columns 
+
+def Data(src=[]):
+  src = iter(src)
+  return adds(o(it=Data, rows=[]                ## contains the rows
+                         cols=Cols(next(src))), ## summaries of the rows 
+              src)
+              
+def clone(data, rows=[]):
+  return adds(Data([[col.txt for col in data.cols.all]]), rows)
+             
 #------------------------------------------------------------------------------
-def add(v,i,flip=1,purge=False):
+def adds(i,lst): [add(i,v) for v in lst]; return i
+
+def sub(i,v,purge=False): return add(i,v, flip= -1, purge=purge)
+
+def add(i,v, flip=1,purge=False):
+  def _sym():
+    i.has[v] = flip + i.has.get(v,0)
+
+  def _data()
+    if flip < 0:  
+      if purge: i.rows.remove(v) 
+      [sub(v[col.at], col) for col in i.cols.all]  
+    else: 
+      i.rows += [[add(v[col.at], col) for col in i.cols.all]]
+
+  def _num():
+    i.lo = min(v, i.lo)
+    i.hi = max(v, i.hi)
+    if flip < 0 and i.n < 2: 
+      i._m2 = i.mu = i.n = 0
+    else:
+      d      = v - i.mu
+      i.mu  += flip * (d / i.n)
+      i._m2 += flip * (d * (v -   i.mu))
+    
   if v != "?": 
     i.n += flip
-    f = _addNum if i.it is Num else (_addSym if i.it is Sym else _addData)
-    f(v,i,flip,purge)
+    (_num if i.it is Num else (_sym if i.it is Sym else _data))()
   return v
 
-def _addSym(v,i,flip,_):
-  i.has[v] = flip + i.has.get(v,0)
-
-def _addData(v,i,flip,purge)
-  if flip < 0:  
-    if purge: i.rows.remove(v)
-    [add(v[col.at], col, -1) for col in i.cols.all]  
-  else: 
-    i.rows += [[add(v[col.at], col) for col in i.cols.all]]
-
-def _addNum(v,i,flip,_):
-  i.lo  = min(v, i.lo)
-  i.hi  = max(v, i.hi)
-  if flip < 0 and i.n < 2: 
-    i.m2 = i.mu = i.n = 0
-  else:
-    d     = v - i.mu
-    i.mu += flip * (d / i.n)
-    i.m2 += flip * (d * (v -   i.mu))
-
 #------------------------------------------------------------------------------
-def dist(dims):
+def norm(i,v):
+  return v if (v=="?" or i.it is not Num) else (v - i.lo)/(i.hi - i.lo + 1/BIG)
+
+def dist(col,v,w):
+  if v=="?" and w=="?": return 1
+  if col.it is Sym    : return v != w 
+  v,w = norm(col,v), norm(col,w)
+  v = v if v != "?" else (0 if w > 0.5 else 1)
+  w = w if w != "?" else (0 if v > 0.5 else 1)
+  return abs(v - w)
+  
+def minkowski(dims):
   total, n = 0, 1 / BIG
   for x in dims:
     n += 1
     total += x**the.P
   return (total / n)**(1 / the.P)
 
-def xdist(i, row1: Row, row2: Row) -> float:
-  return dist(c.dist(row1[c.at], row2[c.at]) for c in i.cols.x)
+def xdist(data, row1, row2):  
+  return minkowski(dist(col,row1[col.at], row2[col.at]) for col in data.cols.x)
 
-def clusters(i, poles: Rows) -> Dict[Tuple[int, ...], 'Data']:
-  clusters: Dict[Tuple[int, ...], 'Data'] = {}
-  for row in i._rows:
-    k = tuple(i.project(row, a, b) for a, b in zip(poles, poles[1:]))
-    clusters[k] = clusters.get(k) or i.clone()
-    clusters[k].add(row)
-  return clusters
+def ydist(data, row):  
+  return minkowski((norm(col,row[col.at]) - col.heaven) for col in data.cols.y)
 
-def poles(i) -> Rows:
-  r0, *some = many(i._rows, k=the.some + 1)
-  out = [max(some, key=lambda r1: i.xdist(r1, r0))]
+def poles(data): # -> List[Row]
+  r0, *some = many(i.rows, k=the.some + 1)
+  out = [max(some, key=lambda r1: xdist(data.r1, r0))]
   for _ in range(the.dims):
-    out += [max(some, key=lambda r2: sum(i.xdist(r2, r1) for r1 in out))]
+    out += [max(some, key=lambda r2: sum(xdist(data,r1,r2) for r1 in out))]
   return out
 
-def project(i, row: Row, a: Row, b: Row) -> int:
-  c = i.xdist(a, b)
-  x = (i.xdist(row, a)**2 + c**2 - i.xdist(row, b)**2) / (2 * c)
-  return min(int(x / c * the.bins), the.bins - 1) # return 0..the.bins-1
+def lsh(data, poles): # -> Dict[Tuple, List[Row]]
+  buckets = {}
+  for row in data.rows:
+    k = tuple(i.project(row, a, b) for a, b in zip(poles, poles[1:]))
+    buckets[k] = buckets.get(k) or clone(data)
+    add(buckets[k], row)
+  return buckets
+
+def project(data, row, a, b): # -> 0,1,2 .. the.bins-1
+  D = lambda row1,row2: xdist(data,row1,row2)
+  c = D(a,b)
+  x = (D(row, a)**2 + c**2 - D(row, b)**2) / (2 * c)
+  return min(int(x / c * the.bins), the.bins - 1) 
 
 #------------------------------------------------------------------------------
-def at(col,row): return row.cells[col.at]
-
-def adds(lst,i): [add(v,i) for v in lst]; return i
-
 def csv(path):
   with open(path) as f:
     for line in f:
