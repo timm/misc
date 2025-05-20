@@ -1,7 +1,7 @@
 #!/usr/bin/env python3 -B
 # In this code "i" == "self". Also "_x" is a hidden var (to big, or to secret, to show).
 """
-abc.py : XAI for active learning + multi-objective optimization
+xaibc.py : XAI for active learning + multi-objective optimization
 A=a few random choices; B=build a model incrementally, C=check it on new data
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT License
 
@@ -175,7 +175,7 @@ def cuts(i, rows, Y, Klass) -> o:
           xpect, out = tmp, [("<=", i.at, b4), (">", i.at, b4)]
     lhs.add( rhs.add(y, inc=False))
     b4 = x
-  if out:
+  if out: 
     return o(div=xpect, decisions=out)
 
 #----------------------------------------------------------------------------
@@ -294,8 +294,10 @@ class Data(o):
     middle = [col.mid() for col in i.cols.all]
     return min(i._rows, key=lambda row: i.xdist(row, middle))
     
-  def tree(i, rows, Klass=Num, decision=None):
+  def tree(i, rows=None, Klass=Num, decision=None):
     "TREE: grow a tree from here."
+    print(1)
+    rows = rows or i._rows
     t = i.clone(rows)
     t.kids = []
     t.decision = decision
@@ -315,7 +317,28 @@ class Data(o):
     for kid in (sorted(i.kids, key=key) if key else i.kids):
       for j in kid.nodes(lvl+1, key=key):
         yield j
-                  
+
+  def leaf(i,row):
+    "TREE: return the leaf selected by a row."
+    for kid in i.kids or []:
+      if selects(row,*kid.decision): 
+        return kid.leaf(row)
+    return i
+
+  def show(i, key=lambda z:z.ys.mu):
+    stats = i.ys
+    win = lambda x: 100-int(100*(x-stats.lo)/(stats.mu - stats.lo))
+    print(f"{'d2h':>4} {'win':>4} {'n':>4}  ")
+    print(f"{'----':>4} {'----':>4} {'----':>4}  ")
+    for lvl, node in i.nodes(key=key):
+      leafp = len(node.kids)==0
+      post= ";" if leafp else ""
+      xplain=""
+      if lvl>0:
+        op,at,y = node.decision
+        xplain = f"{i.cols.all[at].txt} {op} {y}"
+      print(f"{node.ys.mu:4.2f} {win(node.ys.mu):4} {len(node._rows):4}    {(lvl-1) * '|  '}{xplain}" + post)
+            
 #----------------------------------------------------------------------------
 # ## Functions
 
@@ -501,6 +524,10 @@ def eg__counts(file: str = None) -> None:
     if num.n >= enough:
       print(o(pos=pos, n=num.n, mid=num.mid()))
 
+def eg__tree(file: str = None) -> None:
+  "Show cluster counts and stats."
+  d = Data(csv(file or the.file))
+  d.tree()
 #----------------------------------------------------------------------------
 # ## Start-up
 
