@@ -8,11 +8,14 @@
 #                                     /\____/
 #                                     \_/__/                        
 # -->
-# &nbsp; <img src="bingo.png" width=250 align=right>
+# &nbsp; <img src="bingo.png" width=200 align=left>
 # This code reads csv data from `-f file`, then divides those rows into 
-# `-B Bins`  along `-d dimes` random projections. After randomly scoring 
+# `-B Bins`  along `-d dimes` random projections. 
+#  
+#  After randomly scoring 
 # `-a a` bins, then `-b b` times, it selects two labeled examples, 
 # guesses their  y-values via extrapolation, then labels the best guess.
+#    
 # Afterwards, `-c c` items from the top bain are labeled for evaluation.
 # This code is successful if it finds great rows, after just labeling
 # just a few rows; e.g. `a+b+c<32` in a space of (say) 1,000+ rows.
