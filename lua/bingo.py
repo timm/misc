@@ -8,18 +8,19 @@
 #                                     /\____/
 #                                     \_/__/                        
 # -->
-# This code reads csv data from `the.file`, the divides those rows into 
-# `the.bins` bins along `the.dims` random projections. After randomly scoring 
-# `the.a` bins, then `the.b` times, it selects two labeled examples, 
+# &nbsp; <img src="bingo.png" width=200 align=left>
+# This code reads csv data from `-f file`, the divides those rows into 
+# `-B Bins`  along `-d dimes` random projections. After randomly scoring 
+# `-a a` bins, then `-b b` times, it selects two labeled examples, 
 # guesses y-values via extrapolation, then labels the best guess.
-# Afterwards, `the.c` items from the top bin are labeled for evaluation.
+# Afterwards, `-c c` items from the top bain are labeled for evaluation.
 # This code is successful if it finds great rows, after just labeling
-# just a few rows; e.g. a+b+c<32 in a space of (say) 1,000+ rows.
+# just a few rows; e.g. `a+b+c<32` in a space of (say) 1,000+ rows.
 #     
 # #### In this code:
 # - `_` marks private vars/methods;
 # - `i` means `self`;
-# - `d,a,n,s` is often dictionary, array, number, string;
+# - vars called `d,a,n,s` are often dictionary, array, number, string;
 # - `the` is config, parsed from top docstring (can be updated via CLI);
 # - `eg__xxx` are CLI demos (run with `--xxx`);
 # - structs use `struct.it` to denote type;
@@ -149,7 +150,8 @@ def add(i,v, flip=1,purge=False): # -> v
 ### Reports -------------------------------------------------------------------
 def mids(data): return [mid(col) for col in data.cols.all]
 
-def mid(i): return i.mu if i.it is Num else max(col.has, key=cols.has.get)
+def mid(col): 
+  return col.mu if col.it is Num else max(col.has, key=cols.has.get)
 
 def div(col):
   if col.it is Num: return (max(i.m2,0)/(col.n - 1))**0.5
@@ -246,7 +248,7 @@ ops = {'<=' : lambda x,y: x <= y,
 
 def selects(row, op, at, y): x=row[op]; return  x=="?" or ops[op](x,y) 
 
-def branches(col,rows,Y,Klass): 
+def cuts(col,rows,Y,Klass): 
   def _sym(): 
     n,d = 0,{}
     for row in rows:

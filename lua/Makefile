@@ -10,6 +10,7 @@ publish:
 	git push
 
 ~/tmp/%.html : %.py
+	cp bingo.png ~/tmp
 	gawk '/^.[#]+/ {gsub("-", ""); print $$0"\n\n\n"; next} 1' $^  > ~/tmp/$^
 	cd ~/tmp; docco -o . $^
 	echo "p { text-align: right;  }" >> ~/tmp/docco.css
