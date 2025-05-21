@@ -108,8 +108,9 @@ def Cols(names): # -> Cols
 # Keep some `rows`, summarize them in the `cols`.
 def Data(init=[]): # -> Data
   init = iter(src)
-  return adds(o(it=Data, rows=[],                # contains the rows
-                         cols=Cols(next(init))), # summaries of the rows 
+  names = next(init)) # column names 
+  return adds(o(it=Data, rows = [],           # contains the rows
+                         cols = Cols(names)), # summaries of the rows 
               init)
               
 # Mimic the structure of an existing `Data`. Optionally, add some rows.
