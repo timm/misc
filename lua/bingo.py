@@ -1,3 +1,13 @@
+# <!--   __
+#       /\ \        __
+#       \ \ \____  /\_\     ___       __       ___
+#        \ \ '__`\ \/\ \  /' _ `\   /'_ `\    / __`\
+#         \ \ \L\ \ \ \ \ /\ \/\ \ /\ \L\ \  /\ \L\ \
+#          \ \_,__/  \ \_\\ \_\ \_\\ \____ \ \ \____/
+#           \/___/    \/_/ \/_/\/_/ \/___L\ \ \/___/
+#                                     /\____/
+#                                     \_/__/                        
+# -->
 # This code reads csv data from `the.file`, the divides those rows into 
 # `the.bins` bins along `the.dims` random projections. After randomly scoring 
 # `the.a` bins, then `the.b` times, it selects two labeled examples, 
@@ -9,7 +19,7 @@
 # #### In this code:
 # - `_` marks private vars/methods;
 # - `i` means `self`;
-# - `d,a,n,s` is often dictionay, array, number, string;
+# - `d,a,n,s` is often dictionary, array, number, string;
 # - `the` is config, parsed from top docstring (can be updated via CLI);
 # - `eg__xxx` are CLI demos (run with `--xxx`);
 # - structs use `struct.it` to denote type;
@@ -25,19 +35,21 @@
 # the `y` goals  to be maximized/minimize. Other columns are the 
 # `x` independent variables.
 """
-binlure.py: stochastic landscape analysis for multi-objective reasoning
+bingo.py: stochastic landscape analysis for multi-objective reasoning
 (c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
 
 Options, with (defaults):
   
-  -B Bins   number of bins (10)
-  -d dims   number of dimensions (4)
-  -p p      minkowski co-effecient (2)
-  -a a      rows labelled at random during cold start (4)
-  -b b      rows labelled while reflecting on labels seen so far (30)
-  -c c      rows labels while testing the supposed best bin (5)
-  -f file   csv file for data (../../moot/optimize/misc/auto93.csv)
-  -z zero   ignore bins with zero items (2)
+   -B Bins   number of bins (10)
+   -d dims   number of dimensions (4)
+   -p p      minkowski coefficient  (2)
+   -a a      rows labelled at random during cold start (4)
+   -b b      rows labelled while reflecting on labels seen so far (30)
+   -c c      rows labels while testing the supposed best bin (5)
+   -f file   csv file for data (../../moot/optimize/misc/auto93.csv)
+   -k k      Bayes hack (for rare classes)  (1)
+   -m m      Bayes hack (for rare frequencies) (2)
+   -z zero   ignore bins with zero items; 0=auto choose (0)
 
 Command-line actions:
   -h        show help
@@ -62,7 +74,7 @@ def Num(init=[], txt=" ",at=0): # -> Num
                 at=at,    # column position
                 txt=txt,  # column name 
                 mu=0,     # mean of what what seen
-                _m2=0,    # second moment (used to calcuate sd)
+                _m2=0,    # second moment (used to find sd)
                 lo =-BIG, # lowest seen
                 hi =BIG,  # largest
                 heaven=(0 if txt[-1]=="-" else 1)), # 0,1 = minimize,maximize
@@ -87,7 +99,7 @@ def Cols(names): # -> Cols
                    x=x,     # just the x columns
                    y=y)     # just the y columns 
 
-# Keep some `rows`, sumamrize them in the `cols`.
+# Keep some `rows`, summarize them in the `cols`.
 def Data(init=[]): # -> Data
   init = iter(src)
   return adds(o(it=Data, rows=[],                # contains the rows
@@ -98,21 +110,21 @@ def Data(init=[]): # -> Data
 def clone(data, rows=[]): # -> Data
   return adds(Data([[col.txt for col in data.cols.all]]), rows)
              
-### Update --------------------------------------------------------------------
+### Update --------------------------------------------------------------------
 # Update `i` with  multiple things. 
 def adds(i,a): # -> i
   [add(i,v) for v in a]; return i
 
-# `sub`tracting is just `add`ing -1.
+# `sub` is just `add`ing -1.
 def sub(i,v,purge=False): # -> v
   return add(i,v, flip= -1, purge=purge)
 
-# If `v` is unknown, then ignore. Else, udpate.
+# If `v` is unknown, then ignore. Else, update.
 def add(i,v, flip=1,purge=False): # -> v
   def _sym(): # update symbol counts
     i.has[v] = flip + i.has.get(v,0)
 
-  def _data(): # keep the new row, update the cols sumamries.
+  def _data(): # keep the new row, update the cols summaries.
     if flip < 0:  
       if purge: i.rows.remove(v) 
       [sub(v[col.at], col) for col in i.cols.all]  
@@ -134,6 +146,31 @@ def add(i,v, flip=1,purge=False): # -> v
     (_num if i.it is Num else (_sym if i.it is Sym else _data))(v)
   return v
 
+### Reports -------------------------------------------------------------------
+def mids(data): return [mid(col) for col in data.cols.all]
+
+def mid(i): return i.mu if i.it is Num else max(col.has, key=cols.has.get)
+
+def div(col):
+  if col.it is Num: return (max(i.m2,0)/(col.n - 1))**0.5
+  return -sum(v/col.n * math.log(v/col.n, 2) for v in col.has.values() if v>0)
+
+### Bayes ---------------------------------------------------------------------
+def like(data, row, nall=2, nh=100):
+  n = len(data.rows)
+  prior = (n + the.k) / (nall + the.k*nh)
+  tmp = [pdf(c,row[c.at], prior, nall, nh) 
+         for c in i.cols.x if row[c.at] != "?"]
+  return sum(math.log(n) for n in tmp + [prior] if n>0)    
+
+def pdf(col,v, prior=0, nall=2, nh=100):
+  if col. it is Sym:
+    return (col.has.get(x,0) + the.m*prior) / (n + the.m + 1/BIG)
+  sd = col.div() or 1 / BIG
+  var = 2 * sd * sd
+  z = (x - col.mu) ** 2 / var
+  return min(1, max(0, math.exp(-z) / (math.tau * var) ** 0.5))
+  
 ### Distance ------------------------------------------------------------------
 def norm(i,v):
   return v if (v=="?" or i.it is not Num) else (v - i.lo)/(i.hi - i.lo + 1/BIG)
@@ -162,7 +199,7 @@ def ydist(data, row):
 def xdist(data, row1, row2):  
   return minkowski(dist(c,row1[c.at], row2[c.at]) for c in data.cols.x)
 
-### Clustering ----------------------------------------------------------------
+### Clustering ----------------------------------------------------------------
 def project(data, row, a, b): # -> 0,1,2 .. the.bins-1
   D = lambda row1,row2: xdist(data,row1,row2)
   c = D(a,b)
@@ -202,6 +239,83 @@ def neighbors(c, hi):
         yield from go(i+1, p + [c[i] + d])
   yield from go(0, [])
 
+### Tree -----------------------------------------------------------------------
+ops = {'<=' : lambda x,y: x <= y,
+       "==" : lambda x,y: x == y,
+       '>'  : lambda x,y: x >  y}
+
+def selects(row, op, at, y): x=row[op]; return  x=="?" or ops[op](x,y) 
+
+def branches(col,rows,Y,Klass): 
+  def _sym(): 
+    n,d = 0,{}
+    for row in rows:
+      x = row[i.at] 
+      if x != "?":
+        n = n + 1
+        d[x] = d.get(x) or Klass()
+        add(d[x], Y(row))
+    return o(div = sum(c.n/n * div(c) for c in d.values()),
+             decisions = [("==",c.at,k) for k,v in d.items()])
+
+  def _num():
+    out, b4, lhs, rhs = None, None, Klass(), Klass()
+    xys = [(r[i.at], add(rhs, Y(r))) for r in rows if r[i.at] != "?"]
+    xpect = div(rhs)
+    for x, y in sorted(xys, key=lambda xy: x[0]):
+      if x != b4:
+        if the.leaf <= lhs.n <= len(xys) - the.leaf:
+          tmp = (lhs.n * div(lhs) + rhs.n * div(rhs)) / len(xys)
+          if tmp < xpect:
+            xpect, out = tmp, [("<=", i.at, b4), (">", i.at, b4)]
+      add(lhs, sub(rhs,y))
+      b4 = x
+    if out: 
+      return o(div=xpect, decisions=out)
+
+  return (_sym if col.it is Sym else _num)()
+
+def tree(data1, rows=None, Klass=Num, decision=None):
+  Y = lambda row: ydist(data1,row)
+  rows = rows or i.rows
+  data2 = clone(data1, rows)
+  data1.kids = []
+  data2.decision = decision
+  data2.ys = Num(Y(row) for row in rows)
+  if len(rows) >= the.leaf:
+    cuts = [tmp for c in t.cols.x if (tmp := cuts(c,rows,Y,Klass=Klass))]    
+    if cuts:
+      for decision in sorted(cuts, key=lambda cut: cut.div)[0].decisions:
+        rows1 = [row for row in rows if selects(row, *decision)]
+        if the.leaf <= len(rows1) < len(rows):
+          data2.kids += [tree(data1, rows1, Klass=Klass, decision=decision)]  
+  return data2
+
+def nodes(data1, lvl=0, key=None): 
+  yield lvl, data1
+  for data2 in (sorted(data1.kids, key=key) if key else data1.kids):
+    yield from nodes(data2, lvl + 1, key=key)
+
+def leaf(data1,row):
+  for data2 in data1.kids or []:
+    if selects(row, *data2.decision): 
+      return leaf(data2, row)
+  return data1
+
+def show(data, key=lambda z:z.ys.mu):
+  stats = i.ys
+  win = lambda x: 100-int(100*(x-stats.lo)/(stats.mu - stats.lo))
+  print(f"{'d2h':>4} {'win':>4} {'n':>4}  ")
+  print(f"{'----':>4} {'----':>4} {'----':>4}  ")
+  for lvl, node in nodes(data, key=key):
+    leafp = len(node.kids)==0
+    post = ";" if leafp else ""
+    xplain = ""
+    if lvl > 0:
+      op,at,y = node.decision
+      xplain = f"{data.cols.all[at].txt} {op} {y}"
+    print(f"{node.ys.mu:4.2f} {win(node.ys.mu):4} {len(node._rows):4}    {(lvl-1) * '|  '}{xplain}" + post)
+          
 ### Utils ----------------------------------------------------------------------
 def csv(path):
   with open(path) as f:
@@ -223,7 +337,6 @@ def cat(v):
   if it is dict:  return cat([f":{k} {cat(w)}" for k, w in v.items()])
   return str(v)
 
-### Start-up ------------------------------------------------------------------
 def cli(d)
   for k, v in d.items():
     for c, arg in enumerate(sys.argv):
@@ -232,6 +345,7 @@ def cli(d)
                       "True" if str(v) == "False" else (
                        sys.argv[c + 1] if c < len(sys.argv) - 1 else str(v))))
 
+### Start-up ------------------------------------------------------------------
 the= o(**{m[1]: coerce(m[2])
           for m in re.finditer(r"-\w+\s+(\w+)[^\(]*\(\s*([^)]+)\s*\)", __doc__)}) 
 

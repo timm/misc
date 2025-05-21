@@ -10,7 +10,7 @@ publish:
 	git push
 
 ~/tmp/%.html : %.py
-	gawk '/^##/ {gsub("-", ""); print $$0"\n\n\n"; next} 1' $^  > ~/tmp/$^
+	gawk '/^.[#]+/ {gsub("-", ""); print $$0"\n\n\n"; next} 1' $^  > ~/tmp/$^
 	cd ~/tmp; docco -o . $^
 	echo "p { text-align: right;  }" >> ~/tmp/docco.css
 	echo "h2 { border-top: 1px solid #CCC;  }" >> ~/tmp/docco.css
@@ -22,7 +22,7 @@ publish:
 	echo "pdf-ing $@ ... "
 	a2ps                 \
 		-Br                 \
-		--chars-per-line 100  \
+		--chars-per-page 100 \
 		--file-align=fill      \
 		--line-numbers=1        \
 		--borders=no             \
