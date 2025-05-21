@@ -9,13 +9,13 @@ publish:
 	git commit -am new
 	git push
 
-~/tmp/%.html : %.py
-	cp bingo.png ~/tmp
-	gawk '/^.[#]+/ {gsub("-", ""); print $$0"\n\n\n"; next} 1' $^  > ~/tmp/$^
-	cd ~/tmp; docco -o . $^
-	echo "p { text-align: right;  }" >> ~/tmp/docco.css
-	echo "h2 { border-top: 1px solid #CCC;  }" >> ~/tmp/docco.css
-	open $@
+# ~/tmp/%.html : %.py
+# 	cp bingo.png ~/tmp
+# 	gawk '/^.[#]+/ {gsub("-", ""); print $$0"\n\n\n"; next} 1' $^  > ~/tmp/$^
+# 	cd ~/tmp; docco -o . $^
+# 	echo "p { text-align: right;  }" >> ~/tmp/docco.css
+# 	echo "h2 { border-top: 1px solid #CCC;  }" >> ~/tmp/docco.css
+# 	open $@
 
 # changes to 3 cols and 101 chars/line
 ~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
@@ -53,3 +53,15 @@ publish:
 		-M letter                 \
 		-o - $< | ps2pdf - $@
 	open $@
+
+
+~/tmp/%.md : %.py
+	gawk -f py2html.awk $^ > $@
+
+~/tmp/%.html : ~/tmp/%.md
+	cp ezr.css ~/tmp
+	pandoc -s  -f markdown --number-sections --toc --toc-depth=5 \
+         --mathjax \
+         --highlight-style monochrome  --css ezr.css \
+         --metadata title="$<" \
+         -o $@  $<
