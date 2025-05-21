@@ -8,11 +8,11 @@
 #                                     /\____/
 #                                     \_/__/                        
 # -->
-# &nbsp; <img src="bingo.png" width=200 align=left>
-# This code reads csv data from `-f file`, the divides those rows into 
+# &nbsp; <img src="bingo.png" width=250 align=right>
+# This code reads csv data from `-f file`, then divides those rows into 
 # `-B Bins`  along `-d dimes` random projections. After randomly scoring 
 # `-a a` bins, then `-b b` times, it selects two labeled examples, 
-# guesses y-values via extrapolation, then labels the best guess.
+# guesses their  y-values via extrapolation, then labels the best guess.
 # Afterwards, `-c c` items from the top bain are labeled for evaluation.
 # This code is successful if it finds great rows, after just labeling
 # just a few rows; e.g. `a+b+c<32` in a space of (say) 1,000+ rows.
@@ -34,7 +34,9 @@
 # ```
 # In row1, upper case names denote numeric columns. Names ending with `+`, `-` are
 # the `y` goals  to be maximized/minimize. Other columns are the 
-# `x` independent variables.
+# `x` independent variables. The input data has all the `y` values known, but that
+# is just for testing purposes. The core `bingo` algorithm only ever glances at
+# a handful of those labels.
 """
 bingo.py: stochastic landscape analysis for multi-objective reasoning
 (c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
@@ -61,12 +63,12 @@ import random
 any=random.choice
 many=random.choices
 
-### Create -------------------------------------------------------------------
+### Create ---------------------------------------------------------------------
 # Struct (with named fields + pretty print).
 class o:
   __init__= lambda i, **d: i.__dict__.update(**d)
   __repr__= lambda i: \
-              (f.__name__ if (f:=i.__dict__.get("it")) else "").say(i.__dict__) 
+               (f.__name__ if (f:=i.__dict__.get("it")) else "")+say(i.__dict__)
 
 # Summarize a stream of numbers
 def Num(init=[], txt=" ",at=0): # -> Num
@@ -258,7 +260,7 @@ def cuts(col,rows,Y,Klass):
         d[x] = d.get(x) or Klass()
         add(d[x], Y(row))
     return o(div = sum(c.n/n * div(c) for c in d.values()),
-             decisions = [("==",c.at,k) for k,v in d.items()])
+             hows = [("==",c.at,k) for k,v in d.items()])
 
   def _num():
     out, b4, lhs, rhs = None, None, Klass(), Klass()
@@ -273,24 +275,24 @@ def cuts(col,rows,Y,Klass):
       add(lhs, sub(rhs,y))
       b4 = x
     if out: 
-      return o(div=xpect, decisions=out)
+      return o(div=xpect, hows=out)
 
   return (_sym if col.it is Sym else _num)()
 
-def tree(data1, rows=None, Klass=Num, decision=None):
-  Y = lambda row: ydist(data1,row)
-  rows = rows or i.rows
-  data2 = clone(data1, rows)
-  data1.kids = []
-  data2.decision = decision
-  data2.ys = Num(Y(row) for row in rows)
+def tree(data1, rows=None, Klass=Num, how=None):
+  Y          = lambda row: ydist(data1,row)
+  rows       = rows or i.rows
+  data2.kids = []
+  data2.how  = how
+  data2      = clone(data1, rows)
+  data2.ys   = Num(Y(row) for row in rows)
   if len(rows) >= the.leaf:
     cuts = [tmp for c in t.cols.x if (tmp := cuts(c,rows,Y,Klass=Klass))]    
     if cuts:
-      for decision in sorted(cuts, key=lambda cut: cut.div)[0].decisions:
-        rows1 = [row for row in rows if selects(row, *decision)]
+      for how in sorted(cuts, key=lambda cut: cut.div)[0].hows:
+        rows1 = [row for row in rows if selects(row, *how)]
         if the.leaf <= len(rows1) < len(rows):
-          data2.kids += [tree(data1, rows1, Klass=Klass, decision=decision)]  
+          data2.kids += [tree(data1, rows1, Klass=Klass, how=how)]  
   return data2
 
 def nodes(data1, lvl=0, key=None): 
