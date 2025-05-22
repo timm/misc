@@ -21,13 +21,17 @@
 # just a few rows; e.g. `a+b+c<32` in a space of (say) 1,000+ rows.
 #     
 # #### In this code:
+# - `the` is config, parsed from top docstring (can be updated via CLI);
 # - `_` marks private vars/methods;
 # - `i` means `self`;
+# - `col` means `num` or `sym`, often shortenned to `c`.
+# - `row` = `List[int|num|str]`
 # - vars called `d,a,n,s` are often dictionary, array, number, string;
-# - `the` is config, parsed from top docstring (can be updated via CLI);
-# - `eg__xxx` are CLI demos (run with `--xxx`);
 # - structs use `struct.it` to denote type;
+# - struct constructors are functions starting with uppercase; e.g. `Sym.,Num`
+# - stuct variables are named after their constructor. e.g. `sym,num1`
 # - no classes (so polymorphic methods can stay together in the source).
+# - `eg__xxx` are CLI demos (run with `--xxx`);
 # - The input data is csv,  where row one names the column;  e.g.
 # ```
 # name   , ShoeSize, Age+
@@ -73,9 +77,13 @@ class o:
   __repr__= lambda i: \
                (f.__name__ if (f:=i.__dict__.get("it")) else "")+say(i.__dict__)
 
+# Update `i` with  multiple things. 
+def adds(things, it): [add(it,thing) for thing in things]; return it
+
 # Summarize a stream of numbers
 def Num(init=[], txt=" ",at=0): # -> Num
-  return adds(o(it=Num, 
+  return adds(init, 
+              o(it=Num, 
                 n=0,      # count of items
                 at=at,    # column position
                 txt=txt,  # column name 
@@ -83,16 +91,14 @@ def Num(init=[], txt=" ",at=0): # -> Num
                 _m2=0,    # second moment (used to find sd)
                 lo =-BIG, # lowest seen
                 hi =BIG,  # largest
-                heaven=(0 if txt[-1]=="-" else 1)), # 0,1 = minimize,maximize
-              init)
+                heaven=(0 if txt[-1]=="-" else 1))) # 0,1 = minimize,maximize
 
 # Summarize a stream of symbols
 def Sym(init=[], txt=" ",at=0):  # -> Sym
-  return adds(o(it=Sym,n=0,     # count of items
-                       at=at,   # column position
-                       txt=txt, # column name
-                       has={}), # hold symbol counts
-              init)
+  return adds(init, o(it=Sym,n=0,     # count of items
+                             at=at,   # column position
+                             txt=txt, # column name
+                            has={})) # hold symbol counts
 
 # Turn column names into columns (if upper case, then `Num`. Else `Sym`).
 def Cols(names): # -> Cols
@@ -109,49 +115,44 @@ def Cols(names): # -> Cols
 def Data(init=[]): # -> Data
   init = iter(src)
   names = next(init) # column names 
-  return adds(o(it=Data, rows = [],           # contains the rows
-                         cols = Cols(names)), # summaries of the rows 
-              init)
+  return adds(init, o(it=Data, rows = [],           # contains the rows
+                               cols = Cols(names))) # summaries of the rows 
               
 # Mimic the structure of an existing `Data`. Optionally, add some rows.
 def clone(data, rows=[]): # -> Data
   return adds(Data([[col.txt for col in data.cols.all]]), rows)
              
 ### Update --------------------------------------------------------------------
-# Update `i` with  multiple things. 
-def adds(i,a): # -> i
-  [add(i,v) for v in a]; return i
-
 # `sub` is just `add`ing -1.
 def sub(i,v,purge=False): # -> v
-  return add(i,v, flip= -1, purge=purge)
+  return add(iv, flip= -1, purge=purge)
 
 # If `v` is unknown, then ignore. Else, update.
 def add(i,v, flip=1,purge=False): # -> v
-  def _sym(): # update symbol counts
-    i.has[v] = flip + i.has.get(v,0)
+  def _sym(sym,s): # update symbol counts
+    sym.has[s] = flip + sym.has.get(s,0)
 
-  def _data(): # keep the new row, update the cols summaries.
+  def _data(data,row): # keep the new row, update the cols summaries.
     if flip < 0:  
-      if purge: i.rows.remove(v) 
-      [sub(v[col.at], col) for col in i.cols.all]  
+      if purge: data.rows.remove(v) 
+      [sub(col, row[col.at], col) for col in data.cols.all]  
     else: 
-      i.rows += [[add(v[col.at], col) for col in i.cols.all]]
+      data.rows += [[add(col, row[col.at]) for col in data.cols.all]]
 
-  def _num(): # update lo,hi, mean and _m2 (used in sd calculation) 
-    i.lo = min(v, i.lo)
-    i.hi = max(v, i.hi)
-    if flip < 0 and i.n < 2: 
-      i._m2 = i.mu = i.n = 0
+  def _num(num,n): # update lo,hi, mean and _m2 (used in sd calculation) 
+    num.lo = min(n, num.lo)
+    num.hi = max(n, num.hi)
+    if flip < 0 and num.n < 2: 
+      num._m2 = num.mu = num.n = 0
     else:
-      d      = v - i.mu
-      i.mu  += flip * (d / i.n)
-      i._m2 += flip * (d * (v -   i.mu))
+      d      = n - num.mu
+      num.mu  += flip * (d / num.n)
+      num._m2 += flip * (d * (v -   num.mu))
     
   if v != "?": 
-    i.n += flip
-    (_num if i.it is Num else (_sym if i.it is Sym else _data))(v)
+    it.n += flip
   return v
+    (_num if i.it is Num else (_sym if i.it is Sym else _data))(i,v)
 
 ### Reports -------------------------------------------------------------------
 def mids(data): return [mid(col) for col in data.cols.all]
@@ -160,8 +161,13 @@ def mid(col):
   return col.mu if col.it is Num else max(col.has, key=cols.has.get)
 
 def div(col):
-  if col.it is Num: return (max(i.m2,0)/(col.n - 1))**0.5
-  return -sum(v/col.n * math.log(v/col.n, 2) for v in col.has.values() if v>0)
+  def _num(num):
+    return (max(num.m2,0)/(num.n - 1))**0.5
+
+  def _sym(sym)
+    return -sum(v/sym.n * math.log(v/sym.n, 2) for v in sym.has.values() if v>0)
+
+  return (_num if i.it is Num else _sym)(col)
 
 ### Bayes ---------------------------------------------------------------------
 def like(data, row, nall=2, nh=100):
@@ -172,28 +178,33 @@ def like(data, row, nall=2, nh=100):
   return sum(math.log(n) for n in tmp + [prior] if n>0)    
 
 def pdf(col,v, prior=0, nall=2, nh=100):
-  if col. it is Sym:
-    return (col.has.get(x,0) + the.m*prior) / (n + the.m + 1/BIG)
-  sd = col.div() or 1 / BIG
-  var = 2 * sd * sd
-  z = (x - col.mu) ** 2 / var
-  return min(1, max(0, math.exp(-z) / (math.tau * var) ** 0.5))
+  def _sym(sym,s):
+    return (sym.has.get(s,0) + the.m*prior) / (n + the.m + 1/BIG)
+
+  def _num(num,n):
+    sd = num.div() or 1 / BIG
+    var = 2 * sd * sd
+    z = (x - num.mu) ** 2 / var
+    return min(1, max(0, math.exp(-z) / (2 * math.pi * var) ** 0.5))
   
+  return (_num if i.it is Num else _sym)(col,v)
+
 ### Distance ------------------------------------------------------------------
 def norm(i,v):
   return v if (v=="?" or i.it is not Num) else (v - i.lo)/(i.hi - i.lo + 1/BIG)
 
 def dist(col,v,w):
-  if v=="?" and w=="?": 
-    return 1
-  elif col.it is Sym: 
-    return v != w 
-  else:
-    v,w = norm(col,v), norm(col,w)
-    v = v if v != "?" else (0 if w > 0.5 else 1)
-    w = w if w != "?" else (0 if v > 0.5 else 1)
-    return abs(v - w)
+  def _sym(sym,s1,s2):
+    return s1 != s2 
+
+  def _num(num,n1,n2):
+    n1,n2 = norm(num,n1), norm(num,n2)
+    n1 = n1 if n1 != "?" else (0 if n2 > 0.5 else 1)
+    n2 = n2 if n2 != "?" else (0 if n1 > 0.5 else 1)
+    return abs(n1 - n2)
  
+  return 1 if v=="?" and w=="?" else (_num if i.it is Num else _sym)(col,v,w)
+
 def minkowski(a):
   total, n = 0, 1 / BIG
   for x in a:
