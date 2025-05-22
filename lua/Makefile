@@ -44,12 +44,12 @@ publish:
 	a2ps               \
 		-Br               \
 		--quiet            \
-		--landscape         \
-		--chars-per-line=90 \
+		--portrait          \
+		--chars-per-line=80  \
 		--line-numbers=1      \
 		--borders=no           \
 		--pro=color             \
-		--columns=3              \
+		--columns=2              \
 		-M letter                 \
 		-o - $< | ps2pdf - $@
 	open $@

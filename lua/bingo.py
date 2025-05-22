@@ -61,12 +61,12 @@ Command-line actions:
   -h        show help
  """
 from pprint import pformat as say
-import random
+import random,re,sys
 
 any=random.choice
 many=random.choices
 
-### Create ---------------------------------------------------------------------
+### Create ---------------------------------------------------------------------
 # Struct (with named fields + pretty print).
 class o:
   __init__= lambda i, **d: i.__dict__.update(**d)
@@ -108,7 +108,7 @@ def Cols(names): # -> Cols
 # Keep some `rows`, summarize them in the `cols`.
 def Data(init=[]): # -> Data
   init = iter(src)
-  names = next(init)) # column names 
+  names = next(init) # column names 
   return adds(o(it=Data, rows = [],           # contains the rows
                          cols = Cols(names)), # summaries of the rows 
               init)
@@ -153,7 +153,7 @@ def add(i,v, flip=1,purge=False): # -> v
     (_num if i.it is Num else (_sym if i.it is Sym else _data))(v)
   return v
 
-### Reports -------------------------------------------------------------------
+### Reports -------------------------------------------------------------------
 def mids(data): return [mid(col) for col in data.cols.all]
 
 def mid(col): 
@@ -179,7 +179,7 @@ def pdf(col,v, prior=0, nall=2, nh=100):
   z = (x - col.mu) ** 2 / var
   return min(1, max(0, math.exp(-z) / (math.tau * var) ** 0.5))
   
-### Distance ------------------------------------------------------------------
+### Distance ------------------------------------------------------------------
 def norm(i,v):
   return v if (v=="?" or i.it is not Num) else (v - i.lo)/(i.hi - i.lo + 1/BIG)
 
@@ -324,7 +324,7 @@ def show(data, key=lambda z:z.ys.mu):
       xplain = f"{data.cols.all[at].txt} {op} {y}"
     print(f"{node.ys.mu:4.2f} {win(node.ys.mu):4} {len(node._rows):4}    {(lvl-1) * '|  '}{xplain}" + post)
           
-### Utils ----------------------------------------------------------------------
+### Utils ----------------------------------------------------------------------
 def csv(path):
   with open(path) as f:
     for line in f:
@@ -345,7 +345,7 @@ def cat(v):
   if it is dict:  return cat([f":{k} {cat(w)}" for k, w in v.items()])
   return str(v)
 
-def cli(d)
+def cli(d):
   for k, v in d.items():
     for c, arg in enumerate(sys.argv):
       if arg == "-" + k[0]:
