@@ -43,6 +43,7 @@ function o(x,      t,LIST,DICT)
   return "{" .. table.concat(t, " ") .. "}" end
 
 --## Create ---------------------------------------------------------------------------
+---- add sym and num here. handle "?" un sym num, not in data. all x y
 local Data = {}
 
 function Data:new() 
