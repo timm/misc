@@ -12,6 +12,7 @@ local the={
 local o
 local big  = 1E32
 local abs  = math.abs
+local log  = math.log
 local max  = math.max
 local min  = math.min
 local fmt  = string.format
@@ -32,7 +33,6 @@ local function atoms(s,    t)
   t={}; for s1 in s:gmatch("([^,]+)") do t[1+#t]=atom(s1) end; return t end
 
 --### Thing to Strings
-
 function o(x,      t,LIST,DICT)
   t = {}
   LIST = function() for _,v in pairs(x) do t[1+#t]=o(v) end end
@@ -42,6 +42,11 @@ function o(x,      t,LIST,DICT)
   if #x>0 then LIST() else DICT(); table.sort(t) end
   return "{" .. table.concat(t, " ") .. "}" end
 
+function table.equals(t1, t2)
+  if #t1 ~= #t2 then return false end
+  for i = 1, #t1 do
+    if t1[i] ~= t2[i] then return false end end
+  return true end
 --## Create ---------------------------------------------------------------------------
 local Data = {}
 
@@ -125,12 +130,6 @@ function neighbors(buckets,d,max,     out,_go)
   return out
 end
 
--- Helper function to compare two tables
-function table.equals(t1, t2)
-  if #t1 ~= #t2 then return false end
-  for i = 1, #t1 do
-    if t1[i] ~= t2[i] then return false end end
-  return true end
 --
 --## Examples -----------------------------------------------------------------------------
 eg={}
@@ -140,7 +139,9 @@ eg["-h"] = function(_) oo(the) end
 eg["-s"] = function(s) math.randomseed(s); the.seed=s end
 
 eg["--neigh"] = function(_)
-   for _,x in neighbors({2,2,2},4) do oo(x) end end
+   oo(neighbors({3,3,3},3,4))
+   oo(neighbors({3,3,3},3,3))
+  end
 
 eg["--data"] = function(_,    d) 
   d = Data:new():read(the.file)
