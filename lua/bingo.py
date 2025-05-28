@@ -100,16 +100,6 @@ def Sym(init=[], txt=" ",at=0):  # -> Sym
                              txt=txt, # column name
                             has={})) # hold symbol counts
 
-# Turn column names into columns (if upper case, then `Num`. Else `Sym`).
-def Cols(names): # -> Cols
-  all,x,y = [],[],[]  
-  for c,s in enumerate(names):
-    all += [(Num if s[0].isupper() else Sym)(txt=s,at=c)]
-    if s[-1] != "X": # what to ignore 
-      (y if s[-1] in "+-" else x).append(all[-1])
-  return o(it=Cols,all=all, # all the columns
-                   x=x,     # just the x columns
-                   y=y)     # just the y columns 
 
 # Keep some `rows`, summarize them in the `cols`.
 def Data(init=[]): # -> Data
@@ -121,7 +111,18 @@ def Data(init=[]): # -> Data
 # Mimic the structure of an existing `Data`. Optionally, add some rows.
 def clone(data, rows=[]): # -> Data
   return adds(Data([[col.txt for col in data.cols.all]]), rows)
-             
+
+# Turn column names into columns (if upper case, then `Num`. Else `Sym`).
+def Cols(names): # -> Cols
+  all,x,y = [],[],[]  
+  for c,s in enumerate(names):
+    all += [(Num if s[0].isupper() else Sym)(txt=s,at=c)]
+    if s[-1] != "X": # what to ignore 
+      (y if s[-1] in "+-" else x).append(all[-1])
+  return o(it=Cols,all=all, # all the columns
+                   x=x,     # just the x columns
+                   y=y)     # just the y columns 
+            
 ### Update --------------------------------------------------------------------
 # `sub` is just `add`ing -1.
 def sub(i,v,purge=False): # -> v

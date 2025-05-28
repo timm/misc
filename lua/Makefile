@@ -23,7 +23,7 @@ publish:
 	echo "pdf-ing $@ ... "
 	a2ps                 \
 		-Br                 \
-		--chars-per-page 100 \
+		--chars-per-line 100 \
 		--file-align=fill      \
 		--line-numbers=1        \
 		--borders=no             \
@@ -34,8 +34,7 @@ publish:
 		-M letter                     \
 		--footer=""                    \
 		--right-footer=""               \
-	  -o	 $@.ps $<
-	ps2pdf $@.ps $@; rm $@.ps    
+	  -o	 - $< | ps2pdf - $@
 	open $@
 
 ~/tmp/%.pdf: %.py  ## .py ==> .pdf
@@ -57,6 +56,13 @@ publish:
 
 ~/tmp/%.md : %.py
 	gawk -f py2html.awk $^ > $@
+
+~/tmp/%.html : %.lua
+	sed 's/----[-]*/\n--   \n--\n/' $< > ~/tmp/$<
+	cd ~/tmp; 	docco -o . $<
+	echo 'p { text-align: right;}' >> ~/tmp/docco.css
+	echo 'h2 { border-top: 1px solid #CCC; }' >> ~/tmp/docco.css
+	echo 'h3 { text-transform: capitalize; }' >> ~/tmp/docco.css
 
 ~/tmp/%.html : ~/tmp/%.md
 	cp ezr.css ~/tmp
