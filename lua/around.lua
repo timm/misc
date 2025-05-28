@@ -1,36 +1,32 @@
--- Function to get the neighbors of a point in d-dimensional space
 function neighbors(buckets, d, max)
-  local neighbors_list = {}
+  local out = {}  -- Initialize output list
   
-  -- Generate all possible neighbors for each dimension
-  -- This function computes the 3^d neighbors by moving in each dimension by -1, 0, or 1
-  local function get_neighbors(coords, idx)
+  -- Recursive helper function to generate neighbors
+  local function _go(pos, idx)
+    -- If we've processed all dimensions
     if idx > d then
-      -- We've generated a full coordinate, add it to the list (excluding the original point)
-      if not table.equals(coords, buckets) then
-        table.insert(neighbors_list, coords)
+      if not table.equals(pos, buckets) then
+        table.insert(out, pos)  -- Add to the output if it's not the original point
       end
       return
     end
-    
-    -- For each dimension, try -1, 0, and 1 (relative to the current coordinate)
-    for delta = -1, 1 do -- Move by -1, 0, and +1 (relative to the current coordinate)
-      -- Create a copy of the coordinates
-      local new_coords = {table.unpack(coords)}
-      new_coords[idx] = new_coords[idx] + delta
-      
-      -- Ensure the new coordinates stay within bounds
-      if new_coords[idx] >= 0 and new_coords[idx] < max then
-        -- Recurse for the next dimension
-        get_neighbors(new_coords, idx + 1)
+
+    -- For each delta, try -1, 0, and +1 in the current dimension
+    for delta = -1, 1 do
+      local pos1 = {table.unpack(pos)}  -- Copy the current position
+      pos1[idx] = pos1[idx] + delta  -- Modify the current coordinate
+
+      -- Ensure it's within bounds
+      if pos1[idx] >= 0 and pos1[idx] < max then
+        _go(pos1, idx + 1)  -- Recurse to the next dimension
       end
     end
   end
   
-  -- Start the recursion with the given bucket position
-  get_neighbors(buckets, 1)
-
-  return neighbors_list
+  -- Start the recursion with the initial point and first dimension
+  _go(buckets, 1)
+  
+  return out
 end
 
 -- Helper function to compare two tables
@@ -42,8 +38,9 @@ function table.equals(t1, t2)
   return true
 end
 
--- Example usage
-local buckets = {3,3,3}  -- A point in 3-dimensional space
+
+
+local buckets = {1, 3, 7}  -- A point in 3-dimensional space
 local d = #buckets         -- 3 dimensions
 local max = 10             -- Maximum value for each coordinate
 

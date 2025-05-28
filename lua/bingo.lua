@@ -109,64 +109,29 @@ function Data:project(t,a,b)
 function Data:bucket(t,a,bt)
   return min(the.bins - 1, (self:project(t,a,b) * the.bins) // 1) end
 
-
-function neighbors(c, hi)
-  local out = {}
-  -- Local function to check if all elements are within the range [0, hi)
-  local function all(t, hi)
-    for _, x in ipairs(t) do
-      if x < 0 or x >= hi then return false end
-    end
-    return true
-  end
-  local function go(i, p)
-    p = p or {} -- This line is fine, though p should never be nil from your calls
-
-    if i > #c then
-      -- DEBUGGING ADDITIONS:
-      print(string.format("DEBUG: Reached base case: i=%s, #c=%s", i, #c))
-      print("DEBUG: p type:", type(p))
-      if type(p) == "table" then
-        print("DEBUG: p raw content (pairs):")
-        for k, v in pairs(p) do
-          print(string.format("  p[%s] (%s) = %s (%s)", tostring(k), type(k), tostring(v), type(v)))
-        end
-        print("DEBUG: p sequence content (ipairs):")
-        for k, v in ipairs(p) do
-          print(string.format("  p[%s] (%s) = %s (%s)", tostring(k), type(k), tostring(v), type(v)))
-        end
-        print(string.format("DEBUG: p[1] value: %s, type: %s", tostring(p[1]), type(p[1])))
-        print(string.format("DEBUG: #p: %s", #p))
-      end
-      
-      -- ORIGINAL LINE CAUSING ERROR:
-      if table.concat(p) ~= table.concat(c) and all(p, hi) then
-        table.insert(out, p)
-      end
-    else
-      for _, d in ipairs({-1, 0, 1}) do
-        -- Ensure c[i] is not nil before arithmetic, though this would be a different error
-        if c[i] == nil then
-            print(string.format("ERROR: c[%s] is nil!", i))
-        end
-        go(i + 1, {table.unpack(p), c[i] + d})
-      end
-    end
-  end end
-
--- Example usage
-eg = {}
-eg["--neigh"] = function()
-  for _, x in ipairs(neighbors({2, 2, 2}, 4)) do
-    print(table.concat(x, ", "))
-  end
+function neighbors(buckets,d,max,     out,_go)
+  out = {}
+  function _go(pos, idx)
+    if idx > d then
+      if not table.equals(pos, buckets) then
+        table.insert(out, pos) end
+      return end
+    for delta = -1, 1 do 
+      local pos1 = {table.unpack(pos)}
+      pos1[idx] = pos1[idx] + delta
+      if pos1[idx] >= 0 and pos1[idx] < max then
+        _go(pos1, idx + 1) end end end
+  _go(buckets, 1)
+  return out
 end
 
--- Execute the example
-eg["--neigh"]()
-
-
-
+-- Helper function to compare two tables
+function table.equals(t1, t2)
+  if #t1 ~= #t2 then return false end
+  for i = 1, #t1 do
+    if t1[i] ~= t2[i] then return false end end
+  return true end
+--
 --## Examples -----------------------------------------------------------------------------
 eg={}
 
