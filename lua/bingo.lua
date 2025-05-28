@@ -48,6 +48,7 @@ function table.equals(t1, t2)
     if t1[i] ~= t2[i] then return false end end
   return true end
 --## Create ---------------------------------------------------------------------------
+---- add sym and num here. handle "?" un sym num, not in data. all x y
 local Data = {}
 
 function Data:new() 
