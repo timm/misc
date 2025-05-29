@@ -1,3 +1,4 @@
+#!/usr/bin/env lua
 --## Config-----------------------------------------------------------------------------
 local the={
   p    = 2,
@@ -27,7 +28,7 @@ local function map(t,fun,    u)
   u={}; for _,v in pairs(t) do u[1+#u] = fun(v) end; return u end
 
 local function sum(t,fun,    n)
-  n={}; for _,v in pairs(t) do n = n + fun(v) end; return n end
+  n=0; for _,v in pairs(t) do n = n + fun(v) end; return n end
 
 local function most(t,fun,    m,n,x)
   n = -big
@@ -127,13 +128,13 @@ function Data:extrapolate(t,a,b,     ya,yb)
   ya, yb = self:ydist(a), self:ydist(b)
   return ya + self:project(t,a,b) * (yb - ya) end
 
-function Data:corners(      S,out,some)
-  S = function(r1) return sum(out,function(r2) return self:xdist(r1,r2) end) end
-  some = many(data.rows,100+1)
-  out = {some.remove(1)}
-  out = {most(some,S)} -- out now no longer has the initial random point
-  for _ = 1, the.dims do push(out, most(some,S)) end
-  return out end 
+function Data:corners(      S,out,few)
+  S   = function(x) return sum(out, function(y) return self:xdist(x,y) end) end
+  few = many(self.rows,100+1)
+  out = {table.remove(few,1)}
+  out = {most(few,S)} -- ignore initial random point
+  for i = 1,the.dims do push(out, most(few, S)) end
+  return out end
 
 function Data:bucket(t,a,bt)
   return min(the.bins - 1, (self:project(t,a,b) * the.bins) // 1) end
@@ -179,13 +180,19 @@ eg["--xdist"] = function(_)
   d = Data:new():read(the.file)
   oo(sort(map(d.rows, function(r) return d:xdist(r, d.rows[1]) end))) end
   
-eg["--project"]= function(_,    t,a,b)
+eg["--prjct"]= function(_,    t,a,b)
   d = Data:new():read(the.file)
-  t,a,b = any(d.rows), any(d.rows), any(d.rows) 
-  print(d:project(t,a,b)) end 
+  t = many(d.rows,10)
+  print(d:project(t[8],t[9],t[10])) end 
+
+eg["--crnrs"]= function(_,    t,a,b)
+  d = Data:new():read(the.file)
+  t = d:corners() 
+  for i=1,#t-1 do print(d:xdist(t[i], t[i+1])) end end 
 
 --## Start-up -----------------------------------------------------------------------------
 math.randomseed(the.seed)
 for i,s in pairs(arg) do
   if eg[s] then
+    math.randomseed(the.seed)
     eg[s](arg[i+1] and atom(arg[i+1])) end end
