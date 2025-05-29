@@ -16,11 +16,11 @@ local log  = math.log
 local max  = math.max
 local min  = math.min
 local fmt  = string.format
-local push = function(t,x)     t[1+#t]=x; return x end
-local oo   = function(t)       print(o(t)); return t end
-local any  = function(t)       return t[math.random(#t)] end 
-local sort = function(t,fun)   table.sort(t,fun); return t end
-local new  = function(kl,t)    kl.__index=kl; return setmetatable(t,kl) end
+local push = function(t,x)     t[1+#t]=x; return x                              end
+local oo   = function(t)       print(o(t)); return t                            end
+local any  = function(t)       return t[math.random(#t)]                        end 
+local sort = function(t,fun)   table.sort(t,fun); return t                      end
+local new  = function(kl,t)    kl.__index=kl; return setmetatable(t,kl)         end
 local many = function(t,n,  u) u={}; for _ =1,n do u[1+#u]=any(t) end; return u end
 
 local function map(t,fun,    u)
@@ -29,9 +29,15 @@ local function map(t,fun,    u)
 local function sum(t,fun,    n)
   n={}; for _,v in pairs(t) do n = n + fun(v) end; return n end
 
-local function max(t,fun,    m,n,x)
-  n=-big
+local function most(t,fun,    m,n,x)
+  n = -big
   for _,v in pairs(t) do m=fun(v); if m>n then n,x=m,v end end; return x end 
+
+local function tequals(t1, t2)
+  if #t1 ~= #t2 then return false end
+  for i = 1, #t1 do
+    if t1[i] ~= t2[i] then return false end end
+  return true end
 
 --### Strings to Things
 local function atom(s,    fun) 
@@ -42,20 +48,16 @@ local function atoms(s,    t)
   t={}; for s1 in s:gmatch("([^,]+)") do t[1+#t]=atom(s1) end; return t end
 
 --### Thing to Strings
-function o(x,      t,LIST,DICT)
-  t = {}
-  LIST = function() for _,v in pairs(x) do t[1+#t]=o(v) end end
-  DICT = function() for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end end
-  if type(x) == "number" then return fmt(x//1 == x and "%s" or "%.3g",x) end
-  if type(x) ~= "table" then return tostring(x) end
-  if #x>0 then LIST() else DICT(); table.sort(t) end
+function o(x,      t,ARR,DIC,NUM)
+  t   = {}
+  ARR = function() for _,v in pairs(x) do t[1+#t]=o(v) end end
+  DIC = function() for k,v in pairs(x) do t[1+#t]=fmt(":%s %s",k,o(v)) end end
+  NUM = function() return x//1 == x and "%s" or "%.3g" end
+  if type(x) == "number" then return fmt(NUM(x), x) end
+  if type(x) ~= "table"  then return tostring(x) end
+  if #x>0 then ARR() else DIC(); table.sort(t) end
   return "{" .. table.concat(t, " ") .. "}" end
 
-local function tequals(t1, t2)
-  if #t1 ~= #t2 then return false end
-  for i = 1, #t1 do
-    if t1[i] ~= t2[i] then return false end end
-  return true end
 --## Create ---------------------------------------------------------------------------
 ---- add sym and num here. handle "?" un sym num, not in data. all x y
 local Data = {}
@@ -125,18 +127,13 @@ function Data:extrapolate(t,a,b,     ya,yb)
   ya, yb = self:ydist(a), self:ydist(b)
   return ya + self:project(t,a,b) * (yb - ya) end
 
--- function Data:corners(      X,S,r0,out,some)
---   function maxSumSoFar(r1)
---     local n,at = 0,nil
---     for i,r1 in pairs(some) do
---       tmp = sum(out, function(r2) return self:xdist(r1,r2) end) end
---       if tmp > n then n,at = tmp,i end end 
---     return table.remove(some,at) end 
---
---   r0, some = any(data.rows), many(data.rows,100)
---   out = {r0}
---   for _ = 1, the.dims do push(out, maxSumSoFar(max(some,S)) end
---   return out end 
+function Data:corners(      S,out,some)
+  S = function(r1) return sum(out,function(r2) return self:xdist(r1,r2) end) end
+  some = many(data.rows,100+1)
+  out = {some.remove(1)}
+  out = {most(some,S)} -- out now no longer has the initial random point
+  for _ = 1, the.dims do push(out, most(some,S)) end
+  return out end 
 
 function Data:bucket(t,a,bt)
   return min(the.bins - 1, (self:project(t,a,b) * the.bins) // 1) end

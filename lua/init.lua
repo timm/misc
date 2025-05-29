@@ -21,7 +21,7 @@ vim.opt.visualbell = true          -- Use visual bell instead of sound
 vim.opt.wildmenu = true            -- Enhanced command-line completion menu
 vim.opt.wildmode = "list:longest,full" -- How wildmenu behaves
 vim.opt.smartindent = true         -- Smart auto-indenting
-vim.opt.wrap = false               -- Do not wrap lines
+vim.opt.wrap = true                -- Do not wrap lines
 vim.opt.title = true               -- Set terminal title
 vim.opt.clipboard = "unnamedplus"  -- Share clipboard with system (copy/paste to/from other applications)
 
