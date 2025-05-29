@@ -16,13 +16,22 @@ local log  = math.log
 local max  = math.max
 local min  = math.min
 local fmt  = string.format
-local oo   = function(t) print(o(t)); return t end
-local push = function(t,x)   t[1+#t]=x; return x end
-local sort = function(t,fun) table.sort(t,fun); return t end
-local new  = function(kl,t)  kl.__index=kl; return setmetatable(t,kl) end
+local push = function(t,x)     t[1+#t]=x; return x end
+local oo   = function(t)       print(o(t)); return t end
+local any  = function(t)       return t[math.random(#t)] end 
+local sort = function(t,fun)   table.sort(t,fun); return t end
+local new  = function(kl,t)    kl.__index=kl; return setmetatable(t,kl) end
+local many = function(t,n,  u) u={}; for _ =1,n do u[1+#u]=any(t) end; return u end
 
 local function map(t,fun,    u)
   u={}; for _,v in pairs(t) do u[1+#u] = fun(v) end; return u end
+
+local function sum(t,fun,    n)
+  n={}; for _,v in pairs(t) do n = n + fun(v) end; return n end
+
+local function max(t,fun,    m,n,x)
+  n=-big
+  for _,v in pairs(t) do m=fun(v); if m>n then n,x=m,v end end; return x end 
 
 --### Strings to Things
 local function atom(s,    fun) 
@@ -42,7 +51,7 @@ function o(x,      t,LIST,DICT)
   if #x>0 then LIST() else DICT(); table.sort(t) end
   return "{" .. table.concat(t, " ") .. "}" end
 
-function table.equals(t1, t2)
+local function tequals(t1, t2)
   if #t1 ~= #t2 then return false end
   for i = 1, #t1 do
     if t1[i] ~= t2[i] then return false end end
@@ -107,10 +116,27 @@ function Data:_xdist(c,u,v)
   return abs(u -v) end 
 
 --### Project
-function Data:project(t,a,b)
-  D = function(r1,r2) return self:xdist(r1,r2) end
+function Data:project(t,a,b,    X,c)
+  X = function(r1,r2) return self:xdist(r1,r2) end
   c = self:xdist(a,b)
-  return c==0 and 0 or (D(t,a)^2 + c^2 - D(t,b)^2) / (2*c*c) end
+  return c==0 and 0 or (X(t,a)^2 + c^2 - X(t,b)^2) / (2*c*c) end
+
+function Data:extrapolate(t,a,b,     ya,yb)
+  ya, yb = self:ydist(a), self:ydist(b)
+  return ya + self:project(t,a,b) * (yb - ya) end
+
+-- function Data:corners(      X,S,r0,out,some)
+--   function maxSumSoFar(r1)
+--     local n,at = 0,nil
+--     for i,r1 in pairs(some) do
+--       tmp = sum(out, function(r2) return self:xdist(r1,r2) end) end
+--       if tmp > n then n,at = tmp,i end end 
+--     return table.remove(some,at) end 
+--
+--   r0, some = any(data.rows), many(data.rows,100)
+--   out = {r0}
+--   for _ = 1, the.dims do push(out, maxSumSoFar(max(some,S)) end
+--   return out end 
 
 function Data:bucket(t,a,bt)
   return min(the.bins - 1, (self:project(t,a,b) * the.bins) // 1) end
@@ -119,7 +145,7 @@ function neighbors(buckets,d,max,     out,_go)
   out = {}
   function _go(pos, idx)
     if idx > d then
-      if not table.equals(pos, buckets) then
+      if not tequals(pos, buckets) then
         table.insert(out, pos) end
       return end
     for delta = -1, 1 do 
@@ -155,7 +181,12 @@ eg["--ydist"] = function(_)
 eg["--xdist"] = function(_)
   d = Data:new():read(the.file)
   oo(sort(map(d.rows, function(r) return d:xdist(r, d.rows[1]) end))) end
-   
+  
+eg["--project"]= function(_,    t,a,b)
+  d = Data:new():read(the.file)
+  t,a,b = any(d.rows), any(d.rows), any(d.rows) 
+  print(d:project(t,a,b)) end 
+
 --## Start-up -----------------------------------------------------------------------------
 math.randomseed(the.seed)
 for i,s in pairs(arg) do
