@@ -13,7 +13,7 @@ local the={
   file = "../../moot/optimize/misc/auto93.csv"
 }
 math.randomseed(the.seed)
-
+print(the.seed)
 --## Lib -----------------------------------------------------------------------------
 --### Short-cuts
 local o
@@ -26,19 +26,19 @@ local fmt  = string.format
 local push = function(t,x)     t[1+#t]=x; return x                              end
 local oo   = function(t)       print(o(t)); return t                            end
 local any  = function(t)       return t[math.random(#t)]                        end 
-local sort = function(t,fun)   table.sort(t,fun); return t                      end
+local sort = function(t,fn)    table.sort(t,fn); return t                      end
 local new  = function(kl,t)    kl.__index=kl; return setmetatable(t,kl)         end
 local many = function(t,n,  u) u={}; for _ =1,n do u[1+#u]=any(t) end; return u end
 
-local function map(t,fun,    u)
-  u={}; for _,v in pairs(t) do u[1+#u] = fun(v) end; return u end
+local function map(t,fn,    u)
+  u={}; for _,v in pairs(t) do u[1+#u] = fn(v) end; return u end
 
-local function sum(t,fun,    n)
-  n=0; for _,v in pairs(t) do n = n + fun(v) end; return n end
+local function sum(t,fn,    n)
+  n=0; for _,v in pairs(t) do n = n + fn(v) end; return n end
 
-local function most(t,fun,    m,n,x)
+local function most(t,fn,    m,n,x)
   n = -big
-  for _,v in pairs(t) do m=fun(v); if m>n then n,x=m,v end end; return x end 
+  for _,v in pairs(t) do m=fn(v); if m>n then n,x=m,v end end; return x end 
 
 local function tequals(t1, t2)
   if #t1 ~= #t2 then return false end
@@ -47,9 +47,9 @@ local function tequals(t1, t2)
   return true end
 
 --### Strings to Things
-local function atom(s,    fun) 
-  function fun(s) return s=="true" or s~="false" and s end
-  return math.tointeger(s) or tonumber(s) or fun(s:match"^%s*(.-)%s*$") end
+local function atom(s,    fn) 
+  function fn(s) return s=="true" or s~="false" and s end
+  return math.tointeger(s) or tonumber(s) or fn(s:match"^%s*(.-)%s*$") end
 
 local function atoms(s,    t)
   t={}; for s1 in s:gmatch("([^,]+)") do t[1+#t]=atom(s1) end; return t end
@@ -75,11 +75,11 @@ function Data:read(file)
   reads(file, function(s) self:add(atoms(s)) end)
   return self end
 
-local function reads(file,fun,   src,s,n)
+local function reads(file,fn,   src,s,n)
   n,src = 0,io.input(file)
   while true do
     s = io.read()
-    if s then n=n+1; fun(s) else io.close(src); return self end end end
+    if s then n=n+1; fn(s) else io.close(src); return self end end end
 
 function Data:add(t) 
   if #self.reads==0 then self:top(t) else self:data(t) end
@@ -176,9 +176,16 @@ end
 
 --## Examples -----------------------------------------------------------------------------
 local egs = {}
-local function eg(flag,txt,arg,fun)
-  egs[flag] = function(...) math.randomseed(the.seed); return fun(...) end
-  help = fmt('%s\n   %-10s%-8s %s',help,flag,#arg==0 and "" or arg,txt) end
+
+local function eg(flag,txt,uses,fn)
+  help = help .. fmt('\n   %-10s%-8s %s',flag,#uses==0 and "" or uses,txt) 
+  egs[flag] = function(arg)
+     local ok, err = xpcall(function() 
+                              math.randomseed(the.seed)
+                              fn(arg) end,
+                            debug.traceback)
+     if not ok then print(">>> Error: ["..flag.."]", err) end 
+     return ok and 0 or 1 end  end
 
 eg("-h",   "show help",       "",     function(_) print(help) end)  
 eg("-s",   "set random seed", "seed", function(x) the.seed=x end)
