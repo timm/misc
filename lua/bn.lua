@@ -1,4 +1,9 @@
 #!/usr/bin/env lua
+local help=[[  
+bn.lua : stochastic landscape analyis
+(c) 2025, Tim Menzies <timm@ieee.org> MIT license
+]]
+
 --## Config-----------------------------------------------------------------------------
 local the={
   p    = 2,
@@ -60,23 +65,27 @@ function o(x,      t,ARR,DIC,NUM)
   return "{" .. table.concat(t, " ") .. "}" end
 
 --## Create ---------------------------------------------------------------------------
----- add sym and num here. handle "?" un sym num, not in data. all x y
 local Data = {}
 
 function Data:new() 
-  return new(Data,{rows={}, hi={}, lo={}, x={}, y={}}) end
+  return new(Data,{rows={}, names={}, hi={}, lo={}, x={}, y={}}) end
 
-function Data:read(file,    src,s)
-  src = io.input(file)
+function Data:read(file)
+  reads(file, function(s) self:add(atoms(s)) end)
+  return self end
+
+local function reads(file,fun,   src,s,n)
+  n,src = 0,io.input(file)
   while true do
     s = io.read()
-    if s then self:add(atoms(s)) else io.close(src); return self end end end
+    if s then n=n+1; fun(s) else io.close(src); return self end end end
 
 function Data:add(t) 
-  if #self.x==0 then self:top(t) else self:data(t) end
+  if #self.reads==0 then self:top(t) else self:data(t) end
   return self end
 
 function Data:top(t)
+  self.names = t
   for c,s in pairs(t) do 
     if s:find"^[A-Z]" then self.lo[c], self.hi[c] = big, -big end
     if not s:find"X$" then
@@ -91,6 +100,7 @@ function Data:data(t)
       self.lo[c] = min(x, self.lo[c]) 
       self.hi[c] = max(x, self.hi[c]) end end end
 
+function Data:cline()
 --## Query ---------------------------------------------------------------------------
 function Data:norm(c,x)
   return x=="?" and x or (x - self.lo[c]) / (self.hi[c] - self.lo[c] +1/big) end
@@ -124,6 +134,9 @@ function Data:project(t,a,b,    X,c)
   c = self:xdist(a,b)
   return c==0 and 0 or (X(t,a)^2 + c^2 - X(t,b)^2) / (2*c*c) end
 
+function Data:bucket(t,a,b)
+  return min(the.bins - 1, (self:project(t,a,b) * the.bins) // 1) end
+
 function Data:extrapolate(t,a,b,     ya,yb)
   ya, yb = self:ydist(a), self:ydist(b)
   return ya + self:project(t,a,b) * (yb - ya) end
@@ -136,8 +149,14 @@ function Data:corners(      S,out,few)
   for i = 1,the.dims do push(out, most(few, S)) end
   return out end
 
-function Data:bucket(t,a,bt)
-  return min(the.bins - 1, (self:project(t,a,b) * the.bins) // 1) end
+function Data:buckets(crnrs,   out)
+  out = {}
+  for _,row in pairs(data.rows) do
+    local k={}
+    for i=1,#crnrs-1 do
+      push(k, self:bucket(row,crnrs[i], crnrs[i+1])) end
+    out[k] = out[k] or self.clone(data)
+end
 
 function neighbors(buckets,d,max,     out,_go)
   out = {}
@@ -155,44 +174,51 @@ function neighbors(buckets,d,max,     out,_go)
   return out
 end
 
---
 --## Examples -----------------------------------------------------------------------------
-eg={}
+local egs = {}
+local function eg(flag,txt,arg,fun)
+  egs[flag] = fun
+  help = fmt('%s\n   %-10s%-8s %s',help,flag,#arg==0 and "" or arg,txt) end
 
-eg["-h"] = function(_) oo(the) end
+eg("-h", "show help", "", function(_) 
+  print(help) end)  
 
-eg["-s"] = function(s) math.randomseed(s); the.seed=s end
+eg("-s", "set random seed", "seed", function(n) 
+  math.randomseed(n); the.seed=n end)
 
-eg["--neigh"] = function(_)
-   oo(neighbors({3,3,3},3,4))
-   oo(neighbors({3,3,3},3,3))
-  end
+eg("--the","show config", "", function(_) 
+  oo(the) end)
 
-eg["--data"] = function(_,    d) 
+eg("--neigh", "report some neighbors", "", function(_)
+  oo(neighbors({3,3,3},3,4))
+  oo(neighbors({3,3,3},3,3)) end)
+
+eg("--data", "read some data", "", function(_,  d)
   d = Data:new():read(the.file)
-  oo{lo=d.lo, hi=d.hi}  end
+  oo{lo=d.lo, hi=d.hi} end)
 
-eg["--ydist"] = function(_)
+eg("--ydist", "show some ydistances", "", function(_)
   d = Data:new():read(the.file)
-  oo(sort(map(d.rows, function(r) return d:ydist(r) end))) end
+  oo(sort(map(d.rows, function(r) return d:ydist(r) end))) end)
 
-eg["--xdist"] = function(_)
+eg("--xdist", "show some xdistances", "", function(_)
   d = Data:new():read(the.file)
-  oo(sort(map(d.rows, function(r) return d:xdist(r, d.rows[1]) end))) end
+  oo(sort(map(d.rows, 
+              function(r) return d:xdist(r, d.rows[1]) end))) end)
   
-eg["--prjct"]= function(_,    t,a,b)
-  d = Data:new():read(the.file)
-  t = many(d.rows,10)
-  print(d:project(t[8],t[9],t[10])) end 
+eg("--prjct", "show some projections", "", function(_) 
+  local d = Data:new():read(the.file)
+  local t = many(d.rows,10)
+  print(d:project(t[8],t[9],t[10])) end)
 
-eg["--crnrs"]= function(_,    t,a,b)
-  d = Data:new():read(the.file)
-  t = d:corners() 
-  for i=1,#t-1 do print(d:xdist(t[i], t[i+1])) end end 
+eg("--crnrs", "show some corners", "", function(_) 
+  local d = Data:new():read(the.file)
+  local t = d:corners() 
+  for i=1,#t-1 do print(d:xdist(t[i], t[i+1])) end end)
 
 --## Start-up -----------------------------------------------------------------------------
 math.randomseed(the.seed)
 for i,s in pairs(arg) do
-  if eg[s] then
+  if egs[s] then
     math.randomseed(the.seed)
-    eg[s](arg[i+1] and atom(arg[i+1])) end end
+    egs[s](arg[i+1] and atom(arg[i+1])) end end
