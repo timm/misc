@@ -13,7 +13,7 @@ local the={
   file = "../../moot/optimize/misc/auto93.csv"
 }
 math.randomseed(the.seed)
-print(the.seed)
+
 --## Lib -----------------------------------------------------------------------------
 --### Short-cuts
 local o
@@ -71,18 +71,19 @@ local Data = {}
 function Data:new() 
   return new(Data,{rows={}, names={}, hi={}, lo={}, x={}, y={}}) end
 
-function Data:read(file)
-  reads(file, function(s) self:add(atoms(s)) end)
-  return self end
+function Data:clone(rows)
+  d = Data:new():add(self.names)
+  for t in pairs(rows or {}) do self:add(t) end
+  return d end
 
-local function reads(file,fn,   src,s,n)
+function Data:read(file,    n,src)
   n,src = 0,io.input(file)
   while true do
     s = io.read()
-    if s then n=n+1; fn(s) else io.close(src); return self end end end
+    if s then n=n+1; self:add(atoms(s)) else io.close(src); return self end end end
 
 function Data:add(t) 
-  if #self.reads==0 then self:top(t) else self:data(t) end
+  if #self.names==0 then self:top(t) else self:data(t) end
   return self end
 
 function Data:top(t)
@@ -151,12 +152,14 @@ function Data:corners(      S,out,few)
 
 function Data:buckets(crnrs,   out)
   out = {}
-  for _,row in pairs(data.rows) do
+  for _,row in pairs(self.rows) do
     local k={}
-    for i=1,#crnrs-1 do
-      push(k, self:bucket(row,crnrs[i], crnrs[i+1])) end
-    out[k] = out[k] or self.clone(data)
-end end
+    for i=1,#crnrs-1 do push(k, self:bucket(row, crnrs[i], crnrs[i+1])) end
+    oo(k)
+    out[k] = out[k] or self:clone()
+    n=0; for _ in pairs(out) do n=n+1 end; print(n)
+    out[k]:add(row) end
+  return out end
 
 function neighbors(buckets,d,max,     out,_go)
   out = {}
@@ -171,51 +174,63 @@ function neighbors(buckets,d,max,     out,_go)
       if pos1[idx] >= 0 and pos1[idx] < max then
         _go(pos1, idx + 1) end end end
   _go(buckets, 1)
-  return out
-end
+  return out end
+
 
 --## Examples -----------------------------------------------------------------------------
 local egs = {}
 
-local function eg(flag,txt,uses,fn)
-  help = help .. fmt('\n   %-10s%-8s %s',flag,#uses==0 and "" or uses,txt) 
-  egs[flag] = function(arg,     ok,err,fn1)
-     fn1 = function() math.randomseed(the.seed); fn(arg) end
-     ok, err = xpcall(fn1, debug.traceback)
-     if not ok then print(">>> Error: ["..flag.."]", err) end 
-     return ok and 0 or 1 end  end
+local function eg(t)
+  help = help..fmt('\n   %-10s%-8s %s',t.flag,t.arg or "",t.txt) 
+  egs[t.flag] = function(arg,     ok,err)
+     ok,err = xpcall(function() math.randomseed(the.seed); t.fn(arg) end, debug.traceback)
+     if not ok then print(">>> Error: ["..t.flag.."]", err) end 
+     return ok and 0 or 1 end end
 
-eg("-h",   "show help",       "",     function(_) print(help) end)  
-eg("-s",   "set random seed", "seed", function(x) the.seed=x end)
-eg("-f",   "set data file",   "file", function(x) the.file=x end)
-eg("--the","show config",     "",     function(_) oo(the) end)
+eg{flag="-h", txt="show help",       
+   fn=function(_) print(help) end} 
 
-eg("--neigh", "report some neighbors", "", function(_)
-  oo(neighbors({3,3,3},3,4))
-  oo(neighbors({3,3,3},3,3)) end)
+eg{flag="-f", txt="set data file",   
+   fn=function(x) the.file=x end, arg="file"}
 
-eg("--data", "read some data", "", function(_,  d)
+eg{flag="-s", txt="set random seed", 
+   fn=function(x) the.seed=x end, arg="seed"}
+
+eg{flag="--the", txt="show config",  
+   fn=function(_) oo(the) end}
+
+eg{flag="--neigh", txt="report some neighbors", fn=function(_)
+  oo(neighbors({3,3,3},3,5))
+  oo(neighbors({3,3,3},3,5)) end}
+
+eg{flag="--data", txt="read some data", fn=function(_,  d)
   d = Data:new():read(the.file)
-  oo{lo=d.lo, hi=d.hi} end)
+  oo{lo=d.lo, hi=d.hi} end}
 
-eg("--ydist", "show some ydistances", "", function(_)
+eg{flag="--ydist", txt="show some ydistances", fn=function(_,    d)
   d = Data:new():read(the.file)
-  oo(sort(map(d.rows, function(r) return d:ydist(r) end))) end)
+  oo(sort(map(d.rows, function(r) return d:ydist(r) end))) end}
 
-eg("--xdist", "show some xdistances", "", function(_)
+eg{flag="--xdist", txt="show some xdistances", fn=function(_,    d)
   d = Data:new():read(the.file)
   oo(sort(map(d.rows, 
-              function(r) return d:xdist(r, d.rows[1]) end))) end)
+              function(r) return d:xdist(r, d.rows[1]) end))) end}
   
-eg("--prjct", "show some projections", "", function(_) 
-  local d = Data:new():read(the.file)
-  local t = many(d.rows,10)
-  print(d:project(t[8],t[9],t[10])) end)
+eg{flag="--prjct", txt="show some projections", fn=function(_,    d,t) 
+  d = Data:new():read(the.file)
+  t = many(d.rows,10)
+  print(d:project(t[8],t[9],t[10])) end}
 
-eg("--crnrs", "show some corners", "", function(_) 
-  local d = Data:new():read(the.file)
-  local t = d:corners() 
-  for i=1,#t-1 do print(d:xdist(t[i], t[i+1])) end end)
+eg{flag="--crnrs", txt="show some corners", fn=function(_,   d,t) 
+  d = Data:new():read(the.file)
+  t = d:corners() 
+  for i=1,#t-1 do print(d:xdist(t[i], t[i+1])) end end}
+
+eg{flag="--bckts", txt="show some buckets", fn=function(_,   t,data1) 
+  data1 = Data:new():read(the.file)
+  t = data1:corners()
+  for i,data2 in pairs(data1:buckets(t)) do
+    print(i, #data2.rows) end end}
 
 --## Start -----------------------------------------------------------------------------
 if debug.getinfo(1, "S").short_src == arg[0] then
