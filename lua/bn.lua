@@ -12,6 +12,7 @@ local the={
   seed = 1234567891,
   file = "../../moot/optimize/misc/auto93.csv"
 }
+math.randomseed(the.seed)
 
 --## Lib -----------------------------------------------------------------------------
 --### Short-cuts
@@ -100,7 +101,6 @@ function Data:data(t)
       self.lo[c] = min(x, self.lo[c]) 
       self.hi[c] = max(x, self.hi[c]) end end end
 
-function Data:cline()
 --## Query ---------------------------------------------------------------------------
 function Data:norm(c,x)
   return x=="?" and x or (x - self.lo[c]) / (self.hi[c] - self.lo[c] +1/big) end
@@ -156,7 +156,7 @@ function Data:buckets(crnrs,   out)
     for i=1,#crnrs-1 do
       push(k, self:bucket(row,crnrs[i], crnrs[i+1])) end
     out[k] = out[k] or self.clone(data)
-end
+end end
 
 function neighbors(buckets,d,max,     out,_go)
   out = {}
@@ -177,17 +177,13 @@ end
 --## Examples -----------------------------------------------------------------------------
 local egs = {}
 local function eg(flag,txt,arg,fun)
-  egs[flag] = fun
+  egs[flag] = function(...) math.randomseed(the.seed); return fun(...) end
   help = fmt('%s\n   %-10s%-8s %s',help,flag,#arg==0 and "" or arg,txt) end
 
-eg("-h", "show help", "", function(_) 
-  print(help) end)  
-
-eg("-s", "set random seed", "seed", function(n) 
-  math.randomseed(n); the.seed=n end)
-
-eg("--the","show config", "", function(_) 
-  oo(the) end)
+eg("-h",   "show help",       "",     function(_) print(help) end)  
+eg("-s",   "set random seed", "seed", function(x) the.seed=x end)
+eg("-f",   "set data file",   "file", function(x) the.file=x end)
+eg("--the","show config",     "",     function(_) oo(the) end)
 
 eg("--neigh", "report some neighbors", "", function(_)
   oo(neighbors({3,3,3},3,4))
@@ -216,9 +212,12 @@ eg("--crnrs", "show some corners", "", function(_)
   local t = d:corners() 
   for i=1,#t-1 do print(d:xdist(t[i], t[i+1])) end end)
 
---## Start-up -----------------------------------------------------------------------------
-math.randomseed(the.seed)
-for i,s in pairs(arg) do
-  if egs[s] then
-    math.randomseed(the.seed)
-    egs[s](arg[i+1] and atom(arg[i+1])) end end
+--## Start -----------------------------------------------------------------------------
+if debug.getinfo(1, "S").short_src == arg[0] then
+  for i,s in pairs(arg) do
+    if egs[s] then
+      egs[s](arg[i+1] and atom(arg[i+1])) end end end
+
+return {
+  Data=Data, atom=atom, atoms=atoms, many=many, map=map, most=most, 
+  neighbors=neighbors, new=new, o=o, oo=oo, sort=sort, sum=sum }
