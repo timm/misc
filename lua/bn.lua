@@ -179,11 +179,9 @@ local egs = {}
 
 local function eg(flag,txt,uses,fn)
   help = help .. fmt('\n   %-10s%-8s %s',flag,#uses==0 and "" or uses,txt) 
-  egs[flag] = function(arg)
-     local ok, err = xpcall(function() 
-                              math.randomseed(the.seed)
-                              fn(arg) end,
-                            debug.traceback)
+  egs[flag] = function(arg,     ok,err,fn1)
+     fn1 = function() math.randomseed(the.seed); fn(arg) end
+     ok, err = xpcall(fn1, debug.traceback)
      if not ok then print(">>> Error: ["..flag.."]", err) end 
      return ok and 0 or 1 end  end
 
