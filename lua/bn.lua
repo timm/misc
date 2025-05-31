@@ -69,7 +69,7 @@ function o(x,      t,ARR,DIC,NUM)
 local Data = {}
 
 function Data:new() 
-  return new(Data,{rows={}, names={}, hi={}, lo={}, x={}, y={}}) end
+  return new(Data,{is=Data, rows={}, names={}, hi={}, lo={}, x={}, y={}}) end
 
 function Data:clone(rows)
   d = Data:new():add(self.names)
@@ -136,7 +136,7 @@ function Data:project(t,a,b,    X,c)
   return c==0 and 0 or (X(t,a)^2 + c^2 - X(t,b)^2) / (2*c*c) end
 
 function Data:bucket(t,a,b)
-  return min(the.bins - 1, (self:project(t,a,b) * the.bins) // 1) end
+  return min(the.bins - 1, (self:project(t,a,b) * the.bins) // 1) //1 end
 
 function Data:extrapolate(t,a,b,     ya,yb)
   ya, yb = self:ydist(a), self:ydist(b)
@@ -150,16 +150,19 @@ function Data:corners(      S,out,few)
   for i = 1,the.dims do push(out, most(few, S)) end
   return out end
 
-function Data:buckets(crnrs,   out)
-  out = {}
+function Data:buckets(crnrs,   tmp,minPt)
+  tmp = {}
   for _,row in pairs(self.rows) do
     local k={}
     for i=1,#crnrs-1 do push(k, self:bucket(row, crnrs[i], crnrs[i+1])) end
-    oo(k)
-    out[k] = out[k] or self:clone()
-    n=0; for _ in pairs(out) do n=n+1 end; print(n)
-    out[k]:add(row) end
-  return out end
+    s = table.concat(k,",")
+    tmp[s] = tmp[s] or {key=s, data=self:clone()}
+    tmp[s].data:add(row) end
+  minPt = #(data.rows) < 100 and 2 or 2*the.dims
+  return map(tmp,
+        function(kd) 
+                                                                       proint(#(kd.data.rows));
+            if #(kd.data.rows) > minPt then return kd end end) end 
 
 function neighbors(buckets,d,max,     out,_go)
   out = {}
@@ -226,11 +229,12 @@ eg{flag="--crnrs", txt="show some corners", fn=function(_,   d,t)
   t = d:corners() 
   for i=1,#t-1 do print(d:xdist(t[i], t[i+1])) end end}
 
-eg{flag="--bckts", txt="show some buckets", fn=function(_,   t,data1) 
-  data1 = Data:new():read(the.file)
-  t = data1:corners()
-  for i,data2 in pairs(data1:buckets(t)) do
-    print(i, #data2.rows) end end}
+eg{flag="--bucks", txt="show some buckets", 
+  fn=function(_,   t,data1, crnrs,b) 
+    data1 = Data:new():read(the.file)
+    crnrs = data1:corners()
+    b     = data1:buckets(crnrs)
+    for _,kd in pairs(b) do oo(#(kd.data.rows)) end end}
 
 --## Start -----------------------------------------------------------------------------
 if debug.getinfo(1, "S").short_src == arg[0] then
