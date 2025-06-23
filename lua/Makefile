@@ -22,19 +22,20 @@ publish:
 	mkdir -p ~/tmp
 	echo "pdf-ing $@ ... "
 	a2ps                 \
-		-Br                 \
-		--chars-per-line 100 \
+		-r                 \
+		--chars-per-line 80 \
 		--file-align=fill      \
 		--line-numbers=1        \
 		--borders=no             \
 		--pro=color               \
+		--portrait   \
 		--left-title=""            \
 		--pretty-print="lua.ssh" \
-		--columns  3                 \
+		--columns  2                 \
 		-M letter                     \
 		--footer=""                    \
 		--right-footer=""               \
-	  -o	 - $< lib.lua | ps2pdf - $@
+	  -o - $< | ps2pdf - $@
 	open $@
 
 ~/tmp/%.pdf: %.py  ## .py ==> .pdf
