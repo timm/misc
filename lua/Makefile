@@ -34,7 +34,7 @@ publish:
 		-M letter                     \
 		--footer=""                    \
 		--right-footer=""               \
-	  -o	 - $< | ps2pdf - $@
+	  -o	 - $< lib.lua | ps2pdf - $@
 	open $@
 
 ~/tmp/%.pdf: %.py  ## .py ==> .pdf
