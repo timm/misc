@@ -12,6 +12,7 @@ local the={_about = {
 
 -----------------------------------------------------------------
 --## Misc utils
+local abs  = math.abs
 local big  = 1E32
 local fmt  = string.format
 local R    = math.random
@@ -25,7 +26,8 @@ local function adds(i,t)
 
 -- coerce
 local function atom(s) 
-  return tonumber(s) or s:match"^%s*(.-)%s*$" end
+  fn = function(s) return (s=="true" and true) or (s~= false" and s) end
+  return tonumber(s) or math.tointeger(x) or fn(s:match"^%s*(.-)%s*$") end
 
 -- Csv string to csv cells.
 local function cells(s,fn,    t)
@@ -179,46 +181,58 @@ local help=fmt("\n%s %s\n%s, %s, %s\n",the._about.what, the._about.why,
                                the._about.when, the._about.who, the._about.how)
 
 local function eg(t)
-  help = help..fmt('\n   %-6s%-8s %s',t.flag,t.arg or "",t.txt)
+  help = help..fmt('\n   %s%-6s%-8s %s',t.flag,t.arg or "",t.txt)
   egs[t.flag] = function(arg,     ok,err)
      ok,err = xpcall(function() math.randomseed(the.seed); t.fn(arg) end, 
                      debug.traceback)
      if not ok then print(">>> Error: ["..t.flag.."]", err) end
      return ok and 0 or 1 end end
 
-eg{flag="-b", txt="number of bins", arg="int", fn=function(b)
-   the.bins = atom(b) end}
+for k, v in help:gmatch("%-%s*(%w+)[^%(]*%((%d+)%)") do
+  assert(not the[k], "repeated field ["..k.."]")
+  the[v] = atom(v) end
 
-eg{flag="-p", txt="distance term", arg="int", fn=function(p)
-   the.p = atom(p) end}
+eg["-h"] = function(_) 
+   for k in pairs(eg) do t[1+#t]=k end; table.sort(t)print(help)      end
 
-eg{flag="-f", txt="data file", arg="file", fn=function(f) 
-   the.file = f end}
+eg["--the"] = function(_) print(o(the))    end
 
-eg{flag="-s", txt="random seed", arg="num",  fn=function(s)
-    the.seed=atom(s); math.randomseed(the.seed) end}
-
-eg{flag="-h", txt="show help", fn= function(_) 
-   print(help) end}
-
-eg{flag="--the", txt="show config", fn=function(_) 
-   print(o(the)) end}
-
-eg{flag="--normal", txt="test normal", fn=function(_,t,x) 
+eg["--normal"] = function(_,t) 
   t={}
-  for _ =1,10000 do x=(normal(10,1) // .5)*.5; t[x] = x + (t[x] or 0) end
+  for _ = 1,10000 do x = normal(10,1) // 1; t[x] = x + (t[x] or 0) end
   for x,n in pairs(t) do 
-    print(fmt("%10s %10s : %s",x,n, ("*"):rep(n//500))) end end}
+    print(fmt("%10s %10s : %s",x,n, ("*"):rep(n//1000))) end end
 
-eg{flag="--sym", txt="test sym", fn=function(_) 
+eg["--sym"] = function(_)
    print(o(adds(Sym(),{"a","a","a","a","b","b","c"}))) end}
 
-eg{flag="--num", txt="test sym", fn=function(_,    n) 
+eg["--num"] = function(_,    n) 
    n=Num()
    for _ = 1,10000 do n:add(normal(10,1)) end
-   print(n:mid(), n:div()) end}
+   assert(abs(n:mid() - 10) < 0.02 and abs(n:div() - 1) < 0.02)  end
+
+eg["--csv"] = function(_,    n) 
+   n=Num()
+   for _ = 1,10000 do n:add(normal(10,1)) end
+   assert(abs(n:mid() - 10) < 0.02 and abs(n:div() - 1) < 0.02)  end}
+
+for k,fn in pairs(eg) do eg[k:match("^(%S+)")] = fn; help=help.."\n" k end
+
+function cli(t)
+  for k, v in pairs(t) do
+    v = tostring(v)
+    for argv,s in pairs(arg) do
+      if s=="-"..(k:sub(1,1)) or s==k then
+        v = v=="true" and "false" or v=="false" and "true" or arg[argv+1]
+        t[k] = atom(v) end end end
 
 if arg[0]:find"??al.lua" then
+  for n,s in pairs(arg) do
+    randomseed(the.rseed)
+    if eg[s] then eg[s](arg[n+1]) else
+      for k,_ in pairs(the) do
+        if s=="-"..k:sub(1,1) then the[k]=atom(arg[n+1]) end end end end end
+
    for i,s in pairs(arg) do
      if egs[s] then
        egs[s](arg[i+1]) end end end  

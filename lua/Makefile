@@ -23,7 +23,7 @@ publish:
 	echo "pdf-ing $@ ... "
 	a2ps                 \
 		-r                 \
-		--chars-per-line 80 \
+		--chars-per-line 85 \
 		--file-align=fill      \
 		--line-numbers=1        \
 		--borders=no             \
