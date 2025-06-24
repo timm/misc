@@ -46,17 +46,27 @@ local function new(kl,t)
   kl.__index=kl; return setmetatable(t,kl) end
 
 -- Thimgs to strings.
-local function o(x,      t,A,D,N)
-  t={}
-  A=function() for _,v in pairs(x) do t[1+#t]=o(v) end end
-  N=function() return x//1 == x and "%s" or "%.3g" end
-  D=function() for k,v in pairs(x) do 
-	         if not tostring(k):find"^_" 
-		 then t[1+#t]=fmt(":%s %s",k,o(v)) end end end
-  if type(x) == "number" then return fmt(N(), x) end
-  if type(x) ~= "table"  then return tostring(x) end
-  if #x>0 then A() else D(); table.sort(t) end
-  return "{" .. table.concat(t, " ") .. "}" end
+-- local function o(x,      t,A,D,N)
+--   t={}
+--   A=function() for _,v in pairs(x) do t[1+#t]=o(v) end end
+--   N=function() return x//1 == x and "%s" or "%.3g" end
+--   D=function() for k,v in pairs(x) do 
+-- 	         if not tostring(k):find"^_" 
+-- 		 then t[1+#t]=fmt(":%s %s",k,o(v)) end end end
+--   if type(x) == "number" then return fmt(N(), x) end
+--   if type(x) ~= "table"  then return tostring(x) end
+--   if #x>0 then A() else D(); table.sort(t) end
+--   return "{" .. table.concat(t, " ") .. "}" end
+
+local function o(x,      u)
+  if type(x)=="number" then return fmt(x//1==x and "%s" or "%.3g", x)
+  if type(x)~="table"  then return tostring(x) end
+  u = {}
+  if #x>0 then u = map(x,o) 
+  else for k,v in pairs(x) do
+         if k:sub(1,1)~="_" then u[#u+1]=fmt(":%s %s",k,o(v)) end end
+         table.sort(u) end
+  return "{" .. table.concat(u, " ") .. "}" end
 
 -- Push `x` to end of  list, return `x`.
 local function push(t,x)
