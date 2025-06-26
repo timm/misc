@@ -17,9 +17,6 @@ the = {Acq    = "xploit",
 function Sym:new(at,txt)
   return new(Sym,{at=at or 0, txt=txt or "", n=0, has={}}) end
 
-function Sym.add(i,v) -- (any) --> nil
-  if v~= "?" then i.n=i.n+1; i.has[v] = 1 + (i.has[v] or 0) end end
-
 function Sym:add(x)
   if x ~= "?" then
     self.n = self.n + 1
@@ -80,40 +77,41 @@ function Data:clone(t)
 
 -------------------------------------------------------------------------------
 function Freq:new(d)
-   return new(Freq,{n=0, fs={}, data=d}) end
+   return new(Freq,{nall=0, nh=0, fs={}, nk={}, data=d}) end
 
-function Freq:add(row,k,   inc)
+function Freq:add(row,k, inc,         v)
+  inc        = inc or 1
+  self.nall  = self.nall + inc
+  self.nh    = self.nh + (self.nk[k] and 0 or 1)
+  self.nk[k] = (self.nk[k] or 0) + inc
   for _,col in pairs(self.data.x) do
-    v = col:bin( row[col.at] )
+    v=row[col.at]
     if v ~= "?" then
-      assign3(self.fs, k, col.at,v) end end end
+      ssign3(self.fs, k, col.at, col:bin(v),inc) end end end 
 
-function Freq:like(row, k, nall,nh)
-  prior = (self.n + the.k) / (nall + the.k*nh)
+function Freq:like(row,k,      prior,l,v,f)
+  prior = (self.nk[k] + the.k) / (self.nall + the.k*self.nh)
   l = log(prior)
   for _,col in in pairs(self.data.x) do 
-    v = col:bin(row[c])
+    v = row[col.at]
     if v ~= "?" then
-      f = access3(self.fs, k, col.at,v)
-      l = l + log((f + the.m*prior)/(nk + the.m + 1/big)) end end
+      f = access3(self.fs, k, col.at, col:bin(v))
+      l = l + log((f + the.m*prior)/(nk + the.m + 1/big)) end end 
   return l  end
 
-function Data:acquires(rows):
-   _guess  = function(row)
-      b, r = freq:like(row, true, n, 2), freq:like(row, false, n, 2)
-      p    = n / the.Build
-      b, r = math.e**b, math.e**r
-      q    = {"xploit": 0, "xplor": 1}[the.Acq] or (1 - p)
-      return (b + r*q) / abs(b*q - r + 1/big) end
+function Freq:acquire(row,            b,r,p,q)
+   b, r = self:like(row, true), self:like(row, false)
+   b, r = math.e**b, math.e**r
+   p    = self.nall / the.Build
+   q    = {"xploit"=0, "xplor"=1}[the.Acq] or (1 - p)
+   return (b + r*q) / abs(b*q - r + 1/big) end
 
+function Data:acquires(rowas):
    Y= function(r) return self:ydist(r) end
    YR=function(r) return {-Y(r), r} end
    any = sampler(rows)
    seen = self:clone(any(4))
    seen.rows,Y)
-  
-   
-
 
 ---------------------------------------------------------------------------
 big  = 1E32
@@ -177,7 +175,7 @@ function access3(t,x,y,z,    a,b)
   b = a[y]; if b==nil then return 0 end
   return b[z] or 0 end
 
-function assign3(t,x,y,z,  inc,a,b)
+function assign3(t,x,y,z,  inc,       a,b)
   a = t[x];  if a==nil then a={}; t[x] = a end
   b = a[y];  if b==nil then b={}; a[y] = b end
   b[z] = (b[z] or 0) + (inc or 1) end
