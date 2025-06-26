@@ -119,10 +119,10 @@ function Data:acquires(rowas):
    Y= function(r) return self:ydist(r) end
    YR=function(r) return {-Y(r), r} end
    rows = shuffle(rows)
-   cut = int(the.assume ^ the.guess)
-   done = self:clone(subseq(rows, the.assume))
-   rows = sort(sofar.rows, Y)
+   cut  = int(the.assume ^ the.guess)
    todo = subseq(rows, the.assume + 1)
+   done = self:clone(subseq(rows, the.assume))
+   rows = sort(done.rows, Y)
    best = sort(map(subeq(rows,1,cut),YR),gt(1))
    rest = subseq(rows,cut+1)
 
