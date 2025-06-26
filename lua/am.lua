@@ -13,9 +13,11 @@ the = {Acq    = "xploit",
        p      = 2, 
        seed   = 1234567891}
 
+function new(kl,t) kl.__index=kl; return setmetatable(t,kl) end
+
 -------------------------------------------------------------------------------
 function Sym:new(at,txt)
-  return new(Sym,{at=at or 0, txt=txt or "", n=0, has={}}) end
+  return new(Sym, {at=at or 0, txt=txt or "", n=0, has={}}) end
 
 function Sym:add(x)
   if x ~= "?" then
@@ -26,8 +28,8 @@ function Sym:bin(x) return x end
 
 -------------------------------------------------------------------------------
 function Num:new(at,txt) -- (int,str) --> Num
-  return new(Num,{at=at or 0, txt=txt or "", n=0, lo=big, hi=-big,
-                  heaven = tostring(txt or ""):find"-$" and 0 or 1 }) end
+  return new(Num, {at=at or 0, txt=txt or "", n=0, lo=big, hi=-big,
+                   heaven = tostring(txt or ""):find"-$" and 0 or 1 }) end
 
 function Num:add(x)
   if x ~= "?" then
@@ -57,12 +59,12 @@ function Cols:add(t)
 
 -------------------------------------------------------------------------------
 function Data:new(t)
-  return adds(t, new(Data,{rows={}, cols=nil})) end
+  return adds(t, new(Data, {rows={}, cols=nil})) end
 
 function Data:add(t)
-  if   self.cols 
-  then push(self.rows,self.cols:add(t)) 
-  else self.cols=Cols(t) end
+  if   self.cols then push(self.rows,self.cols:add(t)) 
+  else self.cols = Cols(t) 
+  end
   return self end
 
 function Data:ydist(row)
@@ -124,36 +126,15 @@ trim = function(s) return s:match"^%s*(.-)%s*$" end
 s2n  = function(s) return tonumber(s) or math.tointeger(s) end
 s2a  = function(s) return (s=="true" and true) or (s~= "false" and s) end
 atom = function(s) return s2n(s) or s2a(trim(s)) end
-lt   = function(x) return function(t) return t[x] < t[y] end end
-gt   = function(x) return function(t) return t[x] > t[y] end end
 
-push = function(t,x)  t[1+#t]=x; return x end
-sort = function(t,fn) table.sort(t,fn); return t end
-map  = function(t,fn) return kap(t,function(_,v) return fn(v) end) end
-
-function kap(t,fn,    u) 
-  u={}; for k,v in pairs(t) do u[1+#u] = fn(k,v) end; return u end  
-
-function shuffle(t,   j) 
-   for i=#t,2,-1 do j=math.random(i);t[i],t[j]=t[j],t[i] end
-   return t end
-
-function o(x,     _kv,_fmt,_yes)
-  _fmt= string.format
-  _yes= function(k) return tostring(k):sub(1,1)~="_" end 
-  _kv = function(k,v) if _yes(k) then return _fmt(":%s %s",o(k),o(v)) end end
-  return type(x)=="number" and _fmt(x//1==x and "%s" or "%.3g", x) or 
-         type(x)~="table"  and tostring(x) or
-         "{"..table.concat(#x>0 and map(x,o) or sort(kap(x,_kv)),", ").."}" end
+function atoms(s,      t)
+  t={}; for x in s:gmatch("([^,]+)") do t[1+#t]=atom(x) end; return t  end
 
 function csv(file,     src,_atoms) 
-  _atoms= function(s,    t) 
-    t={}; for x in s:gmatch("([^,]+)") do t[1+#t]=atom(x) end; return t end
-
   src = io.input(file)
   return function(    s) 
     s = io.read()
-    if s then return _atoms(s) else io.close(src) end end end 
+    if s then return atoms(s) else io.close(src) end end end 
 
 function cli(t)
   for k,v in pairs(t) do
@@ -164,11 +145,23 @@ function cli(t)
         t[k] = atom(v) end end  end 
   return t end 
 
-function adds(t,i)
-  for _,x in pairs(t or {}) do
-     i = i or (type(x)=="number" and Num or Sym)()
-     i:add(x) end
-  return i end
+function kap(t,fn,    u) 
+  u={}; for k,v in pairs(t) do u[1+#u] = fn(k,v) end; return u end  
+
+map  = function(t,fn) return kap(t,function(_,v) return fn(v) end) end
+push = function(t,x)  t[1+#t]=x; return x end
+
+lt   = function(x) return function(t,u) return t[x] < u[x] end end
+gt   = function(x) return function(t,u) return t[x] > u[x] end end
+sort = function(t,fn) table.sort(t,fn); return t end
+
+function o(x,     _kv,_fmt,_yes)
+  _fmt= string.format
+  _yes= function(k) return tostring(k):sub(1,1)~="_" end 
+  _kv = function(k,v) if _yes(k) then return _fmt(":%s %s",o(k),o(v)) end end
+  return type(x)=="number" and _fmt(x//1==x and "%s" or "%.3g", x) or 
+         type(x)~="table"  and tostring(x) or
+         "{"..table.concat(#x>0 and map(x,o) or sort(kap(x,_kv)),", ").."}" end
 
 function access3(t,x,y,z,    a,b)
   a = t[x]; if a==nil then return 0 end
@@ -180,8 +173,16 @@ function assign3(t,x,y,z,  inc,       a,b)
   b = a[y];  if b==nil then b={}; a[y] = b end
   b[z] = (b[z] or 0) + (inc or 1) end
 
-function new(kl,t) 
-  kl.__index=kl; return setmetatable(t,kl) end
+function adds(t,i)
+  for _,x in pairs(t or {}) do
+     i = i or (type(x)=="number" and Num or Sym)()
+     i:add(x) end
+  return i end
+
+
+function shuffle(t,   j) 
+   for i=#t,2,-1 do j=math.random(i);t[i],t[j]=t[j],t[i] end
+   return t end
 
 function sampler(t,    i,n)
   i, n = 1, #t
@@ -192,6 +193,7 @@ function sampler(t,    i,n)
       if i > n then shuffle(t); i = 1 end
       out[#out+1] = t[i]; i = i + 1 end
     return out end end
+
 -------------------------------------------------------------------------------
 local eg={}
 
