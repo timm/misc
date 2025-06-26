@@ -24,9 +24,8 @@ $(Tmp)/%.pdf: %.py  ## make doco: .py ==> .pdf
 	mkdir -p ~/tmp
 	echo "pdf-ing $@ ... "
 	a2ps                 \
-		-Br                 \
-		--lines-per-page=150 \
-    --chars-per-line=80 \
+		-br                 \
+    --chars-per-line=70 \
 		--file-align=fill      \
 		--line-numbers=1        \
 		--pro=color               \
@@ -34,7 +33,8 @@ $(Tmp)/%.pdf: %.py  ## make doco: .py ==> .pdf
 		--borders=no             \
 	    --left-footer="$<  "               \
 	    --right-footer="page %s. of %s#"               \
-		--columns 4                 \
+		--columns 2                 \
+		--portrait \
 		-M letter                     \
 	  -o	 $@.ps $<
 	ps2pdf $@.ps $@; rm $@.ps
