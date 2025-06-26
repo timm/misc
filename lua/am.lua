@@ -89,7 +89,7 @@ function Freq:add(row,k, inc,         v)
   for _,col in pairs(self.data.x) do
     v=row[col.at]
     if v ~= "?" then
-      ssign3(self.fs, k, col.at, col:bin(v),inc) end end end 
+      assign3(self.fs, k, col.at, col:bin(v),inc) end end end 
 
 function Freq:like(row,k,      prior,l,v,f)
   prior = (self.nk[k] + the.k) / (self.nall + the.k*self.nh)
