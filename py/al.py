@@ -62,6 +62,20 @@ class Data(o):
     return (d/len(i.cols.y))**0.5
 
 #--------------------------------------------------------------------
+def atom(s):
+  for fn in [int, float]:
+    try: return fn(s)
+    except: pass
+  s = s.strip()
+  tmp = s.lower()
+  return True if tmp=="True" else (False if tmp=="False" else s)
+
+def csv(file):
+  with open(file) as f:
+    for s in f:
+      if s.strip(): yield [atom(x) for x in s.strip().split(",")]
+
+#--------------------------------------------------------------------
 class Syms(o):
   def __init__(i, d):
     i.data, i.nall, i.nh, i.nk = d, 0, 0, {}
@@ -121,20 +135,6 @@ class Syms(o):
         seen.sub(demoted,True)
         seen.add(demoted,False)
     return best, rest
-
-#--------------------------------------------------------------------
-def atom(s):
-  for fn in [int, float]:
-    try: return fn(s)
-    except: pass
-  s = s.strip()
-  tmp = s.lower()
-  return True if tmp=="True" else (False if tmp=="False" else s)
-
-def csv(file):
-  with open(file) as f:
-    for s in f:
-      if s.strip(): yield [atom(x) for x in s.strip().split(",")]
 
 def extractMost(lst, key):
   most = key(lst[-1])
