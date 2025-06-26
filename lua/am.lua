@@ -8,6 +8,7 @@ the = {Acq    = "xploit",
        build  = 20,
        check  = 5,
        file   = "../../moot/optimize/misc/auto93.csv",
+       guess  = 0.5,
        k      = 2,
        m      = 1,
        p      = 2, 
@@ -108,12 +109,22 @@ function Freq:acquire(row,            b,r,p,q)
    q    = {"xploit"=0, "xplor"=1}[the.Acq] or (1 - p)
    return (b + r*q) / abs(b*q - r + 1/big) end
 
+function subseq(t,i,j,     u)
+  j = j or #t
+  j = j<0 and #t + j + 1 or j
+  i = i<0 and #t + i + 1 or i
+  u = {}; for k = i, j do u[#u+1] = t[k] end; return u end
+
 function Data:acquires(rowas):
    Y= function(r) return self:ydist(r) end
    YR=function(r) return {-Y(r), r} end
-   any = sampler(rows)
-   seen = self:clone(any(4))
-   seen.rows,Y)
+   rows = shuffle(rows)
+   cut = int(the.assume ^ the.guess)
+   done = self:clone(subseq(rows, the.assume))
+   rows = sort(sofar.rows, Y)
+   todo = subseq(rows, the.assume + 1)
+   best = sort(map(subeq(rows,1,cut),YR),gt(1))
+   rest = subseq(rows,cut+1)
 
 ---------------------------------------------------------------------------
 big  = 1E32
