@@ -1,25 +1,27 @@
+#!/usr/bin/env python3 -B
 """
 abc.py: tiny acive learning,  multi objective.
 (c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
 
-Options, with (defaults):
- -f file   : data name (../../moot/optimize/misc/auto93.csv)
- -s seed   : set random number rseed (123456781)
- -F Few    : a few rows to explore (512)
- -p p      : distance calcs: set Minkowski coefficient (2)
+Options:
+ -f file   : data name = ../../moot/optimize/misc/auto93.csv
+ -s seed   : set random number seed = 123456781
+ -F Few    : a few rows to explore = 512
+ -p p      : distance calcs: set Minkowski coefficient = 2
 
 Bayes:
- -k k      : bayes hack for rare classes (1)
- -m m      : bayes hack for rare attributes (2)
+ -k k      : bayes hack for rare classes = 1
+ -m m      : bayes hack for rare attributes = 2
 
 Active learning:
- -a acq    : xploit or xplore or adapt (xploit)
- -A Assume : on init, how many initial guesses? (4)
- -B Build  : when growing theory, how many labels? (20)
- -C Check  : when testing, how many checks? (5) 
- -g guess  : ratio for sampling(0.5) """
+ -a acq    : xploit or xplore or adapt = xploit
+ -A Assume : on init, how many initial guesses? = 4
+ -B Build  : when growing theory, how many labels? = 20
+ -C Check  : when testing, how many checks? = 5 
+ -g guess  : ratio for sampling = 0.5 """
 
 import math, random, sys, re
+sys.dont_write_bytecode = True
 
 def atom(s):
   for fn in [int, float]:
@@ -35,17 +37,18 @@ def csv(file):
       if s.strip(): yield [atom(x) for x in s.strip().split(",")]
 
 class o:
-  __init__ = lambda i, **d: i.__dict__.update(d)
+  __init__ = lambda i, **d: i.__dict__.update(**d)
   __repr__ = lambda i     : f"{i.__class__.__name__}{vars(i)}"
 
-the = o(**{k:atom(v) for k,v in re.findall(
-                       r"\w+\s+(\w+)[^\(]*\(\s*([^)]+)\)",__doc__)})
+the = o(**{k:atom(v) 
+           for k,v in re.findall(r"-\w+\s*(\w+).*=\s*(\S+)",__doc__)})
 
 #--------------------------------------------------------------------
 class Sym(o):
-  def __init__(i, at=0, txt=""): i.at,i.txt,i.n,i.has=at,txt,0,{}
+  def __init__(i, inits=[], at=0, txt=""): 
+    i.at,i.txt,i.n,i.has=at,txt,0,{}
+    [i.add(x) for x in inits]
 
-  def bin(i,x): return x
   def add(i,x,inc=1,_=False): 
     if x!="?": 
       i.n+=inc; i.has[x]=i.has.get(x,0)+inc
@@ -56,22 +59,23 @@ class Sym(o):
 #--------------------------------------------------------------------
 class Num(o):
   big = 1e32
-  def __init__(i, at=0, txt=""):
+  def __init__(i,inits=[], at=0, txt=""):
     i.at,i.txt,i.n = at,txt,0
-    i.mu, i,m2,i.sd = 0,0,0
+    i.mu, i.m2, i.sd = 0,0,0
     i.lo,i.hi = i.big, -i.big
     i.heaven = 0 if txt.endswith("-") else 1
+    [i.add(x) for x in inits]
 
   def norm(i,x): return (x-i.lo)/(i.hi-i.lo+1/Num.big)
 
   def add(i,x, inc=1,_=False):
     if x!="?": 
-      i.n+=inc; i.lo=min(i.lo,x); i.hi=max(i.hi,x)
+      i.n += inc; i.lo=min(i.lo,x); i.hi=max(i.hi,x)
       if inc < 0 and i.n < 2:
         i.sd = i.m2 = i.mu = i.n = 0
       else:
        d     = x - i.mu
-       i.mu += inc * (x / i.n)
+       i.mu += inc * (d / i.n)
        i.m2 += inc * (d * (x - i.mu))
        i.sd  = 0 if i.n <= 2 else (max(0,i.m2)/(i.n-1))**.5
 
@@ -87,7 +91,7 @@ class Cols(o):
     i.names,i.all,i.x,i.y = names,[],[],[]
     i.klass = None
     for n,t in enumerate(names):
-      c = Num(n,t) if t[0].isupper() else Sym(n,t)
+      c = (Num if t[0].isupper() else Sym)(at=n,txt=t)
       i.all.append(c)
       if t[-1] != "X":
         (i.y if t[-1] in "!+-" else i.x).append(c)
@@ -96,7 +100,7 @@ class Cols(o):
 #--------------------------------------------------------------------
 class Data(o):
   def __init__(i, src=[]): 
-    i.rows,i.cols = [],None
+    i.n,i.rows,i.cols = 0,[],None
     [i.add(x) for x in src]
 
   def sub(i,t,zap=False): return i.add(t,-1,zap)
@@ -104,6 +108,7 @@ class Data(o):
   def add(i,t, inc=1, zap=False):
     if not i.cols: i.cols = Cols(t)
     else:
+      i.n += inc
       if inc > 0 : i.rows.append(t)
       elif zap   : i.rows.remove(t) # slow for large lists
       for col in i.cols.all: col.add(t[col.at], inc)
@@ -131,51 +136,62 @@ def acquire(yes, no, t, nall=100, nh=2):
   q = dict(xploit=0, xplor=1).get(the.Acq, 1 - p)
   return (b + r*q) / abs(b*q - r + 1 / Num.big)
 
-# best, rest = split(initial)
-# while not enough points:
-#   guess scores for top candidates in todo
-#   pick the best guess (hi)
-#   add hi to best
-#   remeasure distances
-#   if best is too big:
-#     move worst from best to rest
+# lit, dim = split(rows)
+# label and sort lit 
+# hot, dull = best(sqrt(lit)), other(lit)
+# while not enough labels:
+#   guess which row in dim scores highest
+#   label hi, add to hot
+#   resort hot
+#   move worst from hot to dull
+# return top hot
 def acquires(data, rows):
   random.shuffle(rows)
-  nall     = the.Assume
-  cut      = round(nall**the.Guess) 
-  todo     = rows[nall:]
-  done     = data.clone(data.ydists(rows[:nall]))
-  best     = data.clone(done.rows[:cut])
-  rest     = data.clone(done.rows[cut:])
-  _guess   = lambda t: -acquire(best,rest, t, nall, 2) # smaller is better
-  _guesses = lambda t: sorted(t, key=_guess) # best at 0 
-  while len(todo) > 2 and nall < the.Build:
-    nall  += 1
-    hi,*lo = _guesses(todo[:the.Few*2]) # best at start
-    todo   = lo[:the.Few] + todo[the.Few*2:] + lo[the.Few:]
-    done.add( best.add(hi))
-    best.rows = done.ydists(best.rows)
-    while len(best.rows) >= cut:
-      rest.add( best.sub( best.rows.pop(-1)))
-  return o(best = best.rows[0], 
-           labelled=done.rows, 
-           test = data.ydists(_guesses(todo)[:the.check])[0])
+  dim  = rows[the.Assume:]          # unlabeled pool
+  lit  = data.clone(rows[:the.Assume]) # labeled items
+  lits = lit.ydists() # sort just using the lit knolwedge
+  cut  = round(the.Assume**the.Guess) 
+  dull = data.clone(lits[cut:]) # rest
+  hot  = data.clone(lits[:cut]) # best
+
+  _score  = lambda t: -acquire(hot, dull, t, len(lit.rows), 2)  
+  _ranked = lambda t: sorted(t, key=_score)
+
+  while len(dim) > 2 and len(lit.rows) < the.Build:
+    hi, *lo = _ranked(dim[:the.Few * 2])
+    dim = lo[:the.Few] + dim[the.Few * 2:] + lo[the.Few:]
+    lit.add(hot.add(hi))
+    *hot.rows, doomed = lit.ydists(hot.rows) # sort via just the lit 
+    dull.add (hot.sub( doomed))
+  return o(hot=hot.rows[0],
+           lit=lit.rows,
+           test=data.ydists(_ranked(dim)[:the.check])[0])
 
 #--------------------------------------------------------------------
-def eg__acquires():
-  print("== testing acquires")
-  names = ["x1", "x2", "y!"]
-  d = Data(); d.add(names)
-  for _ in range(30):
-    row = [random.uniform(0,1),
-           random.uniform(0,1),
-           "a" if random.random() < 0.5 else "b"]
-    d.add(row)
-  s = Syms(d)
-  best, rest = s.acquires(d.rows)
-  print(f"#best={best.nall}  #rest={rest.nall}")
-  print("best.y dist:", sum(d.ydist(r) for r in d.rows[:best.nall]) / best.nall)
-  print("rest.y dist:", sum(d.ydist(r) for r in d.rows[-rest.nall:]) / rest.nall)
+def eg_h()    : print(__doc__)
+def eg__the() : print(the)
+def eg__csv() : [print(t) for t in csv(the.file)]
+def eg__sym() : print(Sym("aaaabbc").has)
+def eg__num() : print(Num(random.gauss(10,1) for _ in range(1000)).sd)
+def eg__data(): print(Data(csv(the.file)).cols.x)
+
+def eg__addSub():
+  d1=Data(csv(the.file))
+  d2=d1.clone()
+  for row in d1.rows:
+     d2.add(row)
+     if len(d2.rows)==100: 
+       mu,sd = d2.cols.x[0].mu,d2.cols.x[0].sd
+  for row in d1.rows[::-1]:
+    if len(d2.rows)==100: 
+      assert abs(d2.cols.x[0].mu/mu) < 1.01
+      assert abs(d2.cols.x[0].sd) < 1.01
+    d2.sub(row,True)
+
+def eg__bayes():
+  data = Data(csv(the.file))
+  assert all(-20 <= data.like(t) <=0 for t in data.rows)
+  print(sorted([data.like(t) for t in data.rows])[::20])
 
 #--------------------------------------------------------------------
 def cli(arg,d):
@@ -185,6 +201,6 @@ def cli(arg,d):
 if __name__ == "__main__":
   for arg in sys.argv:
     cli(arg, the.__dict__)
-    if (fn := globals().get("eg__"+arg)):
+    if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
       random.seed(the.seed)
       fn()
