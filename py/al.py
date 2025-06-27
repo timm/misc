@@ -1,14 +1,25 @@
-import math, random, sys
+"""
+abc.py: tiny acive learning,  multi objective.
+(c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
 
-the = dict(Acq="xploit",  
-           assume=4,  # initial guesses
-           build=20,  # for theory building
-           check=5,   # for checking (theory does not change)
-           file="../../moot/optimize/misc/auto03.csv", 
-           guess=0.5, 
-           k=2, 
-           m=1, 
-           seed=1234567891)
+Options, with (defaults):
+ -f file   : data name (../../moot/optimize/misc/auto93.csv)
+ -s seed   : set random number rseed (123456781)
+ -F Few    : a few rows to explore (512)
+ -p p      : distance calcs: set Minkowski coefficient (2)
+
+Bayes:
+ -k k      : bayes hack for rare classes (1)
+ -m m      : bayes hack for rare attributes (2)
+
+Active learning:
+ -a acq    : xploit or xplore or adapt (xploit)
+ -A Assume : on init, how many initial guesses? (4)
+ -B Build  : when growing theory, how many labels? (20)
+ -C Check  : when testing, how many checks? (5) 
+ -g guess  : ratio for sampling(0.5) """
+
+import math, random, sys, re
 
 def atom(s):
   for fn in [int, float]:
@@ -27,7 +38,8 @@ class o:
   __init__ = lambda i, **d: i.__dict__.update(d)
   __repr__ = lambda i     : f"{i.__class__.__name__}{vars(i)}"
 
-the = o(**the)
+the = o(**{k:atom(v) for k,v in re.findall(
+                       r"\w+\s+(\w+)[^\(]*\(\s*([^)]+)\)",__doc__)})
 
 #--------------------------------------------------------------------
 class Sym(o):
@@ -109,7 +121,7 @@ class Data(o):
     return (d/len(i.cols.y))**0.5
 
   def ydists(i,t=None):
-    return  sorted(t or i.rows, key=lambda r: i.ydist(r))
+    return  sorted(t or i.rows, key=lambda r: i.ydist(r)) # best at 0
 
 #--------------------------------------------------------------------
 def acquire(yes, no, t, nall=100, nh=2):
@@ -119,26 +131,34 @@ def acquire(yes, no, t, nall=100, nh=2):
   q = dict(xploit=0, xplor=1).get(the.Acq, 1 - p)
   return (b + r*q) / abs(b*q - r + 1 / Num.big)
 
+# best, rest = split(initial)
+# while not enough points:
+#   guess scores for top candidates in todo
+#   pick the best guess (hi)
+#   add hi to best
+#   remeasure distances
+#   if best is too big:
+#     move worst from best to rest
 def acquires(data, rows):
   random.shuffle(rows)
-  nall = the.Assume
-  cut  = round(nall**the.Guess) # [done = best + rest] + todo
-  todo = data.rows[nall:]
-  done = data.ydists(rows[:nall])
-  best = data.clone(done[:cut])
-  rest = data.clone(done[cut:])
-  br   = data.clone(done)
-  _guess  = lambda t: acquire(best,rest, t, nall, 2)
-  _guesses = lambda t: sorted(t, key=_guess, reverse=True)
+  nall     = the.Assume
+  cut      = round(nall**the.Guess) 
+  todo     = rows[nall:]
+  done     = data.clone(data.ydists(rows[:nall]))
+  best     = data.clone(done.rows[:cut])
+  rest     = data.clone(done.rows[cut:])
+  _guess   = lambda t: -acquire(best,rest, t, nall, 2) # smaller is better
+  _guesses = lambda t: sorted(t, key=_guess) # best at 0 
   while len(todo) > 2 and nall < the.Build:
     nall  += 1
-    hi,*lo = _guesses(todo[:the.Few*2])
+    hi,*lo = _guesses(todo[:the.Few*2]) # best at start
     todo   = lo[:the.Few] + todo[the.Few*2:] + lo[the.Few:]
-    br.add( best.add(hi))
-    best.rows = br.ydists(best.rows)
-    if len(best.rows) >= cut:
+    done.add( best.add(hi))
+    best.rows = done.ydists(best.rows)
+    while len(best.rows) >= cut:
       rest.add( best.sub( best.rows.pop(-1)))
-  return o(best = best, rest=rest, 
+  return o(best = best.rows[0], 
+           labelled=done.rows, 
            test = data.ydists(_guesses(todo)[:the.check])[0])
 
 #--------------------------------------------------------------------
@@ -158,8 +178,13 @@ def eg__acquires():
   print("rest.y dist:", sum(d.ydist(r) for r in d.rows[-rest.nall:]) / rest.nall)
 
 #--------------------------------------------------------------------
+def cli(arg,d):
+  for k in d:
+    if len(arg)> 1 and arg[1] == k[0]: d[k]=atom(arg)
+
 if __name__ == "__main__":
   for arg in sys.argv:
+    cli(arg, the.__dict__)
     if (fn := globals().get("eg__"+arg)):
       random.seed(the.seed)
       fn()
