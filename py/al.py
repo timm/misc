@@ -95,7 +95,7 @@ class Data(o):
       if inc > 0 : i.rows.append(t)
       elif zap   : i.rows.remove(t) # slow for large lists
       for col in i.cols.all: col.add(t[col.at], inc)
-    return i
+    return t
 
   def clone(i,rows=[]): return Data([i.cols.names]+rows)
 
