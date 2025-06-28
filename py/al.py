@@ -14,7 +14,7 @@ Bayes:
 Learning:
  -a acq    : xploit or xplore or adapt = xploit
  -A Assume : on init, how many initial guesses? = 4
- -B Build  : when growing theory, how many labels? = 20
+ -B Build  : when growing theory, how many labels? = 30
  -C Check  : when testing, how many checks? = 5 
  -g guess  : |hot| is |lit|**guess = 0.5 """
 
@@ -63,6 +63,7 @@ class Num(o):
     [i.add(x) for x in inits]
 
   def norm(i,x): return (x-i.lo)/(i.hi-i.lo+1/Num.big)
+  def win(i,x):  return (1- (x-i.lo)/(i.mu-i.lo))
 
   def add(i,x, inc=1,_=False):
     if x!="?": 
@@ -176,7 +177,10 @@ def acquires(data, rows):
     while len(hot.rows) > _nhot():
       dull.add( hot.sub( hot.rows.pop(-1)))
 
-  return o(hot=hot.rows, dull=dull.rows, test=_ranked(dim)[:the.Check]) 
+  return o(hot=hot.rows, 
+           dull=dull.rows, 
+           test=data.ydists(_ranked(dim)[:the.Check])) 
+
 
 #--------------------------------------------------------------------
 def eg_h()    : print(__doc__)
@@ -210,16 +214,17 @@ def eg__ydist():
 
 def eg__acquires():
   data = Data(csv(the.file))
-  R = lambda x: round(x,2)
-  Y = lambda t: data.ydist(t[0])
+  R = lambda z: f" {z:.2f}".lstrip("0")
+  Y = lambda t: data.ydist(t)
   hot,test,b4 = Num(), Num(), Num(Y(t) for t in data.rows)
-  for _ in range(1):
-    x =acquires(data,data.rows)
-    hot.add(Y(x.hot))
-    test.add(Y(x.test))
-  # print(o(hot=o(mu=R(hot.mu),sd=R(hot.sd)), 
-  #         test=o(mu=R(test.mu), sd=R(test.sd)),
-  #         b4=o(mu=R(b4.mu), sd=R(b4.sd))))
+  for _ in range(20):
+     x =acquires(data,data.rows)
+     hot.add( Y(x.hot[0]))
+     test.add(Y(x.test[0]))
+  print(R(b4.win(hot.mu)),
+        *[f"{len(z):>5}" for z in [data.rows, data.cols.x, data.cols.y]],
+        *[R(z) for z in [b4.mu, b4.lo, hot.mu, test.mu]], 
+        re.sub(r"^.*/"," ",the.file), sep=",")
 
 #--------------------------------------------------------------------
 def cli(n,arg,d):

@@ -57,3 +57,13 @@ scikitInstall:
 	python3 -m venv sklearn-env
 	- source sklearn-env/bin/activate
 	- pip3 install -U scikit-learn
+
+rq1: ../../moot/optimize/[mpchb]*/*.csv
+	{$(foreach f, $^, (python3 -B al.py -f $f --acquires &);)} | tee ~/tmp/al$@
+
+rq1Report:
+	cat ~/tmp/alrq1| sort -n -t, -k6,6 -k7,7   | \
+		gawk -F, 'BEGIN {print "new,mu,lo"} {OFS=","; print $$7,$$5,$$6}' |  python3 -c 'import sys, pandas as pd; \
+import matplotlib.pyplot as plt; \
+df = pd.read_csv(sys.stdin); \
+df.plot(); plt.show(); '
