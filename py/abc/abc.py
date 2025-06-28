@@ -39,8 +39,7 @@ class o:
   __init__ = lambda i, **d: i.__dict__.update(**d)
   __repr__ = lambda i     : f"{i.__class__.__name__}{vars(i)}"
 
-the = o(**{k:atom(v) for k,v in 
-           re.findall(r"-\S\s+(\w+).*?=\s+(\S+)",__doc__)})
+the = o(**{k:atom(v) for k,v in re.findall(r"-\S\s+(\w+).*?=\s+(\S+)",__doc__)})
 
 #--------------------------------------------------------------------
 class Sym(o):

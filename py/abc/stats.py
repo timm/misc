@@ -4,6 +4,7 @@ def same(cliff=None, n=None, conf=None):
   cliff = cliff or the.Cliifs
   return lambda xs,ys:cliffs(xs,ys,cliff) and bootstrap(xs,ys,n,conf)
 
+#--------------------------------------------------------------------
 def cliffs(xs,ys, cliff):
   "Effect size. Tb1 of doi.org/10.3102/10769986025002101"
   n,lt,gt = 0,0,0
@@ -14,23 +15,34 @@ def cliffs(xs,ys, cliff):
       if x < y: lt += 1
   return abs(lt - gt)/n  < cliff # 0.197)  #med=.28, small=.11
 
+#--------------------------------------------------------------------
 # Non-parametric significance test from 
 # Chp20,doi.org/10.1201/9780429246593. Distributions are the same 
 # if, often, we `_obs`erve differences just by chance. We center both 
 # samples around the combined mean to simulate what data might look 
-# like if vals1 and vals2 came from the same population.
-def bootstrap(xs, ys, bootstrap,conf):
-  _obs  = lambda i,j: abs(i.mu - j.mu) / (
-                           (i.sd**2/i.n + j.sd**2/j.n)**.5 +1E-32)
-  x,y,z = Num(xs+ys), Num(xs), Num(ys)
-  yhat  = [y1 - mid(y) + mid(x) for y1 in xs]
-  zhat  = [z1 - mid(z) + mid(x) for z1 in ys]
-  n     = 0
-  for _ in range(bootstrap):
-    n += _obs(Num(random.choices(yhat, k=len(yhat))),
-              Num(random.choices(zhat, k=len(zhat)))) > _obs(y,z)
-  return n / bootstrap >= (1- conf)
+# like if xs and ys came from the same population.
+def stat(t):
+  m = sum(t) / len(t)
+  s = (sum((x - m)**2 for x in t) / (len(t) - 1))**.5
+  return m, s, len(t)
 
+def obs(a, b):
+  ma, sa, na = stat(a)
+  mb, sb, nb = stat(b)
+  return abs(ma - mb) / ((sa**2 / na + sb**2 / nb)**.5 + 1E-32)
+
+def bootstrap(xs, ys, b=1000, conf=0.05):
+  sx, sy = sum(xs), sum(ys)
+  nx, ny = len(xs), len(ys)
+  mxy    = (sx + sy) / (nx + ny)
+  xhat   = [x - sx / nx + mxy for x in xs]
+  yhat   = [y - sy / ny + mxy for y in ys]
+  ref    = obs(xs, ys)
+  C      = lambda t,k: random.choices(t, k=k)
+  more   = sum(obs(C(xhat, nx), C(yhat, ny)) > ref for _ in range(b))
+  return more / b >= (1 - conf)
+
+#--------------------------------------------------------------------
 def sk(rxs, same, eps=0, reverse=False):
   "Dict[key,List[float]] -> List[(rank,key,vals,n,mu)]"
   def _cut(cuts, cut=None):
@@ -59,4 +71,3 @@ def sk(rxs, same, eps=0, reverse=False):
   cuts.sort(key=lambda r: r[4], reverse=reverse)
   _div(cuts)
   return sorted(cuts)
-
