@@ -8,40 +8,36 @@ Options:
  -s seed   : set random number seed = 123456781
  -F Few    : a few rows to explore = 512
  -p p      : distance calcs: set Minkowski coefficient = 2
-
 Bayes:
  -k k      : bayes hack for rare classes = 1
  -m m      : bayes hack for rare attributes = 2
-
-Active learning:
+Learning:
  -a acq    : xploit or xplore or adapt = xploit
  -A Assume : on init, how many initial guesses? = 4
  -B Build  : when growing theory, how many labels? = 20
  -C Check  : when testing, how many checks? = 5 
- -g guess  : ratio for sampling = 0.5 """
+ -g guess  : |hot| is |lit|**guess = 0.5 """
 
 import math, random, sys, re
 sys.dont_write_bytecode = True
 
-def atom(s):
+def to(s):
   for fn in [int, float]:
     try: return fn(s)
     except: pass
   s = s.strip()
-  tmp = s.lower()
-  return True if tmp=="True" else (False if tmp=="False" else s)
+  return True if s=="True" else (False if s=="False" else s)
 
 def csv(file):
   with open(file) as f:
     for s in f:
-      if s.strip(): yield [atom(x) for x in s.strip().split(",")]
+      if s.strip(): yield [to(x) for x in s.strip().split(",")]
 
 class o:
   __init__ = lambda i, **d: i.__dict__.update(**d)
   __repr__ = lambda i     : f"{i.__class__.__name__}{vars(i)}"
 
-the = o(**{k:atom(v) 
-           for k,v in re.findall(r"-\w+\s*(\w+).*=\s*(\S+)",__doc__)})
+the = o(**{k:to(v) for k,v in re.findall(r"-\S\s+(\w+).*?=\s+(\S+)",__doc__)})
 
 #--------------------------------------------------------------------
 class Sym(o):
@@ -132,75 +128,108 @@ class Data(o):
 def acquire(yes, no, t, nall=100, nh=2):
   b = math.exp(yes.like(t, nall, nh))
   r = math.exp(no.like(t, nall, nh))
-  p = nall / the.build
-  q = dict(xploit=0, xplor=1).get(the.Acq, 1 - p)
+  p = nall / the.Build
+  q = dict(xploit=0, xplor=1).get(the.acq, 1 - p)
   return (b + r*q) / abs(b*q - r + 1 / Num.big)
 
-# lit, dim = split(rows)
-# label and sort lit 
-# hot, dull = best(sqrt(lit)), other(lit)
-# while not enough labels:
-#   guess which row in dim scores highest
-#   label hi, add to hot
-#   resort hot
-#   move worst from hot to dull
-# return top hot
 def acquires(data, rows):
+  """dim  = unknown (unlabeled) pool
+     lit  = known (labeled) data
+     hot  = lit's top-ranked known items 
+     dull = lit's remaining known items (less informative)"""
   random.shuffle(rows)
-  dim  = rows[the.Assume:]          # unlabeled pool
-  lit  = data.clone(rows[:the.Assume]) # labeled items
-  lits = lit.ydists() # sort just using the lit knolwedge
-  cut  = round(the.Assume**the.Guess) 
-  dull = data.clone(lits[cut:]) # rest
-  hot  = data.clone(lits[:cut]) # best
 
-  _score  = lambda t: -acquire(hot, dull, t, len(lit.rows), 2)  
+  # Split data: known (lit) and unknown (dim)
+  dim  = rows[the.Assume:]                  # unknown, lacking labels
+  lit  = data.clone(rows[:the.Assume])      # known, already labeled
+
+  # Sort known items by outcome-based distance
+  lits = lit.ydists()
+
+  # Determine how many should be in the "hot" set
+  _nhot = lambda: int(len(lit.rows)**the.guess)
+
+  # Partition lit into hot (best) and dull (rest)
+  hot  = data.clone(lits[:_nhot()])         # best known
+  dull = data.clone(lits[_nhot():])         # rest of the known
+
+  # Scoring function: prioritize items that could reshape the boundary
+  _score  = lambda t: -acquire(hot, dull, t, len(lit.rows), 2)
+
+  # Rank unknown items by score (best first)
   _ranked = lambda t: sorted(t, key=_score)
 
+  # Active learning loop: label most promising unknowns
   while len(dim) > 2 and len(lit.rows) < the.Build:
-    hi, *lo = _ranked(dim[:the.Few * 2])
+    hi, *lo = _ranked(dim[:the.Few * 2])       # top guess and backups
+
+    # Keep a few top ranked items, cycle the rest to the end
     dim = lo[:the.Few] + dim[the.Few * 2:] + lo[the.Few:]
+
+    # Label high-potential item
     lit.add(hot.add(hi))
-    *hot.rows, doomed = lit.ydists(hot.rows) # sort via just the lit 
-    dull.add (hot.sub( doomed))
-  return o(hot=hot.rows[0],
-           lit=lit.rows,
-           test=data.ydists(_ranked(dim)[:the.check])[0])
+
+    # Re-sort hot based on updated knowledge
+    hot.rows = lit.ydists(hot.rows)
+
+    # Keep hot size within bounds; move any overflow to dull
+    while len(hot.rows) > _nhot():
+      dull.add( hot.sub( hot.rows.pop(-1)))
+
+  return o(hot=hot.rows, dull=dull.rows, test=_ranked(dim)[:the.Check]) 
 
 #--------------------------------------------------------------------
 def eg_h()    : print(__doc__)
 def eg__the() : print(the)
 def eg__csv() : [print(t) for t in csv(the.file)]
 def eg__sym() : print(Sym("aaaabbc").has)
-def eg__num() : print(Num(random.gauss(10,1) for _ in range(1000)).sd)
-def eg__data(): print(Data(csv(the.file)).cols.x)
+def eg__num() : print(Num(random.gauss(10,2) for _ in range(1000)).sd)
+def eg__data(): [print(col) for col in Data(csv(the.file)).cols.all]
 
-def eg__addSub():
-  d1=Data(csv(the.file))
-  d2=d1.clone()
+def eg__addsSubs():
+  d1 = Data(csv(the.file))
+  d2 = d1.clone()
+  x  = d2.cols.x[1]
   for row in d1.rows:
-     d2.add(row)
-     if len(d2.rows)==100: 
-       mu,sd = d2.cols.x[0].mu,d2.cols.x[0].sd
+    d2.add(row)
+    if len(d2.rows)==100: mu1,sd1 = x.mu,x.sd
   for row in d1.rows[::-1]:
-    if len(d2.rows)==100: 
-      assert abs(d2.cols.x[0].mu/mu) < 1.01
-      assert abs(d2.cols.x[0].sd) < 1.01
+    if len(d2.rows)==100: mu2,sd2 = x.mu,x.sd
     d2.sub(row,True)
+  assert abs(mu2/mu1) < 1.01 and abs(sd2/sd1) < 1.01
 
 def eg__bayes():
   data = Data(csv(the.file))
-  assert all(-20 <= data.like(t) <=0 for t in data.rows)
-  print(sorted([data.like(t) for t in data.rows])[::20])
+  assert all(-20 <= data.like(t) <= 0 for t in data.rows)
+  print(sorted([round(data.like(t),2) for t in data.rows])[::20])
+
+def eg__ydist():
+  data = Data(csv(the.file))
+  assert all(0 <= data.ydist(t) <= 1 for t in data.rows)
+  print(sorted([round(data.ydist(t),2) for t in data.rows])[::20])
+
+def eg__acquires():
+  data = Data(csv(the.file))
+  R = lambda x: round(x,2)
+  Y = lambda t: data.ydist(t[0])
+  hot,test,b4 = Num(), Num(), Num(Y(t) for t in data.rows)
+  for _ in range(1):
+    x =acquires(data,data.rows)
+    hot.add(Y(x.hot))
+    test.add(Y(x.test))
+  # print(o(hot=o(mu=R(hot.mu),sd=R(hot.sd)), 
+  #         test=o(mu=R(test.mu), sd=R(test.sd)),
+  #         b4=o(mu=R(b4.mu), sd=R(b4.sd))))
 
 #--------------------------------------------------------------------
-def cli(arg,d):
-  for k in d:
-    if len(arg)> 1 and arg[1] == k[0]: d[k]=atom(arg)
+def cli(n,arg,d):
+  if len(arg) > 1:
+    for k in d:
+      if arg[1] == k[0]: d[k]=to(sys.argv[n+1])
 
 if __name__ == "__main__":
-  for arg in sys.argv:
-    cli(arg, the.__dict__)
+  for n,arg in enumerate(sys.argv):
+    cli(n,arg, the.__dict__)
     if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
       random.seed(the.seed)
       fn()
