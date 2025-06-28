@@ -4,24 +4,26 @@ abc.py: tiny acive learning,  multi objective.
 (c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
 
 Options:
- -f file   : data name = ../../moot/optimize/misc/auto93.csv
+ -f file   : data name = ../../../moot/optimize/misc/auto93.csv
  -s seed   : set random number seed = 123456781
  -F Few    : a few rows to explore = 512
  -p p      : distance calcs: set Minkowski coefficient = 2
+
 Bayes:
  -k k      : bayes hack for rare classes = 1
  -m m      : bayes hack for rare attributes = 2
+
 Learning:
  -a acq    : xploit or xplore or adapt = xploit
  -A Assume : on init, how many initial guesses? = 4
  -B Build  : when growing theory, how many labels? = 30
  -C Check  : when testing, how many checks? = 5 
- -g guess  : |hot| is |lit|**guess = 0.5 """
-
+ -g guess  : |hot| is |lit|**guess = 0.5
+"""
 import math, random, sys, re
 sys.dont_write_bytecode = True
 
-def to(s):
+def atom(s):
   for fn in [int, float]:
     try: return fn(s)
     except: pass
@@ -31,13 +33,14 @@ def to(s):
 def csv(file):
   with open(file) as f:
     for s in f:
-      if s.strip(): yield [to(x) for x in s.strip().split(",")]
+      if s.strip(): yield [atom(x) for x in s.strip().split(",")]
 
 class o:
   __init__ = lambda i, **d: i.__dict__.update(**d)
   __repr__ = lambda i     : f"{i.__class__.__name__}{vars(i)}"
 
-the = o(**{k:to(v) for k,v in re.findall(r"-\S\s+(\w+).*?=\s+(\S+)",__doc__)})
+the = o(**{k:atom(v) for k,v in 
+           re.findall(r"-\S\s+(\w+).*?=\s+(\S+)",__doc__)})
 
 #--------------------------------------------------------------------
 class Sym(o):
@@ -216,21 +219,20 @@ def eg__acquires():
   data = Data(csv(the.file))
   R = lambda z: f" {z:.2f}".lstrip("0")
   Y = lambda t: data.ydist(t)
-  hot,test,b4 = Num(), Num(), Num(Y(t) for t in data.rows)
+  hot,b4 = Num(),  Num(Y(t) for t in data.rows)
   for _ in range(20):
      x =acquires(data,data.rows)
      hot.add( Y(x.hot[0]))
-     test.add(Y(x.test[0]))
   print(R(b4.win(hot.mu)),
         *[f"{len(z):>5}" for z in [data.rows, data.cols.x, data.cols.y]],
-        *[R(z) for z in [b4.mu, b4.lo, hot.mu, test.mu]], 
+        *[R(z) for z in [b4.mu, b4.lo, hot.mu]], 
         re.sub(r"^.*/"," ",the.file), sep=",")
 
 #--------------------------------------------------------------------
 def cli(n,arg,d):
   if len(arg) > 1:
     for k in d:
-      if arg[1] == k[0]: d[k]=to(sys.argv[n+1])
+      if arg[1] == k[0]: d[k]=atom(sys.argv[n+1])
 
 if __name__ == "__main__":
   for n,arg in enumerate(sys.argv):
