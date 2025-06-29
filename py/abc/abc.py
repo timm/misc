@@ -14,7 +14,7 @@ Bayes:
  -m m      : bayes hack for rare attributes = 2
 
 Learning:
- -a acq    : xploit or xplore or adapt = xploit
+ -a acq    : xploit or xplor or adapt = xploit
  -A Assume : on init, how many initial guesses? = 4
  -B Build  : when growing theory, how many labels? = 30
  -C Check  : when testing, how many checks? = 5 
@@ -131,9 +131,10 @@ class Data(o):
 def acquire(yes, no, t, nall=100, nh=2):
   b = math.exp(yes.like(t, nall, nh))
   r = math.exp(no.like(t, nall, nh))
-  p = nall / the.Build
-  q = dict(xploit=0, xplor=1).get(the.acq, 1 - p)
-  return (b + r*q) / abs(b*q - r + 1 / Num.big)
+  return  b > r
+  #p = nall / the.Build
+  #q = dict(xploit=0, xplor=1).get(the.acq, 1 - p)
+  #return (b + r*q) / abs(b*q - r + 1 / Num.big)
 
 def acquires(data, rows):
   """dim  = unknown (unlabeled) pool
@@ -141,48 +142,35 @@ def acquires(data, rows):
      hot  = lit's top-ranked known items 
      dull = lit's remaining known items (less informative)"""
   random.shuffle(rows)
-
   # Split data: known (lit) and unknown (dim)
   dim  = rows[the.Assume:]                  # unknown, lacking labels
   lit  = data.clone(rows[:the.Assume])      # known, already labeled
-
   # Sort known items by outcome-based distance
   lits = lit.ydists()
-
   # Determine how many should be in the "hot" set
   _nhot = lambda: int(len(lit.rows)**the.guess)
-
   # Partition lit into hot (best) and dull (rest)
   hot  = data.clone(lits[:_nhot()])         # best known
   dull = data.clone(lits[_nhot():])         # rest of the known
-
   # Scoring function: prioritize items that could reshape the boundary
   _score  = lambda t: -acquire(hot, dull, t, len(lit.rows), 2)
-
   # Rank unknown items by score (best first)
   _ranked = lambda t: sorted(t, key=_score)
-
   # Active learning loop: label most promising unknowns
   while len(dim) > 2 and len(lit.rows) < the.Build:
     hi, *lo = _ranked(dim[:the.Few * 2])       # top guess and backups
-
     # Keep a few top ranked items, cycle the rest to the end
     dim = lo[:the.Few] + dim[the.Few * 2:] + lo[the.Few:]
-
     # Label high-potential item
     lit.add(hot.add(hi))
-
     # Re-sort hot based on updated knowledge
     hot.rows = lit.ydists(hot.rows)
-
     # Keep hot size within bounds; move any overflow to dull
     while len(hot.rows) > _nhot():
       dull.add( hot.sub( hot.rows.pop(-1)))
-
   return o(hot=hot.rows, 
            dull=dull.rows, 
            test=data.ydists(_ranked(dim)[:the.Check])) 
-
 
 #--------------------------------------------------------------------
 def eg_h()    : print(__doc__)
@@ -218,13 +206,16 @@ def eg__acquires():
   data = Data(csv(the.file))
   R = lambda z: f" {z:.2f}".lstrip("0")
   Y = lambda t: data.ydist(t)
-  hot,b4 = Num(),  Num(Y(t) for t in data.rows)
+  hot,test,b4 = Num(),  Num(), Num(Y(t) for t in data.rows)
   for _ in range(20):
      x =acquires(data,data.rows)
      hot.add( Y(x.hot[0]))
-  print(R(b4.win(hot.mu)),
+     test.add( Y(x.test[0]))
+  print(R(b4.win(hot.mu)), 
         *[f"{len(z):>5}" for z in [data.rows, data.cols.x, data.cols.y]],
-        *[R(z) for z in [b4.mu, b4.lo, hot.mu]], 
+        *[R(z) for z in [b4.mu, b4.lo]], #")<", 
+        *[R(z) for z in [hot.mu, test.mu]], #">",
+        *[R(z) for z in [b4.win(hot.mu), b4.win(test.mu)]],
         re.sub(r"^.*/"," ",the.file), sep=",")
 
 #--------------------------------------------------------------------
