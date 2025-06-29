@@ -1,48 +1,31 @@
 #!/usr/bin/env python3 -B
 """
-abc.py: tiny acive learning,  multi objective.
+abc.py: tiny acive learning, multi objective.
 (c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
 
-Options:
- -f file   : data name = ../../../moot/optimize/misc/auto93.csv
- -s seed   : set random number seed = 123456781
- -F Few    : a few rows to explore = 512
- -p p      : distance calcs: set Minkowski coefficient = 2
-
-Bayes:
- -k k      : bayes hack for rare classes = 1
- -m m      : bayes hack for rare attributes = 2
-
-Learning:
- -a acq    : xploit or xplor or adapt = xploit
- -A Assume : on init, how many initial guesses? = 4
- -B Build  : when growing theory, how many labels? = 30
- -C Check  : when testing, how many checks? = 5 
- -g guess  : |hot| is |lit|**guess = 0.5
+ -h               show help
+ -A Assume=4      on init, how many initial guesses?
+ -B Build=30      when growing theory, how many labels?
+ -C Check=5       when testing, how many checks? 
+ -F Few=512       just explore a Few rows
+ -a acq=xploit    xploit or xplor or adapt
+ -g guess=0.5     |hot| is |lit|**guess
+ -k k=1           bayes hack for rare classes 
+ -m m=2           bayes hack for rare attributes
+ -p p=2           distance calcs coeffecient
+ -s seed=1234567891 
+ -f file=../../../moot/optimize/misc/auto93.csv
 """
-import math, random, sys, re
-sys.dont_write_bytecode = True
+import math, random, sys, ast, re
+from types import SimpleNamespace as o
 
-def atom(s):
-  for fn in [int, float]:
-    try: return fn(s)
-    except: pass
-  s = s.strip()
-  return True if s=="True" else (False if s=="False" else s)
-
-def csv(file):
-  with open(file) as f:
-    for s in f:
-      if s.strip(): yield [atom(x) for x in s.strip().split(",")]
-
-class o:
-  __init__ = lambda i, **d: i.__dict__.update(**d)
-  __repr__ = lambda i     : f"{i.__class__.__name__}{vars(i)}"
-
-the = o(**{k:atom(v) for k,v in re.findall(r"-\S\s+(\w+).*?=\s+(\S+)",__doc__)})
+atom = lambda s: ast.literal_eval(s) if s[0] in "-1234567890" else s
+the  = o(**{k:atom(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
 
 #--------------------------------------------------------------------
-class Sym(o):
+class T: __repr__ = lambda i : f"{i.__class__.__name__}{vars(i)}"
+
+class Sym(T):
   def __init__(i, inits=[], at=0, txt=""): 
     i.at,i.txt,i.n,i.has=at,txt,0,{}
     [i.add(x) for x in inits]
@@ -55,13 +38,13 @@ class Sym(o):
     return (i.has.get(s,0) + the.m*prior) / (i.n + the.m + 1/Num.big)
 
 #--------------------------------------------------------------------
-class Num(o):
+class Num(T):
   big = 1e32
   def __init__(i,inits=[], at=0, txt=""):
-    i.at,i.txt,i.n = at,txt,0
+    i.at,i.txt,i.n   = at,txt,0
     i.mu, i.m2, i.sd = 0,0,0
-    i.lo,i.hi = i.big, -i.big
-    i.heaven = 0 if txt.endswith("-") else 1
+    i.lo,i.hi        = i.big, -i.big
+    i.heaven         = 0 if txt.endswith("-") else 1
     [i.add(x) for x in inits]
 
   def norm(i,x): return (x-i.lo)/(i.hi-i.lo+1/Num.big)
@@ -85,19 +68,18 @@ class Num(o):
     return min(1, max(0, math.exp(-z) / (2 * math.pi * var) ** 0.5))
 
 #--------------------------------------------------------------------
-class Cols(o):
-  def __init__(i,names):
-    i.names,i.all,i.x,i.y = names,[],[],[]
-    i.klass = None
-    for n,t in enumerate(names):
-      c = (Num if t[0].isupper() else Sym)(at=n,txt=t)
-      i.all.append(c)
-      if t[-1] != "X":
-        (i.y if t[-1] in "!+-" else i.x).append(c)
-        if t[-1] == "!": i.klass = c
+def _Cols(names):
+  x, y, all, klass = [], [], [], None
+  for n,t in enumerate(names):
+    col = (Num if t[0].isupper() else Sym)(at=n,txt=t)
+    all.append(col)
+    if t[-1] != "X":
+      if t[-1] == "!": klass = col
+      (y if t[-1] in "!+-" else x).append(col)
+  return o(names=names, all=all, x=x, y=y, klass=klass)
 
 #--------------------------------------------------------------------
-class Data(o):
+class Data(T):
   def __init__(i, src=[]): 
     i.n,i.rows,i.cols = 0,[],None
     [i.add(x) for x in src]
@@ -105,7 +87,7 @@ class Data(o):
   def sub(i,t,zap=False): return i.add(t,-1,zap)
 
   def add(i,t, inc=1, zap=False):
-    if not i.cols: i.cols = Cols(t)
+    if not i.cols: i.cols = _Cols(t)
     else:
       i.n += inc
       if inc > 0 : i.rows.append(t)
@@ -121,8 +103,8 @@ class Data(o):
     return sum(math.log(n) for n in tmp + [prior] if n>0)
 
   def ydist(i,r):
-    d = sum((c.norm(r[c.at])-c.heaven)**2 for c in i.cols.y)
-    return (d/len(i.cols.y))**0.5
+    d = sum((c.norm(r[c.at])-c.heaven)**(the.p) for c in i.cols.y)
+    return (d/len(i.cols.y))**(1/the.p)
 
   def ydists(i,t=None):
     return  sorted(t or i.rows, key=lambda r: i.ydist(r)) # best at 0
@@ -152,10 +134,12 @@ def acquires(data, rows):
   # Partition lit into hot (best) and dull (rest)
   hot  = data.clone(lits[:_nhot()])         # best known
   dull = data.clone(lits[_nhot():])         # rest of the known
+
   # Scoring function: prioritize items that could reshape the boundary
   _score  = lambda t: -acquire(hot, dull, t, len(lit.rows), 2)
   # Rank unknown items by score (best first)
   _ranked = lambda t: sorted(t, key=_score)
+
   # Active learning loop: label most promising unknowns
   while len(dim) > 2 and len(lit.rows) < the.Build:
     hi, *lo = _ranked(dim[:the.Few * 2])       # top guess and backups
@@ -168,11 +152,17 @@ def acquires(data, rows):
     # Keep hot size within bounds; move any overflow to dull
     while len(hot.rows) > _nhot():
       dull.add( hot.sub( hot.rows.pop(-1)))
+
   return o(hot=hot.rows, 
            dull=dull.rows, 
            test=data.ydists(_ranked(dim)[:the.Check])) 
 
 #--------------------------------------------------------------------
+def csv(file):
+  with open(file) as f:
+    for s in f:
+      if s.strip(): yield [atom(x) for x in s.strip().split(",")]
+
 def eg_h()    : print(__doc__)
 def eg__the() : print(the)
 def eg__csv() : [print(t) for t in csv(the.file)]
@@ -208,13 +198,12 @@ def eg__acquires():
   Y = lambda t: data.ydist(t)
   hot,test,b4 = Num(),  Num(), Num(Y(t) for t in data.rows)
   for _ in range(20):
-     x =acquires(data,data.rows)
+     x = acquires(data,data.rows)
      hot.add( Y(x.hot[0]))
      test.add( Y(x.test[0]))
   print(R(b4.win(hot.mu)), 
         *[f"{len(z):>5}" for z in [data.rows, data.cols.x, data.cols.y]],
-        *[R(z) for z in [b4.mu, b4.lo]], #")<", 
-        *[R(z) for z in [hot.mu, test.mu]], #">",
+        *[R(z) for z in [b4.mu, b4.lo,hot.mu, test.mu]], 
         *[R(z) for z in [b4.win(hot.mu), b4.win(test.mu)]],
         re.sub(r"^.*/"," ",the.file), sep=",")
 
