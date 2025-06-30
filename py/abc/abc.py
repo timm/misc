@@ -26,19 +26,13 @@ the  = o(**{k:atom(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
 class T: __repr__ = lambda i : f"{i.__class__.__name__}{vars(i)}"
 
 class Sym(T):
+  "Summarize symbolic columns."
   def __init__(i, inits=[], at=0, txt=""): 
     i.at,i.txt,i.n,i.has=at,txt,0,{}
     [i.add(x) for x in inits]
 
-  def add(i,x,inc=1,_=False): 
-    if x!="?": 
-      i.n+=inc; i.has[x]=i.has.get(x,0)+inc
-
-  def pdf(i,s, prior=0):
-    return (i.has.get(s,0) + the.m*prior) / (i.n + the.m + 1/Num.big)
-
-#--------------------------------------------------------------------
 class Num(T):
+  "Summarize numeric columns."
   big = 1e32
   def __init__(i,inits=[], at=0, txt=""):
     i.at,i.txt,i.n   = at,txt,0
@@ -50,25 +44,59 @@ class Num(T):
   def norm(i,x): return (x-i.lo)/(i.hi-i.lo+1/Num.big)
   def win(i,x):  return (1- (x-i.lo)/(i.mu-i.lo))
 
-  def add(i,x, inc=1,_=False):
-    if x!="?": 
-      i.n += inc; i.lo=min(i.lo,x); i.hi=max(i.hi,x)
-      if inc < 0 and i.n < 2:
-        i.sd = i.m2 = i.mu = i.n = 0
-      else:
-       d     = x - i.mu
-       i.mu += inc * (d / i.n)
-       i.m2 += inc * (d * (x - i.mu))
-       i.sd  = 0 if i.n <= 2 else (max(0,i.m2)/(i.n-1))**.5
+class Data(T):
+  "Summarize rows into their various columns."
+  def __init__(i, src=[]): 
+    i.n,i.rows,i.cols = 0,[],None
+    [i.add(x) for x in src]
 
-  def pdf(i,v,_):
-    sd  = i.sd or 1 / Num.big
-    var = 2 * sd * sd
-    z   = (v - i.mu) ** 2 / var
-    return min(1, max(0, math.exp(-z) / (2 * math.pi * var) ** 0.5))
+  def clone(i,rows=[]): return Data([i.cols.names]+rows)
+
+  def ydist(i,r):
+    d = sum((c.norm(r[c.at])-c.heaven)**(the.p) for c in i.cols.y)
+    return (d/len(i.cols.y))**(1/the.p)
+
+  def ydists(i,t=None):
+    return  sorted(t or i.rows, key=lambda r: i.ydist(r)) # best at 0
 
 #--------------------------------------------------------------------
-def _Cols(names):
+def extend(cls, doc=None):
+  "Add a function as a method to `cls`, with optional docstring."
+  def decorator(f):
+    setattr(cls, f.__name__, f)
+    if doc: f.__doc__ = doc
+    return f
+  return decorator
+
+@extend(Sym, "Update symbolic columns.")
+def add(i,x,inc=1,**_):
+  if x!="?": 
+    i.n+=inc; i.has[x]=i.has.get(x,0)+inc
+
+@extend(Num, "Update numeric columns")
+def add(i,x, inc=1,**_):
+  if x!="?": 
+    i.n += inc; i.lo=min(i.lo,x); i.hi=max(i.hi,x)
+    if inc < 0 and i.n < 2:
+      i.sd = i.m2 = i.mu = i.n = 0
+    else:
+      d     = x - i.mu
+      i.mu += inc * (d / i.n)
+      i.m2 += inc * (d * (x - i.mu))
+      i.sd  = 0 if i.n <= 2 else (max(0,i.m2)/(i.n-1))**.5
+
+@extend(Data, "Update rows.")
+def add(i,t, inc=1, zap=False):
+  if not i.cols: i.cols = _cols(t)
+  else:
+    i.n += inc
+    if inc > 0 : i.rows.append(t)
+    elif zap   : i.rows.remove(t) # slow for large lists
+    for col in i.cols.all: col.add(t[col.at], inc)
+  return t
+
+def _cols(names):
+  "Factory for making Nums and Syms."
   x, y, all, klass = [], [], [], None
   for n,t in enumerate(names):
     col = (Num if t[0].isupper() else Sym)(at=n,txt=t)
@@ -78,36 +106,26 @@ def _Cols(names):
       (y if t[-1] in "!+-" else x).append(col)
   return o(names=names, all=all, x=x, y=y, klass=klass)
 
+@extend(T, "Subtraction is just adding a negative amount.")
+def sub(i,t,zap=False): return i.add(t,-1,zap)
+
 #--------------------------------------------------------------------
-class Data(T):
-  def __init__(i, src=[]): 
-    i.n,i.rows,i.cols = 0,[],None
-    [i.add(x) for x in src]
+@extend(Data, "How much does this Data like `t`?")
+def like(i, t, nall=100, nh=2):
+  prior = (i.n + the.k) / (nall + the.k*nh)
+  tmp = [c.like(v,prior) for c in i.cols.x if (v:=t[c.at]) != "?"]
+  return sum(math.log(n) for n in tmp + [prior] if n>0)
 
-  def sub(i,t,zap=False): return i.add(t,-1,zap)
+@extend(Sym, "How much does this column like s symbol?")
+def like(i,s, prior=0):
+  return (i.has.get(s,0) + the.m*prior) / (i.n + the.m + 1/Num.big)
 
-  def add(i,t, inc=1, zap=False):
-    if not i.cols: i.cols = _Cols(t)
-    else:
-      i.n += inc
-      if inc > 0 : i.rows.append(t)
-      elif zap   : i.rows.remove(t) # slow for large lists
-      for col in i.cols.all: col.add(t[col.at], inc)
-    return t
-
-  def clone(i,rows=[]): return Data([i.cols.names]+rows)
-
-  def like(i, t, nall=100, nh=2):
-    prior = (i.n + the.k) / (nall + the.k*nh)
-    tmp = [c.pdf(v,prior) for c in i.cols.x if (v:=t[c.at]) != "?"]
-    return sum(math.log(n) for n in tmp + [prior] if n>0)
-
-  def ydist(i,r):
-    d = sum((c.norm(r[c.at])-c.heaven)**(the.p) for c in i.cols.y)
-    return (d/len(i.cols.y))**(1/the.p)
-
-  def ydists(i,t=None):
-    return  sorted(t or i.rows, key=lambda r: i.ydist(r)) # best at 0
+@extend(Num, "How much does this Data like a number?")
+def like(i,v,_):
+  sd  = i.sd or 1 / Num.big
+  var = 2 * sd * sd
+  z   = (v - i.mu) ** 2 / var
+  return min(1, max(0, math.exp(-z) / (2 * math.pi * var) ** 0.5))
 
 #--------------------------------------------------------------------
 def acquire(yes, no, t, nall=100, nh=2):
@@ -120,7 +138,7 @@ def acquire(yes, no, t, nall=100, nh=2):
 
 def acquires(data, rows):
   """dim  = unknown (unlabeled) pool
-     lit  = known (labeled) data
+     lit  = known (labeled) data. Lit divides into hot and dull.
      hot  = lit's top-ranked known items 
      dull = lit's remaining known items (less informative)"""
   random.shuffle(rows)
@@ -158,6 +176,16 @@ def acquires(data, rows):
            test=data.ydists(_ranked(dim)[:the.Check])) 
 
 #--------------------------------------------------------------------
+def cli(d, args):
+  for n,arg in enumerate(args):
+    if len(arg) > 1:
+      for k in d:
+        if arg[1] == k[0]: 
+          d[k] = atom(args[n+1])
+      if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
+        random.seed(the.seed)
+        fn()
+
 def csv(file):
   with open(file) as f:
     for s in f:
@@ -208,14 +236,4 @@ def eg__acquires():
         re.sub(r"^.*/"," ",the.file), sep=",")
 
 #--------------------------------------------------------------------
-def cli(n,arg,d):
-  if len(arg) > 1:
-    for k in d:
-      if arg[1] == k[0]: d[k]=atom(sys.argv[n+1])
-
-if __name__ == "__main__":
-  for n,arg in enumerate(sys.argv):
-    cli(n,arg, the.__dict__)
-    if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
-      random.seed(the.seed)
-      fn()
+if __name__ == "__main__": cli(the.__dict__,sys.argv)
