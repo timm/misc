@@ -52,64 +52,61 @@ def bootstrap(xs, ys, b=the.bootstraps, conf=the.ConfBoost):
   return more / b >= (1 - conf)
 
 #--------------------------------------------------------------------
-def ranks(d, eps=None):
+def ranks(d, eps=None, reverse=False):
   if not eps:
     _, sd, _ = stat([x for l in d.values() for x in l])
     eps = the.Kohen * sd
-  bag = lambda k, mu, sd, n: o(key=k, mu=mu, sd=sd, n=n, all=d[k])
-  same = lambda x, y: abs(x.mu - y.mu) < eps or \
-                      cliffs(x.all, y.all) and bootstrap(x.all, y.all)
-  tmp, out = [], []
+  def bag(k, mu, sd, n): return o(key=k, mu=mu, sd=sd, n=n, all=d[k])
+  def same(x, y): return abs(x.mu-y.mu)<eps or \
+                       cliffs(x.all,y.all) and bootstrap(x.all,y.all)
+  l, out = [], {}
   for now in sorted([bag(k, *stat(l)) for k, l in d.items()],
-                    key=lambda z: z.mu):
-    if tmp and same(tmp[-1], now):
-      tmp[-1] = bag(tmp[-1].key, *stat(tmp[-1].all + now.all))
+                    key=lambda z: z.mu, reverse=reverse):
+    if l and same(l[-1], now):
+      l[-1] = bag(l[-1].key, *stat(l[-1].all + now.all))
     else:
-      tmp += [now]
-    now.rank = chr(96 + len(tmp))
-    out += [now]
+      l += [now]
+    now.rank = chr(96 + len(l))
+    out[new.key] = now
   return out
 
-
 #--------------------------------------------------------------------
-class Abcd:
-  def __init__(i,kl="-",a=0):
-    i.a,i.txt = a,kl
-    i.b = i.c = i.d = 0
+class Confusion:
+  def __init__(i, lbl="-", n=0): 
+   i.label, i.tn = lbl, n; i.tp = i.fp = i.fn = 0
+
   def add(i, want, got, x):
-    if x == want:   i.d += (got == want); i.b += (got != want)
-    else:           i.c += (got == x);    i.a += (got != x)
-  def ready(i):
-    p      = lambda y, z: int(100 * y / (z or 1e-32))
-    i.pd   = p(i.d,       i.d + i.b)
-    i.pf   = p(i.c,       i.c + i.a)
-    i.prec = p(i.d,       i.d + i.c)
-    i.acc  = p(i.d + i.a, i.a + i.b + i.c + i.d)
+    if x == want: i.tp += (got == want); i.fp += (got != want)
+    else:         i.fn += (got == x);    i.tn += (got != x)
+
+  def finalize(i):
+    p = lambda y,z: int(100 * y / (z or 1e-32))
+    i.pd   = p(i.tp, i.tp + i.fp)
+    i.pf   = p(i.fn, i.fn + i.tn)
+    i.prec = p(i.tp, i.tp + i.fn)
+    i.acc  = p(i.tp + i.tn, i.tp + i.fp + i.fn + i.tn)
     return i
 
-def abcdReady(state):
-  for abcd in state.stats.values(): abcd.ready()
-  return state
+class Confusions:
+  def __init__(i): i.data, i.n = {}, 0
 
-def abcdWeighted(state):
-  out = Abcd()
-  for abcd in state.stats.values():
-    w = (abcd.b + abcd.d)/state.n
-    out.a += abcd.a*w
-    out.b += abcd.b*w
-    out.c += abcd.c*w
-    out.d += abcd.d*w
-  return out.ready()
+  def add(i, want, got):
+    for lbl in (want, got): 
+      i.data[lbl] = i.data.get(lbl) or Confusion(lbl, i.n)
+    for s in i.data.values(): s.add(want, got, s.label)
+    i.n += 1; return i
+  
+  def finalize(i): [s.finalize() for s in i.data.values()]; return i
 
-def abcds(want, got, state=None):
-  "usage: state=abcds(want,got,state)"
-  state = state or o(stats={},  n=0)
-  for L in (want, got):
-    state.stats[L] = state.stats.get(L) or Abcd(L,state.n)
-  for x, s in state.stats.items():
-    s.add(want, got, x)
-  state.n += 1
-  return state
+  def summary(i):
+    out = Confusion()
+    for s in i.data.values():
+      w       = (s.tp + s.fp) / i.n
+      out.tp += s.tp * w
+      out.fp += s.fp * w
+      out.fn += s.fn * w
+      out.tn += s.tn * w
+    return out.finalize()
 
 #--------------------------------------------------------------------
 def two(n,delta):

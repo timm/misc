@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-nvim --clean -c 'set background=dark' -c 'colorscheme habamax' -c 'set number' $*
-
