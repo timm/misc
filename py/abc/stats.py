@@ -1,12 +1,13 @@
+#!/usr/bin/env python3 -B
 # vim: set ts=2 sw=2 sts=2 et :
-import math, random, sys,re 
+import random, math, sys, re 
 from types import SimpleNamespace as o
 
 the = o(seed       = 1234567891,
         bootstraps = 512,
         confCliffs = 0.197, # cliffs' small,med,large: .11, .28, .43
         ConfBoost  = 0.95,
-        Kohen     = 0.35)
+        Kohen      = 0.35)
 
 #--------------------------------------------------------------------
 def same():
@@ -67,7 +68,7 @@ def ranks(d, eps=None, reverse=False):
     else:
       l += [now]
     now.rank = chr(96 + len(l))
-    out[new.key] = now
+    out[now.key] = now
   return out
 
 #--------------------------------------------------------------------
@@ -108,7 +109,7 @@ class Confusions:
       out.tn += s.tn * w
     return out.finalize()
 
-#--------------------------------------------------------------------
+#--------------------------------------------------------------------
 def two(n,delta):
   one = [random.gauss(10,1) for _ in range(n)]
   two = [x + delta for x in one]
@@ -117,30 +118,57 @@ def two(n,delta):
 def eg__the(): print(the)
 
 def eg__stats():
-   def c(b): return 1 if b else 0
-   G  = random.gauss
-   R  = random.random
-   n  = 50
-   b4 = [G(10,1) for _ in range(n)]
-   d  = 0
-   while d < 2:
-     now = [x+d*R() for x in b4]
-     b1  = cliffs(b4,now)
-     b2  = bootstrap(b4,now)
-     print(dict(d=f"{d:.3f}", cliffs=c(b1), boot=c(b2),  agree=c(b1==b2)))
-     d  += 0.1
+  def c(b): return 1 if b else 0
+  G  = random.gauss
+  R  = random.random
+  n  = 50
+  b4 = [G(10,1) for _ in range(n)]
+  d  = 0
+  while d < 2:
+    now = [x+d*R() for x in b4]
+    b1  = cliffs(b4,now)
+    b2  = bootstrap(b4,now)
+    print(dict(d=f"{d:.3f}", cliffs=c(b1), boot=c(b2),  agree=c(b1==b2)))
+    d  += 0.1
 
 def eg__rank():
-   G  = random.gauss
-   n=100
-   d=dict(asIs  = [G(10,1) for _ in range(n)],
-          copy1 = [G(20,1) for _ in range(n)],
-          now1  = [G(20,1) for _ in range(n)],
-          copy2 = [G(40,1) for _ in range(n)],
-          now2  = [G(40,1) for _ in range(n)])
-   for x in ranks(d):
-      print(o(key=x.key, rank=x.rank, num=x.mu))
+  G = random.gauss
+  n = 100
+  d = dict(asIs  = [G(10,1) for _ in range(n)],
+           copy1 = [G(20,1) for _ in range(n)],
+           now1  = [G(20,1) for _ in range(n)],
+           copy2 = [G(40,1) for _ in range(n)],
+           now2  = [G(40,1) for _ in range(n)])
+  for _,x in ranks(d).items():
+    print(o(key=x.key, rank=x.rank, num=x.mu))
 
+"""
+a b c <- got
+------. want
+5 1   | a
+  2 1 | b
+    3 | c
+"""
+
+def eg__confused():
+  "checking confusion matrices."
+  seen = Confusions()
+  for _ in range(5): seen.add("a","a")
+  for _ in range(1): seen.add("a","b")
+  for _ in range(2): seen.add("b","b")
+  for _ in range(1): seen.add("b","c")
+  for _ in range(3): seen.add("c","c")
+  seen.finalize()
+  a=seen.data["a"]; a1= dict(pd=a.pd, acc=a.acc, pf=a.pf, prec=a.prec)
+  b=seen.data["b"]; b1= dict(pd=b.pd, acc=b.acc, pf=b.pf, prec=b.prec)
+  c=seen.data["c"]; c1= dict(pd=c.pd, acc=c.acc, pf=c.pf, prec=c.prec)
+  assert a1 == dict(pd=83, acc=91, pf=0, prec=100)
+  assert b1 == dict(pd=66, acc=83, pf=11, prec=66)
+  assert c1 == dict(pd=100, acc=91, pf=11, prec=75)
+  for k,y in seen.data.items():
+     print(k, o(pd=y.pd, acc=y.acc, pf=y.pf, prec=y.prec))
+
+#--------------------------------------------------------------------
 if __name__ == "__main__":
   for n,arg in enumerate(sys.argv):
     if (fn := globals().get(f"eg{arg.replace('-', '_')}")):

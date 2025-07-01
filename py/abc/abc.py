@@ -3,34 +3,49 @@
 abc.py: tiny acive learning, multi objective.
 (c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
 
- -h               show help
- -A Assume=4      on init, how many initial guesses?
- -B Build=30      when growing theory, how many labels?
- -C Check=5       when testing, how many checks? 
- -F Few=512       just explore a Few rows
- -a acq=xploit    xploit or xplor or adapt
- -g guess=0.5     |hot| is |lit|**guess
- -k k=1           bayes hack for rare classes 
- -m m=2           bayes hack for rare attributes
- -p p=2           distance calcs coeffecient
+ -h              show help
+ -A Assume=4     on init, how many initial guesses?
+ -B Build=30     when growing theory, how many labels?
+ -C Check=5      when testing, how many checks? 
+ -F Few=512      just explore a Few rows
+ -a acq=xploit   xploit or xplor or adapt
+ -g guess=0.5    |hot| is |lit|**guess
+ -k k=1          bayes hack for rare classes 
+ -m m=2          bayes hack for rare attributes
+ -p p=2          distance calcs coeffecient
  -s seed=1234567891 
- -f file=../../../moot/optimize/misc/auto93.csv
-"""
-import math, random, sys, ast, re
+ -f file=../../../moot/optimize/misc/auto93.csv"""
+import math, random, sys, re
 from types import SimpleNamespace as o
 
-atom = lambda s: ast.literal_eval(s) if s[0] in "-1234567890" else s
+def atom(x):
+  "coerce str -> atom"
+  try: return int(x)
+  except: 
+    try: return float(x)
+    except: return x
+
 the  = o(**{k:atom(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
-
+#---------------------------------------------------------------------
+class T:
+  "Root class with generic print"
+  __repr__ = lambda i : f"{i.__class__.__name__}{vars(i)}"
+  sub      = lambda i,t,zap=False: i.add(t,-1,zap)
 #--------------------------------------------------------------------
-class T: __repr__ = lambda i : f"{i.__class__.__name__}{vars(i)}"
-
 class Sym(T):
   "Summarize symbolic columns."
   def __init__(i, inits=[], at=0, txt=""): 
     i.at,i.txt,i.n,i.has=at,txt,0,{}
     [i.add(x) for x in inits]
 
+  def add(i, x,inc=1,**_):
+    "Update"
+    if x!="?": i.n+=inc; i.has[x]=i.has.get(x,0)+inc
+
+  def like(i,s, prior=0):
+    "Probalistic membership"
+    return (i.has.get(s,0) + the.m*prior) / (i.n + the.m + 1/Num.big)
+#--------------------------------------------------------------------
 class Num(T):
   "Summarize numeric columns."
   big = 1e32
@@ -41,59 +56,66 @@ class Num(T):
     i.heaven         = 0 if txt.endswith("-") else 1
     [i.add(x) for x in inits]
 
-  def norm(i,x): return (x-i.lo)/(i.hi-i.lo+1/Num.big)
-  def win(i,x):  return (1- (x-i.lo)/(i.mu-i.lo))
+  def norm(i,x): 
+    "num -> 0..1"
+    return (x-i.lo)/(i.hi-i.lo+1/Num.big)
 
+  def win(i,x): 
+    "Normalized distance mu to lo."
+    return (1- (x-i.lo)/(i.mu-i.lo))
+
+  def add(i, x, inc=1,**_):
+    "Update"
+    if x!="?": 
+      i.n += inc; i.lo=min(i.lo,x); i.hi=max(i.hi,x)
+      if inc < 0 and i.n < 2: i.sd = i.m2 = i.mu = i.n = 0
+      else:
+        d     = x - i.mu
+        i.mu += inc * (d / i.n)
+        i.m2 += inc * (d * (x - i.mu))
+        i.sd  = 0 if i.n <= 2 else (max(0,i.m2)/(i.n-1))**.5
+
+  def like(i,v,_):
+    "Probalistic membership"
+    sd  = i.sd or 1 / Num.big
+    var = 2 * sd * sd
+    z   = (v - i.mu) ** 2 / var
+    return min(1, max(0, math.exp(-z) / (2 * math.pi * var) ** 0.5))
+#--------------------------------------------------------------------
 class Data(T):
   "Summarize rows into their various columns."
   def __init__(i, src=[]): 
     i.n,i.rows,i.cols = 0,[],None
     [i.add(x) for x in src]
 
-  def clone(i,rows=[]): return Data([i.cols.names]+rows)
+  def add(i, t, inc=1, zap=False):
+    "Update"
+    if not i.cols: i.cols = _cols(t)
+    else:
+      i.n += inc
+      if inc > 0 : i.rows.append(t)
+      elif zap   : i.rows.remove(t) # slow for large lists
+      for col in i.cols.all: col.add(t[col.at], inc)
+    return t
+
+  def clone(i,rows=[]): 
+    "Make a new data using old structure."
+    return Data([i.cols.names]+rows)
+
+  def like(i, t, nall=100, nh=2):
+    "how much does self like `t`"
+    prior = (i.n + the.k) / (nall + the.k*nh)
+    tmp = [c.like(v,prior) for c in i.cols.x if (v:=t[c.at]) != "?"]
+    return sum(math.log(n) for n in tmp + [prior] if n>0)
 
   def ydist(i,r):
+    "Distance to heaven"
     d = sum((c.norm(r[c.at])-c.heaven)**(the.p) for c in i.cols.y)
     return (d/len(i.cols.y))**(1/the.p)
 
   def ydists(i,t=None):
-    return  sorted(t or i.rows, key=lambda r: i.ydist(r)) # best at 0
-
-#--------------------------------------------------------------------
-def extend(cls, doc=None):
-  "Add a function as a method to `cls`, with optional docstring."
-  def decorator(f):
-    setattr(cls, f.__name__, f)
-    if doc: f.__doc__ = doc
-    return f
-  return decorator
-
-@extend(Sym, "Update symbolic columns.")
-def add(i,x,inc=1,**_):
-  if x!="?": 
-    i.n+=inc; i.has[x]=i.has.get(x,0)+inc
-
-@extend(Num, "Update numeric columns")
-def add(i,x, inc=1,**_):
-  if x!="?": 
-    i.n += inc; i.lo=min(i.lo,x); i.hi=max(i.hi,x)
-    if inc < 0 and i.n < 2:
-      i.sd = i.m2 = i.mu = i.n = 0
-    else:
-      d     = x - i.mu
-      i.mu += inc * (d / i.n)
-      i.m2 += inc * (d * (x - i.mu))
-      i.sd  = 0 if i.n <= 2 else (max(0,i.m2)/(i.n-1))**.5
-
-@extend(Data, "Update rows.")
-def add(i,t, inc=1, zap=False):
-  if not i.cols: i.cols = _cols(t)
-  else:
-    i.n += inc
-    if inc > 0 : i.rows.append(t)
-    elif zap   : i.rows.remove(t) # slow for large lists
-    for col in i.cols.all: col.add(t[col.at], inc)
-  return t
+    "Sort by distance to heaven."
+    return  sorted(t or i.rows, key=lambda r: i.ydist(r)) 
 
 def _cols(names):
   "Factory for making Nums and Syms."
@@ -105,28 +127,6 @@ def _cols(names):
       if t[-1] == "!": klass = col
       (y if t[-1] in "!+-" else x).append(col)
   return o(names=names, all=all, x=x, y=y, klass=klass)
-
-@extend(T, "Subtraction is just adding a negative amount.")
-def sub(i,t,zap=False): return i.add(t,-1,zap)
-
-#--------------------------------------------------------------------
-@extend(Data, "How much does this Data like `t`?")
-def like(i, t, nall=100, nh=2):
-  prior = (i.n + the.k) / (nall + the.k*nh)
-  tmp = [c.like(v,prior) for c in i.cols.x if (v:=t[c.at]) != "?"]
-  return sum(math.log(n) for n in tmp + [prior] if n>0)
-
-@extend(Sym, "How much does this column like s symbol?")
-def like(i,s, prior=0):
-  return (i.has.get(s,0) + the.m*prior) / (i.n + the.m + 1/Num.big)
-
-@extend(Num, "How much does this Data like a number?")
-def like(i,v,_):
-  sd  = i.sd or 1 / Num.big
-  var = 2 * sd * sd
-  z   = (v - i.mu) ** 2 / var
-  return min(1, max(0, math.exp(-z) / (2 * math.pi * var) ** 0.5))
-
 #--------------------------------------------------------------------
 def acquire(yes, no, t, nall=100, nh=2):
   b = math.exp(yes.like(t, nall, nh))
@@ -174,8 +174,10 @@ def acquires(data, rows):
   return o(hot=hot.rows, 
            dull=dull.rows, 
            test=data.ydists(_ranked(dim)[:the.Check])) 
-
 #--------------------------------------------------------------------
+def extend(kl,s):
+  return lambda f: (setattr(kl,f.__name__,f), setattr(f,"__doc__",s))
+
 def cli(d, args):
   for n,arg in enumerate(args):
     if len(arg) > 1:
@@ -234,6 +236,5 @@ def eg__acquires():
         *[R(z) for z in [b4.mu, b4.lo,hot.mu, test.mu]], 
         *[R(z) for z in [b4.win(hot.mu), b4.win(test.mu)]],
         re.sub(r"^.*/"," ",the.file), sep=",")
-
 #--------------------------------------------------------------------
 if __name__ == "__main__": cli(the.__dict__,sys.argv)
