@@ -76,7 +76,8 @@ def kpp(data,rows,k=20, few=100):
     out.append(random.choices(tmp, weights=ws)[0])
   return out
 
-def sd(lo,mu,hi):
+def sd(x):
+  lo,mu,hi=(x[0],x[len(x)//2],x[-1]) if type(x) is list else (x.lo,x.mu,x.hi)
   return ((lo**2 + hi**2 + mu**2 - lo*hi - lo*mu - hi*mu) / 18) ** 0.5
 
 def thrash(data)     : return best(data, some( data.rows, k=the.Build))
