@@ -1,11 +1,10 @@
-#!/usr/bin/env python3 -B
 """
 abc.py: tiny acive learning, multi objective.
 (c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
 
  -h              show help
  -A Assume=4     on init, how many initial guesses?
- -B Build=30     when growing theory, how many labels?
+ -B Build=24     when growing theory, how many labels?
  -C Check=5      when testing, how many checks? 
  -F Few=512      just explore a Few rows
  -a acq=xploit   xploit or xplor or adapt
@@ -14,7 +13,8 @@ abc.py: tiny acive learning, multi objective.
  -m m=2          bayes hack for rare attributes
  -p p=2          distance calcs coeffecient
  -s seed=1234567891 
- -f file=../../../moot/optimize/misc/auto93.csv"""
+ -f file=../../../moot/optimize/misc/auto93.csv
+"""
 import math, random, sys, re
 from types import SimpleNamespace as o
 
@@ -131,7 +131,7 @@ def _cols(names):
 def acquire(yes, no, t, nall=100, nh=2):
   b = math.exp(yes.like(t, nall, nh))
   r = math.exp(no.like(t, nall, nh))
-  return  b > r
+  return b > r
   #p = nall / the.Build
   #q = dict(xploit=0, xplor=1).get(the.acq, 1 - p)
   #return (b + r*q) / abs(b*q - r + 1 / Num.big)
@@ -224,6 +224,7 @@ def eg__ydist():
 
 def eg__acquires():
   data = Data(csv(the.file))
+  print("!!!!!!!",the.file)
   R = lambda z: f" {z:.2f}".lstrip("0")
   Y = lambda t: data.ydist(t)
   hot,test,b4 = Num(),  Num(), Num(Y(t) for t in data.rows)
