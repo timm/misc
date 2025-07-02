@@ -86,6 +86,6 @@ for row in shuffle(rows):
     add(rest, add(best, best.rows.pop(0), -1))
 
 # Final result
-return best.rows, rest.rows, rows[len(best.rows) + len(rest.rows):]
+return best, rest, rows[len(best.rows) + len(rest.rows):]
 
 
