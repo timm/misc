@@ -1,5 +1,7 @@
 from fileinput import input as finput
 from types import SimpleNamespace as o
+from random import choices as some
+import random, sys
 
 big=1E32
 
@@ -12,37 +14,56 @@ def csv(files=None):
 
 def data(src):
   src = iter(src)
-  i = o(it=data, rows=[], cols=_cols(next(src)))
-  [row(i,r) for r in src]
+  i = o(rows=[], cols=header(next(src)))
+  [add(i,r) for r in src]
   return i 
 
-def _cols(names):
-  all,y = [],{}
+def header(names):
+  i = o(names=names, all=[], y={})
   for c,s in enumerate(names):
-    all += [(big,-big) if s[0].isupper() else {}]
-    if s[-1] in "!-+": y[c] = s[-1]!="-"
-  return o(all=all, y=y, names=names)
+    i.all += [o(lo=big, hi=-big) if s[0].isupper() else {}]
+    if s[-1] in "!-+": i.y[c] = s[-1]!="-"
+  return i
 
-def row(i, row):
+def add(i, row):
+  def _add(col,v,_): 
+    if type(col) is dict: 
+      col[v] = col.get(v,0) + 1
+    else:
+      v = row[c] = float(v)
+      col.lo = min(v,col.lo)
+      col.hi = max(v,col.hi)
+
   i.rows += [row]
   for c,col in enumerate(i.cols.all):
-      if (v:=row[c]) != "?":
-        if type(col) is tuple:
-          v = row[c] = float(v)
-          lo,hi = i.cols.all[c]
-          i.cols.all[c] = (min(lo,v), max(hi,v))
+    if (v:=row[c]) != "?": 
+      _add(col,v,c)
 
-def norm(lo,hi,x): return (x - lo) / (hi - lo + 1/big)
+def norm(col,x): return (x - col.lo) / (col.hi - col.lo + 1/big)
+
+def xdist(i,row):
+  d = 0
+  for c,col in enumerate(i.cols.all):
+    d += abs(norm(i.cols.all[c], row[c]) - w)**2
+  return (d/len(i.cols.y)) ** 0.5
 
 def ydist(i,row):
   d = 0
-  for c,w in enumerate(i.cols.y): 
-    d += abs(norm(*i.cols.all[c], row[c]) - w)**2
+  for c,w in i.cols.y.items(): 
+    d += abs(norm(i.cols.all[c], row[c]) - w)**2
   return (d/len(i.cols.y)) ** 0.5
 
-def ydists(i,rows=None):
-  return sorted(rows or i.rows, key=lambda r:ydist(i,r))
+def guess(d):
+  Y = lambda r: ydist(d,r)
+  return round(Y(sorted( some(d.rows,k=32), key=Y)[0]),2)
 
-d = data(csv())
-ydists(d)
+def cli(d):
+  for n,arg in enumerate(sys.argv):
+    for k in d:
+      if arg == "-" + k[0]: 
+        d[k] = type(d[k])(sys.argv[n+1])
 
+cli(the.__dict__)
+random.seed(the.seed)
+d= data(csv(the.file))
+print(sorted(guess(d) for _ in range(the.n)))
