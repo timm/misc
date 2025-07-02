@@ -1,0 +1,91 @@
+best,rest,rest=[],[],[]
+
+LOSS normalizes uses hi lo ranges from best+rest
+lit, hot, dull=[[],{}],[[],{}],[[],{}] $ frequency counters for descretized data
+
+def add(fs, row,inc=1, sort=True,zap=False):
+  for rows,counts in fs:
+    for c,v in enunermate(row):
+      if isX(c):
+        key=(c,bin(c,v))
+        counts[key] = counts.get(key,0) + inc
+    if inc==1: rows += [row]
+    elif zap: rows.remove(row)
+    if sort: rows.sort(key=lambda row: LOSS(lit,row))
+  return row
+        
+for row in shuffle(rows):
+  if len(best)+len(rest)>= Budget: break
+  if len(best) < sqrt(Budget):
+    add([lit,hot],row) # inc=1, sort=True by LOSS is default. adds returns row
+    continue
+  b,r = like(row,best), like(row,rest)
+  if r>b: add([lit,dull],row, sort=False)]; continue
+  add([lit,hot],row)
+  add([dull], add([hot],hot[0].pop(),-1,sort=False))
+return best,rest, rows[len(best)+ len(rest) +1:]
+
+
+best, rest = [], []
+lit, hot, dull = [[], {}], [[], {}], [[], {}]
+
+def add(g, row, inc=1, zap=False, sort=False):
+  rows, counts = g
+  for c, v in enumerate(row):
+    if isX(c): 
+      k = (c, bin(c, v))
+      counts[k] = counts.get(k, 0) + inc
+  if inc == 1: rows.append(row)
+  elif zap   : rows.remove(row)
+  if sort: rows.sort(key=lambda r: LOSS(lit, r))
+  return row
+
+for row in shuffle(rows):
+  if len(best) + len(rest) >= Budget: break
+  if len(best) < Budget**.5:
+    best += [add(hot, add(lit, row), sort=True)]
+    continue
+  b, r = like(row, hot), like(row, dull)
+  if r > b:
+    rest += [add(dull, add(lit, row))]
+  else:
+    best += [add(hot, add(lit, row), sort=True)]
+    add(dull, add(hot, hot[0].pop(0), -1))  # zap=False by default
+
+return best, rest, rows[len(best) + len(rest):]
+
+-------------------------------------
+
+from types import SimpleNamespace as o
+
+# Init data holders
+both = o(rows=[], freq={})
+best = o(rows=[], freq={})
+rest = o(rows=[], freq={})
+
+# Add row info to group
+def add(g, row, inc=1, zap=False, sort=False):
+  for c,v in enumerate(row):
+    if c not in data.cols.y:
+      k = (c, bin(data, c,v))
+      g.freq[k] = g.freq.get(k,0) + inc
+  if inc==1: g.rows += [row]
+  elif zap : g.rows.remove(row)
+  if sort  : g.rows.sort(key=lambda r: LOSS(both,r))
+  return row
+
+# Main loop
+for row in shuffle(rows):
+  if len(best.rows) + len(rest.rows) >= Budget: break
+  elif len(best.rows) < Budget**.5:
+    add(best, add(both, row), sort=True)
+  elif like(row, rest) > like(row, best):
+    add(rest, add(both, row)) # no need to sort the rejects
+  else:
+    add(best, add(both, row), sort=True)
+    add(rest, add(best, best.rows.pop(0), -1))
+
+# Final result
+return best.rows, rest.rows, rows[len(best.rows) + len(rest.rows):]
+
+
