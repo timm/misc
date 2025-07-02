@@ -13,17 +13,17 @@ def csv(files=None):
     if line: yield [s.strip() for s in line.split(",")]
 
 def data(src):
+  def _cols(names):
+    i = o(names=names, all=[], y={})
+    for c,s in enumerate(names):
+      i.all += [o(lo=big, hi=-big) if s[0].isupper() else {}]
+      if s[-1] in "!-+": i.y[c] = s[-1]!="-"
+    return i
+
   src = iter(src)
-  i = o(rows=[], cols=header(next(src)))
+  i = o(rows=[], cols= _cols(next(src)))
   [add(i,r) for r in src]
   return i 
-
-def header(names):
-  i = o(names=names, all=[], y={})
-  for c,s in enumerate(names):
-    i.all += [o(lo=big, hi=-big) if s[0].isupper() else {}]
-    if s[-1] in "!-+": i.y[c] = s[-1]!="-"
-  return i
 
 def add(i, row):
   def _add(col,v,_): 
