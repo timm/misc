@@ -101,22 +101,20 @@ def csv(files=None):
     if line: yield [s.strip() for s in line.split(",")]
 
 def rank(rxs, reverse=False):
-  def mid(l): return l[len(l)//2]
-  def bag(k,v):
-    return o(key=k, vals=v, mu=mid(v), sd=sd(v[0], mid(v), v[-1]), rank=0)
-  all   = sorted([x for l in rxs.value() for x in l])
-  cohen = the.cohen * sd(all[0], mid(all),all[-1])
-  out,tmp= {},[]
-  for now in sorted([bag(k,sorted(v_) for k,v in rxs.items()], 
-                    reverse=reverse, 
-                    key=lambda z: z.mu):
-    if tmp and abs(tmp[-1].mu - now.mu) <= cohen:
-      tmp[-1] = bag(now.key, sorted(now.vals+tmp[-1].vals))
-    else:
-      tmp += [now]
-    now.rank = chr(96+len(tmo))
-    out[now.key] = now
-  return [(k, out[k].rank, out[k].mu, out[k].sd) for k in rxs]
+  def bag(k,v): 
+    v=sorted(v); return o(key=k, vals=v, mu=v[len(v)//2], sd=sd(v), rank=0)
+
+  d,l,stdev = {}, [], sd(sorted(z for l in rxs.value() for z in l))
+  for b in sorted([bag(k, v) for k, v in rxs.items()],
+                    key=lambda z: z.mu, reverse=reverse):
+    k = b.key
+    if l and abs(l[-1].mu - b.mu) <= stdev * the.cohen:
+      b = bag('_', l.pop().vals + b.vals)
+    b.key = k
+    b.rank = len(l)
+    l += [b]
+    d[k] = b
+  return [(k, d[k].rank, d[k].mu, d[k].sd) for k in rxs]
 
 cli(the.__dict__)
 print(the)

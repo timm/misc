@@ -40,8 +40,9 @@ def add(g, row, inc=1, zap=False, sort=False):
   if sort: rows.sort(key=lambda r: LOSS(lit, r))
   return row
 
+budget=the.Budget
 for row in shuffle(rows):
-  if len(best) + len(rest) >= Budget: break
+  if budget==0: break
   if len(best) < Budget**.5:
     best += [add(hot, add(lit, row), sort=True)]
     continue
@@ -75,17 +76,44 @@ def add(g, row, inc=1, zap=False, sort=False):
   return row
 
 # Main loop
-for row in shuffle(rows):
-  if len(best.rows) + len(rest.rows) >= Budget: break
-  elif len(best.rows) < Budget**.5:
+n,budget = 0,the.Budget
+for n,row in enumberate(shuffle(rows)):
+  if budget==0: break
+  if len(best.rows) < the.Budget**.5:
+    budget -= 1
     add(best, add(both, row), sort=True)
   elif like(row, rest) > like(row, best):
     add(rest, add(both, row)) # no need to sort the rejects
   else:
+    budget -= 1
     add(best, add(both, row), sort=True)
     add(rest, add(best, best.rows.pop(0), -1))
 
 # Final result
-return best, rest, rows[len(best.rows) + len(rest.rows):]
+return best, rest, rows[n:]
+
+
+from types import SimpleNamespace as o
+# traiangluar: https://doi.org/10.1016/j.ress.2003.08.003
+
+def rank(rxs, reverse=False):
+  def bag(k, v):
+    v = sorted(v)
+    return o(key=k, vals=v, mu=v[len(v)//2], sd=sd(v), rank=0)
+
+  small = the.cohen * sd(sorted(x for l in rxs.value() for x in l))
+  out, tmp = {}, []
+
+  for now in sorted([bag(k, v) for k, v in rxs.items()],
+                    key=lambda z: z.mu, reverse=reverse):
+    key = now.key
+    if tmp and abs(tmp[-1].mu - now.mu) <= small:
+      now = bag('_', tmp.pop().vals + now.vals)
+    now.key = key
+    now.rank = chr(65 + len(tmp))
+    tmp += [now]
+    out[key] = now
+
+  return [(k, out[k].rank, out[k].mu, out[k].sd) for k in rxs]
 
 
