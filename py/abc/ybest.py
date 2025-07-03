@@ -106,7 +106,7 @@ def acquires(data, unlabelled, assume=the.Assume, budget=the.Build):
   best     = clone(data) # subset of labelled
   rest     = clone(data) # rest = labelled - best
   inits    = max(assume, budget**.5)
-  _like    = lambda what,row: likes(what, row, 2, len(labelled.rows))
+  _like    = lambda what,row: like(what, row, 2, len(labelled.rows))
   _ydist   = lambda row: ydist(labelled, row) # smaller is better
 
   random.shuffle(unlabelled)
