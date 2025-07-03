@@ -66,8 +66,8 @@ def like(col, v, prior=0):
 
 def likes(data, row, nall=100, nh=2):
   prior = (len(data.rows) + the.k) / (nall + the.k*nh)
-  tmp = [like(col,row[c.at],prior) 
-         for c in data.cols.y if y not in row[c.at] != "?"]
+  tmp = [like(col,v,prior) 
+         for c in data.cols.x if (v:=row[c.at]) != "?"]
   return sum(math.log(n) for n in tmp + [prior] if n>0)    
 
 #--------------------------------------------------------------------
