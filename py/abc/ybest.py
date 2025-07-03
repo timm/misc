@@ -57,17 +57,17 @@ def add(col,v,inc=1):
   return v
 
 #--------------------------------------------------------------------
-def like(col, v, prior=0):
-  if type(col) is Sym: 
-    return (col.has.get(v,0) + the.m*prior) / (col.n + the.m + 1/big)
-  var = 2 * col.sd * col.sd
-  z   = (v - col.mu) ** 2 / var
-  return min(1, max(0, math.exp(-z) / (2 * math.pi * var) ** 0.5))
+def like(data, row, nall=100, nh=2):
+  def _like(col, v):
+    if type(col) is Sym: 
+      return (col.has.get(v,0) + the.m*prior) / (col.n + the.m + 1/big)
+    var = 2 * col.sd * col.sd
+    z   = (v - col.mu) ** 2 / var
+    return min(1, max(0, math.exp(-z) / (2 * math.pi * var) ** 0.5))
 
-def likes(data, row, nall=100, nh=2):
   prior = (len(data.rows) + the.k) / (nall + the.k*nh)
-  tmp = [like(col,v,prior) 
-         for c in data.cols.x if (v:=row[c.at]) != "?"]
+  tmp = [_like(col,row[c.at],prior) 
+         for c in data.cols.y if y not in row[c.at] != "?"]
   return sum(math.log(n) for n in tmp + [prior] if n>0)    
 
 #--------------------------------------------------------------------
@@ -76,13 +76,11 @@ def norm(col,x):
   return (x - col.lo) / (col.hi - col.lo + 1/big)
 
 def ydist(data,row):
-  d = 0
-  for c,w in data.cols.y.items(): 
-    d += abs(norm(data.cols.all[c], row[c]) - w)**2
+  d = sum(abs(norm(c, row[c.at]) - w)**2 for c in data.cols.y) 
   return (d/len(data.cols.y)) ** 0.5
 
 def xdist(data,row1,row2):
-  def _dist(col, a,b):
+  def _aha(col, a,b):
     if a==b=="?": return 1
     if type(col) is Sym: return a != b
     a,b = norm(col,a), norm(col,b)
@@ -90,11 +88,8 @@ def xdist(data,row1,row2):
     b = b if b != "?" else (0 if a>0.5 else 1)
     return abs(a-b)
     
-  d,n = 0,0
-  for c in enumerate(data.cols.c):
-    n += 1
-    d += _dist(c, row1[c.at], row2[c.at])**the.p
-  return (d/n) ** (1/the.p)
+  d = sum(_aha(c, row1[c.at], row2[c.at])**the.p for c in data.cols.x)
+  return (d/len(data.cols.x)) ** (1/the.p)
 
 def kpp(data,rows,k=20, few=100):
   random.shuffle(rows)
@@ -141,8 +136,8 @@ def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
 
 def _cliffs(x, y, n, m):
   gt = sum(i > j for i in x for j in y)
-  eq = sum(i == j for i in x for j in y)
-  return 2 * (gt + 0.5 * eq) / (n * m) - 1 #cliffs = 2*vda-1
+  lt = sum(i < j for i in x for j in y)
+  return abs(gt - lt) / (n * m)
 
 def _ks(x, y, n, m):
   x, y = sorted(x), sorted(y)
@@ -151,28 +146,30 @@ def _ks(x, y, n, m):
   fy = [sum(i <= v for i in y)/m for v in xs]
   return max(abs(a - b) for a, b in zip(fx, fy))
 
-def rank(rxs, reverse=False, same=ks_cliffs):
-  def bag(k, v):
-    v = sorted(v)
-    return o(keys=k, vals=v, mu=v[len(v)//2], sd=sd(v), rank=0)
+def scottknott(rxs, same=ks_cliffs, eps=0):
+  items = sorted((x,k) for k,v in rxs.items() for x in v)
+  return _sk(items, same, {}, eps, 1)[1]
 
-  bags = sorted([bag([k], v) for k, v in rxs.items()],
-                key=lambda z: z.mu, reverse=reverse)
-  lst = []
-  for b in bags:
-    if lst and same(lst[-1].vals, b.vals):
-      last = lst.pop()
-      b = bag(last.keys + b.keys, last.vals + b.vals)
-    b.rank = len(lst) + 1
-    lst += [b]
-  return {k: b for b in lst for k in b.keys}
-
-def sd(x): #???needed
-  if type(x)==list: 
-    ten=len(x)//10; return (x[9*ten] - x[ten])/2.56
-  else:
-    return ((x.lo**2 + x.hi**2 + x.mid**2 
-           - x.lo*x.hi - x.lo*x.mid - x.hi*x.mid) / 18) ** 0.5
+def _sk(xy, same, out, eps, rank):
+  sumx = sum(x for x,_ in xy)
+  mu   = sumx / len(xy)
+  n0 = sum0 = score = 0
+  n1, sum1 = len(xy), sumx
+  best = None
+  for j, (x, _) in enumerate(xy[:-1]):
+    n0 += 1; sum0 += x
+    n1 -= 1; sum1 -= x
+    if n0 and n1:
+      mu0, mu1 = sum0/n0, sum1/n1
+      if abs(mu0 - mu1) > eps:
+        now = n0*(mu0 - mu)**2 + n1*(mu1 - mu)**2
+        if now > score: score, best = now, j+1
+  if best:
+    if not same([x for x,_ in xy[:best]],[x for x,_ in xy[best:]]):
+      return _sk(xy[best:], same, out, eps,
+                 _sk(xy[:best], same, out, eps, rank)[0])
+  for _,k in xy: out[k] = rank
+  return rank + 1, out
 
 #-------------------------------------------------------------------
 def cli(data):
