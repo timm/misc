@@ -3,10 +3,6 @@ from types import SimpleNamespace as o
 from random import choices as some
 import random, sys
 
-Atom = [bool|float|int|str]
-Row=list[Atom]
-Col="Num" | "Sym"
-
 big=1E32
 the = o(bins=12, 
         Build=30,   
@@ -40,7 +36,7 @@ def clone(data,rows=[]): return Data([data.cols.names] + rows)
 def adds(data, row, inc=1, zap=False):
   if inc>0: data.rows += [row]
   elif zap: data.rows.remove(row)
-  for c,col in enumerate(data.cols.all) : row[c]= add(col,row[c],inc)
+  for c,col in enumerate(data.cols.all) : row[c] = add(col,row[c],inc)
   return row
 
 def add(col,v,inc=1):
@@ -110,23 +106,26 @@ def kpp(data,rows,k=20, few=100):
   return out
 
 #--------------------------------------------------------------------
-def acquires(data, rows):
-  best, rest, labelled = clone(data), clone(data), clone(data)
-  random.shuffle(rows)
-  budget = the.Build
-  for n,row in enumerate(rows): 
-    if budget <= 0: break
-    elif len(best.rows) < the.Budget**the.guess:
-      budget -= 1
+def acquires(data, unlabelled, assume=the.Assume, budget=the.Build):
+  labelled = clone(data)
+  best     = clone(data) # subset of labelled
+  rest     = clone(data) # rest = labelled - best
+  inits    = max(assume, budget**.5)
+  _like    = lambda what,row: likes(what, row, 2, len(labelled.rows))
+  _ydist   = lambda row: ydist(labelled, row) # smaller is better
+
+  random.shuffle(unlabelled)
+  for n,row in enumerate(unlabelled): 
+    if len(labelled.rows) > max(inits,budget): break
+    if len(todo.rows) < inits or _like(best,row) > _like(rest,row):
       adds(best, adds(labelled, row))
-    elif likes(rest,row,2,n) > likes(best,row,2,n):
-      adds(rest,row)
-    else:
-      budget -= 1
-      adds(best, adds(labelled, row))
-      best.rows.sort(key = lambda row:ydist(labelled, row))
+    if len(best.rows) > budget**.5:
+      best.rows.sort(key=_ydist)
       adds(rest, adds(best, best.rows.pop(0), -1))
-  return best, rest, rows[n:]
+  return o(labelled   = sorted(labelled.rows, key=_ydist), 
+           unlabelled = unlabelled[n:], 
+           best       = best, 
+           rest       = rest)
 
 #-------------------------------------------------------------------
 def best(data,rows):
@@ -150,8 +149,9 @@ def rank(rxs, reverse=False):
   return [(k, d[k].rank, d[k].mu, d[k].sd) for k in rxs]
 
 def sd(x):
-  lo,mu,hi=(x[0],x[len(x)//2],x[-1]) if type(x) is list else (x.lo,x.mu,x.hi)
-  return ((lo**2 + hi**2 + mu**2 - lo*hi - lo*mu - hi*mu) / 18) ** 0.5
+  if type(x)==list: return sd(o(lo=x[0], mid=x[len(x)//2], hi=x[-1]))
+  return ((x.lo**2 + x.hi**2 + x.mid**2 
+           - x.lo*x.hi - x.lo*x.mid - x.hi*x.mid) / 18) ** 0.5
 
 #-------------------------------------------------------------------
 def cli(data):
