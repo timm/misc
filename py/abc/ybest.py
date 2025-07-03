@@ -91,10 +91,9 @@ def xdist(data,row1,row2):
     return abs(a-b)
     
   d,n = 0,0
-  for c,col in enumerate(data.cols.all):
-    if c not in data.cols.y:
-      n += 1
-      d += _dist(col, row1[c], row2[c])**the.p
+  for c in enumerate(data.cols.c):
+    n += 1
+    d += _dist(c, row1[c.at], row2[c.at])**the.p
   return (d/n) ** (1/the.p)
 
 def kpp(data,rows,k=20, few=100):
