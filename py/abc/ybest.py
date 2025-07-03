@@ -6,10 +6,11 @@ import random, sys
 big=1E32
 the = o(bins=12, 
         Build=30,   
-        cohen=0.35,
+        Delta="small",
         Few=64, 
         file="../../../moot/optimize/misc/auto93.csv",
         k=2,
+        Ks=0.95,
         m=1,
         p=2,
         seed=1234567891)
@@ -132,25 +133,46 @@ def best(data,rows):
   Y = lambda r: ydist(data,r)
   return round(Y(sorted( some(data.rows,k=the.Build), key=Y)[0]),2)
 
-def rank(rxs, reverse=False):
-  def bag(k,v): 
-    v=sorted(v); return o(key=k, vals=v, mu=v[len(v)//2], sd=sd(v), rank=0)
+def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
+  n, m = len(x), len(y)
+  ks     = {0.1:1.22, 0.05:1.36, 0.01:1.63}[1 - ks]
+  cliffs = {'small':0.11, 'medium':0.28, 'large':0.43}[cliffs]
+  return abs(_cliffs(x, y, n, m)) <= cliffs and \
+         _ks(x, y, n, m) <= ks * ((n + m)/(n * m))**0.5
 
-  d,l,stdev = {}, [], sd(sorted(z for l in rxs.value() for z in l))
-  for b in sorted([bag(k, v) for k, v in rxs.items()],
-                    key=lambda z: z.mu, reverse=reverse):
-    k = b.key
-    if l and abs(l[-1].mu - b.mu) <= stdev * the.cohen:
-      b = bag('_', l.pop().vals + b.vals)
-    b.key = k
-    b.rank = len(l)
-    l += [b]
-    d[k] = b
-  return [(k, d[k].rank, d[k].mu, d[k].sd) for k in rxs]
+def _cliffs(x, y, n, m):
+  gt = sum(i > j for i in x for j in y)
+  eq = sum(i == j for i in x for j in y)
+  return 2 * (gt + 0.5 * eq) / (n * m) - 1 #cliffs = 2*vda-1
 
-def sd(x):
-  if type(x)==list: return sd(o(lo=x[0], mid=x[len(x)//2], hi=x[-1]))
-  return ((x.lo**2 + x.hi**2 + x.mid**2 
+def _ks(x, y, n, m):
+  x, y = sorted(x), sorted(y)
+  xs = sorted(x + y)
+  fx = [sum(i <= v for i in x)/n for v in xs]
+  fy = [sum(i <= v for i in y)/m for v in xs]
+  return max(abs(a - b) for a, b in zip(fx, fy))
+
+def rank(rxs, reverse=False, same=ks_cliffs):
+  def bag(k, v):
+    v = sorted(v)
+    return o(keys=k, vals=v, mu=v[len(v)//2], sd=sd(v), rank=0)
+
+  bags = sorted([bag([k], v) for k, v in rxs.items()],
+                key=lambda z: z.mu, reverse=reverse)
+  lst = []
+  for b in bags:
+    if lst and same(lst[-1].vals, b.vals):
+      last = lst.pop()
+      b = bag(last.keys + b.keys, last.vals + b.vals)
+    b.rank = len(lst) + 1
+    lst += [b]
+  return {k: b for b in lst for k in b.keys}
+
+def sd(x): #???needed
+  if type(x)==list: 
+    ten=len(x)//10; return (x[9*ten] - x[ten])/2.56
+  else:
+    return ((x.lo**2 + x.hi**2 + x.mid**2 
            - x.lo*x.hi - x.lo*x.mid - x.hi*x.mid) / 18) ** 0.5
 
 #-------------------------------------------------------------------
