@@ -44,7 +44,9 @@ class Sym(T):
 
   def like(i,s, prior=0):
     "Probalistic membership"
+    print(i.n)
     return (i.has.get(s,0) + the.m*prior) / (i.n + the.m + 1/Num.big)
+
 #--------------------------------------------------------------------
 class Num(T):
   "Summarize numeric columns."
@@ -105,7 +107,7 @@ class Data(T):
   def like(i, t, nall=100, nh=2):
     "how much does self like `t`"
     prior = (i.n + the.k) / (nall + the.k*nh)
-    tmp = [c.like(v,prior) for c in i.cols.x if (v:=t[c.at]) != "?"]
+    tmp = [_xx(c.like(v,prior)) for c in i.cols.x if (v:=t[c.at]) != "?"]
     return sum(math.log(n) for n in tmp + [prior] if n>0)
 
   def ydist(i,r):
@@ -117,6 +119,7 @@ class Data(T):
     "Sort by distance to heaven."
     return  sorted(t or i.rows, key=lambda r: i.ydist(r)) 
 
+def _xx(x): print(round(x,2)); return x
 def _cols(names):
   "Factory for making Nums and Syms."
   x, y, all, klass = [], [], [], None
