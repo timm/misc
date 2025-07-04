@@ -107,7 +107,7 @@ class Data(T):
   def like(i, t, nall=100, nh=2):
     "how much does self like `t`"
     prior = (i.n + the.k) / (nall + the.k*nh)
-    tmp = [_xx(c.like(v,prior)) for c in i.cols.x if (v:=t[c.at]) != "?"]
+    tmp = [c.like(v,prior) for c in i.cols.x if (v:=t[c.at]) != "?"]
     return sum(math.log(n) for n in tmp + [prior] if n>0)
 
   def ydist(i,r):
@@ -119,7 +119,6 @@ class Data(T):
     "Sort by distance to heaven."
     return  sorted(t or i.rows, key=lambda r: i.ydist(r)) 
 
-def _xx(x): print(round(x,2)); return x
 def _cols(names):
   "Factory for making Nums and Syms."
   x, y, all, klass = [], [], [], None
@@ -199,8 +198,15 @@ def csv(file):
 def eg_h()    : print(__doc__)
 def eg__the() : print(the)
 def eg__csv() : [print(t) for t in csv(the.file)]
+
 def eg__sym() : print(Sym("aaaabbc").has)
+def eg__Sym(): s = Sym("aaaabbc"); print(s.like("a"))
+
 def eg__num() : print(Num(random.gauss(10,2) for _ in range(1000)).sd)
+def eg__Num() : 
+  n = Num(random.gauss(10,2) for _ in range(1000))
+  print(n.like(9.5,0))
+
 def eg__data(): [print(col) for col in Data(csv(the.file)).cols.all]
 
 def eg__addsSubs():
