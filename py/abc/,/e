@@ -1,15 +1,45 @@
 #!/usr/bin/env bash
+# Launches Neovim with the following settings, all passed via -c flags:
+
+# syntax enable          – turn on syntax highlighting
+# nnoremap q :q<CR>      – map 'q' in normal mode to quit cleanly
+# colorscheme sorbet       – set the color theme to 'sorbet'
+# set background=dark      – make theme use dark background variant
+# set ts=2 sw=2 sts=2 et   – use 2-space soft tabs for editing
+# set number             – show absolute line numbers
+# set relativenumber       – show relative numbers for motion
+# set scrolloff=3          – keep 3 lines of context above/below cursor
+# set cursorline           – highlight the current line
+# set incsearch            – show matches while typing a search
+# set ignorecase           – search is case-insensitive...
+# set smartcase            – ...unless the search has capital letters
+# set clipboard=unnamedplus  – use system clipboard for copy/paste
+# set encoding=utf-8       – internal encoding used by Neovim
+# set fileencoding=utf-8   – encoding used when writing files
+# language en_US.UTF-8     – system language to support UTF-8
+# set title              – enable terminal title updates
+# lcd %:p:h              – change working directory to file’s folder
+# titlestring = parent/file  – set terminal title to short file path
+# set laststatus=2         – always show the statusline
+# set statusline=...       – minimal statusline showing:
+#   %t                   – current filename
+#   %m                   – [+] if file is modified
+#   (%{...}/%{...})      – (parent/filename) path display
+#   git rev-parse ...    – current Git branch name
+#   spaces=%{&shiftwidth()}  – show indent width (e.g., "spaces=2")
+#   %=                   – left/right separator
+#   [%l,%c] (%p%%)       – current line/col and file progress %
 
 nvim --clean \
   -c 'syntax enable | nnoremap q :q<CR>' \
-  -c 'colorscheme sorbet' \
-  -c 'set background=dark' \
-  -c 'set ts=2 sw=2 sts=2 et' \
-  -c 'set number | set relativenumber' \
+  -c 'colorscheme sorbet | set background=dark' \
+  -c 'set ts=2 sw=2 sts=2 et | set number | set relativenumber' \
   -c 'set scrolloff=3 | set cursorline' \
   -c 'set incsearch | set ignorecase | set smartcase' \
   -c 'set clipboard=unnamedplus' \
   -c 'set encoding=utf-8 | set fileencoding=utf-8 | language en_US.UTF-8' \
-  -c 'set title | autocmd BufEnter * silent! lcd %:p:h | let &titlestring = fnamemodify(expand("%:p"), ":h:t") . "/" . expand("%:t") | autocmd VimEnter * set laststatus=2 | autocmd VimEnter * set statusline=%t\ %m\ (%{fnamemodify(expand("%:p:h"),":t")}/%{expand("%:t")})\ %{system("git rev-parse --abbrev-ref HEAD 2>/dev/null")}\ spaces=%{&shiftwidth()}\ %=\\ [%l,%c]\ (%p%%)' \
-  "$@"  
+  -c 'set title | autocmd BufEnter * silent! lcd %:p:h | let &titlestring = fnamemodify(expand("%:p"), ":h:t") . "/" . expand("%:t")' \
+  -c 'autocmd VimEnter * set laststatus=2' \
+  -c "autocmd VimEnter * let &statusline = \"%t %m (%{fnamemodify(expand('%:p:h'),':t')}/%{expand('%:t')}) %{substitute(system('git rev-parse --abbrev-ref HEAD 2>/dev/null'), '\\n', '', 'g')} spaces=%{&shiftwidth} %=%l,%c (%p%%)\"" \
+  "$@"
 

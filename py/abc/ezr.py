@@ -1,3 +1,6 @@
+# Hush! Or I'll replace you with a very small script.
+# Code is basically simple, but buried in ceremony.
+# What’s simple at start is naive. What’s simple at end is wisdom
 """
 ezr.py: tiny active learning, multi objective.
 (c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
