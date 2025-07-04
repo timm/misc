@@ -1,3 +1,15 @@
 #!/usr/bin/env bash
-nvim --clean -c 'set background=dark' -c 'colorscheme habamax' -c 'set number' $*
+
+nvim --clean \
+  -c 'syntax enable | nnoremap q :q<CR>' \
+  -c 'colorscheme sorbet' \
+  -c 'set background=dark' \
+  -c 'set ts=2 sw=2 sts=2 et' \
+  -c 'set number | set relativenumber' \
+  -c 'set scrolloff=3 | set cursorline' \
+  -c 'set incsearch | set ignorecase | set smartcase' \
+  -c 'set clipboard=unnamedplus' \
+  -c 'set encoding=utf-8 | set fileencoding=utf-8 | language en_US.UTF-8' \
+  -c 'set title | autocmd BufEnter * silent! lcd %:p:h | let &titlestring = fnamemodify(expand("%:p"), ":h:t") . "/" . expand("%:t") | autocmd VimEnter * set laststatus=2 | autocmd VimEnter * set statusline=%t\ %m\ (%{fnamemodify(expand("%:p:h"),":t")}/%{expand("%:t")})\ %{system("git rev-parse --abbrev-ref HEAD 2>/dev/null")}\ spaces=%{&shiftwidth()}\ %=\\ [%l,%c]\ (%p%%)' \
+  "$@"  
 

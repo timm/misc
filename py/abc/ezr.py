@@ -1,19 +1,32 @@
-# vim: set ts=4 sw=4 sts=4 et:
-from types import SimpleNamespace as o
-from random import choices as some
-import random, math, sys
+"""
+ezr.py: tiny active learning, multi objective.
+(c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
 
-big = 1E32
-the = o(Assume=4,       # budget for initial guesses before modeling
-        Build=30,       # budget for sampling for theory building
-        Delta="small",  # cliffs delta effect size
-        Few=64,         # some subset of rows
-        file="../../../moot/optimize/misc/auto93.csv",
-        k=1,            # bayes hack for low frequency classes
-        Ks=0.95,        # KS test confidence
-        m=2,            # bayes hack for low frequency attributes
-        p=2,            # distance calculation coeffecient
-        seed=1234567891) # random seed
+ -h                show help
+ -A Assume=4       on init, how many initial guesses?
+ -B Build=24       when growing theory, how many labels?
+ -C Check=5        when testing, how many checks?
+ -D Delta=small   required effect size test for cliff's delta
+ -F Few=512        just explore a Few rows
+ -a acq=xploit     acquisition: xploit | xplor | adapt
+ -g guess=0.5      |hot| is |lit|**guess
+ -K Ks=0.95        confidence for Kolmogorov–Smirnov test
+ -k k=1            Bayes hack for rare classes
+ -m m=2            Bayes hack for rare attributes
+ -p p=2            distance calculation coefficient
+ -s seed=1234567891  random number seed
+ -f file=../../../moot/optimize/misc/auto93.csv
+                   path to CSV file
+"""
+from types import SimpleNamespace as o 
+from random import choices as some
+import random, math, sys, re
+
+def fint(f) : i=int(f); return i if f==i else f
+def atom(s) : return fint(float(s)) if s[0] in "1234567890-" else s
+
+the = o(**{k:atom(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
+big = 1E32 
 
 #  _  _|_  ._        _  _|_   _ 
 # _>   |_  |   |_|  (_   |_  _> 
@@ -42,14 +55,13 @@ def clone(data,rows=[]): return Data([data.cols.names] + rows)
 def adds(data, row, inc=1, zap=False):
   if inc>0: data.rows += [row]
   elif zap: data.rows.remove(row)
-  for c,col in enumerate(data.cols.all) : row[c] = add(col,row[c],inc)
+  for c,col in enumerate(data.cols.all): add(col,row[c],inc)
   return row
 
 def add(col, v, inc=1):
   if v != "?":
     if type(col) is Sym: col[v] = inc + col.get(v,0)
     else:
-      v = float(v)
       col.n += inc
       col.lo, col.hi = min(v, col.lo), max(v, col.hi)
       if inc < 0 and col.n < 2:
@@ -58,8 +70,7 @@ def add(col, v, inc=1):
         d       = v - col.mu
         col.mu += inc * (d / col.n)
         col.m2 += inc * (d * (v - col.mu))
-        col.sd  = 0 if col.n <= 2 else (max(0,col.m2)/(col.n-1))**.5
-  return v
+        col.sd  = 0 if col.n < 2 else (max(0,col.m2)/(col.n-1))**.5
 
 #   _|  o   _  _|_   _.  ._    _   _  
 #  (_|  |  _>   |_  (_|  | |  (_  (/_ 
@@ -111,8 +122,8 @@ def kmeans(data,rows=None, n=10,out=None,err=1,**k):
 def mids(data):
   return [(max(c, key=c.get) if type(c) is dict else c.mu)
           for c in data.cols.all]
-
-#  |  o  |    _  
+
+#  |  o  |    _  
 #  |  |  |<  (/_ 
                
 def like(col, v,prior=0):
@@ -163,39 +174,38 @@ def acquires(data, unlabelled, assume=the.Assume, budget=the.Build):
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
 
-def confusions():
-  def _add1(c, want, got, x):
-    if x == want: c.tp += (got == want); c.fp += (got != want)
-    else:         c.fn += (got == x);    c.tn += (got != x)
+def Confuse(): return o(data={}, total=0)
 
-  def _final(c):
-    p = lambda y,z: int(100 * y / (z or 1e-32))
+def confuse(cf, want, got):
+  for x in (want, got):
+    if x not in cf.data: 
+      cf.data[x] = o(label=x,tp=0,fp=0,fn=0,tn=cf.total)
+  for c in cf.data.values():
+    if c.label==want: c.tp += (got==want);    c.fp += (got != want)
+    else            : c.fn += (got==c.label); c.tn += (got != c.label)
+  cf.total += 1
+  return got
+
+def confused(cf, summary=False):
+  def finalize(c):
+    p = lambda y, z: int(100 * y / (z or 1e-32))
     c.pd   = p(c.tp, c.tp + c.fp)
     c.pf   = p(c.fn, c.fn + c.tn)
     c.prec = p(c.tp, c.tp + c.fn)
     c.acc  = p(c.tp + c.tn, c.tp + c.fp + c.fn + c.tn)
     return c
 
-  def add(want, got):
-    for lbl in (want, got):
-      if lbl not in data:
-        data[lbl] = o(label=lbl, tn=total[0], tp=0, fp=0, fn=0)
-    [_add1(c, want, got, c.label) for c in data.values()]
-    total[0] += 1
-
-  def summary():
-    out = o(label="-", tn=0, tp=0, fp=0, fn=0)
-    for c in data.values():
-      w = (c.tp + c.fp) / total[0]
+  if summary:
+    out = o(label="-", tp=0, fp=0, fn=0, tn=0)
+    for c in cf.data.values():
+      w = (c.tp + c.fp) / cf.total
       out.tp += c.tp * w
       out.fp += c.fp * w
       out.fn += c.fn * w
       out.tn += c.tn * w
-    return _final(out)
-
-  data, total = {}, [0]
-  return o(add=add, summary=summary,
-           final=lambda: ([_final(c) for c in data.values()], data)[1])
+    return finalize(out)
+  else:
+    return {k: finalize(v) for k, v in cf.data.items()}
 
 def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
   def _cliffs():
@@ -239,8 +249,8 @@ def _skcut(xy, eps):
     if abs(mu0 - mu1) > eps and now > score: 
        score, best = now, j + 1
   return best
-
-#   _                                     
+
+#   _                                     
 # _|_       ._    _  _|_  o   _   ._    _ 
 #  |   |_|  | |  (_   |_  |  (_)  | |  _> 
                                                         
@@ -253,7 +263,7 @@ def csv(file=None):
   with open(file) as f:
     for line in f:
       if (line := line.split("%")[0]):
-        yield [val.strip() for val in line.split(",")]
+        yield [atom(val.strip()) for val in line.split(",")]
 
 def has(src, col=None):
   for x in src:
@@ -261,9 +271,17 @@ def has(src, col=None):
     add(col, x)
   return col
 
-# _|_   _    _  _|_   _ 
-#  |_  (/_  _>   |_  _> 
-                       
+#  _        _.  ._ _   ._   |   _    _
+# (/_  ><  (_|  | | |  |_)  |  (/_  _> 
+#                      |               
+
+def eg__all():
+  def _before(fn): print("\n----["+fn.__name__+"]"+'-'*40)
+  def _go(fn): _before(fn); random.seed(the.seed); fn()
+  [_go(fn) for fn in [eg__the,eg__csv,eg__sym,eg__Sym, eg__num, 
+                     eg__Num, eg__data, eg__inc,]]
+
+def eg_h(): print(__doc__)
 def eg__the(): print(the)
 def eg__csv(): [print(t) for t in csv(the.file)]
 def eg__sym(): print(has("aaaabbc"))

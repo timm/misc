@@ -13,5 +13,3 @@ rq1Report:
 	          {OFS=","; print $$5,$$8,$$7,$$6}' | \
 	$(call plotcsv,data sets (sorted by min),distance to heaven)
 
-
-
