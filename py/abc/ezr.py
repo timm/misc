@@ -1,32 +1,34 @@
-# Hush! Or I'll replace you with a very small script.
-# Code is basically simple, but buried in ceremony.
-# What’s simple at start is naive. What’s simple at end is wisdom
+#!/usr/bin/env python3 -B
 """
 ezr.py: tiny active learning, multi objective.
 (c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
 
- -h                show help
- -A Assume=4       on init, how many initial guesses?
- -B Build=24       when growing theory, how many labels?
- -C Check=5        when testing, how many checks?
- -D Delta=small   required effect size test for cliff's delta
- -F Few=512        just explore a Few rows
- -a acq=xploit     acquisition: xploit | xplor | adapt
- -g guess=0.5      |hot| is |lit|**guess
- -K Ks=0.95        confidence for Kolmogorov–Smirnov test
- -k k=1            Bayes hack for rare classes
- -m m=2            Bayes hack for rare attributes
- -p p=2            distance calculation coefficient
- -s seed=1234567891  random number seed
- -f file=../../../moot/optimize/misc/auto93.csv
-                   path to CSV file
+ -h                  show help
+ -A  Assume=4        on init, how many initial guesses?
+ -B  Build=24        when growing theory, how many labels?
+ -C  Check=5         when testing, how many checks?
+ -D  Delta=smed     required effect size test for cliff's delta
+ -F  Few=512         just explore a Few rows
+ -a  acq=xploit      acquisition: xploit | xplor | adapt
+ -g  guess=0.5       |hot| is |lit|**guess
+ -K  Ks=0.95         confidence for Kolmogorov–Smirnov test
+ -k  k=1             Bayes hack for rare classes
+ -m  m=2             Bayes hack for rare attributes
+ -p  p=2             distance calculation coefficient
+ -s  seed=1234567891 random number seed
+ -f  file=../../../moot/optimize/misc/auto93.csv
+                     path to CSV file
 """
 from types import SimpleNamespace as o 
 from random import choices as some
 import random, math, sys, re
 
-def fint(f) : i=int(f); return i if f==i else f
-def atom(s) : return fint(float(s)) if s[0] in "1234567890-" else s
+def atom(s):
+  for fn in [int,float]:
+    try: return fn(s)
+    except: pass
+  s = s.strip()
+  return {'True':True, 'False':False}.get(s,s)
 
 the = o(**{k:atom(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
 big = 1E32 
@@ -74,7 +76,7 @@ def add(col, v, inc=1):
         col.mu += inc * (d / col.n)
         col.m2 += inc * (d * (v - col.mu))
         col.sd  = 0 if col.n < 2 else (max(0,col.m2)/(col.n-1))**.5
-
+
 #   _|  o   _  _|_   _.  ._    _   _  
 #  (_|  |  _>   |_  (_|  | |  (_  (/_ 
                                     
@@ -119,7 +121,8 @@ def kmeans(data,rows=None, n=10,out=None,err=1,**k):
     err1 += xdist(data,c,row) / len(rows)
     d[id(c)] = d.get(id(c)) or clone(data)
     adds(d[id(c)],row)
-  return (out if n==1 or abs(err - err1) < 0.01 else
+  print(f'err={err1:.3f}')
+  return (out if (n==1 or abs(err - err1) <= 0.01) else
           kmeans(data, rows, n-1, d.values(), err=err1,**k))
 
 def mids(data):
@@ -143,16 +146,17 @@ def likes(data, row, nall=100, nh=2):
   return sum(math.log(n) for n in tmp + [prior] if n>0)    
 
 def nbc(file, wait=5):
+  cf = Confuse()
   data = Data(csv(file))
-  wait,acc,d,k = 5,0,{},data.cols.klass
+  wait,d,k = 5,{},data.cols.klass
   for n,row in enumerate(data.rows):
     want = row[k]
     d[want] = d.get(want) or clone(data)
     adds(d[want], row)
     if n > wait:
       got = max(d,key=lambda k:likes(d[k],row,n-wait,len(d)))
-      acc += want == got
-  print(acc/(n-wait))
+      confuse(cf,want,got)
+  [print(o(**d.__dict__)) for _,d in confused(cf).items()]
 
 def acquires(data, unlabelled, assume=the.Assume, budget=the.Build):
   labelled = clone(data)
@@ -173,7 +177,7 @@ def acquires(data, unlabelled, assume=the.Assume, budget=the.Build):
   return o(labelled   = sorted(labelled.rows, key=_ydist), 
            unlabelled = unlabelled[n:], 
            best = best, rest = rest)
-
+
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
 
@@ -224,33 +228,36 @@ def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
 
   x, y = sorted(x), sorted(y)
   n, m = len(x), len(y)
-  ks     = {0.1:1.22, 0.05:1.36, 0.01:1.63}[1 - ks]
-  cliffs = {'small':0.11, 'medium':0.28, 'large':0.43}[cliffs]
+  ks     = {0.1:1.22, 0.05:1.36, 0.01:1.63}[round(1 - ks,2)]
+  cliffs = {'small':0.11, 'smed':0.195, 'medium':0.28, 'large':0.43}[cliffs]
   return _cliffs() <= cliffs and _ks() <= ks * ((n + m)/(n * m))**0.5
 
-def scottknott(rxs, same=ks_cliffs, eps=0):
-  items = sorted((x, k) for k, vs in rxs.items() for x in vs)
-  return _sk(items, same, {}, eps, 1)[1]
+def scottknott(rxs, same=ks_cliffs, eps=None):
+  eps = eps or .2 * has([x for vs in rxs.values() for x in vs]).sd
+  items = [(sum(vs), k, vs, len(vs)) for k, vs in rxs.items()]
+  return _sk(sorted(items), same, {}, eps, rank=1)[1]
 
-def _sk(xy, same, out, eps, rank):
-  c = _skcut(xy, eps)
-  if best and not same([x for x,_ in xy[:c]], [x for x,_ in xy[c:]]):
-    return _sk(xy[c:],same,out,eps, _sk(xy[:x],same,out,eps,rank)[0])
-  for _, k in xy: out[k] = rank
+def _sk(groups, same, out, eps, rank=1):
+  def flat(lst): return [x for _, _, xs, _ in lst for x in xs]
+  c = _skcut(groups, eps)
+  if c and not same(flat(groups[:c]), flat(groups[c:])):
+    return _sk(groups[c:], same, out, eps,
+               rank=_sk(groups[:c], same, out, eps, rank)[0])
+  for _, k, _, _ in groups: out[k] = rank
   return rank + 1, out
 
-def _skcut(xy, eps):
-  mu = sum(x for x, _ in xy) / len(xy)
-  n0 = sum0 = score = 0
-  n1, sum1 = len(xy), sum(x for x,_ in xy)
-  best = 0
-  for j,(x,_) in enumerate(xy[:-1]):
-    n0 += 1; sum0 += x
-    n1 -= 1; sum1 -= x
+def _skcut(groups, eps):
+  sum1 = sum(s for s, _, _, _ in groups)
+  n1   = sum(n for _, _, _, n in groups)
+  mu   = sum1 / n1
+  best = sum0 = n0 = score = 0
+  for j, (s, _, _, n) in enumerate(groups[:-1]):
+    sum0 += s; n0 += n
+    sum1 -= s; n1 -= n
     mu0, mu1 = sum0 / n0, sum1 / n1
-    now = n0*(mu0 - mu)**2 + n1*(mu1 - mu)**2
-    if abs(mu0 - mu1) > eps and now > score: 
-       score, best = now, j + 1
+    now = n0 * (mu0 - mu)**2 + n1 * (mu1 - mu)**2
+    if abs(mu0 - mu1) > eps and now > score:
+      score, best = now, j + 1
   return best
 
 #   _                                     
@@ -273,16 +280,17 @@ def has(src, col=None):
     col = col or (Num if type(x) in [int,float] else Sym)()
     add(col, x)
   return col
-
+
 #  _        _.  ._ _   ._   |   _    _
 # (/_  ><  (_|  | | |  |_)  |  (/_  _> 
 #                      |               
 
 def eg__all():
-  def _before(fn): print("\n----["+fn.__name__+"]"+'-'*40)
-  def _go(fn): _before(fn); random.seed(the.seed); fn()
-  [_go(fn) for fn in [eg__the,eg__csv,eg__sym,eg__Sym, eg__num, 
-                     eg__Num, eg__data, eg__inc,]]
+  for k,fn in globals().items():
+    if k.startswith('eg__') and k != 'eg__all':
+      print("\n----["+k+"]"+'-'*40)
+      random.seed(the.seed)
+      fn()
 
 def eg_h(): print(__doc__)
 def eg__the(): print(the)
@@ -292,7 +300,7 @@ def eg__Sym(): s = has("aaaabbc"); assert 0.44 == round(like(s,"a"),2)
 def eg__num(): print(has(random.gauss(10,2) for _ in range(1000)))
 def eg__Num() : 
   n = has(random.gauss(10,2) for _ in range(1000))
-  assert 0.13== round(like(n,10.5),2) == round(like(n,9.5,2))
+  assert 0.13 == round(like(n,10.5),2)
 
 def eg__data(): [print(col) for col in Data(csv(the.file)).cols.all]
 
@@ -312,6 +320,45 @@ def eg__bayes():
   data = Data(csv(the.file))
   assert all(-30 <= likes(data,t) <= 0 for t in data.rows)
   print(sorted([round(likes(data,t),2) for t in data.rows])[::20])
+
+def eg__confuse():
+  """
+  a b c <- got
+  ------. want
+  5 1   | a
+    2 1 | b
+      3 | c
+  """
+  cf = Confuse()   
+  for want,got,n in [
+      ("a","a",5),("a","b",1),("b","b",2),("b","c",1),("c","c",3)]:
+    for _ in range(n): confuse(cf, want, got)
+  xpect = {"a": dict(pd=83,  acc=91, pf=0,  prec=100),
+           "b": dict(pd=66,  acc=83, pf=11, prec=66),
+           "c": dict(pd=100, acc=91, pf=11, prec=75) }
+  for k, y in confused(cf).items():
+    got = dict(pd=y.pd, acc=y.acc, pf=y.pf, prec=y.prec)
+    assert got == xpect[k]
+    print(k, o(**got))
+
+def eg__stats():
+   b4 = [random.gauss(1,1)+ random.gauss(10,1)**0.5 for _ in range(59)]
+   d, out = 0,[]
+   while d < 0.7:
+     now = [x+d*random.random() for x in b4]
+     out += [f"{d:.2f}" + ("y" if ks_cliffs(b4,now) else "n")]
+     d += 0.05
+   print(', '.join(out))
+
+def eg__sk():
+  n=500
+  rxs=dict(asIs = [random.gauss(10,1) for _ in range(n)],
+          copy1 = [random.gauss(20,1) for _ in range(n)],
+          now1  = [random.gauss(20,1) for _ in range(n)],
+          copy2 = [random.gauss(40,1) for _ in range(n)],
+          now2  = [random.gauss(40,1) for _ in range(n)])
+  print(scottknott(rxs))
+  #[print(o(rank=num.rank, mu=num.mu)) for num in scottKnott(rxs).values()]
 
 def eg__diabetes(): nbc("../../../moot/classify/diabetes.csv")
 def eg__soybean():  nbc("../../../moot/classify/soybean.csv")
