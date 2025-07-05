@@ -1,13 +1,13 @@
 #!/usr/bin/env python3 -B
 """
 ezr.py: tiny active learning, multi objective.
-(c) 2025 Tim Menzies, <timm@ieee.org>. MIT license
+(c) 2025, Tim Menzies <timm@ieee.org>, MIT license
 
  -h                  show help
  -A  Assume=4        on init, how many initial guesses?
  -B  Build=24        when growing theory, how many labels?
  -C  Check=5         when testing, how many checks?
- -D  Delta=smed     required effect size test for cliff's delta
+ -D  Delta=smed      required effect size test for cliff's delta
  -F  Few=512         just explore a Few rows
  -a  acq=xploit      acquisition: xploit | xplor | adapt
  -g  guess=0.5       |hot| is |lit|**guess
