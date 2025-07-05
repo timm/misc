@@ -1,13 +1,12 @@
-#!/usr/bin/env python3 -B
 # vim: set ts=2 sw=2 sts=2 et :
-import random, math, sys, re 
+import math, random, sys,re 
 from types import SimpleNamespace as o
 
 the = o(seed       = 1234567891,
         bootstraps = 512,
         confCliffs = 0.197, # cliffs' small,med,large: .11, .28, .43
         ConfBoost  = 0.95,
-        Kohen      = 0.35)
+        Kohen     = 0.35)
 
 #--------------------------------------------------------------------
 def same():
@@ -53,63 +52,66 @@ def bootstrap(xs, ys, b=the.bootstraps, conf=the.ConfBoost):
   return more / b >= (1 - conf)
 
 #--------------------------------------------------------------------
-def ranks(d, eps=None, reverse=False):
+def ranks(d, eps=None):
   if not eps:
     _, sd, _ = stat([x for l in d.values() for x in l])
     eps = the.Kohen * sd
-  def bag(k, mu, sd, n): return o(key=k, mu=mu, sd=sd, n=n, all=d[k])
-  def same(x, y): return abs(x.mu-y.mu)<eps or \
-                       cliffs(x.all,y.all) and bootstrap(x.all,y.all)
-  l, out = [], {}
+  bag = lambda k, mu, sd, n: o(key=k, mu=mu, sd=sd, n=n, all=d[k])
+  same = lambda x, y: abs(x.mu - y.mu) < eps or \
+                      cliffs(x.all, y.all) and bootstrap(x.all, y.all)
+  tmp, out = [], []
   for now in sorted([bag(k, *stat(l)) for k, l in d.items()],
-                    key=lambda z: z.mu, reverse=reverse):
-    if l and same(l[-1], now):
-      l[-1] = bag(l[-1].key, *stat(l[-1].all + now.all))
+                    key=lambda z: z.mu):
+    if tmp and same(tmp[-1], now):
+      tmp[-1] = bag(tmp[-1].key, *stat(tmp[-1].all + now.all))
     else:
-      l += [now]
-    now.rank = chr(96 + len(l))
-    out[now.key] = now
+      tmp += [now]
+    now.rank = chr(96 + len(tmp))
+    out += [now]
   return out
 
+
 #--------------------------------------------------------------------
-class Confusion:
-  def __init__(i, lbl="-", n=0): 
-   i.label, i.tn = lbl, n; i.tp = i.fp = i.fn = 0
-
+class Abcd:
+  def __init__(i,kl="-",a=0):
+    i.a,i.txt = a,kl
+    i.b = i.c = i.d = 0
   def add(i, want, got, x):
-    if x == want: i.tp += (got == want); i.fp += (got != want)
-    else:         i.fn += (got == x);    i.tn += (got != x)
-
-  def finalize(i):
-    p = lambda y,z: int(100 * y / (z or 1e-32))
-    i.pd   = p(i.tp, i.tp + i.fp)
-    i.pf   = p(i.fn, i.fn + i.tn)
-    i.prec = p(i.tp, i.tp + i.fn)
-    i.acc  = p(i.tp + i.tn, i.tp + i.fp + i.fn + i.tn)
+    if x == want:   i.d += (got == want); i.b += (got != want)
+    else:           i.c += (got == x);    i.a += (got != x)
+  def ready(i):
+    p      = lambda y, z: int(100 * y / (z or 1e-32))
+    i.pd   = p(i.d,       i.d + i.b)
+    i.pf   = p(i.c,       i.c + i.a)
+    i.prec = p(i.d,       i.d + i.c)
+    i.acc  = p(i.d + i.a, i.a + i.b + i.c + i.d)
     return i
 
-class Confusions:
-  def __init__(i): i.data, i.n = {}, 0
+def abcdReady(state):
+  for abcd in state.stats.values(): abcd.ready()
+  return state
 
-  def add(i, want, got):
-    for lbl in (want, got): 
-      i.data[lbl] = i.data.get(lbl) or Confusion(lbl, i.n)
-    for s in i.data.values(): s.add(want, got, s.label)
-    i.n += 1; return i
-  
-  def finalize(i): [s.finalize() for s in i.data.values()]; return i
+def abcdWeighted(state):
+  out = Abcd()
+  for abcd in state.stats.values():
+    w = (abcd.b + abcd.d)/state.n
+    out.a += abcd.a*w
+    out.b += abcd.b*w
+    out.c += abcd.c*w
+    out.d += abcd.d*w
+  return out.ready()
 
-  def summary(i):
-    out = Confusion()
-    for s in i.data.values():
-      w       = (s.tp + s.fp) / i.n
-      out.tp += s.tp * w
-      out.fp += s.fp * w
-      out.fn += s.fn * w
-      out.tn += s.tn * w
-    return out.finalize()
+def abcds(want, got, state=None):
+  "usage: state=abcds(want,got,state)"
+  state = state or o(stats={},  n=0)
+  for L in (want, got):
+    state.stats[L] = state.stats.get(L) or Abcd(L,state.n)
+  for x, s in state.stats.items():
+    s.add(want, got, x)
+  state.n += 1
+  return state
 
-#--------------------------------------------------------------------
+#--------------------------------------------------------------------
 def two(n,delta):
   one = [random.gauss(10,1) for _ in range(n)]
   two = [x + delta for x in one]
@@ -118,57 +120,30 @@ def two(n,delta):
 def eg__the(): print(the)
 
 def eg__stats():
-  def c(b): return 1 if b else 0
-  G  = random.gauss
-  R  = random.random
-  n  = 50
-  b4 = [G(10,1) for _ in range(n)]
-  d  = 0
-  while d < 2:
-    now = [x+d*R() for x in b4]
-    b1  = cliffs(b4,now)
-    b2  = bootstrap(b4,now)
-    print(dict(d=f"{d:.3f}", cliffs=c(b1), boot=c(b2),  agree=c(b1==b2)))
-    d  += 0.1
+   def c(b): return 1 if b else 0
+   G  = random.gauss
+   R  = random.random
+   n  = 50
+   b4 = [G(10,1) for _ in range(n)]
+   d  = 0
+   while d < 2:
+     now = [x+d*R() for x in b4]
+     b1  = cliffs(b4,now)
+     b2  = bootstrap(b4,now)
+     print(dict(d=f"{d:.3f}", cliffs=c(b1), boot=c(b2),  agree=c(b1==b2)))
+     d  += 0.1
 
 def eg__rank():
-  G = random.gauss
-  n = 100
-  d = dict(asIs  = [G(10,1) for _ in range(n)],
-           copy1 = [G(20,1) for _ in range(n)],
-           now1  = [G(20,1) for _ in range(n)],
-           copy2 = [G(40,1) for _ in range(n)],
-           now2  = [G(40,1) for _ in range(n)])
-  for _,x in ranks(d).items():
-    print(o(key=x.key, rank=x.rank, num=x.mu))
+   G  = random.gauss
+   n=100
+   d=dict(asIs  = [G(10,1) for _ in range(n)],
+          copy1 = [G(20,1) for _ in range(n)],
+          now1  = [G(20,1) for _ in range(n)],
+          copy2 = [G(40,1) for _ in range(n)],
+          now2  = [G(40,1) for _ in range(n)])
+   for x in ranks(d):
+      print(o(key=x.key, rank=x.rank, num=x.mu))
 
-"""
-a b c <- got
-------. want
-5 1   | a
-  2 1 | b
-    3 | c
-"""
-
-def eg__confused():
-  "checking confusion matrices."
-  seen = Confusions()
-  for _ in range(5): seen.add("a","a")
-  for _ in range(1): seen.add("a","b")
-  for _ in range(2): seen.add("b","b")
-  for _ in range(1): seen.add("b","c")
-  for _ in range(3): seen.add("c","c")
-  seen.finalize()
-  a=seen.data["a"]; a1= dict(pd=a.pd, acc=a.acc, pf=a.pf, prec=a.prec)
-  b=seen.data["b"]; b1= dict(pd=b.pd, acc=b.acc, pf=b.pf, prec=b.prec)
-  c=seen.data["c"]; c1= dict(pd=c.pd, acc=c.acc, pf=c.pf, prec=c.prec)
-  assert a1 == dict(pd=83, acc=91, pf=0, prec=100)
-  assert b1 == dict(pd=66, acc=83, pf=11, prec=66)
-  assert c1 == dict(pd=100, acc=91, pf=11, prec=75)
-  for k,y in seen.data.items():
-     print(k, o(pd=y.pd, acc=y.acc, pf=y.pf, prec=y.prec))
-
-#--------------------------------------------------------------------
 if __name__ == "__main__":
   for n,arg in enumerate(sys.argv):
     if (fn := globals().get(f"eg{arg.replace('-', '_')}")):

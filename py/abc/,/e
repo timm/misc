@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
-Here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo "exec nvim --clean -u \"${Here}/init.lua\" \"$@\""
-exec nvim --clean -u "${Here}/init.lua" "$@"
+nvim --clean \
+  -c 'syntax enable | set background=dark | colorscheme sorbet' \
+  -c 'set number relativenumber | set clipboard=unnamedplus' \
+  -c 'set scrolloff=3 | set cursorline | set hidden' \
+  -c 'set ignorecase | set smartcase | set noshowmode' \
+  -c 'set expandtab shiftwidth=2 tabstop=2' \
+  -c 'let g:netrw_liststyle=3 | let g:netrw_banner=0' \
+  -c 'let g:netrw_browse_split=4' \
+  -c 'autocmd FileType netrw if winnr("$")==1 | q | endif' \
+  -c 'autocmd VimEnter * nnoremap Q :qall<CR> | Vex | vertical resize 25' \
+  "$@"
+
