@@ -27,14 +27,13 @@ import random, math, sys, re
 # In this code, "c" for column index, "r" for row, 
 # "i" for self, CamelCase for constructors and 
 # UPPER case for my types
+
 ATOM = bool | int | float | str
 ROW  = list[ATOM]
 ROWS = list[ROW]
-
 COL  = "Num" or "Sym"
 ROLE = "all" or  "x" or "y"
 COLS = dict[ROLE, list[COL]]
-
 DATA = tuple[ROWS, COLS]
 
 def coerce(s:str) -> ATOM:
@@ -106,7 +105,7 @@ def ydist(i:DATA, row:ROW) -> float:
           for c,col in i.cols.y.items()) 
   return (d/len(i.cols.y)) ** 0.5
 
-def xdist(data,row1,row2):
+def xdist(i:DATA, row1:ROW, row2:ROW) -> float:
   "Diance between the x values of two rows."
   def _aha(col, a,b):
     if a==b=="?": return 1
@@ -117,8 +116,8 @@ def xdist(data,row1,row2):
     return abs(a-b)
     
   d = sum(_aha(col, row1[c], row2[c])**the.p 
-          for c,col in data.cols.x.items())
-  return (d/len(data.cols.x)) ** (1/the.p)
+          for c,col in i.cols.x.items())
+  return (d/len(i.cols.x)) ** (1/the.p)
 
 def norm(i:COL, x:int|float) -> float: 
   "Normalize a number 0..1 for lo..hi."
@@ -136,7 +135,9 @@ def kpp(i:DATA,rows=None,k=20, few=the.Few) -> ROWS:
     out.append(random.choices(tmp, weights=ws)[0])
   return out
 
-def kmeans(i:DATA,rows=None, n=10,out=None,err=1,**k)-> dict[int,ROWS]:
+def kmeans(i:DATA, rows=None, n=10, out=None, err=1,
+           **k) -> dict[int,ROWS]:
+  "Return k centroids within i."
   rows = rows or i.rows
   centroids = [mids(d) for d in out] if out else kpp(i,rows,**k)
   d,err1 = {},0
@@ -269,8 +270,8 @@ def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
     fy = [sum(a <= v for a in y)/m for v in xs]
     return max(abs(v1 - v2) for v1, v2 in zip(fx, fy))
 
-  ks     = {0.1:1.22, 0.05:1.36, 0.01:1.63}[round(1 - ks,2)]
-  cliffs = {'small':0.11, 'smed':0.195, 'medium':0.28, 'large':0.43}[cliffs]
+  ks    = {0.1:1.22, 0.05:1.36, 0.01:1.63}[round(1 - ks,2)]
+  cliffs= {'small':0.11,'smed':0.195,'medium':0.28,'large':0.43}[cliffs]
   return _cliffs() <= cliffs and _ks() <= ks * ((n + m)/(n * m))**0.5
 
 def scottknott(rxs, same=ks_cliffs, eps=None):
@@ -329,7 +330,6 @@ def pretty(x, fmt=".3f"):
     return str(int(x)) if x == int(x) else f"{x:{fmt}}"
   return str(x)
 
-from types import SimpleNamespace as ns
 
 def show(lst:list[o], pre="| ", fmt=".3f"):
   rows = [[pretty(x,fmt) for x in vars(r).values()] for r in lst]
@@ -399,7 +399,8 @@ def eg__confuse():
     print(k, o(**got))
 
 def eg__stats():
-   b4 = [random.gauss(1,1)+ random.gauss(10,1)**0.5 for _ in range(59)]
+   b4 = [random.gauss(1,1)+ random.gauss(10,1)**0.5
+         for _ in range(59)]
    d, out = 0,[]
    while d < 0.7:
      now = [x+d*random.random() for x in b4]
@@ -415,7 +416,6 @@ def eg__sk():
           copy2 = [random.gauss(40,1) for _ in range(n)],
           now2  = [random.gauss(40,1) for _ in range(n)])
   print(scottknott(rxs))
-  #[print(o(rank=num.rank, mu=num.mu)) for num in scottKnott(rxs).values()]
 
 def eg__diabetes(): nbc("../../../moot/classify/diabetes.csv")
 def eg__soybean():  nbc("../../../moot/classify/soybean.csv")
