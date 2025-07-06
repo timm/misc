@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-file="${1%.*}" 
-pdf=~/tmp/$file.pdf
+pdf="$HOME/tmp/$(basename "${1%.*}").pdf"
 
 echo "pdf-ing $pdf ... "
 a2ps                        \

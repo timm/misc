@@ -231,6 +231,7 @@ def acquires(data, unlabelled, assume=the.Assume,
 
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
+
 def Confuse() -> "Confuse": 
   "Create a confusion stats for classification matrix."
   return o(klasses={}, total=0)
@@ -269,7 +270,7 @@ def confused(cf, summary=False):
     return {k: finalize(v) for k, v in cf.klasses.items()}
 
 # The following code is slow for large samples, but nearly
-# instantenous for the typical 20×20 cases.
+# instantenous for the typical 20*20 cases.
 def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
   "True if x,y indistingishable and differ by just a small effect."
   x, y = sorted(x), sorted(y)
@@ -296,7 +297,7 @@ def scottknott(rxs, reverse=False,same=ks_cliffs, eps=None):
   "Sort rxs, recursively split them, stopping when two splits are same."
   eps = eps or 0.2 * has([x for vs in rxs.values() for x in vs]).sd
   items = [(sum(vs), k, vs, len(vs)) for k, vs in rxs.items()]
-  return _skdiv(sorted(items,reverse=reverse), same, {}, eps, rank=1)[1]
+  return _skdiv(sorted(items,reverse=reverse),same,{},eps,rank=1)[1]
 
 def _skdiv(groups, same, out, eps, rank=1):
   "Cut and recurse (if we find a cut). Else, use rank=rank, then inc rank." 
@@ -331,7 +332,8 @@ def cli(d):
   "Updated d's slots froma command line."
   for n,arg in enumerate(sys.argv):
     for key in d:
-      if arg == "-"+key[0]: d[key] = type(d[key])(sys.argv[n+1])
+      if arg == "-"+key[0]: 
+        d[key] = coerce(sys.argv[n+1])
   return d
 
 def csv(file):
