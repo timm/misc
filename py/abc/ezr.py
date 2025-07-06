@@ -9,11 +9,10 @@
 ezr.py: tiny active learning, multi objective.
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT license
 
- -h                  show help
  -A  Assume=4        on init, how many initial guesses?
  -B  Build=24        when growing theory, how many labels?
  -C  Check=5         when testing, how many checks?
- -D  Delta=smed      required effect size test for cliff's delta
+ -D  Delta=small     required effect size test for cliff's delta
  -F  Few=512         just explore a Few rows
  -a  acq=xploit      acquisition: xploit | xplor | adapt
  -g  guess=0.5       |hot| is |lit|**guess
@@ -24,6 +23,11 @@ ezr.py: tiny active learning, multi objective.
  -s  seed=1234567891 random number seed
  -f  file=../../../moot/optimize/misc/auto93.csv
                      path to CSV file
+
+ -h                  show help
+ --list              list all examples
+ --X                 run example X
+ --all               run all examples
 """
 from typing import Iterator,Iterable
 from types import SimpleNamespace as o 
@@ -34,10 +38,10 @@ import random, math, sys, re
 # "i" for self, CamelCase for constructors and 
 # UPPER case for my types
 
-ATOM = bool | int | float | str
+ATOM = int | float | bool | str
 ROW  = list[ATOM]
 ROWS = list[ROW]
-COL  = "Num" or "Sym"
+COL  = "Num" or "Sym" # using "placeholder" syntax
 ROLE = "all" or  "x" or "y"
 COLS = dict[ROLE, list[COL]]
 DATA = tuple[ROWS, COLS]
@@ -125,7 +129,7 @@ def xdist(i:DATA, row1:ROW, row2:ROW) -> float:
           for c,col in i.cols.x.items())
   return (d/len(i.cols.x)) ** (1/the.p)
 
-def norm(i:COL, x:int|float) -> float: 
+def norm(i:COL, x: int|float) -> float: 
   "Normalize a number 0..1 for lo..hi."
   if x=="?" or type(i) is Sym: return x
   return (x - i.lo) / ( i.hi -  i.lo + 1E-32)
@@ -230,7 +234,7 @@ def acquires(i:DATA, unlabelled:ROWS, assume=the.Assume,
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
 
-def Confuse() -> Confuse: 
+def Confuse() -> "Confuse": 
   "Create a confusion stats for classification matrix."
   return o(klasses={}, total=0)
 
@@ -246,7 +250,7 @@ def confuse(i:Confuse, want:str, got:str) -> str:
   return got
 
 def confused(i, summary=False):
-  "Report consuin matric statistics."
+  "Report confusion matric statistics."
   def finalize(c):
     p = lambda y, z: int(100 * y / (z or 1e-32))
     c.pd   = p(c.tp, c.tp + c.fp)
@@ -267,15 +271,21 @@ def confused(i, summary=False):
   else:
     return {k: finalize(v) for k, v in i.klasses.items()}
 
-def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
+# The following code is slow for large samples, but nearly
+# instantenous for the typical 20×20 cases.
+def ks_cliffs(x:list[int|float], y:list[int|float],
+              ks=the.Ks, cliffs=the.Delta) -> bool:
+  "True if x,y indistingishable and differ by just a small effect."
   x, y = sorted(x), sorted(y)
   n, m = len(x), len(y)
   def _cliffs():
+    "How frequently are x items are gt,lt than y items?"
     gt = sum(a > b for a in x for b in y)
     lt = sum(a < b for a in x for b in y)
     return abs(gt - lt) / (n * m)
 
   def _ks():
+    "Return max distance between cdf."
     xs = sorted(x + y)
     fx = [sum(a <= v for a in x)/n for v in xs]
     fy = [sum(a <= v for a in y)/m for v in xs]
@@ -285,21 +295,26 @@ def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
   cliffs= {'small':0.11,'smed':0.195,'medium':0.28,'large':0.43}[cliffs]
   return _cliffs() <= cliffs and _ks() <= ks * ((n + m)/(n * m))**0.5
 
-def scottknott(rxs, same=ks_cliffs, eps=None):
-  eps = eps or .35 * has([x for vs in rxs.values() for x in vs]).sd
+def scottknott(rxs : dict[str,list[int|float]], reverse=False,
+               same=ks_cliffs, eps=None) -> dict[str,int]:
+  "Sort rxs, recursively split them, stopping when two splits are same."
+  eps = eps or 0.2 * has([x for vs in rxs.values() for x in vs]).sd
   items = [(sum(vs), k, vs, len(vs)) for k, vs in rxs.items()]
-  return _sk(sorted(items), same, {}, eps, rank=1)[1]
+  return _skdiv(sorted(items,reverse=reverse), same, {}, eps, rank=1)[1]
 
-def _sk(groups, same, out, eps, rank=1):
+def _skdiv(groups:list[tuple], same:callable, out:list[int], 
+           eps:float, rank=1) -> tuple[int,list[int]]:
+  "Cut and recurse (if we find a cut). Else, use rank=rank, then inc rank." 
   def flat(lst): return [x for _, _, xs, _ in lst for x in xs]
-  c = _skcut(groups, eps)
-  if c and not same(flat(groups[:c]), flat(groups[c:])):
-    return _sk(groups[c:], same, out, eps,
-               rank=_sk(groups[:c], same, out, eps, rank)[0])
-  for _, k, _, _ in groups: out[k] = rank
+  cut = _skcut(groups, eps)
+  if cut and not same(flat(groups[:cut]), flat(groups[cut:])):
+    return _skdiv(groups[cut:], same, out, eps,
+                  rank=_skdiv(groups[:cut], same, out, eps, rank)[0])
+  for _, k, _, _ in groups:  out[k] = rank
   return rank + 1, out
 
-def _skcut(groups, eps):
+def _skcut(groups:list[tuple], eps:float) -> int:
+  "Cut to maximimze difference in means (if cuts differ bu more than eps)."
   sum1 = sum(s for s, _, _, _ in groups)
   n1   = sum(n for _, _, _, n in groups)
   mu   = sum1 / n1
@@ -324,45 +339,54 @@ def cli(d:dict) -> dict:
       if arg == "-"+k[0]: d[k] = type(d[k])(sys.argv[n+1])
   return d
 
-def csv(file=None):
+def csv(file:str=None) -> Iterator[ROW]:
+  "Iterate over all rows."
   with open(file) as f:
     for line in f:
       if (line := line.split("%")[0]):
         yield [coerce(val.strip()) for val in line.split(",")]
 
-def has(src, col=None):
+def has(src:Iterable[ATOM], col=None):
+  "Summarize src into col (and guess what col to use if col is None)."
   for x in src:
     col = col or (Num if type(x) in [int,float] else Sym)()
     add(col, x)
   return col
 
-def pretty(x, fmt=".3f"):
+def pretty(x:ATOM, fmt=".3f") -> str:
+  "Pretty print string for floats. Dull strings for all else."
   if type(x) == float:
     return str(int(x)) if x == int(x) else f"{x:{fmt}}"
   return str(x)
 
-
-def show(lst:list[o], pre="| ", fmt=".3f"):
+def show(lst:list[o], pre="| ", fmt=".3f") -> None:
+  "Print list of 'o's, aligning columns."
   rows = [[pretty(x,fmt) for x in vars(r).values()] for r in lst]
   table = [list(vars(lst[0]))] + rows  # line i = 0 is the header
   widths = [max(len(c) for c in col) for col in zip(*table)]
   for i, row in enumerate(table):
     print(pre + " | ".join(c.ljust(w) for c,w in zip(row, widths)))
+
+def all_egs(run=False):
+  "Run all eg__* functions."
+  for k,fn in globals().items():
+    if k.startswith('eg__') and k != 'eg__all':
+      if run:
+        print("\n----["+k+"]"+'-'*40)
+        random.seed(the.seed)
+        fn()
+      else:  
+        print(" "+re.sub('eg__','--',k).ljust(10),"\t",fn.__doc__ or "")
 
 #  _        _.  ._ _   ._   |   _    _
 # (/_  ><  (_|  | | |  |_)  |  (/_  _> 
 #                      |               
+def eg_h()    : print(__doc__)
+def eg__all() : all_egs(run=True)
+def eg__list(): all_egs()
 
-def eg__all():
-  for k,fn in globals().items():
-    if k.startswith('eg__') and k != 'eg__all':
-      print("\n----["+k+"]"+'-'*40)
-      random.seed(the.seed)
-      fn()
-
-def eg_h(): print(__doc__)
 def eg__the(): print(the)
-def eg__csv(): [print(t) for t in csv(the.file)]
+def eg__csv(): [print(t) for t in list(csv(the.file))[::40]]
 def eg__sym(): print(has("aaaabbc"))
 def eg__Sym(): s = has("aaaabbc"); assert 0.44 == round(like(s,"a"),2)
 def eg__num(): print(has(random.gauss(10,2) for _ in range(1000)))
@@ -373,6 +397,7 @@ def eg__Num() :
 def eg__data(): [print(col) for col in Data(csv(the.file)).cols.all]
 
 def eg__inc():
+  "Check i can add/delete rows incrementally."
   d1 = Data(csv(the.file))
   d2 = clone(d1)
   x  = d2.cols.x[1]
@@ -390,13 +415,12 @@ def eg__bayes():
   print(sorted([round(likes(data,t),2) for t in data.rows])[::20])
 
 def eg__confuse():
-  """
-  a b c <- got
-  ------. want
-  5 1   | a
-    2 1 | b
-      3 | c
-  """
+  "check confuse calcs."
+  # a b c <- got
+  # ------. want
+  # 5 1   | a
+  #   2 1 | b
+  #     3 | c
   cf = Confuse()   
   for want,got,n in [
       ("a","a",5),("a","b",1),("b","b",2),("b","c",1),("c","c",3)]:
@@ -411,22 +435,29 @@ def eg__confuse():
 
 def eg__stats():
    b4 = [random.gauss(1,1)+ random.gauss(10,1)**0.5
-         for _ in range(59)]
+         for _ in range(20)]
    d, out = 0,[]
-   while d < 0.7:
+   while d < 1:
      now = [x+d*random.random() for x in b4]
      out += [f"{d:.2f}" + ("y" if ks_cliffs(b4,now) else "n")]
      d += 0.05
    print(', '.join(out))
 
 def eg__sk():
-  n=30
-  rxs=dict(asIs = [random.gauss(10,1) for _ in range(n)],
-          copy1 = [random.gauss(20,1) for _ in range(n)],
-          now1  = [random.gauss(20,1) for _ in range(n)],
-          copy2 = [random.gauss(40,1) for _ in range(n)],
-          now2  = [random.gauss(40,1) for _ in range(n)])
-  print(scottknott(rxs))
+  n=20
+  for sd in [0.1,1,10]:
+    print("sd=", sd)
+    rxs={}
+    G=lambda m:[random.gauss(m,sd) for _ in range(n)]
+    for i in range(20): 
+      if   i<=  4 : rxs[chr(97+i)] = G(10)
+      elif i <= 8 : rxs[chr(97+i)] = G(11)
+      elif i <=12 : rxs[chr(97+i)] = G(12)
+      elif i <=16 : rxs[chr(97+i)] = G(12)
+      else        : rxs[chr(97+i)] = G(14)
+    out=scottknott(rxs,eps=0)
+    print("\t",''.join(list(out.keys())))
+    print("\t",''.join([str(x) for x in out.values()]))
 
 def eg__diabetes(): nbc("../../../moot/classify/diabetes.csv")
 def eg__soybean():  nbc("../../../moot/classify/soybean.csv")
@@ -438,6 +469,7 @@ def eg__irisK():
   for data in kmeans(Data(csv("../../../moot/classify/iris.csv")),k=10):
     print(mids(data)) 
 
+# Start up
 if __name__ == "__main__": 
   cli(the.__dict__)
   for n,arg in enumerate(sys.argv):
