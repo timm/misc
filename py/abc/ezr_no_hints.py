@@ -228,10 +228,10 @@ def confuse(cf:Confuse, want:str, got:str) -> str:
   "Update the confusion matrix."
   for x in (want, got):
     if x not in cf.klasses: 
-      cf.klasses[x] = o(label=x,tp=0,fp=0,fn=0,tn=cf.total)
+      cf.klasses[x] = o(label=x,tn=cf.total,fn=0,fp=0,tp=0)
   for c in cf.klasses.values():
-    if c.label==want: c.tp += (got==want);    c.fp += (got != want)
-    else            : c.fn += (got==c.label); c.tn += (got != c.label)
+    if c.label==want: c.tp += (got==want);    c.fn += (got != want)
+    else            : c.fp += (got==c.label); c.tn += (got != c.label)
   cf.total += 1
   return got
 
@@ -239,14 +239,14 @@ def confused(cf, summary=False):
   "Report confusion matric statistics."
   def finalize(c):
     p = lambda y, z: int(100 * y / (z or 1e-32))
-    c.pd   = p(c.tp, c.tp + c.fp)
-    c.pf   = p(c.fn, c.fn + c.tn)
-    c.prec = p(c.tp, c.tp + c.fn)
+    c.pd   = p(c.tp, c.tp + c.fn)
+    c.prec = p(c.tp, c.fp + c.tp)
+    c.pf   = p(c.fp, c.fp + c.tn)
     c.acc  = p(c.tp + c.tn, c.tp + c.fp + c.fn + c.tn)
     return c
 
   if summary:
-    out = o(label="-", tp=0, fp=0, fn=0, tn=0)
+    out = o(label="-", tn=0,fn=0,fp=0,tp=0)
     for c in cf.klasses.values():
       w = (c.tp + c.fp) / cf.total
       out.tp += c.tp * w
@@ -420,6 +420,7 @@ def eg__confuse():
     got = dict(pd=y.pd, acc=y.acc, pf=y.pf, prec=y.prec)
     assert got == xpect[k]
     print(k, o(**got))
+  show(list(confused(cf).values()))
 
 def eg__stats():
    b4 = [random.gauss(1,1)+ random.gauss(10,1)**0.5
