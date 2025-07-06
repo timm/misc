@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-file="${1%.*}"         # strip .py if present
-src="$file.py"         # assumes .py file
-ps=~/tmp/$file.ps
+file="${1%.*}" 
 pdf=~/tmp/$file.pdf
 
-enscript -B -r -C \
-  --columns=4 \
-  --lines-per-page=500 \
-  --font=Courier4\
-  --margins=10:10:10:10 \
-  -Epython \
-  --color \
-  -o ~/tmp/ezr.ps ezr.py && \
-ps2pdf ~/tmp/ezr.ps ~/tmp/ezr.pdf && \
-rm ~/tmp/ezr.ps
-
+echo "pdf-ing $pdf ... "
+a2ps                        \
+  --file-align=virtual       \
+	--line-numbers=1            \
+	--pro=color                  \
+	--pretty=python               \
+	--chars-per-line=70            \
+	--left-title=""                 \
+	--borders=no                     \
+  --right-footer="page %s. of %s#"  \
+	--portrait                         \
+	--columns 2                         \
+	-M letter                            \
+	-o - $1 | ps2pdf - $pdf
+open $pdf

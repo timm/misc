@@ -1,4 +1,10 @@
 #!/usr/bin/env python3 -B
+#     _____  ____________    ______ __   __
+#    |  ___||___  /| ___ \   | ___ \\ \ / /
+#    | |__     / / | |_/ /   | |_/ / \ V / 
+#    |  __|   / /  |    /    |  __/   \ /  
+#    | |___ ./ /___| |\ \  _ | |      | |  
+#    \____/ \_____/\_| \_|(_)\_|      \_/  
 """
 ezr.py: tiny active learning, multi objective.
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT license
@@ -199,7 +205,8 @@ def nbc(file:str, wait=5) -> None:
     adds(d[want], row)
   [print(o(**d.__dict__)) for _,d in confused(cf).items()]
 
-def acquires(i, unlabelled, assume=the.Assume, budget=the.Build):
+def acquires(i:DATA, unlabelled:ROWS, assume=the.Assume, 
+                     budget=the.Build) -> tuple[ROWS,ROWS,DATA,DATA]:
   "Label promising rows, "
   labelled = clone(i)
   best     = clone(i) # subset of labelled
@@ -223,19 +230,23 @@ def acquires(i, unlabelled, assume=the.Assume, budget=the.Build):
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
 
-def Confuse(): return o(data={}, total=0)
+def Confuse() -> Confuse: 
+  "Create a confusion stats for classification matrix."
+  return o(klasses={}, total=0)
 
-def confuse(cf, want, got):
+def confuse(i:Confuse, want:str, got:str) -> str:
+  "Update the confusion matrix."
   for x in (want, got):
-    if x not in cf.data: 
-      cf.data[x] = o(label=x,tp=0,fp=0,fn=0,tn=cf.total)
-  for c in cf.data.values():
+    if x not in i.klasses: 
+      i.klasses[x] = o(label=x,tp=0,fp=0,fn=0,tn=i.total)
+  for c in i.klasses.values():
     if c.label==want: c.tp += (got==want);    c.fp += (got != want)
     else            : c.fn += (got==c.label); c.tn += (got != c.label)
-  cf.total += 1
+  i.total += 1
   return got
 
-def confused(cf, summary=False):
+def confused(i, summary=False):
+  "Report consuin matric statistics."
   def finalize(c):
     p = lambda y, z: int(100 * y / (z or 1e-32))
     c.pd   = p(c.tp, c.tp + c.fp)
@@ -246,15 +257,15 @@ def confused(cf, summary=False):
 
   if summary:
     out = o(label="-", tp=0, fp=0, fn=0, tn=0)
-    for c in cf.data.values():
-      w = (c.tp + c.fp) / cf.total
+    for c in i.klasses.values():
+      w = (c.tp + c.fp) / i.total
       out.tp += c.tp * w
       out.fp += c.fp * w
       out.fn += c.fn * w
       out.tn += c.tn * w
     return finalize(out)
   else:
-    return {k: finalize(v) for k, v in cf.data.items()}
+    return {k: finalize(v) for k, v in i.klasses.items()}
 
 def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
   x, y = sorted(x), sorted(y)
