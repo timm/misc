@@ -446,18 +446,19 @@ def eg__stats():
 def eg__sk():
   n=20
   for sd in [0.1,1,10]:
-    print("sd=", sd)
-    rxs={}
-    G=lambda m:[random.gauss(m,sd) for _ in range(n)]
-    for i in range(20): 
-      if   i<=  4 : rxs[chr(97+i)] = G(10)
-      elif i <= 8 : rxs[chr(97+i)] = G(11)
-      elif i <=12 : rxs[chr(97+i)] = G(12)
-      elif i <=16 : rxs[chr(97+i)] = G(12)
-      else        : rxs[chr(97+i)] = G(14)
-    out=scottknott(rxs,eps=0)
-    print("\t",''.join(list(out.keys())))
-    print("\t",''.join([str(x) for x in out.values()]))
+    for eps in [1E-32,0.05,0.1,0.15,0.2]:
+      print("\neps=",eps, "sd=",sd)
+      rxs={}
+      G=lambda m:[random.gauss(m,sd) for _ in range(n)]
+      for i in range(20): 
+        if   i<=  4 : rxs[chr(97+i)] = G(10)
+        elif i <= 8 : rxs[chr(97+i)] = G(11)
+        elif i <=12 : rxs[chr(97+i)] = G(12)
+        elif i <=16 : rxs[chr(97+i)] = G(12)
+        else        : rxs[chr(97+i)] = G(14)
+      out=scottknott(rxs,eps=eps)
+      print("\t",''.join(list(out.keys())))
+      print("\t",''.join([str(x) for x in out.values()]))
 
 def eg__diabetes(): nbc("../../../moot/classify/diabetes.csv")
 def eg__soybean():  nbc("../../../moot/classify/soybean.csv")
