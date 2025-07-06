@@ -404,6 +404,7 @@ def eg__inc():
   for row in d1.rows:
     adds(d2,row)
     if len(d2.rows)==100: mu1,sd1 = x.mu,x.sd 
+  print(x.sd)
   for row in d1.rows[::-1]:
     if len(d2.rows)==100: mu2,sd2 = x.mu,x.sd
     adds(d2,row, inc=-1, zap=True)
