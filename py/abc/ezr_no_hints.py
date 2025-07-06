@@ -29,31 +29,19 @@ ezr.py, multi objective.
  --X                 run example X
  --all               run all examples
 """
-from typing import Iterator,Iterable
 from types import SimpleNamespace as o 
 from random import choices as some
 import random, math, sys, re
 
-# In this code, "col" for column index, "r" for row, 
-# "data" for self, CamelCase for constructors and 
-# UPPER case for my types
-
-ATOM = int | float | bool | str
-ROW  = list[ATOM]
-ROWS = list[ROW]
-COL  = "Num" or "Sym" # using "placeholder" syntax
-ROLE = "all" or  "row" or "val"
-COLS = dict[ROLE, list[COL]]
-DATA = tuple[ROWS, COLS]
-
 def coerce(s):
+  "String to atom."
   for fn in [int,float]:
     try: return fn(s)
     except: pass
   s = s.strip()
-  return {'True':True, 'False':False}.get(s,s)
+  return {'True':True,'true':True,'false':False,'False':False}.get(s,s)
 
-# parse help string to create global config
+# help --> config 
 the = o(**{k:coerce(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
 
 #  _  _|_  ._        _  _|_   _ 
@@ -105,6 +93,20 @@ def add(col, v, inc=1):
         col.m2 += inc * (d * (v - col.mu))
         col.sd  = 0 if col.n < 2 else (max(0,col.m2)/(col.n-1))**.5
   return v
+
+def mids(data):
+  "Return the central tendency for each column."
+  return [mid(col) for col in data.cols.all]
+
+def mid(data):
+  return max(data, key=data.get) if type(data) is Sym else data.mu
+
+def div(data):
+  "Return the diversity)."
+  if type(data) is Sym:
+    N = sum(data.values())
+    return -sum(n/N * math.log(n/N, 2) for n in data.values())
+  return data.sd
 
 #   _|  o   _  _|_   _.  ._    _   _  
 #  (_|  |  _>   |_  (_|  | |  (_  (/_ 
@@ -159,20 +161,6 @@ def kmeans(data, rows=None, n=10, out=None, err=1, **key):
   return (out if (n==1 or abs(err - err1) <= 0.01) else
           kmeans(data, rows, n-1, d.values(), err=err1,**key))
 
-def mids(data):
-  "Return the central tendency for each column."
-  return [mid(col) for col in data.cols.all]
-
-def mid(data):
-  return max(data, key=data.get) if type(data) is Sym else data.mu
-
-def div(data):
-  "Return the diversity)."
-  if type(data) is Sym:
-    N = sum(data.values())
-    return -sum(n/N * math.log(n/N, 2) for n in data.values())
-  return data.sd
-
 #  |  o  |    _  
 #  |  |  |<  (/_ 
                
@@ -205,7 +193,7 @@ def nbc(file, wait=5):
       got = max(d,key=lambda k:likes(d[k],row,n-wait,len(d)))
       confuse(cf,want,got)
     adds(d[want], row)
-  [print(o(**d.__dict__)) for _,d in confused(cf).items()]
+  return list(confused(cf).values())
 
 def acquires(data, unlabelled, assume=the.Assume, 
              budget=the.Build):
@@ -269,8 +257,8 @@ def confused(cf, summary=False):
   else:
     return {k: finalize(v) for k, v in cf.klasses.items()}
 
-# The following code is slow for large samples, but nearly
-# instantenous for the typical 20*20 cases.
+# While ks_code is elegant (IMHO), its slow for large samples. That
+# said, it is nearly instantenous for the typical 20*20 cases.
 def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
   "True if x,y indistingishable and differ by just a small effect."
   x, y = sorted(x), sorted(y)
@@ -350,19 +338,21 @@ def has(src, col=None):
     add(col, row)
   return col
 
-def pretty(row, fmt=".3f"):
-  "Pretty print string for floats. Dull strings for all else."
-  if type(row) == float:
-    return str(int(x)) if row == int(row) else f"{row:{fmt}}"
-  return str(row)
+def pretty(v, width=8, prec=3):
+  "Right-align numbers. Dull strings for all else."
+  if isinstance(v, float):
+    return f"{v:{width}.{prec}f}" if v != int(v) else f"{int(v):>{width}}"
+  return f"{v:>{width}}" if isinstance(v, int) else str(v)
 
-def show(lst, pre="| ", fmt=".3f"):
+def show(lst, pre="| ", prec=3):
   "Pretty print list of 'o's, aligning columns."
-  rows = [[pretty(row,fmt) for row in vars(r).values()] for r in lst]
-  table = [list(vars(lst[0]))] + rows  # line data = 0 is the header
+  items = [[pretty(item,prec) for item in vars(r).values()] for r in lst]
+  table = [list(vars(lst[0]))] + items  # line data = 0 is the header
   widths = [max(len(col) for col in col) for col in zip(*table)]
-  for i, row in enumerate(table):
-    print(pre + " | ".join(c.ljust(w) for c,w in zip(row, widths)))
+  for i, item in enumerate(table):
+    print(pre + " | ".join(c.ljust(w) for c,w in zip(item, widths)))
+    if i == 0:  # after header
+      print(pre + "-+-".join("-" * w for w in widths))
 
 def all_egs(run=False):
   "Run all eg__* functions."
@@ -459,7 +449,7 @@ def eg__sk():
       print("\t",''.join([str(x) for x in out.values()]))
 
 def eg__diabetes(): nbc("../../../moot/classify/diabetes.csv")
-def eg__soybean():  nbc("../../../moot/classify/soybean.csv")
+def eg__soybean():  show(nbc("../../../moot/classify/soybean.csv"))
 
 def eg__irisKpp(): 
   [print(r) for r in kpp(Data(csv("../../../moot/classify/iris.csv")),k=10)]

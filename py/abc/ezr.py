@@ -34,19 +34,7 @@ from types import SimpleNamespace as o
 from random import choices as some
 import random, math, sys, re
 
-# In this code, "c" for column index, "r" for row, 
-# "i" for self, CamelCase for constructors and 
-# UPPER case for my types
-
-ATOM = int | float | bool | str
-ROW  = list[ATOM]
-ROWS = list[ROW]
-COL  = "Num" or "Sym" # using "placeholder" syntax
-ROLE = "all" or  "x" or "y"
-COLS = dict[ROLE, list[COL]]
-DATA = tuple[ROWS, COLS]
-
-def coerce(s:str) -> ATOM:
+def coerce(s):
   for fn in [int,float]:
     try: return fn(s)
     except: pass
