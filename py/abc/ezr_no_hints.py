@@ -51,7 +51,7 @@ Sym = dict
 Num = lambda: o(lo=1E32, mu=0, m2=0, sd=0, n=0, hi=-1E32, heaven=1)
 
 def Data(src):
-  "Store and summarize rows."
+  "Store rows, and summarizes then in cols."
   def _cols(names):
     cols = o(names=names, all=[], x={}, y={}, klass=None)
     for c,s in enumerate(names):
@@ -164,13 +164,13 @@ def kmeans(data, rows=None, n=10, out=None, err=1, **key):
 #  |  o  |    _  
 #  |  |  |<  (/_ 
                
-def like(data, v, prior=0):
+def like(col, v, prior=0):
   "How much does this COL like v?"
-  if type(data) is Sym: 
-    out = (data.get(v,0)+the.m*prior)/(sum(data.values())+the.m+1E-32)
+  if type(col) is Sym: 
+    out = (col.get(v,0)+the.m*prior)/(sum(col.values())+the.m+1E-32)
   else:
-    var = 2 * data.sd * data.sd
-    z   = (v - data.mu) ** 2 / var
+    var = 2 * col.sd * col.sd
+    z   = (v - col.mu) ** 2 / var
     out =  math.exp(-z) / (2 * math.pi * var) ** 0.5
   return min(1, max(0, out))
 
@@ -193,7 +193,7 @@ def nbc(file, wait=5):
       got = max(d,key=lambda k:likes(d[k],row,n-wait,len(d)))
       confuse(cf,want,got)
     adds(d[want], row)
-  return list(confused(cf).values())
+  return confused(cf)
 
 def acquires(data, unlabelled, assume=the.Assume, 
              budget=the.Build):
@@ -255,7 +255,8 @@ def confused(cf, summary=False):
       out.tn += c.tn * w
     return finalize(out)
   else:
-    return {k: finalize(v) for k, v in cf.klasses.items()}
+    [finalize(v) for v in cf.klasses.values()]
+    return list(cf.klasses.values())
 
 # While ks_code is elegant (IMHO), its slow for large samples. That
 # said, it is nearly instantenous for the typical 20*20 cases.
@@ -420,7 +421,7 @@ def eg__confuse():
     got = dict(pd=y.pd, acc=y.acc, pf=y.pf, prec=y.prec)
     assert got == xpect[k]
     print(k, o(**got))
-  show(list(confused(cf).values()))
+  show(confused(cf))
 
 def eg__stats():
    b4 = [random.gauss(1,1)+ random.gauss(10,1)**0.5
