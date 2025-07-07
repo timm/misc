@@ -110,15 +110,20 @@ def div(data):
 
 #   _|  o   _  _|_   _.  ._    _   _  
 #  (_|  |  _>   |_  (_|  | |  (_  (/_ 
-                                    
+          
+def minkowski(src):
+  "Generalized distance with a variable power p."
+  d,n = 0,0
+  for v in src: n,d = n+1, d + v**the.p
+  return (d/n) ** (1/the.p)
+
 def ydist(data, row):
-  "Diance to goals to heaven."
-  d = sum(abs(norm(col, row[col]) - data.heaven)**2 
-          for col,col in data.cols.val.items()) 
-  return (d/len(data.cols.val)) ** 0.5
+  "Distance between goals and heaven."
+  return minkowski(abs(norm(col, row[c]) - col.heaven) 
+                   for c,col in data.cols.y.items())
 
 def xdist(data, row1, row2):
-  "Diance between the row values of two rows."
+  "Distance between independent values of two rows."
   def _aha(col, a,b):
     if a==b=="?": return 1
     if type(col) is Sym: return a != b
@@ -126,15 +131,14 @@ def xdist(data, row1, row2):
     a = a if a != "?" else (0 if b>0.5 else 1)
     b = b if b != "?" else (0 if a>0.5 else 1)
     return abs(a-b)
-    
-  d = sum(_aha(col, row1[c], row2[c])**the.p 
-          for c,col in data.cols.x.items())
-  return (d/len(data.cols.x)) ** (1/the.p)
 
-def norm(data, row): 
+  return minkowski(_aha(col, row1[c], row2[c]) 
+                   for c,col in data.cols.x.items())
+
+def norm(col, row): 
   "Normalize a number 0..1 for lo..hi."
-  if row=="?" or type(data) is Sym: return row
-  return (row - data.lo) / ( data.hi -  data.lo + 1E-32)
+  if row=="?" or type(col) is Sym: return row
+  return (row - col.lo) / ( col.hi -  col.lo + 1E-32)
 
 def kpp(data,rows=None,k=20, few=the.Few):
   "Return key centroids usually seuperted by distance D^2."
@@ -167,11 +171,11 @@ def kmeans(data, rows=None, n=10, out=None, err=1, **key):
 def like(col, v, prior=0):
   "How much does this COL like v?"
   if type(col) is Sym: 
-    out = (col.get(v,0)+the.m*prior)/(sum(col.values())+the.m+1E-32)
+    out=(col.get(v,0) + the.m*prior)/(sum(col.values()) + the.m+1E-32)
   else:
-    var = 2 * col.sd * col.sd
-    z   = (v - col.mu) ** 2 / var
-    out =  math.exp(-z) / (2 * math.pi * var) ** 0.5
+    var= 2 * col.sd * col.sd
+    z  = (v - col.mu) ** 2 / var
+    out=  math.exp(-z) / (2 * math.pi * var) ** 0.5
   return min(1, max(0, out))
 
 def likes(data, row, nall=100, nh=2):
@@ -181,6 +185,11 @@ def likes(data, row, nall=100, nh=2):
          for c,col in data.cols.x.items() if (v:=row[c]) != "?"]
   return sum(math.log(n) for n in tmp + [prior] if n>0)    
 
+def liked(datas,row, nall=None):
+  "Which data likes this row the most?"
+  nall = nall or sum(len(data.row) for data in datas.values())
+  return max(datas, key=lambda k: likes(datas[k],row,nall,len(datas)))
+
 def nbc(file, wait=5):
   "Classify rows by how much each class likes a row."
   cf = Confuse()
@@ -189,9 +198,7 @@ def nbc(file, wait=5):
   for n,row in enumerate(data.rows):
     want = row[key]
     d[want] = d.get(want) or clone(data)
-    if n > wait:
-      got = max(d,key=lambda k:likes(d[k],row,n-wait,len(d)))
-      confuse(cf,want,got)
+    if n > wait: confuse(cf, want, liked(d,row, n-wait))
     adds(d[want], row)
   return confused(cf)
 
@@ -237,8 +244,8 @@ def confuse(cf:Confuse, want:str, got:str) -> str:
 
 def confused(cf, summary=False):
   "Report confusion matric statistics."
+  p = lambda y, z: round(100 * y / (z or 1e-32), 0)  # one decimal
   def finalize(c):
-    p = lambda y, z: int(100 * y / (z or 1e-32))
     c.pd   = p(c.tp, c.tp + c.fn)
     c.prec = p(c.tp, c.fp + c.tp)
     c.pf   = p(c.fp, c.fp + c.tn)
@@ -246,17 +253,17 @@ def confused(cf, summary=False):
     return c
 
   if summary:
-    out = o(label="-", tn=0,fn=0,fp=0,tp=0)
+    out = o(label="_OVERALL", tn=0, fn=0, fp=0, tp=0)
     for c in cf.klasses.values():
-      w = (c.tp + c.fp) / cf.total
-      out.tp += c.tp * w
-      out.fp += c.fp * w
-      out.fn += c.fn * w
-      out.tn += c.tn * w
+      c = finalize(c)
+      for k in ["tn", "fn", "fp", "tp"]:
+        setattr(out, k, getattr(out, k) + getattr(c, k))
     return finalize(out)
   else:
     [finalize(v) for v in cf.klasses.values()]
-    return list(cf.klasses.values())
+    return sorted(list(cf.klasses.values()) + 
+                  [confused(cf, summary=True)],
+                  key=lambda cf: cf.fn + cf.tp)
 
 # While ks_code is elegant (IMHO), its slow for large samples. That
 # said, it is nearly instantenous for the typical 20*20 cases.
@@ -339,21 +346,23 @@ def has(src, col=None):
     add(col, row)
   return col
 
-def pretty(v, width=8, prec=3):
-  "Right-align numbers. Dull strings for all else."
+def pretty(v, prec=0):
   if isinstance(v, float):
-    return f"{v:{width}.{prec}f}" if v != int(v) else f"{int(v):>{width}}"
-  return f"{v:>{width}}" if isinstance(v, int) else str(v)
+    return f"{v:.{prec}f}" if v != int(v) else str(int(v))
+  return str(v)
 
-def show(lst, pre="| ", prec=3):
-  "Pretty print list of 'o's, aligning columns."
-  items = [[pretty(item,prec) for item in vars(r).values()] for r in lst]
-  table = [list(vars(lst[0]))] + items  # line data = 0 is the header
-  widths = [max(len(col) for col in col) for col in zip(*table)]
-  for i, item in enumerate(table):
-    print(pre + " | ".join(c.ljust(w) for c,w in zip(item, widths)))
-    if i == 0:  # after header
-      print(pre + "-+-".join("-" * w for w in widths))
+def show(lst, pre="| ", prec=0):
+  "Pretty print list of 'o' things, all with same labels."
+  def fmt(row):
+    return pre + " | ".join(c.rjust(w) for c, w in zip(row, gaps)) + " |"
+
+  rows = [[pretty(x, prec) for x in vars(r).values()] for r in lst]
+  head = list(vars(lst[0]))
+  table = [head] + rows
+  gaps = [max(len(row[i]) for row in table) for i in range(len(head))]
+  print(fmt(head))
+  print(pre + " | ".join("-" * w for w in gaps) + " |")
+  for row in rows: print(fmt(row))
 
 def all_egs(run=False):
   "Run all eg__* functions."
@@ -450,8 +459,24 @@ def eg__sk():
       print("\t",''.join(list(out.keys())))
       print("\t",''.join([str(x) for x in out.values()]))
 
-def eg__diabetes(): nbc("../../../moot/classify/diabetes.csv")
-def eg__soybean():  show(nbc("../../../moot/classify/soybean.csv"))
+def eg__diabetes(): 
+  show(nbc("../../../moot/classify/diabetes.csv"))
+
+def eg__soybean():  
+  show(nbc("../../../moot/classify/soybean.csv"))
+
+def eg__xdist():
+  data = Data(csv(the.file))
+  r1= data.rows[0]
+  ds= sorted([xdist(data,r1,r2) for r2 in data.rows])
+  print(', '.join(f"{x:.2f}" for x in ds[::20]))
+  assert all(0 <= x <= 1 for x in ds)
+
+def eg__ydist():
+  data = Data(csv(the.file))
+  ds= sorted([ydist(data,r) for r in data.rows])
+  print(', '.join(f"{y:.2f}" for y in ds[::20]))
+  assert all(0 <= y <= 1 for y in ds)
 
 def eg__irisKpp(): 
   [print(r) for r in kpp(Data(csv("../../../moot/classify/iris.csv")),k=10)]
