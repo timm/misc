@@ -6,8 +6,8 @@
 #    | |___ ./ /___| |\ \  _ | |      | |  
 #    \____/ \_____/\_| \_|(_)\_|      \_/  
 """
-ezr.py: tiny active learning, multi objective.
-(c) 2025, Tim Menzies <timm@ieee.org>, MIT license
+ezr.py, multi objective.
+(col) 2025, Tim Menzies <timm@ieee.org>, MIT license
 
  -A  Assume=4        on init, how many initial guesses?
  -B  Build=24        when growing theory, how many labels?
@@ -17,7 +17,7 @@ ezr.py: tiny active learning, multi objective.
  -a  acq=xploit      acquisition: xploit | xplor | adapt
  -g  guess=0.5       |hot| is |lit|**guess
  -K  Ks=0.95         confidence for Kolmogorov–Smirnov test
- -k  k=1             Bayes hack for rare classes
+ -key  key=1             Bayes hack for rare classes
  -m  m=2             Bayes hack for rare attributes
  -p  p=2             distance calculation coefficient
  -s  seed=1234567891 random number seed
@@ -29,19 +29,19 @@ ezr.py: tiny active learning, multi objective.
  --X                 run example X
  --all               run all examples
 """
-from typing import Iterator,Iterable
 from types import SimpleNamespace as o 
 from random import choices as some
 import random, math, sys, re
 
 def coerce(s):
+  "String to atom."
   for fn in [int,float]:
     try: return fn(s)
     except: pass
   s = s.strip()
-  return {'True':True, 'False':False}.get(s,s)
+  return {'True':True,'true':True,'false':False,'False':False}.get(s,s)
 
-# parse help string to create global config
+# help --> config 
 the = o(**{k:coerce(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
 
 #  _  _|_  ._        _  _|_   _ 
@@ -50,61 +50,75 @@ the = o(**{k:coerce(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
 Sym = dict
 Num = lambda: o(lo=1E32, mu=0, m2=0, sd=0, n=0, hi=-1E32, heaven=1)
 
-def Data(src: Iterable[ROW]) -> DATA:
-  "Store and summarize rows."
-  def _cols(names: list[str]) -> COLS:
-    i = o(names=names, all=[], x={}, y={}, klass=None)
+def Data(src):
+  "Store rows, and summarizes then in cols."
+  def _cols(names):
+    cols = o(names=names, all=[], x={}, y={}, klass=None)
     for c,s in enumerate(names):
-      i.all += [Num() if s[0].isupper() else Sym()]
+      cols.all += [Num() if s[0].isupper() else Sym()]
       if s[-1] != "X":
-        if s[-1] == "!": i.klass=c
-        if s[-1] == "-": i.all[-1].heaven = 0
-        (i.y if s[-1] in "!-a" else i.x)[c] = i.all[-1]
-    return i
+        if s[-1] == "!": cols.klass=c
+        if s[-1] == "-": cols.all[-1].heaven = 0
+        (cols.y if s[-1] in "!-+" else cols.x)[c] = cols.all[-1]
+    return cols
 
   src = iter(src)
   data = o(rows=[], cols= _cols(next(src)))
   [adds(data,r) for r in src]
   return data 
 
-def clone(i:DATA,rows=[]) -> DATA: 
+def clone(data,rows=[]): 
   "Mimic the strcture of an exisiting data."
-  return Data([i.cols.names] + rows)
+  return Data([data.cols.names] + rows)
 
-def adds(i:DATA, row:ROW, inc=1, zap=False) -> ROW:
+def adds(data, row, inc=1, zap=False):
   "Update data with a row (and to substract, use inc= -1)."
-  if inc>0: i.rows += [row]
-  elif zap: i.rows.remove(row) # slow for long rows
-  for c,col in enumerate(i.cols.all): add(col,row[c],inc)
+  if inc>0: data.rows += [row]
+  elif zap: data.rows.remove(row) # slow for long rows
+  for c,col in enumerate(data.cols.all): add(col,row[c],inc)
   return row
 
-def add(i:COL, v:ATOM, inc=1) -> ATOM:
+def add(col, v, inc=1):
   "Update a col with a value (and to substract, use inc= -1)."
   if v != "?":
-    if type(i) is Sym: i[v] = inc + i.get(v,0)
+    if type(col) is Sym: col[v] = inc + col.get(v,0)
     else:
-      i.n += inc
-      i.lo, i.hi = min(v, i.lo), max(v, i.hi)
-      if inc < 0 and i.n < 2:
-        i.sd = i.m2 = i.mu = i.n = 0
+      col.n += inc
+      col.lo, col.hi = min(v, col.lo), max(v, col.hi)
+      if inc < 0 and col.n < 2:
+        col.sd = col.m2 = col.mu = col.n = 0
       else:
-        d       = v - i.mu
-        i.mu += inc * (d / i.n)
-        i.m2 += inc * (d * (v - i.mu))
-        i.sd  = 0 if i.n < 2 else (max(0,i.m2)/(i.n-1))**.5
+        d       = v - col.mu
+        col.mu += inc * (d / col.n)
+        col.m2 += inc * (d * (v - col.mu))
+        col.sd  = 0 if col.n < 2 else (max(0,col.m2)/(col.n-1))**.5
   return v
+
+def mids(data):
+  "Return the central tendency for each column."
+  return [mid(col) for col in data.cols.all]
+
+def mid(data):
+  return max(data, key=data.get) if type(data) is Sym else data.mu
+
+def div(data):
+  "Return the diversity)."
+  if type(data) is Sym:
+    N = sum(data.values())
+    return -sum(n/N * math.log(n/N, 2) for n in data.values())
+  return data.sd
 
 #   _|  o   _  _|_   _.  ._    _   _  
 #  (_|  |  _>   |_  (_|  | |  (_  (/_ 
                                     
-def ydist(i:DATA, row:ROW) -> float:
+def ydist(data, row):
   "Diance to goals to heaven."
-  d = sum(abs(norm(col, row[c]) - i.heaven)**2 
-          for c,col in i.cols.y.items()) 
-  return (d/len(i.cols.y)) ** 0.5
+  d = sum(abs(norm(col, row[col]) - data.heaven)**2 
+          for col,col in data.cols.val.items()) 
+  return (d/len(data.cols.val)) ** 0.5
 
-def xdist(i:DATA, row1:ROW, row2:ROW) -> float:
-  "Diance between the x values of two rows."
+def xdist(data, row1, row2):
+  "Diance between the row values of two rows."
   def _aha(col, a,b):
     if a==b=="?": return 1
     if type(col) is Sym: return a != b
@@ -114,91 +128,75 @@ def xdist(i:DATA, row1:ROW, row2:ROW) -> float:
     return abs(a-b)
     
   d = sum(_aha(col, row1[c], row2[c])**the.p 
-          for c,col in i.cols.x.items())
-  return (d/len(i.cols.x)) ** (1/the.p)
+          for c,col in data.cols.x.items())
+  return (d/len(data.cols.x)) ** (1/the.p)
 
-def norm(i:COL, x: int|float) -> float: 
+def norm(data, row): 
   "Normalize a number 0..1 for lo..hi."
-  if x=="?" or type(i) is Sym: return x
-  return (x - i.lo) / ( i.hi -  i.lo + 1E-32)
+  if row=="?" or type(data) is Sym: return row
+  return (row - data.lo) / ( data.hi -  data.lo + 1E-32)
 
-def kpp(i:DATA,rows=None,k=20, few=the.Few) -> ROWS:
-  "Return k centroids usually seuperted by distance D^2."
-  rows = rows or i.rows
+def kpp(data,rows=None,k=20, few=the.Few):
+  "Return key centroids usually seuperted by distance D^2."
+  rows = rows or data.rows
   random.shuffle(rows)
   out = [rows[0]]
   while len(out) < k:
     tmp = some(rows,k=few)
-    ws = [min(xdist(i,r,c)**2 for c in out) for r in tmp]
+    ws = [min(xdist(data,r,col)**2 for col in out) for r in tmp]
     out.append(random.choices(tmp, weights=ws)[0])
   return out
 
-def kmeans(i:DATA, rows=None, n=10, out=None, err=1,
-           **k) -> dict[int,ROWS]:
-  "Return k centroids within i."
-  rows = rows or i.rows
-  centroids = [mids(d) for d in out] if out else kpp(i,rows,**k)
+def kmeans(data, rows=None, n=10, out=None, err=1, **key):
+  "Return key centroids within data."
+  rows = rows or data.rows
+  centroids = [mids(d) for d in out] if out else kpp(data,rows,**key)
   d,err1 = {},0
   for row in rows:
-    c = min(centroids, key=lambda c: xdist(i,c,row))
-    err1 += xdist(i,c,row) / len(rows)
-    d[id(c)] = d.get(id(c)) or clone(i)
-    adds(d[id(c)],row)
+    col = min(centroids, key=lambda crow: xdist(data,crow,row))
+    err1 += xdist(data,col,row) / len(rows)
+    d[id(col)] = d.get(id(col)) or clone(data)
+    adds(d[id(col)],row)
   print(f'err={err1:.3f}')
   return (out if (n==1 or abs(err - err1) <= 0.01) else
-          kmeans(i, rows, n-1, d.values(), err=err1,**k))
+          kmeans(data, rows, n-1, d.values(), err=err1,**key))
 
-def mids(i: DATA) ->list[ATOM]:
-  "Return the central tendency for each column."
-  return [mid(col) for col in i.cols.all]
-
-def mid(i: COL) -> ATOM:
-  "Return the mode (for symbolic) or mean (for numeric)."
-  return max(i, key=i.get) if type(i) is Sym else i.mu
-
-def div(i: COL) -> float:
-  "Return the diversity: entropy (for symbolic) or stddev (for numeric)."
-  if type(i) is Sym:
-    N = sum(i.values())
-    return -sum(n/N * math.log(n/N, 2) for n in i.values())
-  return i.sd
-
 #  |  o  |    _  
 #  |  |  |<  (/_ 
                
-def like(i:COL, v: int|float, prior=0) -> float:
+def like(col, v, prior=0):
   "How much does this COL like v?"
-  if type(i) is Sym: 
-    out = (i.get(v,0)+the.m*prior)/(sum(i.values())+the.m+1E-32)
+  if type(col) is Sym: 
+    out = (col.get(v,0)+the.m*prior)/(sum(col.values())+the.m+1E-32)
   else:
-    var = 2 * i.sd * i.sd
-    z   = (v - i.mu) ** 2 / var
+    var = 2 * col.sd * col.sd
+    z   = (v - col.mu) ** 2 / var
     out =  math.exp(-z) / (2 * math.pi * var) ** 0.5
   return min(1, max(0, out))
 
-def likes(i:DATA, row:ROW, nall=100, nh=2) -> float:
+def likes(data, row, nall=100, nh=2):
   "How much does this DATA like row?"
-  prior = (len(i.rows) + the.k) / (nall + the.k*nh)
+  prior = (len(data.rows) + the.key) / (nall + the.key*nh)
   tmp = [like(col,v,prior) 
-         for c,col in i.cols.x.items() if (v:=row[c]) != "?"]
+         for c,col in data.cols.x.items() if (v:=row[c]) != "?"]
   return sum(math.log(n) for n in tmp + [prior] if n>0)    
 
-def nbc(file:str, wait=5) -> None:
+def nbc(file, wait=5):
   "Classify rows by how much each class likes a row."
   cf = Confuse()
   data = Data(csv(file))
-  wait,d,k = 5,{},data.cols.klass
+  wait,d,key = 5,{},data.cols.klass
   for n,row in enumerate(data.rows):
-    want = row[k]
+    want = row[key]
     d[want] = d.get(want) or clone(data)
     if n > wait:
       got = max(d,key=lambda k:likes(d[k],row,n-wait,len(d)))
       confuse(cf,want,got)
     adds(d[want], row)
-  [print(o(**d.__dict__)) for _,d in confused(cf).items()]
+  return confused(cf)
 
-def acquires(i:DATA, unlabelled:ROWS, assume=the.Assume, 
-                     budget=the.Build) -> tuple[ROWS,ROWS,DATA,DATA]:
+def acquires(data, unlabelled, assume=the.Assume, 
+             budget=the.Build):
   "Label promising rows, "
   labelled = clone(i)
   best     = clone(i) # subset of labelled
@@ -226,46 +224,47 @@ def Confuse() -> "Confuse":
   "Create a confusion stats for classification matrix."
   return o(klasses={}, total=0)
 
-def confuse(i:Confuse, want:str, got:str) -> str:
+def confuse(cf:Confuse, want:str, got:str) -> str:
   "Update the confusion matrix."
   for x in (want, got):
-    if x not in i.klasses: 
-      i.klasses[x] = o(label=x,tp=0,fp=0,fn=0,tn=i.total)
-  for c in i.klasses.values():
-    if c.label==want: c.tp += (got==want);    c.fp += (got != want)
-    else            : c.fn += (got==c.label); c.tn += (got != c.label)
-  i.total += 1
+    if x not in cf.klasses: 
+      cf.klasses[x] = o(label=x,tn=cf.total,fn=0,fp=0,tp=0)
+  for c in cf.klasses.values():
+    if c.label==want: c.tp += (got==want);    c.fn += (got != want)
+    else            : c.fp += (got==c.label); c.tn += (got != c.label)
+  cf.total += 1
   return got
 
-def confused(i, summary=False):
+def confused(cf, summary=False):
   "Report confusion matric statistics."
   def finalize(c):
     p = lambda y, z: int(100 * y / (z or 1e-32))
-    c.pd   = p(c.tp, c.tp + c.fp)
-    c.pf   = p(c.fn, c.fn + c.tn)
-    c.prec = p(c.tp, c.tp + c.fn)
+    c.pd   = p(c.tp, c.tp + c.fn)
+    c.prec = p(c.tp, c.fp + c.tp)
+    c.pf   = p(c.fp, c.fp + c.tn)
     c.acc  = p(c.tp + c.tn, c.tp + c.fp + c.fn + c.tn)
     return c
 
   if summary:
-    out = o(label="-", tp=0, fp=0, fn=0, tn=0)
-    for c in i.klasses.values():
-      w = (c.tp + c.fp) / i.total
+    out = o(label="-", tn=0,fn=0,fp=0,tp=0)
+    for c in cf.klasses.values():
+      w = (c.tp + c.fp) / cf.total
       out.tp += c.tp * w
       out.fp += c.fp * w
       out.fn += c.fn * w
       out.tn += c.tn * w
     return finalize(out)
   else:
-    return {k: finalize(v) for k, v in i.klasses.items()}
+    [finalize(v) for v in cf.klasses.values()]
+    return list(cf.klasses.values())
 
-# The following code is slow for large samples, but nearly
-# instantenous for the typical 20×20 cases.
-def ks_cliffs(x:list[int|float], y:list[int|float],
-              ks=the.Ks, cliffs=the.Delta) -> bool:
+# While ks_code is elegant (IMHO), its slow for large samples. That
+# said, it is nearly instantenous for the typical 20*20 cases.
+def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
   "True if x,y indistingishable and differ by just a small effect."
   x, y = sorted(x), sorted(y)
   n, m = len(x), len(y)
+
   def _cliffs():
     "How frequently are x items are gt,lt than y items?"
     gt = sum(a > b for a in x for b in y)
@@ -283,15 +282,13 @@ def ks_cliffs(x:list[int|float], y:list[int|float],
   cliffs= {'small':0.11,'smed':0.195,'medium':0.28,'large':0.43}[cliffs]
   return _cliffs() <= cliffs and _ks() <= ks * ((n + m)/(n * m))**0.5
 
-def scottknott(rxs : dict[str,list[int|float]], reverse=False,
-               same=ks_cliffs, eps=None) -> dict[str,int]:
+def scottknott(rxs, reverse=False,same=ks_cliffs, eps=None):
   "Sort rxs, recursively split them, stopping when two splits are same."
   eps = eps or 0.2 * has([x for vs in rxs.values() for x in vs]).sd
   items = [(sum(vs), k, vs, len(vs)) for k, vs in rxs.items()]
-  return _skdiv(sorted(items,reverse=reverse), same, {}, eps, rank=1)[1]
+  return _skdiv(sorted(items,reverse=reverse),same,{},eps,rank=1)[1]
 
-def _skdiv(groups:list[tuple], same:callable, out:list[int], 
-           eps:float, rank=1) -> tuple[int,list[int]]:
+def _skdiv(groups, same, out, eps, rank=1):
   "Cut and recurse (if we find a cut). Else, use rank=rank, then inc rank." 
   def flat(lst): return [x for _, _, xs, _ in lst for x in xs]
   cut = _skcut(groups, eps)
@@ -301,7 +298,7 @@ def _skdiv(groups:list[tuple], same:callable, out:list[int],
   for _, k, _, _ in groups:  out[k] = rank
   return rank + 1, out
 
-def _skcut(groups:list[tuple], eps:float) -> int:
+def _skcut(groups, eps):
   "Cut to maximimze difference in means (if cuts differ bu more than eps)."
   sum1 = sum(s for s, _, _, _ in groups)
   n1   = sum(n for _, _, _, n in groups)
@@ -320,40 +317,43 @@ def _skcut(groups:list[tuple], eps:float) -> int:
 # _|_       ._    _  _|_  o   _   ._    _ 
 #  |   |_|  | |  (_   |_  |  (_)  | |  _> 
                                                         
-def cli(d:dict) -> dict:
+def cli(d):
   "Updated d's slots froma command line."
   for n,arg in enumerate(sys.argv):
-    for k in d:
-      if arg == "-"+k[0]: d[k] = type(d[k])(sys.argv[n+1])
+    for key in d:
+      if arg == "-"+key[0]: 
+        d[key] = coerce(sys.argv[n+1])
   return d
 
-def csv(file:str=None) -> Iterator[ROW]:
+def csv(file):
   "Iterate over all rows."
   with open(file) as f:
     for line in f:
       if (line := line.split("%")[0]):
         yield [coerce(val.strip()) for val in line.split(",")]
 
-def has(src:Iterable[ATOM], col=None):
-  "Summarize src into col (and guess what col to use if col is None)."
-  for x in src:
-    col = col or (Num if type(x) in [int,float] else Sym)()
-    add(col, x)
+def has(src, col=None):
+  "Summarize src into col (if col is None, them and guess what col to use)."
+  for row in src:
+    col = col or (Num if type(row) in [int,float] else Sym)()
+    add(col, row)
   return col
 
-def pretty(x:ATOM, fmt=".3f") -> str:
-  "Pretty print string for floats. Dull strings for all else."
-  if type(x) == float:
-    return str(int(x)) if x == int(x) else f"{x:{fmt}}"
-  return str(x)
+def pretty(v, width=8, prec=3):
+  "Right-align numbers. Dull strings for all else."
+  if isinstance(v, float):
+    return f"{v:{width}.{prec}f}" if v != int(v) else f"{int(v):>{width}}"
+  return f"{v:>{width}}" if isinstance(v, int) else str(v)
 
-def show(lst:list[o], pre="| ", fmt=".3f") -> None:
-  "Print list of 'o's, aligning columns."
-  rows = [[pretty(x,fmt) for x in vars(r).values()] for r in lst]
-  table = [list(vars(lst[0]))] + rows  # line i = 0 is the header
-  widths = [max(len(c) for c in col) for col in zip(*table)]
-  for i, row in enumerate(table):
-    print(pre + " | ".join(c.ljust(w) for c,w in zip(row, widths)))
+def show(lst, pre="| ", prec=3):
+  "Pretty print list of 'o's, aligning columns."
+  items = [[pretty(item,prec) for item in vars(r).values()] for r in lst]
+  table = [list(vars(lst[0]))] + items  # line data = 0 is the header
+  widths = [max(len(col) for col in col) for col in zip(*table)]
+  for i, item in enumerate(table):
+    print(pre + " | ".join(c.ljust(w) for c,w in zip(item, widths)))
+    if i == 0:  # after header
+      print(pre + "-+-".join("-" * w for w in widths))
 
 def all_egs(run=False):
   "Run all eg__* functions."
@@ -391,10 +391,10 @@ def eg__inc():
   x  = d2.cols.x[1]
   for row in d1.rows:
     adds(d2,row)
-    if len(d2.rows)==100: mu1,sd1 = x.mu,x.sd 
+    if len(d2.rows)==100: print(1); mu1,sd1 = x.mu,x.sd 
   print(x.sd)
   for row in d1.rows[::-1]:
-    if len(d2.rows)==100: mu2,sd2 = x.mu,x.sd
+    if len(d2.rows)==100: print(2); mu2,sd2 = x.mu,x.sd
     adds(d2,row, inc=-1, zap=True)
   assert abs(mu2 - mu1) < 1.01 and abs(sd2 - sd1) < 1.01
 
@@ -417,10 +417,11 @@ def eg__confuse():
   xpect = {"a": dict(pd=83,  acc=91, pf=0,  prec=100),
            "b": dict(pd=66,  acc=83, pf=11, prec=66),
            "c": dict(pd=100, acc=91, pf=11, prec=75) }
-  for k, y in confused(cf).items():
+  for y in confused(cf):
     got = dict(pd=y.pd, acc=y.acc, pf=y.pf, prec=y.prec)
-    assert got == xpect[k]
+    assert got == xpect[y.label]
     print(k, o(**got))
+  show(confused(cf))
 
 def eg__stats():
    b4 = [random.gauss(1,1)+ random.gauss(10,1)**0.5
@@ -450,7 +451,7 @@ def eg__sk():
       print("\t",''.join([str(x) for x in out.values()]))
 
 def eg__diabetes(): nbc("../../../moot/classify/diabetes.csv")
-def eg__soybean():  nbc("../../../moot/classify/soybean.csv")
+def eg__soybean():  show(nbc("../../../moot/classify/soybean.csv"))
 
 def eg__irisKpp(): 
   [print(r) for r in kpp(Data(csv("../../../moot/classify/iris.csv")),k=10)]
