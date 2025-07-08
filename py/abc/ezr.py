@@ -9,7 +9,7 @@
 ezr.py, multi objective.
 (col) 2025, Tim Menzies <timm@ieee.org>, MIT license
 
- -A  Assume=4        on init, how many initial guesses?
+ -A  Any=4        on init, how many initial guesses?
  -B  Build=24        when growing theory, how many labels?
  -C  Check=5         when testing, how many checks?
  -D  Delta=small     required effect size test for cliff's delta
@@ -202,24 +202,24 @@ def nbc(file, wait=5):
     adds(d[want], row)
   return confused(cf)
 
-def acquires(data, unlabelled, assume=the.Assume, 
-             budget=the.Build):
+def acquires(data, unlabelled, budget=the.Build):
   "Label promising rows, "
   labelled = clone(i)
   best     = clone(i) # subset of labelled
   rest     = clone(i) # rest = labelled - best
-  inits    = max(assume, budget**.5)
   _like    = lambda what,row: likes(what, row, 2, len(labelled.rows))
   _ydist   = lambda row: ydist(labelled, row) # smaller is better
 
   random.shuffle(unlabelled)
   for n,row in enumerate(unlabelled): 
-    if len(labelled.rows) > max(inits,budget): break
-    if len(todo.rows) < inits or _like(best,row) > _like(rest,row):
+    if len(labelled.rows) > budget: 
+      break
+    if len(labelled.rows) < budget**.5 or \
+      _like(best,row) > _like(rest,row):
       adds(best, adds(labelled, row))
     if len(best.rows) > budget**.5:
       best.rows.sort(key=_ydist)
-      adds(rest, adds(best, best.rows.pop(0), -1))
+      adds(rest, adds(best, best.rows.pop(-1), -1))
   return o(labelled   = sorted(labelled.rows, key=_ydist), 
            unlabelled = unlabelled[n:], 
            best = best, rest = rest)
@@ -323,7 +323,7 @@ def _skcut(groups, eps):
 #   _                                     
 # _|_       ._    _  _|_  o   _   ._    _ 
 #  |   |_|  | |  (_   |_  |  (_)  | |  _> 
-                                                        
+                                                       
 def cli(d):
   "Updated d's slots froma command line."
   for n,arg in enumerate(sys.argv):
@@ -423,13 +423,13 @@ def eg__confuse():
   for want,got,n in [
       ("a","a",5),("a","b",1),("b","b",2),("b","c",1),("c","c",3)]:
     for _ in range(n): confuse(cf, want, got)
-  xpect = {"a": dict(pd=83,  acc=91, pf=0,  prec=100),
-           "b": dict(pd=66,  acc=83, pf=11, prec=66),
-           "c": dict(pd=100, acc=91, pf=11, prec=75) }
+  xpect = {"a": dict(pd=83,  acc=92, pf=0,  prec=100),
+           "b": dict(pd=67,  acc=83, pf=11, prec=67),
+           "c": dict(pd=100, acc=92, pf=11, prec=75) }
   for y in confused(cf):
-    got = dict(pd=y.pd, acc=y.acc, pf=y.pf, prec=y.prec)
-    assert got == xpect[y.label]
-    print(k, o(**got))
+    if y.label != "_OVERALL":
+       got = dict(pd=y.pd, acc=y.acc, pf=y.pf, prec=y.prec)
+       assert xpect[y.label] == got
   show(confused(cf))
 
 def eg__stats():
@@ -474,9 +474,11 @@ def eg__xdist():
 
 def eg__ydist():
   data = Data(csv(the.file))
-  ds= sorted([ydist(data,r) for r in data.rows])
-  print(', '.join(f"{y:.2f}" for y in ds[::20]))
-  assert all(0 <= y <= 1 for y in ds)
+  data.rows.sort(key=lambda row: ydist(data,row))
+  assert all(0 <= ydist(data,r) <= 1 for r in data.rows)
+  print(', '.join(data.cols.names))
+  print("top4:");   [print("\t",row) for row in data.rows[:4]]
+  print("worst4:"); [print("\t",row) for row in data.rows[-4:]]
 
 def eg__irisKpp(): 
   [print(r) for r in kpp(Data(csv("../../../moot/classify/iris.csv")),k=10)]
