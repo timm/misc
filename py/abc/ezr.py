@@ -17,7 +17,7 @@ ezr.py, multi objective.
  -a  acq=xploit      acquisition: xploit | xplor | adapt
  -g  guess=0.5       |hot| is |lit|**guess
  -K  Ks=0.95         confidence for Kolmogorov–Smirnov test
- -key  key=1             Bayes hack for rare classes
+ -k  k=1             Bayes hack for rare classes
  -m  m=2             Bayes hack for rare attributes
  -p  p=2             distance calculation coefficient
  -s  seed=1234567891 random number seed
@@ -180,7 +180,7 @@ def like(col, v, prior=0):
 
 def likes(data, row, nall=100, nh=2):
   "How much does this DATA like row?"
-  prior = (len(data.rows) + the.key) / (nall + the.key*nh)
+  prior = (len(data.rows) + the.k) / (nall + the.k*nh)
   tmp = [like(col,v,prior) 
          for c,col in data.cols.x.items() if (v:=row[c]) != "?"]
   return sum(math.log(n) for n in tmp + [prior] if n>0)    
