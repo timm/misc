@@ -37,7 +37,7 @@ def coerce(s):
   "String to atom."
   for fn in [int,float]:
     try: return fn(s)
-    except: pass
+    except Exception as _: pass
   s = s.strip()
   return {'True':True,'true':True,'false':False,'False':False}.get(s,s)
 
@@ -204,20 +204,21 @@ def nbc(file, wait=5):
 
 def acquires(data, unlabelled):
   "Label promising rows, "
-  labelled = clone(i)
-  best     = clone(i) # subset of labelled
-  rest     = clone(i) # rest = labelled - best
-  _like    = lambda what,row: likes(what, row, 2, len(labelled.rows))
-  _want    = lambda row: _like(best,row) > _like(rest,row):
+  labelled = clone(data)
+  best     = clone(data) # subset of labelled
+  rest     = clone(data) # rest = labelled - best
   _ydist   = lambda row: ydist(labelled, row) # smaller is better
+  _like    = lambda what,row: likes(what, row, 2, len(labelled.rows))
+  _want    = lambda row: _like(best,row) > _like(rest,row)
 
   random.shuffle(unlabelled)
   ordered=True
   # still wrong . only _want if longer than any
   for n,row in enumerate(unlabelled): 
     if len(labelled.rows) > the.Build: 
+      unlabelled=unlabelled[n:]
       break
-    elif len(labelled.rows) < the.Any or _want(row):
+    if len(labelled.rows) < the.Any or _want(row):
       adds(best, adds(labelled, row))
       ordered=False
     while len(best.rows) > (n+1) **.5 > the.Any:
@@ -226,7 +227,7 @@ def acquires(data, unlabelled):
         ordered=True
       adds(rest, adds(best, best.rows.pop(-1), -1))
   return o(labelled   = sorted(labelled.rows, key=_ydist), 
-           unlabelled = unlabelled[n:], 
+           unlabelled = unlabelled, 
            model = _want)
 
 #   _  _|_   _.  _|_   _ 
@@ -264,11 +265,10 @@ def confused(cf, summary=False):
       for k in ["tn", "fn", "fp", "tp"]:
         setattr(out, k, getattr(out, k) + getattr(c, k))
     return finalize(out)
-  else:
-    [finalize(v) for v in cf.klasses.values()]
-    return sorted(list(cf.klasses.values()) + 
-                  [confused(cf, summary=True)],
-                  key=lambda cf: cf.fn + cf.tp)
+  [finalize(v) for v in cf.klasses.values()]
+  return sorted(list(cf.klasses.values()) + 
+                [confused(cf, summary=True)],
+                key=lambda cf: cf.fn + cf.tp)
 
 # While ks_code is elegant (IMHO), its slow for large samples. That
 # said, it is nearly instantenous for the typical 20*20 cases.
@@ -339,7 +339,7 @@ def cli(d):
 
 def csv(file):
   "Iterate over all rows."
-  with open(file) as f:
+  with open(file,encoding="utf-8") as f:
     for line in f:
       if (line := line.split("%")[0]):
         yield [coerce(val.strip()) for val in line.split(",")]
@@ -405,17 +405,22 @@ def eg__inc():
   x  = d2.cols.x[1]
   for row in d1.rows:
     adds(d2,row)
-    if len(d2.rows)==100: print(1); mu1,sd1 = x.mu,x.sd 
-  print(x.sd)
+    if len(d2.rows)==100:  
+      mu1,sd1 = x.mu,x.sd 
   for row in d1.rows[::-1]:
-    if len(d2.rows)==100: print(2); mu2,sd2 = x.mu,x.sd
-    adds(d2,row, inc=-1, zap=True)
-  assert abs(mu2 - mu1) < 1.01 and abs(sd2 - sd1) < 1.01
+    if len(d2.rows)==100: 
+      mu2,sd2 = x.mu,x.sd
+      assert abs(mu2 - mu1) < 1.01 and abs(sd2 - sd1) < 1.01
+      break
 
 def eg__bayes():
   data = Data(csv(the.file))
   assert all(-30 <= likes(data,t) <= 0 for t in data.rows)
   print(sorted([round(likes(data,t),2) for t in data.rows])[::20])
+
+def eg__acq():
+  data = Data(csv(the.file))
+  acquires(data, data.rows)
 
 def eg__confuse():
   "check confuse calcs."
@@ -428,12 +433,12 @@ def eg__confuse():
   for want,got,n in [
       ("a","a",5),("a","b",1),("b","b",2),("b","c",1),("c","c",3)]:
     for _ in range(n): confuse(cf, want, got)
-  xpect = {"a": dict(pd=83,  acc=92, pf=0,  prec=100),
-           "b": dict(pd=67,  acc=83, pf=11, prec=67),
-           "c": dict(pd=100, acc=92, pf=11, prec=75) }
+  xpect = {"a": {'pd':83,  'acc':92, 'pf':0,  'prec':100},
+           "b": {'pd':67,  'acc':83, 'pf':11, 'prec':67},
+           "c": {'d':100, 'acc':92, 'pf':11, 'prec':75} }
   for y in confused(cf):
     if y.label != "_OVERALL":
-       got = dict(pd=y.pd, acc=y.acc, pf=y.pf, prec=y.prec)
+       got = {'d':y.pd, 'acc':y.acc, 'pf':y.pf, 'prec':y.prec}
        assert xpect[y.label] == got
   show(confused(cf))
 
@@ -493,8 +498,11 @@ def eg__irisK():
     print(mids(data)) 
 
 # Start up
-if __name__ == "__main__": 
+def main():
   cli(the.__dict__)
-  for n,arg in enumerate(sys.argv):
+  for arg in sys.argv:
     if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
-      random.seed(the.seed); fn()
+      random.seed(the.seed)
+      fn() 
+
+if __name__ == "__main__": main()
