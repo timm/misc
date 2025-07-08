@@ -213,13 +213,14 @@ def acquires(data, unlabelled):
 
   random.shuffle(unlabelled)
   ordered=True
+  # still wrong . only _want if longer than any
   for n,row in enumerate(unlabelled): 
     if len(labelled.rows) > the.Build: 
       break
     elif len(labelled.rows) < the.Any or _want(row):
       adds(best, adds(labelled, row))
       ordered=False
-    while len(best.rows) > (n+1)**.5:
+    while len(best.rows) > (n+1) **.5 > the.Any:
       if not ordered:
         best.rows.sort(key=_ydist)
         ordered=True
