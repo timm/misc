@@ -9,11 +9,12 @@
 ezr.py, multi objective.
 (col) 2025, Tim Menzies <timm@ieee.org>, MIT license
 
- -A  Any=4        on init, how many initial guesses?
+ -a  act=xploit      (xplore | xploit | adapt | klass)
+ -A  Any=4           on init, how many initial guesses?
  -B  Build=24        when growing theory, how many labels?
  -C  Check=5         when testing, how many checks?
  -D  Delta=small     required effect size test for cliff's delta
- -F  Few=512         just explore a Few rows
+ -F  Few=128         just explore a Few rows
  -a  acq=xploit      acquisition: xploit | xplor | adapt
  -g  guess=0.5       |hot| is |lit|**guess
  -K  Ks=0.95         confidence for Kolmogorov–Smirnov test
@@ -43,7 +44,7 @@ def coerce(s):
 
 # help --> config 
 the = o(**{k:coerce(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
-
+
 #  _  _|_  ._        _  _|_   _ 
 # _>   |_  |   |_|  (_   |_  _> 
 
@@ -164,7 +165,7 @@ def kmeans(data, rows=None, n=10, out=None, err=1, **key):
   print(f'err={err1:.3f}')
   return (out if (n==1 or abs(err - err1) <= 0.01) else
           kmeans(data, rows, n-1, d.values(), err=err1,**key))
-
+
 #  |  o  |    _  
 #  |  |  |<  (/_ 
                
@@ -173,7 +174,7 @@ def like(col, v, prior=0):
   if type(col) is Sym: 
     out=(col.get(v,0) + the.m*prior)/(sum(col.values()) + the.m+1E-32)
   else:
-    var= 2 * col.sd * col.sd
+    var= 2 * col.sd * col.sd + 1E-32
     z  = (v - col.mu) ** 2 / var
     out=  math.exp(-z) / (2 * math.pi * var) ** 0.5
   return min(1, max(0, out))
@@ -202,33 +203,37 @@ def nbc(file, wait=5):
     adds(d[want], row)
   return confused(cf)
 
-def acquires(data, unlabelled):
+def acquires(data, rows):
   "Label promising rows, "
-  labelled = clone(data)
-  best     = clone(data) # subset of labelled
-  rest     = clone(data) # rest = labelled - best
-  _ydist   = lambda row: ydist(labelled, row) # smaller is better
-  _like    = lambda what,row: likes(what, row, 2, len(labelled.rows))
-  _want    = lambda row: _like(best,row) > _like(rest,row)
+  def _acquire(row): # Large numbers are better
+    nall =len(labelled.rows)
+    b, r = likes(best, row, 2, nall), likes(rest, row, 2, nall)
+    b, r = math.e**b, math.e**r
+    if the.acq=="klass": return (b>r)
+    p    = n2 / the.Build
+    q    = {"xploit": 0, "xplor": 1}.get(the.acq, 1 - p)
+    return (b + r*q) / abs(b*q - r + 1E-32)
 
+  unlabelled = rows[:]
   random.shuffle(unlabelled)
-  ordered=True
-  # still wrong . only _want if longer than any
-  for n,row in enumerate(unlabelled): 
-    if len(labelled.rows) > the.Build: 
-      unlabelled=unlabelled[n:]
-      break
-    if len(labelled.rows) < the.Any or _want(row):
-      adds(best, adds(labelled, row))
-      ordered=False
-    while len(best.rows) > (n+1) **.5 > the.Any:
-      if not ordered:
-        best.rows.sort(key=_ydist)
-        ordered=True
-      adds(rest, adds(best, best.rows.pop(-1), -1))
-  return o(labelled   = sorted(labelled.rows, key=_ydist), 
-           unlabelled = unlabelled, 
-           model = _want)
+  n1,n2      = round(the.Any**0.5), the.Any
+  labelled   = clone(data, unlabelled[:n2])
+  _ydist     = lambda row: ydist(labelled, row) # smaller is better
+
+  best       = clone(data, unlabelled[:n1]) # subset of labelled
+  rest       = clone(data, unlabelled[n1:n2]) # rest = labelled - best
+  unlabelled = unlabelled[n2:]
+
+  while len(unlabelled) > 2 and n2 < the.Build:
+    n2  += 1
+    hi,*lo = sorted(unlabelled[:the.Few*2], key=_acquire,reverse=True) # best at start
+    unlablled = lo[:the.Few] + unlabelled[the.Few*2:] + lo[the.Few:]
+    adds(labelled, 
+        adds(best if _ydist(hi) < _ydist(best.rows[0]) else rest, hi))
+    if len(best.rows) >= n1:
+      best.rows.sort(key=_ydist) #worsr at end
+      adds(rest, adds(best, best.rows.pop(-1),-1))
+  return o(best=best, rest=rest, unlabelled=unlabelled)
 
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
@@ -329,6 +334,13 @@ def _skcut(groups, eps):
 # _|_       ._    _  _|_  o   _   ._    _ 
 #  |   |_|  | |  (_   |_  |  (_)  | |  _> 
                                                        
+def main():
+  cli(the.__dict__)
+  for arg in sys.argv:
+    if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
+      random.seed(the.seed)
+      fn() 
+
 def cli(d):
   "Updated d's slots froma command line."
   for n,arg in enumerate(sys.argv):
@@ -420,7 +432,13 @@ def eg__bayes():
 
 def eg__acq():
   data = Data(csv(the.file))
-  acquires(data, data.rows)
+  for few in [32,64,128,256,512]:
+    print(few)
+    for acq in ["xplore", "xploit", "adapt","klass"]:
+      the.Few = few
+      the.acq = acq
+      n=has(ydist(data, acquires(data, data.rows).best.rows[0]) for _ in range(20))
+      print("\t",the.acq, n.mu,n.sd)
 
 def eg__confuse():
   "check confuse calcs."
@@ -496,13 +514,5 @@ def eg__irisKpp():
 def eg__irisK(): 
   for data in kmeans(Data(csv("../../../moot/classify/iris.csv")),k=10):
     print(mids(data)) 
-
-# Start up
-def main():
-  cli(the.__dict__)
-  for arg in sys.argv:
-    if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
-      random.seed(the.seed)
-      fn() 
 
 if __name__ == "__main__": main()
