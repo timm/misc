@@ -1,0 +1,22 @@
+there() { 
+  cd $1; basename `pwd`; }
+
+alias ..='cd ..'
+alias ...='cd ../../../'
+alias h="history"
+alias ls="ls -G"
+
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
+EDITOR=nvim
+
+echo $Here
+
+me=`basename $PWD`
+bold=$(tput bold)
+col1=$(tput setaf 6)
+col2=$(tput setaf 3)
+col0=$(tput sgr0)
+meme="${bold}${col1}$me${col0}"
+
+PROMPT_COMMAND='echo -ne "👀 ${meme}: $(git branch 2>/dev/null | grep '\''^*'\'' | colrm 1 2):";PS1="$(there ..)/$(there .):\!\e[m ▶ "'

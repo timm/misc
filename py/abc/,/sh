@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+Here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+Here=$Here exec bash --rcfile "$Here/dotbash.rc" -i
+
