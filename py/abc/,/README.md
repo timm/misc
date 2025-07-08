@@ -16,3 +16,14 @@ This is a is similar in principle to more conventional methods like:
 The ,/ directory is a lightweight implementation of this same core
 idea, helping with consistency and reducing setup friction when
 working with code.
+
+Goals (not all here):
+
+- lint:	Basic syntax/style checkers
+- doc:	Pull inline docs, or generate .md files
+- log:	Tail recent logs, prettify timestamps
+- web:	Quick curl or ping tests
+- conf:	Shell env tweaks, prompt setup
+- new:	Script scaffolder, e.g., make a new shy/ script
+- env:	Dump, activate, or load environments
+- test:	Run regression/unit tests on your scrip
