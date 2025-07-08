@@ -202,27 +202,31 @@ def nbc(file, wait=5):
     adds(d[want], row)
   return confused(cf)
 
-def acquires(data, unlabelled, budget=the.Build):
+def acquires(data, unlabelled):
   "Label promising rows, "
   labelled = clone(i)
   best     = clone(i) # subset of labelled
   rest     = clone(i) # rest = labelled - best
   _like    = lambda what,row: likes(what, row, 2, len(labelled.rows))
+  _want    = lambda row: _like(best,row) > _like(rest,row):
   _ydist   = lambda row: ydist(labelled, row) # smaller is better
 
   random.shuffle(unlabelled)
+  ordered=True
   for n,row in enumerate(unlabelled): 
-    if len(labelled.rows) > budget: 
+    if len(labelled.rows) > the.Build: 
       break
-    if len(labelled.rows) < budget**.5 or \
-      _like(best,row) > _like(rest,row):
+    elif len(labelled.rows) < the.Any or _want(row):
       adds(best, adds(labelled, row))
-    if len(best.rows) > budget**.5:
-      best.rows.sort(key=_ydist)
+      ordered=False
+    while len(best.rows) > (n+1)**.5:
+      if not ordered:
+        best.rows.sort(key=_ydist)
+        ordered=True
       adds(rest, adds(best, best.rows.pop(-1), -1))
   return o(labelled   = sorted(labelled.rows, key=_ydist), 
            unlabelled = unlabelled[n:], 
-           best = best, rest = rest)
+           model = _want)
 
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
