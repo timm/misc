@@ -1,22 +1,33 @@
-there() { 
-  cd $1; basename `pwd`; }
-
-alias ..='cd ..'
-alias ...='cd ../../../'
-alias h="history"
-alias ls="ls -G"
-
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
-EDITOR=nvim
+alias ...='cd ../../../'
+alias ..='cd ..'
+alias c='clear'                # Clear screen
+alias ga='git add .'           # Add all
+alias gc='git commit -m'       # Commit with message
+alias gl='git log --oneline --graph --all --decorate'
+alias gp='git push'            # Push
+alias gs='git status -sb'      # Short Git status
+alias h="history"
+alias l='ls -lh'               # Long listing
+alias la='ls -la'              # Hidden too
+alias ls="ls -G"
+alias q='exit'                 # Quit terminal
+alias t='tree -L 1'            # Directory tree
+alias v="nvim -u '$Here/init.lua'"
 
-echo $Here
-
-me=`basename $PWD`
 bold=$(tput bold)
 col1=$(tput setaf 6)
 col2=$(tput setaf 3)
 col0=$(tput sgr0)
+
+me=`basename $PWD`
 meme="${bold}${col1}$me${col0}"
 
+export PATH="$Here:$PATH"
+
+there() { 
+  cd $1; basename `pwd`; }
+
+PS1='\[\e[0;36m\]👀 \w \[\e[0;33m\]$(git branch 2>/dev/null  | grep '\''^\*'\'' | sed '\''s/^\* //'\'' ) \[\e[0m\]▶ '
 PROMPT_COMMAND='echo -ne "👀 ${meme}: $(git branch 2>/dev/null | grep '\''^*'\'' | colrm 1 2):";PS1="$(there ..)/$(there .):\!\e[m ▶ "'
