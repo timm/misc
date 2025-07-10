@@ -1,12 +1,15 @@
-(defpackage :my
-  (:use :cl)
-  (:shadow :map)) ; allow redefining `map` in this package
+(defun csv (file fn &aux (n -1))
+  (labels ((fn (row) (funcall fn (zerop (incf n)) (car row) (cadr row))))
+    (file->data file fn)))
 
-(in-package :my)
+(defun file->data (file)
+  (labels ((fn (top xs ys) (if top (header xs ys) (body xs ys))))
+    (reads file fn)))
 
-;; Redefine `map` as alias for `mapcar`
-(defun map (&rest args) (remove-if #'null (apply #'mapcar args)))
-
+                    (0  (header xs ys))
+(reads file (lambda (n row)
+              (if (zerop n
+                (0 (header (car row
 (defmacro \ (params &rest body) `(lambda ,params ,@body))
 (defmacro _! (x &rest ks) 
   (reduce (lambda (a k) `(getf ,a ',k)) ks :initial-value x))

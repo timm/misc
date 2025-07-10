@@ -1,0 +1,20 @@
+#!/bin/bash
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Usage: ./runner.sh $HOME/tmp/rq1.csv  file1 file2 ...
+
+out=$1
+shift 1
+tmp=$(mktemp -d)
+
+i=0
+for f in "$@"; do
+  python3 -B $DIR/../ezr.py -f $f --rq1 > "$tmp/job_$((i++)).csv" &
+done
+wait
+cat "$tmp"/*.csv > "$out"
+
+cat "$out" |
+gawk -F, '{ print $(NF), $0 }' | sort -n -k1,1 | cut -d' ' -f2- |
+column -s, -t |
+grep --color A

@@ -40,7 +40,7 @@ def coerce(s):
     try: return fn(s)
     except Exception as _: pass
   s = s.strip()
-  return {'True':True,'true':True,'false':False,'False':False}.get(s,s)
+  return {'True':True,'False':False}.get(s,s)
 
 # help --> config 
 the = o(**{k:coerce(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
@@ -49,7 +49,7 @@ the = o(**{k:coerce(v) for k,v in re.findall(r"(\w+)=(\S+)",__doc__)})
 # _>   |_  |   |_|  (_   |_  _> 
 
 Sym = dict
-Num = lambda: o(lo=1E32, mu=0, m2=0, sd=0, n=0, hi=-1E32, heaven=1)
+Num = lambda: o(lo=1e32, mu=0, m2=0, sd=0, n=0, hi=-1e32, heaven=1)
 
 def Data(src):
   "Store rows, and summarizes then in cols."
@@ -141,15 +141,19 @@ def norm(col, row):
   if row=="?" or type(col) is Sym: return row
   return (row - col.lo) / ( col.hi -  col.lo + 1E-32)
 
-def kpp(data,rows=None,k=20, few=the.Few):
-  "Return key centroids usually seuperted by distance D^2."
-  rows = rows or data.rows
+def kpp(data, rows=None, k=20, few=None):
+  "Return key centroids usually separated by distance D^2."
+  few = few or the.Few
+  rows = rows or data.rows[:]
   random.shuffle(rows)
   out = [rows[0]]
   while len(out) < k:
-    tmp = some(rows,k=few)
-    ws = [min(xdist(data,r,col)**2 for col in out) for r in tmp]
-    out.append(random.choices(tmp, weights=ws)[0])
+    tmp = random.sample(rows, few)
+    ws  = [min(xdist(data, r, c)**2 for c in out) for r in tmp]
+    p   = sum(ws) * random.random()
+    for j, w in enumerate(ws):
+      if (p := p - w) <= 0: 
+          out += [tmp[j]]; break
   return out
 
 def kmeans(data, rows=None, n=10, out=None, err=1, **key):
@@ -165,6 +169,38 @@ def kmeans(data, rows=None, n=10, out=None, err=1, **key):
   print(f'err={err1:.3f}')
   return (out if (n==1 or abs(err - err1) <= 0.01) else
           kmeans(data, rows, n-1, d.values(), err=err1,**key))
+
+def project(data,row,east,west,c=None):
+  D = lambda r1,r2 : xdist(data,r1,r2)
+  c = c or D(east,west)
+  a,b = D(row,east), D(row,west)
+  return (a*a +c*c - b*b)/(2*c + 1e-32)
+
+def fastmap(data,rows):
+  X = lambda r1,r2:xdist(data,r1,r2)
+  anywhere, *few = random.choices(rows, k=the.Few)
+  here  = max(few, key= lambda r: X(anywhere,r))
+  there = max(few, key= lambda r: X(here,r))
+  c     = X(here,there)
+  return sorted(rows, key=lambda r: project(data,r,here,there,c))
+
+def fastermap(data,rows):
+  random.shuffle(rows)
+  labels = clone(data, rows[:the.Any])
+  nolabel = rows[the.Any:]
+  Y  = lambda r: ydist(labels,r)
+  while len(labels.rows) < the.Build - 2: 
+    east, *rest, west = fastmap(data,nolabel)
+    adds(labels, east)
+    adds(labels, west)
+    n = len(rest)//2
+    un = nolabel[:n] if Y(east) < Y(west) else nolabel[n:]
+    if len(nolabel) < 2:
+      nolabel = [r for r in rows if r not in labels.rows]
+      random.shuffle(un)
+  labels.rows.sort(key=Y)
+  return o(labels= labels,
+           unlabels= [r for r in rows if r not in labels.rows])
 
 #  |  o  |    _  
 #  |  |  |<  (/_ 
@@ -172,7 +208,7 @@ def kmeans(data, rows=None, n=10, out=None, err=1, **key):
 def like(col, v, prior=0):
   "How much does this COL like v?"
   if type(col) is Sym: 
-    out=(col.get(v,0) + the.m*prior)/(sum(col.values()) + the.m+1E-32)
+    out=(col.get(v,0) + the.m*prior)/(sum(col.values()) + the.m+1e-32)
   else:
     var= 2 * col.sd * col.sd + 1E-32
     z  = (v - col.mu) ** 2 / var
@@ -203,37 +239,41 @@ def nbc(file, wait=5):
     adds(d[want], row)
   return confused(cf)
 
-def acquires(data, rows):
+def acquires(data, rows,acq=None):
   "Label promising rows, "
+  acq = acq or the.acc
   def _acquire(row): # Large numbers are better
-    nall =len(labelled.rows)
+    nall =len(labels.rows)
     b, r = likes(best, row, 2, nall), likes(rest, row, 2, nall)
     b, r = math.e**b, math.e**r
-    if the.acq=="klass": return (b>r)
+    if acq=="klass": return (b>r)
+    if acq=="bore": return (b*b/(r+1e-32))
     p    = n2 / the.Build
-    q    = {"xploit": 0, "xplor": 1}.get(the.acq, 1 - p)
+    q    = {"xploit": 0, "xplor": 1}.get(acq, 1 - p)
     return (b + r*q) / abs(b*q - r + 1E-32)
 
-  unlabelled = rows[:]
-  random.shuffle(unlabelled)
+  nolabels = rows[:]
+  random.shuffle(nolabels)
   n1,n2      = round(the.Any**0.5), the.Any
-  labelled   = clone(data, unlabelled[:n2])
-  _ydist     = lambda row: ydist(labelled, row) # smaller is better
+  labels   = clone(data, nolabels[:n2])
+  _ydist     = lambda row: ydist(labels, row) # smaller is better
 
-  best       = clone(data, unlabelled[:n1]) # subset of labelled
-  rest       = clone(data, unlabelled[n1:n2]) # rest = labelled - best
-  unlabelled = unlabelled[n2:]
+  best       = clone(data, nolabels[:n1]) # subset of labels
+  rest       = clone(data, nolabels[n1:n2]) # rest = labels - best
+  nolabels = nolabels[n2:]
 
-  while len(unlabelled) > 2 and n2 < the.Build:
+  while len(nolabels) > 2 and n2 < the.Build:
     n2  += 1
-    hi,*lo = sorted(unlabelled[:the.Few*2], key=_acquire,reverse=True) # best at start
-    unlablled = lo[:the.Few] + unlabelled[the.Few*2:] + lo[the.Few:]
-    adds(labelled, 
+    hi,*lo = sorted(nolabels[:the.Few*2], key=_acquire,reverse=True) # best at start
+    nolabels = lo[:the.Few] + nolabels[the.Few*2:] + lo[the.Few:]
+    adds(labels, 
         adds(best if _ydist(hi) < _ydist(best.rows[0]) else rest, hi))
     if len(best.rows) >= n1:
       best.rows.sort(key=_ydist) #worsr at end
       adds(rest, adds(best, best.rows.pop(-1),-1))
-  return o(best=best, rest=rest, unlabelled=unlabelled)
+  return o(best=best, rest=rest, 
+           labels=labels.rows, nolabels=nolabels)
+
 
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
@@ -430,16 +470,6 @@ def eg__bayes():
   assert all(-30 <= likes(data,t) <= 0 for t in data.rows)
   print(sorted([round(likes(data,t),2) for t in data.rows])[::20])
 
-def eg__acq():
-  data = Data(csv(the.file))
-  for few in [32,64,128,256,512]:
-    print(few)
-    for acq in ["xplore", "xploit", "adapt","klass"]:
-      the.Few = few
-      the.acq = acq
-      n=has(ydist(data, acquires(data, data.rows).best.rows[0]) for _ in range(20))
-      print("\t",the.acq, n.mu,n.sd)
-
 def eg__confuse():
   "check confuse calcs."
   # a b c <- got
@@ -453,10 +483,10 @@ def eg__confuse():
     for _ in range(n): confuse(cf, want, got)
   xpect = {"a": {'pd':83,  'acc':92, 'pf':0,  'prec':100},
            "b": {'pd':67,  'acc':83, 'pf':11, 'prec':67},
-           "c": {'d':100, 'acc':92, 'pf':11, 'prec':75} }
+           "c": {'pd':100, 'acc':92, 'pf':11, 'prec':75} }
   for y in confused(cf):
     if y.label != "_OVERALL":
-       got = {'d':y.pd, 'acc':y.acc, 'pf':y.pf, 'prec':y.prec}
+       got = {'pd':y.pd, 'acc':y.acc, 'pf':y.pf, 'prec':y.prec}
        assert xpect[y.label] == got
   show(confused(cf))
 
@@ -469,6 +499,10 @@ def eg__stats():
      out += [f"{d:.2f}" + ("y" if ks_cliffs(b4,now) else "n")]
      d += 0.05
    print(', '.join(out))
+
+def daRx(t):
+    if not isinstance(t,(tuple,list)): return str(t)
+    return ':'.join(str(x) for x in t)
 
 def eg__sk():
   n=20
@@ -484,7 +518,7 @@ def eg__sk():
         elif i <=16 : rxs[chr(97+i)] = G(12)
         else        : rxs[chr(97+i)] = G(14)
       out=scottknott(rxs,eps=eps)
-      print("\t",''.join(list(out.keys())))
+      print("\t",''.join(map(daRx,out.keys())))
       print("\t",''.join([str(x) for x in out.values()]))
 
 def eg__diabetes(): 
@@ -514,5 +548,64 @@ def eg__irisKpp():
 def eg__irisK(): 
   for data in kmeans(Data(csv("../../../moot/classify/iris.csv")),k=10):
     print(mids(data)) 
+
+def daBest(data,rows):
+  Y=lambda r: ydist(data,r)
+  return Y(sorted(rows, key=Y)[0])
+
+def eg__fmap():
+  data = Data(csv(the.file))
+  for few in [32,64,128,256,512]:
+    the.Few = few
+    print(few)
+    n=has(daBest(data, fastermap(data,data.rows).labels.rows) for _ in range(20))
+    print("\t",n.mu,n.sd)
+
+def eg__acq():
+  data = Data(csv(the.file))
+  for few in [32,64,128,256,512]:
+    the.Few = few
+    print(few)
+    for acq in ["xploit"]: #["xplore", "xploit", "adapt","klass"]:
+      the.acq = acq
+      n=has(daBest(data, acquires(data, data.rows).labels.rows) for _ in range(20))
+      print("\t",the.acq, n.mu,n.sd)
+
+def eg__rand():
+  data = Data(csv(the.file))
+  n = has(daBest(data, random.choices(data.rows, k=the.Build)) for _ in range(20))
+  print("\t",n.mu,n.sd)
+
+
+def eg__rq1():
+  repeats=20
+  builds=[7,15,20,30,40,50,100,200]
+  data = Data(csv(the.file))
+  base = has(ydist(data,r) for r in data.rows)
+  win  = lambda x: int(100*(x - base.lo) / (base.hi - base.lo + 1e-32))
+  rxs=dict(rand   = lambda d: random.choices(d.rows,k=the.Build),
+           xploit = lambda d: acquires(d,d.rows,"xploit").labels,
+           xplore = lambda d: acquires(d,d.rows,"xplore").labels,
+           adapt  = lambda d: acquires(d,d.rows,"adapt").labels,
+           bore   = lambda d: acquires(d,d.rows,"bore").labels
+           )
+  out={}
+  for build in builds: 
+    the.Build = build
+    print("+", file=sys.stderr, end="",flush=True)
+    for rx,fn in rxs.items():
+      print("-", file=sys.stderr, end="", flush=True)
+      out[(rx,build)] = [daBest(data,fn(data)) for _ in range(repeats)]
+  print("\n", file=sys.stderr, flush=True)
+  ranks=scottknott(out)
+  rank1 = has(x for k in ranks if ranks[k] == 1 for x in out[k])
+  p = lambda z: "1.00" if z == 1 else (f"{pretty(z,2)[1:]}" if isinstance(z,float) and z< 1 else str(z))
+  q = lambda k: f" {chr(64+ranks[k])} {p(has(out[k]).mu)}"
+  print("#file","rows","|y|","|x|","asIs","min",*[daRx((rx,b)) for rx in rxs for b in builds],"win",sep=",")
+  print(re.sub("^.*/","",the.file),
+        len(data.rows), len(data.cols.y), len(data.cols.x), p(base.mu), p(base.lo),
+        *[q((rx,b)) for rx in rxs for b in builds],p(win(rank1.mu)), sep=",")
+
+
 
 if __name__ == "__main__": main()
