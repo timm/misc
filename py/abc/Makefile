@@ -7,7 +7,28 @@
 # 
 # 
 # rq1: ../../../moot/optimize/[mpchb]*/*.csv
-# 	{$(foreach f, $^, (python3 -B ezr.py  -f $f --rq1 &);)} | tee ~/tmp/al$@
+# 	{$(foreach f, $^, echo $f; (python3 -B ezr.py  -f $f --rq1 &);)}) | tee ~/tmp/al$@
+
+DATA := ../../../moot/optimize
+TMP  := /tmp/rq1
+CSV  := $(wildcard $(DATA)/[m]*/*.csv)
+#CSV  := $(wildcard $(DATA)/[mpchb]*/*.csv)
+
+# Extract just the base filenames (no dirs, no .csv)
+BASENAMES := $(basename $(notdir $(CSV)))
+LOGS := $(addprefix $(TMP)/,$(addsuffix .log,$(BASENAMES)))
+
+all: $(LOGS)
+
+
+# Find the full source file for a given log file
+# Extract base name from log filename, then find full CSV
+$(TMP)/%.log:
+	mkdir -fp $(TMP)
+	@src="$(filter %/$*.csv,$(CSV))"; \
+	echo "Processing $$src → $@"; \
+	echo "log for $$src" > $@
+	python3 -B ezr.py  -f $f --rq1 | tee ~/tmp/$@
 # 
 # 
 # plotcsv = python3 -c 'import sys, pandas as pd; import matplotlib.pyplot as plt; df = pd.read_csv(sys.stdin); df.plot(); plt.xlabel("$(1)"); plt.ylabel("$(2)"); plt.tight_layout(); plt.show()'
@@ -22,20 +43,15 @@
 DATA := ../../../moot/optimize
 TMP  := /tmp/rq1
 CSV  := $(wildcard $(DATA)/[m]*/*.csv)
-#CSV  := $(wildcard $(DATA)/[mpchb]*/*.csv)
 
-# Extract just the base filenames (no dirs, no .csv)
 BASENAMES := $(basename $(notdir $(CSV)))
 LOGS := $(addprefix $(TMP)/,$(addsuffix .log,$(BASENAMES)))
 
 all: $(LOGS)
 
-mkdir -fp $(TMP)
+# Pattern rule with explicit dependency on source .csv
+$(TMP)/%.log: $(filter %/%.csv,$(CSV))
+	@mkdir -p $(TMP)
+	@echo "$@ ← $^"
+	@python3 -B ezr.py -f $^ --rq1 | tee $@
 
-# Find the full source file for a given log file
-# Extract base name from log filename, then find full CSV
-$(TMP)/%.log:
-	@src="$(filter %/$*.csv,$(CSV))"; \
-	echo "Processing $$src → $@"; \
-	echo "log for $$src" > $@
-	python3 -B ezr.py  -f $f --rq1 | tee ~/tmp/$@
