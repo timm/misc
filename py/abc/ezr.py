@@ -9,13 +9,12 @@
 ezr.py, multi objective.
 (col) 2025, Tim Menzies <timm@ieee.org>, MIT license
 
- -a  act=xploit      (xplore | xploit | adapt | klass)
+ -a  act=xploit      (xplor | xploit | adapt | klass)
  -A  Any=4           on init, how many initial guesses?
  -B  Build=24        when growing theory, how many labels?
  -C  Check=5         when testing, how many checks?
- -D  Delta=small     required effect size test for cliff's delta
+ -D  Delta=smed     required effect size test for cliff's delta
  -F  Few=128         just explore a Few rows
- -a  acq=xploit      acquisition: xploit | xplor | adapt
  -g  guess=0.5       |hot| is |lit|**guess
  -K  Ks=0.95         confidence for Kolmogorov–Smirnov test
  -k  k=1             Bayes hack for rare classes
@@ -262,6 +261,7 @@ def acquires(data, rows,acq=None):
   rest       = clone(data, nolabels[n1:n2]) # rest = labels - best
   nolabels = nolabels[n2:]
 
+  best.rows.sort(key=_ydist) #worsr at end
   while len(nolabels) > 2 and n2 < the.Build:
     n2  += 1
     hi,*lo = sorted(nolabels[:the.Few*2], key=_acquire,reverse=True) # best at start
@@ -578,17 +578,17 @@ def eg__rand():
 
 
 def eg__rq1():
-  repeats=100
-  builds=[7,15,20,30,40,50,100,200]
+  repeats=30
+  builds=[12,25,50,100,200]
   data = Data(csv(the.file))
   base = has(ydist(data,r) for r in data.rows)
   win  = lambda x: 1 - (x - base.lo) / (base.mu - base.lo + 1e-32)
   rxs=dict(rand   = lambda d: random.choices(d.rows,k=the.Build),
            xploit = lambda d: acquires(d,d.rows,"xploit").labels,
-           #xplore = lambda d: acquires(d,d.rows,"xplor").labels,
-           #adapt  = lambda d: acquires(d,d.rows,"adapt").labels,
+           xplor = lambda d: acquires(d,d.rows,"xplor").labels,
+           adapt  = lambda d: acquires(d,d.rows,"adapt").labels,
            #klass   = lambda d: acquires(d,d.rows,"klass").labels
-           bore   = lambda d: acquires(d,d.rows,"bore").labels
+           #bore   = lambda d: acquires(d,d.rows,"bore").labels
            )
   out={}
   for build in builds: 
@@ -598,9 +598,9 @@ def eg__rq1():
       print("-", file=sys.stderr, end="", flush=True)
       out[(rx,build)] = [daBest(data,fn(data)) for _ in range(repeats)]
   print("\n", file=sys.stderr, flush=True)
-  ranks=scottknott(out)
+  ranks = scottknott(out, eps=base.sd*0.35)
   rank1 = has(x for k in ranks if ranks[k] == 1 for x in out[k])
-  p = lambda z: "1.00" if z == 1 else (f"{pretty(z,2)[1:]}" if isinstance(z,float) and z< 1 else str(z))
+  p = lambda z: round(100*z) #"1.00" if z == 1 else (f"{pretty(z,2)[1:]}" if isinstance(z,float) and z< 1 else str(z))
   q = lambda k: f" {chr(64+ranks[k])} {p(has(out[k]).mu)}"
   print("#file","rows","|y|","|x|","asIs","min",*[daRx((rx,b)) for rx in rxs for b in builds],"win",sep=",")
   print(re.sub("^.*/","",the.file),
