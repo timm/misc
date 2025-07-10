@@ -341,7 +341,7 @@ def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
 
 def scottknott(rxs, reverse=False,same=ks_cliffs, eps=None):
   "Sort rxs, recursively split them, stopping when two splits are same."
-  eps = eps or 0.2 * has([x for vs in rxs.values() for x in vs]).sd
+  eps = eps or 0.35 * has([x for vs in rxs.values() for x in vs]).sd
   items = [(sum(vs), k, vs, len(vs)) for k, vs in rxs.items()]
   return _skdiv(sorted(items,reverse=reverse),same,{},eps,rank=1)[1]
 
@@ -578,15 +578,16 @@ def eg__rand():
 
 
 def eg__rq1():
-  repeats=20
+  repeats=100
   builds=[7,15,20,30,40,50,100,200]
   data = Data(csv(the.file))
   base = has(ydist(data,r) for r in data.rows)
-  win  = lambda x: int(100*(x - base.lo) / (base.hi - base.lo + 1e-32))
+  win  = lambda x: 1 - (x - base.lo) / (base.mu - base.lo + 1e-32)
   rxs=dict(rand   = lambda d: random.choices(d.rows,k=the.Build),
            xploit = lambda d: acquires(d,d.rows,"xploit").labels,
-           xplore = lambda d: acquires(d,d.rows,"xplore").labels,
-           adapt  = lambda d: acquires(d,d.rows,"adapt").labels,
+           #xplore = lambda d: acquires(d,d.rows,"xplor").labels,
+           #adapt  = lambda d: acquires(d,d.rows,"adapt").labels,
+           #klass   = lambda d: acquires(d,d.rows,"klass").labels
            bore   = lambda d: acquires(d,d.rows,"bore").labels
            )
   out={}

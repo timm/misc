@@ -1,20 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Usage: ./runner.sh $HOME/tmp/rq1.csv  file1 file2 ...
+# Usage: ./rq1  file1 file2 ...
 
-out=$1
-shift 1
-tmp=$(mktemp -d)
+if [ -z "$1" ]; then
+  echo "Usage: rq1 rxFiles"
+  exit
+fi
+out="$HOME/tmp/$(basename "$0")"
 
-i=0
-for f in "$@"; do
-  python3 -B $DIR/../ezr.py -f $f --rq1 > "$tmp/job_$((i++)).csv" &
-done
-wait
-cat "$tmp"/*.csv > "$out"
+if [ "$1" != "--report" ]; then
+  tmp=$(mktemp -d)
+  for f in "$@"; do
+    name="$(basename "$f" .csv)"  # strip path and optional .csv
+    out_file="$tmp/$name.csv"
+    echo "Running: $name" >&2
+    python3 -B "$DIR/../ezr.py" -f "$f" --rq1 > "$out_file" &
+  done
+  wait
+  cat "$tmp"/*.csv > "$out"
+fi 
 
-cat "$out" |
-gawk -F, '{ print $(NF), $0 }' | sort -n -k1,1 | cut -d' ' -f2- |
-column -s, -t |
-grep --color A
+(cat "$out" | gawk -F, '{ print $(NF), $0 }' | sort -n -k1,1 | cut -d' ' -f2- 
+cat "$out" | gawk -F, -f $DIR/rq1.awk ) | column -s, -t | grep --color A
+
