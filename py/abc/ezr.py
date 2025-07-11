@@ -30,7 +30,6 @@ ezr.py, multi objective.
  --all               run all examples
 """
 from types import SimpleNamespace as o 
-from random import choices as some
 import random, math, sys, re
 
 def coerce(s):
@@ -183,20 +182,20 @@ def fastmap(data,rows):
   c     = X(here,there)
   return sorted(rows, key=lambda r: project(data,r,here,there,c))
 
-def fastermap(data,rows):
+def fastermap(data,rows, sway1=False):
   random.shuffle(rows)
-  labels = clone(data, rows[:the.Any])
   nolabel = rows[the.Any:]
+  labels = clone(data, rows[:the.Any])
   Y  = lambda r: ydist(labels,r)
-  while len(labels.rows) < the.Build - 2: 
+  while len(labels.rows) < the.Build and len(nolabel) >= 2: 
     east, *rest, west = fastmap(data,nolabel)
     adds(labels, east)
     adds(labels, west)
     n = len(rest)//2
-    un = nolabel[:n] if Y(east) < Y(west) else nolabel[n:]
-    if len(nolabel) < 2:
-      nolabel = [r for r in rows if r not in labels.rows]
-      random.shuffle(un)
+    nolabel = nolabel[:n] if Y(east) < Y(west) else nolabel[n:]
+    if not sway1 and len(nolabel) < 2:
+      nolabel= [r for r in rows if r not in labels.rows]
+      random.shuffle(nolabel)
   labels.rows.sort(key=Y)
   return o(labels= labels,
            unlabels= [r for r in rows if r not in labels.rows])
@@ -245,8 +244,8 @@ def acquires(data, rows,acq=None):
     nall =len(labels.rows)
     b, r = likes(best, row, 2, nall), likes(rest, row, 2, nall)
     b, r = math.e**b, math.e**r
-    if acq=="klass": return (b>r)
-    if acq=="bore": return (b*b/(r+1e-32))
+    if acq=="klass": return b>r
+    if acq=="bore": return (b*b) / (r+1e-32)
     p    = n2 / the.Build
     q    = {"xploit": 0, "xplor": 1}.get(acq, 1 - p)
     return (b + r*q) / abs(b*q - r + 1E-32)
@@ -256,12 +255,13 @@ def acquires(data, rows,acq=None):
   n1,n2      = round(the.Any**0.5), the.Any
   labels   = clone(data, nolabels[:n2])
   _ydist     = lambda row: ydist(labels, row) # smaller is better
+  _ysort     = lambda d: sorted(d.rows, key=lambda r: ydist(d,r))
 
   best       = clone(data, nolabels[:n1]) # subset of labels
   rest       = clone(data, nolabels[n1:n2]) # rest = labels - best
   nolabels = nolabels[n2:]
 
-  best.rows.sort(key=_ydist) #worsr at end
+  _ysort(best)
   while len(nolabels) > 2 and n2 < the.Build:
     n2  += 1
     hi,*lo = sorted(nolabels[:the.Few*2], key=_acquire,reverse=True) # best at start
@@ -269,8 +269,9 @@ def acquires(data, rows,acq=None):
     adds(labels, 
         adds(best if _ydist(hi) < _ydist(best.rows[0]) else rest, hi))
     if len(best.rows) >= n1:
-      best.rows.sort(key=_ydist) #worsr at end
+      _ysort(best)
       adds(rest, adds(best, best.rows.pop(-1),-1))
+  _ysort(labels)
   return o(best=best, rest=rest, 
            labels=labels.rows, nolabels=nolabels)
 
@@ -339,9 +340,8 @@ def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
   cliffs= {'small':0.11,'smed':0.195,'medium':0.28,'large':0.43}[cliffs]
   return _cliffs() <= cliffs and _ks() <= ks * ((n + m)/(n * m))**0.5
 
-def scottknott(rxs, reverse=False,same=ks_cliffs, eps=None):
+def scottknott(rxs, reverse=False,same=ks_cliffs, eps=0.01):
   "Sort rxs, recursively split them, stopping when two splits are same."
-  eps = eps or 0.35 * has([x for vs in rxs.values() for x in vs]).sd
   items = [(sum(vs), k, vs, len(vs)) for k, vs in rxs.items()]
   return _skdiv(sorted(items,reverse=reverse),same,{},eps,rank=1)[1]
 
@@ -577,19 +577,38 @@ def eg__rand():
   print("\t",n.mu,n.sd)
 
 
-def eg__rq1():
-  repeats=30
-  builds=[12,25,50,100,200]
+def eg__old():
   data = Data(csv(the.file))
+  rxs = dict(
+             kpp   = lambda d: kpp(d, d.rows),
+             sway   = lambda d: fastermap(d, d.rows, sway1=True).labels.rows,
+             sway2  = lambda d: fastermap(d, d.rows).labels.rows
+             )
+  xper1(data,rxs)
+             
+
+def eg__liking():
+  data = Data(csv(the.file))
+  rxs = dict(#rand   = lambda d: random.choices(d.rows,k=the.Build),
+             xploit = lambda d: acquires(d,d.rows,"xploit").labels,
+             xplor = lambda d: acquires(d,d.rows,"xplor").labels, # <== winner
+             adapt  = lambda d: acquires(d,d.rows,"adapt").labels,
+             )
+  xper1(data,rxs)
+
+def eg__final():
+  data = Data(csv(the.file))
+  rxs = dict(rand   = lambda d: random.choices(d.rows,k=the.Build),
+             xploit = lambda d: acquires(d,d.rows,"xploit").labels,
+             sway2  = lambda d: fastermap(d, d.rows).labels.rows
+             )
+  xper1(data,rxs)
+
+def xper1(data,rxs):
+  repeats=30
+  builds=[15,30,45,60,75,100]
   base = has(ydist(data,r) for r in data.rows)
   win  = lambda x: 1 - (x - base.lo) / (base.mu - base.lo + 1e-32)
-  rxs=dict(rand   = lambda d: random.choices(d.rows,k=the.Build),
-           xploit = lambda d: acquires(d,d.rows,"xploit").labels,
-           xplor = lambda d: acquires(d,d.rows,"xplor").labels,
-           adapt  = lambda d: acquires(d,d.rows,"adapt").labels,
-           #klass   = lambda d: acquires(d,d.rows,"klass").labels
-           #bore   = lambda d: acquires(d,d.rows,"bore").labels
-           )
   out={}
   for build in builds: 
     the.Build = build
@@ -598,14 +617,14 @@ def eg__rq1():
       print("-", file=sys.stderr, end="", flush=True)
       out[(rx,build)] = [daBest(data,fn(data)) for _ in range(repeats)]
   print("\n", file=sys.stderr, flush=True)
-  ranks = scottknott(out, eps=base.sd*0.35)
+  ranks = scottknott(out, eps=base.sd*0.2)
   rank1 = has(x for k in ranks if ranks[k] == 1 for x in out[k])
   p = lambda z: round(100*z) #"1.00" if z == 1 else (f"{pretty(z,2)[1:]}" if isinstance(z,float) and z< 1 else str(z))
   q = lambda k: f" {chr(64+ranks[k])} {p(has(out[k]).mu)}"
-  print("#file","rows","|y|","|x|","asIs","min",*[daRx((rx,b)) for rx in rxs for b in builds],"win",sep=",")
+  print("#file","rows","|y|","|x|","asIs","min",*[daRx((rx,b)) for b in builds for rx in rxs],"win",sep=",")
   print(re.sub("^.*/","",the.file),
         len(data.rows), len(data.cols.y), len(data.cols.x), p(base.mu), p(base.lo),
-        *[q((rx,b)) for rx in rxs for b in builds],p(win(rank1.mu)), sep=",")
+        *[q((rx,b)) for b in builds for rx in rxs],p(win(rank1.mu)), sep=",")
 
 
 
