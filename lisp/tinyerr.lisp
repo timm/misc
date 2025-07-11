@@ -1,5 +1,7 @@
 ; vim: set lispwords+=def,->,let+ :
 
+;;aaa 
+
 (defmacro def (name args &body body)
   (let ((opts '()) (keys '()))
     (dolist (a args)
