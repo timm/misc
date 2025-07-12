@@ -170,7 +170,7 @@ def kmeans(data, rows=None, n=10, out=None, err=1, **key):
 
 def project(data,row,east,west,c=None):
   D = lambda r1,r2 : xdist(data,r1,r2)
-  c = c or D(east,west)
+  c = c or D(east,west)  # asdas
   a,b = D(row,east), D(row,west)
   return (a*a +c*c - b*b)/(2*c + 1e-32)
 
