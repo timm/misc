@@ -18,6 +18,7 @@ ezr.py, multi objective.
  -g  guess=0.5       |hot| is |lit|**guess
  -K  Ks=0.95         confidence for Kolmogorov–Smirnov test
  -k  k=1             Bayes hack for rare classes
+ -l  leaf=2          nodes in tree leaves
  -m  m=2             Bayes hack for rare attributes
  -p  p=2             distance calculation coefficient
  -s  seed=1234567891 random number seed
@@ -67,18 +68,18 @@ def Data(src):
   return data 
 
 def clone(data,rows=[]): 
-  "Mimic the strcture of an exisiting data."
+  "Mimic the structure of an existing data."
   return Data([data.cols.names] + rows)
 
 def adds(data, row, inc=1, zap=False):
-  "Update data with a row (and to substract, use inc= -1)."
+  "Update data with a row (and to subtract, use inc= -1)."
   if inc>0: data.rows += [row]
   elif zap: data.rows.remove(row) # slow for long rows
   for c,col in enumerate(data.cols.all): add(col,row[c],inc)
   return row
 
 def add(col, v, inc=1):
-  "Update a col with a value (and to substract, use inc= -1)."
+  "Update a col with a value (and to subtract, use inc= -1)."
   if v != "?":
     if type(col) is Sym: col[v] = inc + col.get(v,0)
     else:
@@ -169,12 +170,14 @@ def kmeans(data, rows=None, n=10, out=None, err=1, **key):
           kmeans(data, rows, n-1, d.values(), err=err1,**key))
 
 def project(data,row,east,west,c=None):
+  "Map row along a line east -> west."
   D = lambda r1,r2 : xdist(data,r1,r2)
-  c = c or D(east,west)  # asdas
+  c = c or D(east,west)  
   a,b = D(row,east), D(row,west)
   return (a*a +c*c - b*b)/(2*c + 1e-32)
 
 def fastmap(data,rows):
+  "Sort rows along a line between 2 distant points."
   X = lambda r1,r2:xdist(data,r1,r2)
   anywhere, *few = random.choices(rows, k=the.Few)
   here  = max(few, key= lambda r: X(anywhere,r))
@@ -183,6 +186,7 @@ def fastmap(data,rows):
   return sorted(rows, key=lambda r: project(data,r,here,there,c))
 
 def fastermap(data,rows, sway1=False):
+  "Prune half the rows furthest from best distant pair."
   random.shuffle(rows)
   nolabel = rows[the.Any:]
   labels = clone(data, rows[:the.Any])
@@ -198,7 +202,7 @@ def fastermap(data,rows, sway1=False):
       random.shuffle(nolabel)
   labels.rows.sort(key=Y)
   return o(labels= labels,
-           unlabels= [r for r in rows if r not in labels.rows])
+           nolabels= [r for r in rows if r not in labels.rows])
 
 #  |  o  |    _  
 #  |  |  |<  (/_ 
@@ -274,7 +278,83 @@ def acquires(data, rows,acq=None):
   _ysort(labels)
   return o(best=best, rest=rest, 
            labels=labels.rows, nolabels=nolabels)
+
+# _|_  ._   _    _  
+#  |_  |   (/_  (/_ 
+ops = {'<=' : lambda x,y: x <= y, 
+       '==' : lambda x,y:x == y, 
+       '>'  : lambda x,y:x > y}
 
+def selects(row,op,at,y): return (x := row[at]) == "?" or ops[op](x, y)
+
+def cuts(col, rows, at, Y, Klass):
+  def _sym(sym):
+    d, n = {}, 0
+    for row in rows:
+      if (x := row[at]) != "?":
+        n += 1
+        d[x] = d.get(x) or Klass()
+        add(d[x], Y(row))
+    return o(div = sum(c.n/n * div(c) for c in d.values()),
+             hows = [("==",at,x) for x in d])
+  
+  def _num(num):
+    out, b4, lhs, rhs = None, None, Klass(), Klass()
+    xys = [(row[at], add(rhs, Y(row))) # add returns the "y" value
+           for row in rows if row[at] != "?"]
+    for x, y in sorted(xys, key=lambda z: z[0]):
+      if x != b4 and the.leaf <= lhs.n <= len(xys) - the.leaf:
+        now = (lhs.n * lhs.sd + rhs.n * rhs.sd) / len(xys)
+        if not out or now < out.div:
+          out = o(div=now, hows=[("<=",at,b4), (">",at,b4)])
+      add(lhs, add(rhs, y, -1))
+      b4 = x
+    return out
+
+  return (_sym if type(col) is Sym else _num)(col)
+
+def tree(data, Klass=Num, Y=None, how=None):
+  Y = Y or (lambda row: ydist(data, row))
+  data.kids, data.how = [], how
+  data.ys = has(Y(row) for row in data.rows)
+  if len(data.rows) >= the.leaf:
+    hows = [how for at,col in data.cols.x.items() 
+            if (how := cuts(col,data.rows,at,Y,Klass))]
+    if hows:
+      for how1 in min(hows, key=lambda c: c.div).hows:
+        rows1 = [r for r in data.rows if selects(r, *how1)]
+        if the.leaf <= len(rows1) < len(data.rows):
+          data.kids += [tree(clone(data,rows1), Klass, Y, how1)]
+  return data
+
+def nodes(data, lvl=0, key=None):
+  "iterate over all nodes"
+  yield lvl, data
+  for j in sorted(data.kids, key=key) if key else data.kids:
+    yield from nodes(j,lvl + 1, key)
+
+def leaf(data, row):
+  "Select a matching leaf"
+  for j in data.kids or []:
+    if selects(row, *j.how): return leaf(j,row)
+  return data
+
+def showTree(data, win, key=lambda d: d.ys.mu):
+  "Display tree"
+  print(f"{'d2h':>4} {'win':>4} {'n':>4}")
+  print(f"{'----':>4} {'----':>4} {'----':>4}")
+  s, ats = data.ys, {}
+  for lvl, d in nodes(data,key=key):
+    op, at, y = d.how if lvl else ('', '', '')
+    name = data.cols.names[at] if lvl else ''
+    expl = f"{name} {op} {y}" if lvl else ''
+    indent = '|  ' * (lvl - 1)
+    line = f"{d.ys.mu:4.2f} {win(d.ys.mu):4} {len(d.rows):4}    " \
+           f"{indent}{expl}{';' if not d.kids else ''}"
+    print(line)
+    if lvl: ats[at] = 1
+  used = (data.cols.names[at] for at in sorted(ats))
+  print(', '.join(used))
 
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
@@ -295,7 +375,7 @@ def confuse(cf:Confuse, want:str, got:str) -> str:
   return got
 
 def confused(cf, summary=False):
-  "Report confusion matric statistics."
+  "Report confusion metric statistics."
   p = lambda y, z: round(100 * y / (z or 1e-32), 0)  # one decimal
   def finalize(c):
     c.pd   = p(c.tp, c.tp + c.fn)
@@ -317,9 +397,9 @@ def confused(cf, summary=False):
                 key=lambda cf: cf.fn + cf.tp)
 
 # While ks_code is elegant (IMHO), its slow for large samples. That
-# said, it is nearly instantenous for the typical 20*20 cases.
+# said, it is nearly instantaneous  for the typical 20*20 cases.
 def ks_cliffs(x, y, ks=the.Ks, cliffs=the.Delta):
-  "True if x,y indistingishable and differ by just a small effect."
+  "True if x,y indistinguishable and differ by just a small effect."
   x, y = sorted(x), sorted(y)
   n, m = len(x), len(y)
 
@@ -356,7 +436,7 @@ def _skdiv(groups, same, out, eps, rank=1):
   return rank + 1, out
 
 def _skcut(groups, eps):
-  "Cut to maximimze difference in means (if cuts differ bu more than eps)."
+  "Cut to maximize difference in means (if cuts differ bu more than eps)."
   sum1 = sum(s for s, _, _, _ in groups)
   n1   = sum(n for _, _, _, n in groups)
   mu   = sum1 / n1
@@ -375,6 +455,7 @@ def _skcut(groups, eps):
 #  |   |_|  | |  (_   |_  |  (_)  | |  _> 
                                                        
 def main():
+  "Update settings from CLI, run any eg functions."
   cli(the.__dict__)
   for arg in sys.argv:
     if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
@@ -382,7 +463,7 @@ def main():
       fn() 
 
 def cli(d):
-  "Updated d's slots froma command line."
+  "Updated d's slots from  command line."
   for n,arg in enumerate(sys.argv):
     for key in d:
       if arg == "-"+key[0]: 
@@ -404,6 +485,7 @@ def has(src, col=None):
   return col
 
 def pretty(v, prec=0):
+  "Simplify print of numbers."
   if isinstance(v, float):
     return f"{v:.{prec}f}" if v != int(v) else str(int(v))
   return str(v)
@@ -552,6 +634,15 @@ def eg__irisK():
 def daBest(data,rows):
   Y=lambda r: ydist(data,r)
   return Y(sorted(rows, key=Y)[0])
+
+def eg__tree():
+  data = Data(csv(the.file))
+  rows = acquires(data,data.rows,"xplor").labels
+  Y    = lambda row: ydist(data,row)
+  all = has(Y(row) for row in data.rows)
+  win = lambda x: int(100 * (1-(x-all.lo) / (all.mu-all.lo+1e-32)))
+  print(win(Y(sorted(rows,key=Y)[0])))
+  showTree(tree(clone(data,rows), Y=Y),win)
 
 def eg__fmap():
   data = Data(csv(the.file))

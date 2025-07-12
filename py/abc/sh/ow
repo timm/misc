@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+## help sh/ow : x.py : make pdf of python code
+
 pdf="$HOME/tmp/$(basename "${1%.*}").pdf"
 
 echo "pdf-ing $pdf ... "

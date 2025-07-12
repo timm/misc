@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+## help sh/ake : x.py : lint python file
 # see https://github.com/sprytnyk/pylint-errors for a
 # curated list of pylint errors with explanation and examples
 
