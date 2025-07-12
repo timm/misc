@@ -1,10 +1,10 @@
 #!/usr/bin/env python3 -B
-#     _____  ____________    ______ __   __
-#    |  ___||___  /| ___ \   | ___ \\ \ / /
-#    | |__     / / | |_/ /   | |_/ / \ V / 
-#    |  __|   / /  |    /    |  __/   \ /  
-#    | |___ ./ /___| |\ \  _ | |      | |  
-#    \____/ \_____/\_| \_|(_)\_|      \_/  
+#
+#      ___  ____   _____       ____    __  __
+#     / _ \/_  /  / ___/      / __ \  / / / /
+#    /  __/ / /_ / /     _   / /_/ / / /_/ / 
+#    \___/ /___//_/     (_) / .___/  \__, /  
+
 """
 ezr.py, multi objective.
 (col) 2025, Tim Menzies <timm@ieee.org>, MIT license
@@ -281,6 +281,7 @@ def acquires(data, rows,acq=None):
 
 # _|_  ._   _    _  
 #  |_  |   (/_  (/_ 
+
 ops = {'<=' : lambda x,y: x <= y, 
        '==' : lambda x,y:x == y, 
        '>'  : lambda x,y:x > y}
@@ -454,22 +455,6 @@ def _skcut(groups, eps):
 # _|_       ._    _  _|_  o   _   ._    _ 
 #  |   |_|  | |  (_   |_  |  (_)  | |  _> 
                                                        
-def main():
-  "Update settings from CLI, run any eg functions."
-  cli(the.__dict__)
-  for arg in sys.argv:
-    if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
-      random.seed(the.seed)
-      fn() 
-
-def cli(d):
-  "Updated d's slots from  command line."
-  for n,arg in enumerate(sys.argv):
-    for key in d:
-      if arg == "-"+key[0]: 
-        d[key] = coerce(sys.argv[n+1])
-  return d
-
 def csv(file):
   "Iterate over all rows."
   with open(file,encoding="utf-8") as f:
@@ -517,6 +502,7 @@ def all_egs(run=False):
 #  _        _.  ._ _   ._   |   _    _
 # (/_  ><  (_|  | | |  |_)  |  (/_  _> 
 #                      |               
+
 def eg_h()    : print(__doc__)
 def eg__all() : all_egs(run=True)
 def eg__list(): all_egs()
@@ -623,7 +609,7 @@ def eg__ydist():
   print(', '.join(data.cols.names))
   print("top4:");   [print("\t",row) for row in data.rows[:4]]
   print("worst4:"); [print("\t",row) for row in data.rows[-4:]]
-
+
 def eg__irisKpp(): 
   [print(r) for r in kpp(Data(csv("../../../moot/classify/iris.csv")),k=10)]
 
@@ -677,7 +663,6 @@ def eg__old():
              )
   xper1(data,rxs)
              
-
 def eg__liking():
   data = Data(csv(the.file))
   rxs = dict(#rand   = lambda d: random.choices(d.rows,k=the.Build),
@@ -716,7 +701,25 @@ def xper1(data,rxs):
   print(re.sub("^.*/","",the.file),
         len(data.rows), len(data.cols.y), len(data.cols.x), p(base.mu), p(base.lo),
         *[q((rx,b)) for b in builds for rx in rxs],p(win(rank1.mu)), sep=",")
+
+#   __                                  
+#  (_   _|_   _.  ._  _|_  __       ._  
+i#  __)   |_  (_|  |    |_      |_|  |_) 
+                                  |   
+def main():
+  "Update settings from CLI, run any eg functions."
+  cli(the.__dict__)
+  for arg in sys.argv:
+    if (fn := globals().get(f"eg{arg.replace('-', '_')}")):
+      random.seed(the.seed)
+      fn() 
 
-
+def cli(d):
+  "Updated d's slots from  command line."
+  for n,arg in enumerate(sys.argv):
+    for key in d:
+      if arg == "-"+key[0]: 
+        d[key] = coerce(sys.argv[n+1])
+  return d
 
 if __name__ == "__main__": main()
