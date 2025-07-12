@@ -83,7 +83,8 @@ function l.csv(s,  n,src) --> fun --> (num,t)
     s1 = io.read()
     if   s1
     then n=n+1
-         t={}; for s2 in s1:gmatch("([^,]+)") do t[1+#t]=l.coerce(s2) end
+         t={}; for s2 in s1:gmatch("([^,:q
+         uuu]+)") do t[1+#t]=l.coerce(s2) end
          return n,t
     else io.close(src) end end end
 
