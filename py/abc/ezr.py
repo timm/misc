@@ -340,11 +340,13 @@ def leaf(data, row):
     if selects(row, *j.how): return leaf(j,row)
   return data
 
-def showTree(data, win, key=lambda d: d.ys.mu):
+def showTree(data, key=lambda d: d.ys.mu):
   "Display tree"
   print(f"{'d2h':>4} {'win':>4} {'n':>4}")
   print(f"{'----':>4} {'----':>4} {'----':>4}")
   s, ats = data.ys, {}
+  win = lambda x: int(100 * (1-(x-data.ys.lo) / 
+                             (data.ys.mu-data.ys.lo+1e-32)))
   for lvl, d in nodes(data,key=key):
     op, at, y = d.how if lvl else ('', '', '')
     name = data.cols.names[at] if lvl else ''
@@ -354,8 +356,8 @@ def showTree(data, win, key=lambda d: d.ys.mu):
            f"{indent}{expl}{';' if not d.kids else ''}"
     print(line)
     if lvl: ats[at] = 1
-  used = (data.cols.names[at] for at in sorted(ats))
-  print(', '.join(used))
+  used = [data.cols.names[at] for at in sorted(ats)]
+  print(len(data.cols.x), len(used), ', '.join(used))
 
 #   _  _|_   _.  _|_   _ 
 #  _>   |_  (_|   |_  _> 
@@ -617,18 +619,17 @@ def eg__irisK():
   for data in kmeans(Data(csv("../../../moot/classify/iris.csv")),k=10):
     print(mids(data)) 
 
-def daBest(data,rows):
+def daBest(data,rows=None):
+  rows = rows or data.rows
   Y=lambda r: ydist(data,r)
   return Y(sorted(rows, key=Y)[0])
 
 def eg__tree():
   data = Data(csv(the.file))
-  rows = acquires(data,data.rows,"xplor").labels
-  Y    = lambda row: ydist(data,row)
-  all = has(Y(row) for row in data.rows)
-  win = lambda x: int(100 * (1-(x-all.lo) / (all.mu-all.lo+1e-32)))
-  print(win(Y(sorted(rows,key=Y)[0])))
-  showTree(tree(clone(data,rows), Y=Y),win)
+  someData= clone(data,
+                  acquires(data,data.rows,"xplor").labels)
+  print(round(daBest(data),2))
+  showTree(tree(someData))
 
 def eg__fmap():
   data = Data(csv(the.file))
@@ -704,8 +705,9 @@ def xper1(data,rxs):
 
 #   __                                  
 #  (_   _|_   _.  ._  _|_  __       ._  
-i#  __)   |_  (_|  |    |_      |_|  |_) 
-                                  |   
+#  __)   |_  (_|  |    |_      |_|  |_) 
+#                                  |   
+
 def main():
   "Update settings from CLI, run any eg functions."
   cli(the.__dict__)

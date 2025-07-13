@@ -6,7 +6,7 @@
 DATA=../../../moot/optimize
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 out="$HOME/tmp/$(basename "$0")"
-tmp=/tmp/rq1
+tmp=/tmp/rq0
 
 if [ -z "$1" ]; then
   rq="old"
@@ -30,6 +30,7 @@ generate() {
     out_file="$tmp/$name.csv"
 
     python3 -B "$DIR/../ezr.py" -f "$f" --$rq > "$out_file" &
+    python3 -B "$DIR/../ezr.py" -B 40 -f "$f" --tree 
 
     while (( $(jobs -r | wc -l) >= max_jobs )); do
       sleep 1
