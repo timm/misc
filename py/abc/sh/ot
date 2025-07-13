@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 ## help sh/ot : x : run python code x.py
-f=${1}.py
-shift
-python3 -B $f $*
+if [ -z "$1" ]; then
+  rlwrap sbcl --noinform
+else
+  f=${1}.lisp
+  shift
+  sbcl --script $f $*
+fi
 
