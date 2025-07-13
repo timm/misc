@@ -25,11 +25,6 @@ ezr.lisp: multi-objective explanation
 ;;-----------------------------------------------------------------------------
 ;; ## Initialization
 
-(defun adds (lst &optional it)
-  (dolist (x lst it)
-    (setf it (or it (if (numberp x) (make-num) (make-sym))))
-    (add it x)))
-
 (defun nuSym (&optional inits &key (at 0) (txt " "))
   (adds inits (make-sym :at at :txt txt)))
 
@@ -45,17 +40,26 @@ ezr.lisp: multi-objective explanation
 
 (defmethod nuCol (name &aux (self (make-cols :names row)))
   (dolist (txt $names self)
-    (let ((col (funcall (if (upper-case-p (chr txt 0)) #'nuNum #'nuSym) 
-                        :txt txt :at (length $all))))
+    (let* ((a   (chr txt 0))
+           (z   (chr txt -1))
+           (new (if (upper-case-p a) #'nuNum #'nuSym))
+           (col (funcall new :txt txt :at (length $all))))
       (push col $all)
-      (unless (chrp txt -1 #\X)
-        (if (chrp txt -1 #\!) (setf $klass col))
-        (if (member (chr txt -1) '(#\! #\- #\+)) 
+      (unless (eql z  #\X)
+        (if (eql z #\!) (setf $klass col))
+        (if (member z '(#\! #\- #\+)) 
           (push col $y)
           (push col $x))))))
 
 ;;------------------------------------------------------------------------------
 ;; ## Update
+
+(defun adds (lst &optional it)
+  (dolist (x lst it)
+    (setf it (or it (if (numberp x) (make-num) (make-sym))))
+    (add it x)))
+
+(defmethod sub (self v &key zap) (add self v :zap zap :inc -1))
 
 (defmethod add ((self data) (row cons) &key (inc 1) zap)
   (if $cols

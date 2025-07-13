@@ -30,7 +30,9 @@
       <!-- vim: set lispwords+=has,loop,format ts=2 sw=2 sts=2 et : -->
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">defvar</span><span class="w"> </span><span class="nv">*help*</span><span class="w"> </span><span class="s">&quot;</span>
+      <div class="highlight"><pre><span></span><span class="p">(</span><span class="k">load</span><span class="w"> </span><span class="s">&quot;lib&quot;</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">defvar</span><span class="w"> </span><span class="nv">*help*</span><span class="w"> </span><span class="s">&quot;</span>
 <span class="s">ezr.lisp: multi-objective explanation</span>
 <span class="s">(c) 2025, Tim Menzies &lt;timm@ieee.org&gt;, MIT license&quot;</span><span class="p">)</span></pre></div>
     </div>
@@ -86,10 +88,37 @@
         <a class='octothorpe' href='#section-4'>#</a>
       </div>
       <hr />
-<h2>Macros</h2>
+<h2>Initialization</h2>
     </div>
     <div class='code'>
-      <div class="highlight"><pre></pre></div>
+      <div class="highlight"><pre><span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">adds</span><span class="w"> </span><span class="p">(</span><span class="nf">lst</span><span class="w"> </span><span class="nv">&amp;optional</span><span class="w"> </span><span class="nv">it</span><span class="p">)</span>
+<span class="w">  </span><span class="p">(</span><span class="nf">dolist</span><span class="w"> </span><span class="p">(</span><span class="nf">x</span><span class="w"> </span><span class="nv">lst</span><span class="w"> </span><span class="nv">it</span><span class="p">)</span>
+<span class="w">    </span><span class="p">(</span><span class="nf">setf</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="p">(</span><span class="k">or</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">numberp</span><span class="w"> </span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">make-num</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">make-sym</span><span class="p">))))</span>
+<span class="w">    </span><span class="p">(</span><span class="nf">add</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="nv">x</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">nuSym</span><span class="w"> </span><span class="p">(</span><span class="nf">&amp;optional</span><span class="w"> </span><span class="nv">inits</span><span class="w"> </span><span class="nv">&amp;key</span><span class="w"> </span><span class="p">(</span><span class="nf">at</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">txt</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">))</span>
+<span class="w">  </span><span class="p">(</span><span class="nf">adds</span><span class="w"> </span><span class="nv">inits</span><span class="w"> </span><span class="p">(</span><span class="nf">make-sym</span><span class="w"> </span><span class="nv">:at</span><span class="w"> </span><span class="nv">at</span><span class="w"> </span><span class="nv">:txt</span><span class="w"> </span><span class="nv">txt</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">nuNum</span><span class="w"> </span><span class="p">(</span><span class="nf">&amp;optional</span><span class="w"> </span><span class="nv">inits</span><span class="w"> </span><span class="nv">&amp;key</span><span class="w"> </span><span class="p">(</span><span class="nf">at</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">txt</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">))</span>
+<span class="w">  </span><span class="p">(</span><span class="nf">adds</span><span class="w"> </span><span class="nv">inits</span><span class="w"> </span><span class="p">(</span><span class="nf">make-num</span><span class="w"> </span><span class="nv">:at</span><span class="w"> </span><span class="nv">at</span><span class="w"> </span><span class="nv">:txt</span><span class="w"> </span><span class="nv">txt</span>
+<span class="w">                         </span><span class="nv">:goal</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">chrp</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="sc">#\-</span><span class="p">)</span><span class="w">  </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nf">defmethod</span><span class="w"> </span><span class="nv">nuData</span><span class="w"> </span><span class="p">(</span><span class="nf">&amp;optional</span><span class="w"> </span><span class="nv">inits</span><span class="w"> </span><span class="nv">&amp;aux</span><span class="w"> </span><span class="p">(</span><span class="nf">self</span><span class="w"> </span><span class="p">(</span><span class="nf">make-data</span><span class="p">)))</span>
+<span class="w">  </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">stringp</span><span class="w"> </span><span class="nv">src</span><span class="p">)</span><span class="w"> </span>
+<span class="w">    </span><span class="p">(</span><span class="nf">mapcsv</span><span class="w"> </span><span class="p">(</span><span class="k">lambda</span><span class="w"> </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">add</span><span class="w"> </span><span class="nv">self</span><span class="w"> </span><span class="nv">x</span><span class="p">))</span><span class="w"> </span><span class="nv">src</span><span class="p">)</span>
+<span class="w">    </span><span class="p">(</span><span class="nf">mapcar</span><span class="w"> </span><span class="p">(</span><span class="k">lambda</span><span class="w"> </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">add</span><span class="w"> </span><span class="nv">self</span><span class="w"> </span><span class="nv">x</span><span class="p">))</span><span class="w"> </span><span class="nv">src</span><span class="p">))</span>
+<span class="w">  </span><span class="nv">self</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">defmethod</span><span class="w"> </span><span class="nv">nuCol</span><span class="w"> </span><span class="p">(</span><span class="nf">name</span><span class="w"> </span><span class="nv">&amp;aux</span><span class="w"> </span><span class="p">(</span><span class="nf">self</span><span class="w"> </span><span class="p">(</span><span class="nf">make-cols</span><span class="w"> </span><span class="nv">:names</span><span class="w"> </span><span class="nv">row</span><span class="p">)))</span>
+<span class="w">  </span><span class="p">(</span><span class="nf">dolist</span><span class="w"> </span><span class="p">(</span><span class="nf">txt</span><span class="w"> </span><span class="nv">$names</span><span class="w"> </span><span class="nv">self</span><span class="p">)</span>
+<span class="w">    </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nf">col</span><span class="w"> </span><span class="p">(</span><span class="nf">funcall</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">upper-case-p</span><span class="w"> </span><span class="p">(</span><span class="nf">chr</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="o">#</span><span class="ss">&#39;nuNum</span><span class="w"> </span><span class="o">#</span><span class="ss">&#39;nuSym</span><span class="p">)</span><span class="w"> </span>
+<span class="w">                        </span><span class="nv">:txt</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="nv">:at</span><span class="w"> </span><span class="p">(</span><span class="nb">length</span><span class="w"> </span><span class="nv">$all</span><span class="p">))))</span>
+<span class="w">      </span><span class="p">(</span><span class="nf">push</span><span class="w"> </span><span class="nv">col</span><span class="w"> </span><span class="nv">$all</span><span class="p">)</span>
+<span class="w">      </span><span class="p">(</span><span class="k">unless</span><span class="w"> </span><span class="p">(</span><span class="nf">chrp</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="sc">#\X</span><span class="p">)</span>
+<span class="w">        </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">chrp</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="sc">#\!</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">setf</span><span class="w"> </span><span class="nv">$klass</span><span class="w"> </span><span class="nv">col</span><span class="p">))</span>
+<span class="w">        </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">member</span><span class="w"> </span><span class="p">(</span><span class="nf">chr</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="o">&#39;</span><span class="p">(</span><span class="sc">#\!</span><span class="w"> </span><span class="sc">#\-</span><span class="w"> </span><span class="sc">#\+</span><span class="p">))</span><span class="w"> </span>
+<span class="w">          </span><span class="p">(</span><span class="nf">push</span><span class="w"> </span><span class="nv">col</span><span class="w"> </span><span class="nv">$y</span><span class="p">)</span>
+<span class="w">          </span><span class="p">(</span><span class="nf">push</span><span class="w"> </span><span class="nv">col</span><span class="w"> </span><span class="nv">$x</span><span class="p">))))))</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -97,179 +126,6 @@
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-5'>#</a>
-      </div>
-      <p>Ensure <code>lst</code> has a counter for <code>x</code> <br />
-(so <code>(incf (has x lst))</code> can increment).</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="p">(</span><span class="k">defmacro</span><span class="w"> </span><span class="nv">has</span><span class="w"> </span><span class="p">(</span><span class="nf">x</span><span class="w"> </span><span class="nv">lst</span><span class="p">)</span><span class="w"> </span>
-<span class="w">  </span><span class="o">`</span><span class="p">(</span><span class="nb">cdr</span><span class="w"> </span><span class="p">(</span><span class="k">or</span><span class="w"> </span><span class="p">(</span><span class="nb">assoc</span><span class="w"> </span><span class="o">,</span><span class="nv">x</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="w"> </span><span class="nv">:test</span><span class="w"> </span><span class="o">#</span><span class="ss">&#39;equal</span><span class="p">)</span>
-<span class="w">            </span><span class="p">(</span><span class="nb">car</span><span class="w"> </span><span class="p">(</span><span class="nf">setf</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="o">,</span><span class="nv">x</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">,</span><span class="nv">lst</span><span class="p">))))))</span>
-
-<span class="p">(</span><span class="nf">set-macro-character</span><span class="w"> </span><span class="sc">#\$</span>
-<span class="w">  </span><span class="p">(</span><span class="k">lambda</span><span class="w"> </span><span class="p">(</span><span class="nf">stream</span><span class="w"> </span><span class="nv">char</span><span class="p">)</span><span class="w"> </span><span class="o">`</span><span class="p">(</span><span class="nf">slot-value</span><span class="w"> </span><span class="nv">self</span><span class="w"> </span><span class="ss">&#39;,</span><span class="p">(</span><span class="nb">read</span><span class="w"> </span><span class="nv">stream</span><span class="w"> </span><span class="nv">t</span><span class="w"> </span><span class="nv">nil</span><span class="w"> </span><span class="nv">t</span><span class="p">))))</span>
-
-<span class="p">(</span><span class="k">defmacro</span><span class="w"> </span><span class="nv">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">args</span><span class="w"> </span><span class="nv">&amp;body</span><span class="w"> </span><span class="nv">body</span><span class="p">)</span><span class="w"> </span><span class="o">`</span><span class="p">(</span><span class="k">lambda</span><span class="w"> </span><span class="o">,</span><span class="nv">args</span><span class="w"> </span><span class="o">,@</span><span class="nv">body</span><span class="p">))</span>
-
-<span class="p">(</span><span class="k">defmacro</span><span class="w"> </span><span class="nv">prog+</span><span class="w"> </span><span class="p">(</span><span class="nf">&amp;body</span><span class="w"> </span><span class="nv">body</span><span class="p">)</span>
-<span class="w">  </span><span class="o">#</span><span class="nv">-sbcl</span><span class="w"> </span><span class="o">`</span><span class="p">(</span><span class="nf">progn</span><span class="w"> </span><span class="o">,@</span><span class="nv">body</span><span class="p">)</span>
-<span class="w">  </span><span class="o">#</span><span class="nv">+sbcl</span><span class="w"> </span><span class="o">`</span><span class="p">(</span><span class="nf">handler-case</span>
-<span class="w">            </span><span class="p">(</span><span class="nf">progn</span><span class="w"> </span><span class="o">,@</span><span class="nv">body</span><span class="p">)</span>
-<span class="w">            </span><span class="p">(</span><span class="nb">error</span><span class="w"> </span><span class="p">(</span><span class="nf">e</span><span class="p">)</span>
-<span class="w">              </span><span class="p">(</span><span class="nb">format</span><span class="w"> </span><span class="nv">t</span><span class="w"> </span><span class="s">&quot;❌ Error: ~A~%&quot;</span><span class="w"> </span><span class="nv">e</span><span class="p">))))</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-6'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-6'>#</a>
-      </div>
-      <hr />
-<h2>Functions</h2>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-7'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-7'>#</a>
-      </div>
-      <h3>Misc</h3>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-8'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-8'>#</a>
-      </div>
-      <p>Access command line</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">args</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="nb">cdr</span><span class="w"> </span><span class="o">#</span><span class="nv">+clisp</span><span class="w"> </span><span class="nv">ext:*args*</span><span class="w"> </span><span class="o">#</span><span class="nv">+sbcl</span><span class="w"> </span><span class="nv">sb-ext:*posix-argv*</span><span class="p">))</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-9'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-9'>#</a>
-      </div>
-      <p>Get i-th item of string/symbol (e.g. <code>(chr -1)</code> is the last item).</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">chr</span><span class="w"> </span><span class="p">(</span><span class="nf">s</span><span class="w"> </span><span class="nv">i</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">char</span><span class="w"> </span><span class="p">(</span><span class="nb">string</span><span class="w"> </span><span class="nv">s</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">minusp</span><span class="w"> </span><span class="nv">i</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">+</span><span class="w"> </span><span class="p">(</span><span class="nb">length</span><span class="w"> </span><span class="nv">s</span><span class="p">)</span><span class="w"> </span><span class="nv">i</span><span class="p">)</span><span class="w"> </span><span class="nv">i</span><span class="p">)))</span>
-
-<span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">isChr</span><span class="w"> </span><span class="p">(</span><span class="nf">s</span><span class="w"> </span><span class="nv">i</span><span class="w"> </span><span class="nv">c</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">char=</span><span class="w"> </span><span class="p">(</span><span class="nf">chr</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="nv">i</span><span class="p">)</span><span class="w"> </span><span class="nv">c</span><span class="p">))</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-10'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-10'>#</a>
-      </div>
-      <h3>Random Numbers</h3>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="p">(</span><span class="nf">defvar</span><span class="w"> </span><span class="nv">*seed*</span><span class="w"> </span><span class="p">(</span><span class="nf">?</span><span class="w"> </span><span class="nv">seed</span><span class="p">))</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-11'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-11'>#</a>
-      </div>
-      <p>Random floats.</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">rand</span><span class="w"> </span><span class="p">(</span><span class="nf">&amp;optional</span><span class="w"> </span><span class="p">(</span><span class="nf">n</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="w"> </span>
-<span class="w">  </span><span class="p">(</span><span class="nf">setf</span><span class="w"> </span><span class="nv">*seed*</span><span class="w"> </span><span class="p">(</span><span class="nf">mod</span><span class="w"> </span><span class="p">(</span><span class="nb">*</span><span class="w"> </span><span class="mf">16807.0d0</span><span class="w"> </span><span class="nv">*seed*</span><span class="p">)</span><span class="w"> </span><span class="mf">2147483647.0d0</span><span class="p">))</span>
-<span class="w">  </span><span class="p">(</span><span class="nb">*</span><span class="w"> </span><span class="nv">n</span><span class="w"> </span><span class="p">(</span><span class="nb">-</span><span class="w"> </span><span class="mf">1.0d0</span><span class="w"> </span><span class="p">(</span><span class="nb">/</span><span class="w"> </span><span class="nv">*seed*</span><span class="w"> </span><span class="mf">2147483647.0d0</span><span class="p">))))</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-12'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-12'>#</a>
-      </div>
-      <p>Random integers.</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">rint</span><span class="w"> </span><span class="p">(</span><span class="nf">&amp;optional</span><span class="w"> </span><span class="p">(</span><span class="nf">n</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="nv">&amp;aux</span><span class="w"> </span><span class="p">(</span><span class="nf">base</span><span class="w"> </span><span class="mi">1E10</span><span class="p">))</span><span class="w"> </span>
-<span class="w">  </span><span class="p">(</span><span class="nb">floor</span><span class="w"> </span><span class="p">(</span><span class="nb">*</span><span class="w"> </span><span class="nv">n</span><span class="w"> </span><span class="p">(</span><span class="nb">/</span><span class="w"> </span><span class="p">(</span><span class="nf">rand</span><span class="w"> </span><span class="nv">base</span><span class="p">)</span><span class="w"> </span><span class="nv">base</span><span class="p">))))</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-13'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-13'>#</a>
-      </div>
-      <h3>String 2 Thing</h3>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">thing</span><span class="w"> </span><span class="p">(</span><span class="nf">s</span><span class="w"> </span><span class="nv">&amp;aux</span><span class="w"> </span><span class="p">(</span><span class="nf">s1</span><span class="w"> </span><span class="p">(</span><span class="nb">string-trim</span><span class="w"> </span><span class="o">&#39;</span><span class="p">(</span><span class="sc">#\Space</span><span class="w"> </span><span class="sc">#\Tab</span><span class="p">)</span><span class="w"> </span><span class="nv">s</span><span class="p">)))</span><span class="w"> </span>
-<span class="w">  </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nf">x</span><span class="w"> </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nf">*read-eval*</span><span class="w"> </span><span class="nv">nil</span><span class="p">))</span><span class="w"> </span><span class="p">(</span><span class="nf">read-from-string</span><span class="w"> </span><span class="nv">s1</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">))))</span>
-<span class="w">    </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">or</span><span class="w"> </span><span class="p">(</span><span class="nf">numberp</span><span class="w"> </span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">member</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">t</span><span class="w"> </span><span class="nv">nil</span><span class="w"> </span><span class="nv">?</span><span class="p">)))</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="nv">s1</span><span class="p">)))</span>
-
-<span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">things</span><span class="w"> </span><span class="p">(</span><span class="nf">s</span><span class="w"> </span><span class="nv">&amp;optional</span><span class="w"> </span><span class="p">(</span><span class="nf">sep</span><span class="w"> </span><span class="o">#</span><span class="err">\</span><span class="o">,</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">here</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="c1">; --&gt; list</span>
-<span class="w">  </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nf">there</span><span class="w"> </span><span class="p">(</span><span class="nf">position</span><span class="w"> </span><span class="nv">sep</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="nv">:start</span><span class="w"> </span><span class="nv">here</span><span class="p">)))</span>
-<span class="w">    </span><span class="p">(</span><span class="nb">cons</span><span class="w"> </span><span class="p">(</span><span class="nf">thing</span><span class="w"> </span><span class="p">(</span><span class="nf">subseq</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="nv">here</span><span class="w"> </span><span class="nv">there</span><span class="p">))</span>
-<span class="w">          </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="nv">there</span><span class="w"> </span><span class="p">(</span><span class="nf">things</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="nv">sep</span><span class="w"> </span><span class="p">(</span><span class="nb">1+</span><span class="w"> </span><span class="nv">there</span><span class="p">))))))</span>
-
-<span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">mapcsv</span><span class="w"> </span><span class="p">(</span><span class="nf">file</span><span class="w"> </span><span class="nv">&amp;optional</span><span class="w"> </span><span class="p">(</span><span class="nf">fun</span><span class="w"> </span><span class="o">#</span><span class="ss">&#39;print</span><span class="p">)</span><span class="w"> </span><span class="nv">end</span><span class="p">)</span>
-<span class="w">  </span><span class="p">(</span><span class="nf">with-open-file</span><span class="w"> </span><span class="p">(</span><span class="nf">s</span><span class="w"> </span><span class="p">(</span><span class="k">or</span><span class="w"> </span><span class="nv">file</span><span class="w"> </span><span class="nv">*standard-input*</span><span class="p">))</span>
-<span class="w">    </span><span class="p">(</span><span class="nf">loop</span><span class="w"> </span><span class="p">(</span><span class="nf">funcall</span><span class="w"> </span><span class="nv">fun</span><span class="w"> </span><span class="p">(</span><span class="nf">things</span><span class="w"> </span><span class="p">(</span><span class="k">or</span><span class="w"> </span><span class="p">(</span><span class="nf">read-line</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="nv">nil</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">return</span><span class="w"> </span><span class="nv">end</span><span class="p">)))))))</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-14'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-14'>#</a>
-      </div>
-      <hr />
-<h2>Initialization</h2>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="p">(</span><span class="nf">defun</span><span class="w"> </span><span class="nv">nuNum</span><span class="w"> </span><span class="p">(</span><span class="nf">&amp;optional</span><span class="w"> </span><span class="nv">inits</span><span class="w"> </span><span class="nv">&amp;key</span><span class="w"> </span><span class="p">(</span><span class="nf">at</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">txt</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">))</span>
-<span class="w">  </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nf">self</span><span class="w"> </span><span class="p">(</span><span class="nf">make-num</span><span class="w"> </span><span class="nv">:at</span><span class="w"> </span><span class="nv">at</span><span class="w"> </span><span class="nv">:txt</span><span class="w"> </span><span class="nv">txt</span><span class="p">)))</span>
-<span class="w">    </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">isChr</span><span class="w"> </span><span class="nv">$txt</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="sc">#\-</span><span class="p">)</span><span class="w">  </span><span class="p">(</span><span class="nf">setf</span><span class="w"> </span><span class="nv">$goal</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
-<span class="w">    </span><span class="p">(</span><span class="nf">mapcar</span><span class="w"> </span><span class="p">(</span><span class="nf">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">n</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">add</span><span class="w"> </span><span class="nv">self</span><span class="w"> </span><span class="nv">n</span><span class="p">))</span><span class="w"> </span><span class="nv">inits</span><span class="p">)</span>
-<span class="w">    </span><span class="nv">self</span><span class="p">))</span>
-
-<span class="p">(</span><span class="nf">defmethod</span><span class="w"> </span><span class="nv">nuData</span><span class="w"> </span><span class="p">(</span><span class="nf">&amp;optio</span><span class="p">(</span><span class="nf">self</span><span class="w"> </span><span class="nv">data</span><span class="p">)</span><span class="w"> </span><span class="nv">&amp;key</span><span class="w"> </span><span class="nv">src</span><span class="p">)</span>
-<span class="w">  </span><span class="p">(</span><span class="nf">labels</span><span class="w"> </span><span class="p">((</span><span class="nf">fn</span><span class="w"> </span><span class="p">(</span><span class="nf">row</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">add</span><span class="w"> </span><span class="nv">self</span><span class="w"> </span><span class="nv">row</span><span class="p">)))</span>
-<span class="w">    </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">consp</span><span class="w"> </span><span class="nv">src</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">mapcar</span><span class="w"> </span><span class="o">#</span><span class="ss">&#39;fn</span><span class="w"> </span><span class="nv">src</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nf">mapcsv</span><span class="w"> </span><span class="o">#</span><span class="ss">&#39;fn</span><span class="w"> </span><span class="nv">src</span><span class="p">))</span>
-<span class="w">    </span><span class="nv">self</span><span class="p">))</span>
-
-<span class="p">(</span><span class="nf">defmethod</span><span class="w"> </span><span class="nv">more</span><span class="w"> </span><span class="p">((</span><span class="nf">self</span><span class="w"> </span><span class="nv">cols</span><span class="p">)</span><span class="w"> </span><span class="nv">&amp;key</span><span class="p">)</span>
-<span class="w">  </span><span class="p">(</span><span class="nf">dolist</span><span class="w"> </span><span class="p">(</span><span class="nf">txt</span><span class="w"> </span><span class="nv">$names</span><span class="w"> </span><span class="nv">self</span><span class="p">)</span>
-<span class="w">    </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nf">col</span><span class="w"> </span><span class="p">(</span><span class="nf">more</span><span class="w"> </span><span class="p">(</span><span class="nf">funcall</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">upper-case-p</span><span class="w"> </span><span class="p">(</span><span class="nf">chr</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
-<span class="w">                                </span><span class="o">#</span><span class="ss">&#39;make-num</span><span class="w"> </span><span class="o">#</span><span class="ss">&#39;make-sym</span><span class="p">)</span>
-<span class="w">                              </span><span class="nv">:txt</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="nv">:at</span><span class="w"> </span><span class="p">(</span><span class="nb">length</span><span class="w"> </span><span class="nv">$all</span><span class="p">)))))</span>
-<span class="w">      </span><span class="p">(</span><span class="nf">push</span><span class="w"> </span><span class="nv">col</span><span class="w"> </span><span class="nv">$all</span><span class="p">)</span>
-<span class="w">      </span><span class="p">(</span><span class="k">unless</span><span class="w"> </span><span class="p">(</span><span class="nf">ischr</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="sc">#\X</span><span class="p">)</span>
-<span class="w">        </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">member</span><span class="w"> </span><span class="p">(</span><span class="nf">chr</span><span class="w"> </span><span class="nv">txt</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="o">&#39;</span><span class="p">(</span><span class="sc">#\!</span><span class="w"> </span><span class="sc">#\-</span><span class="w"> </span><span class="sc">#\+</span><span class="p">))</span><span class="w"> </span>
-<span class="w">          </span><span class="p">(</span><span class="nf">push</span><span class="w"> </span><span class="nv">col</span><span class="w"> </span><span class="nv">$y</span><span class="p">)</span>
-<span class="w">          </span><span class="p">(</span><span class="nf">push</span><span class="w"> </span><span class="nv">col</span><span class="w"> </span><span class="nv">$x</span><span class="p">))))))</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-15'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-15'>#</a>
       </div>
       <hr />
 <h2>Update</h2>
@@ -283,10 +139,10 @@
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-16'>
+  <div class='section' id='section-6'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-16'>#</a>
+        <a class='octothorpe' href='#section-6'>#</a>
       </div>
       <hr />
 <h2>Examples</h2>
@@ -303,10 +159,10 @@
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-17'>
+  <div class='section' id='section-7'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-17'>#</a>
+        <a class='octothorpe' href='#section-7'>#</a>
       </div>
       <hr />
 <h2>Main</h2>
