@@ -1,0 +1,34 @@
+i#!/bin/bash
+echo "<html><head><title>$1</title>
+<style>
+body  { font-family: sans-serif; max-width: 70ch; margin: auto; line-height: 1.5 }
+code  { background: #eee; padding: .1em .4em; border-radius: 4px }
+pre   { background: #f9f9f9; padding: .7em 1em; margin: 1em 0; border-radius: 4px;
+        overflow-x: auto; font-family: monospace; white-space: pre-wrap }
+.kw   { color: darkblue; font-weight: bold }
+.str  { color: darkgreen }
+</style></head><body>"
+
+gawk '
+function emit(s) {
+  gsub(/"[^"]*"/, "<span class=\"str\">&</span>", s)
+  print gensub(kw, "<span class=\"kw\">\\1</span>", "g", s)
+}
+BEGIN { kw="\\<(defun|defvar|lambda|setf|if|for|loop|return|let|progn|setq|macro|handler-case|format|with-open-file)\\>" }
+/^#!/ { next }
+/^[-=]{5,}[[:space:]]*##/ {
+  if (p) print "</pre>"; p=0
+  print "<hr/>"
+  sub(/^[-=]+[[:space:]]*/, "", $0); print $0 "\n"
+  next
+}
+/^[-=]{5,}/ { if (p) print "</pre>"; p=0; print "<hr/>"; next }
+/^;+[[:space:]]*/ { if (p) print "</pre>"; p=0; print substr($0, match($0, /[^;]/)) "\n"; next }
+/^\s*$/ { if (!p) print ""; next }
+{ o += gsub(/\(/,"(") - gsub(/\)/,")"); b = b ? b "\n" $0 : $0 }
+(o <= 0 && b) { if (!p) { print "<pre>"; p = 1 } emit(b); b = "" }
+END { if (b) { if (!p) print "<pre>"; emit(b) } if (p) print "</pre>" }
+'
+
+echo "</body></html>"
+
