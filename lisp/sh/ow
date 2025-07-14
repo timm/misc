@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-## help sh/ow : x.py : make pdf of python code
+## help sh/ow : x : make pretty doc from code file x
 Here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 pdf="$HOME/tmp/$(basename "${1%.*}").pdf"
 html="$Here/../docs/$(basename "${1%.*}").html"

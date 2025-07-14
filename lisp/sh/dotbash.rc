@@ -70,6 +70,6 @@ if [[ $- == *i* ]]; then
   \`~~~'${col0}
         ${bold}${col1}there is no escape... from sh/ell !!${col0}
 EOF
-$Here/elp
+$Here/all
 fi
 
