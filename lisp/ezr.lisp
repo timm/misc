@@ -167,7 +167,7 @@ ezr.lisp: multi-objective explanation
       (setf $mu 0 $m2 0 $sd 0 $n 0)
       (let* ((d (- v $mu)))
         (setf $mu (+ $mu (* inc (/ d $n)))
-              $m2 (+ $m2 (* inc d (- v $mu)))
+              $m2 (+ $m2 (* inc (/ d (- v $mu))))
               $sd (if (< $n 2) 0 (sqrt (/ (max 0 $m2) (1- $n))))))))
   v)
 
