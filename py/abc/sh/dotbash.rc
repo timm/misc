@@ -62,17 +62,14 @@ if [[ $- == *i* ]]; then
   col0=$(tput sgr0)
   col1=$(tput setaf 6)  # cyan
   col2=$(tput setaf 5)  # magenta
-
   cat <<EOF
-
  ${col1}.-.
 (o o)  ${col2}boo!
 | O \\
  \\   \\
   \`~~~'${col0}
-
- ${bold}${col1}there is no escape... from sh/ell!${col0}
-
+        ${bold}${col1}there is no escape... from sh/ell !!${col0}
 EOF
+$Here/elp
 fi
 
