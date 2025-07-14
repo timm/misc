@@ -185,15 +185,19 @@ ezr.lisp: multi-objective explanation
 ;;------------------------------------------------------------------------------
 ;; ## Query
 
+;; ### Central Tendancy
+
 ;; Mean
 (defmethod mid ((self num)) $mu)
-
-;; Standard deviation
-(defmethod div ((self num)) $sd)
 
 ;; Median
 (defmethod mid ((self sym))
   (car (reduce (-> (a b) (if (> (cdr a) (cdr b)) a b)) $has)))
+
+;; ### Variation away from central tendancy (a.k.a. diversity).
+
+;; Standard deviation
+(defmethod div ((self num)) $sd)
 
 ;; Entropy
 (defmethod div ((self sym))
