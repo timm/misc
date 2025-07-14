@@ -180,8 +180,7 @@ ezr.lisp: multi-objective explanation
 
 ;; Updating COLS.
 (defmethod add ((self cols) row &key (inc 1))
-  (mapcar (-> (col x) (add col x :inc inc)) $all row)
-  row)
+  (mapcar (-> (col x) (add col x :inc inc)) $all row))
 
 ;;------------------------------------------------------------------------------
 ;; ## Query
