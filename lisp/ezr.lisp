@@ -92,7 +92,8 @@ ezr.lisp: multi-objective explanation
 ;; csv file -> list of list of atom.
 (defun mapcsv (file &optional (fun #'print) end)
   (with-open-file (s (or file *standard-input*))
-    (loop (funcall fun (things (or (read-line s nil) (return end)))))))
+    (loop (funcall fun (things (or (read-line s nil) 
+                                   (return end)))))))
 
 ;;------------------------------------------------------------------------------
 ;; ## main
