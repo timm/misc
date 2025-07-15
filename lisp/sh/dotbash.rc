@@ -53,8 +53,7 @@ alias h='history'
 alias v="nvim -u '$Here/init.lua'"  # Load custom Neovim config
 
 # ⌨️ QoL: quick edit .dotbashrc and reload
-alias edot="nvim '$Here/dotbashrc'"
-alias reload="source '$Here/dotbashrc' && echo ✅ dotbashrc reloaded"
+alias reload="source '$Here/dotbash.rc' && echo ✅ dotbashrc reloaded"
 
 # Only show banner in interactive shells
 if [[ $- == *i* ]]; then
@@ -70,6 +69,21 @@ if [[ $- == *i* ]]; then
   \`~~~'${col0}
         ${bold}${col1}there is no escape... from sh/ell !!${col0}
 EOF
+echo
 $Here/all
+echo
+
+# Pretty print aliases in columns with colors
+alias | sort | awk -v b="$bold" -v c1="$col1" -v c2="$col2" -v r="$col0" '
+  BEGIN {
+    print b c1 "🧷 Aliases:" r
+    w = 0
+  }
+  {
+    gsub(/'\''/, "", $0)  # remove single quotes
+    split($0, a, "=")
+    printf("  %s%-10s%s → %s%s\n", c2, a[1], r, b, a[2])
+  }'
+
 fi
 
