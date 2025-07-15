@@ -10,7 +10,8 @@ ezr.lisp: multi-objective explanation
   (k     "-k"  "kth value"        2)
   (goal  "-g"  "start-up action"  "one")
   (seed  "-s"  "random number"    1234567891)
-  (file  "-f"  "data file"        "../../moot/optimize/misc/auto93.csv")))
+  (file  "-f"  "data file"        
+         "../../moot/optimize/misc/auto93.csv")))
 
 ;; Access options
 (defmacro ? (x) `(fourth (assoc ',x *options*)))
@@ -18,8 +19,8 @@ ezr.lisp: multi-objective explanation
 ;; Structs
 (defstruct data rows cols)
 (defstruct cols x y all names klass)
-(defstruct sym (n 0) (at 0) (txt "") (has 0))
-(defstruct num (n 0) (at 0) (txt "") (mu 0)
+(defstruct sym (n 0) (at 0) (txt " ") has)
+(defstruct num (n 0) (at 0) (txt " ") (mu 0)
                (m2 0) (sd 0) (lo 1e32) (hi -1e32) (goal 1))
 
 ;;------------------------------------------------------------------------------
@@ -38,13 +39,13 @@ ezr.lisp: multi-objective explanation
 (set-macro-character #\$
   (lambda (stream char) `(slot-value self ',(read stream t nil t))))
 
-;; If anything in `nodu` dqw
+;; If something crashes inside a prog+, do not print long backtraces.
 (defmacro prog+ (&body body)
-  #-sbcl `(progn ,@body)
-  #+sbcl `(handler-case
-            (progn ,@body)
-            (error (e)
-              (format t "❌ Error: ~A~%" e))))
+  `(when (and *load-pathname* *load-truename*
+              (equal (truename *load-pathname*) *load-truename*))
+     #-sbcl (progn ,@body)
+     #+sbcl (handler-case 
+              (progn ,@body) (error (e) (format t "❌ Error: ~A~%" e)))))
 
 ;;------------------------------------------------------------------------------
 ;; ## Functions
@@ -58,6 +59,10 @@ ezr.lisp: multi-objective explanation
 (defun chr (s i) (char (string s) (if (minusp i) (+ (length s) i) i)))
 
 (defun chrp (s i c) (char= (chr s i) c))
+
+;; ### Maths
+
+(defun near (x y &optional (eps 0.01)) (< (abs (- x y)) eps))
 
 ;; ### Random Numbers
 
@@ -73,8 +78,8 @@ ezr.lisp: multi-objective explanation
   (floor (* n (/ (rand base) base))))
 
 ;; Sample from a Gaussian
-(defun gauss (m d) 
-  (+ m (* d (sqrt (* -2 (log (rand 1.0))) (cos (* 2 pi (rand 1.0)))))))
+(defun gauss (m sd)
+  (+ m (* sd (sqrt (* -2 (log (rand 1.0)))) (cos (* 2 pi (rand 1.0))))))
 
 ;; ### String 2 Thing
 
@@ -90,10 +95,10 @@ ezr.lisp: multi-objective explanation
           (if there (things s sep (1+ there))))))
 
 ;; csv file -> list of list of atom.
-(defun mapcsv (file &optional (fun #'print) end)
+(defun mapcsv (fun file)
   (with-open-file (s (or file *standard-input*))
     (loop (funcall fun (things (or (read-line s nil) 
-                                   (return end)))))))
+                                   (return)))))))
 
 ;;------------------------------------------------------------------------------
 ;; ## main
@@ -121,7 +126,7 @@ ezr.lisp: multi-objective explanation
 ;; Constructor for somwhere to store rows, summarizeed  in cols.
 (defun nuData (&optional inits &aux (self (make-data)))
   (if (stringp inits) 
-    (mapcsv (lambda (x) (add self x)) inits)
+    (mapcsv (lambda (x) (format t "[~a]~%" x) (add self x)) inits)
     (mapcar (lambda (x) (add self x)) inits))
   self)
 
@@ -149,11 +154,12 @@ ezr.lisp: multi-objective explanation
     (add it x)))
 
 ;; Subtraction is just adding "-1".
-(defmethod sub (self v &key zap) (add self v :zap zap :inc -1))
+(defmethod sub (self v &key (zap nil)) (add self v :zap zap :inc -1))
 
 ;; Updating SYMs.
 (defmethod add ((self sym) v &key (inc 1)) 
   (when (not (eq v '?))
+    (incf $n inc)
     (incf (has v $has) inc))
   v)
 
@@ -172,11 +178,15 @@ ezr.lisp: multi-objective explanation
   v)
 
 ;; Updating DATA.
-(defmethod add ((self data) (row cons) &key (inc 1) zap)
-  (cond ((not $cols)          (return-from add (setf $cols (nuCols row))))
-        ((> inc 0)            (push row $rows))
-        ((and (<= inc 0) zap) (setf $rows (remove row $rows :test #'equal))))
-  (add $cols row :inc inc))
+(defmethod add ((self data) (row cons) &key (inc 1) (zap nil))
+  (print 999)
+  (if $cols
+    (progn
+      (if (> inc 0)  
+        (push row $rows)
+        (when zap (setf $rows (remove row $rows :test #'equal))))
+      (add $cols row :inc inc))
+    (setf $cols (nuCols row))))
 
 ;; Updating COLS.
 (defmethod add ((self cols) row &key (inc 1))
@@ -201,7 +211,7 @@ ezr.lisp: multi-objective explanation
 
 ;; Entropy
 (defmethod div ((self sym))
-  (- (loop :for (_ . v) :in $has :sum  (* (/ v $n) (log (/ v $n) 2)))))
+  (- (loop :for (_ . n) :in $has :sum  (* (/ n $n) (log (/ n $n) 2)))))
 
 ;;---------------------------------------------------------------------------
 ;; ## Examples
@@ -212,11 +222,28 @@ ezr.lisp: multi-objective explanation
     (format t "~26a ~a~%"
       (format nil "   ~a  ~(~a~)=~a" flag key default) help)))
 
-(defun eg--csv (_) (mapcsv (? file) #'print))
+(defun eg--csv (_) (mapcsv #'print (? file)))
 (defun eg--the (_) (print *options*))
-(defun eg--sym (_)
-  (let ((sym (adds '(a a a a b b c))))
-    (print sym)))
+(defun eg--rand(_)
+  (setf *seed* (? seed)) 
+  (let ((a (rand)) (b (rand  10)))
+    (print b)
+    (setf *seed* (? seed)) 
+    (let ((c (rand))) (assert (and (eql a c) (not (eql a b)))))))
+
+(defun eg--gauss(_)
+  (let ((self (nuNum (loop repeat 1000 collect (gauss 10 1)))))
+    (assert (and (near 10 $mu 0.02) (near 1 $sd)))))
+
+(defun eg--thing (_)
+  (loop for (s isa) in '(("10.1" float) ("3" integer) ("abc" string))
+       do (format t "~a ~a ~a~%" s (thing s) (eql isa (type-of (thing s))))))
+
+(defun eg--sym (_) 
+  (let ((self (adds '(a a a a b b c))))
+    (assert (near 1.38 (div self)))))
+
+(defun eg--data(_) (nuData (? file)))
 
 ;;-----------------------------------------------------------------------------
 ;; ## Main
@@ -230,11 +257,11 @@ ezr.lisp: multi-objective explanation
                                 (t (thing (second it))))
                           b4))))
 
-(when (and *load-pathname* *load-truename*
-           (equal (truename *load-pathname*) *load-truename*))
+(prog+
   (setf *options* (cli *options*))
   (loop :for (flag arg) :on (args) :by #'cdr :do
     (let ((com (intern (format nil "EG~:@(~a~)" flag))))
       (when (fboundp com)
+        (format t "% ~a~%" flag)
         (setf *seed* (? seed))
         (prog+ (funcall com (if arg (thing arg))))))))
