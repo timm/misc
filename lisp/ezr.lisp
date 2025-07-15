@@ -1,5 +1,6 @@
 #!/usr/bin/env sbcl --script
 ;; <!-- vim: set lispwords+=has,loop,format ts=2 sw=2 sts=2 et : -->
+#+sbcl (declaim (sb-ext:muffle-conditions cl:style-warning))
 
 (defvar *help* "
 ezr.lisp: multi-objective explanation
@@ -20,8 +21,8 @@ ezr.lisp: multi-objective explanation
 (defstruct data rows cols)
 (defstruct cols x y all names klass)
 (defstruct sym (n 0) (at 0) (txt " ") has)
-(defstruct num (n 0) (at 0) (txt " ") (mu 0)
-               (m2 0) (sd 0) (lo 1e32) (hi -1e32) (goal 1))
+(defstruct num (n 0) (at 0) (txt " ") (mu 0) (m2 0) 
+               (sd 0) (lo 1e32) (hi -1e32) (goal 1))
 
 ;;------------------------------------------------------------------------------
 ;; ## Macros
@@ -39,13 +40,11 @@ ezr.lisp: multi-objective explanation
 (set-macro-character #\$
   (lambda (stream char) `(slot-value self ',(read stream t nil t))))
 
-;; If something crashes inside a prog+, do not print long backtraces.
-(defmacro prog+ (&body body)
-  `(when (and *load-pathname* *load-truename*
-              (equal (truename *load-pathname*) *load-truename*))
-     #-sbcl (progn ,@body)
-     #+sbcl (handler-case 
-              (progn ,@body) (error (e) (format t "❌ Error: ~A~%" e)))))
+;; Nested access to slots."
+(defmacro o (x f &rest fs)
+  (if fs `(o (slot-value ,x ',f) . ,fs)
+    `(slot-value ,x ',f)))
+
 
 ;;------------------------------------------------------------------------------
 ;; ## Functions
@@ -58,14 +57,17 @@ ezr.lisp: multi-objective explanation
 ;; Get i-th item of string/symbol (e.g. `(chr -1)` is the last item).
 (defun chr (s i) (char (string s) (if (minusp i) (+ (length s) i) i)))
 
+;; check if the ith item of  string/smpbol is a particular character
 (defun chrp (s i c) (char= (chr s i) c))
 
 ;; ### Maths
 
+;; Close enough
 (defun near (x y &optional (eps 0.01)) (< (abs (- x y)) eps))
 
 ;; ### Random Numbers
 
+;; seed
 (defvar *seed* 1234567891)
 
 ;; Random floats.
@@ -100,49 +102,41 @@ ezr.lisp: multi-objective explanation
     (loop (funcall fun (things (or (read-line s nil) 
                                    (return)))))))
 
-;;------------------------------------------------------------------------------
-;; ## main
-
-(defun cli (options &aux it)
-  (loop :for (key flag help b4) :in options :collect
-    (list key flag help (if (setf it (member flag (args) :test #'string=))
-                          (cond ((eq b4 t) nil)
-                                ((eq b4 nil) t)
-                                (t (thing (second it))))
-                          b4))))
 
 ;;-----------------------------------------------------------------------------
-;; ## Initialization
+;; ## Make nu things
 
 ;; Constructor for somwhere to store symbols.
-(defun nuSym (&optional inits &key (at 0) (txt " "))
+(defun nuSym (&key inits (at 0) (txt " "))
   (adds inits (make-sym :at at :txt txt)))
 
 ;; Constructor for somwhere to store num.
-(defun nuNum (&optional inits &key (at 0) (txt " "))
+(defun nuNum (&key inits (at 0) (txt " "))
   (adds inits (make-num :at at :txt txt
                          :goal (if (chrp txt -1 #\-)  0 1))))
 
 ;; Constructor for somwhere to store rows, summarizeed  in cols.
-(defun nuData (&optional inits &aux (self (make-data)))
+(defun nuData (&optional (inits nil)  &aux (self (make-data)))
   (if (stringp inits) 
-    (mapcsv (lambda (x) (format t "[~a]~%" x) (add self x)) inits)
+    (mapcsv (lambda (x) (add self x)) inits)
     (mapcar (lambda (x) (add self x)) inits))
   self)
 
 ;; Constructor that converts list of strings into NUMs or SYMs.
-(defun nuCols (names &aux (self (make-cols :names names)))
-  (dolist (txt names self)
-    (let* ((a   (chr txt 0))
-           (z   (chr txt -1))
-           (new (if (upper-case-p a) #'nuNum #'nuSym))
-           (col (funcall new :txt txt :at (length $all))))
-      (push col $all)
+(defun nuCols (names &aux x y all klass)
+  (dolist (txt names)
+    (let* ((a    (chr txt 0))
+           (z    (chr txt -1))
+           (what (if (upper-case-p a)  #'nuNum #'nuSym))
+           (col  (funcall what :txt txt :at (length all))))
+      (push col all)
       (unless (eql z  #\X)
-        (if (eql z #\!) (setf $klass col))
+        (if (eql z #\!) (setf klass col))
         (if (member z '(#\! #\- #\+)) 
-          (push col $y)
-          (push col $x))))))
+          (push col y)
+          (push col x)))))
+  (make-cols :names names :klass klass 
+             :x (reverse x) :y (reverse y) :all (reverse all)))
 
 ;;------------------------------------------------------------------------------
 ;; ## Update
@@ -154,7 +148,7 @@ ezr.lisp: multi-objective explanation
     (add it x)))
 
 ;; Subtraction is just adding "-1".
-(defmethod sub (self v &key (zap nil)) (add self v :zap zap :inc -1))
+(defmethod sub (self v &key zap)  (add self v :zap zap :inc -1))
 
 ;; Updating SYMs.
 (defmethod add ((self sym) v &key (inc 1)) 
@@ -165,7 +159,7 @@ ezr.lisp: multi-objective explanation
 
 ;; Updating NUMs.
 (defmethod add ((self num) v &key (inc 1))
-  (when (not (eq v '?))
+  (unless (eq v '?)
     (incf $n inc)
     (setf $lo (min v $lo)
           $hi (max v $hi))
@@ -178,15 +172,15 @@ ezr.lisp: multi-objective explanation
   v)
 
 ;; Updating DATA.
-(defmethod add ((self data) (row cons) &key (inc 1) (zap nil))
-  (print 999)
-  (if $cols
-    (progn
-      (if (> inc 0)  
-        (push row $rows)
-        (when zap (setf $rows (remove row $rows :test #'equal))))
-      (add $cols row :inc inc))
-    (setf $cols (nuCols row))))
+(defmethod add ((self data) (row cons) &key (inc 1) zap )
+  (cond ((not $cols)
+         (setf $cols (nuCols row)))
+        ((> inc 0)
+         (push row $rows)
+         (add $cols row :inc inc))
+        (zap
+          (setf $rows (remove row $rows :test #'equal))
+          (add $cols row :inc inc))))
 
 ;; Updating COLS.
 (defmethod add ((self cols) row &key (inc 1))
@@ -200,11 +194,12 @@ ezr.lisp: multi-objective explanation
 ;; Mean
 (defmethod mid ((self num)) $mu)
 
-;; Median
+;; Mode
 (defmethod mid ((self sym))
   (car (reduce (-> (a b) (if (> (cdr a) (cdr b)) a b)) $has)))
 
-;; ### Variation away from central tendancy (a.k.a. diversity).
+;; ### Diversity
+;; "Diversity" = variation away from central tendancy
 
 ;; Standard deviation
 (defmethod div ((self num)) $sd)
@@ -232,7 +227,7 @@ ezr.lisp: multi-objective explanation
     (let ((c (rand))) (assert (and (eql a c) (not (eql a b)))))))
 
 (defun eg--gauss(_)
-  (let ((self (nuNum (loop repeat 1000 collect (gauss 10 1)))))
+  (let ((self (adds (loop repeat 1000 collect (gauss 10 1)))))
     (assert (and (near 10 $mu 0.02) (near 1 $sd)))))
 
 (defun eg--thing (_)
@@ -243,7 +238,9 @@ ezr.lisp: multi-objective explanation
   (let ((self (adds '(a a a a b b c))))
     (assert (near 1.38 (div self)))))
 
-(defun eg--data(_) (nuData (? file)))
+(defun eg--data(_) 
+  (let ((self (nuData (? file))))
+    (mapcar #'print (o $cols y))))
 
 ;;-----------------------------------------------------------------------------
 ;; ## Main
@@ -257,11 +254,23 @@ ezr.lisp: multi-objective explanation
                                 (t (thing (second it))))
                           b4))))
 
-(prog+
+;; Only called if we are the top-level. And when we run, do not show long taces.
+(defmacro when-main (&body body)
+  `(when (and *load-pathname* *load-truename*
+              (equal (truename *load-pathname*) *load-truename*))
+     #-sbcl (progn ,@body)
+     #+sbcl (handler-case 
+              (progn ,@body) (error (e) (format t "❌ Error: ~A~%" e)))))
+
+;;-----------------------------------------------------------------------------
+;; ## Start
+  
+(setf *seed* (? seed))
+(when-main
   (setf *options* (cli *options*))
   (loop :for (flag arg) :on (args) :by #'cdr :do
     (let ((com (intern (format nil "EG~:@(~a~)" flag))))
       (when (fboundp com)
-        (format t "% ~a~%" flag)
+        (format *error-output*  "% ~a~%" flag)
         (setf *seed* (? seed))
-        (prog+ (funcall com (if arg (thing arg))))))))
+        (funcall com (if arg (thing arg)))))))
