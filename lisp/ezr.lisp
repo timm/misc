@@ -28,7 +28,8 @@ ezr.lisp: multi-objective explanation
 ;; ## Macros
 
 ;; Lambda short cut
-(defmacro -> (args &body body) `(lambda ,args ,@body))
+(defmacro -> (args &body body) 
+  `(lambda ,(if (listp args) args (list args)) ,@body))
 
 ;; Ensure `lst` has a counter for `x`   
 ;; (so `(incf (has x lst))` can increment).
@@ -38,70 +39,12 @@ ezr.lisp: multi-objective explanation
 
 ;; Short cut for slot access within `self`.
 (set-macro-character #\$
-  (lambda (stream char) `(slot-value self ',(read stream t nil t))))
+  (-> (stream char) `(slot-value self ',(read stream t nil t))))
 
 ;; Nested access to slots."
 (defmacro o (x f &rest fs)
   (if fs `(o (slot-value ,x ',f) . ,fs)
     `(slot-value ,x ',f)))
-
-
-;;------------------------------------------------------------------------------
-;; ## Functions
-
-;; ### Misc
-
-;; Access command line
-(defun args () (cdr #+clisp ext:*args* #+sbcl sb-ext:*posix-argv*))
-
-;; Get i-th item of string/symbol (e.g. `(chr -1)` is the last item).
-(defun chr (s i) (char (string s) (if (minusp i) (+ (length s) i) i)))
-
-;; check if the ith item of  string/smpbol is a particular character
-(defun chrp (s i c) (char= (chr s i) c))
-
-;; ### Maths
-
-;; Close enough
-(defun near (x y &optional (eps 0.01)) (< (abs (- x y)) eps))
-
-;; ### Random Numbers
-
-;; seed
-(defvar *seed* 1234567891)
-
-;; Random floats.
-(defun rand (&optional (n 1)) 
-  (setf *seed* (mod (* 16807.0d0 *seed*) 2147483647.0d0))
-  (* n (- 1.0d0 (/ *seed* 2147483647.0d0))))
-
-;; Random integers.
-(defun rint (&optional (n 100) &aux (base 1E10)) 
-  (floor (* n (/ (rand base) base))))
-
-;; Sample from a Gaussian
-(defun gauss (m sd)
-  (+ m (* sd (sqrt (* -2 (log (rand 1.0)))) (cos (* 2 pi (rand 1.0))))))
-
-;; ### String 2 Thing
-
-;; String -> atom
-(defun thing (s &aux (s1 (string-trim '(#\Space #\Tab) s))) 
-  (let ((x (let ((*read-eval* nil)) (read-from-string s1 ""))))
-    (if (or (numberp x) (member x '(t nil ?))) x s1)))
-
-;; string -> list of atoms (dividing on comma)
-(defun things (s &optional (sep #\,) (here 0)) 
-  (let ((there (position sep s :start here)))
-    (cons (thing (subseq s here there))
-          (if there (things s sep (1+ there))))))
-
-;; csv file -> list of list of atom.
-(defun mapcsv (fun file)
-  (with-open-file (s (or file *standard-input*))
-    (loop (funcall fun (things (or (read-line s nil) 
-                                   (return)))))))
-
 
 ;;-----------------------------------------------------------------------------
 ;; ## Make nu things
@@ -112,27 +55,26 @@ ezr.lisp: multi-objective explanation
 
 ;; Constructor for somwhere to store num.
 (defun nuNum (&key inits (at 0) (txt " "))
-  (adds inits (make-num :at at :txt txt
-                         :goal (if (chrp txt -1 #\-)  0 1))))
+  (adds inits (make-num :at at :txt txt :goal (if (chrp txt -1 #\-)  0 1))))
 
 ;; Constructor for somwhere to store rows, summarizeed  in cols.
 (defun nuData (&optional (inits nil)  &aux (self (make-data)))
   (if (stringp inits) 
-    (mapcsv (lambda (x) (add self x)) inits)
-    (mapcar (lambda (x) (add self x)) inits))
+    (mapcsv (-> x (add self x)) inits)
+    (mapcar (-> x (add self x)) inits))
   self)
 
 ;; Constructor that converts list of strings into NUMs or SYMs.
 (defun nuCols (names &aux x y all klass)
   (dolist (txt names)
-    (let* ((a    (chr txt 0))
-           (z    (chr txt -1))
-           (what (if (upper-case-p a)  #'nuNum #'nuSym))
+    (let* ((aa   (chr txt 0))
+           (zz   (chr txt -1))
+           (what (if (upper-case-p aa)  #'nuNum #'nuSym))
            (col  (funcall what :txt txt :at (length all))))
       (push col all)
-      (unless (eql z  #\X)
-        (if (eql z #\!) (setf klass col))
-        (if (member z '(#\! #\- #\+)) 
+      (unless (eql zz  #\X)
+        (if (eql zz #\!) (setf klass col))
+        (if (member zz '(#\! #\- #\+)) 
           (push col y)
           (push col x)))))
   (make-cols :names names :klass klass 
@@ -208,6 +150,63 @@ ezr.lisp: multi-objective explanation
 (defmethod div ((self sym))
   (- (loop :for (_ . n) :in $has :sum  (* (/ n $n) (log (/ n $n) 2)))))
 
+
+;;------------------------------------------------------------------------------
+;; ## Functions
+
+;; ### Misc
+
+;; Access command line
+(defun args () (cdr #+clisp ext:*args* #+sbcl sb-ext:*posix-argv*))
+
+;; Get i-th item of string/symbol (e.g. `(chr -1)` is the last item).
+(defun chr (s i) (char (string s) (if (minusp i) (+ (length s) i) i)))
+
+;; check if the ith item of  string/smpbol is a particular character
+(defun chrp (s i c) (char= (chr s i) c))
+
+;; ### Maths
+
+;; Close enough
+(defun near (x y &optional (eps 0.01)) (< (abs (- x y)) eps))
+
+;; ### Random Numbers
+
+;; seed
+(defvar *seed* 1234567891)
+
+;; Random floats.
+(defun rand (&optional (n 1)) 
+  (setf *seed* (mod (* 16807.0d0 *seed*) 2147483647.0d0))
+  (* n (- 1.0d0 (/ *seed* 2147483647.0d0))))
+
+;; Random integers.
+(defun rint (&optional (n 100) &aux (base 1E10)) 
+  (floor (* n (/ (rand base) base))))
+
+;; Sample from a Gaussian
+(defun gauss (m sd)
+  (+ m (* sd (sqrt (* -2 (log (rand 1.0)))) (cos (* 2 pi (rand 1.0))))))
+
+;; ### String 2 Thing
+
+;; String -> atom
+(defun thing (s &aux (s1 (string-trim '(#\Space #\Tab) s))) 
+  (let ((x (let ((*read-eval* nil)) (read-from-string s1 ""))))
+    (if (or (numberp x) (member x '(t nil ?))) x s1)))
+
+;; string -> list of atoms (dividing on comma)
+(defun things (s &optional (sep #\,) (here 0)) 
+  (let ((there (position sep s :start here)))
+    (cons (thing (subseq s here there))
+          (if there (things s sep (1+ there))))))
+
+;; csv file -> list of list of atom.
+(defun mapcsv (fun file)
+  (with-open-file (s (or file *standard-input*))
+    (loop (funcall fun (things (or (read-line s nil) 
+                                   (return)))))))
+
 ;;---------------------------------------------------------------------------
 ;; ## Examples
 
@@ -240,7 +239,7 @@ ezr.lisp: multi-objective explanation
 
 (defun eg--data(_) 
   (let ((self (nuData (? file))))
-    (mapcar #'print (o $cols y))))
+    (mapcar 'print (o $cols y))))
 
 ;;-----------------------------------------------------------------------------
 ;; ## Main
