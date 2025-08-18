@@ -1,0 +1,43 @@
+:- (dynamic slot/6), (discontiguous slot/6).
+:- (dynamic new/2),  (discontiguous new/2).
+
+:- op( 997, xfy,  of).
+:- op( 800, xfx,  :=).
+:- op( 100, xfx,  in).
+
+term_expansion(F=Y, Out) :-
+  fields(Y, Fields, Defaults),
+  findall(Z, slot1(F, Fields, Defaults, Z), Out).
+
+fields([],      [],     []).
+fields([F=D|L], [F|Fs], [D|Ds]) :- !, fields(L,Fs,Ds).
+fields([F  |L], [F|Fs], [_|Ds]) :-    fields(L,Fs,Ds).
+
+slot1(F, _, Defaults, new(F,T)) :- T =.. [F|Defaults].
+slot1(F, Fields, _, slot(F,Field,Old,New,T0,T)) :- 
+  member(Field,Fields),
+  slot2(Field, Old, New, Fields, L0, L),
+  T0 =.. [F|L0],
+  T  =.. [F|L ].
+
+slot2(_,_,_,[],    [],    []).
+slot2(F,X,Y,[F|FS],[X|L0],[Y|L]) :- !, slot2(F,X,Y,FS,L0,L).
+slot2(F,X,Y,[_|FS],[Z|L0],[Z|L]) :-    slot2(F,X,Y,FS,L0,L).
+
+o(X,A) :- o(X,_,A).
+
+o(X of Y, A,B) :- slot(_,X,Old,New,A,B), o(Y,Old,New).
+o(X := Y, A,B) :- slot(_,X,_,Y,    A,B).
+o(X in Y, A,B) :- slot(_,X,Z,Z,    A,B), member(Z,Y).
+
+o(X =  Y, A,B) :- slot(_,X,Y,Y,    A,B).
+o(X =< Y, A,B) :- slot(_,X,Z,Z,    A,B), Z=<Y.
+o(X >= Y, A,B) :- slot(_,X,Z,Z,    A,B), Z>=Y.
+o(X \= Y, A,B) :- slot(_,X,Z,Z,    A,B), Z\=Y.
+o(X  < Y, A,B) :- slot(_,X,Z,Z,    A,B), Z <Y.
+o(X  > Y, A,B) :- slot(_,X,Z,Z,    A,B), Z >Y.
+
+make_num([is=num, n=0, mu=0, sd=0, m2=0, lo=1e32,hi=-1e32])
+make_sym([
+:- term_expansion(a=[b=2,c=3],L),forall(member(X,L), (print(X),nl)).
+:- halt.
