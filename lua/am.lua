@@ -1,6 +1,6 @@
+local Sym,Num,Data,Cols,Freq = {},{},{},{},{}
 local the,big,abs,min,max,log,s2n,s2a,atom,push
 local adds,sort,shfflemap,kap,atom,kap,o,csv,new,sampler
-local Sym,Num,Data,Cols,Freq = {},{},{},{},{}
 
 the = {Acq    = "xploit",
        assume = 4,

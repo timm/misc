@@ -2,17 +2,17 @@
 
 :- dynamic (*)/1.
 
-:- op( 999,  fx,    o).
+:- op( 999,  fx,  o).
 :- op( 998, fy,   a).
 :- op( 998, fy,   an).
-:- op( 997, xfy,   of).
-:- op( 996, xfy,   or).
+:- op( 997, xfy,  of).
+:- op( 996, xfy,  or).
 :- op( 995, xfy,  and).
 :- op( 994,  fy,  not).
 :- op( 800, xfx,  (@=)).
 :- op( 800, xfx,  :=).
-:- op( 100, xfx,   (++)).
-:- op( 100, xfx,   in).
+:- op( 100, xfx,  (++)).
+:- op( 100, xfx,  in).
 
 :- (dynamic slot/6), (discontiguous slot/6).
 :- (dynamic new/2),  (discontiguous new/2).
