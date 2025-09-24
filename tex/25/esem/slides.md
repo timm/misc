@@ -3,16 +3,17 @@ title: "Industry can get any empirical research it wants"
 subtitle: "(Publish open source data, and some example scripts.)"
 author: "Tim Menzies"
 institute: |
-  IEEE Fellow, ACM Fellow, EIC ASEj\newline
-  timm@ieee.org\newline
-  NC State
+  prof, cs, ncstate, usa\
+  acm-ieee-ase fellow; eic ASEj\
+  timm@ieee.org\
+  http://timm.fyi
 date: Oct3'25
 slide-level: 2
 fontsize: 10pt
 theme: Madrid
 colortheme: default
 header-includes:
-  - \titlegraphic{\vspace{-6mm}\includegraphics[height=4cm]{logo.png}}
+  - \titlegraphic{\vspace{-3mm}\includegraphics[height=3.5cm]{logo.png}}
   - \usepackage{libertine}
   - \usepackage[libertine]{newtxmath}
   - \definecolor{myred}{HTML}{CC0000}
