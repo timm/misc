@@ -3,9 +3,9 @@ title: "Industry can get any empirical research it wants"
 subtitle: "(Publish open source data, and some example scripts.)"
 author: "Tim Menzies"
 institute: |
-  NC State\newline
-  timm@ieee.org\newline
   IEEE Fellow, ACM Fellow, EIC ASEj\newline
+  timm@ieee.org\newline
+  NC State
 date: Oct3'25
 slide-level: 2
 fontsize: 10pt
