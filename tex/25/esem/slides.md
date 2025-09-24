@@ -2,15 +2,17 @@
 title: "Industry can get any empirical research it wants"
 subtitle: "(Publish open source data, and some example scripts.)"
 author: "Tim Menzies"
-institute: "NC State, IEEE Fellow, ACM Fellow, EIC ASEj"
-email: "timm@ieee.org"
-date: \today
+institute: |
+  NC State\newline
+  timm@ieee.org\newline
+  IEEE Fellow, ACM Fellow, EIC ASEj\newline
+date: Oct3'25
 slide-level: 2
 fontsize: 10pt
 theme: Madrid
 colortheme: default
 header-includes:
-  - \titlegraphic{\vspace{-1.5cm}\includegraphics[height=4cm]{logo.png}}
+  - \titlegraphic{\vspace{-6mm}\includegraphics[height=4cm]{logo.png}}
   - \usepackage{libertine}
   - \usepackage[libertine]{newtxmath}
   - \definecolor{myred}{HTML}{CC0000}
@@ -54,7 +56,9 @@ header-includes:
 
 ---
 
-## My (very) recent work: ultra-low cost active learning
+## Recent work: ultra-low cost active learning
+
+\textcolor{linkblue}{\href{https://timm.fyi/assets/pdf/cacm25.pdf}{https://timm.fyi/assets/pdf/cacm25.pdf}}
 
 ![](page.pdf){height=80%}
 
