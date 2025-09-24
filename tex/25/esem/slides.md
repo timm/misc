@@ -10,6 +10,7 @@ fontsize: 10pt
 theme: Madrid
 colortheme: default
 header-includes:
+  - \titlegraphic{\vspace{-1.5cm}\includegraphics[height=4cm]{logo.png}}
   - \usepackage{libertine}
   - \usepackage[libertine]{newtxmath}
   - \definecolor{myred}{HTML}{CC0000}
