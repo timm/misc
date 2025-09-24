@@ -10,6 +10,8 @@ fontsize: 10pt
 theme: Madrid
 colortheme: default
 header-includes:
+  - \usepackage{libertine}
+  - \usepackage[libertine]{newtxmath}
   - \definecolor{myred}{HTML}{CC0000}
   - \definecolor{linkblue}{HTML}{0066FF}
   - \setbeamercolor{palette primary}{bg=myred,fg=white}
@@ -20,7 +22,7 @@ header-includes:
   - \setbeamercolor{structure}{fg=myred}
   - \linespread{0.9}
   - \hypersetup{colorlinks=true,urlcolor=linkblue}
-  - \setbeamertemplate{footline}{\hspace{1em}\textcolor{linkblue}{\href{https://timm.fyi/esem25.pdf}{\bf timm.fyi/esem25.pdf}}\hfill\insertframenumber/\inserttotalframenumber\hspace{1em}\vspace{0.5em}}
+  - \setbeamertemplate{footline}{\hspace{1em}\textcolor{linkblue}{\href{https://timm.fyi/esem25.pdf}{URL= timm.fyi/esem25.pdf}}\hfill\textcolor{gray!60}{|}\hspace{0.3em}\insertframenumber/\inserttotalframenumber\hspace{1em}\vspace{0.5em}}
 ---
 
 ## From Open Source Data to Open Source Science
@@ -51,7 +53,7 @@ header-includes:
 
 ---
 
-## (Very) recent work: ultra-low cost active learning
+## My (very) recent work: ultra-low cost active learning
 
 ![](page.pdf){height=80%}
 
@@ -431,6 +433,8 @@ header-includes:
 
 ## References
 
+\small
+
 **[Agr18]:** A. Agrawal and T. Menzies, "Is better data better than better data miners?: On the benefits of tuning smote for defect prediction," in *Proc. IST*, ACM, 2018, pp. 1050–1061.     
 **[Agr21]:** A. Agrawal *et al.*, "How to "DODGE" complex software analytics?" *IEEE Trans. Softw. Eng.*, vol. 47, no. 10, pp. 2182–2194, Oct. 2021.     
 **[Alv23]:** L. Alvarez and T. Menzies, "Don't lie to me: Avoiding malicious explanations with STEALTH," *IEEE Softw.*, vol. 40, no. 3, pp. 43–53, May/Jun. 2023.     
@@ -444,6 +448,8 @@ header-includes:
 
 ## References (More)
 
+\small
+
 **[Gon23]:** J. M. Gonzalez-Barahona and G. Robles, "Revisiting the reproducibility of empirical software engineering studies based on data retrieved from development repositories," *Inf. Softw. Technol.*, vol. 164, 2023, Art. no. 107318.     
 **[Gri22]:** L. Grinsztajn, E. Oyallon, and G. Varoquaux, "Why do tree-based models still outperform deep learning on typical tabular data?" in *Proc. NeurIPS*, 2022, pp. 507–520.     
 **[Ham09]:** M. Hamill and K. Goseva-Popstojanova, "Common trends in software fault and failure data," *IEEE Trans. Softw. Eng.*, vol. 35, no. 4, pp. 484–496, Jul./Aug. 2009.     
@@ -455,6 +461,8 @@ header-includes:
 
 
 ## References (Yet More)
+
+\small
 
 **[Kri19]:** R. Krishna and T. Menzies, "Bellwethers: A baseline method for transfer learning," *IEEE Trans. Softw. Eng.*, vol. 45, no. 11, pp. 1081–1105, Nov. 2019.     
 **[Men07]:** T. Menzies, J. Greenwald, and A. Frank, "Data mining static code attributes to learn defect predictors," *IEEE Trans. Softw. Eng.*, vol. 33, no. 1, pp. 2–13, Jan. 2007.     
@@ -468,6 +476,8 @@ header-includes:
 **[Rah14]:** F. Rahman *et al.*, "Comparing static bug finders and statistical prediction," in *Proc. ICSE*, ACM, 2014, pp. 424–434.     
 
 ## References (Last)
+
+\small
 
 **[Rob10]:** G. Robles, "Replicating MSR: A study of the potential replicability of papers published in the mining software repositories proceedings," in *7th IEEE Work. Conf. Mining Softw. Repositories (MSR)*, IEEE Press, 2010, pp. 171–180.     
 **[Ros15]:** C. Rosen, B. Grawi, and E. Shihab, "Commit guru: Analytics and risk prediction of software commits," in *Proc. ESEC/FSE*, 2015, pp. 966–969.     
