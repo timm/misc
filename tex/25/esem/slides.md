@@ -491,3 +491,9 @@ header-includes:
 **[Yan19]:** M. Yan *et al.*, "Automating change-level self-admitted technical debt determination," *IEEE Trans. Softw. Eng.*, vol. 45, no. 12, pp. 1211–1229, Dec. 2019.
 
 
+---
+## Appendix: AI's Commercial Bubble Bursting?
+
+
+![](newai.pdf){height=100%}
+
