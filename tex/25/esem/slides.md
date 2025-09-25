@@ -1,32 +1,35 @@
 ---
-title: "Industry can get any empirical research it wants"
-subtitle: "(Publish open source data, and some example scripts.)"
-author: "Tim Menzies"
+title: |
+   Industry can get any empirical\
+   research it wants
+subtitle: (Publish open source data, and some example scripts.)
+author: Tim Menzies
 institute: |
-  prof, cs, ncstate, usa\
+  prof, cs, \textcolor{myred}{{\bf ncstate}}, usa\
   acm-ieee-ase fellow; eic ASEj\
   timm@ieee.org\
   http://timm.fyi
 date: Oct3'25
 slide-level: 2
 fontsize: 10pt
-theme: Madrid
+theme: Warsaw
 colortheme: default
 header-includes:
-  - \titlegraphic{\vspace{-3mm}\includegraphics[height=3.5cm]{logo.png}}
-  - \usepackage{libertine}
-  - \usepackage[libertine]{newtxmath}
-  - \definecolor{myred}{HTML}{CC0000}
+  - \titlegraphic{\vspace{-5mm}\includegraphics[height=3cm]{logo.png}}
+  - \usepackage[sfdefault,light]{FiraSans}
+  - \usepackage{microtype}
+  - \definecolor{LogicBlue}{RGB}{204,0,0}
+  - \definecolor{InferenceRed}{RGB}{212,55,59}
   - \definecolor{linkblue}{HTML}{0066FF}
-  - \setbeamercolor{palette primary}{bg=myred,fg=white}
-  - \setbeamercolor{palette secondary}{bg=myred!80,fg=white}
-  - \setbeamercolor{palette tertiary}{bg=myred!60,fg=white}
-  - \setbeamercolor{title}{fg=white}
-  - \setbeamercolor{frametitle}{fg=white}
-  - \setbeamercolor{structure}{fg=myred}
+  - \definecolor{myred}{HTML}{CC0000}
+  - \setbeamercolor{structure}{fg=InferenceRed}
+  - \setbeamercolor{frametitle}{bg=LogicBlue,fg=white}
+  - \setbeamercolor{palette primary}{bg=LogicBlue,fg=white}
+  - \setbeamercolor{palette secondary}{bg=InferenceRed,fg=white}
+  - \setbeamertemplate{navigation symbols}{}
   - \linespread{0.9}
   - \hypersetup{colorlinks=true,urlcolor=linkblue}
-  - \setbeamertemplate{footline}{\hspace{1em}\textcolor{linkblue}{\href{https://timm.fyi/esem25.pdf}{URL= timm.fyi/esem25.pdf}}\hfill\textcolor{gray!60}{|}\hspace{0.3em}\insertframenumber/\inserttotalframenumber\hspace{1em}\vspace{0.5em}}
+  - \setbeamertemplate{footline}{\hspace{1em}\textcolor{linkblue}{\href{https://timm.fyi/esem25.pdf}{URL= timm.fyi/esem25.pdf}}\hfill\insertframenumber/\inserttotalframenumber\hspace{1em}\vspace{0.5em}}
 ---
 
 ## From Open Source Data to Open Source Science
@@ -75,14 +78,14 @@ header-includes:
 
 **Growth Trajectory:**
 
-- Repository grew large; moved to **Large Hadron Collider** (Seacraft, Zenodo)
-- Research students ran weekly sprints scouring SE conference tables of content
+- Repository grew; moved to **Large Hadron Collider** (Seacraft, Zenodo)
+- Research students ran weekly sprints scouring SE conferences 
 - **Gary Boetticher**, **Elaine Weyuker**, **Thomas Ostrand**, **Guenther Ruhe** joined steering committee → prestige for growth
 
 **PROMISE vs MSR:**
 
 - **MSR**: Gathering initial datasets (**Devanbu** **[Dev15]**)
-- **PROMISE**: Post-collection analysis, consistent data upload and re-examination **[Rob10]**
+- **PROMISE**: Post-collection analysis, data re-examination **[Rob10]**
 
 **Early Results:**
 
