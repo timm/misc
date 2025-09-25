@@ -29,7 +29,9 @@ header-includes:
   - \setbeamertemplate{navigation symbols}{}
   - \hypersetup{colorlinks=true,urlcolor=linkblue}
   - \setbeamertemplate{footline}{\hspace{1em}\textcolor{linkblue}{\href{https://timm.fyi/esem25.pdf}{URL= timm.fyi/esem25.pdf}}\hfill\insertframenumber/\inserttotalframenumber\hspace{1em}\vspace{0.5em}}
-
+  - \setbeamercolor{block title}{bg=myred!20, fg=myred!80!black}
+  - \setbeamercolor{block body}{bg=myred!5, fg=black}
+  - \setbeamercolor{background canvas}{bg=gray!2}
 ---
 
 ## From Open Source Data to Open Source Science
@@ -114,7 +116,7 @@ header-includes:
 
 ##  Menzies's 1st Law: Specific metrics do not matter
 
-### 1st Law: *"Specific metrics do not always matter in all data sets. Rather, different projects have different best metrics."*
+### **1st Law: "Specific metrics do not always matter in all data sets. Rather, different projects have different best metrics."**
 
 **Supporting Evidence:**
 
@@ -130,6 +132,7 @@ header-includes:
 ## Menzies's Corollary
 
 ### **Menzies's Corollary**: 
+
 *"To mine SE data, gather all that can be collected (cheaply) then apply data pruning to discard irrelevancies."*
 
 **Practical Impact:**
@@ -138,7 +141,7 @@ header-includes:
 
 ## **Menzies 2nd Law**: Party time in metrics town
 
-### 2nd Law: *"Static code attributes do matter. Individually, they may be weak indicators. But when combined, they can lead to strong signals that outperform the state-of-the-art."*
+### **2nd Law: "Static code attributes do matter. Individually, they may be weak indicators. But when combined, they can lead to strong signals that outperform the state-of-the-art."**
 
 **Support Evidence:**
 
@@ -221,8 +224,7 @@ header-includes:
 
 ## Menzies's 3rd Law & Transfer Learning
 
-### 3rd law: *"Turkish toasters can predict for errors in deep space satellites."*
-
+### **3rd law: "Turkish toasters can predict for errors in deep space satellites."**
 **Supporting Evidence:**
 
 - **Transfer learning research** **[Tur09]**: Models from **Turkish white goods** successfully predicted errors in **NASA systems**
@@ -242,7 +244,7 @@ header-includes:
 
 ## Menzies's 4th Law & Data Reduction
 
-### 4th Law: *"For SE, the best thing to do with most data is to throw it away."*
+### **4th Law: "For SE, the best thing to do with most data is to throw it away."**
 
 **Supporting Evidence:**
 
@@ -270,7 +272,7 @@ header-includes:
 
 ## Menzies's 5th Law & LLM Reality Check
 
-### 5th law: *"Bigger is not necessarily better."*
+### **5th law: "Bigger is not necessarily better."**
 
 **Supporting Evidence - LLM Hype Analysis:**
 
@@ -290,7 +292,7 @@ header-includes:
 
 ## Menzies's 6th Law & Data Quality Paradox
 
-### 6th Law: *"Data quality matters less than you think."*
+### **6th Law: "Data quality matters less than you think."**
 
 **Supporting Research:**
 
@@ -318,7 +320,7 @@ header-includes:
 
 ##  Menzies's 7th Law: Dumb sht\*t, works
 
-### 7th Law: *"Bad learners can make good conclusions."*
+### **7th Law: "Bad learners can make good conclusions."**
 
 **Supporting Evidence:**
 
@@ -340,7 +342,7 @@ header-includes:
 
 ##  Menzies's 8th Law: Mud, rules
 
-### 8th Law: *"Science has mud on the lens."*
+### **8th Law: "Science has mud on the lens."**
 
 **Supporting Evidence:**
 
@@ -357,7 +359,7 @@ header-includes:
 
 ## Menzies's 9th Law & Simplicity Challenge
 
-### 9th Law: *"Many hard SE problems, aren't."*
+### **9th Law: "Many hard SE problems, aren't."**
 
 **Supporting Philosophy:**
 
