@@ -248,6 +248,8 @@ header-includes:
   - **Some tasks**: Ignored 98-100% of data **[Che05]**
 - **Startling result**: Data sets with thousands of rows modeled with just **few dozen samples** **[Men08]**
 
+~\\
+
 **Theoretical Explanations:**
 
 - **Power laws** in software data **[Lin15]**
