@@ -15,20 +15,20 @@ institute: |
 iLorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tristique maximus justo eget accumsan. Vivamus vestibulum, ipsum sed volutpat tempor, diam velit consequat risus, vel pulvinar lorem neque sed massa. Morbi sed mi malesuada, convallis enim eu, pretium leo. Vivamus turpis massa, viverra non blandit vel, luctus non metus. In dapibus dignissim ante, eget posuere mauris scelerisque eu. Aenean at tortor felis. Integer dolor diam, pellentesque nec neque eu, condimentum efficitur leo. Donec ullamcorper pellentesque sagittis. Duis posuere posuere fermentum. Nam ultrices consequat est, eu lobortis dui bibendum eu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Integer tincidunt diam at nibh feugiat pellentesque. Aliquam porta porta mauris et blandit. Nunc at elit ipsum.
 
 ```
-def coerce(s:str) -> Atom:
+[1;32mdef[0m coerce(s:str) -> Atom:
   "coerce a string to int, float, bool, or trimmed string"
-  for fn in [int,float]:
-    try: return fn(s)
-    except Exception as _: pass
+  [1;31mfor[0m fn in [int,float]:
+    try: [1;31mreturn[0m fn(s)
+    except Exception [1;32mas[0m _: [1;31mpass[0m
   s = s.strip()
-  return {'True':True,'False':False}.get(s,s)
+  [1;31mreturn[0m {'[1;34mTrue[0m':[1;34mTrue[0m,'[1;34mFalse[0m':[1;34mFalse[0m}.get(s,s)
 
-def csv(file: str ) -> Iterator[Row]:
+[1;32mdef[0m csv(file: str ) -> Iterator[Row]:
   "Returns rows of a csv file."
-  with open(file,encoding="utf-8") as f:
-    for line in f:
-      if (line := line.split("%")[0]):
-        yield [coerce(s) for s in line.split(",")]
+  [1;33mwith[0m [1;33mopen[0m(file,encoding="utf-8") [1;32mas[0m f:
+    [1;31mfor[0m line in f:
+      [1;31mif[0m (line := line.split("%")[0]):
+        [1;31myield[0m [coerce(s) [1;31mfor[0m s in line.split(",")]
 ```
 
 Quisque pellentesque rhoncus magna, sit amet ullamcorper orci rutrum in. Integer eget dictum nisi. Mauris vitae odio porta, condimentum nulla ut, molestie justo. Sed ut sapien fringilla, molestie ex at, rhoncus dolor. Nulla sodales eget dui in convallis. Nullam sollicitudin pellentesque molestie. Curabitur eget tellus non elit rutrum suscipit tincidunt dapibus justo.

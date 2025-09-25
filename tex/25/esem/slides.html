@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tim Menzies" />
+  <title>Industry can get any empirical research it wants</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="my.css" />
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title"><p>Industry can get any empirical<br />
+research it wants</p></h1>
+<p class="subtitle">(Publish open source data, and some example
+scripts.)</p>
+<p class="author">Tim Menzies</p>
+<p class="date">Oct3’25</p>
+</header>
+<h2 id="from-open-source-data-to-open-source-science">From Open Source
+Data to Open Source Science</h2>
+<p><strong>[Men07]:</strong> Data Mining Static Code Attributes to Learn
+Defect Predictors, TSE’07<br />
+<strong>[Men25]</strong> T. Menzies, “Retrospective: Data Mining Static
+Code Attributes, TSE’25</p>
+<p><strong>The Portland Context</strong></p>
+<ul>
+<li>Born from open source culture in Portland, Oregon</li>
+<li><em>“We wore no suite and tie in our photos. We did not comb our
+hair”</em></li>
+<li>Philosophy: <code>svn commit -m "share stuff"</code> will change SE
+research</li>
+<li>But unhappy with SOTA data mining in SE</li>
+<li><strong>Key Insight</strong>: Walking around Chicago’s Grant Park
+(2004)
+<ul>
+<li><strong>Tim Menzies</strong> and <strong>Jelber Sayyad</strong>
+lamented: <em>“Must do better… Why don’t we make conclusions
+reproducible?”</em></li>
+</ul></li>
+</ul>
+<p><strong>The Radical Idea</strong></p>
+<ul>
+<li>In 2025 hard to believe “reproducible SE” was radical</li>
+<li><strong>Lionel Briand</strong> (2006): <em>“no one will give you
+data”</em></li>
+<li>Yet we persisted…</li>
+</ul>
+<hr />
+<h2 id="really-what-have-you-done-since">2005? Really? What have you
+done since?</h2>
+<p></p>
+<hr />
+<h2 id="recent-work-ultra-low-cost-active-learning">Recent work:
+ultra-low cost active learning</h2>
+<p></p>
+<p><embed src="page.pdf" style="height:6.5cm" /></p>
+<hr />
+<h2 id="back-to-2005-birth-of-promise-project-early-success">Back to
+2005: Birth of PROMISE Project &amp; Early Success</h2>
+<p><strong>Two-Part Vision:</strong></p>
+<ol type="1">
+<li><p><strong>Annual conference</strong> on predictor models in SE (to
+share results)</p></li>
+<li><p><strong>Repository</strong> of 100s of SE datasets: defect
+prediction, effort estimation, Github issue close time, bad smell
+detection</p></li>
+</ol>
+<p><strong>Growth Trajectory:</strong></p>
+<ul>
+<li>Repository grew; moved to <strong>Large Hadron Collider</strong>
+(Seacraft, Zenodo)</li>
+<li>Research students ran weekly sprints scouring SE conferences</li>
+<li><strong>Gary Boetticher</strong>, <strong>Elaine Weyuker</strong>,
+<strong>Thomas Ostrand</strong>, <strong>Guenther Ruhe</strong> joined
+steering committee → prestige for growth</li>
+</ul>
+<p><strong>PROMISE vs MSR:</strong></p>
+<ul>
+<li><strong>MSR</strong>: Gathering initial datasets
+(<strong>Devanbu</strong> <strong>[Dev15]</strong>)</li>
+<li><strong>PROMISE</strong>: Post-collection analysis, data
+re-examination <strong>[Rob10]</strong></li>
+</ul>
+<p><strong>Early Results:</strong></p>
+<ul>
+<li>Other areas struggled with reproducibility, while we swam in
+data</li>
+<li>Papers applied tool sets to COC81, JM1, XALAN, DESHARNIS etc</li>
+<li>First decade: Numerous successful papers using consistent data
+re-examination</li>
+</ul>
+<hr />
+<h2 id="the-2007-papers-core-contribution">The 2007 Paper’s Core
+Contribution</h2>
+<p><strong>Research Question</strong>: Can data mining algorithms learn
+software defect predictors from static code attributes?</p>
+<p><strong>Why This Matters:</strong></p>
+<ul>
+<li><em>“Software quality assurance budgets are finite while assessment
+effectiveness increases exponentially with effort”</em>
+<strong>[Fu16]</strong></li>
+<li><em>“Software bugs are not evenly distributed across a project”</em>
+<strong>[Ham09]</strong>, <strong>[Ost04]</strong>,
+<strong>[Mis11]</strong></li>
+<li>Defect predictors suggest where to focus expensive methods</li>
+</ul>
+<p><strong>Counter-Arguments Addressed:</strong></p>
+<ol type="1">
+<li><em>“Specific metrics matter”</em> (1990s heated debates: McCabe vs
+Halstead)</li>
+<li><em>“Static code attributes do not matter”</em> (<strong>Fenton
+&amp; Pfleeger</strong>, <strong>Shepperd &amp; Ince</strong>)</li>
+</ol>
+<hr />
+<h2 id="menziess-1st-law-specific-metrics-do-not-matter">Menzies’s 1st
+Law: Specific metrics do not matter</h2>
+<h3
+id="st-law-specific-metrics-do-not-always-matter-in-all-data-sets.-rather-different-projects-have-different-best-metrics."><strong>1st
+Law: “Specific metrics do not always matter in all data sets. Rather,
+different projects have different best metrics.”</strong></h3>
+<p><strong>Supporting Evidence:</strong></p>
+<ul>
+<li>Feature pruning experiment on <strong>3 dozen metrics across 7
+datasets</strong></li>
+<li>Results: Pruning selected just <strong>2-3 attributes per
+dataset</strong></li>
+<li><strong>No single attribute</strong> selected by majority of
+datasets</li>
+<li>Different projects preferred different metrics (McCabe vs Halstead
+vs lines of code)</li>
+<li>Theoretical debates of 1990s (metric X vs metric Y) proven
+empirically unfounded</li>
+</ul>
+<hr />
+<h2 id="menziess-corollary">Menzies’s Corollary</h2>
+<h3 id="menziess-corollary-1"><strong>Menzies’s Corollary</strong>:</h3>
+<p><em>“To mine SE data, gather all that can be collected (cheaply) then
+apply data pruning to discard irrelevancies.”</em></p>
+<p><strong>Practical Impact:</strong></p>
+<ul>
+<li>Changed SE data mining methodology from “careful metric selection”
+to “gather everything, prune later”</li>
+</ul>
+<h2 id="menzies-2nd-law-party-time-in-metrics-town"><strong>Menzies 2nd
+Law</strong>: Party time in metrics town</h2>
+<h3
+id="nd-law-static-code-attributes-do-matter.-individually-they-may-be-weak-indicators.-but-when-combined-they-can-lead-to-strong-signals-that-outperform-the-state-of-the-art."><strong>2nd
+Law: “Static code attributes do matter. Individually, they may be weak
+indicators. But when combined, they can lead to strong signals that
+outperform the state-of-the-art.”</strong></h3>
+<p><strong>Support Evidence:</strong></p>
+<ul>
+<li><strong>Fenton &amp; Pfleeger</strong>: Same functionality,
+different constructs → different measurements</li>
+<li><strong>Shepperd &amp; Ince</strong>: Static measures often “no more
+than proxy for lines of code”</li>
+<li><strong>Our Response</strong>: Stress-tested these views by
+documenting baselines, then showing detectors from static attributes
+<strong>much better</strong> than baselines</li>
+<li><strong>Key Finding</strong>: Multi-attribute models outperformed
+single-attribute models<br></li>
+</ul>
+<p><strong>Key Quote</strong>: <em>“Paradoxically, this paper will be a
+success if it is quickly superseded.”</em></p>
+<hr />
+<h2 id="unprecedented-success-metrics">Unprecedented Success
+Metrics</h2>
+<p><strong>Citation Impact:</strong></p>
+<ul>
+<li><strong>2016</strong>: Most cited paper (per month) in software
+engineering</li>
+<li><strong>2018</strong>: 20% of Google Scholar Software Metrics IEEE
+TSE papers used PROMISE datasets <strong>[Men07]</strong></li>
+<li><strong>Current</strong>: 1924 citations (paper) + 1242 citations
+(repository)</li>
+</ul>
+<p><strong>Industrial Adoption:</strong></p>
+<ul>
+<li><strong>Wan et al.</strong> <strong>[Wan20]</strong>: 90%+ of 395
+commercial practitioners willing to adopt defect prediction</li>
+<li><strong>Misirli et al.</strong> <strong>[Mis11]</strong>: 87% defect
+prediction accuracy, 72% reduced inspection effort, 44% fewer
+post-release defects</li>
+<li><strong>Kim et al.</strong> <strong>[Kim15]</strong>: Samsung
+Electronics API development
+<ul>
+<li>0.68 F1 scores, reduced test case resources</li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="comparative-analysis-with-static-tools">Comparative Analysis
+with Static Tools</h2>
+<p><strong>Rahman et al.</strong> <strong>[Rah14]</strong>
+Comparison:</p>
+<ul>
+<li><strong>Static analysis tools</strong>: FindBugs, Jlint, PMD</li>
+<li><strong>Statistical defect prediction</strong>: Logistic regression
+models</li>
+<li><strong>Result</strong>: <em>“No significant differences in
+cost-effectiveness were observed”</em></li>
+</ul>
+<p><strong>Critical Advantage:</strong></p>
+<ul>
+<li>Defect prediction: Quick adaptation to new languages via lightweight
+parsers</li>
+<li>Static analyzers: Extensive modification required for new
+languages</li>
+<li><strong>Implication</strong>: Broader applicability across
+programming ecosystems</li>
+</ul>
+<hr />
+<h2 id="evolutionary-applications-2007-2025">Evolutionary Applications
+(2007-2025)</h2>
+<p><strong>Extended Applications:</strong></p>
+<ul>
+<li><strong>Security vulnerabilities</strong>
+<strong>[Shi13]</strong></li>
+<li><strong>Resource allocation</strong> for defect location
+<strong>[Bir21]</strong></li>
+<li><strong>Proactive defect fixing</strong> <strong>[Kam16]</strong>,
+<strong>[LeG12]</strong>, <strong>[Arc11]</strong></li>
+<li><strong>Change-level/just-in-time prediction</strong>
+<strong>[Yan19]</strong>, <strong>[Kam13]</strong>,
+<strong>[Nay18]</strong>, <strong>[Ros15]</strong></li>
+<li><strong>Transfer learning</strong> across projects
+<strong>[Kri19]</strong>, <strong>[Nam18]</strong></li>
+<li><strong>Hyperparameter optimization</strong>
+<strong>[Agr18]</strong>, <strong>[Che18]</strong>,
+<strong>[Fu17]</strong>, <strong>[Tan16]</strong></li>
+</ul>
+<p><strong>Research Evolution:</strong></p>
+<ul>
+<li>From binary classification to multi-objective optimization</li>
+<li>From release-level to line-level prediction (<strong>Pornprasit et
+al.</strong> <strong>[Por23]</strong> - TSE Best Paper 2023)</li>
+</ul>
+<hr />
+<h2 id="the-four-phases-of-repository-lifecycle">The Four Phases of
+Repository Lifecycle</h2>
+<h3 id="phase-evolution"><strong>Phase Evolution:</strong></h3>
+<ol type="1">
+<li><em>“Data? Good luck with that!”</em> - Resistance and
+skepticism</li>
+<li><em>“Okay, maybe it’s not completely useless.”</em> - Grudging
+acknowledgment<br />
+</li>
+<li><em>“This is the gold standard now.”</em> - Required baseline, field
+norms</li>
+<li><em>“A graveyard of progress.”</em> - Stifling creativity, outdated
+paradigms</li>
+</ol>
+<p><br />
+</p>
+<p><strong>The Problem:</strong></p>
+<ul>
+<li>Decade 2: Continued use of decades old data e.g. COC81 (1981),
+DESHARNIS (1988), JM1 (2004), XALAN (2010)</li>
+<li><strong>Editorial Policy Change</strong>: Automated Software
+Engineering journal now desk-rejects papers based on 2005 datasets</li>
+</ul>
+<hr />
+<h2 id="menziess-3rd-law-transfer-learning">Menzies’s 3rd Law &amp;
+Transfer Learning</h2>
+<h3
+id="rd-law-turkish-toasters-can-predict-for-errors-in-deep-space-satellites."><strong>3rd
+law: “Turkish toasters can predict for errors in deep space
+satellites.”</strong></h3>
+<p><strong>Supporting Evidence:</strong></p>
+<ul>
+<li><strong>Transfer learning research</strong>
+<strong>[Tur09]</strong>: Models from <strong>Turkish white
+goods</strong> successfully predicted errors in <strong>NASA
+systems</strong></li>
+<li>Expected: Complex multi-dimensional transforms mapping attributes
+across domains</li>
+<li><strong>Reality</strong>: Simple nearest neighboring between test
+and training data worked perfectly</li>
+<li><strong>Implication</strong>: <em>“Many distinctions made about
+software are spurious and need to be revisited”</em></li>
+</ul>
+<p><br />
+</p>
+<p><strong>Broader Transfer Learning Success:</strong></p>
+<ul>
+<li>Cross-domain prediction often works better than expected</li>
+<li>Suggests universal patterns in software defect manifestation</li>
+<li>Questions assumptions about domain-specific modeling
+requirements</li>
+</ul>
+<hr />
+<h2 id="menziess-4th-law-data-reduction">Menzies’s 4th Law &amp; Data
+Reduction</h2>
+<h3
+id="th-law-for-se-the-best-thing-to-do-with-most-data-is-to-throw-it-away."><strong>4th
+Law: “For SE, the best thing to do with most data is to throw it
+away.”</strong></h3>
+<p><strong>Supporting Evidence:</strong></p>
+<ul>
+<li><strong>Chen, Kocaguneli, Tu, Peters, and Xu et al.</strong>
+findings across multiple prediction tasks:
+<ul>
+<li><strong>Github issue close time</strong>: Ignored 80% of data labels
+<strong>[Che19]</strong></li>
+<li><strong>Effort estimation</strong>: Ignored 91% of data
+<strong>[Koc13]</strong></li>
+<li><strong>Defect prediction</strong>: Ignored 97% of data
+<strong>[Pet15]</strong></li>
+<li><strong>Some tasks</strong>: Ignored 98-100% of data
+<strong>[Che05]</strong></li>
+</ul></li>
+<li><strong>Startling result</strong>: Data sets with thousands of rows
+modeled with just <strong>few dozen samples</strong>
+<strong>[Men08]</strong></li>
+</ul>
+<p><br />
+</p>
+<p><strong>Theoretical Explanations:</strong></p>
+<ul>
+<li><strong>Power laws</strong> in software data
+<strong>[Lin15]</strong></li>
+<li><strong>Large repeated structures</strong> in SE projects
+<strong>[Hin12]</strong></li>
+<li><strong>Manifold assumption</strong> and
+<strong>Johnson-Lindenstrauss lemma</strong> <strong>[Zhu05]</strong>,
+<strong>[Joh84]</strong></li>
+</ul>
+<p><strong>Caveat</strong>: Applies to regression, classification,
+optimization</p>
+<ul>
+<li>generative tasks may still need massive data</li>
+</ul>
+<hr />
+<h2 id="menziess-5th-law-llm-reality-check">Menzies’s 5th Law &amp; LLM
+Reality Check</h2>
+<h3 id="th-law-bigger-is-not-necessarily-better."><strong>5th law:
+“Bigger is not necessarily better.”</strong></h3>
+<p><strong>Supporting Evidence - LLM Hype Analysis:</strong></p>
+<ul>
+<li><strong>Systematic review</strong> <strong>[Hou24]</strong>: 229 SE
+papers using Large Language Models</li>
+<li><strong>Critical finding</strong>: Only <strong>13/229 around
+5%</strong> compared LLMs to other approaches</li>
+<li><em>“Methodological error”</em> - other PROMISE-style methods often
+better/faster <strong>[Gri22]</strong>, <strong>[Som24]</strong>,
+<strong>[Taw23]</strong>, <strong>[Maj18]</strong></li>
+</ul>
+<p><br />
+</p>
+<p><strong>Trading Off Complexity:</strong></p>
+<ul>
+<li>Scalability vs. privacy vs. performance <strong>[Lin24]</strong>,
+<strong>[Fu17]</strong></li>
+<li>Often simpler methods provide better cost-effectiveness</li>
+<li><strong>Personal Pattern</strong>: <em>“Often, I switch to the
+simpler.”</em> <strong>[Agr21]</strong>, <strong>[Tan16]</strong>,
+<strong>[Fu16]</strong></li>
+</ul>
+<hr />
+<h2 id="menziess-6th-law-data-quality-paradox">Menzies’s 6th Law &amp;
+Data Quality Paradox</h2>
+<h3 id="th-law-data-quality-matters-less-than-you-think."><strong>6th
+Law: “Data quality matters less than you think.”</strong></h3>
+<p><strong>Supporting Research:</strong></p>
+<ul>
+<li><strong>Shepperd et al.</strong> <strong>[She13]</strong>: Found
+numerous PROMISE data quality issues
+<ul>
+<li>Repeated rows, illegal attributes, inconsistent formats</li>
+<li><strong>Critical gap</strong>: Never tested if quality issues
+decreased predictive power</li>
+</ul></li>
+</ul>
+<p><br />
+</p>
+<p><strong>Our Experiment:</strong></p>
+<ul>
+<li>Built <strong>mutators</strong> that injected increasing amounts of
+their quality issues into PROMISE defect datasets</li>
+<li><strong>Startling result</strong>: Performance curves remained
+<strong>flat</strong> despite increased quality problems</li>
+<li><strong>Implication</strong>: <em>“There is such a thing as too much
+care”</em> in data collection</li>
+</ul>
+<p><br />
+</p>
+<p><strong>Practical Impact:</strong></p>
+<ul>
+<li>Effective predictions possible from seemingly dirty data</li>
+<li>Questions excessive data cleaning efforts in SE research</li>
+<li>Balance needed: careful collection without over-engineering</li>
+</ul>
+<hr />
+<h2 id="menziess-7th-law-dumb-shtt-works">Menzies’s 7th Law: Dumb sht*t,
+works</h2>
+<h3 id="th-law-bad-learners-can-make-good-conclusions."><strong>7th Law:
+“Bad learners can make good conclusions.”</strong></h3>
+<p><strong>Supporting Evidence:</strong></p>
+<ul>
+<li><strong>Nair et al.</strong> <strong>[Nai17]</strong>: CART trees
+built for multi-objective optimization</li>
+<li><strong>Key finding</strong>: Models that <strong>predicted
+poorly</strong> could still <strong>rank solutions
+effectively</strong></li>
+<li>Could be used to prune poor configurations and find better ones</li>
+<li><strong>Implication</strong>: Algorithms shouldn’t aim for
+predictions but offer <strong>weak hints</strong> about project
+data</li>
+</ul>
+<hr />
+<h2
+id="application-of-bad-leaners-ultra-low-cost-active-learning">Application
+of bad leaners: ultra-low cost active learning</h2>
+<p></p>
+<p><embed src="page.pdf" style="height:80.0%" /></p>
+<hr />
+<h2 id="menziess-8th-law-mud-rules">Menzies’s 8th Law: Mud, rules</h2>
+<h3 id="th-law-science-has-mud-on-the-lens."><strong>8th Law: “Science
+has mud on the lens.”</strong></h3>
+<p><strong>Supporting Evidence:</strong></p>
+<ul>
+<li><strong>Hyperparameter optimization</strong> lessons
+<strong>[Agr21]</strong>, <strong>[Tan16]</strong>,
+<strong>[Fu16]</strong> on PROMISE data</li>
+<li>Data mining conclusions <strong>changeable in an afternoon</strong>
+by grad student with sufficient CPU</li>
+<li><strong>Critical Questions</strong>: Are all conclusions brittle?
+How build scientific community on such basis?</li>
+<li><strong>Where are stable conclusions</strong> for building
+tomorrow’s ideas?</li>
+</ul>
+<p><br />
+</p>
+<p><strong>?Bayesian Approach Needed</strong>: Address uncertainty
+quantification and robust foundations</p>
+<hr />
+<h2 id="menziess-9th-law-simplicity-challenge">Menzies’s 9th Law &amp;
+Simplicity Challenge</h2>
+<h3 id="th-law-many-hard-se-problems-arent."><strong>9th Law: “Many hard
+SE problems, aren’t.”</strong></h3>
+<p><strong>Supporting Philosophy:</strong></p>
+<ul>
+<li><strong>Cohen’s Straw Man Principle</strong>
+<strong>[Coh95]</strong>: <em>“Supposedly sophisticated methods should
+be benchmarked against seemingly stupider ones”</em></li>
+</ul>
+<p><strong>Personal Experience Pattern:</strong></p>
+<ul>
+<li><em>“Whenever I checked a supposedly sophisticated method against a
+simpler one, there was always something useful in the simpler”</em></li>
+<li><em>“Often, I switch to the simpler.”</em> <strong>[Agr21]</strong>,
+<strong>[Tan16]</strong>, <strong>[Fu16]</strong></li>
+</ul>
+<p><br />
+</p>
+<p><strong>Important Caveat:</strong></p>
+<ul>
+<li><strong>Not all SE problems can/should be simplified</strong>
+(safety-critical; generative);</li>
+<li><em>“Just because some tasks are hard, does not mean all tasks are
+hard”</em></li>
+</ul>
+<p><br />
+</p>
+<p><strong>Challenge to Community:</strong> <em>“Have we really checked
+what is really complex and what is really very simple?”</em></p>
+<p><strong>Current Focus</strong>: Minimal data approaches - landscape
+analysis <strong>[Che19]</strong>, <strong>[Lus24]</strong>, surrogate
+learning <strong>[Nai20]</strong>, active learning
+<strong>[Kra15]</strong>, <strong>[Yu18]</strong></p>
+<hr />
+<h2 id="contemporary-challenges-solutions">Contemporary Challenges &amp;
+Solutions</h2>
+<p><strong>PROMISE Revival Strategy</strong> (<strong>Gema
+Rodríguez-Pérez</strong>):</p>
+<ul>
+<li>Data sharing now expected for almost all SE papers</li>
+<li>PROMISE must differentiate: accept higher quality datasets</li>
+<li>Focus on enhancing current data space, conducting quality
+evaluations</li>
+</ul>
+<p><strong>Steffen Herbold’s</strong> Caution:</p>
+<ul>
+<li>Early PROMISE: Collections of metrics (not raw data)</li>
+<li>MSR shift: Raw data + fast tools (e.g., PyDriller, GHtorrent)</li>
+<li><strong>Risk</strong>: <em>“Little curation, little validation,
+often purely heuristic data collection without quality checks”</em>
+<strong>[Her22]</strong></li>
+</ul>
+<p><strong>Modern Data Access</strong>: 1100+ recent Github projects
+<strong>[Xia22]</strong>, CommitGuru <strong>[Ros15]</strong></p>
+<hr />
+<h2 id="current-hot-research-directions">Current “Hot” Research
+Directions</h2>
+<p><strong>Contemporary Approaches:</strong></p>
+<ul>
+<li><strong>DeepLineDP</strong> (<strong>Pornprasit et al.</strong>
+<strong>[Por23]</strong>): Deep learning for line-level defect
+prediction (TSE Best Paper 2023)</li>
+<li><strong>Model interpretability</strong>: Growing research focus
+<strong>[Tan21]</strong></li>
+<li><strong>Multi-objective optimization</strong>: Hyperparameter
+selection <strong>[Xia22]</strong>, unfairness reduction
+<strong>[Cha20]</strong>, <strong>[Alv23]</strong></li>
+</ul>
+<p><strong>Optimize CPU-Intensive Algorithms:</strong></p>
+<ul>
+<li>MaxWalkSat <strong>[Men09]</strong></li>
+<li>Simulated annealing <strong>[Men02]</strong>,
+<strong>[Men07]</strong><br />
+</li>
+<li>Genetic algorithms</li>
+</ul>
+<p><strong>Minimal Data Approaches:</strong></p>
+<ul>
+<li>How much can be achieved with as little data as possible?</li>
+<li>Suspicion of “large number of good quality labels” assumption</li>
+</ul>
+<hr />
+<h2 id="transfer-learning-surprises">Transfer Learning Surprises</h2>
+<p><strong>Cross-Domain Success</strong> <strong>[Tur09]</strong>:</p>
+<ul>
+<li><strong>Turkish white goods</strong> → <strong>NASA systems</strong>
+error prediction</li>
+<li>Expected: Complex multi-dimensional transforms</li>
+<li><strong>Reality</strong>: Simple nearest neighboring between test
+and training data</li>
+</ul>
+<p><strong>Implication</strong>: <em>“Many distinctions made about
+software are spurious and need to be revisited”</em></p>
+<p><strong>Power Laws &amp; Repeated Structures</strong>:</p>
+<ul>
+<li><strong>Lin &amp; Whitehead</strong> <strong>[Lin15]</strong>:
+Fine-grained code changes follow power laws</li>
+<li><strong>Hindle et al.</strong> <strong>[Hin12]</strong>: Software
+naturalness - large repeated structures</li>
+<li><strong>Result</strong>: Thousands of rows modeled with few dozen
+samples <strong>[Men08]</strong></li>
+</ul>
+<hr />
+<h2 id="key-takeaways-community-call-to-action">Key Takeaways &amp;
+Community Call-to-Action</h2>
+<p><strong>Lessons Learned:</strong></p>
+<ol type="1">
+<li><strong>Open science communities</strong> can be formed by
+publishing baseline + data + scripts</li>
+<li><strong>Reproducible research</strong> drives field advancement when
+embraced collectively</li>
+<li><strong>Simple solutions</strong> often outperform sophisticated
+ones</li>
+<li><strong>Data quality</strong> matters less than expected for
+predictive tasks</li>
+<li><strong>Transfer learning</strong> works across surprisingly diverse
+domains</li>
+</ol>
+<p><strong>Call-to-Action:</strong></p>
+<ul>
+<li><em>“Have we really checked what is really complex and what is
+really very simple?”</em></li>
+<li>Challenge assumptions about problem complexity</li>
+<li>Benchmark sophisticated methods against simpler alternatives</li>
+<li>Focus on stable, reproducible conclusions</li>
+</ul>
+<hr />
+<h2 id="references">References</h2>
+<p><strong>[Agr18]:</strong> A. Agrawal and T. Menzies, “Is better data
+better than better data miners?: On the benefits of tuning smote for
+defect prediction,” in <em>Proc. IST</em>, ACM, 2018,
+pp. 1050–1061.<br />
+<strong>[Agr21]:</strong> A. Agrawal <em>et al.</em>, “How to”DODGE”
+complex software analytics?” <em>IEEE Trans. Softw. Eng.</em>, vol. 47,
+no. 10, pp. 2182–2194, Oct. 2021.<br />
+<strong>[Alv23]:</strong> L. Alvarez and T. Menzies, “Don’t lie to me:
+Avoiding malicious explanations with STEALTH,” <em>IEEE Softw.</em>,
+vol. 40, no. 3, pp. 43–53, May/Jun. 2023.<br />
+<strong>[Cha20]:</strong> J. Chakraborty <em>et al.</em>, “Fairway: A
+way to build fair ML software,” in <em>Proc. FSE</em>, 2020,
+pp. 654–665.<br />
+<strong>[Che19]:</strong> J. Chen <em>et al.</em>, “‘Sampling’ as a
+baseline optimizer for search-based software engineering,” <em>IEEE
+Trans. Softw. Eng.</em>, vol. 45, no. 6, pp. 597–614, Jun. 2019.<br />
+<strong>[Coh95]:</strong> P. R. Cohen, <em>Empirical Methods for
+Artificial Intelligence</em>, Cambridge, MA: MIT Press, 1995.<br />
+<strong>[Dev15]:</strong> P. Devanbu, “Foreword,” in <em>Sharing Data
+and Models in Software Engineering</em>, T. Menzies <em>et al.</em>,
+Eds. San Mateo, CA: Morgan Kaufmann, 2015, pp. vii–viii.<br />
+<strong>[Fu16]:</strong> W. Fu, T. Menzies, and X. Shen, “Tuning for
+software analytics: Is it really necessary?” <em>Inform. Softw.
+Technol.</em>, vol. 76, pp. 135–146, 2016.</p>
+<hr />
+<h2 id="references-more">References (More)</h2>
+<p><strong>[Gon23]:</strong> J. M. Gonzalez-Barahona and G. Robles,
+“Revisiting the reproducibility of empirical software engineering
+studies based on data retrieved from development repositories,” <em>Inf.
+Softw. Technol.</em>, vol. 164, 2023, Art. no. 107318.<br />
+<strong>[Gri22]:</strong> L. Grinsztajn, E. Oyallon, and G. Varoquaux,
+“Why do tree-based models still outperform deep learning on typical
+tabular data?” in <em>Proc. NeurIPS</em>, 2022, pp. 507–520.<br />
+<strong>[Ham09]:</strong> M. Hamill and K. Goseva-Popstojanova, “Common
+trends in software fault and failure data,” <em>IEEE Trans. Softw.
+Eng.</em>, vol. 35, no. 4, pp. 484–496, Jul./Aug. 2009.<br />
+<strong>[Has08]:</strong> A. E. Hassan, “The road ahead for mining
+software repositories,” <em>Frontiers Softw. Maintenance</em>,
+pp. 48–57, 2008.<br />
+<strong>[Her22]:</strong> S. Herbold <em>et al.</em>, “Problems with SZZ
+and features: An empirical study of the state of practice of defect
+prediction data collection,” <em>Empirical Softw. Eng.</em>, vol. 27,
+no. 2, p. 42, 2022.<br />
+<strong>[Hou24]:</strong> X. Hou <em>et al.</em>, “Large language models
+for software engineering: A systematic literature review,” <em>ACM
+Trans. Softw. Eng. Methodol.</em>, vol. 33, no. 8, Dec. 2024.<br />
+<strong>[Kam13]:</strong> Y. Kamei <em>et al.</em>, “A large-scale
+empirical study of just-in-time quality assurance,” <em>IEEE Trans.
+Softw. Eng.</em>, vol. 39, no. 6, pp. 757–773, Jun. 2013.<br />
+<strong>[Kim15]:</strong> M. Kim <em>et al.</em>, “REMI: Defect
+prediction for efficient api testing,” in <em>Proc. FSE</em>, ACM, 2015,
+pp. 990–993.</p>
+<h2 id="references-yet-more">References (Yet More)</h2>
+<p><strong>[Kri19]:</strong> R. Krishna and T. Menzies, “Bellwethers: A
+baseline method for transfer learning,” <em>IEEE Trans. Softw.
+Eng.</em>, vol. 45, no. 11, pp. 1081–1105, Nov. 2019.<br />
+<strong>[Men07]:</strong> T. Menzies, J. Greenwald, and A. Frank, “Data
+mining static code attributes to learn defect predictors,” <em>IEEE
+Trans. Softw. Eng.</em>, vol. 33, no. 1, pp. 2–13, Jan. 2007.<br />
+<strong>[Men24]:</strong> T. Menzies, “A brief note, with thanks, on the
+contributions of guenther ruhe,” <em>Inf. Softw. Technol.</em>,
+vol. 173, 2024, Art. no. 107486.<br />
+<strong>[Men25]:</strong> T. Menzies, “Retrospective: Data Mining Static
+Code Attributes to Learn Defect Predictors,” <em>IEEE Trans. Softw.
+Eng.</em>, 2025.<br />
+<strong>[Mis11]:</strong> A. T. Misirli, A. Bener, and R. Kale,
+“AI-based software defect predictors: Applications and benefits in a
+case study,” <em>AI Mag.</em>, vol. 32, no. 2, pp. 57–68, 2011.<br />
+<strong>[Nai17]:</strong> V. Nair <em>et al.</em>, “Using bad learners
+to find good configurations,” in <em>Proc. 11th Joint Meeting FSE</em>,
+ACM, 2017, pp. 257–267.<br />
+<strong>[Nam18]:</strong> J. Nam <em>et al.</em>, “Heterogeneous defect
+prediction,” <em>IEEE Trans. Softw. Eng.</em>, vol. 44, no. 9,
+pp. 874–896, Sep. 2018.<br />
+<strong>[Ost04]:</strong> T. J. Ostrand, E. J. Weyuker, and R. M. Bell,
+“Where the bugs are,” <em>ACM SIGSOFT Softw. Eng. Notes</em>, vol. 29,
+no. 4, pp. 86–96, 2004.<br />
+<strong>[Por23]:</strong> C. Pornprasit and C. K. Tantithamthavorn,
+“DeepLineDP: Towards a deep learning approach for line-level defect
+prediction,” <em>IEEE Trans. Softw. Eng.</em>, vol. 49, no. 1,
+pp. 84–98, Jan. 2023.<br />
+<strong>[Rah14]:</strong> F. Rahman <em>et al.</em>, “Comparing static
+bug finders and statistical prediction,” in <em>Proc. ICSE</em>, ACM,
+2014, pp. 424–434.</p>
+<h2 id="references-last">References (Last)</h2>
+<p><strong>[Rob10]:</strong> G. Robles, “Replicating MSR: A study of the
+potential replicability of papers published in the mining software
+repositories proceedings,” in <em>7th IEEE Work. Conf. Mining Softw.
+Repositories (MSR)</em>, IEEE Press, 2010, pp. 171–180.<br />
+<strong>[Ros15]:</strong> C. Rosen, B. Grawi, and E. Shihab, “Commit
+guru: Analytics and risk prediction of software commits,” in <em>Proc.
+ESEC/FSE</em>, 2015, pp. 966–969.<br />
+<strong>[She13]:</strong> M. Shepperd <em>et al.</em>, “Data quality:
+Some comments on the NASA software defect datasets,” <em>IEEE Trans.
+Softw. Eng.</em>, vol. 39, no. 9, pp. 1208–1215, Sep. 2013.<br />
+<strong>[Shi13]:</strong> Y. Shin and L. Williams, “Can traditional
+fault prediction models be used for vulnerability prediction?”
+<em>Empirical Softw. Eng.</em>, vol. 18, pp. 25–59, 2013.<br />
+<strong>[Tan16]:</strong> C. Tantithamthavorn <em>et al.</em>,
+“Automated parameter optimization of classification techniques for
+defect prediction,” in <em>ICSE’16</em>, 2016, pp. 321–332.<br />
+<strong>[Tur09]:</strong> B. Turhan <em>et al.</em>, “On the relative
+value of cross-company and within-company data for defect prediction,”
+<em>Empirical Softw. Eng.</em>, vol. 14, pp. 540–578, Jan. 2009.<br />
+<strong>[Wan20]:</strong> Z. Wan <em>et al.</em>, “Perceptions,
+expectations, &amp; challenges in defect prediction,” <em>IEEE Trans.
+Softw. Eng.</em>, vol. 46, no. 11, pp. 1241–1266, Nov. 2020.<br />
+<strong>[Xia22]:</strong> T. Xia <em>et al.</em>, “Sequential model
+optimization for software effort estimation,” <em>IEEE Trans. Softw.
+Eng.</em>, vol. 48, no. 6, pp. 1994–2009, Jun. 2022.<br />
+<strong>[Yan19]:</strong> M. Yan <em>et al.</em>, “Automating
+change-level self-admitted technical debt determination,” <em>IEEE
+Trans. Softw. Eng.</em>, vol. 45, no. 12, pp. 1211–1229, Dec. 2019.</p>
+<hr />
+<h2 id="appendix-ais-commercial-bubble-bursting">Appendix: AI’s
+Commercial Bubble Bursting?</h2>
+<p><embed src="newai.pdf" style="height:100.0%" /></p>
+</body>
+</html>
