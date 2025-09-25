@@ -29,6 +29,7 @@ header-includes:
   - \setbeamertemplate{navigation symbols}{}
   - \hypersetup{colorlinks=true,urlcolor=linkblue}
   - \setbeamertemplate{footline}{\hspace{1em}\textcolor{linkblue}{\href{https://timm.fyi/esem25.pdf}{URL= timm.fyi/esem25.pdf}}\hfill\insertframenumber/\inserttotalframenumber\hspace{1em}\vspace{0.5em}}
+
 ---
 
 ## From Open Source Data to Open Source Science
