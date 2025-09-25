@@ -209,6 +209,8 @@ header-includes:
 3. *"This is the gold standard now."* - Required baseline, field norms
 4. *"A graveyard of progress."* - Stifling creativity, outdated paradigms
 
+\
+
 **The Problem:**
 
 - Decade 2: Continued use of decades old data e.g. COC81 (1981), DESHARNIS (1988), JM1 (2004), XALAN (2010)
@@ -226,6 +228,8 @@ header-includes:
 - Expected: Complex multi-dimensional transforms mapping attributes across domains
 - **Reality**: Simple nearest neighboring between test and training data worked perfectly
 - **Implication**: *"Many distinctions made about software are spurious and need to be revisited"*
+
+\
 
 **Broader Transfer Learning Success:**
 
@@ -248,7 +252,7 @@ header-includes:
   - **Some tasks**: Ignored 98-100% of data **[Che05]**
 - **Startling result**: Data sets with thousands of rows modeled with just **few dozen samples** **[Men08]**
 
-~\\
+\
 
 **Theoretical Explanations:**
 
@@ -273,16 +277,13 @@ header-includes:
 - **Critical finding**: Only **13/229 around 5%** compared LLMs to other approaches
 - *"Methodological error"* - other PROMISE-style methods often better/faster **[Gri22]**, **[Som24]**, **[Taw23]**, **[Maj18]**
 
-**Tree-based Models Superiority:**
-
-- **Grinsztajn et al.** **[Gri22]**: *"Why do tree-based models still outperform deep learning on typical tabular data?"*
-- **Johnson & Menzies** **[Joh24]**: *"AI over-hype: A dangerous threat (and how to fix it)"*
+\
 
 **Trading Off Complexity:**
 
 - Scalability vs. privacy vs. performance **[Lin24]**, **[Fu17]**
 - Often simpler methods provide better cost-effectiveness
-- **Personal Pattern**: *"Year later, I have switched to the simpler approach"* **[Agr21]**, **[Tan16]**, **[Fu16]**
+- **Personal Pattern**: *"Often, I switch to the simpler."* **[Agr21]**, **[Tan16]**, **[Fu16]**
 
 ---
 
@@ -296,11 +297,15 @@ header-includes:
   - Repeated rows, illegal attributes, inconsistent formats
   - **Critical gap**: Never tested if quality issues decreased predictive power
 
+\
+
 **Our Experiment:**
 
 - Built **mutators** that injected increasing amounts of their quality issues into PROMISE defect datasets
 - **Startling result**: Performance curves remained **flat** despite increased quality problems
 - **Implication**: *"There is such a thing as too much care"* in data collection
+
+\
 
 **Practical Impact:**
 
@@ -343,6 +348,8 @@ header-includes:
 - **Critical Questions**: Are all conclusions brittle? How build scientific community on such basis?
 - **Where are stable conclusions** for building tomorrow's ideas?
 
+\
+
 **?Bayesian Approach Needed**: Address uncertainty quantification and robust foundations
 
 ---
@@ -358,14 +365,16 @@ header-includes:
 **Personal Experience Pattern:**
 
 - *"Whenever I checked a supposedly sophisticated method against a simpler one, there was always something useful in the simpler"*
-- *"More often than not, a year later, I have switched to the simpler approach"* **[Agr21]**, **[Tan16]**, **[Fu16]**
+- *"Often, I switch to the simpler."* **[Agr21]**, **[Tan16]**, **[Fu16]**
+
+\
 
 **Important Caveat:**
 
-- **Not all SE problems can be simplified**
-- Generation tools probably need LLM complexities
-- Safety-critical software certification remains complex
+- **Not all SE problems can/should  be simplified** (safety-critical; generative);
 - *"Just because some tasks are hard, does not mean all tasks are hard"*
+
+\
 
 **Challenge to Community:**
 *"Have we really checked what is really complex and what is really very simple?"*
