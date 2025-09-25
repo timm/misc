@@ -11,7 +11,7 @@ institute: |
   http://timm.fyi
 date: Oct3'25
 slide-level: 2
-fontsize: 10pt
+fontsize: 9pt
 theme: Warsaw
 colortheme: default
 header-includes:
@@ -27,7 +27,6 @@ header-includes:
   - \setbeamercolor{palette primary}{bg=LogicBlue,fg=white}
   - \setbeamercolor{palette secondary}{bg=InferenceRed,fg=white}
   - \setbeamertemplate{navigation symbols}{}
-  - \linespread{0.9}
   - \hypersetup{colorlinks=true,urlcolor=linkblue}
   - \setbeamertemplate{footline}{\hspace{1em}\textcolor{linkblue}{\href{https://timm.fyi/esem25.pdf}{URL= timm.fyi/esem25.pdf}}\hfill\insertframenumber/\inserttotalframenumber\hspace{1em}\vspace{0.5em}}
 ---
