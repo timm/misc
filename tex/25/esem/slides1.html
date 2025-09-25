@@ -4,8 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="author" content="Tim Menzies" />
-  <title>Industry can get any empirical research it wants</title>
+  <title>-</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -26,13 +25,22 @@
   <link rel="stylesheet" href="my.css" />
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">Industry can get any empirical research it wants</h1>
-<p class="subtitle">(Publish open source data, and some example
-scripts.)</p>
-<p class="author">Tim Menzies</p>
-</header>
+<p>title: Industry can get any empirical research it wants title:
+Industry can get any empirical research it wants subtitle: (Publish open
+source data, and some example scripts.) subtitle: (Publish open source
+data, and some example scripts.) author: Tim Menzies author: Tim Menzies
+institute: | institute: | prof, cs, ncstate, usa<br />
+prof, cs, ncstate, usa<br />
+acm-ieee-ase fellow; eic ASEj<br />
+acm-ieee-ase fellow; eic ASEj<br />
+timm@ieee.org<br />
+timm@ieee.org<br />
+http://timm.fyi<br />
+http://timm.fyi<br />
+Oct3’25 Oct3’25 — —</p>
 <h2 id="from-open-source-data-to-open-source-science">From Open Source
+Data to Open Source Science</h2>
+<h2 id="from-open-source-data-to-open-source-science-1">From Open Source
 Data to Open Source Science</h2>
 <p>iLorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
 tristique maximus justo eget accumsan. Vivamus vestibulum, ipsum sed
@@ -45,35 +53,62 @@ efficitur leo. Donec ullamcorper pellentesque sagittis. Duis posuere
 posuere fermentum. Nam ultrices consequat est, eu lobortis dui bibendum
 eu. Interdum et malesuada fames ac ante ipsum primis in faucibus.
 Integer tincidunt diam at nibh feugiat pellentesque. Aliquam porta porta
-mauris et blandit. Nunc at elit ipsum.</p>
+mauris et blandit. Nunc at elit ipsum. iLorem ipsum dolor sit amet,
+consectetur adipiscing elit. Vivamus tristique maximus justo eget
+accumsan. Vivamus vestibulum, ipsum sed volutpat tempor, diam velit
+consequat risus, vel pulvinar lorem neque sed massa. Morbi sed mi
+malesuada, convallis enim eu, pretium leo. Vivamus turpis massa, viverra
+non blandit vel, luctus non metus. In dapibus dignissim ante, eget
+posuere mauris scelerisque eu. Aenean at tortor felis. Integer dolor
+diam, pellentesque nec neque eu, condimentum efficitur leo. Donec
+ullamcorper pellentesque sagittis. Duis posuere posuere fermentum. Nam
+ultrices consequat est, eu lobortis dui bibendum eu. Interdum et
+malesuada fames ac ante ipsum primis in faucibus. Integer tincidunt diam
+at nibh feugiat pellentesque. Aliquam porta porta mauris et blandit.
+Nunc at elit ipsum.</p>
 <pre><code>
-<span style="color:green">def</span> coerce(s:str) ->gt; Atom:
-  "coerce a string to int, float, bool, or trimmed string"
-  <span style="color:red">for</span> fn in [int,float]:
-    try: <span style="color:red">return</span> fn(s)
-    except Exception <span style="color:green">as</span> _: <span style="color:red">pass</span>
+<span style=<span style="color:darkorange">"color:seagreen"</span>><span style="color:green">def</span></span> coerce(s:str) -&gt; Atom:
+  <span style=<span style="color:darkorange">"color:orange"</span>><span style="color:darkorange">"coerce a string to int, float, bool, or trimmed string"</span></span>
+  <span style=<span style="color:darkorange">"color:steelblue"</span>><span style=<span style="color:darkorange">"color:red"</span>>for</span></span> fn in [int,float]:
+    <span style=<span style="color:darkorange">"color:steelblue"</span>>try</span>: <span style=<span style="color:darkorange">"color:steelblue"</span>><span style=<span style="color:darkorange">"color:red"</span>>return</span></span> fn(s)
+    <span style=<span style="color:darkorange">"color:steelblue"</span>>except</span> Exception <span style=<span style="color:darkorange">"color:seagreen"</span>><span style="color:green">as</span></span> _: <span style=<span style="color:darkorange">"color:steelblue"</span>><span style=<span style="color:darkorange">"color:red"</span>>pass</span></span>
   s = s.strip()
-  <span style="color:red">return</span> {'<span style="color:magenta">True</span>':<span style="color:magenta">True</span>,'<span style="color:magenta">False</span>':<span style="color:magenta">False</span>}.get(s,s)
+  <span style=<span style="color:darkorange">"color:steelblue"</span>><span style=<span style="color:darkorange">"color:red"</span>>return</span></span> {<span style="color:darkorange">'<span style="color:mediumpurple"><span style="color:magenta">True</span></span>'</span>:<span style=<span style="color:darkorange">"color:mediumpurple"</span>><span style=<span style="color:darkorange">"color:magenta"</span>>True</span></span>,<span style="color:darkorange">'<span style="color:mediumpurple"><span style="color:magenta">False</span></span>'</span>:<span style=<span style="color:darkorange">"color:mediumpurple"</span>><span style=<span style="color:darkorange">"color:magenta"</span>>False</span></span>}.get(s,s)
 
-<span style="color:green">def</span> csv(file: str ) ->gt; Iterator[Row]:
-  "Returns rows of a csv file."
-  <span style="color:blue">with</span> <span style="color:blue">open</span>(file,encoding="utf-8") <span style="color:green">as</span> f:
-    <span style="color:red">for</span> line in f:
-      <span style="color:red">if</span> (line := line.split("%")[0]):
-        <span style="color:red">yield</span> [coerce(s) <span style="color:red">for</span> s in line.split(",")]
+<span style=<span style="color:darkorange">"color:seagreen"</span>><span style="color:green">def</span></span> csv(file: str ) -&gt; Iterator[Row]:
+  <span style=<span style="color:darkorange">"color:orange"</span>><span style="color:darkorange">"Returns rows of a csv file."</span></span>
+  <span style=<span style="color:darkorange">"color:seagreen"</span>><span style="color:blue">with</span></span> <span style=<span style="color:darkorange">"color:firebrick"</span>><span style="color:blue">open</span></span>(file,encoding=<span style=<span style="color:darkorange">"color:orange"</span>><span style="color:darkorange">"utf-8"</span></span>) <span style=<span style="color:darkorange">"color:seagreen"</span>><span style="color:green">as</span></span> f:
+    <span style=<span style="color:darkorange">"color:steelblue"</span>><span style=<span style="color:darkorange">"color:red"</span>>for</span></span> line in f:
+      <span style=<span style="color:darkorange">"color:steelblue"</span>><span style=<span style="color:darkorange">"color:red"</span>>if</span></span> (line := line.split(<span style=<span style="color:darkorange">"color:orange"</span>><span style="color:darkorange">"%"</span></span>)[0]):
+        <span style=<span style="color:darkorange">"color:steelblue"</span>><span style=<span style="color:darkorange">"color:red"</span>>yield</span></span> [coerce(s) <span style=<span style="color:darkorange">"color:steelblue"</span>><span style=<span style="color:darkorange">"color:red"</span>>for</span></span> s in line.split(<span style=<span style="color:darkorange">"color:orange"</span>><span style="color:darkorange">","</span></span>)]
 </code></pre>
 <p>Quisque pellentesque rhoncus magna, sit amet ullamcorper orci rutrum
 in. Integer eget dictum nisi. Mauris vitae odio porta, condimentum nulla
 ut, molestie justo. Sed ut sapien fringilla, molestie ex at, rhoncus
 dolor. Nulla sodales eget dui in convallis. Nullam sollicitudin
 pellentesque molestie. Curabitur eget tellus non elit rutrum suscipit
-tincidunt dapibus justo.</p>
+tincidunt dapibus justo. Quisque pellentesque rhoncus magna, sit amet
+ullamcorper orci rutrum in. Integer eget dictum nisi. Mauris vitae odio
+porta, condimentum nulla ut, molestie justo. Sed ut sapien fringilla,
+molestie ex at, rhoncus dolor. Nulla sodales eget dui in convallis.
+Nullam sollicitudin pellentesque molestie. Curabitur eget tellus non
+elit rutrum suscipit tincidunt dapibus justo.</p>
 <p>In hac habitasse platea dictumst. Sed augue ligula, tincidunt lacinia
 quam non, ullamcorper commodo eros. Mauris nec rhoncus nunc. Duis vel
 leo id nibh luctus euismod. Cras at efficitur ipsum, sed lacinia turpis.
 Morbi non tempus tortor. Morbi pharetra vitae mauris id porta. Duis
 interdum magna ante, sagittis commodo ex auctor nec. Nulla facilisi.
 Interdum et malesuada fames ac ante ipsum primis in faucibus.
+Pellentesque convallis urna eget orci molestie, ullamcorper maximus
+lacus ullamcorper. Nulla tincidunt, leo tincidunt dignissim iaculis,
+odio neque porttitor dui, eget egestas neque nisl vitae diam. Sed
+venenatis lacus magna, quis porta ipsum iaculis sed. Vivamus non aliquet
+justo. In hac habitasse platea dictumst. Sed augue ligula, tincidunt
+lacinia quam non, ullamcorper commodo eros. Mauris nec rhoncus nunc.
+Duis vel leo id nibh luctus euismod. Cras at efficitur ipsum, sed
+lacinia turpis. Morbi non tempus tortor. Morbi pharetra vitae mauris id
+porta. Duis interdum magna ante, sagittis commodo ex auctor nec. Nulla
+facilisi. Interdum et malesuada fames ac ante ipsum primis in faucibus.
 Pellentesque convallis urna eget orci molestie, ullamcorper maximus
 lacus ullamcorper. Nulla tincidunt, leo tincidunt dignissim iaculis,
 odio neque porttitor dui, eget egestas neque nisl vitae diam. Sed
@@ -89,10 +124,29 @@ sagittis congue. Donec ac velit pretium, mattis nulla posuere, dictum
 lectus. Sed viverra ultrices fermentum. Maecenas libero lacus, aliquam
 quis blandit vulputate, dictum rhoncus purus. Donec quis nulla quis sem
 molestie interdum at a turpis. Nulla posuere euismod elit. Mauris sed
-elit eget purus dapibus laoreet a at augue.</p>
+elit eget purus dapibus laoreet a at augue. Sed finibus tellus nec
+egestas molestie. Maecenas aliquam dictum mi, non hendrerit eros aliquam
+nec. Sed pharetra odio tincidunt quam sollicitudin, posuere dapibus urna
+pharetra. Duis vulputate non quam eget dapibus. Sed venenatis, quam eget
+tincidunt finibus, eros magna iaculis elit, at dictum purus diam et
+purus. Sed sed enim ligula. Pellentesque sed porta nisl. Maecenas
+fermentum risus vitae ante sagittis congue. Donec ac velit pretium,
+mattis nulla posuere, dictum lectus. Sed viverra ultrices fermentum.
+Maecenas libero lacus, aliquam quis blandit vulputate, dictum rhoncus
+purus. Donec quis nulla quis sem molestie interdum at a turpis. Nulla
+posuere euismod elit. Mauris sed elit eget purus dapibus laoreet a at
+augue.</p>
 <p>Donec a dictum sem. Donec elementum in nunc in elementum. Duis ac ex
 sollicitudin, ultrices risus eu, finibus lorem. Vestibulum nec libero id
 neque lobortis pellentesque. Maecenas at felis neque. Proin consectetur
+laoreet enim. Etiam a ante nibh. Aliquam volutpat odio nec elit varius
+luctus. Nullam tincidunt blandit purus, et viverra est pharetra ut.
+Pellentesque iaculis velit sed ante hendrerit, quis efficitur ligula
+tristique. Pellentesque tempor, eros convallis pretium dictum, tortor
+diam vulputate nunc, sed semper nisi ipsum vel dolor. Donec a dictum
+sem. Donec elementum in nunc in elementum. Duis ac ex sollicitudin,
+ultrices risus eu, finibus lorem. Vestibulum nec libero id neque
+lobortis pellentesque. Maecenas at felis neque. Proin consectetur
 laoreet enim. Etiam a ante nibh. Aliquam volutpat odio nec elit varius
 luctus. Nullam tincidunt blandit purus, et viverra est pharetra ut.
 Pellentesque iaculis velit sed ante hendrerit, quis efficitur ligula
@@ -109,7 +163,19 @@ orci sollicitudin elementum at a ante. In tellus nunc, commodo nec nisi
 ut, tempus ultrices ipsum. Duis non eleifend enim. Duis vulputate varius
 nunc, ut hendrerit lectus vulputate blandit. Fusce vitae eros nec lorem
 sagittis pulvinar. Curabitur nec risus quis lectus auctor dignissim.
-Cras a lacus elementum, gravida tellus ut, mattis nisl.</p>
+Cras a lacus elementum, gravida tellus ut, mattis nisl. Mauris rhoncus
+nibh nibh, vitae convallis orci auctor id. Morbi lorem turpis, cursus et
+mauris sed, dapibus varius massa. Pellentesque habitant morbi tristique
+senectus et netus et malesuada fames ac turpis egestas. Fusce rutrum
+luctus leo, tincidunt feugiat lorem imperdiet a. Nunc at nibh et augue
+vehicula varius nec feugiat augue. Nunc accumsan purus sit amet nisl
+aliquam, id fringilla lectus tempus. Curabitur eu est a justo feugiat
+facilisis at non erat. Cras aliquet tortor tincidunt orci sollicitudin
+elementum at a ante. In tellus nunc, commodo nec nisi ut, tempus
+ultrices ipsum. Duis non eleifend enim. Duis vulputate varius nunc, ut
+hendrerit lectus vulputate blandit. Fusce vitae eros nec lorem sagittis
+pulvinar. Curabitur nec risus quis lectus auctor dignissim. Cras a lacus
+elementum, gravida tellus ut, mattis nisl.</p>
 <p>Proin non feugiat ligula. Praesent at sagittis magna. Proin eleifend
 ut quam vitae mollis. Cras fringilla diam nec felis gravida condimentum.
 Ut porta libero suscipit, sollicitudin ipsum lacinia, imperdiet mi.
@@ -117,7 +183,15 @@ Pellentesque habitant morbi tristique senectus et netus et malesuada
 fames ac turpis egestas. Curabitur tincidunt et nisl nec mollis. Cras
 scelerisque aliquam metus. Quisque blandit convallis arcu in maximus.
 Praesent metus libero, ultrices id eros egestas, ultricies porta ipsum.
-Duis tempus sagittis velit, nec venenatis felis porta quis.</p>
+Duis tempus sagittis velit, nec venenatis felis porta quis. Proin non
+feugiat ligula. Praesent at sagittis magna. Proin eleifend ut quam vitae
+mollis. Cras fringilla diam nec felis gravida condimentum. Ut porta
+libero suscipit, sollicitudin ipsum lacinia, imperdiet mi. Pellentesque
+habitant morbi tristique senectus et netus et malesuada fames ac turpis
+egestas. Curabitur tincidunt et nisl nec mollis. Cras scelerisque
+aliquam metus. Quisque blandit convallis arcu in maximus. Praesent metus
+libero, ultrices id eros egestas, ultricies porta ipsum. Duis tempus
+sagittis velit, nec venenatis felis porta quis.</p>
 <p>Quisque commodo, augue vel scelerisque efficitur, felis odio
 porttitor massa, id luctus lacus nibh nec mauris. Vivamus consequat et
 arcu eget efficitur. Pellentesque lacus libero, lacinia eget vehicula
@@ -129,7 +203,19 @@ sapien. Ut aliquam purus tellus, pellentesque consequat arcu vestibulum
 vitae. Nullam quis mauris vitae sapien viverra dapibus non at mi. Nam
 dapibus ante ac erat vulputate consequat aliquet sit amet massa. Donec
 rhoncus augue luctus efficitur porttitor. Etiam a ante quam. Integer sit
-amet tellus elit. Cras imperdiet ullamcorper ipsum, a sodales lorem.</p>
+amet tellus elit. Cras imperdiet ullamcorper ipsum, a sodales lorem.
+Quisque commodo, augue vel scelerisque efficitur, felis odio porttitor
+massa, id luctus lacus nibh nec mauris. Vivamus consequat et arcu eget
+efficitur. Pellentesque lacus libero, lacinia eget vehicula sit amet,
+gravida a ipsum. Vivamus a sapien congue, aliquet est ut, molestie odio.
+Praesent nec tincidunt massa, eget cursus arcu. Suspendisse eu nulla id
+ex sollicitudin consequat eget eget sem. Curabitur ligula est, placerat
+vitae felis a, consectetur fringilla sapien. Ut aliquam purus tellus,
+pellentesque consequat arcu vestibulum vitae. Nullam quis mauris vitae
+sapien viverra dapibus non at mi. Nam dapibus ante ac erat vulputate
+consequat aliquet sit amet massa. Donec rhoncus augue luctus efficitur
+porttitor. Etiam a ante quam. Integer sit amet tellus elit. Cras
+imperdiet ullamcorper ipsum, a sodales lorem.</p>
 <p>Aenean volutpat enim id lectus tempus auctor. Donec auctor
 condimentum rhoncus. Donec eu finibus ex. Vestibulum pellentesque ligula
 a nunc bibendum, sed egestas turpis venenatis. Nam ornare lobortis eros,
@@ -141,592 +227,1028 @@ nulla in libero sagittis sagittis. Maecenas luctus ornare orci ut
 scelerisque. Mauris justo nulla, lacinia sit amet aliquet quis,
 tincidunt eget turpis. Donec lacinia, mauris et imperdiet venenatis,
 ipsum ante accumsan ligula, ac pellentesque erat tellus non neque. In
-pulvinar lacus nunc, id ultricies orci ornare eu.</p>
+pulvinar lacus nunc, id ultricies orci ornare eu. Aenean volutpat enim
+id lectus tempus auctor. Donec auctor condimentum rhoncus. Donec eu
+finibus ex. Vestibulum pellentesque ligula a nunc bibendum, sed egestas
+turpis venenatis. Nam ornare lobortis eros, ut gravida mauris
+pellentesque at. Duis ut quam varius, rutrum erat sed, fringilla nisi.
+Vivamus nec sollicitudin justo. Vivamus sapien purus, semper quis cursus
+ut, tincidunt et turpis. Vestibulum auctor nulla sed quam volutpat
+aliquam. Suspendisse porta vestibulum sollicitudin. In nec nulla in
+libero sagittis sagittis. Maecenas luctus ornare orci ut scelerisque.
+Mauris justo nulla, lacinia sit amet aliquet quis, tincidunt eget
+turpis. Donec lacinia, mauris et imperdiet venenatis, ipsum ante
+accumsan ligula, ac pellentesque erat tellus non neque. In pulvinar
+lacus nunc, id ultricies orci ornare eu.</p>
 <p>Sed at cursus tortor, eu mattis massa. Vestibulum vestibulum suscipit
 ultricies. Nullam ullamcorper ultricies felis, nec finibus arcu. Cras
 quis elit dolor. Proin varius augue at rutrum lacinia. Nunc luctus
 eleifend consequat. Nulla tempus tempus dolor, in laoreet dui facilisis
-non. Curabitur elementum consequat nunc a maximus.</p>
+non. Curabitur elementum consequat nunc a maximus. Sed at cursus tortor,
+eu mattis massa. Vestibulum vestibulum suscipit ultricies. Nullam
+ullamcorper ultricies felis, nec finibus arcu. Cras quis elit dolor.
+Proin varius augue at rutrum lacinia. Nunc luctus eleifend consequat.
+Nulla tempus tempus dolor, in laoreet dui facilisis non. Curabitur
+elementum consequat nunc a maximus.</p>
 <p><strong>[Men07]:</strong> Data Mining Static Code Attributes to Learn
 Defect Predictors, TSE’07<br />
+<strong>[Men07]:</strong> Data Mining Static Code Attributes to Learn
+Defect Predictors, TSE’07<br />
 <strong>[Men25]</strong> T. Menzies, “Retrospective: Data Mining Static
-Code Attributes, TSE’25</p>
-<p><strong>The Portland Context</strong></p>
+Code Attributes, TSE’25 <strong>[Men25]</strong> T.
+Menzies,”Retrospective: Data Mining Static Code Attributes, TSE’25</p>
+<p><strong>The Portland Context</strong> <strong>The Portland
+Context</strong></p>
 <ul class="incremental">
 <li>Born from open source culture in Portland, Oregon</li>
+<li>Born from open source culture in Portland, Oregon</li>
+<li><em>“We wore no suite and tie in our photos. We did not comb our
+hair”</em></li>
 <li><em>“We wore no suite and tie in our photos. We did not comb our
 hair”</em></li>
 <li>Philosophy: <code>svn commit -m "share stuff"</code> will change SE
 research</li>
+<li>Philosophy: <code>svn commit -m "share stuff"</code> will change SE
+research</li>
 <li>But unhappy with SOTA data mining in SE</li>
+<li>But unhappy with SOTA data mining in SE</li>
+<li><strong>Key Insight</strong>: Walking around Chicago’s Grant Park
+(2004)</li>
 <li><strong>Key Insight</strong>: Walking around Chicago’s Grant Park
 (2004)
 <ul class="incremental">
 <li><strong>Tim Menzies</strong> and <strong>Jelber Sayyad</strong>
 lamented: <em>“Must do better… Why don’t we make conclusions
 reproducible?”</em></li>
+<li><strong>Tim Menzies</strong> and <strong>Jelber Sayyad</strong>
+lamented: <em>“Must do better… Why don’t we make conclusions
+reproducible?”</em></li>
 </ul></li>
 </ul>
-<p><strong>The Radical Idea</strong></p>
+<p><strong>The Radical Idea</strong> <strong>The Radical
+Idea</strong></p>
 <ul class="incremental">
+<li>In 2025 hard to believe “reproducible SE” was radical</li>
 <li>In 2025 hard to believe “reproducible SE” was radical</li>
 <li><strong>Lionel Briand</strong> (2006): <em>“no one will give you
 data”</em></li>
+<li><strong>Lionel Briand</strong> (2006): <em>“no one will give you
+data”</em></li>
+<li>Yet we persisted…</li>
 <li>Yet we persisted…</li>
 </ul>
-<hr />
 <h2 id="really-what-have-you-done-since">2005? Really? What have you
 done since?</h2>
-<p></p>
-<hr />
+<h2 id="really-what-have-you-done-since-1">2005? Really? What have you
+done since?</h2>
+<p> </p>
 <h2 id="recent-work-ultra-low-cost-active-learning">Recent work:
 ultra-low cost active learning</h2>
-<p></p>
-<p><embed src="page.pdf" style="height:6.5cm" /></p>
-<hr />
+<h2 id="recent-work-ultra-low-cost-active-learning-1">Recent work:
+ultra-low cost active learning</h2>
+<p> </p>
+<p><embed src="page.pdf" style="height:6.5cm" /> <embed src="page.pdf"
+style="height:6.5cm" /></p>
 <h2 id="back-to-2005-birth-of-promise-project-early-success">Back to
 2005: Birth of PROMISE Project &amp; Early Success</h2>
-<p><strong>Two-Part Vision:</strong></p>
+<h2 id="back-to-2005-birth-of-promise-project-early-success-1">Back to
+2005: Birth of PROMISE Project &amp; Early Success</h2>
+<p><strong>Two-Part Vision:</strong> <strong>Two-Part
+Vision:</strong></p>
 <ol class="incremental" type="1">
+<li><p><strong>Annual conference</strong> on predictor models in SE (to
+share results)</p></li>
 <li><p><strong>Annual conference</strong> on predictor models in SE (to
 share results)</p></li>
 <li><p><strong>Repository</strong> of 100s of SE datasets: defect
 prediction, effort estimation, Github issue close time, bad smell
 detection</p></li>
+<li><p><strong>Repository</strong> of 100s of SE datasets: defect
+prediction, effort estimation, Github issue close time, bad smell
+detection</p></li>
 </ol>
-<p><strong>Growth Trajectory:</strong></p>
+<p><strong>Growth Trajectory:</strong> <strong>Growth
+Trajectory:</strong></p>
 <ul class="incremental">
 <li>Repository grew; moved to <strong>Large Hadron Collider</strong>
 (Seacraft, Zenodo)</li>
+<li>Repository grew; moved to <strong>Large Hadron Collider</strong>
+(Seacraft, Zenodo)</li>
+<li>Research students ran weekly sprints scouring SE conferences</li>
 <li>Research students ran weekly sprints scouring SE conferences</li>
 <li><strong>Gary Boetticher</strong>, <strong>Elaine Weyuker</strong>,
 <strong>Thomas Ostrand</strong>, <strong>Guenther Ruhe</strong> joined
 steering committee → prestige for growth</li>
+<li><strong>Gary Boetticher</strong>, <strong>Elaine Weyuker</strong>,
+<strong>Thomas Ostrand</strong>, <strong>Guenther Ruhe</strong> joined
+steering committee → prestige for growth</li>
 </ul>
-<p><strong>PROMISE vs MSR:</strong></p>
+<p><strong>PROMISE vs MSR:</strong> <strong>PROMISE vs MSR:</strong></p>
 <ul class="incremental">
+<li><strong>MSR</strong>: Gathering initial datasets
+(<strong>Devanbu</strong> <strong>[Dev15]</strong>)</li>
 <li><strong>MSR</strong>: Gathering initial datasets
 (<strong>Devanbu</strong> <strong>[Dev15]</strong>)</li>
 <li><strong>PROMISE</strong>: Post-collection analysis, data
 re-examination <strong>[Rob10]</strong></li>
+<li><strong>PROMISE</strong>: Post-collection analysis, data
+re-examination <strong>[Rob10]</strong></li>
 </ul>
-<p><strong>Early Results:</strong></p>
+<p><strong>Early Results:</strong> <strong>Early Results:</strong></p>
 <ul class="incremental">
 <li>Other areas struggled with reproducibility, while we swam in
 data</li>
+<li>Other areas struggled with reproducibility, while we swam in
+data</li>
+<li>Papers applied tool sets to COC81, JM1, XALAN, DESHARNIS etc</li>
 <li>Papers applied tool sets to COC81, JM1, XALAN, DESHARNIS etc</li>
 <li>First decade: Numerous successful papers using consistent data
 re-examination</li>
+<li>First decade: Numerous successful papers using consistent data
+re-examination</li>
 </ul>
-<hr />
 <h2 id="the-2007-papers-core-contribution">The 2007 Paper’s Core
 Contribution</h2>
+<h2 id="the-2007-papers-core-contribution-1">The 2007 Paper’s Core
+Contribution</h2>
 <p><strong>Research Question</strong>: Can data mining algorithms learn
-software defect predictors from static code attributes?</p>
-<p><strong>Why This Matters:</strong></p>
+software defect predictors from static code attributes? <strong>Research
+Question</strong>: Can data mining algorithms learn software defect
+predictors from static code attributes?</p>
+<p><strong>Why This Matters:</strong> <strong>Why This
+Matters:</strong></p>
 <ul class="incremental">
+<li><em>“Software quality assurance budgets are finite while assessment
+effectiveness increases exponentially with effort”</em>
+<strong>[Fu16]</strong></li>
 <li><em>“Software quality assurance budgets are finite while assessment
 effectiveness increases exponentially with effort”</em>
 <strong>[Fu16]</strong></li>
 <li><em>“Software bugs are not evenly distributed across a project”</em>
 <strong>[Ham09]</strong>, <strong>[Ost04]</strong>,
 <strong>[Mis11]</strong></li>
+<li><em>“Software bugs are not evenly distributed across a project”</em>
+<strong>[Ham09]</strong>, <strong>[Ost04]</strong>,
+<strong>[Mis11]</strong></li>
+<li>Defect predictors suggest where to focus expensive methods</li>
 <li>Defect predictors suggest where to focus expensive methods</li>
 </ul>
-<p><strong>Counter-Arguments Addressed:</strong></p>
+<p><strong>Counter-Arguments Addressed:</strong>
+<strong>Counter-Arguments Addressed:</strong></p>
 <ol class="incremental" type="1">
+<li><em>“Specific metrics matter”</em> (1990s heated debates: McCabe vs
+Halstead)</li>
 <li><em>“Specific metrics matter”</em> (1990s heated debates: McCabe vs
 Halstead)</li>
 <li><em>“Static code attributes do not matter”</em> (<strong>Fenton
 &amp; Pfleeger</strong>, <strong>Shepperd &amp; Ince</strong>)</li>
+<li><em>“Static code attributes do not matter”</em> (<strong>Fenton
+&amp; Pfleeger</strong>, <strong>Shepperd &amp; Ince</strong>)</li>
 </ol>
-<hr />
 <h2 id="menziess-1st-law-specific-metrics-do-not-matter">Menzies’s 1st
+Law: Specific metrics do not matter</h2>
+<h2 id="menziess-1st-law-specific-metrics-do-not-matter-1">Menzies’s 1st
 Law: Specific metrics do not matter</h2>
 <h3
 id="st-law-specific-metrics-do-not-always-matter-in-all-data-sets.-rather-different-projects-have-different-best-metrics."><strong>1st
 Law: “Specific metrics do not always matter in all data sets. Rather,
 different projects have different best metrics.”</strong></h3>
-<p><strong>Supporting Evidence:</strong></p>
+<h3
+id="st-law-specific-metrics-do-not-always-matter-in-all-data-sets.-rather-different-projects-have-different-best-metrics.-1"><strong>1st
+Law: “Specific metrics do not always matter in all data sets. Rather,
+different projects have different best metrics.”</strong></h3>
+<p><strong>Supporting Evidence:</strong> <strong>Supporting
+Evidence:</strong></p>
 <ul class="incremental">
+<li>Feature pruning experiment on <strong>3 dozen metrics across 7
+datasets</strong></li>
 <li>Feature pruning experiment on <strong>3 dozen metrics across 7
 datasets</strong></li>
 <li>Results: Pruning selected just <strong>2-3 attributes per
 dataset</strong></li>
+<li>Results: Pruning selected just <strong>2-3 attributes per
+dataset</strong></li>
+<li><strong>No single attribute</strong> selected by majority of
+datasets</li>
 <li><strong>No single attribute</strong> selected by majority of
 datasets</li>
 <li>Different projects preferred different metrics (McCabe vs Halstead
 vs lines of code)</li>
+<li>Different projects preferred different metrics (McCabe vs Halstead
+vs lines of code)</li>
+<li>Theoretical debates of 1990s (metric X vs metric Y) proven
+empirically unfounded</li>
 <li>Theoretical debates of 1990s (metric X vs metric Y) proven
 empirically unfounded</li>
 </ul>
-<hr />
 <h2 id="menziess-corollary">Menzies’s Corollary</h2>
-<h3 id="menziess-corollary-1"><strong>Menzies’s Corollary</strong>:</h3>
+<h2 id="menziess-corollary-1">Menzies’s Corollary</h2>
+<h3 id="menziess-corollary-2"><strong>Menzies’s Corollary</strong>:</h3>
+<h3 id="menziess-corollary-3"><strong>Menzies’s Corollary</strong>:</h3>
 <p><em>“To mine SE data, gather all that can be collected (cheaply) then
-apply data pruning to discard irrelevancies.”</em></p>
-<p><strong>Practical Impact:</strong></p>
+apply data pruning to discard irrelevancies.”</em> <em>“To mine SE data,
+gather all that can be collected (cheaply) then apply data pruning to
+discard irrelevancies.”</em></p>
+<p><strong>Practical Impact:</strong> <strong>Practical
+Impact:</strong></p>
 <ul class="incremental">
+<li>Changed SE data mining methodology from “careful metric selection”
+to “gather everything, prune later”</li>
 <li>Changed SE data mining methodology from “careful metric selection”
 to “gather everything, prune later”</li>
 </ul>
 <h2 id="menzies-2nd-law-party-time-in-metrics-town"><strong>Menzies 2nd
 Law</strong>: Party time in metrics town</h2>
+<h2 id="menzies-2nd-law-party-time-in-metrics-town-1"><strong>Menzies
+2nd Law</strong>: Party time in metrics town</h2>
 <h3
 id="nd-law-static-code-attributes-do-matter.-individually-they-may-be-weak-indicators.-but-when-combined-they-can-lead-to-strong-signals-that-outperform-the-state-of-the-art."><strong>2nd
 Law: “Static code attributes do matter. Individually, they may be weak
 indicators. But when combined, they can lead to strong signals that
 outperform the state-of-the-art.”</strong></h3>
-<p><strong>Support Evidence:</strong></p>
+<h3
+id="nd-law-static-code-attributes-do-matter.-individually-they-may-be-weak-indicators.-but-when-combined-they-can-lead-to-strong-signals-that-outperform-the-state-of-the-art.-1"><strong>2nd
+Law: “Static code attributes do matter. Individually, they may be weak
+indicators. But when combined, they can lead to strong signals that
+outperform the state-of-the-art.”</strong></h3>
+<p><strong>Support Evidence:</strong> <strong>Support
+Evidence:</strong></p>
 <ul class="incremental">
 <li><strong>Fenton &amp; Pfleeger</strong>: Same functionality,
 different constructs → different measurements</li>
+<li><strong>Fenton &amp; Pfleeger</strong>: Same functionality,
+different constructs → different measurements</li>
+<li><strong>Shepperd &amp; Ince</strong>: Static measures often “no more
+than proxy for lines of code”</li>
 <li><strong>Shepperd &amp; Ince</strong>: Static measures often “no more
 than proxy for lines of code”</li>
 <li><strong>Our Response</strong>: Stress-tested these views by
 documenting baselines, then showing detectors from static attributes
 <strong>much better</strong> than baselines</li>
+<li><strong>Our Response</strong>: Stress-tested these views by
+documenting baselines, then showing detectors from static attributes
+<strong>much better</strong> than baselines</li>
+<li><strong>Key Finding</strong>: Multi-attribute models outperformed
+single-attribute models<br></li>
 <li><strong>Key Finding</strong>: Multi-attribute models outperformed
 single-attribute models<br></li>
 </ul>
 <p><strong>Key Quote</strong>: <em>“Paradoxically, this paper will be a
-success if it is quickly superseded.”</em></p>
-<hr />
+success if it is quickly superseded.”</em> <strong>Key Quote</strong>:
+<em>“Paradoxically, this paper will be a success if it is quickly
+superseded.”</em></p>
 <h2 id="unprecedented-success-metrics">Unprecedented Success
 Metrics</h2>
-<p><strong>Citation Impact:</strong></p>
+<h2 id="unprecedented-success-metrics-1">Unprecedented Success
+Metrics</h2>
+<p><strong>Citation Impact:</strong> <strong>Citation
+Impact:</strong></p>
 <ul class="incremental">
+<li><strong>2016</strong>: Most cited paper (per month) in software
+engineering</li>
 <li><strong>2016</strong>: Most cited paper (per month) in software
 engineering</li>
 <li><strong>2018</strong>: 20% of Google Scholar Software Metrics IEEE
 TSE papers used PROMISE datasets <strong>[Men07]</strong></li>
+<li><strong>2018</strong>: 20% of Google Scholar Software Metrics IEEE
+TSE papers used PROMISE datasets <strong>[Men07]</strong></li>
+<li><strong>Current</strong>: 1924 citations (paper) + 1242 citations
+(repository)</li>
 <li><strong>Current</strong>: 1924 citations (paper) + 1242 citations
 (repository)</li>
 </ul>
-<p><strong>Industrial Adoption:</strong></p>
+<p><strong>Industrial Adoption:</strong> <strong>Industrial
+Adoption:</strong></p>
 <ul class="incremental">
+<li><strong>Wan et al.</strong> <strong>[Wan20]</strong>: 90%+ of 395
+commercial practitioners willing to adopt defect prediction</li>
 <li><strong>Wan et al.</strong> <strong>[Wan20]</strong>: 90%+ of 395
 commercial practitioners willing to adopt defect prediction</li>
 <li><strong>Misirli et al.</strong> <strong>[Mis11]</strong>: 87% defect
 prediction accuracy, 72% reduced inspection effort, 44% fewer
 post-release defects</li>
+<li><strong>Misirli et al.</strong> <strong>[Mis11]</strong>: 87% defect
+prediction accuracy, 72% reduced inspection effort, 44% fewer
+post-release defects</li>
+<li><strong>Kim et al.</strong> <strong>[Kim15]</strong>: Samsung
+Electronics API development</li>
 <li><strong>Kim et al.</strong> <strong>[Kim15]</strong>: Samsung
 Electronics API development
 <ul class="incremental">
 <li>0.68 F1 scores, reduced test case resources</li>
+<li>0.68 F1 scores, reduced test case resources</li>
 </ul></li>
 </ul>
-<hr />
 <h2 id="comparative-analysis-with-static-tools">Comparative Analysis
 with Static Tools</h2>
-<p><strong>Rahman et al.</strong> <strong>[Rah14]</strong>
-Comparison:</p>
+<h2 id="comparative-analysis-with-static-tools-1">Comparative Analysis
+with Static Tools</h2>
+<p><strong>Rahman et al.</strong> <strong>[Rah14]</strong> Comparison:
+<strong>Rahman et al.</strong> <strong>[Rah14]</strong> Comparison:</p>
 <ul class="incremental">
 <li><strong>Static analysis tools</strong>: FindBugs, Jlint, PMD</li>
+<li><strong>Static analysis tools</strong>: FindBugs, Jlint, PMD</li>
+<li><strong>Statistical defect prediction</strong>: Logistic regression
+models</li>
 <li><strong>Statistical defect prediction</strong>: Logistic regression
 models</li>
 <li><strong>Result</strong>: <em>“No significant differences in
 cost-effectiveness were observed”</em></li>
+<li><strong>Result</strong>: <em>“No significant differences in
+cost-effectiveness were observed”</em></li>
 </ul>
-<p><strong>Critical Advantage:</strong></p>
+<p><strong>Critical Advantage:</strong> <strong>Critical
+Advantage:</strong></p>
 <ul class="incremental">
+<li>Defect prediction: Quick adaptation to new languages via lightweight
+parsers</li>
 <li>Defect prediction: Quick adaptation to new languages via lightweight
 parsers</li>
 <li>Static analyzers: Extensive modification required for new
 languages</li>
+<li>Static analyzers: Extensive modification required for new
+languages</li>
+<li><strong>Implication</strong>: Broader applicability across
+programming ecosystems</li>
 <li><strong>Implication</strong>: Broader applicability across
 programming ecosystems</li>
 </ul>
-<hr />
 <h2 id="evolutionary-applications-2007-2025">Evolutionary Applications
 (2007-2025)</h2>
-<p><strong>Extended Applications:</strong></p>
+<h2 id="evolutionary-applications-2007-2025-1">Evolutionary Applications
+(2007-2025)</h2>
+<p><strong>Extended Applications:</strong> <strong>Extended
+Applications:</strong></p>
 <ul class="incremental">
+<li><strong>Security vulnerabilities</strong>
+<strong>[Shi13]</strong></li>
 <li><strong>Security vulnerabilities</strong>
 <strong>[Shi13]</strong></li>
 <li><strong>Resource allocation</strong> for defect location
 <strong>[Bir21]</strong></li>
+<li><strong>Resource allocation</strong> for defect location
+<strong>[Bir21]</strong></li>
+<li><strong>Proactive defect fixing</strong> <strong>[Kam16]</strong>,
+<strong>[LeG12]</strong>, <strong>[Arc11]</strong></li>
 <li><strong>Proactive defect fixing</strong> <strong>[Kam16]</strong>,
 <strong>[LeG12]</strong>, <strong>[Arc11]</strong></li>
 <li><strong>Change-level/just-in-time prediction</strong>
 <strong>[Yan19]</strong>, <strong>[Kam13]</strong>,
 <strong>[Nay18]</strong>, <strong>[Ros15]</strong></li>
+<li><strong>Change-level/just-in-time prediction</strong>
+<strong>[Yan19]</strong>, <strong>[Kam13]</strong>,
+<strong>[Nay18]</strong>, <strong>[Ros15]</strong></li>
+<li><strong>Transfer learning</strong> across projects
+<strong>[Kri19]</strong>, <strong>[Nam18]</strong></li>
 <li><strong>Transfer learning</strong> across projects
 <strong>[Kri19]</strong>, <strong>[Nam18]</strong></li>
 <li><strong>Hyperparameter optimization</strong>
 <strong>[Agr18]</strong>, <strong>[Che18]</strong>,
 <strong>[Fu17]</strong>, <strong>[Tan16]</strong></li>
+<li><strong>Hyperparameter optimization</strong>
+<strong>[Agr18]</strong>, <strong>[Che18]</strong>,
+<strong>[Fu17]</strong>, <strong>[Tan16]</strong></li>
 </ul>
-<p><strong>Research Evolution:</strong></p>
+<p><strong>Research Evolution:</strong> <strong>Research
+Evolution:</strong></p>
 <ul class="incremental">
+<li>From binary classification to multi-objective optimization</li>
 <li>From binary classification to multi-objective optimization</li>
 <li>From release-level to line-level prediction (<strong>Pornprasit et
 al.</strong> <strong>[Por23]</strong> - TSE Best Paper 2023)</li>
+<li>From release-level to line-level prediction (<strong>Pornprasit et
+al.</strong> <strong>[Por23]</strong> - TSE Best Paper 2023)</li>
 </ul>
-<hr />
 <h2 id="the-four-phases-of-repository-lifecycle">The Four Phases of
 Repository Lifecycle</h2>
+<h2 id="the-four-phases-of-repository-lifecycle-1">The Four Phases of
+Repository Lifecycle</h2>
 <h3 id="phase-evolution"><strong>Phase Evolution:</strong></h3>
+<h3 id="phase-evolution-1"><strong>Phase Evolution:</strong></h3>
 <ol class="incremental" type="1">
+<li><em>“Data? Good luck with that!”</em> - Resistance and
+skepticism</li>
 <li><em>“Data? Good luck with that!”</em> - Resistance and
 skepticism</li>
 <li><em>“Okay, maybe it’s not completely useless.”</em> - Grudging
 acknowledgment<br />
 </li>
+<li><em>“Okay, maybe it’s not completely useless.”</em> - Grudging
+acknowledgment<br />
+</li>
+<li><em>“This is the gold standard now.”</em> - Required baseline, field
+norms</li>
 <li><em>“This is the gold standard now.”</em> - Required baseline, field
 norms</li>
 <li><em>“A graveyard of progress.”</em> - Stifling creativity, outdated
 paradigms</li>
+<li><em>“A graveyard of progress.”</em> - Stifling creativity, outdated
+paradigms</li>
 </ol>
 <p><br />
+<br />
 </p>
-<p><strong>The Problem:</strong></p>
+<p><strong>The Problem:</strong> <strong>The Problem:</strong></p>
 <ul class="incremental">
+<li>Decade 2: Continued use of decades old data e.g. COC81 (1981),
+DESHARNIS (1988), JM1 (2004), XALAN (2010)</li>
 <li>Decade 2: Continued use of decades old data e.g. COC81 (1981),
 DESHARNIS (1988), JM1 (2004), XALAN (2010)</li>
 <li><strong>Editorial Policy Change</strong>: Automated Software
 Engineering journal now desk-rejects papers based on 2005 datasets</li>
+<li><strong>Editorial Policy Change</strong>: Automated Software
+Engineering journal now desk-rejects papers based on 2005 datasets</li>
 </ul>
-<hr />
 <h2 id="menziess-3rd-law-transfer-learning">Menzies’s 3rd Law &amp;
+Transfer Learning</h2>
+<h2 id="menziess-3rd-law-transfer-learning-1">Menzies’s 3rd Law &amp;
 Transfer Learning</h2>
 <h3
 id="rd-law-turkish-toasters-can-predict-for-errors-in-deep-space-satellites."><strong>3rd
 law: “Turkish toasters can predict for errors in deep space
 satellites.”</strong></h3>
-<p><strong>Supporting Evidence:</strong></p>
+<h3
+id="rd-law-turkish-toasters-can-predict-for-errors-in-deep-space-satellites.-1"><strong>3rd
+law: “Turkish toasters can predict for errors in deep space
+satellites.”</strong></h3>
+<p><strong>Supporting Evidence:</strong> <strong>Supporting
+Evidence:</strong></p>
 <ul class="incremental">
+<li><strong>Transfer learning research</strong>
+<strong>[Tur09]</strong>: Models from <strong>Turkish white
+goods</strong> successfully predicted errors in <strong>NASA
+systems</strong></li>
 <li><strong>Transfer learning research</strong>
 <strong>[Tur09]</strong>: Models from <strong>Turkish white
 goods</strong> successfully predicted errors in <strong>NASA
 systems</strong></li>
 <li>Expected: Complex multi-dimensional transforms mapping attributes
 across domains</li>
+<li>Expected: Complex multi-dimensional transforms mapping attributes
+across domains</li>
+<li><strong>Reality</strong>: Simple nearest neighboring between test
+and training data worked perfectly</li>
 <li><strong>Reality</strong>: Simple nearest neighboring between test
 and training data worked perfectly</li>
 <li><strong>Implication</strong>: <em>“Many distinctions made about
 software are spurious and need to be revisited”</em></li>
+<li><strong>Implication</strong>: <em>“Many distinctions made about
+software are spurious and need to be revisited”</em></li>
 </ul>
 <p><br />
+<br />
 </p>
-<p><strong>Broader Transfer Learning Success:</strong></p>
+<p><strong>Broader Transfer Learning Success:</strong> <strong>Broader
+Transfer Learning Success:</strong></p>
 <ul class="incremental">
 <li>Cross-domain prediction often works better than expected</li>
+<li>Cross-domain prediction often works better than expected</li>
+<li>Suggests universal patterns in software defect manifestation</li>
 <li>Suggests universal patterns in software defect manifestation</li>
 <li>Questions assumptions about domain-specific modeling
 requirements</li>
+<li>Questions assumptions about domain-specific modeling
+requirements</li>
 </ul>
-<hr />
 <h2 id="menziess-4th-law-data-reduction">Menzies’s 4th Law &amp; Data
+Reduction</h2>
+<h2 id="menziess-4th-law-data-reduction-1">Menzies’s 4th Law &amp; Data
 Reduction</h2>
 <h3
 id="th-law-for-se-the-best-thing-to-do-with-most-data-is-to-throw-it-away."><strong>4th
 Law: “For SE, the best thing to do with most data is to throw it
 away.”</strong></h3>
-<p><strong>Supporting Evidence:</strong></p>
+<h3
+id="th-law-for-se-the-best-thing-to-do-with-most-data-is-to-throw-it-away.-1"><strong>4th
+Law: “For SE, the best thing to do with most data is to throw it
+away.”</strong></h3>
+<p><strong>Supporting Evidence:</strong> <strong>Supporting
+Evidence:</strong></p>
 <ul class="incremental">
+<li><strong>Chen, Kocaguneli, Tu, Peters, and Xu et al.</strong>
+findings across multiple prediction tasks:</li>
 <li><strong>Chen, Kocaguneli, Tu, Peters, and Xu et al.</strong>
 findings across multiple prediction tasks:
 <ul class="incremental">
 <li><strong>Github issue close time</strong>: Ignored 80% of data labels
 <strong>[Che19]</strong></li>
+<li><strong>Github issue close time</strong>: Ignored 80% of data labels
+<strong>[Che19]</strong></li>
+<li><strong>Effort estimation</strong>: Ignored 91% of data
+<strong>[Koc13]</strong></li>
 <li><strong>Effort estimation</strong>: Ignored 91% of data
 <strong>[Koc13]</strong></li>
 <li><strong>Defect prediction</strong>: Ignored 97% of data
 <strong>[Pet15]</strong></li>
+<li><strong>Defect prediction</strong>: Ignored 97% of data
+<strong>[Pet15]</strong></li>
+<li><strong>Some tasks</strong>: Ignored 98-100% of data
+<strong>[Che05]</strong></li>
 <li><strong>Some tasks</strong>: Ignored 98-100% of data
 <strong>[Che05]</strong></li>
 </ul></li>
 <li><strong>Startling result</strong>: Data sets with thousands of rows
 modeled with just <strong>few dozen samples</strong>
 <strong>[Men08]</strong></li>
+<li><strong>Startling result</strong>: Data sets with thousands of rows
+modeled with just <strong>few dozen samples</strong>
+<strong>[Men08]</strong></li>
 </ul>
 <p><br />
+<br />
 </p>
-<p><strong>Theoretical Explanations:</strong></p>
+<p><strong>Theoretical Explanations:</strong> <strong>Theoretical
+Explanations:</strong></p>
 <ul class="incremental">
 <li><strong>Power laws</strong> in software data
 <strong>[Lin15]</strong></li>
+<li><strong>Power laws</strong> in software data
+<strong>[Lin15]</strong></li>
+<li><strong>Large repeated structures</strong> in SE projects
+<strong>[Hin12]</strong></li>
 <li><strong>Large repeated structures</strong> in SE projects
 <strong>[Hin12]</strong></li>
 <li><strong>Manifold assumption</strong> and
 <strong>Johnson-Lindenstrauss lemma</strong> <strong>[Zhu05]</strong>,
 <strong>[Joh84]</strong></li>
+<li><strong>Manifold assumption</strong> and
+<strong>Johnson-Lindenstrauss lemma</strong> <strong>[Zhu05]</strong>,
+<strong>[Joh84]</strong></li>
 </ul>
 <p><strong>Caveat</strong>: Applies to regression, classification,
-optimization</p>
+optimization <strong>Caveat</strong>: Applies to regression,
+classification, optimization</p>
 <ul class="incremental">
 <li>generative tasks may still need massive data</li>
+<li>generative tasks may still need massive data</li>
 </ul>
-<hr />
 <h2 id="menziess-5th-law-llm-reality-check">Menzies’s 5th Law &amp; LLM
 Reality Check</h2>
+<h2 id="menziess-5th-law-llm-reality-check-1">Menzies’s 5th Law &amp;
+LLM Reality Check</h2>
 <h3 id="th-law-bigger-is-not-necessarily-better."><strong>5th law:
 “Bigger is not necessarily better.”</strong></h3>
-<p><strong>Supporting Evidence - LLM Hype Analysis:</strong></p>
+<h3 id="th-law-bigger-is-not-necessarily-better.-1"><strong>5th law:
+“Bigger is not necessarily better.”</strong></h3>
+<p><strong>Supporting Evidence - LLM Hype Analysis:</strong>
+<strong>Supporting Evidence - LLM Hype Analysis:</strong></p>
 <ul class="incremental">
 <li><strong>Systematic review</strong> <strong>[Hou24]</strong>: 229 SE
 papers using Large Language Models</li>
+<li><strong>Systematic review</strong> <strong>[Hou24]</strong>: 229 SE
+papers using Large Language Models</li>
+<li><strong>Critical finding</strong>: Only <strong>13/229 around
+5%</strong> compared LLMs to other approaches</li>
 <li><strong>Critical finding</strong>: Only <strong>13/229 around
 5%</strong> compared LLMs to other approaches</li>
 <li><em>“Methodological error”</em> - other PROMISE-style methods often
 better/faster <strong>[Gri22]</strong>, <strong>[Som24]</strong>,
 <strong>[Taw23]</strong>, <strong>[Maj18]</strong></li>
+<li><em>“Methodological error”</em> - other PROMISE-style methods often
+better/faster <strong>[Gri22]</strong>, <strong>[Som24]</strong>,
+<strong>[Taw23]</strong>, <strong>[Maj18]</strong></li>
 </ul>
 <p><br />
+<br />
 </p>
-<p><strong>Trading Off Complexity:</strong></p>
+<p><strong>Trading Off Complexity:</strong> <strong>Trading Off
+Complexity:</strong></p>
 <ul class="incremental">
 <li>Scalability vs. privacy vs. performance <strong>[Lin24]</strong>,
 <strong>[Fu17]</strong></li>
+<li>Scalability vs. privacy vs. performance <strong>[Lin24]</strong>,
+<strong>[Fu17]</strong></li>
+<li>Often simpler methods provide better cost-effectiveness</li>
 <li>Often simpler methods provide better cost-effectiveness</li>
 <li><strong>Personal Pattern</strong>: <em>“Often, I switch to the
 simpler.”</em> <strong>[Agr21]</strong>, <strong>[Tan16]</strong>,
 <strong>[Fu16]</strong></li>
+<li><strong>Personal Pattern</strong>: <em>“Often, I switch to the
+simpler.”</em> <strong>[Agr21]</strong>, <strong>[Tan16]</strong>,
+<strong>[Fu16]</strong></li>
 </ul>
-<hr />
 <h2 id="menziess-6th-law-data-quality-paradox">Menzies’s 6th Law &amp;
+Data Quality Paradox</h2>
+<h2 id="menziess-6th-law-data-quality-paradox-1">Menzies’s 6th Law &amp;
 Data Quality Paradox</h2>
 <h3 id="th-law-data-quality-matters-less-than-you-think."><strong>6th
 Law: “Data quality matters less than you think.”</strong></h3>
-<p><strong>Supporting Research:</strong></p>
+<h3 id="th-law-data-quality-matters-less-than-you-think.-1"><strong>6th
+Law: “Data quality matters less than you think.”</strong></h3>
+<p><strong>Supporting Research:</strong> <strong>Supporting
+Research:</strong></p>
 <ul class="incremental">
+<li><strong>Shepperd et al.</strong> <strong>[She13]</strong>: Found
+numerous PROMISE data quality issues</li>
 <li><strong>Shepperd et al.</strong> <strong>[She13]</strong>: Found
 numerous PROMISE data quality issues
 <ul class="incremental">
 <li>Repeated rows, illegal attributes, inconsistent formats</li>
+<li>Repeated rows, illegal attributes, inconsistent formats</li>
+<li><strong>Critical gap</strong>: Never tested if quality issues
+decreased predictive power</li>
 <li><strong>Critical gap</strong>: Never tested if quality issues
 decreased predictive power</li>
 </ul></li>
 </ul>
 <p><br />
+<br />
 </p>
-<p><strong>Our Experiment:</strong></p>
+<p><strong>Our Experiment:</strong> <strong>Our Experiment:</strong></p>
 <ul class="incremental">
+<li>Built <strong>mutators</strong> that injected increasing amounts of
+their quality issues into PROMISE defect datasets</li>
 <li>Built <strong>mutators</strong> that injected increasing amounts of
 their quality issues into PROMISE defect datasets</li>
 <li><strong>Startling result</strong>: Performance curves remained
 <strong>flat</strong> despite increased quality problems</li>
+<li><strong>Startling result</strong>: Performance curves remained
+<strong>flat</strong> despite increased quality problems</li>
+<li><strong>Implication</strong>: <em>“There is such a thing as too much
+care”</em> in data collection</li>
 <li><strong>Implication</strong>: <em>“There is such a thing as too much
 care”</em> in data collection</li>
 </ul>
 <p><br />
+<br />
 </p>
-<p><strong>Practical Impact:</strong></p>
+<p><strong>Practical Impact:</strong> <strong>Practical
+Impact:</strong></p>
 <ul class="incremental">
 <li>Effective predictions possible from seemingly dirty data</li>
+<li>Effective predictions possible from seemingly dirty data</li>
+<li>Questions excessive data cleaning efforts in SE research</li>
 <li>Questions excessive data cleaning efforts in SE research</li>
 <li>Balance needed: careful collection without over-engineering</li>
+<li>Balance needed: careful collection without over-engineering</li>
 </ul>
-<hr />
 <h2 id="menziess-7th-law-dumb-shtt-works">Menzies’s 7th Law: Dumb sht*t,
 works</h2>
+<h2 id="menziess-7th-law-dumb-shtt-works-1">Menzies’s 7th Law: Dumb
+sht*t, works</h2>
 <h3 id="th-law-bad-learners-can-make-good-conclusions."><strong>7th Law:
 “Bad learners can make good conclusions.”</strong></h3>
-<p><strong>Supporting Evidence:</strong></p>
+<h3 id="th-law-bad-learners-can-make-good-conclusions.-1"><strong>7th
+Law: “Bad learners can make good conclusions.”</strong></h3>
+<p><strong>Supporting Evidence:</strong> <strong>Supporting
+Evidence:</strong></p>
 <ul class="incremental">
+<li><strong>Nair et al.</strong> <strong>[Nai17]</strong>: CART trees
+built for multi-objective optimization</li>
 <li><strong>Nair et al.</strong> <strong>[Nai17]</strong>: CART trees
 built for multi-objective optimization</li>
 <li><strong>Key finding</strong>: Models that <strong>predicted
 poorly</strong> could still <strong>rank solutions
 effectively</strong></li>
+<li><strong>Key finding</strong>: Models that <strong>predicted
+poorly</strong> could still <strong>rank solutions
+effectively</strong></li>
+<li>Could be used to prune poor configurations and find better ones</li>
 <li>Could be used to prune poor configurations and find better ones</li>
 <li><strong>Implication</strong>: Algorithms shouldn’t aim for
 predictions but offer <strong>weak hints</strong> about project
 data</li>
+<li><strong>Implication</strong>: Algorithms shouldn’t aim for
+predictions but offer <strong>weak hints</strong> about project
+data</li>
 </ul>
-<hr />
 <h2
 id="application-of-bad-leaners-ultra-low-cost-active-learning">Application
 of bad leaners: ultra-low cost active learning</h2>
-<p></p>
-<p><embed src="page.pdf" style="height:80.0%" /></p>
-<hr />
+<h2
+id="application-of-bad-leaners-ultra-low-cost-active-learning-1">Application
+of bad leaners: ultra-low cost active learning</h2>
+<p> </p>
+<p><embed src="page.pdf" style="height:80.0%" /> <embed src="page.pdf"
+style="height:80.0%" /></p>
 <h2 id="menziess-8th-law-mud-rules">Menzies’s 8th Law: Mud, rules</h2>
+<h2 id="menziess-8th-law-mud-rules-1">Menzies’s 8th Law: Mud, rules</h2>
 <h3 id="th-law-science-has-mud-on-the-lens."><strong>8th Law: “Science
 has mud on the lens.”</strong></h3>
-<p><strong>Supporting Evidence:</strong></p>
+<h3 id="th-law-science-has-mud-on-the-lens.-1"><strong>8th Law: “Science
+has mud on the lens.”</strong></h3>
+<p><strong>Supporting Evidence:</strong> <strong>Supporting
+Evidence:</strong></p>
 <ul class="incremental">
+<li><strong>Hyperparameter optimization</strong> lessons
+<strong>[Agr21]</strong>, <strong>[Tan16]</strong>,
+<strong>[Fu16]</strong> on PROMISE data</li>
 <li><strong>Hyperparameter optimization</strong> lessons
 <strong>[Agr21]</strong>, <strong>[Tan16]</strong>,
 <strong>[Fu16]</strong> on PROMISE data</li>
 <li>Data mining conclusions <strong>changeable in an afternoon</strong>
 by grad student with sufficient CPU</li>
+<li>Data mining conclusions <strong>changeable in an afternoon</strong>
+by grad student with sufficient CPU</li>
+<li><strong>Critical Questions</strong>: Are all conclusions brittle?
+How build scientific community on such basis?</li>
 <li><strong>Critical Questions</strong>: Are all conclusions brittle?
 How build scientific community on such basis?</li>
 <li><strong>Where are stable conclusions</strong> for building
 tomorrow’s ideas?</li>
+<li><strong>Where are stable conclusions</strong> for building
+tomorrow’s ideas?</li>
 </ul>
 <p><br />
+<br />
 </p>
 <p><strong>?Bayesian Approach Needed</strong>: Address uncertainty
-quantification and robust foundations</p>
-<hr />
+quantification and robust foundations <strong>?Bayesian Approach
+Needed</strong>: Address uncertainty quantification and robust
+foundations</p>
 <h2 id="menziess-9th-law-simplicity-challenge">Menzies’s 9th Law &amp;
+Simplicity Challenge</h2>
+<h2 id="menziess-9th-law-simplicity-challenge-1">Menzies’s 9th Law &amp;
 Simplicity Challenge</h2>
 <h3 id="th-law-many-hard-se-problems-arent."><strong>9th Law: “Many hard
 SE problems, aren’t.”</strong></h3>
-<p><strong>Supporting Philosophy:</strong></p>
+<h3 id="th-law-many-hard-se-problems-arent.-1"><strong>9th Law: “Many
+hard SE problems, aren’t.”</strong></h3>
+<p><strong>Supporting Philosophy:</strong> <strong>Supporting
+Philosophy:</strong></p>
 <ul class="incremental">
 <li><strong>Cohen’s Straw Man Principle</strong>
 <strong>[Coh95]</strong>: <em>“Supposedly sophisticated methods should
 be benchmarked against seemingly stupider ones”</em></li>
+<li><strong>Cohen’s Straw Man Principle</strong>
+<strong>[Coh95]</strong>: <em>“Supposedly sophisticated methods should
+be benchmarked against seemingly stupider ones”</em></li>
 </ul>
-<p><strong>Personal Experience Pattern:</strong></p>
+<p><strong>Personal Experience Pattern:</strong> <strong>Personal
+Experience Pattern:</strong></p>
 <ul class="incremental">
+<li><em>“Whenever I checked a supposedly sophisticated method against a
+simpler one, there was always something useful in the simpler”</em></li>
 <li><em>“Whenever I checked a supposedly sophisticated method against a
 simpler one, there was always something useful in the simpler”</em></li>
 <li><em>“Often, I switch to the simpler.”</em> <strong>[Agr21]</strong>,
 <strong>[Tan16]</strong>, <strong>[Fu16]</strong></li>
+<li><em>“Often, I switch to the simpler.”</em> <strong>[Agr21]</strong>,
+<strong>[Tan16]</strong>, <strong>[Fu16]</strong></li>
 </ul>
 <p><br />
+<br />
 </p>
-<p><strong>Important Caveat:</strong></p>
+<p><strong>Important Caveat:</strong> <strong>Important
+Caveat:</strong></p>
 <ul class="incremental">
+<li><strong>Not all SE problems can/should be simplified</strong>
+(safety-critical; generative);</li>
 <li><strong>Not all SE problems can/should be simplified</strong>
 (safety-critical; generative);</li>
 <li><em>“Just because some tasks are hard, does not mean all tasks are
 hard”</em></li>
+<li><em>“Just because some tasks are hard, does not mean all tasks are
+hard”</em></li>
 </ul>
 <p><br />
+<br />
 </p>
-<p><strong>Challenge to Community:</strong> <em>“Have we really checked
-what is really complex and what is really very simple?”</em></p>
+<p><strong>Challenge to Community:</strong> <strong>Challenge to
+Community:</strong> <em>“Have we really checked what is really complex
+and what is really very simple?”</em> <em>“Have we really checked what
+is really complex and what is really very simple?”</em></p>
 <p><strong>Current Focus</strong>: Minimal data approaches - landscape
 analysis <strong>[Che19]</strong>, <strong>[Lus24]</strong>, surrogate
 learning <strong>[Nai20]</strong>, active learning
-<strong>[Kra15]</strong>, <strong>[Yu18]</strong></p>
-<hr />
+<strong>[Kra15]</strong>, <strong>[Yu18]</strong> <strong>Current
+Focus</strong>: Minimal data approaches - landscape analysis
+<strong>[Che19]</strong>, <strong>[Lus24]</strong>, surrogate learning
+<strong>[Nai20]</strong>, active learning <strong>[Kra15]</strong>,
+<strong>[Yu18]</strong></p>
 <h2 id="contemporary-challenges-solutions">Contemporary Challenges &amp;
 Solutions</h2>
+<h2 id="contemporary-challenges-solutions-1">Contemporary Challenges
+&amp; Solutions</h2>
 <p><strong>PROMISE Revival Strategy</strong> (<strong>Gema
-Rodríguez-Pérez</strong>):</p>
+Rodríguez-Pérez</strong>): <strong>PROMISE Revival Strategy</strong>
+(<strong>Gema Rodríguez-Pérez</strong>):</p>
 <ul class="incremental">
 <li>Data sharing now expected for almost all SE papers</li>
+<li>Data sharing now expected for almost all SE papers</li>
+<li>PROMISE must differentiate: accept higher quality datasets</li>
 <li>PROMISE must differentiate: accept higher quality datasets</li>
 <li>Focus on enhancing current data space, conducting quality
 evaluations</li>
+<li>Focus on enhancing current data space, conducting quality
+evaluations</li>
 </ul>
-<p><strong>Steffen Herbold’s</strong> Caution:</p>
+<p><strong>Steffen Herbold’s</strong> Caution: <strong>Steffen
+Herbold’s</strong> Caution:</p>
 <ul class="incremental">
 <li>Early PROMISE: Collections of metrics (not raw data)</li>
+<li>Early PROMISE: Collections of metrics (not raw data)</li>
 <li>MSR shift: Raw data + fast tools (e.g., PyDriller, GHtorrent)</li>
+<li>MSR shift: Raw data + fast tools (e.g., PyDriller, GHtorrent)</li>
+<li><strong>Risk</strong>: <em>“Little curation, little validation,
+often purely heuristic data collection without quality checks”</em>
+<strong>[Her22]</strong></li>
 <li><strong>Risk</strong>: <em>“Little curation, little validation,
 often purely heuristic data collection without quality checks”</em>
 <strong>[Her22]</strong></li>
 </ul>
 <p><strong>Modern Data Access</strong>: 1100+ recent Github projects
+<strong>[Xia22]</strong>, CommitGuru <strong>[Ros15]</strong>
+<strong>Modern Data Access</strong>: 1100+ recent Github projects
 <strong>[Xia22]</strong>, CommitGuru <strong>[Ros15]</strong></p>
-<hr />
 <h2 id="current-hot-research-directions">Current “Hot” Research
 Directions</h2>
-<p><strong>Contemporary Approaches:</strong></p>
+<h2 id="current-hot-research-directions-1">Current “Hot” Research
+Directions</h2>
+<p><strong>Contemporary Approaches:</strong> <strong>Contemporary
+Approaches:</strong></p>
 <ul class="incremental">
+<li><strong>DeepLineDP</strong> (<strong>Pornprasit et al.</strong>
+<strong>[Por23]</strong>): Deep learning for line-level defect
+prediction (TSE Best Paper 2023)</li>
 <li><strong>DeepLineDP</strong> (<strong>Pornprasit et al.</strong>
 <strong>[Por23]</strong>): Deep learning for line-level defect
 prediction (TSE Best Paper 2023)</li>
 <li><strong>Model interpretability</strong>: Growing research focus
 <strong>[Tan21]</strong></li>
+<li><strong>Model interpretability</strong>: Growing research focus
+<strong>[Tan21]</strong></li>
+<li><strong>Multi-objective optimization</strong>: Hyperparameter
+selection <strong>[Xia22]</strong>, unfairness reduction
+<strong>[Cha20]</strong>, <strong>[Alv23]</strong></li>
 <li><strong>Multi-objective optimization</strong>: Hyperparameter
 selection <strong>[Xia22]</strong>, unfairness reduction
 <strong>[Cha20]</strong>, <strong>[Alv23]</strong></li>
 </ul>
-<p><strong>Optimize CPU-Intensive Algorithms:</strong></p>
+<p><strong>Optimize CPU-Intensive Algorithms:</strong> <strong>Optimize
+CPU-Intensive Algorithms:</strong></p>
 <ul class="incremental">
+<li>MaxWalkSat <strong>[Men09]</strong></li>
 <li>MaxWalkSat <strong>[Men09]</strong></li>
 <li>Simulated annealing <strong>[Men02]</strong>,
 <strong>[Men07]</strong><br />
 </li>
+<li>Simulated annealing <strong>[Men02]</strong>,
+<strong>[Men07]</strong><br />
+</li>
+<li>Genetic algorithms</li>
 <li>Genetic algorithms</li>
 </ul>
-<p><strong>Minimal Data Approaches:</strong></p>
+<p><strong>Minimal Data Approaches:</strong> <strong>Minimal Data
+Approaches:</strong></p>
 <ul class="incremental">
 <li>How much can be achieved with as little data as possible?</li>
+<li>How much can be achieved with as little data as possible?</li>
+<li>Suspicion of “large number of good quality labels” assumption</li>
 <li>Suspicion of “large number of good quality labels” assumption</li>
 </ul>
-<hr />
 <h2 id="transfer-learning-surprises">Transfer Learning Surprises</h2>
-<p><strong>Cross-Domain Success</strong> <strong>[Tur09]</strong>:</p>
+<h2 id="transfer-learning-surprises-1">Transfer Learning Surprises</h2>
+<p><strong>Cross-Domain Success</strong> <strong>[Tur09]</strong>:
+<strong>Cross-Domain Success</strong> <strong>[Tur09]</strong>:</p>
 <ul class="incremental">
 <li><strong>Turkish white goods</strong> → <strong>NASA systems</strong>
 error prediction</li>
+<li><strong>Turkish white goods</strong> → <strong>NASA systems</strong>
+error prediction</li>
 <li>Expected: Complex multi-dimensional transforms</li>
+<li>Expected: Complex multi-dimensional transforms</li>
+<li><strong>Reality</strong>: Simple nearest neighboring between test
+and training data</li>
 <li><strong>Reality</strong>: Simple nearest neighboring between test
 and training data</li>
 </ul>
 <p><strong>Implication</strong>: <em>“Many distinctions made about
-software are spurious and need to be revisited”</em></p>
-<p><strong>Power Laws &amp; Repeated Structures</strong>:</p>
+software are spurious and need to be revisited”</em>
+<strong>Implication</strong>: <em>“Many distinctions made about software
+are spurious and need to be revisited”</em></p>
+<p><strong>Power Laws &amp; Repeated Structures</strong>: <strong>Power
+Laws &amp; Repeated Structures</strong>:</p>
 <ul class="incremental">
+<li><strong>Lin &amp; Whitehead</strong> <strong>[Lin15]</strong>:
+Fine-grained code changes follow power laws</li>
 <li><strong>Lin &amp; Whitehead</strong> <strong>[Lin15]</strong>:
 Fine-grained code changes follow power laws</li>
 <li><strong>Hindle et al.</strong> <strong>[Hin12]</strong>: Software
 naturalness - large repeated structures</li>
+<li><strong>Hindle et al.</strong> <strong>[Hin12]</strong>: Software
+naturalness - large repeated structures</li>
+<li><strong>Result</strong>: Thousands of rows modeled with few dozen
+samples <strong>[Men08]</strong></li>
 <li><strong>Result</strong>: Thousands of rows modeled with few dozen
 samples <strong>[Men08]</strong></li>
 </ul>
-<hr />
 <h2 id="key-takeaways-community-call-to-action">Key Takeaways &amp;
 Community Call-to-Action</h2>
-<p><strong>Lessons Learned:</strong></p>
+<h2 id="key-takeaways-community-call-to-action-1">Key Takeaways &amp;
+Community Call-to-Action</h2>
+<p><strong>Lessons Learned:</strong> <strong>Lessons
+Learned:</strong></p>
 <ol class="incremental" type="1">
+<li><strong>Open science communities</strong> can be formed by
+publishing baseline + data + scripts</li>
 <li><strong>Open science communities</strong> can be formed by
 publishing baseline + data + scripts</li>
 <li><strong>Reproducible research</strong> drives field advancement when
 embraced collectively</li>
+<li><strong>Reproducible research</strong> drives field advancement when
+embraced collectively</li>
+<li><strong>Simple solutions</strong> often outperform sophisticated
+ones</li>
 <li><strong>Simple solutions</strong> often outperform sophisticated
 ones</li>
 <li><strong>Data quality</strong> matters less than expected for
 predictive tasks</li>
+<li><strong>Data quality</strong> matters less than expected for
+predictive tasks</li>
+<li><strong>Transfer learning</strong> works across surprisingly diverse
+domains</li>
 <li><strong>Transfer learning</strong> works across surprisingly diverse
 domains</li>
 </ol>
-<p><strong>Call-to-Action:</strong></p>
+<p><strong>Call-to-Action:</strong> <strong>Call-to-Action:</strong></p>
 <ul class="incremental">
 <li><em>“Have we really checked what is really complex and what is
 really very simple?”</em></li>
+<li><em>“Have we really checked what is really complex and what is
+really very simple?”</em></li>
+<li>Challenge assumptions about problem complexity</li>
 <li>Challenge assumptions about problem complexity</li>
 <li>Benchmark sophisticated methods against simpler alternatives</li>
+<li>Benchmark sophisticated methods against simpler alternatives</li>
+<li>Focus on stable, reproducible conclusions</li>
 <li>Focus on stable, reproducible conclusions</li>
 </ul>
-<hr />
 <h2 id="references">References</h2>
+<h2 id="references-1">References</h2>
 <p><strong>[Agr18]:</strong> A. Agrawal and T. Menzies, “Is better data
+better than better data miners?: On the benefits of tuning smote for
+defect prediction,” in <em>Proc. IST</em>, ACM, 2018,
+pp. 1050–1061.<br />
+<strong>[Agr18]:</strong> A. Agrawal and T. Menzies, “Is better data
 better than better data miners?: On the benefits of tuning smote for
 defect prediction,” in <em>Proc. IST</em>, ACM, 2018,
 pp. 1050–1061.<br />
 <strong>[Agr21]:</strong> A. Agrawal <em>et al.</em>, “How to”DODGE”
 complex software analytics?” <em>IEEE Trans. Softw. Eng.</em>, vol. 47,
 no. 10, pp. 2182–2194, Oct. 2021.<br />
+<strong>[Agr21]:</strong> A. Agrawal <em>et al.</em>, “How to”DODGE”
+complex software analytics?” <em>IEEE Trans. Softw. Eng.</em>, vol. 47,
+no. 10, pp. 2182–2194, Oct. 2021.<br />
+<strong>[Alv23]:</strong> L. Alvarez and T. Menzies, “Don’t lie to me:
+Avoiding malicious explanations with STEALTH,” <em>IEEE Softw.</em>,
+vol. 40, no. 3, pp. 43–53, May/Jun. 2023.<br />
 <strong>[Alv23]:</strong> L. Alvarez and T. Menzies, “Don’t lie to me:
 Avoiding malicious explanations with STEALTH,” <em>IEEE Softw.</em>,
 vol. 40, no. 3, pp. 43–53, May/Jun. 2023.<br />
 <strong>[Cha20]:</strong> J. Chakraborty <em>et al.</em>, “Fairway: A
 way to build fair ML software,” in <em>Proc. FSE</em>, 2020,
 pp. 654–665.<br />
+<strong>[Cha20]:</strong> J. Chakraborty <em>et al.</em>, “Fairway: A
+way to build fair ML software,” in <em>Proc. FSE</em>, 2020,
+pp. 654–665.<br />
+<strong>[Che19]:</strong> J. Chen <em>et al.</em>, “‘Sampling’ as a
+baseline optimizer for search-based software engineering,” <em>IEEE
+Trans. Softw. Eng.</em>, vol. 45, no. 6, pp. 597–614, Jun. 2019.<br />
 <strong>[Che19]:</strong> J. Chen <em>et al.</em>, “‘Sampling’ as a
 baseline optimizer for search-based software engineering,” <em>IEEE
 Trans. Softw. Eng.</em>, vol. 45, no. 6, pp. 597–614, Jun. 2019.<br />
 <strong>[Coh95]:</strong> P. R. Cohen, <em>Empirical Methods for
 Artificial Intelligence</em>, Cambridge, MA: MIT Press, 1995.<br />
+<strong>[Coh95]:</strong> P. R. Cohen, <em>Empirical Methods for
+Artificial Intelligence</em>, Cambridge, MA: MIT Press, 1995.<br />
+<strong>[Dev15]:</strong> P. Devanbu, “Foreword,” in <em>Sharing Data
+and Models in Software Engineering</em>, T. Menzies <em>et al.</em>,
+Eds. San Mateo, CA: Morgan Kaufmann, 2015, pp. vii–viii.<br />
 <strong>[Dev15]:</strong> P. Devanbu, “Foreword,” in <em>Sharing Data
 and Models in Software Engineering</em>, T. Menzies <em>et al.</em>,
 Eds. San Mateo, CA: Morgan Kaufmann, 2015, pp. vii–viii.<br />
 <strong>[Fu16]:</strong> W. Fu, T. Menzies, and X. Shen, “Tuning for
 software analytics: Is it really necessary?” <em>Inform. Softw.
+Technol.</em>, vol. 76, pp. 135–146, 2016.<br />
+<strong>[Fu16]:</strong> W. Fu, T. Menzies, and X. Shen, “Tuning for
+software analytics: Is it really necessary?” <em>Inform. Softw.
 Technol.</em>, vol. 76, pp. 135–146, 2016.</p>
-<hr />
 <h2 id="references-more">References (More)</h2>
+<h2 id="references-more-1">References (More)</h2>
 <p><strong>[Gon23]:</strong> J. M. Gonzalez-Barahona and G. Robles,
+“Revisiting the reproducibility of empirical software engineering
+studies based on data retrieved from development repositories,” <em>Inf.
+Softw. Technol.</em>, vol. 164, 2023, Art. no. 107318.<br />
+<strong>[Gon23]:</strong> J. M. Gonzalez-Barahona and G. Robles,
 “Revisiting the reproducibility of empirical software engineering
 studies based on data retrieved from development repositories,” <em>Inf.
 Softw. Technol.</em>, vol. 164, 2023, Art. no. 107318.<br />
 <strong>[Gri22]:</strong> L. Grinsztajn, E. Oyallon, and G. Varoquaux,
 “Why do tree-based models still outperform deep learning on typical
 tabular data?” in <em>Proc. NeurIPS</em>, 2022, pp. 507–520.<br />
+<strong>[Gri22]:</strong> L. Grinsztajn, E. Oyallon, and G. Varoquaux,
+“Why do tree-based models still outperform deep learning on typical
+tabular data?” in <em>Proc. NeurIPS</em>, 2022, pp. 507–520.<br />
 <strong>[Ham09]:</strong> M. Hamill and K. Goseva-Popstojanova, “Common
 trends in software fault and failure data,” <em>IEEE Trans. Softw.
 Eng.</em>, vol. 35, no. 4, pp. 484–496, Jul./Aug. 2009.<br />
+<strong>[Ham09]:</strong> M. Hamill and K. Goseva-Popstojanova, “Common
+trends in software fault and failure data,” <em>IEEE Trans. Softw.
+Eng.</em>, vol. 35, no. 4, pp. 484–496, Jul./Aug. 2009.<br />
+<strong>[Has08]:</strong> A. E. Hassan, “The road ahead for mining
+software repositories,” <em>Frontiers Softw. Maintenance</em>,
+pp. 48–57, 2008.<br />
 <strong>[Has08]:</strong> A. E. Hassan, “The road ahead for mining
 software repositories,” <em>Frontiers Softw. Maintenance</em>,
 pp. 48–57, 2008.<br />
@@ -734,37 +1256,74 @@ pp. 48–57, 2008.<br />
 and features: An empirical study of the state of practice of defect
 prediction data collection,” <em>Empirical Softw. Eng.</em>, vol. 27,
 no. 2, p. 42, 2022.<br />
+<strong>[Her22]:</strong> S. Herbold <em>et al.</em>, “Problems with SZZ
+and features: An empirical study of the state of practice of defect
+prediction data collection,” <em>Empirical Softw. Eng.</em>, vol. 27,
+no. 2, p. 42, 2022.<br />
+<strong>[Hou24]:</strong> X. Hou <em>et al.</em>, “Large language models
+for software engineering: A systematic literature review,” <em>ACM
+Trans. Softw. Eng. Methodol.</em>, vol. 33, no. 8, Dec. 2024.<br />
 <strong>[Hou24]:</strong> X. Hou <em>et al.</em>, “Large language models
 for software engineering: A systematic literature review,” <em>ACM
 Trans. Softw. Eng. Methodol.</em>, vol. 33, no. 8, Dec. 2024.<br />
 <strong>[Kam13]:</strong> Y. Kamei <em>et al.</em>, “A large-scale
 empirical study of just-in-time quality assurance,” <em>IEEE Trans.
 Softw. Eng.</em>, vol. 39, no. 6, pp. 757–773, Jun. 2013.<br />
+<strong>[Kam13]:</strong> Y. Kamei <em>et al.</em>, “A large-scale
+empirical study of just-in-time quality assurance,” <em>IEEE Trans.
+Softw. Eng.</em>, vol. 39, no. 6, pp. 757–773, Jun. 2013.<br />
 <strong>[Kim15]:</strong> M. Kim <em>et al.</em>, “REMI: Defect
 prediction for efficient api testing,” in <em>Proc. FSE</em>, ACM, 2015,
-pp. 990–993.</p>
+pp. 990–993. <strong>[Kim15]:</strong> M. Kim <em>et al.</em>, “REMI:
+Defect prediction for efficient api testing,” in <em>Proc. FSE</em>,
+ACM, 2015, pp. 990–993.</p>
 <h2 id="references-yet-more">References (Yet More)</h2>
+<h2 id="references-yet-more-1">References (Yet More)</h2>
 <p><strong>[Kri19]:</strong> R. Krishna and T. Menzies, “Bellwethers: A
 baseline method for transfer learning,” <em>IEEE Trans. Softw.
 Eng.</em>, vol. 45, no. 11, pp. 1081–1105, Nov. 2019.<br />
+<strong>[Kri19]:</strong> R. Krishna and T. Menzies, “Bellwethers: A
+baseline method for transfer learning,” <em>IEEE Trans. Softw.
+Eng.</em>, vol. 45, no. 11, pp. 1081–1105, Nov. 2019.<br />
+<strong>[Men07]:</strong> T. Menzies, J. Greenwald, and A. Frank, “Data
+mining static code attributes to learn defect predictors,” <em>IEEE
+Trans. Softw. Eng.</em>, vol. 33, no. 1, pp. 2–13, Jan. 2007.<br />
 <strong>[Men07]:</strong> T. Menzies, J. Greenwald, and A. Frank, “Data
 mining static code attributes to learn defect predictors,” <em>IEEE
 Trans. Softw. Eng.</em>, vol. 33, no. 1, pp. 2–13, Jan. 2007.<br />
 <strong>[Men24]:</strong> T. Menzies, “A brief note, with thanks, on the
 contributions of guenther ruhe,” <em>Inf. Softw. Technol.</em>,
 vol. 173, 2024, Art. no. 107486.<br />
+<strong>[Men24]:</strong> T. Menzies, “A brief note, with thanks, on the
+contributions of guenther ruhe,” <em>Inf. Softw. Technol.</em>,
+vol. 173, 2024, Art. no. 107486.<br />
+<strong>[Men25]:</strong> T. Menzies, “Retrospective: Data Mining Static
+Code Attributes to Learn Defect Predictors,” <em>IEEE Trans. Softw.
+Eng.</em>, 2025.<br />
 <strong>[Men25]:</strong> T. Menzies, “Retrospective: Data Mining Static
 Code Attributes to Learn Defect Predictors,” <em>IEEE Trans. Softw.
 Eng.</em>, 2025.<br />
 <strong>[Mis11]:</strong> A. T. Misirli, A. Bener, and R. Kale,
 “AI-based software defect predictors: Applications and benefits in a
 case study,” <em>AI Mag.</em>, vol. 32, no. 2, pp. 57–68, 2011.<br />
+<strong>[Mis11]:</strong> A. T. Misirli, A. Bener, and R. Kale,
+“AI-based software defect predictors: Applications and benefits in a
+case study,” <em>AI Mag.</em>, vol. 32, no. 2, pp. 57–68, 2011.<br />
+<strong>[Nai17]:</strong> V. Nair <em>et al.</em>, “Using bad learners
+to find good configurations,” in <em>Proc. 11th Joint Meeting FSE</em>,
+ACM, 2017, pp. 257–267.<br />
 <strong>[Nai17]:</strong> V. Nair <em>et al.</em>, “Using bad learners
 to find good configurations,” in <em>Proc. 11th Joint Meeting FSE</em>,
 ACM, 2017, pp. 257–267.<br />
 <strong>[Nam18]:</strong> J. Nam <em>et al.</em>, “Heterogeneous defect
 prediction,” <em>IEEE Trans. Softw. Eng.</em>, vol. 44, no. 9,
 pp. 874–896, Sep. 2018.<br />
+<strong>[Nam18]:</strong> J. Nam <em>et al.</em>, “Heterogeneous defect
+prediction,” <em>IEEE Trans. Softw. Eng.</em>, vol. 44, no. 9,
+pp. 874–896, Sep. 2018.<br />
+<strong>[Ost04]:</strong> T. J. Ostrand, E. J. Weyuker, and R. M. Bell,
+“Where the bugs are,” <em>ACM SIGSOFT Softw. Eng. Notes</em>, vol. 29,
+no. 4, pp. 86–96, 2004.<br />
 <strong>[Ost04]:</strong> T. J. Ostrand, E. J. Weyuker, and R. M. Bell,
 “Where the bugs are,” <em>ACM SIGSOFT Softw. Eng. Notes</em>, vol. 29,
 no. 4, pp. 86–96, 2004.<br />
@@ -772,41 +1331,79 @@ no. 4, pp. 86–96, 2004.<br />
 “DeepLineDP: Towards a deep learning approach for line-level defect
 prediction,” <em>IEEE Trans. Softw. Eng.</em>, vol. 49, no. 1,
 pp. 84–98, Jan. 2023.<br />
+<strong>[Por23]:</strong> C. Pornprasit and C. K. Tantithamthavorn,
+“DeepLineDP: Towards a deep learning approach for line-level defect
+prediction,” <em>IEEE Trans. Softw. Eng.</em>, vol. 49, no. 1,
+pp. 84–98, Jan. 2023.<br />
+<strong>[Rah14]:</strong> F. Rahman <em>et al.</em>, “Comparing static
+bug finders and statistical prediction,” in <em>Proc. ICSE</em>, ACM,
+2014, pp. 424–434.<br />
 <strong>[Rah14]:</strong> F. Rahman <em>et al.</em>, “Comparing static
 bug finders and statistical prediction,” in <em>Proc. ICSE</em>, ACM,
 2014, pp. 424–434.</p>
 <h2 id="references-last">References (Last)</h2>
+<h2 id="references-last-1">References (Last)</h2>
 <p><strong>[Rob10]:</strong> G. Robles, “Replicating MSR: A study of the
+potential replicability of papers published in the mining software
+repositories proceedings,” in <em>7th IEEE Work. Conf. Mining Softw.
+Repositories (MSR)</em>, IEEE Press, 2010, pp. 171–180.<br />
+<strong>[Rob10]:</strong> G. Robles, “Replicating MSR: A study of the
 potential replicability of papers published in the mining software
 repositories proceedings,” in <em>7th IEEE Work. Conf. Mining Softw.
 Repositories (MSR)</em>, IEEE Press, 2010, pp. 171–180.<br />
 <strong>[Ros15]:</strong> C. Rosen, B. Grawi, and E. Shihab, “Commit
 guru: Analytics and risk prediction of software commits,” in <em>Proc.
 ESEC/FSE</em>, 2015, pp. 966–969.<br />
+<strong>[Ros15]:</strong> C. Rosen, B. Grawi, and E. Shihab, “Commit
+guru: Analytics and risk prediction of software commits,” in <em>Proc.
+ESEC/FSE</em>, 2015, pp. 966–969.<br />
+<strong>[She13]:</strong> M. Shepperd <em>et al.</em>, “Data quality:
+Some comments on the NASA software defect datasets,” <em>IEEE Trans.
+Softw. Eng.</em>, vol. 39, no. 9, pp. 1208–1215, Sep. 2013.<br />
 <strong>[She13]:</strong> M. Shepperd <em>et al.</em>, “Data quality:
 Some comments on the NASA software defect datasets,” <em>IEEE Trans.
 Softw. Eng.</em>, vol. 39, no. 9, pp. 1208–1215, Sep. 2013.<br />
 <strong>[Shi13]:</strong> Y. Shin and L. Williams, “Can traditional
 fault prediction models be used for vulnerability prediction?”
 <em>Empirical Softw. Eng.</em>, vol. 18, pp. 25–59, 2013.<br />
+<strong>[Shi13]:</strong> Y. Shin and L. Williams, “Can traditional
+fault prediction models be used for vulnerability prediction?”
+<em>Empirical Softw. Eng.</em>, vol. 18, pp. 25–59, 2013.<br />
+<strong>[Tan16]:</strong> C. Tantithamthavorn <em>et al.</em>,
+“Automated parameter optimization of classification techniques for
+defect prediction,” in <em>ICSE’16</em>, 2016, pp. 321–332.<br />
 <strong>[Tan16]:</strong> C. Tantithamthavorn <em>et al.</em>,
 “Automated parameter optimization of classification techniques for
 defect prediction,” in <em>ICSE’16</em>, 2016, pp. 321–332.<br />
 <strong>[Tur09]:</strong> B. Turhan <em>et al.</em>, “On the relative
 value of cross-company and within-company data for defect prediction,”
 <em>Empirical Softw. Eng.</em>, vol. 14, pp. 540–578, Jan. 2009.<br />
+<strong>[Tur09]:</strong> B. Turhan <em>et al.</em>, “On the relative
+value of cross-company and within-company data for defect prediction,”
+<em>Empirical Softw. Eng.</em>, vol. 14, pp. 540–578, Jan. 2009.<br />
+<strong>[Wan20]:</strong> Z. Wan <em>et al.</em>, “Perceptions,
+expectations, &amp; challenges in defect prediction,” <em>IEEE Trans.
+Softw. Eng.</em>, vol. 46, no. 11, pp. 1241–1266, Nov. 2020.<br />
 <strong>[Wan20]:</strong> Z. Wan <em>et al.</em>, “Perceptions,
 expectations, &amp; challenges in defect prediction,” <em>IEEE Trans.
 Softw. Eng.</em>, vol. 46, no. 11, pp. 1241–1266, Nov. 2020.<br />
 <strong>[Xia22]:</strong> T. Xia <em>et al.</em>, “Sequential model
 optimization for software effort estimation,” <em>IEEE Trans. Softw.
 Eng.</em>, vol. 48, no. 6, pp. 1994–2009, Jun. 2022.<br />
+<strong>[Xia22]:</strong> T. Xia <em>et al.</em>, “Sequential model
+optimization for software effort estimation,” <em>IEEE Trans. Softw.
+Eng.</em>, vol. 48, no. 6, pp. 1994–2009, Jun. 2022.<br />
+<strong>[Yan19]:</strong> M. Yan <em>et al.</em>, “Automating
+change-level self-admitted technical debt determination,” <em>IEEE
+Trans. Softw. Eng.</em>, vol. 45, no. 12, pp. 1211–1229, Dec. 2019.
 <strong>[Yan19]:</strong> M. Yan <em>et al.</em>, “Automating
 change-level self-admitted technical debt determination,” <em>IEEE
 Trans. Softw. Eng.</em>, vol. 45, no. 12, pp. 1211–1229, Dec. 2019.</p>
-<hr />
 <h2 id="appendix-ais-commercial-bubble-bursting">Appendix: AI’s
 Commercial Bubble Bursting?</h2>
-<p><embed src="newai.pdf" style="height:100.0%" /></p>
+<h2 id="appendix-ais-commercial-bubble-bursting-1">Appendix: AI’s
+Commercial Bubble Bursting?</h2>
+<p><embed src="newai.pdf" style="height:100.0%" /> <embed
+src="newai.pdf" style="height:100.0%" /></p>
 </body>
 </html>
