@@ -2,10 +2,11 @@
 from types import SimpleNamespace as obj
 from pathlib import Path
 from math import exp
+import random,sys
 
 BIG=1e32
 
-the=obj(bins=5,
+the=obj(bins=5, seed=0x2A,
         file=Path.home() / "gits/timm/moot/optimize/misc/auto93.csv")
 
 #------------------------------------------------------------------------------
@@ -81,10 +82,19 @@ def o(x):
   return str(x)
 
 #------------------------------------------------------------------------------
-data = Data(csv(the.file))
-[bin(col, row[col.i]) for row in data.rows.values() for col in data.cols.x]
-oo(data.cols.names)
-for row in data.rows.values():
-  tmp=row[:]
-  for col in data.cols.x: tmp[col.i] = discretize(col, tmp[col.i])
-  oo(tmp)
+def eg__bin():
+  data = Data(csv(the.file))
+  [bin(col, row[col.i]) for row in data.rows.values() for col in data.cols.x]
+  oo(data.cols.names)
+  for row in data.rows.values():
+    tmp=row[:]
+    for col in data.cols.x: tmp[col.i] = discretize(col, tmp[col.i])
+    print(" ")
+    oo(row)
+    oo(tmp)
+
+#------------------------------------------------------------------------------
+random.seed(the.seed)
+if __name__=="__main__" and len(sys.argv) > 1:
+  s=sys.argv[1]
+  if (fn := globals().get(f"eg{s.replace('-', '_')}")): fn()
