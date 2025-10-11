@@ -43,15 +43,15 @@ def add(x,v):
       x.sd   = 0 if x.n < 2 else (max(0,x._m2) / (x.n - 1)) ** .5
       x.lo   = min(v, x.lo)
       x.hi   = max(v, x.hi)
-    else:
+    else: # Data
       [add(col,v[col.i]) for col in x.cols.all]
       x.rows[id(v)] = v
   return v
 
-def bin(col, v):
-  return v if v == "?" or col.it is not Num else col.mins[_bin(col, v)]
+def discretize(col, v):
+  return v if v == "?" or col.it is not Num else col.mins[bin(col, v)]
 
-def _bin(col, v):
+def bin(col, v):
   if v == "?" or col.it is not Num: return v
   z = (v - col.mu) / (col.sd + 1/BIG)
   b = min(the.bins - 1, max(0, int(the.bins / (1 + exp(-z)))))
@@ -82,9 +82,9 @@ def o(x):
 
 #------------------------------------------------------------------------------
 data = Data(csv(the.file))
-[_bin(col, row[col.i]) for row in data.rows.values() for col in data.cols.x]
+[bin(col, row[col.i]) for row in data.rows.values() for col in data.cols.x]
 oo(data.cols.names)
 for row in data.rows.values():
   tmp=row[:]
-  for col in data.cols.x: tmp[col.i] = bin(col, tmp[col.i])
+  for col in data.cols.x: tmp[col.i] = discretize(col, tmp[col.i])
   oo(tmp)
