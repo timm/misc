@@ -9,7 +9,8 @@ BIG=1e32
 the=obj(bins=5, seed=0x2A,
         file=Path.home() / "gits/timm/moot/optimize/misc/auto93.csv")
 
-#------------------------------------------------------------------------------
+### Create 
+
 def Sym(i=0,s=" "): return obj(it=Sym, i=i, s=s, n=0, has={})
 def Num(i=0,s=" "): return obj(it=Num, i=i, s=s, n=0, mu=0, _m2=0, sd=0,mins={},
                               lo=BIG, hi=-BIG, best=0 if s[-1]=="-" else 1)
@@ -26,7 +27,8 @@ def Cols(names):
 
 def clone(data,rows=[]): return Data([data.cols.names] + rows)
 
-#------------------------------------------------------------------------------
+### Update 
+
 def adds(lst,it=None):
   it = it or Num()
   [add(it,x) for x in lst]
@@ -49,6 +51,8 @@ def add(x,v):
       x.rows[id(v)] = v
   return v
 
+### Discretize
+
 def discretize(col, v):
   return v if v == "?" or col.it is not Num else col.mins[bin(col, v)]
 
@@ -59,7 +63,8 @@ def bin(col, v):
   col.mins[b] = min(v, col.mins.get(b, BIG))
   return b
 
-#------------------------------------------------------------------------------
+### Lib
+
 def csv(file):
   with open(file,encoding="utf-8") as f:
     for line in f:
@@ -73,15 +78,20 @@ def coerce(s):
     except: return {'True':True, 'False':False}.get(s,s)
 
 def oo(x): print(o(x)); return x
-def o(x):
+def o(x, d=1):
+  if (d:=d+1) >8: return "..."
   if   callable(x)      : x= x.__name__
-  elif type(x) is obj   : x= o(vars(x))
-  elif type(x) is list  : x= ', '.join([o(x1) for x1 in x])
-  elif type(x) is float : x= str(x//1) if x % 1 == 0 else f"{x:.3f}"
-  elif type(x) is dict  : x= "{"+" ".join(f":{k} {o(x[k])}" for k in x)+"}"
+  elif type(x) is obj   : x= o(vars(x),d)
+  elif type(x) is float : x= int(x) if x % 1 == 0 else round(x,3)
+  elif type(x) is dict  : x= "{"+" ".join(f":{k} {o(x[k],d)}" for k in x)+"}"
+  elif type(x) is list  : x= ', '.join([o(y,d) for y in x])
+  elif hasattr(x, '__iter__') and type(x) not in (str, bytes):
+    try:    x= type(x)(o(y,d) for y in x)
+    except: x= [o(y,d) for y in x]
   return str(x)
 
-#------------------------------------------------------------------------------
+## Demos
+
 def eg__bin():
   data = Data(csv(the.file))
   [bin(col, row[col.i]) for row in data.rows.values() for col in data.cols.x]
@@ -93,7 +103,8 @@ def eg__bin():
     oo(row)
     oo(tmp)
 
-#------------------------------------------------------------------------------
+## Start-up
+
 random.seed(the.seed)
 if __name__=="__main__" and len(sys.argv) > 1:
   s=sys.argv[1]
