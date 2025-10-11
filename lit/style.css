@@ -1,10 +1,13 @@
-body {  max-width: 600px;
-        margin: auto; 
+body {  
+   font-family: "Fira Code", "Consolas", "Courier New", monospace;
+   font-size: small;
+   max-width: 600px;
+   margin: auto; 
 }
 code { background: #fcfcfc; padding: 0.1em 0.3em; border-radius: 3px; }
 pre code {
    font-size: 85%;
-   xbackground: #EDEDED; <!-- #f7f7f7; -->
+   background: #EEE; <!-- #f7f7f7; -->
    border: 1px solid #ddd;
    border-radius: 4px;
    display: block;
