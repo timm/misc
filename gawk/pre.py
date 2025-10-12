@@ -66,8 +66,8 @@ def add(x, v, inc=1):
 def _update(x, v, inc):
   if x.it is Data:
     [add(col, v[col.at], inc) for col in x.cols.all]
-    if inc > 0 : x.rows[id(v)] = v
-    else : x.rows.pop(id(v))
+    if inc > 0: x.rows[id(v)] = v
+    else      : x.rows.pop( id(v) )
     x.mid = None
   elif x.it is Sym: 
     x.has[v] = inc + x.has.get(v,0)
