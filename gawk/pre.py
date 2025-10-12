@@ -11,9 +11,9 @@ Options:
     -h  show help   
 """
 from types import SimpleNamespace as obj
-from pathlib import Path
-from math import exp,sqrt
 import fileinput, random, sys
+from math import exp,sqrt
+from pathlib import Path
 
 BIG=1e32
 
@@ -58,12 +58,12 @@ def sub(x,v): return add(x, v, -1)
 
 # To add v, jump over 'dont knows', increment summaries, return v.
 def add(x, v, inc=1):
-  if v!="?": x.n += inc; update(x, v, inc)
+  if v!="?": x.n += inc; _update(x, v, inc)
   return v
 
 # To update a data, change rows then recursively update column summaries.
 # If the increment `inc` is negative, that means remove a row.
-def update(x, v, inc):
+def _update(x, v, inc):
   if x.it is Data:
     [add(col, v[col.at], inc) for col in x.cols.all]
     if inc > 0 : x.rows[id(v)] = v
@@ -99,17 +99,7 @@ def bin(col, v):
 #------------------------------------------------------------------------------
 ### Lib
 
-def csv(file=None):
-  for line in fileinput.input(files=file if file else '-'):
-    if (line := line.split("%")[0]):
-      yield [coerce(s.strip()) for s in line.split(",")]
-
-def coerce(s):
-  try: return int(s)
-  except:
-    try: return float(s)
-    except: return {'True':True, 'False':False}.get(s,s)
-
+# Pretty print.
 def oo(x): print(o(x)); return x
 
 def o(x, d=1):
@@ -120,6 +110,18 @@ def o(x, d=1):
   elif type(x) is float : x= int(x) if x % 1 == 0 else round(x,3)
   elif type(x) is dict  : x= "{"+" ".join(f":{k} {o(x[k],d)}" for k in x)+"}"
   return str(x)
+
+# Read csv files.
+def csv(file=None):
+  for line in fileinput.input(files=file if file else '-'):
+    if (line := line.split("%")[0]):
+      yield [coerce(s.strip()) for s in line.split(",")]
+
+def coerce(s):
+  try: return int(s)
+  except:
+    try: return float(s)
+    except: return {'True':True, 'False':False}.get(s,s)
 
 #------------------------------------------------------------------------------
 ## Demos
