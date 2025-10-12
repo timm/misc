@@ -51,7 +51,7 @@ docs/%.html: %.py $(Top)/Makefile $(Top)/etc/head.html $(Top)/etc/my.css ## make
 	cat $< | gawk '{gsub(/-------[-]*/,"\n#  \n#   \n\n"); print}' > $(Top)/docs/$<
 	cd  $(Top)/docs; docco -o .  $<; 
 	rm  $(Top)/docs/$<
-	cat $(Top)/etc/my.css >> $(Top)/docs/docco.css
+	cat $(Top)/etc/my.css >> $(Top)/docs/docco.css ###
 	gawk '/<h1>/ {print "<div class=docs>";                       \
                 while(getline x < "$(Top)/etc/head.html") {print x}; \
                 print "<h1>'$<'</h1></div>";                  \
