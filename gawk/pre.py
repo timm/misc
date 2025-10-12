@@ -24,9 +24,8 @@ the=obj(bins=5, seed=42,
 ### Create 
 
 # Nums and Syms are for summarizing numerics and symbolics.
-def Col(it, at=0, txt=" "): return dict(it=it, at=at, txt=txt, n=0)
-def Sym(at=0,txt=" "): return obj(**Col(Sym,at,txt), has={})
-def Num(at=0,txt=" "): return obj(**Col(Num,at,txt), mu=0, m2=0, sd=0, 
+def Sym(at=0,txt=" "): return obj(it=Sym, at=at, txt=txt,n=0, has={})
+def Num(at=0,txt=" "): return obj(it=Num, at=at, txt=txt,n=0, mu=0, m2=0, sd=0, 
                                   mins={}, lo=BIG, hi=-BIG, best=txt[-1]!="-")
 
 # Data stores (1) rows as well as (2) summaries of each column.
@@ -54,20 +53,18 @@ def adds(lst, it=None):
   return it
 
 # To sub, add a negative amount.
-def sub(x,v): return add(x, v, -1)
+def sub(x,v): return add(x, v, inc=-1)
 
 # To add v, jump over 'dont knows', increment summaries, return v.
-def add(x, v, inc=1):
-  if v!="?": x.n += inc; _update(x, v, inc)
-  return v
-
-# To update a data, change rows then recursively update column summaries.
+# To do the update,  change rows then recursively update column summaries.
 # If the increment `inc` is negative, that means remove a row.
-def _update(x, v, inc):
+def add(x, v, inc=1):
+  if v == "?": return v
+  x.n += inc
   if x.it is Data:
     [add(col, v[col.at], inc) for col in x.cols.all]
     if inc > 0: x.rows[id(v)] = v
-    else      : x.rows.pop( id(v) )
+    else: x.rows.pop(id(v))
     x.mid = None
   elif x.it is Sym: 
     x.has[v] = inc + x.has.get(v,0)
@@ -76,25 +73,24 @@ def _update(x, v, inc):
     if inc < 0 and x.n < 2: 
       x.sd = x.mu = x.m2 = x.n = 0
     else:
-      d     = v - x.mu
+      d = v - x.mu
       x.mu += inc * d / x.n
       x.m2 += inc * d * (v - x.mu) 
-      x.sd  = 0 if x.n < 2 else sqrt(max(0, x.m2) / (x.n - 1))
+      x.sd = 0 if x.n < 2 else sqrt(max(0, x.m2) / (x.n - 1))
+  return v
 
 #------------------------------------------------------------------------------
 ### Discretize
 
 # Return the smallest value ever seen in v's bin.
-def discretize(col, v):
-  return v if v == "?" or col.it is not Num else col.mins[bin(col, v)]
-
-# Return v's bin. For Nums, remember the smallest v seen in each bin.
+# Note that to find the true min, this has to be run once over all the data,
+# then a second time to return the actual min bin value.
 def bin(col, v):
   if v == "?" or col.it is not Num: return v
   z = (v - col.mu) / (col.sd + 1/BIG)
   b = min(the.bins - 1, max(0, int(the.bins / (1 + exp(-z)))))
   col.mins[b] = min(v, col.mins.get(b, BIG))
-  return b
+  return col.mins[b]
 
 #------------------------------------------------------------------------------
 ### Lib
@@ -134,7 +130,7 @@ def eg__bin():
   oo(data.cols.names)
   for row in data.rows.values():
     tmp=row[:]
-    for col in data.cols.x: tmp[col.at] = discretize(col, tmp[col.at])
+    for col in data.cols.x: tmp[col.at] = bin(col, tmp[col.at])
     print(" ")
     oo(row)
     oo(tmp)
