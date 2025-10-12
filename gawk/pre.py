@@ -6,19 +6,24 @@ pre.py (v0.5): lightweight XAI for multi-objective optimization
 Options:
    
     -b  bins for discretization (bins=5)           
+    -f  data file (file=auto93.csv)   
+    -F  how few samples to use (Few=256)
+    -p  distance coeffecient (p=2)
     -s  random number seed (seed=42) 
-    -f  file=../moot/optimize/misc/auto93.csv   
     -h  show help   
 """
-from types import SimpleNamespace as obj
-import fileinput, random, sys
 from math import exp,sqrt
-from pathlib import Path
+import fileinput, random, sys,re
+from types import SimpleNamespace as obj
+
+the = obj(bins=5, seed=42, p=2, Few=256, file="auto93.csv")
 
 BIG=1e32
 
-the=obj(bins=5, seed=42,
-        file=Path.home() / "gits/timm/moot/optimize/misc/auto93.csv")
+# Prudence check: does 'the' match the __doc__?
+want = set(dict(re.findall(r'(\w+)=([^)]+)', __doc__)).items())
+got  = set((k, str(v)) for k, v in vars(the).items())
+assert not want ^ got, f"Inconsistent: {want ^ got}"
 
 #------------------------------------------------------------------------------
 ### Create 
@@ -78,6 +83,33 @@ def add(x, v, inc=1):
       x.m2 += inc * d * (v - x.mu) 
       x.sd = 0 if x.n < 2 else sqrt(max(0, x.m2) / (x.n - 1))
   return v
+
+def dist(src):
+  n,d=0,0
+  for x in src: n,d = n+1,d+x**the.p
+  return (d/n) ** (1/the.p)
+
+def distx(data,row1,row2):
+  def fn(col,a,b):
+    if a==b=="?": return 1
+    if col.it is Sym: return a != b
+    a,b = norm(col,a), norm(col,b)
+    a = a if a!="?" else (0 if b>.5 else 1)
+    b = b if b!="?" else (0 if a>.5 else 1)
+    return abs(a-b)
+  return dist(fn(col,row1[col.at],row2[col.at]) for col in data.cols.x)
+
+def norm(col,x):
+  return x if x=="?" or col.it is Sym else (x-col.lo)/(col.hi-col.lo+1/BIG)
+
+def poles(data,rows):
+   D = lambda r1,r2: distx(data, r1, r2)
+   x,*rest = random.choices(rows, few=the.Few)
+   y = max(rest, key=lambda r: D(r,x))
+   z = max(rest, key=lambda r: D(r,y))
+   c = D(y,z)
+   P = lambda r: (D(r,y)**2 + c**2 - D(r,y)**2)/ (2 * c) <= c/2
+   return [(row, P(row)) for row in rows]
 
 #------------------------------------------------------------------------------
 ### Discretize
