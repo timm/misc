@@ -5,11 +5,11 @@ pre.py (v0.5): lightweight XAI for multi-objective optimization
 
 Options:
    
-    -b  bins for discretization (bins=5)           
-    -f  data file (file=auto93.csv)   
-    -F  how few samples to use (Few=256)
-    -p  distance coeffecient (p=2)
-    -s  random number seed (seed=42) 
+    -b  bins for discretization: bins=5           
+    -f  data file              : file=auto93.csv   
+    -F  how few samples to use : Few=256
+    -p  distance coeffecient   : p=2
+    -s  random number seed     : seed=42
     -h  show help   
 """
 from math import exp,sqrt
@@ -21,9 +21,9 @@ the = obj(bins=5, seed=42, p=2, Few=256, file="auto93.csv")
 BIG=1e32
 
 # Prudence check: does 'the' match the __doc__?
-want = set(dict(re.findall(r'(\w+)=([^)]+)', __doc__)).items())
-got  = set((k, str(v)) for k, v in vars(the).items())
-assert not want ^ got, f"Inconsistent: {want ^ got}"
+got  = re.findall(r'(\w+)=(\S+)', __doc__)
+want = ((k, str(v)) for k, v in vars(the).items())
+assert not (bad := set(want) ^ set(got)), f"Mismatch: {bad}"
 
 #------------------------------------------------------------------------------
 ### Create 
