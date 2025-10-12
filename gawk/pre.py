@@ -5,9 +5,9 @@ pre.py (v0.5): lightweight XAI for multi-objective optimization
 
 Options:
    
-    -b  bins=5      bins for discretization         
-    -s  seed=42     random number seed 
-    -f  file=../moot/optimize/misc/auto93.csv 
+    -b  bins for discretization (bins=5)           
+    -s  random number seed (seed=42) 
+    -f  file=../moot/optimize/misc/auto93.csv   
     -h  show help   
 """
 from types import SimpleNamespace as obj
@@ -71,7 +71,7 @@ def update(x, v, inc):
     x.mid = None
   elif x.it is Sym: 
     x.has[v] = inc + x.has.get(v,0)
-  else:
+  elif x.it is Num:
     x.lo, x.hi = min(v, x.lo), max(v, x.hi)
     if inc < 0 and x.n < 2: 
       x.sd = x.mu = x.m2 = x.n = 0
@@ -138,8 +138,8 @@ def eg__bin():
     oo(tmp)
 
 #------------------------------------------------------------------------------
+
 ## Start-up
-     
 if __name__=="__main__" and len(sys.argv) > 1:
   for n,s in enumerate(sys.argv):
     if (fn := globals().get(f"eg{s.replace('-', '_')}")):
