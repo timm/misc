@@ -9,15 +9,16 @@ BIG=1e32
 the=obj(bins=5, seed=0x2A,
         file=Path.home() / "gits/timm/moot/optimize/misc/auto93.csv")
 
+#------------------------------------------------------------------------------
 ### Create 
 
 def Sym(i=0,s=" "): return obj(it=Sym, i=i, s=s, n=0, has={})
-def Num(i=0,s=" "): return obj(it=Num, i=i, s=s, n=0, mu=0, _m2=0, sd=0,mins={},
+def Num(i=0,s=" "): return obj(it=Num, i=i, s=s, n=0, mu=0, m2=0, sd=0,mins={},
                               lo=BIG, hi=-BIG, best=0 if s[-1]=="-" else 1)
 
 def Data(src): 
   src = iter(src)
-  return adds(src, obj(it=Data, n=0, rows={}, cols=Cols(next(src))))
+  return adds(src, obj(it=Data, n=0, mid=None, rows={}, cols=Cols(next(src))))
 
 def Cols(names):
   all = [(Num if s[0].isupper() else Sym)(i,s) for i,s in enumerate(names)]
@@ -27,6 +28,7 @@ def Cols(names):
 
 def clone(data,rows=[]): return Data([data.cols.names] + rows)
 
+#------------------------------------------------------------------------------
 ### Update 
 
 def adds(lst,it=None):
@@ -34,23 +36,31 @@ def adds(lst,it=None):
   [add(it,x) for x in lst]
   return it
 
-def add(x,v):
-  if v!="?": 
-    x.n += 1
-    if x.it is Sym:  
-      x.has[v] = 1 + x.has.get(v,0)
-    elif x.it is Num:
-      d      = v-x.mu
-      x.mu  += d / x.n
-      x._m2 += d * (v - x.mu) 
-      x.sd   = 0 if x.n < 2 else (max(0,x._m2) / (x.n - 1)) ** .5
-      x.lo   = min(v, x.lo)
-      x.hi   = max(v, x.hi)
-    else: # Data
-      [add(col,v[col.i]) for col in x.cols.all]
-      x.rows[id(v)] = v
+def sub(x,v): return add(x,v,-1)
+
+def add(x, v, inc=1):
+  if v!="?": x.n += inc; _add(x, v, inc)
   return v
 
+def _add(x,v,inc):
+  if x.it is Sym: 
+    x.has[v] = inc + x.has.get(v,0)
+  elif x.it is Num:
+    x.lo, x.hi = min(v, x.lo), max(v, x.hi)
+    if inc < 0 and x.n < 2: 
+      x.sd = x.mu = x.m2 = x.n = 0
+    else:
+      d     = v - x.mu
+      x.mu += inc * d / x.n
+      x.m2 += inc * d * (v - x.mu) 
+      x.sd  = 0 if x.n < 2 else (max(0,x.m2) / (x.n - 1)) ** .5
+  else:
+    [add(col, v[col.i], inc) for col in x.cols.all]
+    x.mid = None
+    if inc > 0: x.rows[id(v)] = v
+    else      : del x.rows[id(v)]
+
+#------------------------------------------------------------------------------
 ### Discretize
 
 def discretize(col, v):
@@ -63,6 +73,7 @@ def bin(col, v):
   col.mins[b] = min(v, col.mins.get(b, BIG))
   return b
 
+#------------------------------------------------------------------------------
 ### Lib
 
 def csv(file):
@@ -90,6 +101,7 @@ def o(x, d=1):
     except: x= [o(y,d) for y in x]
   return str(x)
 
+#------------------------------------------------------------------------------
 ## Demos
 
 def eg__bin():
@@ -103,9 +115,9 @@ def eg__bin():
     oo(row)
     oo(tmp)
 
+#------------------------------------------------------------------------------
 ## Start-up
 
 random.seed(the.seed)
 if __name__=="__main__" and len(sys.argv) > 1:
-  s=sys.argv[1]
-  if (fn := globals().get(f"eg{s.replace('-', '_')}")): fn()
+  if (fn := globals().get(f"eg{sys.argv[1].replace('-', '_')}")): fn()
