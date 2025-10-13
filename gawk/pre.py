@@ -102,11 +102,11 @@ def norm(col,x):
 
 def poles(data,rows):
   D = lambda r1,r2: distx(data, r1, r2)
-  x,*rest = random.choices(rows, few=the.Few)
+  x, *rest = random.choices(rows, few=the.Few)
   y = max(rest, key=lambda r: D(r,x))
   z = max(rest, key=lambda r: D(r,y))
   c = D(y,z)
-  P = lambda r: (D(r,y)**2 + c**2 - D(r,y)**2)/ (2 * c) <= c/2
+  P = lambda r: (D(r,y)**2 + c**2 - D(r,y)**2)/ (2 * c)
   return {id(row):P(row) for row in rows}
 
 #------------------------------------------------------------------------------
