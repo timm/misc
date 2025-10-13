@@ -226,6 +226,10 @@ All Projects (35)
 | 34 | 1b | **Booze Buddies** | 3 | 2 | 1 | 2 | **8** |
 | 35 | 1 | **Movie Munchers** | 3 | 1 | 1 | 2 | **7** |
 
+Here the rows and columns clusters (with 5 point scale going to 3 to get rid of some of the subjectivity):
+
+<img width="1335" height="1305" alt="image" src="https://github.com/user-attachments/assets/b68391e4-b556-4c5e-b049-d189362454e9" />
+
 ---
 
 ## **7. Distance Calculation Example**
