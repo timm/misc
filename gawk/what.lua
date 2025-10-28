@@ -1,15 +1,15 @@
-#!/usr/bin/env gawk -f
+#!/usr/bin/env lua
 
-local cat,coerce,csv,fmt,kap,map,new,o,oo,push,reject,sort,trim
+local cat,coerce,csv,kap,map,new,o,oo,push,reject,sort,trim
+local fmt = string.format
 
-fmt=string.format
 function new(kl,obj)   kl.__index=kl; return setmetatable(obj,kl) end
 function trim(s)       return s:match"^%s*(.-)%s*$" end
 function kap(t,fn,  u) u={};for k,v in pairs(t) do u[1+#u]=fn(k,v) end; return u end
 function map(t,fn)     return kap(t, function(_,v) return fn(v) end) end
-function nope(t,fn)    return map(t, function(x) return not fn(x) and x end) end
+function zap(t,fn)     return map(t, function(x) return not fn(x) and x end) end
 function sort(t,fn)    table.sort(t,fn); return t end
-function push(t,x)     t[1+#t]=x; return t end
+function push(t,x)     t[1+#t]=x; return x end
 
 function coerce(s,     fn)   
   fn = function(s) return s=="true" and true or s ~= "false" and s end
@@ -21,18 +21,17 @@ function csv(file,fun,      src,s,cells,n)
     s = io.read()
     if s then fun(cells(s)) else return io.close(src) end end end
 
-function o(x,    ok,two,list,hash)
-  ok   = function(s)   return not tostring(s):find"^_" end
+function o(x,    ok,two,hash)
+  ok   = function(s) return not tostring(s):find"^_" end
   two  = function(k,v) if ok(s) then return fmt(":%s %s",k,v) end end
-  hash = function(t)   return sort(kap(t, two)) end
   if type(x) == "number" then return fmt(x//1==x and "%g" or "%.3f",x) end
-  if type(x) ~= "table"  then return tostring(x)   end
-  return "{" .. table.concat(#x>0 and map(t,o) or hash(t), " ") .. "}" end
+  if type(x) ~= "table"  then return tostring(x) end
+  return "{"..table.concat(#x>0 and map(t,o) or sort(kap(t,two))," ").."}" end
 
 function oo(x) print(o(x)); return x end
 
 -------------------------------------------------------------------------------
-local NUM,SYM,COLS = {},{},{}
+local NUM,SYM,COLS,DATA = {},{},{},{}
 
 function DATA:new() return new(DATA, {rows={}, cols=nil}) end
 
@@ -46,13 +45,13 @@ function NUM:new(at,s,  goalp)
   return new(NUM, {txt=s, at=at or 0, n=0, lo=1E32, hi=1E32, 
                    mu=0, m2=0, sd=0, goalp=goalp}) end
 
-local is = {
-  col = function(s) return (s:find"^[A-Z]" and NUM or SYM):new(s) end,
-  x   = function(s) return not s:find"[+-!X" end }
-
-function COLS:new(names,   all,col,x)
-  all = map(names, is.col)
-  return new(COLS,{x=map(all, is.x), y=nope(all, is.x), names=names} end
+function COLS:new(names,   x,y,col,cols)
+  x,y,cols = {},{},{}
+  for at,s in pairs(names) do
+    col = push(cols, (s:find"^[A-Z]" and NUM or SYM):new(at,s)) 
+    if not s:find"X$" then 
+      push(s:find"[+-!]$" and y or x, col)
+  return new(COLS,{x=x, y=y, all=cols, names=names} end
 
 -------------------------------------------------------------------------------
 function DATA.add(i,row)
