@@ -23,6 +23,21 @@ function l.sort(t,fn)
 function l.push(t,x)    
   t[1+#t]=x; return x end
 
+function l.same(x) return x end
+
+function l.reduce(t, fn, init,    acc)
+  acc = init
+  l.kap(t, function(k, v) acc = fn(acc, k, v) end)
+  return acc end
+
+function l.max(t, fn)
+  return l.reduce(t, function(acc, k, v,      fv)
+    fv = (fn or same)(v)
+    return fv > (acc[2] or -math.huge) and {k, fv} or acc end, {}) end
+
+function l.sum(t, fn)
+  return l.reduce(t, function(acc, k, v) return acc + (fn or same)(v) end, 0) end
+
 function l.coerce(s,     fn)   
   fn = function(s) return s=="true" and true or s ~= "false" and s end
   return math.tointeger(s) or tonumber(s) or fn(l.trim(s)) end
