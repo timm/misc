@@ -25,7 +25,7 @@ function f.disty(data,row,     fn)
 
 function f.distx(data,row1,row2,    fn)
   fn = function(c)return f._x(c,row1[c.at],row2[c.at])end
-  return f.dist(l.map(data.cols.x,fn))end
+  return f.dist(l.map(data.cols.x, fn))end
 
 function f._x(col,a,b)
   if a=="?" and b=="?" then return 1 end
