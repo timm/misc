@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>prepare-commit-msg.sample</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>prepare-commit-msg.sample</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <p>An example hook script to prepare the commit log message.
+Called by &ldquo;git commit&rdquo; with the name of the file that has the
+commit message, followed by the description of the commit
+message&rsquo;s source.  The hook&rsquo;s purpose is to edit the commit
+message file.  If the hook fails with a non-zero status,
+the commit is aborted.</p>
+<p>To enable this hook, rename this file to &ldquo;prepare-commit-msg&rdquo;.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>This hook includes three examples. The first one removes the
+&ldquo;# Please enter the commit message&hellip;&rdquo; help message.</p>
+<p>The second includes the output of &ldquo;git diff &ndash;name-status -r&rdquo;
+into the message, just before the &ldquo;git status&rdquo; output.  It is
+commented because it doesn&rsquo;t cope with &ndash;amend or with squashed
+commits.</p>
+<p>The third example adds a Signed-off-by line to the message, that can
+still be edited.  This is rarely a good idea.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">COMMIT_MSG_FILE</span><span class="o">=</span><span class="nv">$1</span>
+<span class="nv">COMMIT_SOURCE</span><span class="o">=</span><span class="nv">$2</span>
+<span class="nv">SHA1</span><span class="o">=</span><span class="nv">$3</span>
+
+/usr/bin/perl<span class="w"> </span>-i.bak<span class="w"> </span>-ne<span class="w"> </span><span class="s1">&#39;print unless(m/^. Please enter the commit message/..m/^#$/)&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$COMMIT_MSG_FILE</span><span class="s2">&quot;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>case &ldquo;$COMMIT_SOURCE,$SHA1&rdquo; in
+ ,|template,)
+   /usr/bin/perl -i.bak -pe &lsquo;
+      print &ldquo;\n&rdquo; . <code>git diff --cached --name-status -r</code>
+     if /^#/ &amp;&amp; $first++ == 0&rsquo; &ldquo;$COMMIT_MSG_FILE&rdquo; ;;
+ *) ;;
+esac</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>SOB=$(git var GIT_COMMITTER_IDENT | sed -n &lsquo;s/^(.<em>&gt;).</em>$/Signed-off-by: \1/p&rsquo;)
+git interpret-trailers &ndash;in-place &ndash;trailer &ldquo;$SOB&rdquo; &ldquo;$COMMIT_MSG_FILE&rdquo;
+if test -z &ldquo;$COMMIT_SOURCE&rdquo;
+then
+  /usr/bin/perl -i.bak -pe &lsquo;print &ldquo;\n&rdquo; if !$first_line++&rsquo; &ldquo;$COMMIT_MSG_FILE&rdquo;
+fi</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

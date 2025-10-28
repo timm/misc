@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>update.sample</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>update.sample</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <p>An example hook script to block unannotated tags from entering.
+Called by &ldquo;git receive-pack&rdquo; with arguments: refname sha1-old sha1-new</p>
+<p>To enable this hook, rename this file to &ldquo;update&rdquo;.</p>
+<h2>Config</h2>
+<p>hooks.allowunannotated
+  This boolean sets whether unannotated tags will be allowed into the
+  repository.  By default they won&rsquo;t be.
+hooks.allowdeletetag
+  This boolean sets whether deleting tags will be allowed in the
+  repository.  By default they won&rsquo;t be.
+hooks.allowmodifytag
+  This boolean sets whether a tag may be modified after creation. By default
+  it won&rsquo;t be.
+hooks.allowdeletebranch
+  This boolean sets whether deleting branches will be allowed in the
+  repository.  By default they won&rsquo;t be.
+hooks.denycreatebranch
+  This boolean sets whether remotely creating branches will be denied
+  in the repository.  By default this is allowed.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>&mdash; Command line</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">refname</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="nv">oldrev</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">&quot;</span>
+<span class="nv">newrev</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$3</span><span class="s2">&quot;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>&mdash; Safety check</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$GIT_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">	</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Don&#39;t run this script from the command line.&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">	</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot; (if you want, you could supply GIT_DIR then run&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">	</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  </span><span class="nv">$0</span><span class="s2"> &lt;ref&gt; &lt;oldrev&gt; &lt;newrev&gt;)&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">	</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$refname</span><span class="s2">&quot;</span><span class="w"> </span>-o<span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$oldrev</span><span class="s2">&quot;</span><span class="w"> </span>-o<span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$newrev</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">	</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;usage: </span><span class="nv">$0</span><span class="s2"> &lt;ref&gt; &lt;oldrev&gt; &lt;newrev&gt;&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">	</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>&mdash; Config</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">allowunannotated</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>config<span class="w"> </span>--type<span class="o">=</span>bool<span class="w"> </span>hooks.allowunannotated<span class="k">)</span>
+<span class="nv">allowdeletebranch</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>config<span class="w"> </span>--type<span class="o">=</span>bool<span class="w"> </span>hooks.allowdeletebranch<span class="k">)</span>
+<span class="nv">denycreatebranch</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>config<span class="w"> </span>--type<span class="o">=</span>bool<span class="w"> </span>hooks.denycreatebranch<span class="k">)</span>
+<span class="nv">allowdeletetag</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>config<span class="w"> </span>--type<span class="o">=</span>bool<span class="w"> </span>hooks.allowdeletetag<span class="k">)</span>
+<span class="nv">allowmodifytag</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>config<span class="w"> </span>--type<span class="o">=</span>bool<span class="w"> </span>hooks.allowmodifytag<span class="k">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>check for no description</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">projectdesc</span><span class="o">=</span><span class="k">$(</span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;1q&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$GIT_DIR</span><span class="s2">/description&quot;</span><span class="k">)</span>
+<span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$projectdesc</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="s2">&quot;Unnamed repository&quot;</span>*<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="o">)</span>
+<span class="w">	</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** Project description file hasn&#39;t been set&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">	</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">	</span><span class="p">;;</span>
+<span class="k">esac</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>&mdash; Check types
+if $newrev is 0000&hellip;0000, it&rsquo;s a commit to delete a ref.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">zero</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>hash-object<span class="w"> </span>--stdin<span class="w"> </span>&lt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span><span class="s1">&#39;[0-9a-f]&#39;</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="k">)</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$newrev</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$zero</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">	</span><span class="nv">newrev_type</span><span class="o">=</span>delete
+<span class="k">else</span>
+<span class="w">	</span><span class="nv">newrev_type</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>cat-file<span class="w"> </span>-t<span class="w"> </span><span class="nv">$newrev</span><span class="k">)</span>
+<span class="k">fi</span>
+
+<span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$refname</span><span class="s2">&quot;</span>,<span class="s2">&quot;</span><span class="nv">$newrev_type</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">	</span>refs/tags/*,commit<span class="o">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <p>un-annotated tag</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="nv">short_refname</span><span class="o">=</span><span class="si">${</span><span class="nv">refname</span><span class="p">##refs/tags/</span><span class="si">}</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$allowunannotated</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">			</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** The un-annotated tag, </span><span class="nv">$short_refname</span><span class="s2">, is not allowed in this repository&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">			</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** Use &#39;git tag [ -a | -s ]&#39; for tags you want to propagate.&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">			</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">		</span><span class="k">fi</span>
+<span class="w">		</span><span class="p">;;</span>
+<span class="w">	</span>refs/tags/*,delete<span class="o">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <p>delete tag</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$allowdeletetag</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">			</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** Deleting a tag is not allowed in this repository&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">			</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">		</span><span class="k">fi</span>
+<span class="w">		</span><span class="p">;;</span>
+<span class="w">	</span>refs/tags/*,tag<span class="o">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      <p>annotated tag</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$allowmodifytag</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>rev-parse<span class="w"> </span><span class="nv">$refname</span><span class="w"> </span>&gt;<span class="w"> </span>/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">		</span><span class="k">then</span>
+<span class="w">			</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** Tag &#39;</span><span class="nv">$refname</span><span class="s2">&#39; already exists.&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">			</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** Modifying a tag is not allowed in this repository.&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">			</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">		</span><span class="k">fi</span>
+<span class="w">		</span><span class="p">;;</span>
+<span class="w">	</span>refs/heads/*,commit<span class="o">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      <p>branch</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$oldrev</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$zero</span><span class="s2">&quot;</span><span class="w"> </span>-a<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$denycreatebranch</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">			</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** Creating a branch is not allowed in this repository&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">			</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">		</span><span class="k">fi</span>
+<span class="w">		</span><span class="p">;;</span>
+<span class="w">	</span>refs/heads/*,delete<span class="o">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      <p>delete branch</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$allowdeletebranch</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">			</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** Deleting a branch is not allowed in this repository&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">			</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">		</span><span class="k">fi</span>
+<span class="w">		</span><span class="p">;;</span>
+<span class="w">	</span>refs/remotes/*,commit<span class="o">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-11'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-11'>#</a>
+      </div>
+      <p>tracking branch</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="p">;;</span>
+<span class="w">	</span>refs/remotes/*,delete<span class="o">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-12'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-12'>#</a>
+      </div>
+      <p>delete tracking branch</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$allowdeletebranch</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">			</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** Deleting a tracking branch is not allowed in this repository&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">			</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">		</span><span class="k">fi</span>
+<span class="w">		</span><span class="p">;;</span>
+<span class="w">	</span>*<span class="o">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-13'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-13'>#</a>
+      </div>
+      <p>Anything else (is there anything else?)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;*** Update hook: unknown type of update to ref </span><span class="nv">$refname</span><span class="s2"> of type </span><span class="nv">$newrev_type</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">		</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">		</span><span class="p">;;</span>
+<span class="k">esac</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-14'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-14'>#</a>
+      </div>
+      <p>&mdash; Finished</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nb">exit</span><span class="w"> </span><span class="m">0</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>pre-rebase.sample</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>pre-rebase.sample</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <p>Copyright (c) 2006, 2008 Junio C Hamano</p>
+<p>The &ldquo;pre-rebase&rdquo; hook is run just before &ldquo;git rebase&rdquo; starts doing
+its job, and can prevent the command from running by exiting with
+non-zero status.</p>
+<p>The hook is called with the following parameters:</p>
+<p>$1 &ndash; the upstream the series was forked from.
+$2 &ndash; the branch being rebased (or empty when rebasing the current branch).</p>
+<p>This sample shows how to prevent topic branches that are already
+merged to &lsquo;next&rsquo; branch from getting rebased, because allowing it
+would result in rebasing already published history.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="nv">publish</span><span class="o">=</span>next
+<span class="nv">basebranch</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$#</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2</span>
+<span class="k">then</span>
+<span class="w">	</span><span class="nv">topic</span><span class="o">=</span><span class="s2">&quot;refs/heads/</span><span class="nv">$2</span><span class="s2">&quot;</span>
+<span class="k">else</span>
+<span class="w">	</span><span class="nv">topic</span><span class="o">=</span><span class="sb">`</span>git<span class="w"> </span>symbolic-ref<span class="w"> </span>HEAD<span class="sb">`</span><span class="w"> </span><span class="o">||</span>
+<span class="w">	</span><span class="nb">exit</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">;</span><span class="c1"># we do not interrupt rebasing detached HEAD</span>
+<span class="k">fi</span>
+
+<span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$topic</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+refs/heads/??/*<span class="o">)</span>
+<span class="w">	</span><span class="p">;;</span>
+*<span class="o">)</span>
+<span class="w">	</span><span class="nb">exit</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">;</span><span class="c1"># we do not interrupt others.</span>
+<span class="w">	</span><span class="p">;;</span>
+<span class="k">esac</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>Now we are dealing with a topic branch being rebased
+on top of master.  Is it OK to rebase it?</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>Does the topic really exist?</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>git<span class="w"> </span>show-ref<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$topic</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span>
+<span class="w">	</span><span class="nb">echo</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;No such branch </span><span class="nv">$topic</span><span class="s2">&quot;</span>
+<span class="w">	</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="o">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>Is topic fully merged to master?</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">not_in_master</span><span class="o">=</span><span class="sb">`</span>git<span class="w"> </span>rev-list<span class="w"> </span>--pretty<span class="o">=</span>oneline<span class="w"> </span>^master<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$topic</span><span class="s2">&quot;</span><span class="sb">`</span>
+<span class="k">if</span><span class="w"> </span><span class="nb">test</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$not_in_master</span><span class="s2">&quot;</span>
+<span class="k">then</span>
+<span class="w">	</span><span class="nb">echo</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$topic</span><span class="s2"> is fully merged to master; better remove it.&quot;</span>
+<span class="w">	</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">;</span><span class="c1"># we could allow it, but there is no point.</span>
+<span class="k">fi</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>Is topic ever merged to next?  If so you should not be rebasing it.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">only_next_1</span><span class="o">=</span><span class="sb">`</span>git<span class="w"> </span>rev-list<span class="w"> </span>^master<span class="w"> </span><span class="s2">&quot;^</span><span class="nv">$topic</span><span class="s2">&quot;</span><span class="w"> </span><span class="si">${</span><span class="nv">publish</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="sb">`</span>
+<span class="nv">only_next_2</span><span class="o">=</span><span class="sb">`</span>git<span class="w"> </span>rev-list<span class="w"> </span>^master<span class="w">           </span><span class="si">${</span><span class="nv">publish</span><span class="si">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="sb">`</span>
+<span class="k">if</span><span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$only_next_1</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$only_next_2</span><span class="s2">&quot;</span>
+<span class="k">then</span>
+<span class="w">	</span><span class="nv">not_in_topic</span><span class="o">=</span><span class="sb">`</span>git<span class="w"> </span>rev-list<span class="w"> </span><span class="s2">&quot;^</span><span class="nv">$topic</span><span class="s2">&quot;</span><span class="w"> </span>master<span class="sb">`</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nb">test</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$not_in_topic</span><span class="s2">&quot;</span>
+<span class="w">	</span><span class="k">then</span>
+<span class="w">		</span><span class="nb">echo</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$topic</span><span class="s2"> is already up to date with master&quot;</span>
+<span class="w">		</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">;</span><span class="c1"># we could allow it, but there is no point.</span>
+<span class="w">	</span><span class="k">else</span>
+<span class="w">		</span><span class="nb">exit</span><span class="w"> </span><span class="m">0</span>
+<span class="w">	</span><span class="k">fi</span>
+<span class="k">else</span>
+<span class="w">	</span><span class="nv">not_in_next</span><span class="o">=</span><span class="sb">`</span>git<span class="w"> </span>rev-list<span class="w"> </span>--pretty<span class="o">=</span>oneline<span class="w"> </span>^<span class="si">${</span><span class="nv">publish</span><span class="si">}</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$topic</span><span class="s2">&quot;</span><span class="sb">`</span>
+<span class="w">	</span>/usr/bin/perl<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;</span>
+<span class="s1">		my $topic = $ARGV[0];</span>
+<span class="s1">		my $msg = &quot;* $topic has commits already merged to public branch:\n&quot;;</span>
+<span class="s1">		my (%not_in_next) = map {</span>
+<span class="s1">			/^([0-9a-f]+) /;</span>
+<span class="s1">			($1 =&gt; 1);</span>
+<span class="s1">		} split(/\n/, $ARGV[1]);</span>
+<span class="s1">		for my $elem (map {</span>
+<span class="s1">				/^([0-9a-f]+) (.*)$/;</span>
+<span class="s1">				[$1 =&gt; $2];</span>
+<span class="s1">			} split(/\n/, $ARGV[2])) {</span>
+<span class="s1">			if (!exists $not_in_next{$elem-&gt;[0]}) {</span>
+<span class="s1">				if ($msg) {</span>
+<span class="s1">					print STDERR $msg;</span>
+<span class="s1">					undef $msg;</span>
+<span class="s1">				}</span>
+<span class="s1">				print STDERR &quot; $elem-&gt;[1]\n&quot;;</span>
+<span class="s1">			}</span>
+<span class="s1">		}</span>
+<span class="s1">	&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$topic</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$not_in_next</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$not_in_master</span><span class="s2">&quot;</span>
+<span class="w">	</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="s">&lt;&lt;\DOC_END</span>
+
+<span class="s">This sample hook safeguards topic branches that have been</span>
+<span class="s">published from being rewound.</span>
+
+<span class="s">The workflow assumed here is:</span>
+
+<span class="s"> * Once a topic branch forks from &quot;master&quot;, &quot;master&quot; is never</span>
+<span class="s">   merged into it again (either directly or indirectly).</span>
+
+<span class="s"> * Once a topic branch is fully cooked and merged into &quot;master&quot;,</span>
+<span class="s">   it is deleted.  If you need to build on top of it to correct</span>
+<span class="s">   earlier mistakes, a new topic branch is created by forking at</span>
+<span class="s">   the tip of the &quot;master&quot;.  This is not strictly necessary, but</span>
+<span class="s">   it makes it easier to keep your history simple.</span>
+
+<span class="s"> * Whenever you need to test or publish your changes to topic</span>
+<span class="s">   branches, merge them into &quot;next&quot; branch.</span>
+
+<span class="s">The script, being an example, hardcodes the publish branch name</span>
+<span class="s">to be &quot;next&quot;, but it is trivial to make it configurable via</span>
+<span class="s">$GIT_DIR/config mechanism.</span>
+
+<span class="s">With this workflow, you would want to know:</span>
+
+<span class="s">(1) ... if a topic branch has ever been merged to &quot;next&quot;.  Young</span>
+<span class="s">    topic branches can have stupid mistakes you would rather</span>
+<span class="s">    clean up before publishing, and things that have not been</span>
+<span class="s">    merged into other branches can be easily rebased without</span>
+<span class="s">    affecting other people.  But once it is published, you would</span>
+<span class="s">    not want to rewind it.</span>
+
+<span class="s">(2) ... if a topic branch has been fully merged to &quot;master&quot;.</span>
+<span class="s">    Then you can delete it.  More importantly, you should not</span>
+<span class="s">    build on top of it -- other people may already want to</span>
+<span class="s">    change things related to the topic as patches against your</span>
+<span class="s">    &quot;master&quot;, so if you need further changes, it is better to</span>
+<span class="s">    fork the topic (perhaps with the same name) afresh from the</span>
+<span class="s">    tip of &quot;master&quot;.</span>
+
+<span class="s">Let&#39;s look at this example:</span>
+
+<span class="s">		   o---o---o---o---o---o---o---o---o---o &quot;next&quot;</span>
+<span class="s">		  /       /           /           /</span>
+<span class="s">		 /   a---a---b A     /           /</span>
+<span class="s">		/   /               /           /</span>
+<span class="s">	       /   /   c---c---c---c B         /</span>
+<span class="s">	      /   /   /             \         /</span>
+<span class="s">	     /   /   /   b---b C     \       /</span>
+<span class="s">	    /   /   /   /             \     /</span>
+<span class="s">    ---o---o---o---o---o---o---o---o---o---o---o &quot;master&quot;</span>
+
+
+<span class="s">A, B and C are topic branches.</span>
+
+<span class="s"> * A has one fix since it was merged up to &quot;next&quot;.</span>
+
+<span class="s"> * B has finished.  It has been fully merged up to &quot;master&quot; and &quot;next&quot;,</span>
+<span class="s">   and is ready to be deleted.</span>
+
+<span class="s"> * C has not merged to &quot;next&quot; at all.</span>
+
+<span class="s">We would want to allow C to be rebased, refuse A, and encourage</span>
+<span class="s">B to be deleted.</span>
+
+<span class="s">To compute (1):</span>
+
+<span class="s">	git rev-list ^master ^topic next</span>
+<span class="s">	git rev-list ^master        next</span>
+
+<span class="s">	if these match, topic has not merged in next at all.</span>
+
+<span class="s">To compute (2):</span>
+
+<span class="s">	git rev-list master..topic</span>
+
+<span class="s">	if this is empty, it is fully merged to &quot;master&quot;.</span>
+
+<span class="s">DOC_END</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

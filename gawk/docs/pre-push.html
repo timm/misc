@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>pre-push.sample</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>pre-push.sample</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>An example hook script to verify what is about to be pushed.  Called by &ldquo;git
+push&rdquo; after it has checked the remote status, but before anything has been
+pushed.  If this script exits with a non-zero status nothing will be pushed.</p>
+<p>This hook is called with the following parameters:</p>
+<p>$1 &ndash; Name of the remote to which the push is being done
+$2 &ndash; URL to which the push is being done</p>
+<p>If pushing without using a named remote those arguments will be equal.</p>
+<p>Information about the commits which are being pushed is supplied as lines to
+the standard input in the form:</p>
+<p><local ref> <local oid> <remote ref> <remote oid></p>
+<p>This sample shows how to prevent push of commits where the log message starts
+with &ldquo;WIP&rdquo; (work in progress).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">remote</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="nv">url</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">&quot;</span>
+
+<span class="nv">zero</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>hash-object<span class="w"> </span>--stdin<span class="w"> </span>&lt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span><span class="s1">&#39;[0-9a-f]&#39;</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="k">)</span>
+
+<span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>local_ref<span class="w"> </span>local_oid<span class="w"> </span>remote_ref<span class="w"> </span>remote_oid
+<span class="k">do</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$local_oid</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$zero</span><span class="s2">&quot;</span>
+<span class="w">	</span><span class="k">then</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>Handle delete</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span>:
+<span class="w">	</span><span class="k">else</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$remote_oid</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$zero</span><span class="s2">&quot;</span>
+<span class="w">		</span><span class="k">then</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>New branch, examine all commits</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">			</span><span class="nv">range</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$local_oid</span><span class="s2">&quot;</span>
+<span class="w">		</span><span class="k">else</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>Update to existing branch, examine new commits</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">			</span><span class="nv">range</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$remote_oid</span><span class="s2">..</span><span class="nv">$local_oid</span><span class="s2">&quot;</span>
+<span class="w">		</span><span class="k">fi</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>Check for WIP commit</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="nv">commit</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>rev-list<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span>--grep<span class="w"> </span><span class="s1">&#39;^WIP&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$range</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$commit</span><span class="s2">&quot;</span>
+<span class="w">		</span><span class="k">then</span>
+<span class="w">			</span><span class="nb">echo</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;Found WIP commit in </span><span class="nv">$local_ref</span><span class="s2">, not pushing&quot;</span>
+<span class="w">			</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">		</span><span class="k">fi</span>
+<span class="w">	</span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="nb">exit</span><span class="w"> </span><span class="m">0</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

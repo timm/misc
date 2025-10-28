@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>describe_sessions.sh</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>describe_sessions.sh</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <h1></h1>
+<h1>describe_sessions.sh for kakoune</h1>
+<h1>by lenormf</h1>
+<h1></h1>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="nb">readonly</span><span class="w"> </span><span class="nv">KAK_SCRIPT</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="s1">    {</span>
+<span class="s1">        echo</span>
+
+<span class="s1">        printf &quot;Session: %s\n&quot; &quot;${kak_session}&quot;</span>
+<span class="s1">        printf &quot;Current working directory: %s\n&quot; &quot;${PWD}&quot;</span>
+
+<span class="s1">        eval set -- &quot;${kak_buflist}&quot;</span>
+<span class="s1">        printf &quot;Buffers (%d):\n&quot; $#</span>
+<span class="s1">        for bufname in &quot;$@&quot;; do</span>
+<span class="s1">            printf &quot;\t%s\n&quot; &quot;${bufname}&quot;</span>
+<span class="s1">        done</span>
+
+<span class="s1">        eval set -- &quot;${kak_client_list}&quot;</span>
+<span class="s1">        printf &quot;Clients (%d):\n&quot; $#</span>
+<span class="s1">        for clientname in &quot;$@&quot;; do</span>
+<span class="s1">            printf &quot;\t%s\n&quot; &quot;${clientname}&quot;</span>
+<span class="s1">        done</span>
+<span class="s1">    } &gt;&gt;{{outfile}}</span>
+
+<span class="s1">    rm -rf {{sentinel}}</span>
+<span class="s1">&#39;</span>
+
+main<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">outfile</span><span class="o">=</span><span class="k">$(</span>mktemp<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TMPDIR</span><span class="k">:-</span><span class="p">/tmp</span><span class="si">}</span><span class="s2">&quot;</span>/kak-describe_sessions.XXXXXXXX<span class="k">)</span>
+<span class="w">    </span><span class="nv">nb_sessions</span><span class="o">=</span><span class="m">0</span>
+<span class="w">    </span><span class="nv">nb_dead_sessions</span><span class="o">=</span><span class="m">0</span>
+<span class="w">    </span><span class="nv">nb_suspended_sessions</span><span class="o">=</span><span class="m">0</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>socat<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Unmet dependency: socat&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span><span class="nv">script</span><span class="o">=</span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;nop %%sh{ %s }&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KAK_SCRIPT</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s2">&quot;s,{{outfile}},\&quot;</span><span class="si">${</span><span class="nv">outfile</span><span class="si">}</span><span class="s2">\&quot;,g&quot;</span><span class="k">)</span>
+
+<span class="w">    </span><span class="nv">sessions_dir</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TMPDIR</span><span class="k">:-</span><span class="p">/tmp</span><span class="si">}</span><span class="s2">/kakoune/</span><span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">XDG_RUNTIME_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nv">sessions_dir</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">XDG_RUNTIME_DIR</span><span class="si">}</span><span class="s2">/kakoune&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span>session<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">sessions_dir</span><span class="si">}</span><span class="s2">&quot;</span>/*<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">        </span><span class="nv">name_session</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">session</span><span class="p">##*/</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>socat<span class="w"> </span>-<span class="w"> </span>UNIX-CONNECT:<span class="s2">&quot;</span><span class="si">${</span><span class="nv">session</span><span class="si">}</span><span class="s2">&quot;</span>,connect-timeout<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="nv">sentinel</span><span class="o">=</span><span class="k">$(</span>mktemp<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TMPDIR</span><span class="k">:-</span><span class="p">/tmp</span><span class="si">}</span><span class="s2">&quot;</span>/kak-sentinel.XXXXXXXX<span class="k">)</span>
+<span class="w">            </span><span class="nv">script_session</span><span class="o">=</span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span>%s<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">script</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s2">&quot;s,{{sentinel}},\&quot;</span><span class="si">${</span><span class="nv">sentinel</span><span class="si">}</span><span class="s2">\&quot;,g&quot;</span><span class="k">)</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nb">printf</span><span class="w"> </span>%s<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">script_session</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>kak<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">name_session</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">                </span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;\nSession &quot;%s&quot; dead\n&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">name_session</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">outfile</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">                </span><span class="nv">nb_dead_sessions</span><span class="o">=</span><span class="k">$((</span>nb_dead_sessions<span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="k">))</span>
+<span class="w">                </span><span class="k">continue</span>
+<span class="w">            </span><span class="k">fi</span>
+
+<span class="w">            </span><span class="nv">wait_limit</span><span class="o">=</span><span class="m">2</span>
+<span class="w">            </span><span class="k">while</span><span class="w"> </span>!<span class="w"> </span>mkdir<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">sentinel</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">wait_limit</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">                </span><span class="nv">wait_limit</span><span class="o">=</span><span class="k">$((</span>wait_limit<span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="k">))</span>
+<span class="w">                </span>sleep<span class="w"> </span><span class="m">1</span>
+<span class="w">            </span><span class="k">done</span>
+
+<span class="w">            </span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">sentinel</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">wait_limit</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">                </span><span class="nv">nb_sessions</span><span class="o">=</span><span class="k">$((</span>nb_sessions<span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="k">))</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="w">                </span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;\nSession &quot;%s&quot; suspended\n&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">name_session</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">outfile</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">                </span><span class="nv">nb_suspended_sessions</span><span class="o">=</span><span class="k">$((</span>nb_suspended_sessions<span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="k">))</span>
+<span class="w">            </span><span class="k">fi</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">            </span><span class="nv">nb_dead_sessions</span><span class="o">=</span><span class="k">$((</span>nb_dead_sessions<span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="k">))</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">done</span>
+
+<span class="w">    </span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;Running sessions: %d\nSuspended sessions: %d\nDead sessions: %d\n&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">nb_sessions</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">nb_suspended_sessions</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">nb_dead_sessions</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span>cat<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">outfile</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="w">    </span>rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">outfile</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="o">}</span>
+
+main<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

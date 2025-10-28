@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>tree.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>tree.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ezr.data</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">ezr.dist</span> <span class="kn">import</span> <span class="o">*</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">treeOps</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;&lt;=&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">y</span><span class="p">,</span> 
+           <span class="s1">&#39;==&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span><span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">,</span> 
+           <span class="s1">&#39;&gt;&#39;</span>  <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">treeSelects</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">op</span><span class="p">,</span><span class="n">at</span><span class="p">,</span><span class="n">y</span><span class="p">):</span> 
+  <span class="s2">&quot;Have we selected this row?&quot;</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">:=</span> <span class="n">row</span><span class="p">[</span><span class="n">at</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;?&quot;</span> <span class="ow">or</span> <span class="n">treeOps</span><span class="p">[</span><span class="n">op</span><span class="p">](</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">Tree</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Klass</span><span class="o">=</span><span class="n">Num</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="s2">&quot;Create regression tree.&quot;</span>
+  <span class="n">Y</span> <span class="o">=</span> <span class="n">Y</span> <span class="ow">or</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">disty</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">row</span><span class="p">))</span>
+  <span class="n">data</span><span class="o">.</span><span class="n">kids</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">how</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">how</span>
+  <span class="n">data</span><span class="o">.</span><span class="n">ys</span> <span class="o">=</span> <span class="n">adds</span><span class="p">(</span><span class="n">Y</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">the</span><span class="o">.</span><span class="n">leaf</span><span class="p">:</span>
+    <span class="n">hows</span> <span class="o">=</span> <span class="p">[</span><span class="n">how</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">x</span> 
+            <span class="k">if</span> <span class="p">(</span><span class="n">how</span> <span class="o">:=</span> <span class="n">treeCuts</span><span class="p">(</span><span class="n">col</span><span class="p">,</span><span class="n">data</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">Klass</span><span class="p">))]</span>
+    <span class="k">if</span> <span class="n">hows</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">how1</span> <span class="ow">in</span> <span class="nb">min</span><span class="p">(</span><span class="n">hows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">div</span><span class="p">)</span><span class="o">.</span><span class="n">hows</span><span class="p">:</span>
+        <span class="n">rows1</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">rows</span> <span class="k">if</span> <span class="n">treeSelects</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="o">*</span><span class="n">how1</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">the</span><span class="o">.</span><span class="n">leaf</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">rows</span><span class="p">):</span>
+          <span class="n">data</span><span class="o">.</span><span class="n">kids</span> <span class="o">+=</span> <span class="p">[</span><span class="n">Tree</span><span class="p">(</span><span class="n">clone</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">rows1</span><span class="p">),</span> <span class="n">Klass</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">how1</span><span class="p">)]</span>
+  <span class="k">return</span> <span class="n">data</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">treeCuts</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Klass</span><span class="p">):</span>
+  <span class="s2">&quot;Divide a col into ranges.&quot;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">_sym</span><span class="p">(</span><span class="n">sym</span><span class="p">):</span>
+    <span class="n">d</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="p">{},</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">:=</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">at</span><span class="p">])</span> <span class="o">!=</span> <span class="s2">&quot;?&quot;</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="n">Klass</span><span class="p">()</span>
+        <span class="n">add</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">Y</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">o</span><span class="p">(</span><span class="n">div</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">n</span><span class="o">/</span><span class="n">n</span> <span class="o">*</span> <span class="n">div</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+             <span class="n">hows</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;==&quot;</span><span class="p">,</span><span class="n">col</span><span class="o">.</span><span class="n">at</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">d</span><span class="p">])</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">_num</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+    <span class="n">out</span><span class="p">,</span> <span class="n">b4</span><span class="p">,</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Klass</span><span class="p">(),</span> <span class="n">Klass</span><span class="p">()</span>
+    <span class="n">xys</span> <span class="o">=</span> <span class="p">[(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">at</span><span class="p">],</span> <span class="n">add</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">Y</span><span class="p">(</span><span class="n">row</span><span class="p">)))</span> <span class="c1"># add returns the &quot;y&quot; value</span>
+           <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">at</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;?&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">xys</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">z</span><span class="p">:</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+      <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">b4</span> <span class="ow">and</span> <span class="n">the</span><span class="o">.</span><span class="n">leaf</span> <span class="o">&lt;=</span> <span class="n">lhs</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xys</span><span class="p">)</span> <span class="o">-</span> <span class="n">the</span><span class="o">.</span><span class="n">leaf</span><span class="p">:</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="p">(</span><span class="n">lhs</span><span class="o">.</span><span class="n">n</span> <span class="o">*</span> <span class="n">lhs</span><span class="o">.</span><span class="n">sd</span> <span class="o">+</span> <span class="n">rhs</span><span class="o">.</span><span class="n">n</span> <span class="o">*</span> <span class="n">rhs</span><span class="o">.</span><span class="n">sd</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">xys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">out</span> <span class="ow">or</span> <span class="n">now</span> <span class="o">&lt;</span> <span class="n">out</span><span class="o">.</span><span class="n">div</span><span class="p">:</span>
+          <span class="n">out</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span><span class="n">div</span><span class="o">=</span><span class="n">now</span><span class="p">,</span> <span class="n">hows</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span><span class="n">col</span><span class="o">.</span><span class="n">at</span><span class="p">,</span><span class="n">b4</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span><span class="n">col</span><span class="o">.</span><span class="n">at</span><span class="p">,</span><span class="n">b4</span><span class="p">)])</span>
+      <span class="n">add</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">sub</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+      <span class="n">b4</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="k">return</span> <span class="n">out</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">_sym</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">it</span> <span class="ow">is</span> <span class="n">Sym</span> <span class="k">else</span> <span class="n">_num</span><span class="p">)(</span><span class="n">col</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">treeNodes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lvl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="s2">&quot;iterate over all treeNodes&quot;</span>
+  <span class="k">yield</span> <span class="n">lvl</span><span class="p">,</span> <span class="n">data</span>
+  <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">kids</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">kids</span><span class="p">:</span>
+    <span class="k">yield from</span> <span class="n">treeNodes</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">lvl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">treeLeaf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+  <span class="s2">&quot;Select a matching leaf&quot;</span>
+  <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">kids</span> <span class="ow">or</span> <span class="p">[]:</span>
+    <span class="k">if</span> <span class="n">treeSelects</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="o">*</span><span class="n">j</span><span class="o">.</span><span class="n">how</span><span class="p">):</span> <span class="k">return</span> <span class="n">treeLeaf</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">row</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">data</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">treeShow</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">ys</span><span class="o">.</span><span class="n">mu</span><span class="p">):</span>
+  <span class="s2">&quot;Display tree with #rows and win</span><span class="si">% c</span><span class="s2">olumns&quot;</span>
+  <span class="n">ats</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;#rows&#39;</span><span class="si">:</span><span class="s2">&gt;6</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;win&#39;</span><span class="si">:</span><span class="s2">&gt;4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">lvl</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">treeNodes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">lvl</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">continue</span>
+    <span class="n">op</span><span class="p">,</span> <span class="n">at</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">how</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="n">at</span><span class="p">]</span>
+    <span class="n">indent</span> <span class="o">=</span> <span class="s1">&#39;|  &#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">lvl</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">expl</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;if </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">ys</span><span class="o">.</span><span class="n">mu</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">ys</span><span class="o">.</span><span class="n">lo</span><span class="p">)</span> <span class="o">/</span>
+             <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ys</span><span class="o">.</span><span class="n">mu</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">ys</span><span class="o">.</span><span class="n">lo</span> <span class="o">+</span> <span class="mf">1e-32</span><span class="p">)))</span>
+    <span class="n">leaf</span> <span class="o">=</span> <span class="s2">&quot;;&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="o">.</span><span class="n">kids</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">ys</span><span class="o">.</span><span class="n">n</span><span class="si">:</span><span class="s2">6</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">4</span><span class="si">}</span><span class="s2">    </span><span class="si">{</span><span class="n">indent</span><span class="si">}{</span><span class="n">expl</span><span class="si">}{</span><span class="n">leaf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ats</span><span class="p">[</span><span class="n">at</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="n">used</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="n">at</span><span class="p">]</span> <span class="k">for</span> <span class="n">at</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ats</span><span class="p">)]</span>
+  <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">used</span><span class="p">),</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">used</span><span class="p">))</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">eg__tree</span><span class="p">():</span>
+  <span class="s2">&quot;generate and print a tree&quot;</span>
+  <span class="n">data1</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="n">csv</span><span class="p">(</span><span class="n">the</span><span class="o">.</span><span class="n">file</span><span class="p">))</span>
+  <span class="n">data2</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">data1</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">32</span><span class="p">))</span>
+  <span class="n">treeShow</span><span class="p">(</span><span class="n">Tree</span><span class="p">(</span><span class="n">data2</span><span class="p">))</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

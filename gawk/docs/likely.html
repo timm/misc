@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>likely.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>likely.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ezr.like</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">ezr.dist</span> <span class="kn">import</span> <span class="o">*</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <hr />
+<p>x,xy = rows with &lsquo;x&rsquo; and &lsquo;xy&rsquo; knowledge.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">likely</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="n">Data</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Row</span><span class="p">]:</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="n">Find</span> <span class="n">the</span> <span class="n">thing</span> <span class="ow">in</span> <span class="n">x</span> <span class="n">most</span> <span class="n">likely</span> <span class="n">to</span> <span class="n">be</span> <span class="n">best</span><span class="o">.</span> <span class="n">Add</span> <span class="n">to</span> <span class="n">xy</span><span class="o">.</span> <span class="n">Repeat</span><span class="o">.</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  rows = rows or data.rows</span>
+<span class="s2">  x   = clone(data, shuffle(rows[:]))</span>
+<span class="s2">  xy, best, rest = clone(data), clone(data), clone(data)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  for _ in range(the.Any): add(xy, sub(x, x.rows.pop()))</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  xy.rows = distysort(xy); n = round(the.Any**.5)</span>
+<span class="s2">  adds(xy.rows[:n], best); adds(xy.rows[n:], rest)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  guess = likelyKlass if the.acq==&quot;klass&quot; else (</span>
+<span class="s2">          likelyNear  if the.acq==&quot;near&quot;  else likelier)</span>
+<span class="s2">  while x.n &gt; 2 and xy.n &lt; the.Build:</span>
+<span class="s2">    add(xy, add(best, sub(x, guess(best, rest, x, xy))))</span>
+<span class="s2">    if best.n &gt; (xy.n**.5):</span>
+<span class="s2">      best.rows = distysort(xy,best.rows)</span>
+<span class="s2">      while best.n &gt; (xy.n**.5):</span>
+<span class="s2">        add(rest, sub(best, best.rows.pop(-1)))</span>
+<span class="s2">  return distysort(xy)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">def likelyNear(best:Data, rest:Data, x:Data, xy:Data) -&gt; Row:</span>
+<span class="s2">  &quot;Remove from `x&#39; any 1 thing closer to best than rest.&quot;</span>
+<span class="s2">  shuffle(x.rows)</span>
+<span class="s2">  j = 0</span>
+<span class="s2">  for i,row in enumerate(x.rows[:the.Few]):</span>
+<span class="s2">    if distx(xy, mids(best), row) &lt; distx(xy, mids(rest), row):</span>
+<span class="s2">      j = i; break</span>
+<span class="s2">  return x.rows.pop(j)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">def likelyKlass(best:Data, rest:Data, x:Data, _) -&gt; Row:</span>
+<span class="s2">  &quot;Remove from `x&#39; any 1 thing more best-ish than rest-ish.&quot;</span>
+<span class="s2">  shuffle(x.rows)</span>
+<span class="s2">  j, nall = 0, best.n + rest.n</span>
+<span class="s2">  for i,row in enumerate(x.rows[:the.Few*2]):</span>
+<span class="s2">    if likes(best,row,nall,2) &gt; likes(rest,row,nall,2):</span>
+<span class="s2">      j = i; break</span>
+<span class="s2">  return x.rows.pop(j)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">def likelier(best:Data, rest:Data, x:Data, _) -&gt; Row:</span>
+<span class="s2">  &quot;Sort &#39;x by the.acq, remove first from &#39;x&#39;. Return first.&quot;</span>
+<span class="s2">  e, nall = math.e, best.n + rest.n</span>
+<span class="s2">  p = nall/the.Build</span>
+<span class="s2">  q = {&#39;xploit&#39;:0, &#39;xplor&#39;:1}.get(the.acq, 1-p)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">  def _fn(row):</span>
+<span class="s2">    b,r = e**likes(best,row,nall,2), e**likes(rest,row,nall,2)</span>
+<span class="s2">    if the.acq==&quot;bore&quot;: return b*b/(r+1e-32)</span>
+<span class="s2">    return (b + r*q) / abs(b*q - r + 1e-32)</span>
+
+<span class="s2">  first, *lst = sorted(x.rows[:the.Few*2], key=_fn, reverse=True)</span>
+<span class="s2">  x.rows = lst[:the.Few] + x.rows[the.Few*2:] + lst[the.Few:] </span>
+<span class="s2">  return first</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">def eg__bayes():</span>
+<span class="s2">  &quot;like: check we can find row likelihoods&quot;</span>
+<span class="s2">  data = Data(csv(the.file))</span>
+<span class="s2">  assert all(-30 &lt;= likes(data,t) &lt;= 0 for t in data.rows)</span>
+<span class="s2">  print(sorted([round(likes(data,t),2) for t in data.rows])[::20])</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">def eg__inc():</span>
+<span class="s2">  &quot;like: check we can incremental add and remove data&quot;</span>
+<span class="s2">  d1 = Data(csv(the.file))</span>
+<span class="s2">  d2 = clone(d1)</span>
+<span class="s2">  x  = d2.cols.x[1]</span>
+<span class="s2">  for row in d1.rows:</span>
+<span class="s2">    add(d2,row)</span>
+<span class="s2">    if d2.n==100:  </span>
+<span class="s2">      mu1,sd1 = x.mu,x.sd ; print(&quot;asIs&quot;,mu1,sd1)</span>
+<span class="s2">  for row in d1.rows[::-1]:</span>
+<span class="s2">    if d2.n==100: </span>
+<span class="s2">      mu2,sd2 = x.mu,x.sd ; print(&quot;toBe&quot;,mu2,sd2)</span>
+<span class="s2">      assert abs(mu2 - mu1) &lt; 1.01 and abs(sd2 - sd1) &lt; 1.01</span>
+<span class="s2">    sub(d2,row,zap=True)</span>
+<span class="s2">#DIVIDER</span>
+<span class="s2">def eg__likely():</span>
+<span class="s2">  &quot;like: try different acqusition functions&quot;</span>
+<span class="s2">  repeats = 20</span>
+<span class="s2">  data = Data(csv(the.file))</span>
+<span class="s2">  b4   = adds(disty(data,r) for r in data.rows)</span>
+<span class="s2">  win  = lambda n: int(100*((1 - (n - b4.lo) / (b4.mu - b4.lo))))</span>
+<span class="s2">  rxs  = dict(near=Num(),   klass=Num(), bore=Num(),</span>
+<span class="s2">              xploit=Num(), xplor=Num(), adapt=Num())</span>
+<span class="s2">  for acq,log in rxs.items():</span>
+<span class="s2">    the.acq = acq</span>
+<span class="s2">    log.txt = acq</span>
+<span class="s2">    adds((disty(data, likely(data)[0]) for _ in range(repeats)), log)</span>
+<span class="s2">  rxs[&quot;rands&quot;] = Num()</span>
+<span class="s2">  rxs[&quot;rands&quot;].txt = &quot;rands&quot;</span>
+<span class="s2">  for _ in range(repeats):</span>
+<span class="s2">    add(rxs[&quot;rands&quot;], </span>
+<span class="s2">        disty(data, distysort(data, shuffle(data.rows)[:the.Build])[0]))</span>
+<span class="s2">  print(&#39; &#39;.join([f&#39;</span><span class="si">{log.txt}</span><span class="s2"> {win(log.mu)}&#39; </span>
+<span class="s2">                  for log in rxs.values()]), </span>
+<span class="s2">        &quot;|&quot;, len(data.rows),</span>
+<span class="s2">        len(data.cols.x),</span>
+<span class="s2">        len(data.cols.y),</span>
+<span class="s2">        re.sub(&quot;.*/&quot;,&quot;&quot;,the.file))</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>initialize model: label anything</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>divide lablled items into best and rest</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>loop, guessing</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-11'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-11'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-12'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-12'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

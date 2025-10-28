@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>fsmonitor-watchman.sample</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>fsmonitor-watchman.sample</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="k">use</span><span class="w"> </span><span class="nn">strict</span><span class="p">;</span>
+<span class="k">use</span><span class="w"> </span><span class="nn">warnings</span><span class="p">;</span>
+<span class="k">use</span><span class="w"> </span><span class="nn">IPC::Open2</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>An example hook script to integrate Watchman
+(https://facebook.github.io/watchman/) with git to speed up detecting
+new and modified files.</p>
+<p>The hook is passed a version (currently 2) and last update token
+formatted as a string and outputs to stdout a new update token and
+all files that have been modified since the update token. Paths must
+be relative to the root of the working tree and separated by a single NUL.</p>
+<p>To enable this hook, rename this file to &ldquo;query-watchman&rdquo; and set
+&lsquo;git config core.fsmonitor .git/hooks/query-watchman&rsquo;</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">my</span><span class="w"> </span><span class="p">(</span><span class="nv">$version</span><span class="p">,</span><span class="w"> </span><span class="nv">$last_update_token</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">@ARGV</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>Uncomment for debugging
+print STDERR &ldquo;$0 $version $last_update_token\n&rdquo;;</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>Check the hook interface version</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$version</span><span class="w"> </span><span class="ow">ne</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;Unsupported query-fsmonitor hook version &#39;$version&#39;.\n&quot;</span><span class="w"> </span><span class="o">.</span>
+<span class="w">	    </span><span class="s">&quot;Falling back to scanning...\n&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$git_work_tree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_working_dir</span><span class="p">();</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$retry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$json_pkg</span><span class="p">;</span>
+<span class="nb">eval</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">require</span><span class="w"> </span><span class="nn">JSON::XS</span><span class="p">;</span>
+<span class="w">	</span><span class="nv">$json_pkg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;JSON::XS&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">require</span><span class="w"> </span><span class="nn">JSON::PP</span><span class="p">;</span>
+<span class="w">	</span><span class="nv">$json_pkg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;JSON::PP&quot;</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">launch_watchman</span><span class="p">();</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">launch_watchman</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="nv">$o</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">watchman_query</span><span class="p">();</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_work_tree_watched</span><span class="p">(</span><span class="nv">$o</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="n">output_result</span><span class="p">(</span><span class="nv">$o</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">clock</span><span class="p">},</span><span class="w"> </span><span class="nv">@</span><span class="p">{</span><span class="nv">$o</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">files</span><span class="p">}});</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">output_result</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="p">(</span><span class="nv">$clockid</span><span class="p">,</span><span class="w"> </span><span class="nv">@files</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">@_</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>Uncomment for debugging watchman output
+open (my $fh, &ldquo;&gt;&rdquo;, &ldquo;.git/watchman-output.out&rdquo;);
+binmode $fh, &ldquo;:utf8&rdquo;;
+print $fh &ldquo;$clockid\n@files\n&rdquo;;
+close $fh;</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">	</span><span class="nb">binmode</span><span class="w"> </span><span class="bp">STDOUT</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;:utf8&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="k">print</span><span class="w"> </span><span class="nv">$clockid</span><span class="p">;</span>
+<span class="w">	</span><span class="k">print</span><span class="w"> </span><span class="s">&quot;\0&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="nb">local</span><span class="w"> </span><span class="vg">$,</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;\0&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="k">print</span><span class="w"> </span><span class="nv">@files</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">watchman_clock</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="nv">$response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sx">qx/watchman clock &quot;$git_work_tree&quot;/</span><span class="p">;</span>
+<span class="w">	</span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;Failed to get clock id on &#39;$git_work_tree&#39;.\n&quot;</span><span class="w"> </span><span class="o">.</span>
+<span class="w">		</span><span class="s">&quot;Falling back to scanning...\n&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="vg">$?</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nv">$json_pkg</span><span class="o">-&gt;</span><span class="k">new</span><span class="o">-&gt;</span><span class="nn">utf8</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">(</span><span class="nv">$response</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">watchman_query</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="nv">$pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">open2</span><span class="p">(</span><span class="o">\*</span><span class="n">CHLD_OUT</span><span class="p">,</span><span class="w"> </span><span class="o">\*</span><span class="n">CHLD_IN</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;watchman -j --no-pretty&#39;</span><span class="p">)</span>
+<span class="w">	</span><span class="ow">or</span><span class="w"> </span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;open2() failed: $!\n&quot;</span><span class="w"> </span><span class="o">.</span>
+<span class="w">	</span><span class="s">&quot;Falling back to scanning...\n&quot;</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>In the query expression below we&rsquo;re asking for names of files that
+changed since $last_update_token but not from the .git folder.</p>
+<p>To accomplish this, we&rsquo;re using the &ldquo;since&rdquo; generator to use the
+recency index to select candidate nodes and &ldquo;fields&rdquo; to limit the
+output to file names only. Then we&rsquo;re using the &ldquo;expression&rdquo; term to
+further constrain the results.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="nv">$last_update_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">substr</span><span class="p">(</span><span class="nv">$last_update_token</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;c&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nv">$last_update_token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;\&quot;$last_update_token\&quot;&quot;</span><span class="p">;</span>
+<span class="w">		</span><span class="nv">$last_update_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sx">qq[\n&quot;since&quot;: $last_update_token,]</span><span class="p">;</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="nv">$query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="s">&quot;	END&quot;</span><span class="p">;</span>
+<span class="w">		</span><span class="p">[</span><span class="s">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;$git_work_tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">$last_update_line</span>
+<span class="w">			</span><span class="s">&quot;fields&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">],</span>
+<span class="w">			</span><span class="s">&quot;expression&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;not&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;dirname&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;.git&quot;</span><span class="p">]]</span>
+<span class="w">		</span><span class="p">}]</span>
+<span class="w">	</span><span class="k">END</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <p>Uncomment for debugging the watchman query
+open (my $fh, &ldquo;&gt;&rdquo;, &ldquo;.git/watchman-query.json&rdquo;);
+print $fh $query;
+close $fh;</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">	</span><span class="k">print</span><span class="w"> </span><span class="n">CHLD_IN</span><span class="w"> </span><span class="nv">$query</span><span class="p">;</span>
+<span class="w">	</span><span class="nb">close</span><span class="w"> </span><span class="n">CHLD_IN</span><span class="p">;</span>
+<span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="nv">$response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="p">{</span><span class="nb">local</span><span class="w"> </span><span class="vg">$/</span><span class="p">;</span><span class="w"> </span><span class="sr">&lt;CHLD_OUT&gt;</span><span class="p">};</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <p>Uncomment for debugging the watch response
+open ($fh, &ldquo;&gt;&rdquo;, &ldquo;.git/watchman-response.json&rdquo;);
+print $fh $response;
+close $fh;</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">	</span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;Watchman: command returned no output.\n&quot;</span><span class="w"> </span><span class="o">.</span>
+<span class="w">	</span><span class="s">&quot;Falling back to scanning...\n&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$response</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">	</span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;Watchman: command returned invalid output: $response\n&quot;</span><span class="w"> </span><span class="o">.</span>
+<span class="w">	</span><span class="s">&quot;Falling back to scanning...\n&quot;</span><span class="w"> </span><span class="k">unless</span><span class="w"> </span><span class="nv">$response</span><span class="w"> </span><span class="o">=~</span><span class="sr"> /^\{/</span><span class="p">;</span>
+
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nv">$json_pkg</span><span class="o">-&gt;</span><span class="k">new</span><span class="o">-&gt;</span><span class="nn">utf8</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">(</span><span class="nv">$response</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">is_work_tree_watched</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="p">(</span><span class="nv">$output</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">@_</span><span class="p">;</span>
+<span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="nv">$error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$output</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">error</span><span class="p">};</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$retry</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="nv">$error</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="nv">$error</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="sr">m/unable to resolve root .* directory (.*) is not watched/</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nv">$retry</span><span class="o">--</span><span class="p">;</span>
+<span class="w">		</span><span class="k">my</span><span class="w"> </span><span class="nv">$response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sx">qx/watchman watch &quot;$git_work_tree&quot;/</span><span class="p">;</span>
+<span class="w">		</span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;Failed to make watchman watch &#39;$git_work_tree&#39;.\n&quot;</span><span class="w"> </span><span class="o">.</span>
+<span class="w">		    </span><span class="s">&quot;Falling back to scanning...\n&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="vg">$?</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">		</span><span class="nv">$output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$json_pkg</span><span class="o">-&gt;</span><span class="k">new</span><span class="o">-&gt;</span><span class="nn">utf8</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">(</span><span class="nv">$response</span><span class="p">);</span>
+<span class="w">		</span><span class="nv">$error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$output</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">error</span><span class="p">};</span>
+<span class="w">		</span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;Watchman: $error.\n&quot;</span><span class="w"> </span><span class="o">.</span>
+<span class="w">		</span><span class="s">&quot;Falling back to scanning...\n&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$error</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      <p>Uncomment for debugging watchman output
+open (my $fh, &ldquo;&gt;&rdquo;, &ldquo;.git/watchman-output.out&rdquo;);
+close $fh;</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      <p>Watchman will always return all files on the first query so
+return the fast &ldquo;everything is dirty&rdquo; flag to git and do the
+Watchman query just to get it over with now so we won&rsquo;t pay
+the cost in git to look up each individual file.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">		</span><span class="k">my</span><span class="w"> </span><span class="nv">$o</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">watchman_clock</span><span class="p">();</span>
+<span class="w">		</span><span class="nv">$error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$output</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">error</span><span class="p">};</span>
+
+<span class="w">		</span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;Watchman: $error.\n&quot;</span><span class="w"> </span><span class="o">.</span>
+<span class="w">		</span><span class="s">&quot;Falling back to scanning...\n&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$error</span><span class="p">;</span>
+
+<span class="w">		</span><span class="n">output_result</span><span class="p">(</span><span class="nv">$o</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">clock</span><span class="p">},</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">));</span>
+<span class="w">		</span><span class="nv">$last_update_token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$o</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">clock</span><span class="p">};</span>
+
+<span class="w">		</span><span class="nb">eval</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">launch_watchman</span><span class="p">()</span><span class="w"> </span><span class="p">};</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;Watchman: $error.\n&quot;</span><span class="w"> </span><span class="o">.</span>
+<span class="w">	</span><span class="s">&quot;Falling back to scanning...\n&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$error</span><span class="p">;</span>
+
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">get_working_dir</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">my</span><span class="w"> </span><span class="nv">$working_dir</span><span class="p">;</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="vg">$^O</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="s">&#39;msys&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="vg">$^O</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="s">&#39;cygwin&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nv">$working_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">Win32::</span><span class="n">GetCwd</span><span class="p">();</span>
+<span class="w">		</span><span class="nv">$working_dir</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="nb">tr</span><span class="sr">/\\/</span><span class="o">\</span><span class="sr">//</span><span class="p">;</span>
+<span class="w">	</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">require</span><span class="w"> </span><span class="nn">Cwd</span><span class="p">;</span>
+<span class="w">		</span><span class="nv">$working_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">Cwd::</span><span class="n">cwd</span><span class="p">();</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nv">$working_dir</span><span class="p">;</span>
+<span class="p">}</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

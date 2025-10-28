@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>webpack.config.js</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>webpack.config.js</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="kd">const</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">HtmlWebpackPlugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;html-webpack-plugin&#39;</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">mode</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;development&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="nx">__dirname</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">entry</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;./index.tsx&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">output</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/dist&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">filename</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;app.bundle.js&#39;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">devServer</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">port</span><span class="o">:</span><span class="w"> </span><span class="mf">3000</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">module</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">rules</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="o">:</span><span class="w"> </span><span class="sr">/\.[tj]sx?$/</span><span class="p">,</span><span class="w"> </span><span class="nx">use</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;babel-loader&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="o">:</span><span class="w"> </span><span class="sr">/\.(png|svg|jpg|gif)$/</span><span class="p">,</span><span class="w"> </span><span class="nx">use</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;file-loader&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="o">:</span><span class="w"> </span><span class="sr">/\.css$/</span><span class="p">,</span><span class="w"> </span><span class="nx">use</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;style-loader&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;css-loader&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="o">:</span><span class="w"> </span><span class="sr">/\.md$/</span><span class="p">,</span><span class="w"> </span><span class="nx">use</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">require</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;raw-loader&#39;</span><span class="p">)]</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="ow">new</span><span class="w"> </span><span class="nx">HtmlWebpackPlugin</span><span class="p">({</span><span class="w"> </span><span class="nx">template</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;./index.html&#39;</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">};</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

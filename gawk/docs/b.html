@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>b.sh</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>b.sh</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>Define your percentages</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">passed</span><span class="o">=</span><span class="m">23</span>
+<span class="nv">coverage</span><span class="o">=</span><span class="m">80</span>
+<span class="nv">lint</span><span class="o">=</span><span class="m">92</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>Determine color based on percentage</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$passed</span><span class="s2">&quot;</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">passed_color</span><span class="o">=</span><span class="s2">&quot;brightgreen&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nv">passed_color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span>
+<span class="k">fi</span>
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$coverage</span><span class="s2">&quot;</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">80</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">coverage_color</span><span class="o">=</span><span class="s2">&quot;brightgreen&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nv">coverage_color</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span>
+<span class="k">fi</span>
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$lint</span><span class="s2">&quot;</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">80</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">lint_color</span><span class="o">=</span><span class="s2">&quot;brightgreen&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nv">lint_color</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span>
+<span class="k">fi</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>Generate the badge URLs</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nv">passed_badge</span><span class="o">=</span><span class="s2">&quot;https://img.shields.io/badge/passed-</span><span class="si">${</span><span class="nv">passed</span><span class="si">}</span><span class="s2">%-</span><span class="si">${</span><span class="nv">passed_color</span><span class="si">}</span><span class="s2">-flat-square&quot;</span>
+<span class="nv">coverage_badge</span><span class="o">=</span><span class="s2">&quot;https://img.shields.io/badge/coverage-</span><span class="si">${</span><span class="nv">coverage</span><span class="si">}</span><span class="s2">%-</span><span class="si">${</span><span class="nv">coverage_color</span><span class="si">}</span><span class="s2">-flat-square&quot;</span>
+<span class="nv">lint_badge</span><span class="o">=</span><span class="s2">&quot;https://img.shields.io/badge/lint-</span><span class="si">${</span><span class="nv">lint</span><span class="si">}</span><span class="s2">%-</span><span class="si">${</span><span class="nv">lint_color</span><span class="si">}</span><span class="s2">-flat-square&quot;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>Print the badge HTML for README</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;![Passed](</span><span class="nv">$passed_badge</span><span class="s2">)&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;![Coverage](</span><span class="nv">$coverage_badge</span><span class="s2">)&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;![Lint](</span><span class="nv">$lint_badge</span><span class="s2">)&quot;</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

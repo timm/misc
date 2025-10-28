@@ -1,0 +1,2051 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>init.lua</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>init.lua</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <p>=====================================================================
+==================== READ THIS BEFORE CONTINUING ====================
+=====================================================================
+========                                    .-----.          ========
+========         .----------------------.   | === |          ========
+========         |.-&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;-.|   |-----|          ========
+========         ||                    ||   | === |          ========
+========         ||   KICKSTART.NVIM   ||   |-----|          ========
+========         ||                    ||   | === |          ========
+========         ||                    ||   |-----|          ========
+========         ||:Tutor              ||   |:::::|          ========
+========         |&rsquo;-..................-&lsquo;|   |<strong><em>_o|          ========
+========         <code>"")----------------(""</code>   </em></strong><strong><em>_</em></strong>_      ========
+========        /::::::::::|  |::::::::::\  \ no mouse \     ========
+========       /:::========|  |==hjkl==:::\  \ required \    ========
+========      &lsquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&rsquo;  &lsquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&rsquo;  &lsquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&ldquo;&rdquo;&rsquo;   ========
+========                                                     ========
+=====================================================================
+=====================================================================</p>
+<p>What is Kickstart?</p>
+<p>Kickstart.nvim is <em>not</em> a distribution.</p>
+<p>Kickstart.nvim is a starting point for your own configuration.
+    The goal is that you can read every line of code, top-to-bottom, understand
+    what your configuration is doing, and modify it to suit your needs.</p>
+<pre><code>Once you've done that, you can start exploring, configuring and tinkering to
+make Neovim your own! That might mean leaving Kickstart just the way it is for a while
+or immediately breaking it into modular pieces. It's up to you!
+
+If you don't know anything about Lua, I recommend taking some time to read through
+a guide. One possible example which will only take 10-15 minutes:
+  - https://learnxinyminutes.com/docs/lua/
+
+After understanding a bit more about Lua, you can use `:help lua-guide` as a
+reference for how Neovim integrates Lua.
+- :help lua-guide
+- (or HTML version): https://neovim.io/doc/user/lua-guide.html
+</code></pre>
+<p>Kickstart Guide:</p>
+<p>TODO: The very first thing you should do is to run the command <code>:Tutor</code> in Neovim.</p>
+<pre><code>If you don't know what this means, type the following:
+  - &lt;escape key&gt;
+  - :
+  - Tutor
+  - &lt;enter key&gt;
+
+(If you already know the Neovim basics, you can skip this step.)
+</code></pre>
+<p>Once you&rsquo;ve completed that, you can continue working through <strong>AND READING</strong> the rest
+  of the kickstart init.lua.</p>
+<p>Next, run AND READ <code>:help</code>.
+    This will open up a help window with some basic information
+    about reading, navigating and searching the builtin help documentation.</p>
+<pre><code>This should be the first place you go to look when you're stuck or confused
+with something. It's one of my favorite Neovim features.
+
+MOST IMPORTANTLY, we provide a keymap "&lt;space&gt;sh" to [s]earch the [h]elp documentation,
+which is very useful when you're not exactly sure of what you're looking for.
+</code></pre>
+<p>I have left several <code>:help X</code> comments throughout the init.lua
+    These are hints about where to find more information about the relevant settings,
+    plugins or Neovim features used in Kickstart.</p>
+<p>NOTE: Look for lines like this</p>
+<pre><code>Throughout the file. These are for you, the reader, to help you understand what is happening.
+Feel free to delete them once you know what you're doing, but they should serve as a guide
+for when you are first encountering a few different constructs in your Neovim config.
+</code></pre>
+<p>If you experience any errors while trying to install kickstart, run <code>:checkhealth</code> for more info.</p>
+<p>I hope you enjoy your Neovim journey,
+- TJ</p>
+<p>P.S. You can delete this when you&rsquo;re done too. It&rsquo;s your config now! :)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="c1">--]]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>Set <space> as the leader key
+See <code>:help mapleader</code>
+ NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">mapleader</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+<span class="n">vim</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">maplocalleader</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>Set to true if you have a Nerd Font installed and selected in the terminal</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">have_nerd_font</span> <span class="o">=</span> <span class="kc">false</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p><a href="Setting options .html"> Setting options </a>
+See <code>:help vim.o</code>
+NOTE: You can change these options as you wish!
+ For more options, you can see <code>:help option-list</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>Make line numbers default</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">number</span> <span class="o">=</span> <span class="kc">true</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>You can also add relative line numbers, to help with jumping.
+ Experiment for yourself to see if you like it!
+vim.o.relativenumber = true</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <p>Enable mouse mode, can be useful for resizing splits for example!</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">mouse</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <p>Don&rsquo;t show the mode, since it&rsquo;s already in the status line</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">showmode</span> <span class="o">=</span> <span class="kc">false</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      <p>Sync clipboard between OS and Neovim.
+ Schedule the setting after <code>UiEnter</code> because it can increase startup-time.
+ Remove this option if you want your OS clipboard to remain independent.
+ See <code>:help 'clipboard'</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">schedule</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span>
+  <span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">clipboard</span> <span class="o">=</span> <span class="s1">&#39;unnamedplus&#39;</span>
+<span class="kr">end</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      <p>Enable break indent</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">breakindent</span> <span class="o">=</span> <span class="kc">true</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      <p>Save undo history</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">undofile</span> <span class="o">=</span> <span class="kc">true</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-11'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-11'>#</a>
+      </div>
+      <p>Case-insensitive searching UNLESS \C or one or more capital letters in the search term</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">ignorecase</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">smartcase</span> <span class="o">=</span> <span class="kc">true</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-12'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-12'>#</a>
+      </div>
+      <p>Keep signcolumn on by default</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">signcolumn</span> <span class="o">=</span> <span class="s1">&#39;yes&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-13'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-13'>#</a>
+      </div>
+      <p>Decrease update time</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">updatetime</span> <span class="o">=</span> <span class="mi">250</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-14'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-14'>#</a>
+      </div>
+      <p>Decrease mapped sequence wait time</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">timeoutlen</span> <span class="o">=</span> <span class="mi">300</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-15'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-15'>#</a>
+      </div>
+      <p>Configure how new splits should be opened</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">splitright</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">splitbelow</span> <span class="o">=</span> <span class="kc">true</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-16'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-16'>#</a>
+      </div>
+      <p>Sets how neovim will display certain whitespace characters in the editor.
+ See <code>:help 'list'</code>
+ and <code>:help 'listchars'</code></p>
+<p>Notice listchars is set using <code>vim.opt</code> instead of <code>vim.o</code>.
+ It is very similar to <code>vim.o</code> but offers an interface for conveniently interacting with tables.
+  See <code>:help lua-options</code>
+  and <code>:help lua-options-guide</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">list</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="n">vim</span><span class="p">.</span><span class="n">opt</span><span class="p">.</span><span class="n">listchars</span> <span class="o">=</span> <span class="p">{</span> <span class="n">tab</span> <span class="o">=</span> <span class="s1">&#39;» &#39;</span><span class="p">,</span> <span class="n">trail</span> <span class="o">=</span> <span class="s1">&#39;·&#39;</span><span class="p">,</span> <span class="n">nbsp</span> <span class="o">=</span> <span class="s1">&#39;␣&#39;</span> <span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-17'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-17'>#</a>
+      </div>
+      <p>Preview substitutions live, as you type!</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">inccommand</span> <span class="o">=</span> <span class="s1">&#39;split&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-18'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-18'>#</a>
+      </div>
+      <p>Show which line your cursor is on</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">cursorline</span> <span class="o">=</span> <span class="kc">true</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-19'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-19'>#</a>
+      </div>
+      <p>Minimal number of screen lines to keep above and below the cursor.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">scrolloff</span> <span class="o">=</span> <span class="mi">10</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-20'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-20'>#</a>
+      </div>
+      <p>if performing an operation that would fail due to unsaved changes in the buffer (like <code>:q</code>),
+instead raise a dialog asking if you wish to save the current file(s)
+See <code>:help 'confirm'</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">o</span><span class="p">.</span><span class="n">confirm</span> <span class="o">=</span> <span class="kc">true</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-21'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-21'>#</a>
+      </div>
+      <p><a href="Basic Keymaps .html"> Basic Keymaps </a>
+ See <code>:help vim.keymap.set()</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-22'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-22'>#</a>
+      </div>
+      <p>Clear highlights on search when pressing <Esc> in normal mode
+ See <code>:help hlsearch</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;Esc&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;cmd&gt;nohlsearch&lt;CR&gt;&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-23'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-23'>#</a>
+      </div>
+      <p>Diagnostic keymaps</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;q&#39;</span><span class="p">,</span> <span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">setloclist</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Open diagnostic [Q]uickfix list&#39;</span> <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-24'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-24'>#</a>
+      </div>
+      <p>Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
+for people to discover. Otherwise, you normally need to press &lt;C-><C-n>, which
+is not what someone will guess without a bit more experience.</p>
+<p>NOTE: This won&rsquo;t work in all terminal emulators/tmux/etc. Try your own mapping
+or just use &lt;C-><C-n> to exit terminal mode</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;Esc&gt;&lt;Esc&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;C-</span><span class="se">\\</span><span class="s1">&gt;&lt;C-n&gt;&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Exit terminal mode&#39;</span> <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-25'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-25'>#</a>
+      </div>
+      <p>TIP: Disable arrow keys in normal mode
+vim.keymap.set(&lsquo;n&rsquo;, &lsquo;<left>&lsquo;, &lsquo;<cmd>echo &ldquo;Use h to move!!&rdquo;<CR>&lsquo;)
+vim.keymap.set(&lsquo;n&rsquo;, &lsquo;<right>&lsquo;, &lsquo;<cmd>echo &ldquo;Use l to move!!&rdquo;<CR>&lsquo;)
+vim.keymap.set(&lsquo;n&rsquo;, &lsquo;<up>&lsquo;, &lsquo;<cmd>echo &ldquo;Use k to move!!&rdquo;<CR>&lsquo;)
+vim.keymap.set(&lsquo;n&rsquo;, &lsquo;<down>&lsquo;, &lsquo;<cmd>echo &ldquo;Use j to move!!&rdquo;<CR>&lsquo;)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-26'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-26'>#</a>
+      </div>
+      <p>Keybinds to make split navigation easier.
+ Use CTRL+<hjkl> to switch between windows</p>
+<p>See <code>:help wincmd</code> for a list of all window commands</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;C-h&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;C-w&gt;&lt;C-h&gt;&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Move focus to the left window&#39;</span> <span class="p">})</span>
+<span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;C-l&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;C-w&gt;&lt;C-l&gt;&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Move focus to the right window&#39;</span> <span class="p">})</span>
+<span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;C-j&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;C-w&gt;&lt;C-j&gt;&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Move focus to the lower window&#39;</span> <span class="p">})</span>
+<span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;C-k&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;C-w&gt;&lt;C-k&gt;&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Move focus to the upper window&#39;</span> <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-27'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-27'>#</a>
+      </div>
+      <p>NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
+vim.keymap.set(&ldquo;n&rdquo;, &ldquo;<C-S-h>&ldquo;, &ldquo;<C-w>H&rdquo;, { desc = &ldquo;Move window to the left&rdquo; })
+vim.keymap.set(&ldquo;n&rdquo;, &ldquo;<C-S-l>&ldquo;, &ldquo;<C-w>L&rdquo;, { desc = &ldquo;Move window to the right&rdquo; })
+vim.keymap.set(&ldquo;n&rdquo;, &ldquo;<C-S-j>&ldquo;, &ldquo;<C-w>J&rdquo;, { desc = &ldquo;Move window to the lower&rdquo; })
+vim.keymap.set(&ldquo;n&rdquo;, &ldquo;<C-S-k>&ldquo;, &ldquo;<C-w>K&rdquo;, { desc = &ldquo;Move window to the upper&rdquo; })</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-28'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-28'>#</a>
+      </div>
+      <p><a href="Basic Autocommands .html"> Basic Autocommands </a>
+ See <code>:help lua-guide-autocommands</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-29'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-29'>#</a>
+      </div>
+      <p>Highlight when yanking (copying) text
+ Try it with <code>yap</code> in normal mode
+ See <code>:help vim.hl.on_yank()</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_create_autocmd</span><span class="p">(</span><span class="s1">&#39;TextYankPost&#39;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Highlight when yanking (copying) text&#39;</span><span class="p">,</span>
+  <span class="n">group</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_create_augroup</span><span class="p">(</span><span class="s1">&#39;kickstart-highlight-yank&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">clear</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">}),</span>
+  <span class="n">callback</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
+    <span class="n">vim</span><span class="p">.</span><span class="n">hl</span><span class="p">.</span><span class="n">on_yank</span><span class="p">()</span>
+  <span class="kr">end</span><span class="p">,</span>
+<span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-30'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-30'>#</a>
+      </div>
+      <p>[ Install <code>lazy.nvim</code> plugin manager ]( Install <code>lazy.html)
+   See</code>:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="kd">local</span> <span class="n">lazypath</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">stdpath</span> <span class="s1">&#39;data&#39;</span> <span class="o">..</span> <span class="s1">&#39;/lazy/lazy.nvim&#39;</span>
+<span class="kr">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">vim</span><span class="p">.</span><span class="n">uv</span> <span class="ow">or</span> <span class="n">vim</span><span class="p">.</span><span class="n">loop</span><span class="p">).</span><span class="n">fs_stat</span><span class="p">(</span><span class="n">lazypath</span><span class="p">)</span> <span class="kr">then</span>
+  <span class="kd">local</span> <span class="n">lazyrepo</span> <span class="o">=</span> <span class="s1">&#39;https://github.com/folke/lazy.nvim.git&#39;</span>
+  <span class="kd">local</span> <span class="n">out</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">system</span> <span class="p">{</span> <span class="s1">&#39;git&#39;</span><span class="p">,</span> <span class="s1">&#39;clone&#39;</span><span class="p">,</span> <span class="s1">&#39;--filter=blob:none&#39;</span><span class="p">,</span> <span class="s1">&#39;--branch=stable&#39;</span><span class="p">,</span> <span class="n">lazyrepo</span><span class="p">,</span> <span class="n">lazypath</span> <span class="p">}</span>
+  <span class="kr">if</span> <span class="n">vim</span><span class="p">.</span><span class="n">v</span><span class="p">.</span><span class="n">shell_error</span> <span class="o">~=</span> <span class="mi">0</span> <span class="kr">then</span>
+    <span class="nb">error</span><span class="p">(</span><span class="s1">&#39;Error cloning lazy.nvim:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">..</span> <span class="n">out</span><span class="p">)</span>
+  <span class="kr">end</span>
+<span class="kr">end</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-31'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-31'>#</a>
+      </div>
+      <p>-@type vim.Option</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="kd">local</span> <span class="n">rtp</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">opt</span><span class="p">.</span><span class="n">rtp</span>
+<span class="n">rtp</span><span class="p">:</span><span class="n">prepend</span><span class="p">(</span><span class="n">lazypath</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-32'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-32'>#</a>
+      </div>
+      <p><a href="Configure and install plugins .html"> Configure and install plugins </a></p>
+<p>To check the current status of your plugins, run
+   :Lazy</p>
+<p>You can press <code>?</code> in this menu for help. Use <code>:q</code> to close the window</p>
+<p>To update plugins you can run
+   :Lazy update</p>
+<p>NOTE: Here is where you install your plugins.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nb">require</span><span class="p">(</span><span class="s1">&#39;lazy&#39;</span><span class="p">).</span><span class="n">setup</span><span class="p">({</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-33'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-33'>#</a>
+      </div>
+      <p>NOTE: Plugins can be added with a link (or for a github repo: &lsquo;owner/repo&rsquo; link).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="s1">&#39;NMAC427/guess-indent.nvim&#39;</span><span class="p">,</span> <span class="c1">-- Detect tabstop and shiftwidth automatically</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-34'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-34'>#</a>
+      </div>
+      <p>NOTE: Plugins can also be added by using a table,
+with the first argument being the link and the following
+keys can be used to configure plugin behavior/loading/etc.</p>
+<p>Use <code>opts = {}</code> to automatically pass options to a plugin&rsquo;s <code>setup()</code> function, forcing the plugin to be loaded.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-35'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-35'>#</a>
+      </div>
+      <p>Alternatively, use <code>config = function() ... end</code> for full control over the configuration.
+If you prefer to call <code>setup</code> explicitly, use:
+   {
+       &lsquo;lewis6991/gitsigns.nvim&rsquo;,
+       config = function()
+           require(&lsquo;gitsigns&rsquo;).setup({
+               &ndash; Your gitsigns configuration here
+           })
+       end,
+   }</p>
+<p>Here is a more advanced example where we pass configuration
+options to <code>gitsigns.nvim</code>.</p>
+<p>See <code>:help gitsigns</code> to understand what the configuration keys do</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="p">{</span> <span class="c1">-- Adds git related signs to the gutter, as well as utilities for managing changes</span>
+    <span class="s1">&#39;lewis6991/gitsigns.nvim&#39;</span><span class="p">,</span>
+    <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">signs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">add</span> <span class="o">=</span> <span class="p">{</span> <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span> <span class="p">},</span>
+        <span class="n">change</span> <span class="o">=</span> <span class="p">{</span> <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;~&#39;</span> <span class="p">},</span>
+        <span class="n">delete</span> <span class="o">=</span> <span class="p">{</span> <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span> <span class="p">},</span>
+        <span class="n">topdelete</span> <span class="o">=</span> <span class="p">{</span> <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;‾&#39;</span> <span class="p">},</span>
+        <span class="n">changedelete</span> <span class="o">=</span> <span class="p">{</span> <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;~&#39;</span> <span class="p">},</span>
+      <span class="p">},</span>
+    <span class="p">},</span>
+  <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-36'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-36'>#</a>
+      </div>
+      <p>NOTE: Plugins can also be configured to run Lua code when they are loaded.</p>
+<p>This is often very useful to both group configuration, as well as handle
+lazy loading plugins that don&rsquo;t need to be loaded immediately at startup.</p>
+<p>For example, in the following configuration, we use:
+ event = &lsquo;VimEnter&rsquo;</p>
+<p>which loads which-key before all the UI elements are loaded. Events can be
+normal autocommands events (<code>:help autocmd-events</code>).</p>
+<p>Then, because we use the <code>opts</code> key (recommended), the configuration runs
+after the plugin has been loaded as <code>require(MODULE).setup(opts)</code>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="p">{</span> <span class="c1">-- Useful plugin to show you pending keybinds.</span>
+    <span class="s1">&#39;folke/which-key.nvim&#39;</span><span class="p">,</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;VimEnter&#39;</span><span class="p">,</span> <span class="c1">-- Sets the loading event to &#39;VimEnter&#39;</span>
+    <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-37'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-37'>#</a>
+      </div>
+      <p>delay between pressing a key and opening which-key (milliseconds)
+this setting is independent of vim.o.timeoutlen</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">delay</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="n">icons</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-38'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-38'>#</a>
+      </div>
+      <p>set icon mappings to true if you have a Nerd Font</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">mappings</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">have_nerd_font</span><span class="p">,</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-39'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-39'>#</a>
+      </div>
+      <p>If you are using a Nerd Font: set icons.keys to an empty table which will use the
+default which-key.nvim defined Nerd Font icons, otherwise define a string table</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">keys</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">have_nerd_font</span> <span class="ow">and</span> <span class="p">{}</span> <span class="ow">or</span> <span class="p">{</span>
+          <span class="n">Up</span> <span class="o">=</span> <span class="s1">&#39;&lt;Up&gt; &#39;</span><span class="p">,</span>
+          <span class="n">Down</span> <span class="o">=</span> <span class="s1">&#39;&lt;Down&gt; &#39;</span><span class="p">,</span>
+          <span class="n">Left</span> <span class="o">=</span> <span class="s1">&#39;&lt;Left&gt; &#39;</span><span class="p">,</span>
+          <span class="n">Right</span> <span class="o">=</span> <span class="s1">&#39;&lt;Right&gt; &#39;</span><span class="p">,</span>
+          <span class="n">C</span> <span class="o">=</span> <span class="s1">&#39;&lt;C-…&gt; &#39;</span><span class="p">,</span>
+          <span class="n">M</span> <span class="o">=</span> <span class="s1">&#39;&lt;M-…&gt; &#39;</span><span class="p">,</span>
+          <span class="n">D</span> <span class="o">=</span> <span class="s1">&#39;&lt;D-…&gt; &#39;</span><span class="p">,</span>
+          <span class="n">S</span> <span class="o">=</span> <span class="s1">&#39;&lt;S-…&gt; &#39;</span><span class="p">,</span>
+          <span class="n">CR</span> <span class="o">=</span> <span class="s1">&#39;&lt;CR&gt; &#39;</span><span class="p">,</span>
+          <span class="n">Esc</span> <span class="o">=</span> <span class="s1">&#39;&lt;Esc&gt; &#39;</span><span class="p">,</span>
+          <span class="n">ScrollWheelDown</span> <span class="o">=</span> <span class="s1">&#39;&lt;ScrollWheelDown&gt; &#39;</span><span class="p">,</span>
+          <span class="n">ScrollWheelUp</span> <span class="o">=</span> <span class="s1">&#39;&lt;ScrollWheelUp&gt; &#39;</span><span class="p">,</span>
+          <span class="n">NL</span> <span class="o">=</span> <span class="s1">&#39;&lt;NL&gt; &#39;</span><span class="p">,</span>
+          <span class="n">BS</span> <span class="o">=</span> <span class="s1">&#39;&lt;BS&gt; &#39;</span><span class="p">,</span>
+          <span class="n">Space</span> <span class="o">=</span> <span class="s1">&#39;&lt;Space&gt; &#39;</span><span class="p">,</span>
+          <span class="n">Tab</span> <span class="o">=</span> <span class="s1">&#39;&lt;Tab&gt; &#39;</span><span class="p">,</span>
+          <span class="n">F1</span> <span class="o">=</span> <span class="s1">&#39;&lt;F1&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F2</span> <span class="o">=</span> <span class="s1">&#39;&lt;F2&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F3</span> <span class="o">=</span> <span class="s1">&#39;&lt;F3&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F4</span> <span class="o">=</span> <span class="s1">&#39;&lt;F4&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F5</span> <span class="o">=</span> <span class="s1">&#39;&lt;F5&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F6</span> <span class="o">=</span> <span class="s1">&#39;&lt;F6&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F7</span> <span class="o">=</span> <span class="s1">&#39;&lt;F7&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F8</span> <span class="o">=</span> <span class="s1">&#39;&lt;F8&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F9</span> <span class="o">=</span> <span class="s1">&#39;&lt;F9&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F10</span> <span class="o">=</span> <span class="s1">&#39;&lt;F10&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F11</span> <span class="o">=</span> <span class="s1">&#39;&lt;F11&gt;&#39;</span><span class="p">,</span>
+          <span class="n">F12</span> <span class="o">=</span> <span class="s1">&#39;&lt;F12&gt;&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+      <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-40'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-40'>#</a>
+      </div>
+      <p>Document existing key chains</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">spec</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">{</span> <span class="s1">&#39;&lt;leader&gt;s&#39;</span><span class="p">,</span> <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;[S]earch&#39;</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="s1">&#39;&lt;leader&gt;t&#39;</span><span class="p">,</span> <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;[T]oggle&#39;</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="s1">&#39;&lt;leader&gt;h&#39;</span><span class="p">,</span> <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;Git [H]unk&#39;</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span> <span class="p">}</span> <span class="p">},</span>
+      <span class="p">},</span>
+    <span class="p">},</span>
+  <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-41'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-41'>#</a>
+      </div>
+      <p>NOTE: Plugins can specify dependencies.</p>
+<p>The dependencies are proper plugin specifications as well - anything
+you do for a plugin at the top level, you can do for a dependency.</p>
+<p>Use the <code>dependencies</code> key to specify the dependencies of a particular plugin</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="p">{</span> <span class="c1">-- Fuzzy Finder (files, lsp, etc)</span>
+    <span class="s1">&#39;nvim-telescope/telescope.nvim&#39;</span><span class="p">,</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;VimEnter&#39;</span><span class="p">,</span>
+    <span class="n">dependencies</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s1">&#39;nvim-lua/plenary.nvim&#39;</span><span class="p">,</span>
+      <span class="p">{</span> <span class="c1">-- If encountering errors, see telescope-fzf-native README for installation instructions</span>
+        <span class="s1">&#39;nvim-telescope/telescope-fzf-native.nvim&#39;</span><span class="p">,</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-42'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-42'>#</a>
+      </div>
+      <p><code>build</code> is used to run some command when the plugin is installed/updated.
+This is only run then, not every time Neovim starts up.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">build</span> <span class="o">=</span> <span class="s1">&#39;make&#39;</span><span class="p">,</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-43'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-43'>#</a>
+      </div>
+      <p><code>cond</code> is a condition used to determine whether this plugin should be
+installed and loaded.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">cond</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
+          <span class="kr">return</span> <span class="n">vim</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">executable</span> <span class="s1">&#39;make&#39;</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="kr">end</span><span class="p">,</span>
+      <span class="p">},</span>
+      <span class="p">{</span> <span class="s1">&#39;nvim-telescope/telescope-ui-select.nvim&#39;</span> <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-44'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-44'>#</a>
+      </div>
+      <p>Useful for getting pretty icons, but requires a Nerd Font.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="p">{</span> <span class="s1">&#39;nvim-tree/nvim-web-devicons&#39;</span><span class="p">,</span> <span class="n">enabled</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">have_nerd_font</span> <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-45'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-45'>#</a>
+      </div>
+      <p>Telescope is a fuzzy finder that comes with a lot of different things that
+it can fuzzy find! It&rsquo;s more than just a &ldquo;file finder&rdquo;, it can search
+many different aspects of Neovim, your workspace, LSP, and more!</p>
+<p>The easiest way to use Telescope, is to start by doing something like:
+ :Telescope help_tags</p>
+<p>After running this command, a window will open up and you&rsquo;re able to
+type in the prompt window. You&rsquo;ll see a list of <code>help_tags</code> options and
+a corresponding preview of the help.</p>
+<p>Two important keymaps to use while in Telescope are:
+ - Insert mode: <c-/>
+ - Normal mode: ?</p>
+<p>This opens a window that shows you all of the keymaps for the current
+Telescope picker. This is really useful to discover what Telescope can
+do as well as how to actually do it!</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-46'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-46'>#</a>
+      </div>
+      <p><a href="Configure Telescope .html"> Configure Telescope </a>
+See <code>:help telescope</code> and <code>:help telescope.setup()</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope&#39;</span><span class="p">).</span><span class="n">setup</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-47'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-47'>#</a>
+      </div>
+      <p>You can put your default mappings / updates / etc. in here
+ All the info you&rsquo;re looking for is in <code>:help telescope.setup()</code></p>
+<p>defaults = {
+  mappings = {
+    i = { [&lsquo;<c-enter>&lsquo;] = &lsquo;to_fuzzy_refine&rsquo; },
+  },
+},
+pickers = {}</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">extensions</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="p">[</span><span class="s1">&#39;ui-select&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope.themes&#39;</span><span class="p">).</span><span class="n">get_dropdown</span><span class="p">(),</span>
+          <span class="p">},</span>
+        <span class="p">},</span>
+      <span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-48'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-48'>#</a>
+      </div>
+      <p>Enable Telescope extensions if they are installed</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="nb">pcall</span><span class="p">(</span><span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope&#39;</span><span class="p">).</span><span class="n">load_extension</span><span class="p">,</span> <span class="s1">&#39;fzf&#39;</span><span class="p">)</span>
+      <span class="nb">pcall</span><span class="p">(</span><span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope&#39;</span><span class="p">).</span><span class="n">load_extension</span><span class="p">,</span> <span class="s1">&#39;ui-select&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-49'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-49'>#</a>
+      </div>
+      <p>See <code>:help telescope.builtin</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="kd">local</span> <span class="n">builtin</span> <span class="o">=</span> <span class="nb">require</span> <span class="s1">&#39;telescope.builtin&#39;</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;sh&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">help_tags</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch [H]elp&#39;</span> <span class="p">})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;sk&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">keymaps</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch [K]eymaps&#39;</span> <span class="p">})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;sf&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">find_files</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch [F]iles&#39;</span> <span class="p">})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;ss&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">builtin</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch [S]elect Telescope&#39;</span> <span class="p">})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;sw&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">grep_string</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch current [W]ord&#39;</span> <span class="p">})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;sg&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">live_grep</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch by [G]rep&#39;</span> <span class="p">})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;sd&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">diagnostics</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch [D]iagnostics&#39;</span> <span class="p">})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;sr&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">resume</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch [R]esume&#39;</span> <span class="p">})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;s.&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">oldfiles</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch Recent Files (&quot;.&quot; for repeat)&#39;</span> <span class="p">})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;&lt;leader&gt;&#39;</span><span class="p">,</span> <span class="n">builtin</span><span class="p">.</span><span class="n">buffers</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[ ] Find existing buffers&#39;</span> <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-50'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-50'>#</a>
+      </div>
+      <p>Slightly advanced example of overriding default behavior and theme</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;/&#39;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-51'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-51'>#</a>
+      </div>
+      <p>You can pass additional configuration to Telescope to change the theme, layout, etc.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">builtin</span><span class="p">.</span><span class="n">current_buffer_fuzzy_find</span><span class="p">(</span><span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope.themes&#39;</span><span class="p">).</span><span class="n">get_dropdown</span> <span class="p">{</span>
+          <span class="n">winblend</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+          <span class="n">previewer</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="p">})</span>
+      <span class="kr">end</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[/] Fuzzily search in current buffer&#39;</span> <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-52'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-52'>#</a>
+      </div>
+      <p>It&rsquo;s also possible to pass additional configuration options.
+ See <code>:help telescope.builtin.live_grep()</code> for information about particular keys</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;s/&#39;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span>
+        <span class="n">builtin</span><span class="p">.</span><span class="n">live_grep</span> <span class="p">{</span>
+          <span class="n">grep_open_files</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
+          <span class="n">prompt_title</span> <span class="o">=</span> <span class="s1">&#39;Live Grep in Open Files&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+      <span class="kr">end</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch [/] in Open Files&#39;</span> <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-53'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-53'>#</a>
+      </div>
+      <p>Shortcut for searching your Neovim configuration files</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;leader&gt;sn&#39;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span>
+        <span class="n">builtin</span><span class="p">.</span><span class="n">find_files</span> <span class="p">{</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">stdpath</span> <span class="s1">&#39;config&#39;</span> <span class="p">}</span>
+      <span class="kr">end</span><span class="p">,</span> <span class="p">{</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[S]earch [N]eovim files&#39;</span> <span class="p">})</span>
+    <span class="kr">end</span><span class="p">,</span>
+  <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-54'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-54'>#</a>
+      </div>
+      <p>LSP Plugins</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-55'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-55'>#</a>
+      </div>
+      <p><code>lazydev</code> configures Lua LSP for your Neovim config, runtime and plugins
+used for completion, annotations and signatures of Neovim apis</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="s1">&#39;folke/lazydev.nvim&#39;</span><span class="p">,</span>
+    <span class="n">ft</span> <span class="o">=</span> <span class="s1">&#39;lua&#39;</span><span class="p">,</span>
+    <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">library</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-56'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-56'>#</a>
+      </div>
+      <p>Load luvit types when the <code>vim.uv</code> word is found</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="p">{</span> <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;${3rd}/luv/library&#39;</span><span class="p">,</span> <span class="n">words</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;vim%.uv&#39;</span> <span class="p">}</span> <span class="p">},</span>
+      <span class="p">},</span>
+    <span class="p">},</span>
+  <span class="p">},</span>
+  <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-57'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-57'>#</a>
+      </div>
+      <p>Main LSP Configuration</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="s1">&#39;neovim/nvim-lspconfig&#39;</span><span class="p">,</span>
+    <span class="n">dependencies</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-58'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-58'>#</a>
+      </div>
+      <p>Automatically install LSPs and related tools to stdpath for Neovim
+Mason must be loaded before its dependents so we need to set it up here.
+NOTE: <code>opts = {}</code> is the same as calling <code>require('mason').setup({})</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="p">{</span> <span class="s1">&#39;mason-org/mason.nvim&#39;</span><span class="p">,</span> <span class="n">opts</span> <span class="o">=</span> <span class="p">{}</span> <span class="p">},</span>
+      <span class="s1">&#39;mason-org/mason-lspconfig.nvim&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;WhoIsSethDaniel/mason-tool-installer.nvim&#39;</span><span class="p">,</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-59'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-59'>#</a>
+      </div>
+      <p>Useful status updates for LSP.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="p">{</span> <span class="s1">&#39;j-hui/fidget.nvim&#39;</span><span class="p">,</span> <span class="n">opts</span> <span class="o">=</span> <span class="p">{}</span> <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-60'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-60'>#</a>
+      </div>
+      <p>Allows extra capabilities provided by blink.cmp</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="s1">&#39;saghen/blink.cmp&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-61'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-61'>#</a>
+      </div>
+      <p>Brief aside: <strong>What is LSP?</strong></p>
+<p>LSP is an initialism you&rsquo;ve probably heard, but might not understand what it is.</p>
+<p>LSP stands for Language Server Protocol. It&rsquo;s a protocol that helps editors
+and language tooling communicate in a standardized fashion.</p>
+<p>In general, you have a &ldquo;server&rdquo; which is some tool built to understand a particular
+language (such as <code>gopls</code>, <code>lua_ls</code>, <code>rust_analyzer</code>, etc.). These Language Servers
+(sometimes called LSP servers, but that&rsquo;s kind of like ATM Machine) are standalone
+processes that communicate with some &ldquo;client&rdquo; - in this case, Neovim!</p>
+<p>LSP provides Neovim with features like:
+ - Go to definition
+ - Find references
+ - Autocompletion
+ - Symbol Search
+ - and more!</p>
+<p>Thus, Language Servers are external tools that must be installed separately from
+Neovim. This is where <code>mason</code> and related plugins come into play.</p>
+<p>If you&rsquo;re wondering about lsp vs treesitter, you can check out the wonderfully
+and elegantly composed help section, <code>:help lsp-vs-treesitter</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-62'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-62'>#</a>
+      </div>
+      <p>This function gets run when an LSP attaches to a particular buffer.
+   That is to say, every time a new file is opened that is associated with
+   an lsp (for example, opening <code>main.rs</code> is associated with <code>rust_analyzer</code>) this
+   function will be executed to configure the current buffer</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_create_autocmd</span><span class="p">(</span><span class="s1">&#39;LspAttach&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_create_augroup</span><span class="p">(</span><span class="s1">&#39;kickstart-lsp-attach&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">clear</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">}),</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-63'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-63'>#</a>
+      </div>
+      <p>NOTE: Remember that Lua is a real programming language, and as such it is possible
+to define small helper and utility functions so you don&rsquo;t have to repeat yourself.</p>
+<p>In this case, we create a function that lets us more easily define mappings specific
+for LSP related items. It sets the mode, buffer and description for us each time.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="kd">local</span> <span class="n">map</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span> <span class="ow">or</span> <span class="s1">&#39;n&#39;</span>
+            <span class="n">vim</span><span class="p">.</span><span class="n">keymap</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="p">{</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">buf</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;LSP: &#39;</span> <span class="o">..</span> <span class="n">desc</span> <span class="p">})</span>
+          <span class="kr">end</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-64'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-64'>#</a>
+      </div>
+      <p>Rename the variable under your cursor.
+ Most Language Servers support renaming across files, etc.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">map</span><span class="p">(</span><span class="s1">&#39;grn&#39;</span><span class="p">,</span> <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">buf</span><span class="p">.</span><span class="n">rename</span><span class="p">,</span> <span class="s1">&#39;[R]e[n]ame&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-65'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-65'>#</a>
+      </div>
+      <p>Execute a code action, usually your cursor needs to be on top of an error
+or a suggestion from your LSP for this to activate.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">map</span><span class="p">(</span><span class="s1">&#39;gra&#39;</span><span class="p">,</span> <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">buf</span><span class="p">.</span><span class="n">code_action</span><span class="p">,</span> <span class="s1">&#39;[G]oto Code [A]ction&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span> <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-66'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-66'>#</a>
+      </div>
+      <p>Find references for the word under your cursor.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">map</span><span class="p">(</span><span class="s1">&#39;grr&#39;</span><span class="p">,</span> <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope.builtin&#39;</span><span class="p">).</span><span class="n">lsp_references</span><span class="p">,</span> <span class="s1">&#39;[G]oto [R]eferences&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-67'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-67'>#</a>
+      </div>
+      <p>Jump to the implementation of the word under your cursor.
+ Useful when your language has ways of declaring types without an actual implementation.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">map</span><span class="p">(</span><span class="s1">&#39;gri&#39;</span><span class="p">,</span> <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope.builtin&#39;</span><span class="p">).</span><span class="n">lsp_implementations</span><span class="p">,</span> <span class="s1">&#39;[G]oto [I]mplementation&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-68'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-68'>#</a>
+      </div>
+      <p>Jump to the definition of the word under your cursor.
+ This is where a variable was first declared, or where a function is defined, etc.
+ To jump back, press <C-t>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">map</span><span class="p">(</span><span class="s1">&#39;grd&#39;</span><span class="p">,</span> <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope.builtin&#39;</span><span class="p">).</span><span class="n">lsp_definitions</span><span class="p">,</span> <span class="s1">&#39;[G]oto [D]efinition&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-69'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-69'>#</a>
+      </div>
+      <p>WARN: This is not Goto Definition, this is Goto Declaration.
+ For example, in C this would take you to the header.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">map</span><span class="p">(</span><span class="s1">&#39;grD&#39;</span><span class="p">,</span> <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">buf</span><span class="p">.</span><span class="n">declaration</span><span class="p">,</span> <span class="s1">&#39;[G]oto [D]eclaration&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-70'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-70'>#</a>
+      </div>
+      <p>Fuzzy find all the symbols in your current document.
+ Symbols are things like variables, functions, types, etc.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">map</span><span class="p">(</span><span class="s1">&#39;gO&#39;</span><span class="p">,</span> <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope.builtin&#39;</span><span class="p">).</span><span class="n">lsp_document_symbols</span><span class="p">,</span> <span class="s1">&#39;Open Document Symbols&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-71'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-71'>#</a>
+      </div>
+      <p>Fuzzy find all the symbols in your current workspace.
+ Similar to document symbols, except searches over your entire project.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">map</span><span class="p">(</span><span class="s1">&#39;gW&#39;</span><span class="p">,</span> <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope.builtin&#39;</span><span class="p">).</span><span class="n">lsp_dynamic_workspace_symbols</span><span class="p">,</span> <span class="s1">&#39;Open Workspace Symbols&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-72'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-72'>#</a>
+      </div>
+      <p>Jump to the type of the word under your cursor.
+ Useful when you&rsquo;re not sure what type a variable is and you want to see
+ the definition of its <em>type</em>, not where it was <em>defined</em>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">map</span><span class="p">(</span><span class="s1">&#39;grt&#39;</span><span class="p">,</span> <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;telescope.builtin&#39;</span><span class="p">).</span><span class="n">lsp_type_definitions</span><span class="p">,</span> <span class="s1">&#39;[G]oto [T]ype Definition&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-73'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-73'>#</a>
+      </div>
+      <p>This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
+-@param client vim.lsp.Client
+-@param method vim.lsp.protocol.Method
+-@param bufnr? integer some lsp support methods only in specific files
+-@return boolean</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="kd">local</span> <span class="kr">function</span> <span class="nf">client_supports_method</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">bufnr</span><span class="p">)</span>
+            <span class="kr">if</span> <span class="n">vim</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">has</span> <span class="s1">&#39;nvim-0.11&#39;</span> <span class="o">==</span> <span class="mi">1</span> <span class="kr">then</span>
+              <span class="kr">return</span> <span class="n">client</span><span class="p">:</span><span class="n">supports_method</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">bufnr</span><span class="p">)</span>
+            <span class="kr">else</span>
+              <span class="kr">return</span> <span class="n">client</span><span class="p">.</span><span class="n">supports_method</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="p">{</span> <span class="n">bufnr</span> <span class="o">=</span> <span class="n">bufnr</span> <span class="p">})</span>
+            <span class="kr">end</span>
+          <span class="kr">end</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-74'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-74'>#</a>
+      </div>
+      <p>The following two autocommands are used to highlight references of the
+word under your cursor when your cursor rests there for a little while.
+   See <code>:help CursorHold</code> for information about when this is executed</p>
+<p>When you move your cursor, the highlights will be cleared (the second autocommand).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="kd">local</span> <span class="n">client</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">get_client_by_id</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">client_id</span><span class="p">)</span>
+          <span class="kr">if</span> <span class="n">client</span> <span class="ow">and</span> <span class="n">client_supports_method</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">protocol</span><span class="p">.</span><span class="n">Methods</span><span class="p">.</span><span class="n">textDocument_documentHighlight</span><span class="p">,</span> <span class="n">event</span><span class="p">.</span><span class="n">buf</span><span class="p">)</span> <span class="kr">then</span>
+            <span class="kd">local</span> <span class="n">highlight_augroup</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_create_augroup</span><span class="p">(</span><span class="s1">&#39;kickstart-lsp-highlight&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">clear</span> <span class="o">=</span> <span class="kc">false</span> <span class="p">})</span>
+            <span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_create_autocmd</span><span class="p">({</span> <span class="s1">&#39;CursorHold&#39;</span><span class="p">,</span> <span class="s1">&#39;CursorHoldI&#39;</span> <span class="p">},</span> <span class="p">{</span>
+              <span class="n">buffer</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">buf</span><span class="p">,</span>
+              <span class="n">group</span> <span class="o">=</span> <span class="n">highlight_augroup</span><span class="p">,</span>
+              <span class="n">callback</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">buf</span><span class="p">.</span><span class="n">document_highlight</span><span class="p">,</span>
+            <span class="p">})</span>
+
+            <span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_create_autocmd</span><span class="p">({</span> <span class="s1">&#39;CursorMoved&#39;</span><span class="p">,</span> <span class="s1">&#39;CursorMovedI&#39;</span> <span class="p">},</span> <span class="p">{</span>
+              <span class="n">buffer</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">buf</span><span class="p">,</span>
+              <span class="n">group</span> <span class="o">=</span> <span class="n">highlight_augroup</span><span class="p">,</span>
+              <span class="n">callback</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">buf</span><span class="p">.</span><span class="n">clear_references</span><span class="p">,</span>
+            <span class="p">})</span>
+
+            <span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_create_autocmd</span><span class="p">(</span><span class="s1">&#39;LspDetach&#39;</span><span class="p">,</span> <span class="p">{</span>
+              <span class="n">group</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_create_augroup</span><span class="p">(</span><span class="s1">&#39;kickstart-lsp-detach&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">clear</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">}),</span>
+              <span class="n">callback</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">event2</span><span class="p">)</span>
+                <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">buf</span><span class="p">.</span><span class="n">clear_references</span><span class="p">()</span>
+                <span class="n">vim</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">nvim_clear_autocmds</span> <span class="p">{</span> <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;kickstart-lsp-highlight&#39;</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">event2</span><span class="p">.</span><span class="n">buf</span> <span class="p">}</span>
+              <span class="kr">end</span><span class="p">,</span>
+            <span class="p">})</span>
+          <span class="kr">end</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-75'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-75'>#</a>
+      </div>
+      <p>The following code creates a keymap to toggle inlay hints in your
+code, if the language server you are using supports them</p>
+<p>This may be unwanted, since they displace some of your code</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="kr">if</span> <span class="n">client</span> <span class="ow">and</span> <span class="n">client_supports_method</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">protocol</span><span class="p">.</span><span class="n">Methods</span><span class="p">.</span><span class="n">textDocument_inlayHint</span><span class="p">,</span> <span class="n">event</span><span class="p">.</span><span class="n">buf</span><span class="p">)</span> <span class="kr">then</span>
+            <span class="n">map</span><span class="p">(</span><span class="s1">&#39;&lt;leader&gt;th&#39;</span><span class="p">,</span> <span class="kr">function</span><span class="p">()</span>
+              <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">inlay_hint</span><span class="p">.</span><span class="n">enable</span><span class="p">(</span><span class="ow">not</span> <span class="n">vim</span><span class="p">.</span><span class="n">lsp</span><span class="p">.</span><span class="n">inlay_hint</span><span class="p">.</span><span class="n">is_enabled</span> <span class="p">{</span> <span class="n">bufnr</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">buf</span> <span class="p">})</span>
+            <span class="kr">end</span><span class="p">,</span> <span class="s1">&#39;[T]oggle Inlay [H]ints&#39;</span><span class="p">)</span>
+          <span class="kr">end</span>
+        <span class="kr">end</span><span class="p">,</span>
+      <span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-76'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-76'>#</a>
+      </div>
+      <p>Diagnostic Config
+See :help vim.diagnostic.Opts</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">config</span> <span class="p">{</span>
+        <span class="n">severity_sort</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="n">float</span> <span class="o">=</span> <span class="p">{</span> <span class="n">border</span> <span class="o">=</span> <span class="s1">&#39;rounded&#39;</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;if_many&#39;</span> <span class="p">},</span>
+        <span class="n">underline</span> <span class="o">=</span> <span class="p">{</span> <span class="n">severity</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">.</span><span class="n">ERROR</span> <span class="p">},</span>
+        <span class="n">signs</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">have_nerd_font</span> <span class="ow">and</span> <span class="p">{</span>
+          <span class="n">text</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">[</span><span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">.</span><span class="n">ERROR</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;󰅚 &#39;</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">.</span><span class="n">WARN</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;󰀪 &#39;</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">.</span><span class="n">INFO</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;󰋽 &#39;</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">.</span><span class="n">HINT</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;󰌶 &#39;</span><span class="p">,</span>
+          <span class="p">},</span>
+        <span class="p">}</span> <span class="ow">or</span> <span class="p">{},</span>
+        <span class="n">virtual_text</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;if_many&#39;</span><span class="p">,</span>
+          <span class="n">spacing</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+          <span class="n">format</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">diagnostic</span><span class="p">)</span>
+            <span class="kd">local</span> <span class="n">diagnostic_message</span> <span class="o">=</span> <span class="p">{</span>
+              <span class="p">[</span><span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">.</span><span class="n">ERROR</span><span class="p">]</span> <span class="o">=</span> <span class="n">diagnostic</span><span class="p">.</span><span class="n">message</span><span class="p">,</span>
+              <span class="p">[</span><span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">.</span><span class="n">WARN</span><span class="p">]</span> <span class="o">=</span> <span class="n">diagnostic</span><span class="p">.</span><span class="n">message</span><span class="p">,</span>
+              <span class="p">[</span><span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">.</span><span class="n">INFO</span><span class="p">]</span> <span class="o">=</span> <span class="n">diagnostic</span><span class="p">.</span><span class="n">message</span><span class="p">,</span>
+              <span class="p">[</span><span class="n">vim</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">.</span><span class="n">HINT</span><span class="p">]</span> <span class="o">=</span> <span class="n">diagnostic</span><span class="p">.</span><span class="n">message</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="kr">return</span> <span class="n">diagnostic_message</span><span class="p">[</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">severity</span><span class="p">]</span>
+          <span class="kr">end</span><span class="p">,</span>
+        <span class="p">},</span>
+      <span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-77'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-77'>#</a>
+      </div>
+      <p>LSP servers and clients are able to communicate to each other what features they support.
+ By default, Neovim doesn&rsquo;t support everything that is in the LSP specification.
+ When you add blink.cmp, luasnip, etc. Neovim now has <em>more</em> capabilities.
+ So, we create new capabilities with blink.cmp, and then broadcast that to the servers.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="kd">local</span> <span class="n">capabilities</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;blink.cmp&#39;</span><span class="p">).</span><span class="n">get_lsp_capabilities</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-78'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-78'>#</a>
+      </div>
+      <p>Enable the following language servers
+ Feel free to add/remove any LSPs that you want here. They will automatically be installed.</p>
+<p>Add any additional override configuration in the following tables. Available keys are:
+ - cmd (table): Override the default command used to start the server
+ - filetypes (table): Override the default list of associated filetypes for the server
+ - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
+ - settings (table): Override the default settings passed when initializing the server.
+       For example, to see the options for <code>lua_ls</code>, you could go to: https://luals.github.io/wiki/settings/</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="kd">local</span> <span class="n">servers</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-79'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-79'>#</a>
+      </div>
+      <p>clangd = {},
+gopls = {},
+pyright = {},
+rust_analyzer = {},
+&hellip; etc. See <code>:help lspconfig-all</code> for a list of all the pre-configured LSPs</p>
+<p>Some languages (like typescript) have entire language plugins that can be useful:
+   https://github.com/pmizio/typescript-tools.nvim</p>
+<p>But for many setups, the LSP (<code>ts_ls</code>) will work just fine
+ts_ls = {},</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">lua_ls</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-80'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-80'>#</a>
+      </div>
+      <p>cmd = { &hellip; },
+filetypes = { &hellip; },
+capabilities = {},</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">Lua</span> <span class="o">=</span> <span class="p">{</span>
+              <span class="n">completion</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">callSnippet</span> <span class="o">=</span> <span class="s1">&#39;Replace&#39;</span><span class="p">,</span>
+              <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-81'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-81'>#</a>
+      </div>
+      <p>You can toggle below to ignore Lua_LS&rsquo;s noisy <code>missing-fields</code> warnings
+diagnostics = { disable = { &lsquo;missing-fields&rsquo; } },</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>            <span class="p">},</span>
+          <span class="p">},</span>
+        <span class="p">},</span>
+      <span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-82'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-82'>#</a>
+      </div>
+      <p>Ensure the servers and tools above are installed</p>
+<p>To check the current status of installed tools and/or manually install
+other tools, you can run
+   :Mason</p>
+<p>You can press <code>g?</code> for help in this menu.</p>
+<p><code>mason</code> had to be setup earlier: to configure its options see the
+<code>dependencies</code> table for <code>nvim-lspconfig</code> above.</p>
+<p>You can add other tools here that you want Mason to install
+for you, so that they are available from within Neovim.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="kd">local</span> <span class="n">ensure_installed</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">tbl_keys</span><span class="p">(</span><span class="n">servers</span> <span class="ow">or</span> <span class="p">{})</span>
+      <span class="n">vim</span><span class="p">.</span><span class="n">list_extend</span><span class="p">(</span><span class="n">ensure_installed</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;stylua&#39;</span><span class="p">,</span> <span class="c1">-- Used to format Lua code</span>
+      <span class="p">})</span>
+      <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;mason-tool-installer&#39;</span><span class="p">).</span><span class="n">setup</span> <span class="p">{</span> <span class="n">ensure_installed</span> <span class="o">=</span> <span class="n">ensure_installed</span> <span class="p">}</span>
+
+      <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;mason-lspconfig&#39;</span><span class="p">).</span><span class="n">setup</span> <span class="p">{</span>
+        <span class="n">ensure_installed</span> <span class="o">=</span> <span class="p">{},</span> <span class="c1">-- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)</span>
+        <span class="n">automatic_installation</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="n">handlers</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="kr">function</span><span class="p">(</span><span class="n">server_name</span><span class="p">)</span>
+            <span class="kd">local</span> <span class="n">server</span> <span class="o">=</span> <span class="n">servers</span><span class="p">[</span><span class="n">server_name</span><span class="p">]</span> <span class="ow">or</span> <span class="p">{}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-83'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-83'>#</a>
+      </div>
+      <p>This handles overriding only values explicitly passed
+by the server configuration above. Useful when disabling
+certain features of an LSP (for example, turning off formatting for ts_ls)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>            <span class="n">server</span><span class="p">.</span><span class="n">capabilities</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">tbl_deep_extend</span><span class="p">(</span><span class="s1">&#39;force&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="n">capabilities</span><span class="p">,</span> <span class="n">server</span><span class="p">.</span><span class="n">capabilities</span> <span class="ow">or</span> <span class="p">{})</span>
+            <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;lspconfig&#39;</span><span class="p">)[</span><span class="n">server_name</span><span class="p">].</span><span class="n">setup</span><span class="p">(</span><span class="n">server</span><span class="p">)</span>
+          <span class="kr">end</span><span class="p">,</span>
+        <span class="p">},</span>
+      <span class="p">}</span>
+    <span class="kr">end</span><span class="p">,</span>
+  <span class="p">},</span>
+
+  <span class="p">{</span> <span class="c1">-- Autoformat</span>
+    <span class="s1">&#39;stevearc/conform.nvim&#39;</span><span class="p">,</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;BufWritePre&#39;</span> <span class="p">},</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;ConformInfo&#39;</span> <span class="p">},</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="p">{</span>
+        <span class="s1">&#39;&lt;leader&gt;f&#39;</span><span class="p">,</span>
+        <span class="kr">function</span><span class="p">()</span>
+          <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;conform&#39;</span><span class="p">).</span><span class="n">format</span> <span class="p">{</span> <span class="n">async</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span> <span class="n">lsp_format</span> <span class="o">=</span> <span class="s1">&#39;fallback&#39;</span> <span class="p">}</span>
+        <span class="kr">end</span><span class="p">,</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;[F]ormat buffer&#39;</span><span class="p">,</span>
+      <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">notify_on_error</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span>
+      <span class="n">format_on_save</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">bufnr</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-84'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-84'>#</a>
+      </div>
+      <p>Disable &ldquo;format_on_save lsp_fallback&rdquo; for languages that don&rsquo;t
+have a well standardized coding style. You can add additional
+languages here or re-enable it for the disabled ones.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="kd">local</span> <span class="n">disable_filetypes</span> <span class="o">=</span> <span class="p">{</span> <span class="n">c</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span> <span class="n">cpp</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">}</span>
+        <span class="kr">if</span> <span class="n">disable_filetypes</span><span class="p">[</span><span class="n">vim</span><span class="p">.</span><span class="n">bo</span><span class="p">[</span><span class="n">bufnr</span><span class="p">].</span><span class="n">filetype</span><span class="p">]</span> <span class="kr">then</span>
+          <span class="kr">return</span> <span class="kc">nil</span>
+        <span class="kr">else</span>
+          <span class="kr">return</span> <span class="p">{</span>
+            <span class="n">timeout_ms</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="n">lsp_format</span> <span class="o">=</span> <span class="s1">&#39;fallback&#39;</span><span class="p">,</span>
+          <span class="p">}</span>
+        <span class="kr">end</span>
+      <span class="kr">end</span><span class="p">,</span>
+      <span class="n">formatters_by_ft</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">lua</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;stylua&#39;</span> <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-85'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-85'>#</a>
+      </div>
+      <p>Conform can also run multiple formatters sequentially
+python = { &ldquo;isort&rdquo;, &ldquo;black&rdquo; },</p>
+<p>You can use &lsquo;stop_after_first&rsquo; to run the first available formatter from the list
+javascript = { &ldquo;prettierd&rdquo;, &ldquo;prettier&rdquo;, stop_after_first = true },</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="p">},</span>
+    <span class="p">},</span>
+  <span class="p">},</span>
+
+  <span class="p">{</span> <span class="c1">-- Autocompletion</span>
+    <span class="s1">&#39;saghen/blink.cmp&#39;</span><span class="p">,</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;VimEnter&#39;</span><span class="p">,</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;1.*&#39;</span><span class="p">,</span>
+    <span class="n">dependencies</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-86'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-86'>#</a>
+      </div>
+      <p>Snippet Engine</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="p">{</span>
+        <span class="s1">&#39;L3MON4D3/LuaSnip&#39;</span><span class="p">,</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;2.*&#39;</span><span class="p">,</span>
+        <span class="n">build</span> <span class="o">=</span> <span class="p">(</span><span class="kr">function</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-87'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-87'>#</a>
+      </div>
+      <p>Build Step is needed for regex support in snippets.
+This step is not supported in many windows environments.
+Remove the below condition to re-enable on windows.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>          <span class="kr">if</span> <span class="n">vim</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">has</span> <span class="s1">&#39;win32&#39;</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">vim</span><span class="p">.</span><span class="n">fn</span><span class="p">.</span><span class="n">executable</span> <span class="s1">&#39;make&#39;</span> <span class="o">==</span> <span class="mi">0</span> <span class="kr">then</span>
+            <span class="kr">return</span>
+          <span class="kr">end</span>
+          <span class="kr">return</span> <span class="s1">&#39;make install_jsregexp&#39;</span>
+        <span class="kr">end</span><span class="p">)(),</span>
+        <span class="n">dependencies</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-88'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-88'>#</a>
+      </div>
+      <p><code>friendly-snippets</code> contains a variety of premade snippets.
+   See the README about individual language/framework/plugin snippets:
+   https://github.com/rafamadriz/friendly-snippets
+{
+  &lsquo;rafamadriz/friendly-snippets&rsquo;,
+  config = function()
+    require(&lsquo;luasnip.loaders.from_vscode&rsquo;).lazy_load()
+  end,
+},</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="p">},</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="p">{},</span>
+      <span class="p">},</span>
+      <span class="s1">&#39;folke/lazydev.nvim&#39;</span><span class="p">,</span>
+    <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-89'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-89'>#</a>
+      </div>
+      <ul>
+<li>@module &lsquo;blink.cmp&rsquo;</li>
+<li>@type blink.cmp.Config</li>
+</ul>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">keymap</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-90'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-90'>#</a>
+      </div>
+      <p>&lsquo;default&rsquo; (recommended) for mappings similar to built-in completions
+  <c-y> to accept ([y]es) the completion.
+   This will auto-import if your LSP supports it.
+   This will expand snippets if the LSP sent a snippet.
+&lsquo;super-tab&rsquo; for tab to accept
+&lsquo;enter&rsquo; for enter to accept
+&lsquo;none&rsquo; for no mappings</p>
+<p>For an understanding of why the &lsquo;default&rsquo; preset is recommended,
+you will need to read <code>:help ins-completion</code></p>
+<p>No, but seriously. Please read <code>:help ins-completion</code>, it is really good!</p>
+<p>All presets have the following mappings:
+<tab>/<s-tab>: move to right/left of your snippet expansion
+<c-space>: Open menu or open docs if already open
+<c-n>/<c-p> or <up>/<down>: Select next/previous item
+<c-e>: Hide menu
+<c-k>: Toggle signature help</p>
+<p>See :h blink-cmp-config-keymap for defining your own keymap</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">preset</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-91'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-91'>#</a>
+      </div>
+      <p>For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
+   https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="p">},</span>
+
+      <span class="n">appearance</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-92'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-92'>#</a>
+      </div>
+      <p>&lsquo;mono&rsquo; (default) for &lsquo;Nerd Font Mono&rsquo; or &lsquo;normal&rsquo; for &lsquo;Nerd Font&rsquo;
+Adjusts spacing to ensure icons are aligned</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">nerd_font_variant</span> <span class="o">=</span> <span class="s1">&#39;mono&#39;</span><span class="p">,</span>
+      <span class="p">},</span>
+
+      <span class="n">completion</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-93'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-93'>#</a>
+      </div>
+      <p>By default, you may press <code>&lt;c-space&gt;</code> to show the documentation.
+Optionally, set <code>auto_show = true</code> to show the documentation after a delay.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">documentation</span> <span class="o">=</span> <span class="p">{</span> <span class="n">auto_show</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span> <span class="n">auto_show_delay_ms</span> <span class="o">=</span> <span class="mi">500</span> <span class="p">},</span>
+      <span class="p">},</span>
+
+      <span class="n">sources</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;lsp&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="s1">&#39;snippets&#39;</span><span class="p">,</span> <span class="s1">&#39;lazydev&#39;</span> <span class="p">},</span>
+        <span class="n">providers</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="n">lazydev</span> <span class="o">=</span> <span class="p">{</span> <span class="n">module</span> <span class="o">=</span> <span class="s1">&#39;lazydev.integrations.blink&#39;</span><span class="p">,</span> <span class="n">score_offset</span> <span class="o">=</span> <span class="mi">100</span> <span class="p">},</span>
+        <span class="p">},</span>
+      <span class="p">},</span>
+
+      <span class="n">snippets</span> <span class="o">=</span> <span class="p">{</span> <span class="n">preset</span> <span class="o">=</span> <span class="s1">&#39;luasnip&#39;</span> <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-94'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-94'>#</a>
+      </div>
+      <p>Blink.cmp includes an optional, recommended rust fuzzy matcher,
+which automatically downloads a prebuilt binary when enabled.</p>
+<p>By default, we use the Lua implementation instead, but you may enable
+the rust implementation via <code>'prefer_rust_with_warning'</code></p>
+<p>See :h blink-cmp-config-fuzzy for more information</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">fuzzy</span> <span class="o">=</span> <span class="p">{</span> <span class="n">implementation</span> <span class="o">=</span> <span class="s1">&#39;lua&#39;</span> <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-95'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-95'>#</a>
+      </div>
+      <p>Shows a signature help window while you type arguments for a function</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">signature</span> <span class="o">=</span> <span class="p">{</span> <span class="n">enabled</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">},</span>
+    <span class="p">},</span>
+  <span class="p">},</span>
+
+  <span class="p">{</span> <span class="c1">-- You can easily change to a different colorscheme.</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-96'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-96'>#</a>
+      </div>
+      <p>Change the name of the colorscheme plugin below, and then
+change the command in the config to whatever the name of that colorscheme is.</p>
+<p>If you want to see what colorschemes are already installed, you can use <code>:Telescope colorscheme</code>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="s1">&#39;folke/tokyonight.nvim&#39;</span><span class="p">,</span>
+    <span class="n">priority</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="c1">-- Make sure to load this before all the other start plugins.</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-97'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-97'>#</a>
+      </div>
+      <p>-@diagnostic disable-next-line: missing-fields</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;tokyonight&#39;</span><span class="p">).</span><span class="n">setup</span> <span class="p">{</span>
+        <span class="n">styles</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="n">comments</span> <span class="o">=</span> <span class="p">{</span> <span class="n">italic</span> <span class="o">=</span> <span class="kc">false</span> <span class="p">},</span> <span class="c1">-- Disable italics in comments</span>
+        <span class="p">},</span>
+      <span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-98'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-98'>#</a>
+      </div>
+      <p>Load the colorscheme here.
+Like many other themes, this one has different styles, and you could load
+any other, such as &lsquo;tokyonight-storm&rsquo;, &lsquo;tokyonight-moon&rsquo;, or &lsquo;tokyonight-day&rsquo;.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">vim</span><span class="p">.</span><span class="n">cmd</span><span class="p">.</span><span class="n">colorscheme</span> <span class="s1">&#39;tokyonight-night&#39;</span>
+    <span class="kr">end</span><span class="p">,</span>
+  <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-99'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-99'>#</a>
+      </div>
+      <p>Highlight todo, notes, etc in comments</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="p">{</span> <span class="s1">&#39;folke/todo-comments.nvim&#39;</span><span class="p">,</span> <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;VimEnter&#39;</span><span class="p">,</span> <span class="n">dependencies</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;nvim-lua/plenary.nvim&#39;</span> <span class="p">},</span> <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span> <span class="n">signs</span> <span class="o">=</span> <span class="kc">false</span> <span class="p">}</span> <span class="p">},</span>
+
+  <span class="p">{</span> <span class="c1">-- Collection of various small independent plugins/modules</span>
+    <span class="s1">&#39;echasnovski/mini.nvim&#39;</span><span class="p">,</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-100'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-100'>#</a>
+      </div>
+      <p>Better Around/Inside textobjects</p>
+<p>Examples:
+ - va)  - [V]isually select [A]round [)]paren
+ - yinq - [Y]ank [I]nside [N]ext [Q]uote
+ - ci&rsquo;  - [C]hange [I]nside [&lsquo;]quote</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;mini.ai&#39;</span><span class="p">).</span><span class="n">setup</span> <span class="p">{</span> <span class="n">n_lines</span> <span class="o">=</span> <span class="mi">500</span> <span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-101'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-101'>#</a>
+      </div>
+      <p>Add/delete/replace surroundings (brackets, quotes, etc.)</p>
+<ul>
+<li>saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren</li>
+<li>sd&rsquo;   - [S]urround [D]elete [&lsquo;]quotes</li>
+<li>sr)&rsquo;  - [S]urround [R]eplace [)] [&lsquo;]</li>
+</ul>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="nb">require</span><span class="p">(</span><span class="s1">&#39;mini.surround&#39;</span><span class="p">).</span><span class="n">setup</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-102'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-102'>#</a>
+      </div>
+      <p>Simple and easy statusline.
+ You could remove this setup call if you don&rsquo;t like it,
+ and try some other statusline plugin</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="kd">local</span> <span class="n">statusline</span> <span class="o">=</span> <span class="nb">require</span> <span class="s1">&#39;mini.statusline&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-103'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-103'>#</a>
+      </div>
+      <p>set use_icons to true if you have a Nerd Font</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">statusline</span><span class="p">.</span><span class="n">setup</span> <span class="p">{</span> <span class="n">use_icons</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">have_nerd_font</span> <span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-104'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-104'>#</a>
+      </div>
+      <p>You can configure sections in the statusline by overriding their
+default behavior. For example, here we set the section for
+cursor location to LINE:COLUMN
+-@diagnostic disable-next-line: duplicate-set-field</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">statusline</span><span class="p">.</span><span class="n">section_location</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
+        <span class="kr">return</span> <span class="s1">&#39;%2l:%-2v&#39;</span>
+      <span class="kr">end</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-105'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-105'>#</a>
+      </div>
+      <p>&hellip; and there is more!
+ Check out: https://github.com/echasnovski/mini.nvim</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="kr">end</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="p">{</span> <span class="c1">-- Highlight, edit, and navigate code</span>
+    <span class="s1">&#39;nvim-treesitter/nvim-treesitter&#39;</span><span class="p">,</span>
+    <span class="n">build</span> <span class="o">=</span> <span class="s1">&#39;:TSUpdate&#39;</span><span class="p">,</span>
+    <span class="n">main</span> <span class="o">=</span> <span class="s1">&#39;nvim-treesitter.configs&#39;</span><span class="p">,</span> <span class="c1">-- Sets main module to use for opts</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-106'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-106'>#</a>
+      </div>
+      <p><a href="Configure Treesitter .html"> Configure Treesitter </a> See <code>:help nvim-treesitter</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">ensure_installed</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;bash&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;diff&#39;</span><span class="p">,</span> <span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;lua&#39;</span><span class="p">,</span> <span class="s1">&#39;luadoc&#39;</span><span class="p">,</span> <span class="s1">&#39;markdown&#39;</span><span class="p">,</span> <span class="s1">&#39;markdown_inline&#39;</span><span class="p">,</span> <span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="s1">&#39;vim&#39;</span><span class="p">,</span> <span class="s1">&#39;vimdoc&#39;</span> <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-107'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-107'>#</a>
+      </div>
+      <p>Autoinstall languages that are not installed</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>      <span class="n">auto_install</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
+      <span class="n">highlight</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">enable</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-108'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-108'>#</a>
+      </div>
+      <p>Some languages depend on vim&rsquo;s regex highlighting system (such as Ruby) for indent rules.
+ If you are experiencing weird indenting issues, add the language to
+ the list of additional_vim_regex_highlighting and disabled languages for indent.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">additional_vim_regex_highlighting</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;ruby&#39;</span> <span class="p">},</span>
+      <span class="p">},</span>
+      <span class="n">indent</span> <span class="o">=</span> <span class="p">{</span> <span class="n">enable</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span> <span class="n">disable</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;ruby&#39;</span> <span class="p">}</span> <span class="p">},</span>
+    <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-109'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-109'>#</a>
+      </div>
+      <p>There are additional nvim-treesitter modules that you can use to interact
+with nvim-treesitter. You should go explore a few and see what interests you:</p>
+<ul>
+<li>Incremental selection: Included, see <code>:help nvim-treesitter-incremental-selection-mod</code></li>
+<li>Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context</li>
+<li>Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects</li>
+</ul>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="p">},</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-110'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-110'>#</a>
+      </div>
+      <p>The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
+init.lua. If you want these files, they are in the repository, so you can just download them and
+place them in the correct locations.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-111'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-111'>#</a>
+      </div>
+      <p>NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart</p>
+<p>Here are some example plugins that I&rsquo;ve included in the Kickstart repository.
+ Uncomment any of the lines below to enable them (you will need to restart nvim).</p>
+<p>require &lsquo;kickstart.plugins.debug&rsquo;,
+require &lsquo;kickstart.plugins.indent_line&rsquo;,
+require &lsquo;kickstart.plugins.lint&rsquo;,
+require &lsquo;kickstart.plugins.autopairs&rsquo;,
+require &lsquo;kickstart.plugins.neo-tree&rsquo;,
+require &lsquo;kickstart.plugins.gitsigns&rsquo;, &ndash; adds gitsigns recommend keymaps</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-112'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-112'>#</a>
+      </div>
+      <p>NOTE: The import below can automatically add your own plugins, configuration, etc from <code>lua/custom/plugins/*.lua</code>
+   This is the easiest way to modularize your config.</p>
+<p>Uncomment the following line and add your plugins to <code>lua/custom/plugins/*.lua</code> to get going.
+{ import = &lsquo;custom.plugins&rsquo; },</p>
+<p>For additional information with loading, sourcing and examples see <code>:help lazy.nvim-🔌-plugin-spec</code>
+Or use telescope!
+In normal mode type <code>&lt;space&gt;sh</code> then write <code>lazy.nvim-plugin</code>
+you can continue same window with <code>&lt;space&gt;sr</code> which resumes last telescope search</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="p">},</span> <span class="p">{</span>
+  <span class="n">ui</span> <span class="o">=</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-113'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-113'>#</a>
+      </div>
+      <p>If you are using a Nerd Font: set icons to an empty table which will use the
+default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">icons</span> <span class="o">=</span> <span class="n">vim</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">have_nerd_font</span> <span class="ow">and</span> <span class="p">{}</span> <span class="ow">or</span> <span class="p">{</span>
+      <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;⌘&#39;</span><span class="p">,</span>
+      <span class="n">config</span> <span class="o">=</span> <span class="s1">&#39;🛠&#39;</span><span class="p">,</span>
+      <span class="n">event</span> <span class="o">=</span> <span class="s1">&#39;📅&#39;</span><span class="p">,</span>
+      <span class="n">ft</span> <span class="o">=</span> <span class="s1">&#39;📂&#39;</span><span class="p">,</span>
+      <span class="n">init</span> <span class="o">=</span> <span class="s1">&#39;⚙&#39;</span><span class="p">,</span>
+      <span class="n">keys</span> <span class="o">=</span> <span class="s1">&#39;🗝&#39;</span><span class="p">,</span>
+      <span class="n">plugin</span> <span class="o">=</span> <span class="s1">&#39;🔌&#39;</span><span class="p">,</span>
+      <span class="n">runtime</span> <span class="o">=</span> <span class="s1">&#39;💻&#39;</span><span class="p">,</span>
+      <span class="nb">require</span> <span class="o">=</span> <span class="s1">&#39;🌙&#39;</span><span class="p">,</span>
+      <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;📄&#39;</span><span class="p">,</span>
+      <span class="n">start</span> <span class="o">=</span> <span class="s1">&#39;🚀&#39;</span><span class="p">,</span>
+      <span class="n">task</span> <span class="o">=</span> <span class="s1">&#39;📌&#39;</span><span class="p">,</span>
+      <span class="n">lazy</span> <span class="o">=</span> <span class="s1">&#39;💤 &#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+  <span class="p">},</span>
+<span class="p">})</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-114'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-114'>#</a>
+      </div>
+      <p>The line beneath this is called <code>modeline</code>. See <code>:help modeline</code>
+vim: ts=2 sts=2 sw=2 et</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

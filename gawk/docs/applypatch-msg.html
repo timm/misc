@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>applypatch-msg.sample</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>applypatch-msg.sample</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <p>An example hook script to check the commit log message taken by
+applypatch from an e-mail message.</p>
+<p>The hook should exit with non-zero status after issuing an
+appropriate message if it wants to stop the commit.  The hook is
+allowed to edit the commit message file.</p>
+<p>To enable this hook, rename this file to &ldquo;applypatch-msg&rdquo;.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span>.<span class="w"> </span>git-sh-setup
+<span class="nv">commitmsg</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>git<span class="w"> </span>rev-parse<span class="w"> </span>--git-path<span class="w"> </span>hooks/commit-msg<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">test</span><span class="w"> </span>-x<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$commitmsg</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$commitmsg</span><span class="s2">&quot;</span><span class="w"> </span><span class="si">${</span><span class="nv">1</span><span class="p">+</span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span><span class="si">}</span>
+:
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

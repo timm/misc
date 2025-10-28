@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>commit-msg.sample</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>commit-msg.sample</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <p>An example hook script to check the commit log message.
+Called by &ldquo;git commit&rdquo; with one argument, the name of the file
+that has the commit message.  The hook should exit with non-zero
+status after issuing an appropriate message if it wants to stop the
+commit.  The hook is allowed to edit the commit message file.</p>
+<p>To enable this hook, rename this file to &ldquo;commit-msg&rdquo;.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>Uncomment the below to add a Signed-off-by line to the message.
+Doing this in a hook is a bad idea in general, but the prepare-commit-msg
+hook is more suited to it.</p>
+<p>SOB=$(git var GIT_AUTHOR_IDENT | sed -n &lsquo;s/^(.<em>&gt;).</em>$/Signed-off-by: \1/p&rsquo;)
+grep -qs &ldquo;^$SOB&rdquo; &ldquo;$1&rdquo; || echo &ldquo;$SOB&rdquo; &gt;&gt; &ldquo;$1&rdquo;</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>This example catches duplicate Signed-off-by lines.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="nb">test</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>grep<span class="w"> </span><span class="s1">&#39;^Signed-off-by: &#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span>
+<span class="w">	 </span>sort<span class="w"> </span><span class="p">|</span><span class="w"> </span>uniq<span class="w"> </span>-c<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;/^[ 	]*1[ 	]/d&#39;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span>
+<span class="w">	</span><span class="nb">echo</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span>Duplicate<span class="w"> </span>Signed-off-by<span class="w"> </span>lines.
+<span class="w">	</span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="o">}</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

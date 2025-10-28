@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>patch-range.pl</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>patch-range.pl</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="k">use</span><span class="w"> </span><span class="nn">strict</span><span class="p">;</span>
+<span class="k">use</span><span class="w"> </span><span class="nn">warnings</span><span class="p">;</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$print_remaining</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;-print-remaining-diff&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nv">$print_remaining</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="nb">shift</span><span class="w"> </span><span class="nv">@ARGV</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$line_number_kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;diff&quot;</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;-line-numbers-from-new-file&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nv">$line_number_kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;new-file&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nb">shift</span><span class="w"> </span><span class="nv">@ARGV</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$min_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="nb">shift</span><span class="w"> </span><span class="nv">@ARGV</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$max_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="nb">shift</span><span class="w"> </span><span class="nv">@ARGV</span><span class="p">;</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$patch_cmd</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">defined</span><span class="w"> </span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="sr">m{^[^-]}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nv">$patch_cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;@ARGV&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nv">$patch_cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;patch @ARGV&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$reverse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">grep</span><span class="w"> </span><span class="sr">/^(--reverse|-R)$/</span><span class="p">,</span><span class="w"> </span><span class="nv">@ARGV</span><span class="p">;</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$lineno</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$line_number_kind</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;diff&quot;</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nb">undef</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$diff_header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$wheat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$chaff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$print_remaining</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">undef</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$hunk_wheat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">undef</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$hunk_chaff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">undef</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$print_remaining</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$hunk_header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">undef</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$hunk_remaining_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">undef</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$signature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$print_remaining</span><span class="p">;</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">compute_hunk_header</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$original_header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">shift</span><span class="p">;</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$hunk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">shift</span><span class="p">;</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$old_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$new_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="nb">split</span><span class="w"> </span><span class="sr">/\n/</span><span class="p">,</span><span class="w"> </span><span class="nv">$hunk</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$old_lines</span><span class="o">++</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="sr">m{^[ -]}</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$new_lines</span><span class="o">++</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="sr">m{^[ +]}</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$updated_header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$original_header</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="sr">s/^@@ -(\d+),\d+\s+\+(\d+),\d+ @@(.*)/@@ -$1,$old_lines +$2,$new_lines @\@$3/m</span><span class="n">r</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nv">$updated_header</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">finish_hunk</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">unless</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$hunk_header</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$hunk_wheat</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="sr">m{^[-+]}m</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$diff_header</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">$wheat</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="nv">$diff_header</span><span class="p">;</span>
+<span class="w">            </span><span class="nv">$diff_header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="nv">$wheat</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="p">(</span><span class="n">compute_hunk_header</span><span class="w"> </span><span class="nv">$hunk_header</span><span class="p">,</span><span class="w"> </span><span class="nv">$hunk_wheat</span><span class="p">)</span><span class="o">.</span><span class="w"> </span><span class="nv">$hunk_wheat</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$print_remaining</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$chaff</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="p">(</span><span class="n">compute_hunk_header</span><span class="w"> </span><span class="nv">$hunk_header</span><span class="p">,</span><span class="w"> </span><span class="nv">$hunk_chaff</span><span class="p">)</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="nv">$hunk_chaff</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="nv">$signature</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nv">$hunk_header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">undef</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="sr">&lt;STDIN&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="o">++</span><span class="nv">$lineno</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$line_number_kind</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;diff&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nv">$original</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="nv">$_</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^diff}</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="ow">not</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$state</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="sr">m{^---}</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">finish_hunk</span><span class="p">();</span>
+<span class="w">        </span><span class="nv">$state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;diff header&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$diff_header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$state</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;signature&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$signature</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="nv">$_</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$print_remaining</span><span class="p">;</span>
+<span class="w">        </span><span class="k">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^@@ -\d+(?:,(\d)+)? \+(\d+)(?:,\d+)? @@}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$lineno</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$line_number_kind</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;new-file&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$hunk_remaining_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$1</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">finish_hunk</span><span class="p">();</span>
+<span class="w">        </span><span class="nv">$state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;diff hunk&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$hunk_header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$_</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$hunk_wheat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$print_remaining</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">$hunk_chaff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">            </span><span class="nv">$signature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$state</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;diff header&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$diff_header</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="nv">$_</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$chaff</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="nv">$_</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$print_remaining</span><span class="p">;</span>
+<span class="w">        </span><span class="k">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$hunk_remaining_lines</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="sr">m{^-- $}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;signature&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$signature</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="nv">$_</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$print_remaining</span><span class="p">;</span>
+<span class="w">        </span><span class="k">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="o">++</span><span class="nv">$lineno</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$line_number_kind</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;new-file&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="sr">m{^[ +]}</span><span class="p">;</span>
+<span class="w">    </span><span class="o">--</span><span class="nv">$hunk_remaining_lines</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="sr">m{^[ -]}</span><span class="p">;</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sr">m{^ }</span><span class="w"> </span><span class="o">||</span>
+<span class="w">        </span><span class="p">(</span><span class="nv">$lineno</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nv">$min_line</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">$lineno</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nv">$max_line</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">        </span><span class="p">(</span><span class="nv">$line_number_kind</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;new-file&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="sr">m{^-}</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">$lineno</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nv">$min_line</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$include</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$hunk_wheat</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="nv">$_</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$print_remaining</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">$hunk_chaff</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="nv">$_</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="sr">m{^ }</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$reverse</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="sr">m{^[-]}</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="sr">m{^\+}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nv">$hunk_chaff</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="nb">substr</span><span class="w"> </span><span class="nv">$_</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$reverse</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="sr">m{^\+}</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="sr">m{^-}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">$hunk_wheat</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="nb">substr</span><span class="w"> </span><span class="nv">$_</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="nv">$hunk_chaff</span><span class="w"> </span><span class="o">.=</span><span class="w"> </span><span class="nv">$_</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$print_remaining</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="n">finish_hunk</span><span class="p">();</span>
+
+<span class="nb">open</span><span class="w"> </span><span class="n">PATCH_COMMAND</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;|-&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;$patch_cmd&quot;</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="nb">die</span><span class="w"> </span><span class="s">&quot;patch-range.pl: error running &#39;$patch_cmd&#39;: $!&quot;</span><span class="p">;</span>
+<span class="k">print</span><span class="w"> </span><span class="n">PATCH_COMMAND</span><span class="w"> </span><span class="nv">$wheat</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">not</span><span class="w"> </span><span class="nb">close</span><span class="w"> </span><span class="n">PATCH_COMMAND</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">print</span><span class="w"> </span><span class="nv">$original</span><span class="p">;</span>
+<span class="w">    </span><span class="k">print</span><span class="w"> </span><span class="bp">STDERR</span><span class="w"> </span><span class="s">&quot;patch-range.pl: error running:\n&quot;</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="s">&quot;\$ $patch_cmd &lt;&lt; EOF\n$wheat&quot;</span><span class="w"> </span><span class="o">.</span><span class="w"> </span><span class="s">&quot;EOF\n&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">print</span><span class="w"> </span><span class="nv">$chaff</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">$print_remaining</span><span class="p">;</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

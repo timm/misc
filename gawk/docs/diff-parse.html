@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>diff-parse.pl</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>diff-parse.pl</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="k">use</span><span class="w"> </span><span class="nn">warnings</span><span class="p">;</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">quote</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">shift</span><span class="p">;</span>
+<span class="w">    </span><span class="nv">$token</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="sr">s/&#39;/&#39;&#39;/g</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;&#39;$token&#39;&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">sub</span><span class="w"> </span><span class="nf">fail</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$reason</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">shift</span><span class="p">;</span>
+<span class="w">    </span><span class="k">print</span><span class="w"> </span><span class="n">quote</span><span class="p">(</span><span class="s">&quot;diff-parse.pl: $reason&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$begin</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$end</span><span class="p">;</span>
+
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nb">defined</span><span class="w"> </span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;--&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">shift</span><span class="p">;</span>
+<span class="w">        </span><span class="k">last</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="sr">m{^(BEGIN|END)$}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">not</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">fail</span><span class="w"> </span><span class="s">&quot;missing argument to $ARGV[0]&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;BEGIN&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">$begin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">$end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$ARGV</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="nb">shift</span><span class="p">,</span><span class="w"> </span><span class="nb">shift</span><span class="p">;</span>
+<span class="w">        </span><span class="k">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">fail</span><span class="w"> </span><span class="s">&quot;unknown argument: $ARGV[0]&quot;</span><span class="p">;</span>
+<span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <p>Inputs</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">our</span><span class="w"> </span><span class="nv">$directory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$ENV</span><span class="p">{</span><span class="n">PWD</span><span class="p">};</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$strip</span><span class="p">;</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$in_file</span><span class="p">;</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$in_file_line</span><span class="p">;</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;+&quot;</span><span class="p">;</span>
+
+<span class="nb">eval</span><span class="w"> </span><span class="nv">$begin</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$begin</span><span class="p">;</span>
+
+<span class="nv">$in_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;$directory/$in_file&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$in_file</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">$in_file</span><span class="w"> </span><span class="ow">ne</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>Outputs</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">our</span><span class="w"> </span><span class="nv">$diff_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$commit</span><span class="p">;</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$file</span><span class="p">;</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$file_line</span><span class="p">;</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$other_file</span><span class="p">;</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$other_file_line</span><span class="p">;</span>
+<span class="k">our</span><span class="w"> </span><span class="nv">$diff_line_text</span><span class="p">;</span>
+
+<span class="k">my</span><span class="w"> </span><span class="nv">$other_version</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$version</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;+&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nv">$other_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nv">$other_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;+&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$is_recursive_diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;header&quot;</span><span class="p">;</span>
+<span class="k">my</span><span class="w"> </span><span class="nv">$fallback_file</span><span class="p">;</span>
+
+<span class="k">sub</span><span class="w"> </span><span class="nf">strip</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$is_recursive_diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">shift</span><span class="p">;</span>
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">shift</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">my</span><span class="w"> </span><span class="nv">$effective_strip</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">defined</span><span class="w"> </span><span class="nv">$strip</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$effective_strip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$strip</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>A &ldquo;diff -r&rdquo; or &ldquo;git diff&rdquo; adds &ldquo;diff&rdquo; lines to
+the output.  If no such line is present, we have
+a plain diff between files (not directories), so
+there should be no need to strip the directory.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="w">        </span><span class="nv">$effective_strip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$is_recursive_diff</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$f</span><span class="w"> </span><span class="o">!~</span><span class="w"> </span><span class="sr">m{^/}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$f</span><span class="w"> </span><span class="o">=~</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="o">^</span><span class="p">([</span><span class="o">^</span><span class="sr">/]+/</span><span class="o">+</span><span class="p">){</span><span class="nv">$effective_strip</span><span class="p">},,</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">fail</span><span class="w"> </span><span class="s">&quot;directory prefix underflow&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;$directory/$f&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nv">$f</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="sr">&lt;STDIN&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nv">$diff_line</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="sr">s/^(&gt; )*//g</span><span class="p">;</span>
+<span class="w">    </span><span class="nv">$diff_line_text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$_</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^commit (\w+)}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$commit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$1</span><span class="p">;</span>
+<span class="w">        </span><span class="k">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^diff\b}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;header&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$is_recursive_diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^diff -\S* (\S+) (\S+)$}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">$fallback_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strip</span><span class="w"> </span><span class="nv">$is_recursive_diff</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nv">$version</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;+&quot;</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nv">$2</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nv">$1</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$state</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;header&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^[$version]{3}</span><span class="w"> </span><span class="p">([</span><span class="o">^\</span><span class="n">t</span><span class="o">\</span><span class="n">n</span><span class="p">]</span><span class="o">+</span><span class="p">)})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">$file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strip</span><span class="w"> </span><span class="nv">$is_recursive_diff</span><span class="p">,</span><span class="w"> </span><span class="nv">$1</span><span class="p">;</span>
+<span class="w">            </span><span class="k">next</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^[$other_version]{3}</span><span class="w"> </span><span class="p">([</span><span class="o">^\</span><span class="n">t</span><span class="o">\</span><span class="n">n</span><span class="p">]</span><span class="o">+</span><span class="p">)})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">$other_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strip</span><span class="w"> </span><span class="nv">$is_recursive_diff</span><span class="p">,</span><span class="w"> </span><span class="nv">$1</span><span class="p">;</span>
+<span class="w">            </span><span class="k">next</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">$state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;contents&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$file_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nv">$version</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;+&quot;</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nv">$2</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nv">$1</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="nv">$other_file_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nv">$version</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;+&quot;</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nv">$1</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nv">$2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">my</span><span class="w"> </span><span class="nv">$iscontext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sr">m{^[ ]}</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^[ $version]}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">           </span><span class="nv">$file_line</span><span class="o">++</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$file_line</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="sr">m{^[ $other_version]}</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">           </span><span class="nv">$other_file_line</span><span class="o">++</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$other_file_line</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">defined</span><span class="w"> </span><span class="nv">$in_file</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$file</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="p">(</span><span class="nv">$in_file</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="nv">$file</span><span class="w"> </span><span class="ow">eq</span><span class="w"> </span><span class="nv">$in_file</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">defined</span><span class="w"> </span><span class="nv">$in_file_line</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$file_line</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="nv">$file_line</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nv">$in_file_line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">last</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">not</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$file</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nv">$file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nv">$fallback_file</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="nv">$other_file</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">not</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$file</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fail</span><span class="w"> </span><span class="s">&quot;missing diff header&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nb">eval</span><span class="w"> </span><span class="nv">$end</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">defined</span><span class="w"> </span><span class="nv">$end</span><span class="p">;</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>core.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>core.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">SimpleNamespace</span> <span class="k">as</span> <span class="n">o</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">sample</span> <span class="k">as</span> <span class="n">some</span>
+<span class="kn">import</span> <span class="nn">math</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">Core</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">o</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">sum</span><span class="o">=</span><span class="p">{},</span> <span class="n">freq</span><span class="o">=</span><span class="p">{},</span> <span class="n">mid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="p">[])</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">Cols</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">nums</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span> <span class="k">if</span> <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">()}</span>
+    <span class="n">goals</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">nums</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">))}</span>
+    <span class="n">heaven</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">goals</span><span class="p">}</span>
+    <span class="n">span</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span><span class="n">lo</span><span class="o">=</span><span class="p">{},</span> <span class="n">hi</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">return</span> <span class="n">o</span><span class="p">(</span><span class="n">nums</span><span class="o">=</span><span class="n">nums</span><span class="p">,</span> <span class="n">goals</span><span class="o">=</span><span class="n">goals</span><span class="p">,</span> <span class="n">heaven</span><span class="o">=</span><span class="n">heaven</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span> <span class="n">span</span><span class="o">=</span><span class="n">span</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">ydist</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">((</span><span class="n">norm</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">col</span><span class="p">)</span> <span class="o">-</span> <span class="n">meta</span><span class="o">.</span><span class="n">heaven</span><span class="p">[</span><span class="n">col</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">goals</span><span class="p">))</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="n">meta</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">lo</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">hi</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">-</span> <span class="n">meta</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">lo</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-32</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">id1</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cores</span><span class="p">,</span> <span class="n">id1</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">n</span> <span class="o">+=</span> <span class="n">delta</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">mid</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">nums</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">delta</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">meta</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">lo</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">lo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">val</span><span class="p">),</span> <span class="n">val</span><span class="p">)</span>
+                <span class="n">meta</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">hi</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">hi</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">val</span><span class="p">),</span> <span class="n">val</span><span class="p">)</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">sum</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">sum</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">val</span> <span class="o">*</span> <span class="n">delta</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">freq</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">freq</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">freq</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">freq</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">delta</span>
+    
+    <span class="k">if</span> <span class="n">delta</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">rows</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">row</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">sub</span><span class="p">(</span><span class="n">id1</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">id1</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">row</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">mid</span><span class="p">(</span><span class="n">id1</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cores</span><span class="p">,</span> <span class="n">id1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">mid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">mid</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">sum</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">n</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">nums</span> 
+                      <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">freq</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">freq</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">)</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">freq</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">freq</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">sum</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">freq</span><span class="o">.</span><span class="n">keys</span><span class="p">())}</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">mid</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">dist_to_mid</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">centroid</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">-</span> <span class="n">centroid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">nums</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">centroid</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">likely</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">cores</span>
+    <span class="n">cores</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span><span class="n">best</span><span class="o">=</span><span class="n">Core</span><span class="p">(),</span> <span class="n">rest</span><span class="o">=</span><span class="n">Core</span><span class="p">(),</span> <span class="n">labeled</span><span class="o">=</span><span class="n">Core</span><span class="p">(),</span> <span class="n">unlabeled</span><span class="o">=</span><span class="n">Core</span><span class="p">())</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      <p>Initialize all as unlabeled (builds span automatically)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="p">[</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;unlabeled&#39;</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-11'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-11'>#</a>
+      </div>
+      <p>Move random start to labeled</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">shuffle</span><span class="p">(</span><span class="n">cores</span><span class="o">.</span><span class="n">unlabeled</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">):</span>
+        <span class="n">add</span><span class="p">(</span><span class="s1">&#39;labeled&#39;</span><span class="p">,</span> <span class="n">sub</span><span class="p">(</span><span class="s1">&#39;unlabeled&#39;</span><span class="p">,</span> <span class="n">cores</span><span class="o">.</span><span class="n">unlabeled</span><span class="o">.</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-12'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-12'>#</a>
+      </div>
+      <p>Copy labeled to best/rest by ydist</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">sorted_labeled</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cores</span><span class="o">.</span><span class="n">labeled</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">ydist</span><span class="p">)</span>
+    <span class="p">[</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">sorted_labeled</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)]]</span>
+    <span class="p">[</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;rest&#39;</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">sorted_labeled</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="o">**</span><span class="mf">0.5</span><span class="p">):]]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-13'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-13'>#</a>
+      </div>
+      <p>Active learning: pick rows nearer to best than rest</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">while</span> <span class="n">cores</span><span class="o">.</span><span class="n">unlabeled</span><span class="o">.</span><span class="n">rows</span> <span class="ow">and</span> <span class="n">cores</span><span class="o">.</span><span class="n">labeled</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;</span> <span class="n">budget</span><span class="p">:</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-14'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-14'>#</a>
+      </div>
+      <p>Find first row closer to best</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">guess</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">some</span><span class="p">(</span><span class="n">cores</span><span class="o">.</span><span class="n">unlabeled</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="o">.</span><span class="n">unlabeled</span><span class="o">.</span><span class="n">rows</span><span class="p">)))):</span>
+            <span class="k">if</span> <span class="n">dist_to_mid</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">mid</span><span class="p">(</span><span class="s1">&#39;best&#39;</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">dist_to_mid</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">mid</span><span class="p">(</span><span class="s1">&#39;rest&#39;</span><span class="p">)):</span>
+                <span class="n">guess</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span> <span class="k">break</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-15'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-15'>#</a>
+      </div>
+      <p>Move through pipeline: unlabeled -&gt; labeled -&gt; best</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">found</span> <span class="o">=</span> <span class="n">cores</span><span class="o">.</span><span class="n">unlabeled</span><span class="o">.</span><span class="n">rows</span><span class="p">[</span><span class="n">guess</span><span class="p">]</span>
+        <span class="n">add</span><span class="p">(</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="s1">&#39;labeled&#39;</span><span class="p">,</span> <span class="n">sub</span><span class="p">(</span><span class="s1">&#39;unlabeled&#39;</span><span class="p">,</span> <span class="n">found</span><span class="p">)))</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-16'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-16'>#</a>
+      </div>
+      <p>Rebalance: move worst from best to rest</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="k">if</span> <span class="n">cores</span><span class="o">.</span><span class="n">best</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="n">cores</span><span class="o">.</span><span class="n">labeled</span><span class="o">.</span><span class="n">n</span><span class="o">**</span><span class="mf">0.5</span><span class="p">:</span>
+            <span class="n">add</span><span class="p">(</span><span class="s1">&#39;rest&#39;</span><span class="p">,</span> <span class="n">sub</span><span class="p">(</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">cores</span><span class="o">.</span><span class="n">best</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">ydist</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cores</span><span class="o">.</span><span class="n">labeled</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">ydist</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-17'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-17'>#</a>
+      </div>
+      <p>Usage</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">data</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;row</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;Age&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="o">+</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;Income+&#39;</span><span class="p">:</span> <span class="mi">40000</span><span class="o">+</span><span class="n">i</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;Pain-&#39;</span><span class="p">:</span> <span class="n">i</span><span class="o">%</span><span class="mi">10</span><span class="p">}</span> 
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span>
+<span class="n">header</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+<span class="n">meta</span> <span class="o">=</span> <span class="n">Cols</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">cores</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">likely</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="si">}</span><span class="s2"> examples, best ydist: </span><span class="si">{</span><span class="n">ydist</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>
