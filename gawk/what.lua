@@ -46,9 +46,11 @@ function NUM:new(at,s,  goalp)
   return new(NUM, {txt=s, at=at or 0, n=0, lo=1E32, hi=1E32, 
                    mu=0, m2=0, sd=0, goalp=goalp}) end
 
-function COLS:new(names,   all,col,x)
+local is = {
   col = function(s) return (s:find"^[A-Z]" and NUM or SYM):new(s) end,
   x   = function(s) return not s:find"[+-!X" end }
+
+function COLS:new(names,   all,col,x)
   all = map(names, is.col)
   return new(COLS,{x=map(all, is.x), y=nope(all, is.x), names=names} end
 
