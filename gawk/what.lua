@@ -1,8 +1,8 @@
 #!/usr/bin/env lua
 l=require"lib"
 local \
-   cat,  coerce,  csv,  kap,  map,  new,  o,  oo,  push,  sort,  trim =
-   cat,l.coerce,l.csv,l.kap,l.map,l.new,l.o,l.oo,l.push,l.sort,l.trim
+     coerce,  csv,  kap,  map,  new,  o,  oo,  push,  sort,  trim =
+   l.coerce,l.csv,l.kap,l.map,l.new,l.o,l.oo,l.push,l.sort,l.trim
 
 -------------------------------------------------------------------------------
 local NUM,SYM,COLS,DATA = {},{},{},{}
