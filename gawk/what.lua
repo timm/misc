@@ -1,4 +1,5 @@
 #!/usr/bin/env lua
+local the = {fmt="%.3f"}
 
 local cat,coerce,csv,kap,map,new,o,oo,push,reject,sort,trim
 local fmt = string.format
@@ -21,12 +22,12 @@ function csv(file,fun,      src,s,cells,n)
     s = io.read()
     if s then fun(cells(s)) else return io.close(src) end end end
 
-function o(x,    ok,two,hash)
+function o(x,    ok,two)
   ok   = function(s) return not tostring(s):find"^_" end
-  two  = function(k,v) if ok(s) then return fmt(":%s %s",k,v) end end
-  if type(x) == "number" then return fmt(x//1==x and "%g" or "%.3f",x) end
+  two  = function(k,v) if ok(k) then return fmt(":%s %s",k,v) end end
+  if type(x) == "number" then return fmt(x%1==0 and "%g" or the.fmt,x) end
   if type(x) ~= "table"  then return tostring(x) end
-  return "{"..table.concat(#x>0 and map(t,o) or sort(kap(t,two))," ").."}" end
+  return "{"..table.concat(#x>0 and map(t,o) or sort(kap(x,two))," ").."}" end
 
 function oo(x) print(o(x)); return x end
 
@@ -38,7 +39,7 @@ function DATA:new() return new(DATA, {rows={}, cols=nil}) end
 function SYM:new(at,s) 
   return new(SYM, {txt=s, at=at or 0, n=0, has={}, mode=nil, most=0}) end
 
-function NUM:new(at,s,  goalp) 
+function NUM:new(at,s,    goalp) 
   s = s or ""
   if s:find"-$" then goalp=0 end
   if s:find"+$" then goalp=1 end
@@ -50,7 +51,7 @@ function COLS:new(names,   x,y,col,cols)
   for at,s in pairs(names) do
     col = push(cols, (s:find"^[A-Z]" and NUM or SYM):new(at,s)) 
     if not s:find"X$" then 
-      push(s:find"[+-!]$" and y or x, col)
+      push(s:find"[+-!]$" and y or x, col) end end
   return new(COLS,{x=x, y=y, all=cols, names=names} end
 
 -------------------------------------------------------------------------------
