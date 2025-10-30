@@ -34,3 +34,6 @@ function bin(i,v,    b) {
     v = bmin[i][b] }
   return v }
 
+
+# not working  wrong 0
+
