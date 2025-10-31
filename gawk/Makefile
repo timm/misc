@@ -5,7 +5,8 @@ SHELL = /bin/bash
 help: ## show this help
 	echo -e  "\n\033[1;36mmake\033[0m [\033[1;33moptions\033[0m]:\n"
 	grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
-	| gawk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1;32m%-10s\033[0m %s\n", $$1, $$2}'
+	| gawk 'BEGIN {FS = ":.*?## "} \
+               	{printf "  \033[1;32m%-10s\033[0m %s\n", $$1, $$2}'
 
 #------------------------------------------------------
 CDATA=~/gits/timm/moot/classify/diabetes.csv
@@ -16,9 +17,9 @@ nbc : ok ## run naive bayes classifier
 	./bin.awk $(CDATA) | ./nbc.awk | sort -n | uniq -c
 
 confuse : ok ## run classifier with confusion matrix
-	./bin.awk $(CDATA) | ./nbc.awk | ./confuse.awk
+	{ ./bin.awk $(CDATA) | ./nbc.awk | ./confuse.awk; } 2>/dev/null
 
-### General stuff ----------------------------------
+# misc ------------------------------------------------
 pull: ## update from main
 	git pull
 
