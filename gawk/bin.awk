@@ -1,20 +1,26 @@
 #!/usr/bin/env gawk -f
 BEGIN { FS=","; BINS=7; CONVFMT = "%.2f" }
       { gsub(/[ \t\r]/,"") }
-NR==1 { for(i=1;i<=NF;i++) 
-          if (($i ~ /^[A-Z]/) && ($i !~ /[-+!]$/))  {
-            hi[i] = -(lo[i] = 1E32)
-            for(b=1; b<BINS; b++)
-              bmin[i][b] = 1E32 }}
-NR>1  { for(i=1;i<=NF;i++) 
-          row[NR-1][i] = seen(i,$i) }
-END   { for(r in row) 
-          for(i=1;i<=NF;i++) bin(i,row[r][i])
-        for(r in row) {
-          s=sep=""
-          for(i=1;i<=NF;i++) {
-            s = s sep bin(i, row[r][i]); sep = "," }
-          print s }}
+NR==1 { head(); print }
+NR>1  { body() }
+END   { tail(); rogues() }
+
+function head(    i,b) {
+  for(i=1;i<=NF;i++) 
+    if (($i ~ /^[A-Z]/) && ($i !~ /[-+!]$/))  {
+      hi[i] = -(lo[i] = 1E32)
+      for(b=0; b<=BINS; b++) bmin[i][b] = 1E32 }}
+
+function body(    i) {
+  for(i=1;i<=NF;i++) row[NR-1][i] = seen(i,$i) }
+
+function tail(    r,i,s,sep) {
+  for(r in row) for(i=1;i<=NF;i++) bin(i,row[r][i])
+  for(r in row) {
+    s=sep=""
+    for(i=1;i<=NF;i++) {
+      s = s sep bin(i, row[r][i]); sep = "," }
+    print s }}
 
 function seen(i,v,    d) {         
   if ((v!="?") && (i in hi)) {
@@ -29,11 +35,10 @@ function seen(i,v,    d) {
 function bin(i,v,    b) {
   if ((v!="?") && (i in hi)) {
     b = int(BINS / (1 + exp(-1.704 * (v - mu[i]) / (sd[i] + 1E-32))))
-    b = b < 1 ? 1 : b >= BINS ? BINS - 1 : b
     if (v < bmin[i][b]) bmin[i][b] = v
     v = bmin[i][b] }
   return v }
 
-
-# not working  wrong 0
-
+ function rogues(    i,s) {
+  for(i in SYMTAB) if (i ~ /^[a-z]/) s= s " " i ;
+  if (s) print "?bin " s > "/dev/stderr" }
