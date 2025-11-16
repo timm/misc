@@ -16,7 +16,7 @@
 -- `My` is the active DATA object, and DATA/NUM/SYM are constructors
 -- defining table, numeric, and symbolic column types.
 local My
-local The = {bins = 4,seed = 937162211,pause = 25}
+local The = {bins = 3,seed = 937162211,pause = 25}
   
 --## Batteries
 local push,cells,csv,coerce,shuffle,pause
