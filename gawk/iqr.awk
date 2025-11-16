@@ -3,7 +3,7 @@ BEGIN   { FS=","
           RAW=0
           BEST=1
           REST=2}
-        { gsub(/[ \t]+,"") }
+        { gsub(/[ \t]+/,"") }
 NR==1   { for(c=1;c<=NF;c++) {
             names[c] = $c
             if($c ~ /^[A-Z]/)  is_num[c]

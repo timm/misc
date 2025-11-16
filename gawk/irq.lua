@@ -53,7 +53,7 @@ function disty(data,row,    n,d)
   n,d=0,0
   for _,col in pairs(data.cols.y) do 
     n = n + 1
-    d = d + (norm(col,row[col.at) - col.best)^2 end
+    d = d + (norm(col,row[col.at]) - col.best)^2 end
   return (d/n) ^ 0.5 end
 
 function threshold(data)
