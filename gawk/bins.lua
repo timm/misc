@@ -4,7 +4,7 @@
 --         row=list[val]; col=NUM or SYM, num=NUM
 --         The=config, My=data, UPPERCASE=constructors
 local My
-local The={bins=7, seed=937162211, pause=25} -- config
+local The={bins=4, seed=937162211, pause=25} -- config
 
 -- batteries ------------------------------------------------------------------
 local push, cells, csv, coerce, shuffle, pause
@@ -113,34 +113,40 @@ function sortBins(bins) --> bins
     return a=="?" and false or b=="?" and true or tonumber(a) < tonumber(b) end)
   return bins end
 
-function spark(scores, bins,    max, s, i, chars) --> s
-  chars = {" ","▁","▂","▃","▄","▅","▆","▇"}
-  max = 0
-  for _, val in ipairs(bins) do max = math.max(max, math.abs(scores[val])) end
-  s = ""
-  for _, val in ipairs(bins) do
-    i = math.floor(math.abs(scores[val]) / (max + 1e-32) * 7) + 1
-    s = s .. chars[i] end
-  return s end
+local bars={" ","▁","▂","▃","▄","▅","▆","▇"}
 
-function sparklines(tmp,    cols, bins, s, pad)
-  io.write("\027[2J\027[H")
-  cols = {}
-  for _, one in ipairs(tmp) do
-    if not cols[one.col] then cols[one.col] = {} end
-    cols[one.col][one.val] = one.score end
-  for _, col in ipairs(My.x) do
-    if cols[col.is] then
-      bins = {}
-      for val in pairs(cols[col.is]) do push(bins, val) end
-      sortBins(bins)
-      s = spark(cols[col.is], bins)
-      pad = string.rep(" ", 7 - #bins)  -- pad to align at 7 bins
-      io.write(string.format("%-8s %s%s ", col.is .. ":", s, pad))
-      for _, val in ipairs(bins) do
-        io.write(string.format("%3s ", tostring(val))) end
-      io.write("\n") end end 
-  pause(My.n) end
+local cols={  -- 8-step smooth gradient, low→high
+  "\027[38;5;88m",  -- 1 dark red
+  "\027[38;5;124m", -- 2 red
+  "\027[38;5;166m", -- 3 orange
+  "\027[38;5;220m", -- 4 yellow
+  "\027[38;5;190m", -- 5 yellow-green
+  "\027[38;5;148m", -- 6 green
+  "\027[38;5;40m",  -- 7 bright green
+  "\027[38;5;46m"}  -- 8 neon green
+
+function spark(cs,bs,glob, s,i) s=""
+  for _,b in ipairs(bs) do
+    i = math.floor((math.abs(cs[b])/(glob+1e-32))*7)+1
+    s = s .. cols[i] .. bars[i]
+  end; return s .. "\027[0m" end
+
+local BARW=10
+function sparklines(tmp, cols,glob,bs)
+  io.write("\027[2J\027[H"); cols,glob={},0
+  for _,t in ipairs(tmp) do
+    cols[t.col]=cols[t.col] or {}; cols[t.col][t.val]=t.score
+    glob=math.max(glob, math.abs(t.score)) end
+  for _,col in ipairs(My.x) do
+    local cs=cols[col.is]
+    if cs then
+      bs={}; for b in pairs(cs) do bs[#bs+1]=b end
+      table.sort(bs)
+      local s=spark(cs,bs,glob)
+      local pad=string.rep(" ", BARW-#bs)
+      io.write(("%20s %s%s "):format(col.is..":", s, pad))
+      for _,b in ipairs(bs) do io.write(b.." ") end; io.write("\n") end
+  end; pause(My.n) end
 
 -- main -----------------------------------------------------------------------
 local header, body, main
