@@ -1,10 +1,10 @@
 #!/usr/bin/env gawk -f
 # (c) 2025, Tim Menzies, MIT license
 
-BEGIN { OFS=FS=","; BINS=7 }
+BEGIN { OFS=FS=","; BINS=5}
       { gsub(/[ \t]+/,"") }
 NR==1 { for(c=1;c<=NF;c++) head(c,$c) }
-NR>1  { for(c in hi) if ($c != "?") $c = welford(c,$c);
+NR>1  { for(c in Num) if ($c != "?") $c = welford(c,$c);
         count(disty()) }
 END   { report(); rogues() }
 
@@ -41,25 +41,24 @@ function count(d,    klass,what,dn,c,v,bestrest) {
   d  = welford(klass, d); # computer dist, store its mean and Sd
   dn = norm(klass, d);   # map dist to the range 0..1
   bestrest = dn <= sqrt(NR-1)/(NR-1); # is this row close to heaven
+  bestrest ? B++ : R++;
   for(c in X) {
     v = bin(c,$c);             # discretize
     Freq[c][v][bestrest]++ }} # update frequency counts
 
-function report(    B,R,b,r,c,v,s,a,k,i,z) {
-  B = sqrt(NR - 1);
-  R = NR - 1 - sqrt(B);
+function report(    b,r,c,v,s,a,k,i,z) {
   for(c in Freq)
     for(v in Freq[c]) {
-      b = Freq[c][v][1]/B;
-      r = Freq[c][v][0]/R;
-      s = b^2/(b+r+1e-32) 
+      b = Freq[c][v][1] / B;
+      r = Freq[c][v][0] / R;
+      s = b -r
       a[++i]["="] = s;
       a[  i]["col"] = c;
       a[  i]["val"]= v 
     }
   asort(a, z, "keyeq")
   for(i=1; i<=length(z); i++)
-    print i, z[i]["="], z[i]["col"], z[i]["val"] }
+    print i, z[i]["="], Names[z[i]["col"]], z[i]["val"] }
 
 function compare(a, b) { return a < b ? -1 : (a > b ? 1 : 0) }
 
