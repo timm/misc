@@ -1,5 +1,5 @@
 #!/usr/bin/env lua
--- Fully incremental mulit-objective XAI.    
+-- Fully incremental multi-objective XAI.    
 -- (c) 2025 Tim Menzies. MIT License:
 -- https://opensource.org/licenses/MIT
 --    
@@ -15,38 +15,39 @@
 -- Finally, context variables track system state: `The` holds configuration,
 -- `My` is the active DATA object, and DATA/NUM/SYM are constructors
 -- defining table, numeric, and symbolic column types.
-local My; local The = {bins = 4,seed = 937162211,pause = 25}
-
+local My
+local The = {bins = 4,seed = 937162211,pause = 25}
+  
 --## Batteries
 local push,cells,csv,coerce,shuffle,pause
-
+  
 -- Add a value to a table.
 function push(t,val) --> val
   t[#t+1] = val; return val end
-
+  
 -- Convert a string to number if possible.
 function coerce(s) --> n or s
   return tonumber(s) or s:match'^%s*(.*%S)' end
-
+  
 -- Shuffle a table in-place.
 function shuffle(t,j) --> t shuffled
   for i = #t,2,-1 do j = math.random(i);t[i],t[j] = t[j],t[i] end
   return t end
-
+  
 -- Pause execution and wait for keypress.
 function pause(s,    tty) --> nil
   io.write("\n"..(s or "")..": press enter...")
   tty  =  io.open("/dev/tty", "r")
   tty:read()
   tty:close() end
-
+  
 -- Split comma-separated string into cells.
-function cells(s1,t) --> t
+function cells(s1,    t) --> t
   t = {}; for s2 in s1:gmatch"([^,]+)" do push(t,coerce(s2)) end
   return t end
-
+  
 -- Return an iterator over CSV rows.
-function csv(file,src) --> iterator
+function csv(file,    src) --> iterator
   src = io.open(file,"r")
   return function()
     local s  =  src:read()
@@ -71,9 +72,10 @@ function NUM(n,is) --> NUM
           best=(is or""):find"-$" and 0 or 1} end
 
 --## Reasoning 
+local welford, norm, bin, disty, count, score
 
 -- Update numeric stats using Welford’s algorithm.
-function welford(num,val,d) --> val
+function welford(num,val,    d) --> val
   if val == "?" then return val end
   num.n = num.n+1
   d = val-num.mu
@@ -92,7 +94,7 @@ function bin(col,val) --> 0..The.bins-1 or val
      or math.floor(The.bins*norm(col,val)) end
 
 -- Compute distance-to-best for a row.
-function disty(row,d,n,val) --> 0..1
+function disty(row,    d,n,val) --> 0..1
   d,n = 0,0
   for _,col in ipairs(My.y) do
     val = row[col.i]
@@ -115,16 +117,16 @@ function count(row,     y,ny,isBest,val) --> nil
   end end
 
 -- Score bins by separation of best vs rest.
-function score(tmp,bad,good) --> tmp
-  tmp = {}
+function score(    scores,bad,good) --> scores
+  scores = {}
   for _,col in ipairs(My.x) do
     for val,f in pairs(col.has) do
       good = f[true]/My.b
       bad  = f[false]/(My.n-My.b)
-      push(tmp,{score = good-bad,col = col.is,val = val})
+      push(scores,{score = good-bad,col = col.is,val = val})
     end end
-  table.sort(tmp,function(a,b) return a.score>b.score end)
-  return tmp end
+  table.sort(scores,function(a,b) return a.score>b.score end)
+  return scores end
 
 --## Presentation 
 local sortBins,spark,sparklines
@@ -146,7 +148,7 @@ local cols = {
 }
 
 -- Render a single sparkline.
-function spark(cs,bs,glob,s,i) --> sparkline string with color
+function spark(cs,bs,glob,    s,i) --> sparkline string with color
   s = ""
   for _,b in ipairs(bs) do
     i = math.floor((math.abs(cs[b])/(glob+1e-32))*7)+1
@@ -157,10 +159,10 @@ function spark(cs,bs,glob,s,i) --> sparkline string with color
 local BARW = 10
 
 -- Print colored sparklines for all bins.
-function sparklines(tmp,cols,glob,bs) --> nil
+function sparklines(scores,    cols,glob,bs) --> nil
   io.write("\027[2J\027[H")
   cols,glob  =  {},0
-  for _,one in ipairs(tmp) do
+  for _,one in ipairs(scores) do
     cols[one.col] = cols[one.col] or{}
     cols[one.col][one.val] = one.score
     glob = math.max(glob,math.abs(one.score)) end
@@ -173,15 +175,14 @@ function sparklines(tmp,cols,glob,bs) --> nil
       local pad = string.rep(" ",BARW-#bs)
       io.write(("%20s %s%s "):format(col.is..":",s,pad))
       for _,b in ipairs(bs) do io.write(b.." ") end
-      io.write("\n")
-    end end
+      io.write("\n") end end
   pause(My.n) end
 
 --## Main 
 local header,body,main
 
 -- Initialize DATA from header row.
-function header(row,col) --> nil
+function header(row,    col) --> nil
   My = DATA()
   for i,word in ipairs(row) do
     col = (word:match"^[A-Z]" and NUM or SYM)(i,word)
@@ -193,21 +194,23 @@ function header(row,col) --> nil
 function body(row) --> nil
   for _,col in ipairs(My.all) do
     if col.num then welford(col,row[col.i]) end end
-  count(row)
-  if My.n%The.pause == 0 then sparklines(score()) end end
+  count(row) end 
 
 -- Main driver for reading, shuffling, and processing.
-function main(file,first,rows) --> nil
+function main(file,    first,rows) --> nil
   first = true; rows = {}
   for row in csv(file or arg[1]) do
     if first then header(row); first = false
     else push(rows,row) end end
   math.randomseed(The.seed or os.time()); shuffle(rows)
-  for _,row in ipairs(rows) do body(row) end
+  for _,row in ipairs(rows) do 
+    body(row) 
+    if My.n%The.pause == 0 then sparklines(score()) end end
   sparklines(score()) end
 
 main()
 
+-- ------------------------------------------------------
 --## How to Contribute to This Code
 --
 -- This file follows a specific compact Lua coding style.  
@@ -216,10 +219,12 @@ main()
 --### 1. One-Line Function Comments
 -- Place **one comment line directly above every function**.
 -- Requirements:
+-- --
 --   - Starts with uppercase
 --   - Ends with a period `.`
 --   - Short (3–8 words)
 -- Example:
+--
 --   -- Update numeric statistics.
 --   function welford(num,val) ...
 --
@@ -258,12 +263,12 @@ main()
 --
 --### 8. Iterator Pattern
 -- All iterators should follow the closure style:
---   return function()
---     local s = src:read()
---     if s then return cells(s) end
---     src:close()
---     return nil
---   end
+--
+--     return function()
+--       local s = src:read()
+--       if s then return cells(s) end
+--       src:close()
+--       return nil end
 --
 --### 9. Randomness + Determinism
 -- Use:
@@ -274,7 +279,7 @@ main()
 -- Use io.write instead of print.
 -- Align columns with formatted strings when needed.
 --
---### 111. Overall Aesthetic
+--### 11. Overall Aesthetic
 -- Aim for: compact, clean, deterministic, functional, elegant.
 -- No OOP frameworks. No metatables unless essential.
 -- Fewer globals, more clarity.
