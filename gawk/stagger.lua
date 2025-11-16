@@ -36,10 +36,11 @@ function shuffle(t,j) --> t shuffled
   
 -- Pause execution and wait for keypress.
 function pause(s,    tty) --> nil
-  io.write("\n"..(s or "")..": press enter...")
-  tty  =  io.open("/dev/tty", "r")
-  tty:read()
-  tty:close() end
+    io.write("\n"..(s or "")..": press enter...")
+    tty = io.open("/dev/tty","r")
+    local ok = pcall(function() tty:read() end)
+    tty:close()
+    if not ok then print(" "); os.exit(0) end end
   
 -- Split comma-separated string into cells.
 function cells(s1,    t) --> t
