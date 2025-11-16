@@ -37,14 +37,7 @@ vi() {
 hi() { 
   clear
   echo "${col1}"
-  cat<<'EOF'
-    ██████╗     █████╗     ██╗    ██╗   ██╗  ██╗
-  ██╔════╝    ██╔══██╗   ██║    ██║   ██║ ██╔╝
-  ██║  ███╗   ███████║   ██║ █╗ ██║   █████╔╝
-  ██║   ██║   ██╔══██║   ██║███╗██║   ██╔═██╗
-  ╚██████╔╝   ██║  ██║   ╚███╔███╔╝   ██║  ██╗
-   ╚═════╝    ╚═╝  ╚═╝    ╚══╝╚══╝    ╚═╝  ╚═╝
-EOF
+  figlet -W -f slant "$(basename "$PWD")"
   echo "${col0}"
 }
 
@@ -60,7 +53,7 @@ inst() {
 
 # only run slow or verbose command at initial startup, not on reload
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  inst git nvim gawk tree
+  inst git nvim gawk tree figlet
   hi
   exec bash --init-file "${BASH_SOURCE[0]}" -i
 fi
