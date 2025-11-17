@@ -16,7 +16,10 @@
 -- `My` is the active DATA object, and DATA/NUM/SYM are constructors
 -- defining table, numeric, and symbolic column types.
 local My
-local The = {bins = 3,seed = 937162211,pause = 25}
+local The = {bins = 3,
+             file = "auto93.csv",
+             pause = 25,
+             seed = 937162211}
   
 --## Batteries
 local push,cells,csv,coerce,shuffle,pause
@@ -200,7 +203,7 @@ function body(row) --> nil
 -- Main driver for reading, shuffling, and processing.
 function main(file,    first,rows) --> nil
   first = true; rows = {}
-  for row in csv(file or arg[1]) do
+  for row in csv(file or The.file) do
     if first then header(row); first = false
     else push(rows,row) end end
   math.randomseed(The.seed or os.time()); shuffle(rows)
@@ -209,7 +212,12 @@ function main(file,    first,rows) --> nil
     if My.n%The.pause == 0 then sparklines(score()) end end
   sparklines(score()) end
 
-main()
+if arg[0]:find"stagger.lua" then
+  for i,s in pairs(arg) do 
+    s = s:sub(2)
+    for k,_ in pairs(The) do
+      if k:sub(1,1)==s then print(k,arg[i+1]); The[k]=coerce(arg[i+1]) end  end end  
+  main() end 
 
 -- ------------------------------------------------------
 --## How to Contribute to This Code

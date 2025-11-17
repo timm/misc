@@ -36,9 +36,9 @@ vi() {
 
 hi() { 
   clear
-  echo "${col1}"
-  figlet -W -f slant "$(basename "$PWD")"
-  echo "${col0}"
+  printf "\n${col2}\n\n"
+  figlet -f lean "$(basename "$PWD")"
+  printf "\n${col0}\n\n"
 }
 
 inst() {
