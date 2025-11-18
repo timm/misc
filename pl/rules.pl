@@ -59,6 +59,7 @@ goal_expansion(F =T :: X, true) :- F=T :: X.
 %-------------------------------------------------
 % terms with names slots
 
+emp = [name,age,shoeSize].
 rule = [spec,id,task,condition,action,vars].
 
 %-------------------------------------------------
