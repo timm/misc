@@ -21,7 +21,7 @@ def mid(a): a.sort(); n=len(a)//10; return a[5*n]
 def sd(a) : a.sort(); n=len(a)//10; return (a[9*n] - a[n])/2.56
 
 budget=100
-fsd
+fn=sd
 step=5
 eps = fn([Y(r) for r in data.rows])*cohen
 for _ in range(20):
