@@ -1,10 +1,16 @@
-local int,sqrt,exp = math.tointeger, math.sqrt, math.exp
-local fmt = string.format
-local cast,csv,kap,map,o,order
 local the,help = {}, [[
   -a apple=2.23222 asdas
-  -s seed=1 random number seed
-  -c card=4 asdas ]]
+  -k k=1
+  -m m=2
+  -s seed=1           random number seed
+  -t threhsold=-1.28  what is 'good'
+]]
+local int,sqrt,exp,log,max = math.tointeger math.sqrt,math.exp math.log,math.max
+local fmt = string.format
+local norm,val,like,likes
+local add,adds,sum,map,kap,cast,order,o
+local COL,COLS,SYM,NUM,DATA
+local BIG=1E32
 
 -- create ----------------------------------------------------------------------
 function COL(n,s) return (s:find"^[A-Z]" and NUM or SYM)(n,s) end
@@ -40,6 +46,21 @@ function add(i,v)
 function norm(num,v) return 1 / (1 + exp( -1.7 * (v - num.mu) / num.sd)) end
 function val(i,v) return (SYM==i.it or v=="?") and v or int(the.bins*norm(i,v)) end
 
+function like(col,v,prior,     z,var,n)
+  z = 1 / the.big
+  if col.it == SYM then 
+    n = (col.has[v] or 0) + the.k*(prior or 0)
+    return max(z, n / (col.n + the.k + z)) 
+  else
+    var = col.sd^2 + z
+    return (1 / sqrt(2*math.pi*var)) * exp(-((v - col.mu)^2) / (2*var)) end end
+
+function likes(data,row,nall,nh,     b4,fn)
+  nall,nh = nall or 100,nh or 2
+  b4 = (data.n+the.m) / (nall+the.m*nh)
+  fn = function(x) return row[x.at]~="?" and log(like(x,row[x.at],b4)) or 0 end
+  return log(b4) + sum(data.cols.x, fn) end
+
 -- lib ------------------------------------------------------------------------
 function adds(  items, i)
   items = items or {}
@@ -48,8 +69,9 @@ function adds(  items, i)
   else for _, item in pairs(items) do add(i, item) end end
   return i end
 
-function map(t,f,   u) u={};for _,s in pairs(t) do u[1+#u]=f(  v)end; return u end
-function kap(t,f,   u) u={};for k,s in pairs(t) do u[1+#u]=f(k,v)end; return u end
+function sum(t,f,   n) n=0; for _,v in pairs(t) do n=n+f(v)      end; return n end
+function map(t,f,   u) u={};for _,v in pairs(t) do u[1+#u]=f(  v)end; return u end
+function kap(t,f,   u) u={};for k,v in pairs(t) do u[1+#u]=f(k,v)end; return u end
 
 function cast(s) return int(s) or tonumber(s) or s:match"^%s*(.-)%s*$" end
 
