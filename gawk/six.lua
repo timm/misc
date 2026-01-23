@@ -5,7 +5,7 @@ local the,help = {}, [[
   -s seed=1 random number seed
   -c card=4 asdas ]]
 
-function cast(s) return int(s) or tonumber(s)or s:match"^%s*(.-)%s*$" end
+function cast(s) return int(s) or tonumber(s) or s:match"^%s*(.-)%s*$" end
 
 function order(t,     u,i)
   if #t>0 then return ipairs(t) end; 
