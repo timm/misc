@@ -9,7 +9,7 @@ local the,help = {}, [[
 local int,sqrt,exp,log,max = math.tointeger,math.sqrt,math.exp math.log,math.max
 local fmt = string.format
 local norm,val,like,likes
-local add,adds,sum,map,kap,cast,order,o
+local add,adds,sum,map,kap,cast,casts,iter,order,o
 local BIG=1E32
 
 -- create ----------------------------------------------------------------------
@@ -44,13 +44,15 @@ function add(i,v,  d)
   return v end
 
 -- query -----------------------------------------------------------------------
-function norm(num,v) return 1 / (1 + exp( -1.7 * (v - num.mu) / num.sd)) end
+function norm(num,v) 
+  return 1 / (1 + exp( -1.7 * (v - num.mu) / num.sd)) end
+
 function val(i,v) 
   return (SYM==i.it or v=="?") and v or int(the.bins*norm(i,v)) end
 
 function like(col,v,prior,     z,var,n)
   z = 1 / the.big
-  if col.it == SYM then 
+  if SYM == col.it then 
     n = (col.has[v] or 0) + the.k*(prior or 0)
     return max(z, n / (col.n + the.k + z)) 
   else
@@ -64,12 +66,12 @@ function likes(data,row,nall,nh,     b4,fn)
   return log(b4) + sum(data.cols.x, fn) end
 
 -- iterators -------------------------------------------------------------------
-function iter(t,      f,s,k)
+function iter(t,    nxt,state,key)
   if type(t)=="function" then return t end
-  f,s,k = pairs(t)
-  return function(  v) k,v=f(s,k);return v end end
+  more,state,key = pairs(t)
+  return function(v) key,v = more(state,key); return v end end
 
-function order(t,     u,i)
+ function order(t,     u,i)
   if #t>0 then return ipairs(t) end; 
   u,i = {},0
   for k in pairs(t) do u[#u+1]=k end; table.sort(u)
@@ -96,7 +98,7 @@ function csv(file,    src)
 function o(t,     u)
   if math.type(t) == "float" then return fmt("%.2f",t) end
   if type(t) ~= "table" then return tostring(t) end
-  u={};for k,v in order(t) do u[#u+1]=#t>0 and o(v) or fmt(":%s %s",k,o(v)) end
+  u={};for k,v in order(t) do u[1+#u]=#t>0 and o(v) or fmt(":%s %s",k,o(v)) end
   return "{"..table.concat(u," ").."}" end
 
 -- start-ip --------------------------------------------------------------------
