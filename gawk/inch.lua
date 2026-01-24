@@ -28,7 +28,7 @@ function order(t,     u,i)
   return function() i=i+1; if u[i] then return u[i],t[u[i]] end end end
 
 -- lib ------------------------------------------------------------------------
-local adds, sum, map, kap, cast, casts, csv, o, run, runs
+local adds,sum,map,kap,cast,casts,csv,o,run,runs
 
 function adds(items,i) 
   i=i or Num(); for item in iter(items or {}) do add(i,item) end;return i end
@@ -55,12 +55,9 @@ function o(t,     u)
 
 function run(f,v) if f then math.randomseed(the.seed); f(v) end end
 
-function runs(funs) 
-  for i,s in pairs(arg) do run(funs[s],arg[i+1]) end end
-
 -- create ----------------------------------------------------------------------
-local      SYM, NUM, DATA, COLS = "SYM", "NUM", "DATA", "COLS"
-local Col, Sym, Num, Data, Cols
+local SYM, NUM, DATA, COLS = "SYM", "NUM", "DATA", "COLS"
+local Sym, Num, Data, Cols, Col
 
 function Col(n,s) return (s:find"^[A-Z]" and Num or Sym)(n,s) end
 function Sym(n,s) return {it=SYM, at=n or 0, txt=s or "", n=0, has={}} end
@@ -69,11 +66,12 @@ function Num(n,s) return {it=NUM, at=n or 0, txt=s or "", n=0, mu=0, m2=0, sd=0,
 
 function Data(items) return adds(items, {it=DATA, rows={}, cols=nil, n=0}) end
 
-function Cols(row,     all,isx,isy)
-  isx = function(c) return not c.txt:find"[+-X]$" end
-  isy = function(c) return c.txt:find"[+-]$" end
-  all = kap(row, Col)
-  return {it=COLS, names=row, all=all, x=map(all,isx), y=map(all,isy)} end
+function Cols(row,    x,y,all)
+  all,x,y = kap(row,Col), {},{}
+  for _,col in ipairs(all) do 
+    if not col.txt:find"[+-X]$" then x[1+#x]= col 
+    elseif col.txt:find"[+-]$"  then y[1+#y]= col end end
+  return {it=COLS, names=row, all=all, x=x, y=y} end
 
 -- update ----------------------------------------------------------------------
 local add, norm, val, like, likes
@@ -119,6 +117,7 @@ local eg = {}
 eg["-h"]= function(_) print("\n"..help) end
 
 eg["--the"]= function(_) print(o(the)) end
+eg["--num"]= function(_) return print(adds({10,20,30,40}).mu) end
 
 for k,v in help:gmatch("(%S+)=(%S+)") do the[k] = cast(v) end
-runs(eg)
+for i,s in pairs(arg) do run(eg[s],arg[i+1]) end end
