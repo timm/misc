@@ -29,17 +29,17 @@ push: ## commit to main
 	git status
 
 
-~/tmp/%.pdf : %.lua  Makefile lua.ssh
+~/tmp/%.pdf : %.lua Makefile lua.ssh
 	@echo "pdfing : $@ ... "
-	@a2ps -Bj --landscape                           \
-		--font-size=6 \
-		--line-numbers=1                    \
-		--highlight-level=normal  \
-		--columns 2                 \
-		--borders=no --pro=color \
-		--right-footer="" --left-footer=""    \
-		--pretty-print=lua.ssh             \
-		--footer="page %p."                     \
-		-M letter \
+	@a2ps -Bj --landscape      \
+		--font-size=6             \
+		--line-numbers=1           \
+		--highlight-level=normal    \
+		--columns 2                  \
+		--borders=no --pro=color      \
+		--right-footer="" --left-footer=""  \
+		--pretty-print=lua.ssh               \
+		--footer="page %p."                   \
+		-M letter                              \
 		-o - $< | ps2pdf - $@
 	open $@
