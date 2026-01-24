@@ -14,7 +14,6 @@ local fmt = string.format
 local BIG=1E32
 
 local SYM,NUM,DATA,COLS = {_is="SYM"},{_is="NUM"},{_is="DATA"},{_is="COLS"}
-local Sym,Num,Data,Cols,Col,clone
 
 -- iterators -------------------------------------------------------------------
 local iter,order
@@ -64,6 +63,8 @@ function o(t,     u,mt)
   return (mt and mt._is or "").."{"..table.concat(u," ").."}" end
 
 -- create ----------------------------------------------------------------------
+local Sym,Num,Data,Cols,Col,clone
+
 function Col(n,s) return (s:find"^[A-Z]" and Num or Sym)(n,s) end
 function Sym(n,s) return isa(SYM,{at=n or 0, txt=s or "", n=0, has={}}) end
 function Num(n,s) return isa(NUM,{at=n or 0, txt=s or "", n=0, mu=0, m2=0, sd=0}) end
@@ -78,7 +79,7 @@ function Cols(row,    all)
 
 function clone(data,rows) return adds(rows, Data(data.txt, {data.cols.names})) end
 
--- methods ----------------------------------------------------------------------
+-- methods ----------------------------------------------------------------------
 function SYM.add(i,v)
   if v~="?" then i.n=i.n+1; i.has[v]=1+(i.has[v] or 0) end end
 
@@ -113,9 +114,8 @@ local function nb(items,    all,klasses,n,nk,klass,train,seen,classify)
   function seen(k)
     if not klasses[k] then 
       nk=nk+1; klasses[k]=clone(all); klasses[k].txt=k end end
-  function classify(row,      guess)
-    function guess(_,d) return #d.rows>0 and d:likes(row,n,nk) end
-    return most(klasses,guess) end
+  function classify(row)
+    return most(klasses, function(_,d) return d:likes(row,n,nk) end) end
 
   for row in iter(items) do
     if not all then all=Data("all",{row}) else
