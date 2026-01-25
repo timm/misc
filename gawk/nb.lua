@@ -14,17 +14,14 @@ OPTIONS
     -h          Show help.
     -k k=1      Bayes low frequency hack for symbolic attributes.
     -m m=2      Bayes low frequency hack for class priors.
-    -w wait=5   Start classifiying after seeing "some" rows
+    -w wait=5   Start classifying after seeing "some" rows.
 
 EXAMPLES
-    --order     Test sorted key iteration.
-    --iter      Test iterator over tables and functions.
     --the       Print config settings.
     --sym       Test symbolic column.
     --num       Test numeric column.
     --col       Test column creation.
     --cols      Test column set creation.
-    --csv F     Print rows from CSV file.
     --data F    Load data, print first y column.
     --like      Test likelihood calculations.
     --likes F   Test row likelihood.
@@ -33,8 +30,7 @@ EXAMPLES
 INPUT FORMAT
     Comma-separated values. First row defines column names. Uppercase
     names (Age, Weight) are numeric; lowercase (name, color) are symbolic.
-    Suffixes: "!" class label, "X" ignore.
-    Missing values: "?". 
+    Suffixes: "!" class label, "X" ignore. Missing values: "?". 
 
 --------------------------------------------------------------------------
 CODING STANDARD
@@ -56,70 +52,45 @@ CODING STANDARD
   Function Signatures
     Params before extra spaces; locals after:
       function sum(t,f,    n)   -- t,f:params; n:local 
-
---------------------------------------------------------------------------
-API
-
-  local nb = require"nb"
-  
-  CONSTRUCTORS
-    sym = nb.Sym(n,s)         -- symbolic column at position n, name s
-    num = nb.Num(n,s)         -- numeric column at position n, name s
-    col = nb.Col(n,s)         -- auto: uppercase os Num, lowercase is Sym
-    data = nb.Data(s,items)   -- dataset from iterator; s is name
-    data = nb.clone(data,rows)-- new data with same structure
-  
-  CLASSIFIER
-    nb.nb(items)              -- incremental naive bayes on CSV iterator
-  
-  METHODS
-    sym:add(v)                -- update counts
-    num:add(v)                -- update mu, sd (Welford's)
-    data:add(row)             -- first row:headers, rest:data
-    n = data:likes(row,nall,nh) -- log-likelihood of row
-  
-  UTILITIES
-    t = nb.adds(items,t)      -- add items to t (default: Num)
-    n = nb.sum(t,f)           -- sum f(v) over t
-    u = nb.kap(t,f) / sel(t,f)-- map or filter t by f
-    k = nb.most(t,f)          -- key where f(k,v) is max
-    nb.iter(items), nb.order(t), nb.csv(file) -- iterators
-    s = nb.o(t)               -- pretty print
 ]]
-local int,sqrt,exp = math.tointeger,math.sqrt,math.exp
-local max,log=math.max, math.log
-local fmt = string.format
-local adds,sum,kap,sel,most,cast,casts,csv,isa,o
-local iter,order
-local BIG=1E32
-local the={} -- for global config. parsed from help.
+local l = require"lib"
+local sqrt,exp,log,max = math.sqrt,math.exp,math.log,math.max
+local the = {}
+
+-- accumulators ---------------------------------------------------------
+local DATA,COLS,SYM,NUM={_is="DATA"},{_is="COLS"},{_is="SYM"},{_is="NUM"}
+local Data,Cols,Sym,Num,Col
 
 -- create ---------------------------------------------------------------
-local SYM,NUM,DATA,COLS = {_is="SYM"},{_is="NUM"},{_is="DATA"}
-local COLS = {_is="COLS"}
-local Sym,Num,Data,Cols,Col,clone
+local function Sym(n,s) 
+  return l.isa(SYM,{at=n or 0, txt=s or "", n=0, has={}}) end
+
+local function Num(n,s) 
+  return l.isa(NUM,{at=n or 0, txt=s or "", n=0, mu=0, m2=0, sd=0}) end
 
 function Col(n,s) return (s:find"^[A-Z]" and Num or Sym)(n,s) end
 
-function Sym(n,s) 
-  return isa(SYM,{at=n or 0, txt=s or "", n=0, has={}}) end
-
-function Num(n,s) 
-  return isa(NUM,{at=n or 0, txt=s or "", n=0, mu=0, m2=0, sd=0}) end
+local function adds(items,t)
+  t=t or Num(); for v in l.iter(items or {}) do t:add(v) end; return t end
 
 function Data(s,items)
-  return adds(items or {}, isa(DATA,{txt=s or "", rows={}, cols=nil})) end
+  return adds(items or {}, l.isa(DATA,{txt=s or "", rows={}, cols=nil})) end
 
 function Cols(row,    all)
-  all = kap(row, Col)
-  return isa(COLS, {names=row, all=all,
-    x=sel(all, function(c) return not c.txt:find"[!X]$" end),
-    y=sel(all, function(c) return c.txt:find"!$" end)}) end
+  all = l.kap(row, Col)
+  return l.isa(COLS, {names=row, all=all,
+    x = l.sel(all, function(c) return not c.txt:find"[!X]$" end),
+    y = l.sel(all, function(c) return c.txt:find"!$" end)}) end
 
 function clone(data,rows) 
   return adds(rows, Data(data.txt, {data.cols.names})) end
 
 -- update ---------------------------------------------------------------
+function DATA.add(i,row)
+  if not i.cols then i.cols=Cols(row) else
+    i.rows[1+#i.rows] = row
+    for _,col in pairs(i.cols.all) do col:add(row[col.at]) end end end
+
 function SYM.add(i,v)
   if v~="?" then i.n=i.n+1; i.has[v]=1+(i.has[v] or 0) end end
 
@@ -128,26 +99,21 @@ function NUM.add(i,v,    d)
     i.n=i.n+1; d=v-i.mu; i.mu=i.mu+d/i.n; i.m2=i.m2+d*(v-i.mu)
     i.sd = i.n<2 and 0 or sqrt(i.m2/(i.n-1)) end end
 
-function DATA.add(i,row)
-  if not i.cols then i.cols=Cols(row) else
-    i.rows[1+#i.rows] = row
-    for _,col in pairs(i.cols.all) do col:add(row[col.at]) end end end
-
--- bayes ---------------------------------------------------------------
+-- bayes ----------------------------------------------------------------
 function SYM.like(i,v,prior,    n)
   n = (i.has[v] or 0) + the.k*(prior or 0)
-  return max(1/BIG, n/(i.n + the.k + 1/BIG)) end
+  return max(1/l.BIG, n/(i.n + the.k + 1/l.BIG)) end
 
 function NUM.like(i,v,    z,var)
-  z=1/BIG; var=i.sd^2 + z
+  z=1/l.BIG; var=i.sd^2 + z
   return (1/sqrt(2*math.pi*var)) * exp(-((v - i.mu)^2)/(2*var)) end
 
 function DATA.likes(i,row,nall,nh,    b4)
   b4 = (#i.rows + the.m)/(nall + the.m*nh)
-  return log(b4) + sum(i.cols.x, function(c)
+  return log(b4) + l.sum(i.cols.x, function(c)
     return row[c.at]~="?" and log(c:like(row[c.at],b4)) or 0 end) end
 
-local function nb(items,    all,klasses,n,nk,klass,train,seen,classify)
+local function nb(items,   all,klasses,n,nk,klass,train,seen,classify)
   klasses, n, nk = {}, 0, 0
   function klass(row) return row[all.cols.y[1].at] end
   function train(row) klasses[klass(row)]:add(row) end
@@ -155,104 +121,42 @@ local function nb(items,    all,klasses,n,nk,klass,train,seen,classify)
     if not klasses[k] then 
       nk=nk+1; klasses[k]=clone(all); klasses[k].txt=k end end
   function classify(row)
-    return most(klasses, function(_,d) return d:likes(row,n,nk) end) end
+    return l.most(klasses, function(_,d) return d:likes(row,n,nk) end) end
 
-  for row in iter(items) do
+  for row in l.iter(items) do
     if not all then all=Data("all",{row}) else
       seen(klass(row))
-      if n > 5 then print(classify(row), klass(row)) end
+      if n > the.wait then print(classify(row), klass(row)) end
       n=n+1; train(row) end end end
-
--- lib ------------------------------------------------------------------
-function iter(t,    more,state,key)
-  if type(t)=="function" then return t end
-  more,state,key = pairs(t)
-  return function(v) key,v = more(state,key); return v end end
-
-function order(t,     u,j)
-  if #t>0 then return ipairs(t) end
-  u,j = {},0
-  for k in pairs(t) do u[#u+1]=k end; table.sort(u)
-  return function() j=j+1; if u[j] then return u[j],t[u[j]] end end end
-
-function isa(mt,t) mt.__index=mt; return setmetatable(t,mt) end
-
-function cast(s) return int(s) or tonumber(s) or s:match"^%s*(.-)%s*$" end
-
-function sum(t,f,   n) 
-  n=0; for _,v in pairs(t) do n=n+f(v) end; return n end
-
-function kap(t,f,   u) 
-  u={};for k,v in pairs(t) do u[1+#u]=f(k,v) end;return u end
-
-function sel(t,f,  u) 
-  u={};for _,v in pairs(t) do if f(v) then u[1+#u]=v end end;return u end
-
-function most(t,f,   n,out,tmp)
-  n = -BIG; for k,v in pairs(t) do
-    tmp = f(k,v); if tmp and tmp > n then n,out = tmp,k end end
-  return out end
-
-function adds(items,t)
-  t=t or Num(); for v in iter(items or {}) do t:add(v) end; return t end
-
-function casts(s,    t)
-  t={}; for x in s:gmatch("[^,]+") do t[1+#t]=cast(x) end; return t end
-
-function csv(file,    src)
-  src = assert(io.open(file))
-  return function(s)
-    s=src:read(); if s then return casts(s) else src:close() end end end
-
-function o(t,     u,mt)
-  if math.type(t)=="float" then return fmt("%.2f",t) end
-  if type(t)~="table" then return tostring(t) end
-  mt=getmetatable(t); u={}
-  for k,v in order(t) do u[1+#u]=#t>0 and o(v) or fmt(":%s %s",k,o(v)) end
-  return (mt and mt._is or "").."{"..table.concat(u," ").."}" end
 
 -- demos ----------------------------------------------------------------
 local eg={}
 
-eg["-h"] = function(_) print("\n"..help) end
-
-eg["--order"]= function(_) 
-  for k,v in order({z=1,a=2,m=3}) do print(k,v) end end
-
-eg["--iter"] = function(_,    t,f)
-  t={}; for x in iter({2,4,8}) do t[1+#t]=x end; print(o(t))
-  t={}; f=function(n,   j) j=0; 
-            return function() j=j+1; if j<=n then return j*10 end end end
-  for x in iter(f(8)) do t[1+#t]=x end; print(o(t)) end
-
-eg["--the"]  = function(_) print(o(the)) end
-eg["--csv"]  = function(f) for row in csv(f) do print(o(row)) end end
-
-eg["--sym"]  = function(_) print(o(adds({"a","a","a","b","c"},Sym()))) end
-eg["--num"]  = function(_) print(o(adds({10,20,30,40}))) end
-eg["--col"]  = function(_) print(o(Col(1,"Age")), o(Col(2,"name"))) end
+eg["-h"]     = function(_) print("\n"..help) end
+eg["--the"]  = function(_) print(l.o(the)) end
+eg["--sym"]  = function(_) print(l.o(adds({"a","a","a","b","c"},Sym()))) end
+eg["--num"]  = function(_) print(l.o(adds({10,20,30,40}))) end
+eg["--col"]  = function(_) print(l.o(Col(1,"Age")), l.o(Col(2,"name"))) end
 
 eg["--cols"] = function(_) 
-   print(o(Cols({"Name","Age","Weight-","Class!"}).y)) end
+   print(l.o(Cols({"Name","Age","Weight-","Class!"}).y)) end
 
-eg["--data"] = function(f) print(o(Data("",csv(f)).cols.y[1])) end
+eg["--data"] = function(f) print(l.o(Data("",l.csv(f)).cols.y[1])) end
 
 eg["--like"] = function(_,    num,sym)
   num=adds({10,20,30,40,50}); sym=adds({"a","a","a","b","c"},Sym())
   print(num:like(30), sym:like("a",0.5)) end
 
 eg["--likes"]= function(f,    data)
-  data=Data("",csv(f)); print(data:likes(data.rows[1], #data.rows, 2)) end
+  data=Data("",l.csv(f)); print(data:likes(data.rows[1], #data.rows, 2)) end
 
-eg["--nb"]   = function(f) nb(csv(f)) end
+eg["--nb"]   = function(f) nb(l.csv(f)) end
 
 -- main ----------------------------------------------------------------
-for k,v in help:gmatch("(%S+)=(%S+)") do the[k]=cast(v) end
+for k,v in help:gmatch("(%S+)=(%S+)") do the[k]=l.cast(v) end
 if arg[0] and arg[0]:find"nb" then
-  for j,s in pairs(arg) do if eg[s] then eg[s](arg[j+1]) end end end
+  for j,s in pairs(arg) do l.run(eg[s], arg[j+1]) end end
 
-return {the=the, BIG=BIG, SYM=SYM, NUM=NUM, DATA=DATA, COLS=COLS,
-        Sym=Sym, Num=Num, Data=Data, Cols=Cols, Col=Col, clone=clone,
-        iter=iter, order=order, adds=adds, sum=sum, kap=kap,
-        sel=sel, most=most, cast=cast, casts=casts, csv=csv, isa=isa,
-        o=o,  nb=nb, eg=eg}
+return {the=the, SYM=SYM, NUM=NUM, DATA=DATA, COLS=COLS, 
+        Sym=Sym, Num=Num, Data=Data, Cols=Cols, Col=Col, adds=adds,
+        clone=clone, nb=nb, eg=eg}

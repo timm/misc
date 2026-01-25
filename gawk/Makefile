@@ -35,11 +35,12 @@ push: ## commit to main
 		--font-size=5             \
 		--line-numbers=1           \
 		--highlight-level=normal    \
-		--columns 3                  \
+		--columns 2                  \
 		--borders=no --pro=color      \
 		--right-footer="" --left-footer=""  \
 		--pretty-print=lua.ssh               \
 		--footer="page %p."                   \
+		--portrait \
 		-M letter                              \
 		-o - $< | ps2pdf - $@
 	open $@
