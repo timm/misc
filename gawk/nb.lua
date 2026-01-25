@@ -58,7 +58,7 @@ local o,isa,iter,csv,sel,BIG = l.o,l.isa,l.iter,l.csv,l.sel,l.BIG
 local sqrt,exp,log,max = math.sqrt,math.exp,math.log,math.max
 local the = {}
 
--- create -----------------------------------------------------------
+-- tyoes -----------------------------------------------------------
 local DATA,COLS,SYM = {_is="DATA"}, {_is="COLS"}, {_is="SYM"}
 local NUM = {_is="NUM"}
 local Data,Cols,Sym,Num,Col
@@ -86,7 +86,7 @@ function Cols(row,    all)
 function clone(data,rows) 
   return adds(rows, Data(data.txt, {data.cols.names})) end
 
--- update -----------------------------------------------------------
+-- add -----------------------------------------------------------
 function DATA.add(i,row)
   if not i.cols then i.cols=Cols(row) else
     i.rows[1+#i.rows] = row
