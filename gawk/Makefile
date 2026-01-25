@@ -32,7 +32,7 @@ push: ## commit to main
 ~/tmp/%.pdf : %.lua Makefile lua.ssh
 	@echo "pdfing : $@ ... "
 	@a2ps -Bj --landscape      \
-		--font-size=5             \
+		--font-size=6             \
 		--line-numbers=1           \
 		--highlight-level=normal    \
 		--columns 2                  \
