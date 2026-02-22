@@ -8,7 +8,8 @@ institute: |
   prof, cs, \textbf{ncstate}, usa\newline
   acm-ieee-ase fellow; eic ASEj\newline
   timm@ieee.org\newline
-  http://timm.fyi
+  http://timm.fyi \newline\newline
+  \url{https://timm.fyi/26gong.pdf}
 date: February 2026
 slide-level: 2
 fontsize: 10pt
@@ -30,17 +31,16 @@ header-includes:
 ---
 
 
-## Australia: a Weird and Challenging Place
+## Australia: Land of  Weird Ideas
 \begin{center}
 \includegraphics[width=.4\textwidth]{plat3.png}
 \end{center}
 
-- **A Larrikin Culture:** loves knocking tossers off pedestals.
-- **Weird & Wonderful:** Categories defined elsewhere are tested/broken here.
-  - Heck, in Oz, even the water is a contrarian (swirls clockwise).
-- **The Outback Test:** Ideas tamed elsewhere work in the wild?
+- **A Larrikin Culture:** ideas found elsewhere are tested/broken here.
+  - Here, even water is a contrarian (swirls clockwise).
 - Oz's vastness demands rugged, simple, and efficient tech.
-- **Embrace the Ozzieness:** Explore often the beaten track.
+- **Embrace the Ozzieness:** Explore off the beaten track.
+- A great place to explore **heresies**.
 
 
 

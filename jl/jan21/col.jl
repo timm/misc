@@ -1,9 +1,9 @@
 # vim: set et ts=2 sw=2:
-@with_kw mutable struct Some
+mutable struct Some
   pos=0; txt=""; w=1; n=0; 
   _all=[]; max=it.max; stale=false end
 
-@with_kw mutable struct Sym
+mutable struct Sym
   pos=0; txt=""; w=1; n=0; 
   seen=Dict(); mode=no; most=0 end
 
