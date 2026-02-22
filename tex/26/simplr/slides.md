@@ -28,6 +28,9 @@ header-includes:
   - '\setbeamercolor{palette secondary}{bg=InferenceRed,fg=white}'
   - '\setbeamertemplate{navigation symbols}{}'
   - '\hypersetup{colorlinks=true,urlcolor=linkblue}'
+  - '\usepackage{listings}'
+  - '\usepackage{xcolor}'
+  - '\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,backgroundcolor=\color{yellow!10}}'
 ---
 
 
@@ -44,38 +47,57 @@ header-includes:
 
 
 
-## The Prevailing Myth
-- **The Narrative:** Conventional AI "failed" and was "repaired" by LLMs.
-- **The Reality:** Pre-LLM AI was finding elegant shortcuts.
+## Prevailing Myths
+- **Myth:** Conventional AI "failed" and "repaired" by LLMs.
+- **Reality:** Pre-LLM AI was finding elegant shortcuts.
 - We were discovering deep insights into human cognitive styles.
-- These insights are being swept away in the urge to commercialize.
+- Insights now swept away in the urge to commercialize.
 - Is "Bigger" always "Better," or just "More Expensive"?
 
+\begin{center}\includegraphics[width=.65\textwidth]{agentic.png}\end{center}
+
+## Aside \#1: Bio
+
+\begin{center}\includegraphics[width=\textwidth]{me.png}\end{center}
+
+## Aside \#2: Curriculum Review
+
+
+\begin{center}\includegraphics[width=\textwidth]{teach.png}\end{center}
+
+
 ## A Millennial Tradition of Simplicity
-- **130 AD (Ptolemy):** Explain phenomena by the simplest hypothesis.
-- **1300s (Occam):** Entities must not be multiplied beyond necessity.
-- **1984 (JL Lemma):** Random projections preserve pairwise distances [8].
-- **1997 (Feature Selection):** We can often ignore 80% of features [9].
-- **2002 (Backdoors):** Setting a few variables cuts exponential time [10].
-- **2025 (Compact AI):** Performance $\approx$ LLMs at lower cost [2].
+- **130 AD (Ptolemy):**    
+  Explain phenomena by the simplest hypothesis.
+- **1300s (Occam):**  
+  Entities must not be multiplied beyond necessity.
+- **1984 (JL Lemma):**   
+  Random projections preserve pairwise distances [8].
+- **1997 (Feature Selection):**    
+  We can often ignore 80% of features [9].
+- **2002 (Backdoors):**    
+  Setting a few variables cuts exponential time [10].
 
 \begin{center}
 \includegraphics[width=.8\textwidth]{backdoors7.png}
 \end{center}
 
+- **2025 (Compact AI):** Performance $\approx$ LLMs at lower cost [2].
+
 ## Why Simplification Studies are Rare
 
 
-* In a survey of 229 SE papers on LLMs, only **5%** used baselines [11].
-* Biased against simplicity [12]
-* Without a "Simpler" baseline, we aren't doing Science.
-* We must support alternatives for strategic, auditable tasks.
+* In a survey of 229 SE papers on LLMs, only **5%** used non-nueral baselines [11].
+* Are we biased against simplicity?[12]
 
 \begin{minipage}{0.52\textwidth}
 \includegraphics[height=1.5in]{tiles10.png}
 \end{minipage}\begin{minipage}{0.48\textwidth}
 \includegraphics[height=1.5in]{lego10.png}
 \end{minipage}
+
+* Without a "Simpler" baseline, are we doing Science?
+* We must support alternatives for strategic, auditable tasks.
 
 ## Mapping AI to Human Cognition: RDR
 - Paul Compton, **Ripple Down Rules (RDR):** Paradigm shift in Knowledge Acquisition.
@@ -93,11 +115,11 @@ header-includes:
 
 
 
-## Better than the Masters: PIGS
+## Better than the Masters: PIGE
 - Timm: **AUSPIG Expert System:** Back-end for pig growth simulation.
-- **The Result:** It outperformed the humans who wrote its rules.
+- **The Result:** outperformed the humans who wrote its rules.
 - Achieved $\approx$ 10% improvement in profitability ($\$/m^2/day$).
-- **Key point:** Humans provided rules; the system provided consistency.
+- **Key point:** Humans experts wrote 90\% of the rules
 - Fielded globally (USA, Holland, Australia) [7].
 
 \begin{center}
@@ -106,10 +128,13 @@ header-includes:
 \end{minipage}
 \end{center}
 
-## Case Study: NB.awk
-- That moment when you realize just how easy AI can be...
+## When you see how easy AI can be
 
-\footnotesize
+\begin{center}\includegraphics[width=.4\textwidth]{surprise.png}\end{center}
+
+
+
+\scriptsize
 ```awk
 function train(i,c) {
   Total++; c=$NF; Classes[c]++
@@ -127,21 +152,29 @@ function classify(i,c,t,best,bestc) {
 
 ```
 
+
 \normalsize
 
-## The Case for Compact AI
+## NB is out-dated? Too Simple? 
+
+- Inspired by PromiseTune (Chen, ICSE 2026), Pareto frontiers are distractions?
+- Most good solutions lie in a tiny corner of the search space.
+- Greedy alternatives to Pareto optimizers?
+
+\includegraphics[width=.4\textwidth]{corner.png}~~~~\includegraphics[width=.55\textwidth]{acq.png}
+
+- `add/sub` is fast (with Bayes): 1000 times faster than SMAC
+- Bayesian `like` handles large, noisy sets of attributes
+- Best solutions found are just as good as SMAC/OPTUNA/TPE
+
+## The Case for Compact AI (CACM'25)
 
 * Strategic tasks (auditable) require non-LLM tools [2, 4].
 * Timm: **EZR**: **E**a**z**y Reasone**r**
 * Stochastic learner exploiting software's sparsity.
 * Achieves 90% of peak results with only **32 samples**.
 
-
-
-\begin{center}
-\includegraphics[width=.9\textwidth]{ai7.png}
-\end{center}
-
+\hspace{-30mm}\includegraphics[width=.25\textwidth]{case1.png}\includegraphics[width=.25\textwidth]{case2.png}\includegraphics[width=.56\textwidth]{ai7.png}
 
 ## LLM vs. Compact AI: A Comparison
 
@@ -160,16 +193,17 @@ function classify(i,c,t,best,bestc) {
 * **Next Step:** Compare your next LLM project against 200 lines of LUA.
 
 ## References
+\footnotesize
 
-* **[1]** Richards, D. "Two decades of RDR research," *KER*, 24(2), 2009.
-* **[2]** Menzies, T. "The Case for Compact AI," *Comm. ACM*, 2025.
-* **[3]** Anon. "How Low Can You Go? The Data-Light SE Challenge," *FSE*, 2026.
-* **[4]** Menzies, T. "From Verification to Herding," *VerfAI*, 2026.
-* **[5]** Menzies, T. "The Case for Compact AI," *Comm. ACM*, 2025.
-* **[6]** Menzies, T. "Unreasonable Effectiveness of SW Analytics," *IEEE SW*, 2018.
-* **[7]** Menzies, T. "An Expert System for Raising Pigs," *UNSW*, 1990.
-* **[8]** Johnson, W.B. & Lindenstrauss, J. "Extensions of Lipschitz maps," 1984.
-* **[9]** Kohavi, R. & John, G. "Wrappers for feature subset selection," *AIJ*, 1997.
-* **[10]** Williams, R., Selman, B. et al. "Backdoors in Hard SAT Instances," 2002.
-* **[11]** Yang, Y. et al. "Survey on deep learning for SE," *ACM CSUR*, 54(10), 2022.
-* **[12]** Adams, G.S. etl. “People systematically overlook subtractive changes,” Nature, 592(785), 2021.
+**[1]** Richards, D. "Two decades of RDR research," *KER*, 24(2), 2009.     
+**[2]** Menzies, T. "The Case for Compact AI," *Comm. ACM*, 2025.     
+**[3]** Menzies, T. "How Low Can You Go? The Data-Light SE Challenge," *FSE*, 2026.     
+**[4]** Menzies, T. "From Verification to Herding," *VerfAI*, 2026.     
+**[5]** Menzies, T. "The Case for Compact AI," *Comm. ACM*, 2025.     
+**[6]** Menzies, T. "Unreasonable Effectiveness of SW Analytics," *IEEE SW*, 2018.     
+**[7]** Menzies, T. "An Expert System for Raising Pigs," *UNSW*, 1990.     
+**[8]** Johnson, W.B. & Lindenstrauss, J. "Extensions of Lipschitz maps," 1984.     
+**[9]** Kohavi, R. & John, G. "Wrappers for feature subset selection," *AIJ*, 1997.     
+**[10]** Williams, R., Selman, B. et al. "Backdoors in Hard SAT Instances," 2002.     
+**[11]** Yang, Y. et al. "Survey on deep learning for SE," *ACM CSUR*, 54(10), 2022.     
+**[12]** Adams, G.S. etl. “People overlook subtractive changes,” Nature, 592(785), 2021.     
