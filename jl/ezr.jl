@@ -26,9 +26,9 @@ col(at,txt) = isuppercase(first(txt)) ? Num(at,txt) : Sym(at,txt)
 Data()      = Data(0, [], nothing, nothing)
 
 #-- lib ------------------------------------------------------------------------
-unk(v)       = v == "?"
-cell(c,row)  = row[c.c.at + 1]   # 1-indexed
-say(x)       = x isa Float64 ? round(x, digits=the.decs) |> string : string(x)
+unk(v)      = v == "?"
+cell(c,row) = row[c.c.at + 1]   # 1-indexed
+say(x)      = string(x isa Float64 ? round(x, digits=the.decs) : x)
 
 function cast(s)
   s = strip(s)
@@ -46,8 +46,7 @@ splat(ch, str) = [strip(p) for p in split(str, ch)]
 function csv(file, fn)
   open(file) do s
     for line in eachline(s)
-      row = line2row(line)
-      row !== nothing && fn(row) end end end
+      (row = line2row(line)) !== nothing && fn(row)  end end
 
 function align(m)
   ss = [[say(v) for v in r] for r in m]
@@ -62,8 +61,8 @@ function cols!(names)
   all = [col(i-1, s) for (i,s) in enumerate(names)]
   endc(c)  = last(c.c.txt)
   Cols(names, all,
-       [c for c in all if !in(endc(c), "-+!X")],
-       [c for c in all if  in(endc(c), "-+!")])  end
+      [c for c in all if !in(endc(c), "-+!X")],
+      [c for c in all if  in(endc(c), "-+!")])  end
 
 function data!(file)
   d = Data()
@@ -100,27 +99,24 @@ sub!(i, v) = add!(i, v, -1.0)
 mid(i::Num) = i.mu
 mid(i::Sym) = argmax(i.has)
 
-mids(i) = i.mids === nothing ?
-           (i.mids = [mid(c) for c in i.cols.all]) : i.mids
+mids(i) = i.mids === nothing ? (i.mids = [mid(c) for c in i.cols.all]) : i.mids
 
 spread(i::Num) = i.c.n < 2 ? 0.0 : sqrt(max(0.0, i.m2) / (i.c.n - 1))
-spread(i::Sym) = -sum(let p=v/i.c.n; p*log2(p) end
-                      for v in values(i.has) if v > 0; init=0.0)
+spread(i::Sym) = -sum(
+  let p=v/i.c.n; p*log2(p) end for v in values(i.has) if v > 0; init=0.0)
 
-z(i,v)    = clamp((v - i.mu) / (spread(i) + 1e-30), -3.0, 3.0)
+z(i,v) = clamp((v - i.mu) / (spread(i) + 1e-30), -3.0, 3.0)
 norm(i::Sym, v) = v
 norm(i::Num, v) = unk(v) ? v : 1.0 / (1.0 + exp(-1.7 * z(i,v)))
 
 #-- distance -------------------------------------------------------------------
-function minkowski(vals)
-  p = the.p
-  isempty(vals) && return 0.0
-  (sum(x^p for x in vals) / length(vals)) ^ (1/p)  end
+function minkowski(vals) 
+  (sum(x^the.p for x in vals) / (1E-32 + length(vals))) ^ (1/the.p)  end
 
 function disty(i, r)
-  minkowski([let v = norm(y, cell(y,r))
-               (unk(v) ? 0.0 : v) - (y.c.goal ? 1.0 : 0.0)
-             end for y in i.cols.y])  end
+  minkowski([
+    let v = norm(y, cell(y,r)) (unk(v) ? 0.0 : v) - (y.c.goal ? 1.0 : 0.0) end
+    for y in i.cols.y])  end
 
 function aha(i, u, v)
   unk(u) && unk(v) && return 1.0
@@ -156,8 +152,7 @@ prior(i, n_all, n_h) = (i.n + the.m) / (n_all + the.m * n_h)
 
 function likes(i, row, n_all, n_h)
   p = prior(i, n_all, n_h)
-  log(p) + sum(let l = like(x, cell(x,row), p)
-                 l > 0 ? log(l) : 0.0     end
+  log(p) + sum(let l = like(x, cell(x,row), p) l > 0 ? log(l) : 0.0 end
                for x in i.cols.x if !unk(cell(x,row)))  end
 
 #-- demos ----------------------------------------------------------------------
