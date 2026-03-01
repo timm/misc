@@ -9,7 +9,7 @@ institute: |
   http://timm.fyi  
 date: "February 2026"
 slide-level: 2
-fontsize: 10pt
+fontsize: 8pt
 theme: Warsaw
 beamerthemeoptions:
   - footline=frame number
@@ -39,29 +39,27 @@ header-includes:
   * LLM costs are projected to rise **100x**.
 * Is "Bigger" always "Better," or just "More Expensive"?
 
-```
 \begin{center}
-\includegraphics[width=.48\textwidth]{agentic.png}
-\includegraphics[width=.48\textwidth]{llm_failures_chart.png}
+\includegraphics[height=1.5in]{llm_failures_chart.png}\hspace{0.5in}
+\includegraphics[height=1in]{agentic.png}
 \end{center}
-```
 
 ## The Real Landscape: The MOOT Repository
 
 We studied 120+ datasets across the SE landscape [2]:
+
 * **System Optimization:** Latency, throughput, cloud energy.
 * **Product Line Engineering:** High-dimensional constraints.
 * **Project Health:** Forecasting PRs, commits, issues.
 * **Defect Mitigation:** Minimizing defect density.
 * **Process & Cost:** Simulating Agile vs. Waterfall.
 
-Our current "Bigger is Better" approach is an evolutionary dead end. We are at the end of the "Prokaryotic" era of AI.
-
-```
 \begin{center}
 \includegraphics[width=.6\textwidth]{moot_clusters.png}
 \end{center}
-```
+
+
+"Bigger is Better": an evolutionary dead end? Time to move beyond "Prokaryotic" AI?
 
 # PART 1: The Landscape is a Lie
 
@@ -73,11 +71,11 @@ Our current "Bigger is Better" approach is an evolutionary dead end. We are at t
 * **"How Low Can You Go?":** Spaces are isolated spikes [4].
 * If you aren't on a spike, you are nowhere.
 
-```
 \begin{center}
-\includegraphics[width=.7\textwidth]{promisetune_heatmap.png}
+\includegraphics[height=.8in]{hills.png}\hspace{1mm}%
+\includegraphics[height=.8in]{promisetune.png}  
+\includegraphics[height=1.2in]{bingo.png}
 \end{center}
-```
 
 # PART 2: The Science of Simplicity
 
@@ -91,11 +89,11 @@ Our current "Bigger is Better" approach is an evolutionary dead end. We are at t
   * **Runtime:** Big-data apps use < 50 distinct execution paths.
   * **Design:** NASA space missions converge on < 12% of decisions.
 
-```
 \begin{center}
-\includegraphics[width=.6\textwidth]{funneling_effect.png}
+\includegraphics[height=.7in]{backdoors.png}\hspace{1mm}%
+\includegraphics[height=1in]{bigfuzz.png}
 \end{center}
-```
+
 # PART 3: The Eukaryotic Leap
 
 ## The Primordial Soup to Eukaryotes
@@ -106,11 +104,11 @@ Our current "Bigger is Better" approach is an evolutionary dead end. We are at t
 * This allowed them to house **Mitochondria**: a super-charged battery.
 * **Model-Based Reasoning (MBR)** is our "Nuclear Envelope". It builds a private world model to glance across the landscape and jump.
 
-```
 \begin{center}
-\includegraphics[width=.7\textwidth]{eukaryote_cell.png}
+\includegraphics[width=.4\textwidth]{pro.png}%
+\includegraphics[width=.58\textwidth]{eur.png}
 \end{center}
-```
+
 
 # PART 4: Knowledge-Level Agent Systems (KLAS)
 
@@ -118,16 +116,19 @@ Our current "Bigger is Better" approach is an evolutionary dead end. We are at t
 
 * How do we build modern Agentic workflows without massive LLM overhead?
 * **KLAS:** Agents act as lightweight orchestrators (the Nucleus); the heavy lifting is offloaded to tools (the Mitochondria).
-* Evidence from **SmartOracle**: 
-  * Agent-to-Agent traffic is minimal.
+* Evidence from **SmartOracle**: Agent-to-Agent traffic is minimal.
   * **Agent-to-Tool traffic dominates** (Terminal=405, Triage=390 calls).
 * Keep the reasoning core sparse; let deterministic tools do the work.
 
-```
 \begin{center}
-\includegraphics[width=.7\textwidth]{klas_architecture.png}
+\includegraphics[width=.49\textwidth]{tic.png}
+\includegraphics[width=.49\textwidth]{states.png}
 \end{center}
-```
+
+Newell, 1986: "Subgoals are generated whenever problem solving cannot proceed until another problem space has performed some subtask."
+
+Google DeepMind, 2026: "AI agents need to decompose problems into manageable sub-components and safely delegate their completion across other AI agents."
+
 
 # PART 5: Minimalism in Action
 
