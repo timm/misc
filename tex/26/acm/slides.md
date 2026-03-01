@@ -7,27 +7,63 @@ institute: |
   acm-ieee-ase fellow; eic ASEj  
   timm@ieee.org  
   http://timm.fyi  
-date: "February 2026"
+date: |
+  March 3, 2026  
+  \includegraphics[width=1.7cm]{qrcode.png}
+
 slide-level: 2
-fontsize: 8pt
+fontsize: 9pt
 theme: Warsaw
 beamerthemeoptions:
   - footline=frame number
-header-includes:
-  - \usepackage[sfdefault,light]{FiraSans}
-  - \definecolor{LogicBlue}{RGB}{204,0,0}
-  - \definecolor{InferenceRed}{RGB}{212,55,59}
-  - \definecolor{linkblue}{HTML}{0066FF}
-  - \setbeamercolor{structure}{fg=InferenceRed}
-  - \setbeamercolor{frametitle}{bg=LogicBlue,fg=white}
-  - \setbeamercolor{palette primary}{bg=LogicBlue,fg=white}
-  - \setbeamercolor{palette secondary}{bg=InferenceRed,fg=white}
-  - \setbeamertemplate{navigation symbols}{}
-  - \hypersetup{colorlinks=true,urlcolor=linkblue}
-  - \usepackage[absolute,overlay]{textpos}
-  - \addtobeamertemplate{frametitle}{}{\begin{textblock*}{1.5cm}(11.3cm,0.2cm)\includegraphics[width=1.2cm]{qrcode.png}\end{textblock*}}
----
 
+header-includes:
+  - |
+    \usepackage[sfdefault,light]{FiraSans}
+
+    \definecolor{LogicBlue}{RGB}{204,0,0}
+    \definecolor{InferenceRed}{RGB}{212,55,59}
+    \definecolor{linkblue}{HTML}{0066FF}
+
+    \setbeamercolor{structure}{fg=InferenceRed}
+    \setbeamercolor{frametitle}{bg=LogicBlue,fg=white}
+    \setbeamercolor{palette primary}{bg=LogicBlue,fg=white}
+    \setbeamercolor{palette secondary}{bg=InferenceRed,fg=white}
+
+    \setbeamertemplate{headline}{\vspace{0.4cm}}
+
+    \setbeamertemplate{section in head/foot}{}
+    \setbeamertemplate{subsection in head/foot}{}
+    \setbeamertemplate{mini frames}{}
+    \setbeamertemplate{navigation symbols}{}
+
+    \setbeamertemplate{footline}{
+      \hfill
+      \usebeamercolor[fg]{page number in head/foot}
+      \usebeamerfont{page number in head/foot}
+      \insertframenumber\,/\,\inserttotalframenumber\kern1em\vbox{\vskip0pt}
+    }
+    \setbeamercolor{page number in head/foot}{fg=black}
+
+    \AtBeginSection{}
+    \AtBeginSubsection{}
+
+    \setbeamersize{text margin left=0.45cm, text margin right=0.45cm}
+
+    \hypersetup{colorlinks=true,urlcolor=linkblue}
+
+    \usepackage{tikz}
+    \usepackage{eso-pic}
+    \AddToShipoutPictureFG{
+      \ifnum\value{framenumber}>1
+      \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=north east,yshift=-0.05cm,xshift=-0.2cm]
+      at (current page.north east)
+      {\fcolorbox{black}{white}{\includegraphics[width=1.2cm]{qrcode.png}}};
+      \end{tikzpicture}
+      \fi
+    }
+---
 
 ## Prevailing Myths & The Reality of LLMs
 
@@ -40,22 +76,23 @@ header-includes:
 * Is "Bigger" always "Better," or just "More Expensive"?
 
 \begin{center}
-\includegraphics[height=1.5in]{llm_failures_chart.png}\hspace{0.5in}
-\includegraphics[height=1in]{agentic.png}
+\includegraphics[height=2.2in]{llm_failures_chart.png}\hspace{0.25in}
+\includegraphics[height=1.5in]{agentic.png}
 \end{center}
 
 ## The Real Landscape: The MOOT Repository
 
 We studied 120+ datasets across the SE landscape [2]:
 
+* **Configuration:** Performance tuning, hyperparameter optimization
 * **System Optimization:** Latency, throughput, cloud energy.
 * **Product Line Engineering:** High-dimensional constraints.
 * **Project Health:** Forecasting PRs, commits, issues.
 * **Defect Mitigation:** Minimizing defect density.
-* **Process & Cost:** Simulating Agile vs. Waterfall.
+* **Process \& Cost:** Simulating Agile vs. Waterfall.
 
 \begin{center}
-\includegraphics[width=.6\textwidth]{moot_clusters.png}
+\includegraphics[width=.70\textwidth]{moot_clusters.png}
 \end{center}
 
 
@@ -66,15 +103,28 @@ We studied 120+ datasets across the SE landscape [2]:
 ## Heatmaps of Truth
 
 * The "rolling hills" mental model of gradient descent is failing us.
-* **PromiseTune results:** Performance clusters in tiny, non-smooth regions [3].
+* **PromiseTune results:** Best performance clusters in tiny regions [3].
 * Most of the search space is a desert; the optimal "oases" are sharp and narrow.
 * **"How Low Can You Go?":** Spaces are isolated spikes [4].
 * If you aren't on a spike, you are nowhere.
 
 \begin{center}
-\includegraphics[height=.8in]{hills.png}\hspace{1mm}%
-\includegraphics[height=.8in]{promisetune.png}  
-\includegraphics[height=1.2in]{bingo.png}
+\includegraphics[height=.8in]{hills.png}\hspace{10mm}%
+\includegraphics[height=1in]{promisetune.png}  
+\includegraphics[height=1.5in]{bingo.png}
+\end{center}
+
+## Technical Aside: On the value of Gradient Descent
+
+- Gradient Descent is an Expensive Bridge
+- If I am right, GD should experiences long plateaus (over the valleys)
+  and sudden 'bursts' where it hits the peaks.
+- "It's energy-blind. It walks when it should teleport."
+
+\hspace{5mm}
+
+\begin{center}
+\includegraphics[width=.7\linewidth]{hillclimb.png}  
 \end{center}
 
 # PART 2: The Science of Simplicity
@@ -90,7 +140,7 @@ We studied 120+ datasets across the SE landscape [2]:
   * **Design:** NASA space missions converge on < 12% of decisions.
 
 \begin{center}
-\includegraphics[height=.7in]{backdoors.png}\hspace{1mm}%
+\includegraphics[height=.8in]{backdoors.png}\hspace{1mm}%
 \includegraphics[height=1in]{bigfuzz.png}
 \end{center}
 
@@ -114,7 +164,7 @@ We studied 120+ datasets across the SE landscape [2]:
 
 ## Mitochondria: Tools vs. Agents
 
-* How do we build modern Agentic workflows without massive LLM overhead?
+* How do we build Agentic workflows without LLM overhead?
 * **KLAS:** Agents act as lightweight orchestrators (the Nucleus); the heavy lifting is offloaded to tools (the Mitochondria).
 * Evidence from **SmartOracle**: Agent-to-Agent traffic is minimal.
   * **Agent-to-Tool traffic dominates** (Terminal=405, Triage=390 calls).
@@ -132,48 +182,47 @@ Google DeepMind, 2026: "AI agents need to decompose problems into manageable sub
 
 # PART 5: Minimalism in Action
 
-## EZR — 32 Samples to 90% Optimal
+## EZR — 40 Samples to be 80% Optimal
 
 * If spaces are sparse, we don't need heavy optimizers.
-* **32 Samples $\rightarrow$ 90% Optimal** [4].
-* EZR finds the "Best" and jumps there.
+* **40 Samples $\rightarrow$ 80% Optimal** [4].
+* EZR incrementally maintains $\sqrt{N}$ best and $N-\sqrt{N}$ rest.
+* Next, label the thing most best and least rest.
 * Minimal Bayesian learners and random probes achieve near-SOTA with tiny data.
-* Runs in 3 minutes on a laptop vs. 3 weeks on a GPU cluster.
 
-```
 \begin{center}
-\includegraphics[width=.6\textwidth]{ezr_results.png}
+\includegraphics[width=.45\textwidth]{smac.png}
+\includegraphics[width=.54\textwidth]{used.png}
 \end{center}
-```
+
+
+* Runs in 3 minutes on a laptop vs. 3 weeks on a GPU cluster.
 
 # PART 6: The Challenge of Alien Code
 
 ## GenAI & The Elephant in the Room
 
-* Because of Miller's Law (7±2), human code is inherently sparse and herdable.
+* Because of Miller's Law (7±2), human code inherently sparse 
 * LLMs are not bound by human cognitive limits.
 * Generative AI produces dense, high-dimensional, highly entangled dependencies.
-* **The Threat:** "Alien Code" that humans cannot audit, maintain, or simplify.
-* If we don't apply Compact AI constraints now, we lose control of the state space entirely.
+* **The Challenge:** "Alien Code" that humans cannot audit, maintain, or simplify.
+* If we can't apply Compact AI constraints, will we lose control of the state space?
 
-```
 \begin{center}
-\includegraphics[width=.6\textwidth]{alien_code_monster.png}
+\includegraphics[width=.6\textwidth]{monster.png}
 \end{center}
-```
 
 ## Conclusion: Build Walls, Not Bridges
 
 * Stop building bigger bridges (brute-force Gradient Descent). 
 * Start building better walls (Compact AI/MBR).
-* Whether solving core SE problems or building the next generation of efficient Agentic systems, we need people building walls.
+* Whether solving core SE problems or building the next generation of 
+  efficient Agentic systems, we need people building walls.
 * **Join the Wolfpack.** Let's build the nuclear envelopes for the next stage of AI life.
 
-```
 \begin{center}
-\includegraphics[width=.4\textwidth]{ncstate_wolfpack.png}
+\includegraphics[width=.4\textwidth]{wolfpack.png}
 \end{center}
-```
 
 ## References
 \footnotesize
