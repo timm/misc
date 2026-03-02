@@ -19,6 +19,7 @@ beamerthemeoptions:
 
 header-includes:
   - |
+    \usepackage{fancyvrb}
     \usepackage{lmodern}
     \usepackage[sfdefault,light,lining]{FiraSans}
 
@@ -95,7 +96,8 @@ use cases?}
 
 ## Four Questions --- and a Biological Precedent
 
-\begin{minipage}{0.55\textwidth}
+\begin{minipage}{0.45\textwidth}
+{\small
 \begin{tabular}{rll}
 \textbf{RQ1} & Can \textit{all} AI be simplified?
   & \textcolor{InferenceRed}{\textbf{No}} \\[4pt]
@@ -111,19 +113,25 @@ use cases?}
 Biology did this once.\\[2pt]
 Mitochondria reduced power-per-task.\\[2pt]
 Everything we call life followed.\\[2pt]
-\textbf{We propose AI do it now.}
-\end{minipage}%
-\begin{minipage}{0.42\textwidth}
+\textbf{We propose AI do it now.}}
+\end{minipage}
+\begin{minipage}{0.54\textwidth}\vspace{5mm}
 \centering
-\includegraphics[width=\textwidth]{pro.png}\\[2mm]
+\includegraphics[width=.8\textwidth]{pro.png}\\[2mm]
 \includegraphics[width=\textwidth]{eur.png}
 \end{minipage}
 
-\vspace{2mm}
+## Prove me wrong
+
+
 \begin{center}
-\small Studied using 120+ SE tasks:
-\texttt{http://github.com/timm/moot}
+\small Studied using 120+ SE tasks: {\bf \color{red}http://github.com/timm/moot\color{black}}
+
+\vspace{5mm}
+
+\includegraphics[width=\textwidth]{moot_clusters.png}
 \end{center}
+
 
 ## RQ1: Can \textit{All} AI Be Simplified? No.
 
@@ -162,18 +170,15 @@ Response gen.    & Produce dialog      & LLM (needed)     \\
   regions [3].
 * Most of the space is desert; optimal ``oases'' are
   sharp spikes.
-* **``How Low Can You Go?'':** Spaces are isolated spikes
-  [4]. If you aren't on a spike, you are nowhere.
+* All the actions is in a few isolated spikes [4].
+  - Gradient descent walks slowly when it could teleport.
 
 \begin{center}
 \includegraphics[height=.8in]{hills.png}\hspace{10mm}%
-\includegraphics[height=1.2in]{promisetune.png}
+\includegraphics[height=1.1in]{promisetune.png}
 \includegraphics[height=1.3in]{bingo.png}
 \end{center}
 
-\textit{Gradient descent walks across valleys to find peaks
-it could jump to.
-``Energy-blind. It walks when it should teleport.''}
 
 ## RQ2: Why GD Struggles --- A Testable Prediction
 
@@ -262,7 +267,7 @@ has performed some subtask.''}
 
 * Sort holdout set by tree predictions.
 * Label top $C$ items; return best row $r$.
-* Score $r$ relative to pre-treated $\mu$ to $d_{\mathrm{min}}$:
+* Score $r$ relative to pre-treated mean ($\mu$) and min ($\min$) of raw data.
 
 $$
 W(r)=100\times\!\left(1 + \frac{D(r)-\mu}{\mu - d_{\mathrm{min}}}\right)
@@ -273,11 +278,12 @@ $$
 \includegraphics[width=.70\textwidth]{rands.png}
 \end{center}
 
-* **Left:** $W \approx 55 + 0.4 \times B \times C$.
-  Over 50 labels $\Rightarrow$ 80+\% of optimum.
+* **Left:** Empirically, $W \approx 55 + 0.4 \times B \times C$.    
+  $W>50$ labels $\Rightarrow$ 80+\% of optimum. 
   More $B$ not useful.
-* **Right:** 120+ datasets sorted by $d_{\mathrm{min}}$. Black =
-  untreated ($\mu$). Tiny $B{=}8$ finds near-best fast.
+* **Right:** 120+ datasets sorted by $d_{\mathrm{min}}$.
+  Black = untreated ($\mu$).      
+  Tiny $B{=}8$ finds near-best fast.
 * \textbf{Small, cheap samples land near the optimum.}
 
 ## RQ2: EZR --- Incremental Active Learning
@@ -295,6 +301,57 @@ $$
 
 * **3 minutes on a laptop** vs.\ 3 weeks on a GPU cluster.
 * **100$\times$ faster. Better accuracy. No cloud required.**
+
+## RQ2: Explanation
+
+Regression trees built from $B=60$ samples.
+
+\begin{minipage}[t]{1.5in}
+{\scriptsize
+\ttfamily
+\begin{tabular}{ll}
+                            \\
+Clndrs <= 6                 \\
+|   Model > 77              \\
+|   |   Clndrs <= 4         \\
+|   |   |   origin != 3     \\
+|   |   |   origin == 3     \\
+|   |   Clndrs > 4          \\
+|   Model <= 77             \\
+|   |   Clndrs <= 4         \\
+|   |   |   Model > 74      \\
+|   |   |   |   origin != 2 \\
+|   |   |   |   origin == 2 \\
+|   |   |   Model <= 74     \\
+|   |   |   |   origin == 1 \\
+|   |   |   |   origin != 1 \\
+|   |   Clndrs > 4          \\
+Clndrs > 6                  \\
+|   Model > 76              \\
+|   Model <= 76             \\
+|   |   Volume <= 350       \\
+|   |   |   Volume <= 318   \\
+|   |   |   Volume > 318    \\
+|   |   Volume > 350        \\
+\end{tabular}}
+\end{minipage}\begin{minipage}[t]{3.5in}
+\hspace{-1cm}\includegraphics[width=3.5in]{pearl.png}
+
+\vspace{5mm}
+
+{\small 
+\begin{itemize}
+\item Amirali Rayegan, Tim Menzies
+\item
+Minimal Data, Maximum Clarity:
+A Heuristic for Explaining Optimization  {\bf \color{red}(arxiv.org/abs/2509.08667)\color{black}}
+\item Compared to other explanation algorithms (SHAP, ReliefF, BreakDown)
+\begin{itemize}
+\item Build from 60 rows (not 1000+)
+\item Explanations as good, or better.
+\end{itemize}
+\end{itemize}}
+\end{minipage}
 
 ## RQ3: \textit{Should} Some AI Be Simplified? Yes.
 
@@ -399,7 +456,7 @@ AI without a landlord   & \textbf{sovereign} \\
 Simple ain't stupid. It's the next leap.
 
 \begin{center}
-\includegraphics[width=.38\textwidth]{wolfpack.png}
+\includegraphics[width=.25\textwidth]{wolfpack.png}
 \end{center}
 
 \begin{center}
