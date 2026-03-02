@@ -166,22 +166,38 @@ should teleport."*
 - Label top $C$ items in that sort.
 - Return row $r$ with best labelt
 - Score $r$ relative to pre-treated $\mu$ to $\min$ (reference optimal)
-- $W(r)=100*(1 + (D(r)- \mu)/(\mu - \min)$
+- $W(r)=100*(1 + (D(r)- \mu)/(\mu - \min))$
 
 \begin{center}
 \includegraphics[width=.25\textwidth]{bc.png}\hspace{2mm}
 \includegraphics[width=.72\textwidth]{rands.png}
 \end{center}
 
-* **Left:** Relative results: $W(r)$ as a function of budget $B$ and
+* **Left:** Relatively: $W(r)$ as a function of budget $B$ and
   checks $C$. 
-  $W(r) = 55+0.4*  (B *C)$. More that 50 labels> 80% of optimum.
-* **Right:** Absolute values:  120+ data sets sorted by $D$. Black is untreated
-(before ($\mu$)). Even tiny budgets ($B{=}8$)
-  rapidly find rows near best — most gains in first 10\%
-  of data.
-* Conclusion: the landscape is sparse enough that
+  $W(r) = 55+0.4*  (B *C)$. More $B$ not useful. Over $50$ labels? $80+$ % of optimum.
+* **Right:** Absolute:  120+ data sets sorted by $\min$. Black is untreated
+(before ($\mu$)). Tiny budgets ($B{=}8$)
+  find rows near best. Extra $B$ not so useful.
+* Conclusion: landscape is sparse enough that
   **small, cheap samples land near the optimum**.
+
+## RQ2: MOOT Results (120+ tasks)  (more)
+
+* If spaces are sparse, we don't need heavy optimizers.
+* **50 Samples $\rightarrow$ 80\% Optimal** [4].
+* EZR incrementally maintains $\sqrt{N}$ best,
+  $N{-}\sqrt{N}$ rest; labels most-best and least-rest.
+* Minimal Bayesian learners + random probes $\approx$ SOTA.
+
+\begin{center}
+\includegraphics[width=.45\textwidth]{smac.png}
+\includegraphics[width=.54\textwidth]{used.png}
+\end{center}
+
+* **3 minutes on a laptop** vs.\ 3 weeks on a GPU cluster.
+* **100$\times$ faster. Better accuracy. No cloud required.**
+
 
 ## RQ2: Why? Software is Inherently Simple
 
@@ -240,22 +256,6 @@ Newell, 1986: *"Subgoals are generated whenever problem solving
 cannot proceed until another problem space has performed some
 subtask."*
 
-## RQ2: EZR — 40 Samples to 80\% Optimal
-
-* If spaces are sparse, we don't need heavy optimizers.
-* **40 Samples $\rightarrow$ 80\% Optimal** [4].
-* EZR incrementally maintains $\sqrt{N}$ best,
-  $N{-}\sqrt{N}$ rest; labels most-best and least-rest.
-* Minimal Bayesian learners + random probes $\approx$ SOTA.
-
-\begin{center}
-\includegraphics[width=.45\textwidth]{smac.png}
-\includegraphics[width=.54\textwidth]{used.png}
-\end{center}
-
-* **3 minutes on a laptop** vs.\ 3 weeks on a GPU cluster.
-* **100$\times$ faster. Better accuracy. No cloud required.**
-
 ## RQ3: \textit{Should} Some AI Be Simplified? Yes.
 
 Five reasons this is urgent **now**, not eventually:
@@ -296,10 +296,10 @@ the same conversation, 1000$\times$ larger.
 The mitochondrial shift wasn't gradual — it crossed a
 threshold. We are approaching that threshold now.
 
-\begin{center}
-\includegraphics[height=1.2in]{llm_failures_chart.png}\hspace{4mm}
-\includegraphics[height=1.2in]{agentic.png}
-\end{center}
+<!-- \begin{center} -->
+<!-- \includegraphics[height=1.2in]{llm_failures_chart.png}\hspace{4mm} -->
+<!-- \includegraphics[height=1.2in]{agentic.png} -->
+<!-- \end{center} -->
 
 ## Conclusion: Join the Next Evolutionary Leap
 
