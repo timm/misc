@@ -1,3 +1,3 @@
-~/tmp/slides.pdf : slides.md Makefile
-	@pandoc -o $@ $< -t beamer
+~/tmp/%.pdf : %.md Makefile
+	pandoc $< -o $@  --pdf-engine=tectonic  -t beamer
 	#@open $@
