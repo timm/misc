@@ -175,7 +175,7 @@ should teleport."*
 
 * **Left:** Relative results: $W(r)$ as a function of budget $B$ and
   checks $C$. 
-  $W(r) = 55+0.4*  (B *C)$. More that 50 labels> 80]% of optimum.
+  $W(r) = 55+0.4*  (B *C)$. More that 50 labels> 80% of optimum.
 * **Right:** Absolute values:  120+ data sets sorted by $D$. Black is untreated
 (before ($\mu$)). Even tiny budgets ($B{=}8$)
   rapidly find rows near best — most gains in first 10\%
