@@ -1,15 +1,6 @@
-if any fool can do it for a dolalr, can i do it for a penny.
-
-
-less is more. dieter rams
-
-less isinsigtful. claude shannon
-
-much of modern thinking is reource intene. \$12K to build a 650 line prompt in 2 weeks of feebdack with an LLM. management will galnce at at and say "great, now we can hire less programmers". they you wrote it has learned nothing new about verification (not about the underlying theorem prover,,, an area where he has consierable expertise). i dont fir up ai agents to help me with ny ecliples plugits. isntead i run `vim --clean`  and star are at my 500 lines of decisiont ree learner and ask how can ia make it smaller (now is 36 linesm btw).
-
 ---
-title: "The Mitochondria of the Mind"
-subtitle: "(Why Compact AI is the Next Evolutionary Leap)"
+title: "A Meditation on Minimalism"
+subtitle: "(with empirical results)"
 author: "Tim Menzies"
 institute: |
   prof, cs, **ncstate**, usa  
@@ -76,32 +67,79 @@ header-includes:
     }
 ---
 
-## "AI" Means One Thing. But It Shouldn't.
+## To begin.. Less is More?
 
-When people say AI today, they mean generative LLMs. But most
-real-world AI tasks are not --- or not entirely --- generative:
+If we do "it", why try to do "it" simpler?
+
+- "Less" = insightful
+- "Less" = more reliable, less expensive 
 
 \begin{center}
-\small
-\begin{tabular}{p{4.2cm}|p{5.8cm}}
-\textbf{Fully Generative} & \textbf{Fully or Partly Compact} \\
-\hline
-Open-ended dialog       & Configuration tuning \\
-Code synthesis          & Defect prediction \\
-Image/text generation   & Project health forecasting \\
-Summarization           & System optimization \\
-                        & Process simulation \\
-                        & Feature model selection \\
-                        & RAG: chunk retrieval\textsuperscript{*} \\
-\end{tabular}
+\begin{minipage}{2in}
+\includegraphics[width=2in]{shannon1.png}
+\end{minipage}\hspace{2mm}\begin{minipage}{2.5in}
+\includegraphics[width=2.4in]{shannon2.png}
+\includegraphics[width=2.4in]{shannon3.png}
+\end{minipage}
 \end{center}
 
-\vspace{2mm}
-\textsuperscript{*}RAG splits into: low-frequency Bayes (chunk matching)
-then LLM for dialog generation only.
+## Dieter Rams: Less, but Better
+\vspace{5mm}
+\begin{center}
+\begin{minipage}{1.6in}
+\includegraphics[width=1.6in]{rams0.png}
+\end{minipage}\hspace{2mm}\begin{minipage}{3in}
+\includegraphics[width=2.8in]{rams1.png}
+\includegraphics[width=2.8in]{rams2.png}
+\end{minipage}
+\end{center}
 
-\textbf{Is the AI field solving the wrong problem for most
-use cases?}
+## The great tradition of "Less"
+
+\small
+
+- 130 A.D., Ptolemy: “We consider it a good principle to explain the phenomena by the simplest
+hypothesis possible”.
+- 1310 A.D: William of Occam: "Plurality should not be posited without necessity".
+- 1902, PCA: reduce data to a few principal component
+- 1960s, Narrows: guide search via a few key variables.
+- 1974, Prototypes: speed up $𝑘$-NN by reduce rows to a few exemplars.
+- 1984, JL lemma: random projection to $𝑘$ = $𝑂(\epsilon−2 \log n)$ dimensions can preserve pairwise distances to within some error (1 ± $\epsilon$).
+- 1986, ATMS: only focus diagnosis on core assumptions.
+- 1994, ISAMP: a few restarts can explore large problems spaces.
+- 1996, Sparse coding: learn efficient, sparse representations from data which inspired dictionary learning and sparse autoencoders.
+- 1997, Feature selection: ignore up to 80% of features.
+- 2002, Backdoors: if we first set a few variables, that cuts exponential tine to polynomial.
+- 2005, Semi-supervised learning: data can be appoximated on a much lower-dimensional
+manifold.
+- 2009, Active learning: only use most informative rows.
+- 2003–2021, SE “keys”: a few parameters govern many SE models.
+- 2010+, Surrogates: first, build small models to label the rest of the data.
+- 2020s, Distillation: compress large LLM models with little performance loss.
+
+\normalsize
+
+## Text retevial, Bayesian active learning
+
+\begin{center}
+\includegraphics[height=2.5in]{rag.png}
+\end{center}
+
+## Less, in space
+
+\begin{center}
+\includegraphics[height=2in]{pad.png}
+\includegraphics[height=2in]{bore.png}
+\end{center}
+
+## Yet we routinely ignore "Less"
+
+- Survey of 229 SE papers on LLMs. 5% compared to simpler approaches.
+  - Why?
+
+\begin{center}
+\includegraphics[width=4in]{less.png}
+\end{center}
 
 ## Four Questions --- and a Biological Precedent
 
@@ -129,6 +167,35 @@ Everything we call life followed.\\[2pt]
 \includegraphics[width=.8\textwidth]{pro.png}\\[2mm]
 \includegraphics[width=\textwidth]{eur.png}
 \end{minipage}
+
+
+
+## "AI" Means One Thing. But It Shouldn't.
+
+When people say AI today, they mean generative LLMs. But most
+real-world AI tasks are not --- or not entirely --- generative:
+
+\begin{center}
+\small
+\begin{tabular}{p{4.2cm}|p{5.8cm}}
+\textbf{Fully Generative} & \textbf{Fully or Partly Compact} \\
+\hline
+Open-ended dialog       & Configuration tuning \\
+Code synthesis          & Defect prediction \\
+Image/text generation   & Project health forecasting \\
+Summarization           & System optimization \\
+                        & Process simulation \\
+                        & Feature model selection \\
+                        & RAG: chunk retrieval\textsuperscript{*} \\
+\end{tabular}
+\end{center}
+
+\vspace{2mm}
+\textsuperscript{*}RAG splits into: low-frequency Bayes (chunk matching)
+then LLM for dialog generation only.
+
+\textbf{Is the AI field solving the wrong problem for most
+use cases?}
 
 ## Prove me wrong
 
