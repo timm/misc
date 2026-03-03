@@ -66,108 +66,47 @@ header-includes:
       \fi
     }
 ---
+## Questions
 
-## To begin.. Less is More?
-
-If we do "it", why try to do "it" simpler?
-
-- "Less" = insightful
-- "Less" = more reliable, less expensive 
-
-\begin{center}
-\begin{minipage}{2in}
-\includegraphics[width=2in]{shannon1.png}
-\end{minipage}\hspace{2mm}\begin{minipage}{2.5in}
-\includegraphics[width=2.4in]{shannon2.png}
-\includegraphics[width=2.4in]{shannon3.png}
-\end{minipage}
-\end{center}
-
-## Dieter Rams: Less, but Better
-\vspace{5mm}
-\begin{center}
-\begin{minipage}{1.6in}
-\includegraphics[width=1.6in]{rams0.png}
-\end{minipage}\hspace{2mm}\begin{minipage}{3in}
-\includegraphics[width=2.8in]{rams1.png}
-\includegraphics[width=2.8in]{rams2.png}
-\end{minipage}
-\end{center}
-
-## The great tradition of "Less"
-
-\small
-
-- 130 A.D., Ptolemy: “We consider it a good principle to explain the phenomena by the simplest
-hypothesis possible”.
-- 1310 A.D: William of Occam: "Plurality should not be posited without necessity".
-- 1902, PCA: reduce data to a few principal component
-- 1960s, Narrows: guide search via a few key variables.
-- 1974, Prototypes: speed up $𝑘$-NN by reduce rows to a few exemplars.
-- 1984, JL lemma: random projection to $𝑘$ = $𝑂(\epsilon−2 \log n)$ dimensions can preserve pairwise distances to within some error (1 ± $\epsilon$).
-- 1986, ATMS: only focus diagnosis on core assumptions.
-- 1994, ISAMP: a few restarts can explore large problems spaces.
-- 1996, Sparse coding: learn efficient, sparse representations from data which inspired dictionary learning and sparse autoencoders.
-- 1997, Feature selection: ignore up to 80% of features.
-- 2002, Backdoors: if we first set a few variables, that cuts exponential tine to polynomial.
-- 2005, Semi-supervised learning: data can be appoximated on a much lower-dimensional
-manifold.
-- 2009, Active learning: only use most informative rows.
-- 2003–2021, SE “keys”: a few parameters govern many SE models.
-- 2010+, Surrogates: first, build small models to label the rest of the data.
-- 2020s, Distillation: compress large LLM models with little performance loss.
-
-\normalsize
-
-## Text retevial, Bayesian active learning
-
-\begin{center}
-\includegraphics[height=2.5in]{rag.png}
-\end{center}
-
-## Less, in space
-
-\begin{center}
-\includegraphics[height=2in]{pad.png}
-\includegraphics[height=2in]{bore.png}
-\end{center}
-
-## Yet we routinely ignore "Less"
-
-- Survey of 229 SE papers on LLMs. 5% compared to simpler approaches.
-  - Why?
-
-\begin{center}
-\includegraphics[width=4in]{less.png}
-\end{center}
-
-## Four Questions --- and a Biological Precedent
-
-\begin{minipage}{0.45\textwidth}
-{\small
 \begin{tabular}{rll}
-\textbf{RQ1} & Can \textit{all} AI be simplified?
+\textbf{RQ0} & \textbf{Should} AI be simplified?
+  & \textcolor{InferenceRed}{\textbf{Yes}} \\[4pt]
+\textbf{RQ1} & Can \textbf{all} AI be simplified?
   & \textcolor{InferenceRed}{\textbf{No}} \\[4pt]
-\textbf{RQ2} & Can \textit{some} AI be simplified?
+\textbf{RQ2} & Can \textbf{some} AI be simplified?
   & \textcolor{InferenceRed}{\textbf{Yes}} \\[4pt]
-\textbf{RQ3} & \textit{Should} some be simplified?
-  & \textcolor{InferenceRed}{\textbf{Yes}} \\[4pt]
-\textbf{RQ4} & \textit{When} will AI be simplified?
-  & \textcolor{InferenceRed}{\textbf{Soon}} \\
 \end{tabular}
 
-\vspace{4mm}
-Biology did this once.\\[2pt]
-Mitochondria reduced power-per-task.\\[2pt]
-Everything we call life followed.\\[2pt]
-\textbf{We propose AI do it now.}}
-\end{minipage}
-\begin{minipage}{0.54\textwidth}\vspace{5mm}
-\centering
-\includegraphics[width=.8\textwidth]{pro.png}\\[2mm]
-\includegraphics[width=\textwidth]{eur.png}
-\end{minipage}
+\vspace{.5in}
 
+“Agentic AI? Sure! All agents LLMs? \textbf{\color{red}Maybe not.\color{black}}.”
+
+## This talk:  RQs using 120+ search-based SE problems
+
+
+\begin{center}
+\small Studied using 120+ SE tasks: {\bf \color{red}http://github.com/timm/moot\color{black}}
+
+\vspace{5mm}
+
+\includegraphics[width=\textwidth]{moot_clusters.png}
+\end{center}
+
+
+## Premise: The world wants more AI
+
+How?
+
+- Increase the resources available per task
+- Decrease the resources required per task
+
+\vspace{2mm}
+
+
+\begin{center}
+\includegraphics[height=1.5in]{lego.png}\hspace{5mm}
+\includegraphics[height=1.5in]{eur.png}
+\end{center}
 
 
 ## "AI" Means One Thing. But It Shouldn't.
@@ -184,30 +123,124 @@ Open-ended dialog       & Configuration tuning \\
 Code synthesis          & Defect prediction \\
 Image/text generation   & Project health forecasting \\
 Summarization           & System optimization \\
+                        & Effort estimation \\
                         & Process simulation \\
                         & Feature model selection \\
-                        & RAG: chunk retrieval\textsuperscript{*} \\
+                        & RAG: chunk retrieval (see later)\\
+                        & and dozens of other tasks 
 \end{tabular}
 \end{center}
 
 \vspace{2mm}
-\textsuperscript{*}RAG splits into: low-frequency Bayes (chunk matching)
-then LLM for dialog generation only.
 
-\textbf{Is the AI field solving the wrong problem for most
-use cases?}
-
-## Prove me wrong
-
+## RQ0: Should AI be simplified?
 
 \begin{center}
-\small Studied using 120+ SE tasks: {\bf \color{red}http://github.com/timm/moot\color{black}}
-
-\vspace{5mm}
-
-\includegraphics[width=\textwidth]{moot_clusters.png}
+\includegraphics[width=\textwidth]{simpler.png}
 \end{center}
 
+## RQ0: \textit{Should} Some AI Be Simplified? Yes.
+
+Five reasons this is urgent **now**:
+
+* **Energy:** LLM training + agentic runtime costs rising
+  **100$\times$** [1]. Compact AI runs on milliwatts.
+* **Explanation:** You cannot audit what you cannot
+  simplify. Regulators are asking; compact models answer.
+* **Verification:** Safety-critical systems (aerospace,
+  medical) cannot ship unverifiable black boxes.
+* **Science:** Irreproducible AI is not science. Compact
+  models run on any lab's hardware.
+* **Sovereignty:** LLM dependence = dependence on a
+  centralized industrial complex.
+  Compact AI has no such landlord.
+
+\begin{center}
+\includegraphics[width=.52\textwidth]{monster.png}
+\end{center}
+
+
+
+## RQ0: Long history of "Less"
+
+- \textbf{The Engineering Question}
+  - If anyone can do it for a dollar, \textbf{\color{red}can you do it for a penny?\color{black}}
+- Ken Thompson: "One of my most productive days was throwing away 1,000 LOC."
+- "Less" = insightful,  more reliable, less expensive 
+
+\begin{center}
+\begin{minipage}{2in}
+\includegraphics[width=1.5in]{shannon1.png}
+\end{minipage} \begin{minipage}{2.5in}
+\includegraphics[width=1.8in]{shannon2.png}
+\includegraphics[width=1.8in]{shannon3.png}
+\end{minipage}
+\end{center}
+
+## R0: Dieter Rams: Less, but Better
+\vspace{5mm}
+\begin{center}
+\begin{minipage}{1.6in}
+\includegraphics[width=1.6in]{rams0.png}
+\end{minipage}\hspace{2mm}\begin{minipage}{3in}
+\includegraphics[width=2.8in]{rams1.png}
+\includegraphics[width=2.8in]{rams2.png}
+\end{minipage}
+\end{center}
+
+## R0: history of AI: Lots of "Less"
+
+\small
+
+- 130 A.D., Ptolemy: “We consider it a good principle to explain the phenomena by the simplest
+hypothesis possible”.
+- 1310 A.D: William of Occam: "Plurality should not be posited without necessity".
+- 1902, PCA: reduce data to a few principal component
+- 1960s, Narrows: guide search via a few key variables.
+- 1974, Prototypes: speed up $𝑘$-NN by reduce rows to a few exemplars.
+- 1984, JL lemma: random projection to $𝑘$ = $𝑂(\epsilon−2 \log n)$ dimensions can preserve pairwise distances to within some error (1 ± $\epsilon$).
+- 1986, ATMS: only focus diagnosis on core assumptions.
+- 1994, ISAMP: a few restarts can explore large problems spaces.
+- 1996, Sparse coding: learn efficient, sparse representations from data which inspired dictionary learning and sparse autoencoders.
+- 1997, Feature selection: ignore up to 80% of features.
+- 2002, Backdoors: if we first set a few variables, that cuts exponential tine to polynomial.
+- 2005, Semi-supervised learning: data can be approximated on a much lower-dimensional
+manifold.
+- 2009, Active learning: only use most informative rows.
+- 2003–2021, SE “keys”: a few parameters govern many SE models.
+- 2010+, Surrogates: first, build small models to label the rest of the data.
+- 2020s, Distillation: compress large LLM models with little performance loss.
+
+\normalsize
+
+## R0: applications of "Less": Safety 
+
+**Menzies' 4th Law:** For SE, best to throw away most data.
+
+\begin{center}
+\includegraphics[height=1.2in]{pad.png}\includegraphics[height=1.2in]{bore.png}
+
+\vspace{1.8in}
+\end{center}
+
+## R0: applications of "Less": Safety and Privacy
+
+**Menzies' 4th Law:** For SE, best to throw away most data.
+
+\begin{center}
+\includegraphics[height=1.2in]{pad.png}\includegraphics[height=1.2in]{bore.png}
+
+\includegraphics[height=1.8in]{fayaloa.png}
+\end{center}
+
+## R0: Humans routinely ignore "Less"
+
+- Survey of 229 SE papers on LLMs. 5% compared to simpler approaches.
+  - Why? Cognitive Bias?
+
+\begin{center}
+\includegraphics[width=4in]{less.png}
+\end{center}
 
 ## RQ1: Can \textit{All} AI Be Simplified? No.
 
@@ -256,7 +289,7 @@ Response gen.    & Produce dialog      & LLM (needed)     \\
 \end{center}
 
 
-## RQ2: Why GD Struggles --- A Testable Prediction
+## RQ2: Can be simpler?   --- A Testable Prediction
 
 If search spaces are spikey (not rolling hills) then
 gradient descent should show:
@@ -273,7 +306,7 @@ it is a claim about \textbf{where GD is the wrong tool}.
 Spikey spaces need teleportation, not walking.
 Sparse samplers (EZR) teleport.
 
-## RQ2: Why? Software is Inherently Simple
+## RQ2: Can be simpler? Inherently, Software=Simple
 
 * **The Funneling Effect:** Config spaces ($10^{40}$
   options) collapse into a few critical paths.
@@ -292,52 +325,7 @@ Sparse samplers (EZR) teleport.
 \includegraphics[height=1in]{bigfuzz.png}
 \end{center}
 
-## RQ2: The Mechanism --- The Eukaryotic Leap
-
-* Prokaryotes shared everything. Chaos. No complex life.
-* Eukaryotes built a **Nuclear Envelope**: walled off
-  their core.
-* This let them house **Mitochondria**: a super-charged
-  battery.
-* More power per task $\rightarrow$ everything we call
-  life followed.
-
-\vspace{1mm}
-**Compact AI is the same move:**
-
-* **Model-Based Reasoning (MBR)** = our Nuclear Envelope.
-  Builds a private world model; jumps to spikes instead
-  of walking.
-* Reduce power-per-task $\rightarrow$ AI deployable
-  everywhere, not just in GPU data centers.
-
-\begin{center}
-\includegraphics[width=.38\textwidth]{pro.png}%
-\includegraphics[width=.56\textwidth]{eur.png}
-\end{center}
-
-## RQ2: KLAS --- Sparse Agents, Heavy Tools
-
-* How do we build Agentic workflows without LLM overhead?
-* **KLAS:** Agents = lightweight orchestrators (the
-  Nucleus); tools = the Mitochondria that do the real work.
-* Evidence from **SmartOracle** [5]:
-  Agent-to-Agent traffic is minimal.
-  * **Agent-to-Tool traffic dominates**
-    (Terminal=405, Triage=390 calls).
-* Keep the reasoning core sparse; let deterministic
-  tools work.
-
-\begin{center}
-\includegraphics[width=.49\textwidth]{tic.png}
-\includegraphics[width=.49\textwidth]{states.png}
-\end{center}
-
-Newell, 1986: \textit{``Subgoals are generated whenever
-problem solving cannot proceed until another problem space
-has performed some subtask.''}
-
-## RQ2: MOOT Results (120+ tasks) --- How Good is Good Enough?
+## RQ2: Can be simpler? MOOT Results (120+ tasks)
 
 **Method**: Build regression tree from labels in any $B$ rows
 
@@ -362,129 +350,46 @@ $$
   Tiny $B{=}8$ finds near-best fast.
 * \textbf{Small, cheap samples land near the optimum.}
 
-## RQ2: EZR --- Incremental Active Learning
+
+## RQ2: Can be simpler? --- Incremental Active Learning
 
 * If spaces are sparse, we don't need heavy optimizers.
 * **50 Samples $\rightarrow$ 80\% Optimal** [4].
 * EZR incrementally maintains $\sqrt{N}$ best,
   $N{-}\sqrt{N}$ rest; labels most-best and least-rest.
-* Minimal Bayesian learners + random probes $\approx$ SOTA.
+* Minimal , Bayesian active learning
 
 \begin{center}
-\includegraphics[width=.45\textwidth]{smac.png}
+\includegraphics[width=.4\textwidth]{smac.png}
 \includegraphics[width=.54\textwidth]{used.png}
 \end{center}
 
 * **3 minutes on a laptop** vs.\ 3 weeks on a GPU cluster.
 * **100$\times$ faster. Better accuracy. No cloud required.**
 
-## RQ2: Explanation
 
-Regression trees built from $B=60$ samples.
-
-\begin{minipage}[t]{1.5in}
-{\scriptsize
-\ttfamily
-\begin{tabular}{ll}
-                            \\
-Clndrs <= 6                 \\
-|   Model > 77              \\
-|   |   Clndrs <= 4         \\
-|   |   |   origin != 3     \\
-|   |   |   origin == 3     \\
-|   |   Clndrs > 4          \\
-|   Model <= 77             \\
-|   |   Clndrs <= 4         \\
-|   |   |   Model > 74      \\
-|   |   |   |   origin != 2 \\
-|   |   |   |   origin == 2 \\
-|   |   |   Model <= 74     \\
-|   |   |   |   origin == 1 \\
-|   |   |   |   origin != 1 \\
-|   |   Clndrs > 4          \\
-Clndrs > 6                  \\
-|   Model > 76              \\
-|   Model <= 76             \\
-|   |   Volume <= 350       \\
-|   |   |   Volume <= 318   \\
-|   |   |   Volume > 318    \\
-|   |   Volume > 350        \\
-\end{tabular}}
-\end{minipage}\begin{minipage}[t]{3.5in}
-\hspace{-1cm}\includegraphics[width=3.5in]{pearl.png}
-
-\vspace{5mm}
-
-{\small 
-\begin{itemize}
-\item Amirali Rayegan, Tim Menzies
-\item
-Minimal Data, Maximum Clarity:
-A Heuristic for Explaining Optimization  {\bf \color{red}(arxiv.org/abs/2509.08667)\color{black}}
-\item Compared to other explanation algorithms (SHAP, ReliefF, BreakDown)
-\begin{itemize}
-\item Build from 60 rows (not 1000+)
-\item Explanations as good, or better.
-\end{itemize}
-\end{itemize}}
-\end{minipage}
-
-## RQ3: \textit{Should} Some AI Be Simplified? Yes.
-
-Five reasons this is urgent **now**:
-
-* **Energy:** LLM training + agentic runtime costs rising
-  **100$\times$** [1]. Compact AI runs on milliwatts.
-* **Explanation:** You cannot audit what you cannot
-  simplify. Regulators are asking; compact models answer.
-* **Verification:** Safety-critical systems (aerospace,
-  medical) cannot ship unverifiable black boxes.
-* **Science:** Irreproducible AI is not science. Compact
-  models run on any lab's hardware.
-* **Sovereignty:** LLM dependence = dependence on a
-  centralized industrial complex.
-  Compact AI has no such landlord.
-
+## RQ2: Can be simpler? --- Text Mining
 \begin{center}
-\includegraphics[width=.52\textwidth]{monster.png}
+\includegraphics[height=2.2in]{rag.png}
 \end{center}
 
-## RQ3: The Alien Code Threat
+## Answers
 
-LLMs are not bound by Miller's Law. Generative AI produces
-dense, highly entangled code humans cannot audit or
-simplify.
-
-\begin{center}
-\small
-\begin{tabular}{p{4.3cm}|p{4.8cm}}
-\textbf{Human code (sparse)} &
-\textbf{AI-generated code (dense)} \\
-\hline
-\mbox{$7{\pm}2$} concepts per module &
-Unbounded entanglement \\
-Auditable control flow      &
-Opaque weight matrices \\
-Reproducible on any machine &
-Requires specific GPU stack \\
-Fails predictably           &
-Fails silently \\
-Can be formally verified    &
-Verification intractable \\
+\begin{tabular}{rll}
+\textbf{RQ0} & \textbf{Should} AI be simplified?
+  & \textcolor{InferenceRed}{\textbf{Yes}} \\[4pt]
+\textbf{RQ1} & Can \textbf{all} AI be simplified?
+  & \textcolor{InferenceRed}{\textbf{No}} \\[4pt]
+\textbf{RQ2} & Can \textbf{some} AI be simplified?
+  & \textcolor{InferenceRed}{\textbf{Yes}} \\[4pt]
 \end{tabular}
-\end{center}
 
-\vspace{2mm}
-If we don't apply Compact AI constraints now, we lose
-control of the state space --- not in the future,
-\textbf{today}.
+\vspace{.5in}
 
-\vspace{2mm}
-\textbf{70\%} of AI-generated code is faulty [1].
-\textbf{25\%} of AI suggestions accepted by Google devs.
-The rest is alien code already in production.
+“Agentic AI? Sure! All agents LLMs? \textbf{\color{red}Maybe not.\color{black}}.”
 
-## RQ4: \textit{When}? The 1999 Story.
+
+## My 1999 Story.
 
 In 1999, Microsoft told me they were visited by Intel every
 six months. Intel's only question:
@@ -509,36 +414,6 @@ The GPU bubble is the same conversation, 1000$\times$ larger.
 * When the bubble breaks, compact AI must already exist.
   \textbf{We are building it now.}
 
-## Conclusion: The Next Evolutionary Leap
-
-Mitochondria didn't optimize prokaryotes.
-They made eukaryotes \textbf{possible}.
-
-Reduce power-per-task enough and you don't get a better
-version of the current paradigm ---
-you get a \textbf{qualitatively different one}:
-
-\begin{center}
-\small
-\begin{tabular}{ll}
-Verification at scale   & \textbf{now conceivable} \\
-Reproducible science    & \textbf{on a laptop} \\
-Agentic re-optimization & \textbf{in real time} \\
-AI without a landlord   & \textbf{sovereign} \\
-\end{tabular}
-\end{center}
-
-\vspace{2mm}
-Simple ain't stupid. It's the next leap.
-
-\begin{center}
-\includegraphics[width=.25\textwidth]{wolfpack.png}
-\end{center}
-
-\begin{center}
-\textbf{Join the Wolfpack.}
-Build the nuclear envelopes for the next stage of AI life.
-\end{center}
 
 ## References
 
