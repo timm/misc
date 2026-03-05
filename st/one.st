@@ -1,2 +1,2 @@
 1 printNl .
-FileStream fileIn: 'three.st'
+FileStream fileIn: 'three.st'.
