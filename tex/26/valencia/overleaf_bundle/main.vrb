@@ -1,0 +1,38 @@
+\frametitle{The ``Why Engine'': Solver-Backed Rejection}
+\begin{columns}[T]
+\begin{column}{0.54\textwidth}
+\begin{lstlisting}[language=Python]
+from z3 import *
+
+LLM   = Bool('LLMPredictor')
+Stab  = Bool('StabilityCheck')
+CV    = Bool('TenFoldCrossVal')
+RF    = Bool('ClassicRF')
+
+s = Solver()
+s.add(Implies(LLM, Stab))
+s.add(Implies(RF, CV))
+
+s.push()
+s.add(LLM == True, Stab == False)
+
+if s.check() == unsat:
+    print("REJECTED")
+    print(rationale["LLM->Stab"])
+\end{lstlisting}
+\end{column}
+\begin{column}{0.42\textwidth}
+\small
+\textbf{Runtime story:}
+\begin{enumerate}
+\item propose a candidate pipeline
+\item check structure, types, and risk rules
+\item \textbf{SAT} $\rightarrow$ run it
+\item \textbf{UNSAT} $\rightarrow$ reject instantly
+\item explain \emph{why} in human language
+\end{enumerate}
+
+\medskip
+Old lab experience becomes live tutoring, not tribal memory.
+\end{column}
+\end{columns}

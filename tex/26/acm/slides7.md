@@ -66,7 +66,33 @@ header-includes:
       \fi
     }
 ---
-## Questions
+## My 1999 Story.
+
+In 1999, Microsoft told me they were visited by Intel every
+six months. Intel's only question:
+
+\begin{center}
+\large\textit{``What can Microsoft do to ensure the next
+chip generation has a market?''}
+\end{center}
+
+I was a minimalist. I didn't get the job.
+
+Twenty-five years later the field spent hundreds of billions
+building systems that are 52\% wrong [1].
+The GPU bubble is the same conversation, 1000$\times$ larger.
+
+\vspace{2mm}
+* **LLM costs rising 100$\times$** --- not falling fast
+  enough [1].
+* **52\%** of ChatGPT answers contain incorrect info [1].
+* Inference costs dropping --- but \textit{agentic runtime}
+  costs are the ones exploding.
+* When the bubble breaks, compact AI must already exist.
+  \textbf{We are building it now.}
+
+
+## So I Ask...
 
 \begin{tabular}{rll}
 \textbf{RQ0} & \textbf{Should} AI be simplified?
@@ -155,61 +181,28 @@ Five reasons this is urgent **now**:
   centralized industrial complex.
   Compact AI has no such landlord.
 
-\begin{center}
-\includegraphics[width=.52\textwidth]{monster.png}
-\end{center}
-
-
-
-## RQ0: Long history of "Less"
-
-- \textbf{The Engineering Question}
-  - If anyone can do it for a dollar, \textbf{\color{red}can you do it for a penny?\color{black}}
-- Ken Thompson: "One of my most productive days was throwing away 1,000 LOC."
-- "Less" = insightful,  more reliable, less expensive 
-
-\begin{center}
-\begin{minipage}{2in}
-\includegraphics[width=1.5in]{shannon1.png}
-\end{minipage} \begin{minipage}{2.5in}
-\includegraphics[width=1.8in]{shannon2.png}
-\includegraphics[width=1.8in]{shannon3.png}
-\end{minipage}
-\end{center}
-
-## R0: Dieter Rams: Less, but Better
-\vspace{5mm}
-\begin{center}
-\begin{minipage}{1.6in}
-\includegraphics[width=1.6in]{rams0.png}
-\end{minipage}\hspace{2mm}\begin{minipage}{3in}
-\includegraphics[width=2.8in]{rams1.png}
-\includegraphics[width=2.8in]{rams2.png}
-\end{minipage}
-\end{center}
-
 ## R0: history of AI: Lots of "Less"
 
 \small
 
-- 130 A.D., Ptolemy: “We consider it a good principle to explain the phenomena by the simplest
-hypothesis possible”.
-- 1310 A.D: William of Occam: "Plurality should not be posited without necessity".
-- 1902, PCA: reduce data to a few principal component
-- 1960s, Narrows: guide search via a few key variables.
-- 1974, Prototypes: speed up $𝑘$-NN by reduce rows to a few exemplars.
-- 1984, JL lemma: random projection to $𝑘$ = $𝑂(\epsilon−2 \log n)$ dimensions can preserve pairwise distances to within some error (1 ± $\epsilon$).
-- 1986, ATMS: only focus diagnosis on core assumptions.
-- 1994, ISAMP: a few restarts can explore large problems spaces.
-- 1996, Sparse coding: learn efficient, sparse representations from data which inspired dictionary learning and sparse autoencoders.
-- 1997, Feature selection: ignore up to 80% of features.
-- 2002, Backdoors: if we first set a few variables, that cuts exponential tine to polynomial.
-- 2005, Semi-supervised learning: data can be approximated on a much lower-dimensional
-manifold.
-- 2009, Active learning: only use most informative rows.
-- 2003–2021, SE “keys”: a few parameters govern many SE models.
-- 2010+, Surrogates: first, build small models to label the rest of the data.
-- 2020s, Distillation: compress large LLM models with little performance loss.
+
+* 130 A.D., Ptolemy: “We consider it a good principle to explain the phenomena by the simplest hypothesis possible”.
+* 1310 A.D: William of Occam: "Plurality should not be posited without necessity".
+* 1902, PCA: reduce data to a few \textbf{\color{red}principal\color{black}} component.
+* 1960s, Narrows: guide search via a few key variables.
+* 1974, Prototypes: speed up $𝑘$-NN by reduce rows to a few exemplars.
+* 1984, JL lemma: \textbf{\color{red}random} projection to $𝑘$ = $𝑂(\epsilon−2 \log n)$ dimensions can preserve pairwise distances to within some error (1 ± $\epsilon$).
+* 1986, ATMS: only focus diagnosis on core assumptions.
+* 1994, ISAMP: a few restarts can explore large problems spaces.
+* 1996, Sparse coding: learn \textbf{\color{red}efficient} sparse representations from data which inspired dictionary learning and sparse autoencoders.
+* 1997, Feature selection: ignore up to 80% of features.
+* 2002, Backdoors: if we first set a few variables, that cuts exponential tine to polynomial.
+* 2005, Semi-supervised learning: data approximates to a low-dimensional \textbf{\color{red}manifold}\color{black}.
+* 2009, Active learning: only use most informative rows.
+* 2003–2021, SE “keys”: a few parameters govern many SE models.
+* 2010+, Surrogates: first, build \textbf{\color{red}small} models to label the rest of the data.
+* 2020s, Distillation: compress large LLM models with little performance loss.
+
 
 \normalsize
 
@@ -218,19 +211,8 @@ manifold.
 **Menzies' 4th Law:** For SE, best to throw away most data.
 
 \begin{center}
-\includegraphics[height=1.2in]{pad.png}\includegraphics[height=1.2in]{bore.png}
-
-\vspace{1.8in}
-\end{center}
-
-## R0: applications of "Less": Safety and Privacy
-
-**Menzies' 4th Law:** For SE, best to throw away most data.
-
-\begin{center}
-\includegraphics[height=1.2in]{pad.png}\includegraphics[height=1.2in]{bore.png}
-
-\includegraphics[height=1.8in]{fayaloa.png}
+\includegraphics[height=1.2in]{pad.png}
+\includegraphics[height=1.5in]{bore.png}
 \end{center}
 
 ## R0: Humans routinely ignore "Less"
@@ -367,6 +349,25 @@ $$
 * **3 minutes on a laptop** vs.\ 3 weeks on a GPU cluster.
 * **100$\times$ faster. Better accuracy. No cloud required.**
 
+## RQ2: Can be simpler? --- Explaantion
+
+If AI simpler, then we can understand it.
+
+
+\begin{center}
+\includegraphics[width=.54\textwidth]{used.png}
+\includegraphics[width=.4\textwidth]{tree1.png}
+\end{center}
+
+- Stop explaining black box machine learning models for high stakes decisions and use interpretable models instead
+ - Cynthia Rudin , Nature Machine Intelligence,  pages 206–215 (2019)
+
+
+## RQ2: Can be simpler? --- Privacy
+\begin{center}
+\includegraphics[width=\columnwidth]{fayaloa.png}
+\end{center}
+
 
 ## RQ2: Can be simpler? --- Text Mining
 \begin{center}
@@ -387,32 +388,6 @@ $$
 \vspace{.5in}
 
 “Agentic AI? Sure! All agents LLMs? \textbf{\color{red}Maybe not.\color{black}}.”
-
-
-## My 1999 Story.
-
-In 1999, Microsoft told me they were visited by Intel every
-six months. Intel's only question:
-
-\begin{center}
-\large\textit{``What can Microsoft do to ensure the next
-chip generation has a market?''}
-\end{center}
-
-I was a minimalist. I didn't get the job.
-
-Twenty-five years later the field spent hundreds of billions
-building systems that are 52\% wrong [1].
-The GPU bubble is the same conversation, 1000$\times$ larger.
-
-\vspace{2mm}
-* **LLM costs rising 100$\times$** --- not falling fast
-  enough [1].
-* **52\%** of ChatGPT answers contain incorrect info [1].
-* Inference costs dropping --- but \textit{agentic runtime}
-  costs are the ones exploding.
-* When the bubble breaks, compact AI must already exist.
-  \textbf{We are building it now.}
 
 
 ## References
