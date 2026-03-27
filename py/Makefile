@@ -33,8 +33,8 @@ $(Tmp)/%.pdf: %.py  ## make doco: .py ==> .pdf
 		--borders=no             \
 	    --left-footer="$<  "               \
 	    --right-footer="page %s. of %s#"               \
-		--columns 2                 \
-		--portrait \
+		--columns 3                 \
+		--landscape \
 		-M letter                     \
 	  -o	 $@.ps $<
 	ps2pdf $@.ps $@; rm $@.ps

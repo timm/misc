@@ -9,7 +9,7 @@ class obj(dict):
   __getattr__, __setattr__ = dict.__getitem__, dict.__setitem__
   __repr__ = lambda i : o(i)
 
-the = obj(decs=2, seed=1, p=2, few=256,
+the = obj(decs=2, seed=1, p=2, few=128,
           file= Path.home() / "gits/moot/optimize/misc/auto93.csv")
 
 #------------------------------------------------------------------------------
@@ -77,14 +77,14 @@ def aha(i: Col, u: Any, v: Any) -> float:
   v = v if v != "?" else (0 if u > 0.5 else 1)
   return abs(u - v)
 
-def run(oracle,rows, K=5, budget=20):
+def run(oracle,rows, K=5, budget=30):
   def Y(r):     return disty(oracle, r)
   def score(u): return sum(distx(model,unlab[u],model.rows[i])/(i+1)
                            for i in range(K))
   random.shuffle(rows)
+  unlab = rows[K:][:the.few]
   model = clone(oracle, rows[:K])
   model.rows.sort(key=Y)
-  unlab = rows[K:][:the.few]
   for j in range(budget-K):
     if not unlab: break
     add(model, unlab.pop(min(range(len(unlab)), key=score)))
@@ -97,8 +97,8 @@ def test_run(file:str=the.file):
   d.rows.sort(key=Y)
   lo, mid=Y(d.rows[0]), Y(d.rows[len(d.rows)//2])
   wins = lambda r: int(100*(1-(Y(r)-lo)/(mid-lo + 1e-32)))
-  model  = run(d,d.rows)
-  print(wins(model.rows[0]))
+  stats = adds(wins(run(d,d.rows).rows[0]) for _ in range(20))
+  print(int(stats.mu), int(stats.sd))
       
 #------------------------------------------------------------------------------
 def o(it: Any) -> str:
