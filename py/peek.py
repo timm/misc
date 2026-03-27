@@ -9,7 +9,7 @@ class obj(dict):
   __getattr__, __setattr__ = dict.__getitem__, dict.__setitem__
   __repr__ = lambda i : o(i)
 
-the = obj(decs=2, seed=1, p=2,
+the = obj(decs=2, seed=1, p=2, few=256,
           file= Path.home() / "gits/moot/optimize/misc/auto93.csv")
 
 #------------------------------------------------------------------------------
@@ -33,6 +33,8 @@ def Data(src=None):
   src = iter(src or {})
   return adds(src, obj(it=Data, rows=[], cols=Cols(next(src))))
 
+def clone(d,rows=None):
+  return Data([d.cols.names] + (rows or []))
 #------------------------------------------------------------------------------
 def adds(src,i=None):
   i = i or Num(); [add(i,v) for v in src]; return i
@@ -75,29 +77,28 @@ def aha(i: Col, u: Any, v: Any) -> float:
   v = v if v != "?" else (0 if u > 0.5 else 1)
   return abs(u - v)
 
-def run(oracle, K=1, budget=30):
+def run(oracle,rows, K=5, budget=20):
   def Y(r):     return disty(oracle, r)
   def score(u): return sum(distx(model,unlab[u],model.rows[i])/(i+1)
-                           for i in range(len(model.rows)))
-  rows = oracle.rows[:]
+                           for i in range(K))
   random.shuffle(rows)
-  print(Y(oracle.rows,key=Y).rows[0])
-  print(b4)
-  model = Data([oracle.cols.names])
-  [add(model, r) for r in rows[:K]]
-  unlab = rows[K:]
+  model = clone(oracle, rows[:K])
   model.rows.sort(key=Y)
-  for _ in range(budget-K):
+  unlab = rows[K:][:the.few]
+  for j in range(budget-K):
     if not unlab: break
     add(model, unlab.pop(min(range(len(unlab)), key=score)))
-    model.rows = sorted(model.rows, key=Y)[:K]
+    model.rows = sorted(model.rows, key=Y)[:budget]
   return model
    
 def test_run(file:str=the.file):
-  oracle = Data(csv(file))
-  model  = run(oracle)
-  for r in model.rows:
-    print(f"  disty={disty(oracle,r):.3f}  {r}")
+  d = Data(csv(file))
+  Y = lambda r: disty(d, r)
+  d.rows.sort(key=Y)
+  lo, mid=Y(d.rows[0]), Y(d.rows[len(d.rows)//2])
+  wins = lambda r: int(100*(1-(Y(r)-lo)/(mid-lo + 1e-32)))
+  model  = run(d,d.rows)
+  print(wins(model.rows[0]))
       
 #------------------------------------------------------------------------------
 def o(it: Any) -> str:
