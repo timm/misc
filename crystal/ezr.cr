@@ -24,13 +24,13 @@ class Obj
 THE = Obj.new
 
 abstract class Col
-  property at : Int32, txt : String, n = 0
-  def initialize(@at = 0, @txt = ""); end end
+  property at : Int32, txt : String, n = 0.0
+  def initialize(@at = 0, @txt = ""); end end 
 
 class Num < Col
-  property mu = 0.0, m2 = 0.0, sd = 0.0, heaven : Bool
+  property mu = 0.0, m2 = 0.0, sd = 0.0, heaven : Float64
   def initialize(@at = 0, @txt = "")
-    super; @heaven = !@txt.ends_with?("-") end end
+    super; @heaven = @txt.ends_with?("-") ? 0 : 1 end end
 
 class Sym < Col
   property has = Hash(String, Int32).new(0) end
@@ -41,68 +41,66 @@ class Cols
   def initialize(@names)
     @all   = @names.map_with_index { |txt, j|
                txt[0].uppercase? ? Num.new(j, txt) : Sym.new(j, txt) }
-    @klass = @all.find   { |c| c.txt.ends_with?("!") }
+    @klass = @all.find    { |c| c.txt.ends_with?("!") }
     @xs    = @all.reject  { |c| "+-!X".includes?(c.txt[-1]) }
     @ys    = @all.select  { |c| "+-!".includes?(c.txt[-1]) } end end
 
 class Data
-  property rows : Array(Row), cols : Cols?, _mids : Array(Value)?
-  def initialize
-    @rows = [] of Row end end
+  property rows : Array(Row), cols : Cols
+  property _mids : Array(Value)?, n = 0.0
+  def initialize(header : Array(String))
+    @rows = [] of Row
+    @cols = Cols.new(header) end end
 
 # data (factory overloads) --------------------------------
 def data(src : Array(Row)) : Data
-  d = Data.new
-  src.each { |r| add(d, r) }; d end
+  d = Data.new(src.first.map(&.as(String)))
+  src[1..].each { |r| add(d, r) }; d end
 
-def data(d0 : Data, rows = [] of Row) : Data
-  d = Data.new
-  add(d, d0.cols.not_nil!.names.map { |s| s.as(Value) })
-  rows.each { |r| add(d, r) }; d end
+def data(d : Data, rows = [] of Row) : Data
+  d2 = Data.new(d.cols.names)
+  rows.each { |r| add(d2, r) }; d2 end
 
 def data(file : String) : Data
-  d = Data.new
-  csv(file) { |r| add(d, r) }; d end
+  rows = [] of Row
+  csv(file) { |r| rows << r }
+  data(rows) end
 
 # sub, add, add1 -----------------------------------------------
 def sub(i : Data | Col, v); add(i, v, -1) end
 
-  def add(src : Enumerable, i : Col = Num.new) : Col
+def add(src : Enumerable, i : Col = Num.new) : Col
   src.each { |v| add(i, v) }; i end
 
 def add(d : Data, r : Row, w = 1) : Row
-  if c = d.cols
-    d._mids = nil
-    c.all.each { |col| add(col, r[col.at], w) }
-    d.rows << r
-  else
-    d.cols = Cols.new(r.map(&.to_s)) end
+  d._mids = nil
+  c.all.each { |col| add(col, r[col.at], w) }
+  d.rows << r
   r end
 
 def add(i : Col, v : Value, w = 1) : Value
   if v != "?"
     i.n += w
-    add1(i, v, w) end
+    _add1(i, v, w) end
   v end
 
-def add1(i : Num, v : Value, w : Int32) : Value
+def _add1(i : Sym, v : Value, w : Int32) 
+  i.has[v.as(String)] += w end
+
+def _add1(i : Num, v : Value, w : Int32)
   f = v.as(Float64)
-  d = f - i.mu
-  i.mu += w * d / i.n
-  i.m2 += w * d * (f - i.mu)
-  i.sd = i.n < 2 ? 0.0 : (i.m2 / (i.n - 1)).abs.sqrt
-  v end
-
-def add1(i : Sym, v : Value, w : Int32) : Value
-  i.has[v.as(String)] = w + i.has[v.as(String)]
-  v end
+  if w<0 && i.n<=1 i.n=i.mu=i.m2=i.sd=0.0
+  else 
+    d    = f - i.mu
+    i.mu += w * d / i.n
+    i.m2 += w * d * (f - i.mu)
+    i.sd  = i.n < 2 ? 0.0 : (i.m2 / (i.n - 1)).abs.sqrt end end
 
 # query ---------------------------------------------------
 def mid(i : Num) : Value;  i.mu end
-def mid(i : Sym) : Value
-  i.has.empty? ? "" : i.has.max_by { |_, v| v }[0] end
+def mid(i : Sym) : Value;  i.has.max_by { |_, v| v }[0] end
 def mid(d : Data) : Array(Value)
-  d._mids ||= d.cols.not_nil!.all.map { |c| mid(c) }
+  d._mids ||= d.cols.all.map { |c| mid(c) }
   d._mids.not_nil! end
  
 def spread(i : Num) : Float64;  i.sd end
@@ -115,10 +113,6 @@ def norm(i : Num, v : Value) : Float64
   return 0.5 if v == "?"
   z = ((v.as(Float64) - i.mu) / (i.sd + 1e-32)).clamp(-3.0, 3.0)
   1.0 / (1.0 + Math.exp(-1.7 * z)) end
-
-def norm(i : Sym, v : Value) : Float64
-  return 0.5 if v == "?"
-  v.as(String) == mid(i) ? 0.0 : 1.0 end
 
 # bayes ---------------------------------------------------
 def like(c : Num, v : Value, prior : Float64) : Float64
