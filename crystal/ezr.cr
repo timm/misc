@@ -16,7 +16,8 @@ include Math
 alias Value = Float64 | String
 alias Row = Array(Value)
 
-# Classes ------------------------------------------------
+# ---------------------------------------------------------------------
+# ## Classes
 class Obj
   property decs = 2, seed = 1, p = 2, budget = 50, k = 1
   property m = 2, few = 128, leaf = 3, treeWidth = 30, check = 5, start = 4
@@ -33,6 +34,7 @@ class Num < Col
   def initialize(@at = 0, @txt = "")
     super; @heaven = @txt.ends_with?("-") ? 0 : 1 end end
 
+# Summarizes symbols.
 class Sym < Col
   property has = Hash(String, Int32).new(0) end
 
@@ -53,7 +55,8 @@ class Data
     @rows = [] of Row
     @cols = Cols.new(header) end end
 
-# data (factory overloads) --------------------------------
+# ---------------------------------------------------------------------
+# ## Data (factory overloads) 
 def data(src : Array(Row)) : Data
   d = Data.new(src.first.map(&.as(String)))
   src[1..].each { |r| add(d, r) }; d end
@@ -67,7 +70,9 @@ def data(file : String) : Data
   csv(file) { |r| rows << r }
   data(rows) end
 
-# sub, add, add1 -----------------------------------------------
+#  --------------------------------------------------------------
+# ## Sub, add, add1 
+
 def sub(i : Data | Col, v); add(i, v, -1) end
 
 def add(src : Enumerable, i : Col = Num.new) : Col
@@ -97,24 +102,8 @@ def _add1(i : Num, v : Value, w : Int32)
     i.m2 += w * d * (f - i.mu)
     i.sd  = i.n < 2 ? 0.0 : (i.m2 / (i.n - 1)).abs.sqrt end end
 
-# query ---------------------------------------------------
-def mid(i : Num) : Value;  i.mu end
-def mid(i : Sym) : Value;  i.has.max_by { |_, v| v }[0] end
-def mid(d : Data) : Array(Value)
-  d._mids ||= d.cols.all.map { |c| mid(c) }
-  d._mids.not_nil! end
- 
-def spread(i : Num) : Float64;  i.sd end
-def spread(i : Sym) : Float64
-  -i.has.values.sum { |v|
-    p = v.to_f / i.n
-    p > 0 ? p * log2(p) : 0.0 } end
-
-def norm(i : Num, v : Value) : Float64
-  z = ((v.as(Float64) - i.mu) / (i.sd + 1e-32)).clamp(-3.0, 3.0)
-  1.0 / (1.0 + exp(-1.7 * z)) end
-
-# bayes ---------------------------------------------------
+# ---------------------------------------------------------------------
+# Query 
 def like(c : Num, v : Value, prior : Float64) : Float64
   sd = c.sd + 1e-32
   (1 / sqrt(2*PI*sd*sd)) * exp(-((v.as(Float64) - c.mu)**2) / (2*sd*sd)) end
@@ -132,20 +121,24 @@ def like(d : Data, r : Row, n_rows : Int32, n_klasses : Int32) : Float64
       out += log(l) if l > 0 end }
   out end
  
-# minkowski, distx, disty, wins ---------------------------
-def minkowski(items : Enumerable(Float64), p = 2) : Float64
+# ---------------------------------------------------------------------
+# ## Minkowski, distx, disty, wins 
+def wins(d : Data) : Proc(Row, Int32)
+  d.rows.sort_by! { |r| disty(d,r) }
+  lo = disty(d,d.rows[0])
+  md = dist(d,d.rows[d.rows.size // 2])
+  ->(r : Row) { (100 * (1 - (disty(d,r) - lo) / (md - lo + 0.0001))).to_i } end
+
+def disty(d : Data, r : Row) : Float64
+  _minkowski(d.cols.ys.map { |c| (norm(c,r[c.at])-c.heaven).abs }) end
+
+def distx(d : Data, r1 : Row, r2 : Row) : Float64
+  _minkowski(d.cols.xs.map { |c| _aha(c, r1[c.at], r2[c.at]) }) end
+
+def _minkowski(items : Enumerable(Float64), p = 2) : Float64
   tot, n = 0.0, 1e-32
   items.each { |x| tot += x ** p; n += 1.0 }
   (tot / n) ** (1.0 / p) end
-
-def disty(d : Data, r : Row) : Float64
-  minkowski(d.cols.not_nil!.ys.map { |c|
-    h = c.is_a?(Num) ? (c.heaven ? 1.0 : 0.0) : 0.0
-    (norm(c, r[c.at]) - h).abs }) end
-
-def distx(d : Data, r1 : Row, r2 : Row) : Float64
-  minkowski(d.cols.not_nil!.xs.map { |c|
-    _aha(c, r1[c.at], r2[c.at]) }) end
 
 def _aha(i : Num, u : Value, v : Value) : Float64
   return 1.0 if u == "?" && v == "?"
@@ -159,16 +152,11 @@ def _aha(i : Sym, u : Value, v : Value) : Float64
   return 1.0 if u == "?" && v == "?"
   u != v ? 1.0 : 0.0 end
 
-def wins(d : Data) : Proc(Row, Int32)
-  d.rows.sort_by! { |r| disty(d,r) }
-  lo = disty(d,d.rows[0])
-  md = dist(d,d.rows[d.rows.size // 2])
-  ->(r : Row) { (100 * (1 - (disty(d,r) - lo) / (md - lo + 0.0001))).to_i } end
-
-# acquire -------------------------------------------------
+# ---------------------------------------------------------------------
+# ## Acquire 
 def acquireWithBayes(d : Data, best : Data, rest : Data, r : Row) : Float64
   n = best.rows.size + rest.rows.size
-  likes(rest, r, n, 2) - likes(best, r, n, 2) end
+  like(rest, r, n, 2) - like(best, r, n, 2) end
 
 def acquireWithCentroid(d : Data, best : Data, rest : Data, r : Row) : Float64
   distx(d, r, mid(best)) - distx(d, r, mid(rest)) end
@@ -194,7 +182,8 @@ def acquire(d : Data, score = ->acquireWithBayes(Data, Data, Data, Row)) : Data
   lab.rows.sort_by! { |r| disty(lab, r) }
   lab end
  
-# Tree class -----------------------------------------------
+# ---------------------------------------------------------------------
+# ## Tree clas 
 class Tree
   property d : Data, ynum : Num
   property col : Col?, cut : Value
@@ -253,7 +242,8 @@ def treeShow(t : Tree)
     g = t1.d.cols.not_nil!.ys.map { |c| "#{c.txt}=#{mid(c)}" }.join(", ")
     puts "#{p.ljust(THE.treeWidth)},#{mid(t1.ynum).to_s.rjust(5)} ,(#{t1.ynum.n.to_s.rjust(3)}), {#{g}}" } end
 
-# lib ------------------------------------------------------
+# ---------------------------------------------------------------------
+# Lib 
 def thing(s : String) : Value
   s = s.strip
   s.to_f64? ? s.to_f64 : s end
@@ -264,14 +254,16 @@ def csv(file : String, &)
     if cells.any? { |s| s.strip != "" }
       yield cells.map { |s| thing(s) } end } end
 
-# ready ----------------------------------------------------
+# ---------------------------------------------------------------------
+# ## Ready 
 def ready(file : String)
   d = data(file)
   d.rows.shuffle!(Random.new(THE.seed))
   n = d.rows.size // 2
   {d, data(d, d.rows[0...n][0...THE.budget]), d.rows[n..]} end
 
-# main -----------------------------------------------------
+# ---------------------------------------------------------------------
+# ## Main 
 d, train, test = ready(THE.file)
 w = wins(d)
 lab = acquire(train)

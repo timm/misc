@@ -11,3 +11,9 @@ push: ## save to cloud
 
 sh: ## start up my own IDE
 	@bash --init-file .bashrc -i
+
+
+~/tmp/%.html: %.cr
+	pycco -l ruby -d ~/tmp $<
+	echo 'p {text-align: right}' >> ~/tmp/pycco.css
+
