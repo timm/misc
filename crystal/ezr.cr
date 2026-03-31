@@ -12,6 +12,7 @@
 # - Factory/construction logic in top-level functions, not in classes
 # - Align related assignments with spaces for readability
 
+include Math
 alias Value = Float64 | String
 alias Row = Array(Value)
 
@@ -107,29 +108,30 @@ def spread(i : Num) : Float64;  i.sd end
 def spread(i : Sym) : Float64
   -i.has.values.sum { |v|
     p = v.to_f / i.n
-    p > 0 ? p * Math.log2(p) : 0.0 } end
+    p > 0 ? p * log2(p) : 0.0 } end
 
 def norm(i : Num, v : Value) : Float64
-  return 0.5 if v == "?"
   z = ((v.as(Float64) - i.mu) / (i.sd + 1e-32)).clamp(-3.0, 3.0)
-  1.0 / (1.0 + Math.exp(-1.7 * z)) end
+  1.0 / (1.0 + exp(-1.7 * z)) end
 
 # bayes ---------------------------------------------------
 def like(c : Num, v : Value, prior : Float64) : Float64
   sd = c.sd + 1e-32
-  (1 / Math.sqrt(2 * Math::PI * sd * sd)) *
-    Math.exp(-((v.as(Float64) - c.mu) ** 2) / (2 * sd * sd)) end
+  (1 / sqrt(2*PI*sd*sd)) * exp(-((v.as(Float64) - c.mu)**2) / (2*sd*sd)) end
 
 def like(c : Sym, v : Value, prior : Float64) : Float64
   (c.has.fetch(v.as(String), 0) + THE.k * prior) / (c.n + THE.k) end
 
-def likes(d : Data, r : Row, n_rows : Int32, n_klasses : Int32) : Float64
-  prior = (d.rows.size + THE.m) / (n_rows + THE.m * n_klasses)
-  ls = d.cols.not_nil!.xs.compact_map { |c|
+def like(d : Data, r : Row, n_rows : Int32, n_klasses : Int32) : Float64
+  prior = (d.rows.size + THE.m) / (n_rows + THE.m * n_klasses).to_f
+  out   = log(prior)
+  d.cols.xs.each { |c|
     v = r[c.at]
-    v != "?" ? like(c, v, prior) : nil }
-  Math.log(prior) + ls.select { |v| v > 0 }.sum { |v| Math.log(v) } end
-
+    if v != "?"
+      l = like(c, v, prior)
+      out += log(l) if l > 0 end }
+  out end
+ 
 # minkowski, distx, disty, wins ---------------------------
 def minkowski(items : Enumerable(Float64), p = 2) : Float64
   tot, n = 0.0, 1e-32
@@ -158,10 +160,10 @@ def _aha(i : Sym, u : Value, v : Value) : Float64
   u != v ? 1.0 : 0.0 end
 
 def wins(d : Data) : Proc(Row, Int32)
-  d.rows.sort_by! { |r| disty(d, r) }
-  lo = disty(d, d.rows[0])
-  md = disty(d, d.rows[d.rows.size // 2])
-  ->(r : Row) { (100 * (1 - (disty(d, r) - lo) / (md - lo + 0.0001))).to_i } end
+  d.rows.sort_by! { |r| disty(d,r) }
+  lo = disty(d,d.rows[0])
+  md = dist(d,d.rows[d.rows.size // 2])
+  ->(r : Row) { (100 * (1 - (disty(d,r) - lo) / (md - lo + 0.0001))).to_i } end
 
 # acquire -------------------------------------------------
 def acquireWithBayes(d : Data, best : Data, rest : Data, r : Row) : Float64
@@ -176,7 +178,7 @@ def acquire(d : Data, score = ->acquireWithBayes(Data, Data, Data, Row)) : Data
   lab   = data(d, rows[0...THE.start])
   unlab = rows[THE.start..][0...THE.few]
   lab.rows.sort_by! { |r| disty(lab, r) }
-  n    = Math.sqrt(lab.rows.size).to_i
+  n    = sqrt(lab.rows.size).to_i
   best, rest = data(d, lab.rows[0...n]), data(d, lab.rows[n..])
   cursor = 0
   THE.budget.times do
@@ -185,7 +187,7 @@ def acquire(d : Data, score = ->acquireWithBayes(Data, Data, Data, Row)) : Data
     idx = (cursor + j) % unlab.size
     r = unlab.delete_at(idx)
     add(lab, add(best, r))
-    if best.rows.size > Math.sqrt(lab.rows.size)
+    if best.rows.size > sqrt(lab.rows.size)
       best.rows.sort_by! { |rr| disty(lab, rr) }
       add(rest, sub(best, best.rows.last)) end
     cursor = idx end
@@ -221,7 +223,7 @@ def treeGrow(d : Data, rs : Array(Row)) : Tree
   if rs.size >= 2 * THE.leaf
     splits = d.cols.not_nil!.xs.flat_map { |c|
       treeCuts(c, rs).map { |cut| treeSplit(d, c, cut, rs) } }
-    valid = splits.select { |s| Math.min(s[3].size, s[4].size) >= THE.leaf }
+    valid = splits.select { |s| min(s[3].size, s[4].size) >= THE.leaf }
     unless valid.empty?
       best = valid.min_by { |s| s[0] }
       t.col, t.cut = best[1], best[2]
