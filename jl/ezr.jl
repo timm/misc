@@ -9,20 +9,20 @@ Options:
   -d decs=2   decimal places
   -s seed=1   random seed
 """
-the = Dict(Symbol(k) => cast(v)
-           for (k,v) in eachmatch(r"(\w+)=(\S+)", HELP))
+the = Dict(Symbol(k) => make(v)
+           for (k,v) in eachmatch(r"(\w+)=(\w+)", HELP))
 
 #-- structs --------------------------------------------------------------------
-mutable struct Col; at::Int; txt::String; goal::Bool; n::Float64 end
-mutable struct Num; c::Col; mu::Float64; m2::Float64 end
-mutable struct Sym; c::Col; has::Dict{Any,Float64} end
+@kwdef mutable struct Col; at=0; txt=" "; heaven=0; n=0 end
+@kwdef mutable struct Num; col; mu=0.0; m2=0.0 end
+@kwdef mutable struct Sym; col; has end
 mutable struct Cols; names; all; x; y end
-mutable struct Data; n::Int; rows; cols; mids end
+@kweaf mutable struct Data; n=0; rows; cols; mids end
 
 Col(at,txt) = Col(at, txt, last(txt) != '-', 0.0)
 Num(at,txt) = Num(Col(at,txt), 0.0, 0.0)
 Sym(at,txt) = Sym(Col(at,txt), Dict())
-col(at,txt) = isuppercase(first(txt)) ? Num(at,txt) : Sym(at,txt)
+Col(at,txt) = (isuppercase(first(txt)) ? Num : Sym)(at,txt)
 Data()      = Data(0, [], nothing, nothing)
 
 #-- lib ------------------------------------------------------------------------
@@ -30,7 +30,7 @@ unk(v)      = v == "?"
 cell(c,row) = row[c.c.at + 1]   # 1-indexed
 say(x)      = string(x isa Float64 ? round(x, digits=the.decs) : x)
 
-function cast(s)
+function make(s)
   s = strip(s)
   s == "true"  && return 1.0
   s == "false" && return 0.0

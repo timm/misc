@@ -1,3 +1,4 @@
+# vim: ts=2 sw=2 sts=2 et  :
 help: ## show help.
 	@gawk  '\
 		BEGIN {FS = ":.*?##"; \
@@ -12,10 +13,8 @@ push: ## save to cloud
 sh: ## start up my own IDE
 	@bash --init-file .bashrc -i
 
-
 ~/tmp/%.html: %.cr
-	pycco -l ruby -d ~/tmp $<
-	echo 'p {text-align: right}' >> ~/tmp/pycco.css
-	gawk -v it="$$(cat head.html)" 'BEGIN{RS="jqz"} {sub(/<h1>/,it)} 1' $@ > ~/tmp/crtmp
-	mv ~/tmp/crtmp $@
-
+	@pycco -l ruby -d $(dir $@) $<
+	@echo 'p {text-align: right}' >> $(dir $@)pycco.css
+	@gawk -v RS="jqz" -F "<h1>" -v x="$$(cat top.html)" '{print $$1 x $$2}' $@ > .$<
+	@mv .$< $@
