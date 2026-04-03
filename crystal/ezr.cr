@@ -1,4 +1,4 @@
-# Crystal style rules:
+# - My crystal style rules.
 # - Never `end` on its own line; join to prior line or use semicolons
 # - Classes hold ONLY: property declarations, initialize, private methods
 # - All polymorphic/shared methods are top-level functions using
@@ -18,6 +18,8 @@ alias Row = Array(Value)
 
 # ---------------------------------------------------------------------
 # ## Classes
+
+# Global settings.
 class Obj
   property decs = 2, seed = 1, p = 2, budget = 50, k = 1
   property m = 2, few = 128, leaf = 3, treeWidth = 30, check = 5, start = 4
@@ -25,19 +27,22 @@ class Obj
 
 THE = Obj.new
 
+# Summarize column of values.
 abstract class Col
   property at : Int32, txt : String, n = 0.0
   def initialize(@at = 0, @txt = ""); end end 
 
+# Summarize stream of numbers.
 class Num < Col
   property mu = 0.0, m2 = 0.0, sd = 0.0, heaven : Float64
   def initialize(@at = 0, @txt = "")
     super; @heaven = @txt.ends_with?("-") ? 0 : 1 end end
 
-# Summarizes symbols.
+# Summarize stream of symbls.
 class Sym < Col
   property has = Hash(String, Int32).new(0) end
 
+# Factory. Strings to Cols. Upper/lower case names ==> Num/Sym.
 class Cols
   property names : Array(String), all : Array(Col)
   property xs : Array(Col), ys : Array(Col), klass : Col?
@@ -57,14 +62,18 @@ class Data
 
 # ---------------------------------------------------------------------
 # ## Data (factory overloads) 
+
+# Array(Row) ==>  Data.
 def data(src : Array(Row)) : Data
   d = Data.new(src.first.map(&.as(String)))
   src[1..].each { |r| add(d, r) }; d end
 
+# Make a new Data, modelied on an old one. Maybe add rows.
 def data(d : Data, rows = [] of Row) : Data
   d2 = Data.new(d.cols.names)
   rows.each { |r| add(d2, r) }; d2 end
 
+  # Load in a Data from a csv files.
 def data(file : String) : Data
   rows = [] of Row
   csv(file) { |r| rows << r }
@@ -73,17 +82,21 @@ def data(file : String) : Data
 #  --------------------------------------------------------------
 # ## Sub, add, add1 
 
+# `sub` means adding -1.
 def sub(i : Data | Col, v); add(i, v, -1) end
 
-def add(src : Enumerable, i : Col = Num.new) : Col
+# Add each of `src` into something (usually a Num).
+def add(src : Enumerable, i :  Col | Data = Num.new) : Col | Data
   src.each { |v| add(i, v) }; i end
 
+# Update a Data's rows and column summary.
 def add(d : Data, r : Row, w = 1) : Row
-  d._mids = nil
   c.all.each { |col| add(col, r[col.at], w) }
   d.rows << r
+  d._mids = nil # now outdated
   r end
 
+# Update a column. Ignore "?". Return the added item `v`.
 def add(i : Col, v : Value, w = 1) : Value
   if v != "?"
     i.n += w

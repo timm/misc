@@ -16,4 +16,6 @@ sh: ## start up my own IDE
 ~/tmp/%.html: %.cr
 	pycco -l ruby -d ~/tmp $<
 	echo 'p {text-align: right}' >> ~/tmp/pycco.css
+	gawk -v it="$$(cat head.html)" 'BEGIN{RS="jqz"} {sub(/<h1>/,it)} 1' $@ > ~/tmp/crtmp
+	mv ~/tmp/crtmp $@
 
