@@ -16,5 +16,5 @@ sh: ## start up my own IDE
 ~/tmp/%.html: %.cr
 	@pycco -l ruby -d $(dir $@) $<
 	@echo 'p {text-align: right}' >> $(dir $@)pycco.css
-	@gawk -v RS="jqz" -F "<h1>" -v x="$$(cat top.html)" '{print $$1 x $$2}' $@ > .$<
+	@gawk -v x="$$(cat top.html)" 'BEGIN{FS="<h1>"; RS="jqz"} {print $$1 x $$2}' $@ > .$<
 	@mv .$< $@

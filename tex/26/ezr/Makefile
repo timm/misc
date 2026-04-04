@@ -12,9 +12,9 @@ all: $(PDFFILE)
 
 $(PDFFILE): $(TEXFILE)
 	@echo "--- Compiling $(TEXFILE) (Pass 1) ---"
-	pdflatex -shell-escape $(TEXFILE)
+	tectonic -Z shell-escape  $(TEXFILE)
 	@echo "--- Compiling $(TEXFILE) (Pass 2 for references/layout) ---"
-	pdflatex -shell-escape $(TEXFILE)
+	tectonic -Z shell-escape $(TEXFILE)
 	@echo "--- Cleaning up auxiliary files to $(TMP_DIR) ---"
 	@mkdir -p $(TMP_DIR)
 	@mv *.aux *.log *.nav *.out *.snm *.toc *.vrb $(TMP_DIR)/ 2>/dev/null || true
