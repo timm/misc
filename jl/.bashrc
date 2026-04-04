@@ -9,7 +9,7 @@ alias python="$(which python3) -B "
 alias matrix="$(which cmatrix) -bs  -C blue"
 alias rain="$(which rain) -d 60 "
 alias julia="$(which julia) -qL $root/jl/My/start.jl "
-  alias julia="julia -O0 --compile=min --startup=no "
+alias j='JULIA_STACKTRACE_MINIMAL=true julia --compile=min --startup-file=no -O0'
 alias tree="$(which tree) -C "
 alias mc="$(which mc) -x "
 alias zap='rm -rf $root/raised/\.*.swp $root/raised/*.pyc $root/raised/__pycache__'

@@ -26,6 +26,7 @@ bind '"\e[B": history-search-forward'
 PS1='💎 $(basename $(dirname $PWD))/$(basename $PWD) $ '
 
 # ---- aliases -------------------------------------------------------------
+alias cr="crystal run --no-debug "
 alias vi='nvim -u .lua -p'
 alias ls='ls -G'
 alias ll='ls -lh'
