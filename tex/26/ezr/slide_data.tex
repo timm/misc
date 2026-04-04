@@ -1,0 +1,237 @@
+\begin{comment}
+=== AI-INSTRUCTIONS (NEVER DELETE OR ALTER THIS BLOCK) ===
+1. VERBATIM RETENTION: Always include this exact comment block at the top of your output.
+2. LHS STYLE: Explanations on the Left-Hand Side must be colloquial, punchy, and use "footnotesize".
+3. DRY/KISS: Always tie the code back to SE principles (like DRY, KISS, YAGNI, SRP) where applicable.
+4. SPATIAL LIMITS: Keep the minted code to ~40 lines maximum.
+5. REVIEW NOTES:
+   - [Tim note2]: in SE notes, point how how mentioned TLAs are used in other, much larger systems.
+   - [Tim's Note]: Make sure to emphasize why we aren't using Pandas (YAGNI).
+   - [Tim's Note]: Keep the magic characters (+, -, !) explanation prominent.
+   - [T note]: early on say ezr is a data-lite, model-lite, code-lite approach to AI.
+              data-lite: not assuming terabyres of data. many situation si se when we have just few dozen reliable labels, at most. 
+              see [^aa], below.
+              model-lite: instead of using (say) 100s of decision trees in an ensemble, like SMAC3 [^smacs3], 
+               or trillions of models, like LLMs
+              code-lite: it tiny data and models, should be able to write tiny scripts to ahndle it all, especially since we've had
+               decades of exeorence in learning hw to cod these things better and what 
+               shortcuts to take. connect to KISS. YAGNI
+
+   - [T note]: got to say early on that this doe not handle all ai.
+               no, this does not handle all ai tasks but it does ande a lot  (including software configuration, performance tuning, product line engineering,
+               project health forecasting, defect prediction, software testing, software process and cost estimation, and
+               cross-domain generalization datasets).
+               so someties we need things as complex as possible but some often we tend to complexitt
+               via cogitive bias rather than after comparing simpler to complex
+
+   - [T note]: use of clone.
+   - [T note]: "Data" extrardoanirly useful . storing data from disk. clustering: one new Data be clsuter.
+               decision tree: one new Data
+               per tree node.
+               Bayesclassifier: store distributions in differernt classes. Simualted annearling: store distributions of backgrund data
+               so we now what ia sensible size of mutation.
+   - [T note}: need more on the iter idioms, next. iter.
+               (generators)
+   - [T note]:  there are many constructions of first code sample that would confuse/mislead newbies. e.g.
+               comprehensions. comprejensions with 
+               conditionals.
+               type
+               all such idoms need to be teased out.
+               maybe takes more than 1 page
+
+   - [T note]:  centroids, cached. reused.
+               only recacled if Data contents changed.
+   - [T note]:  mention this is active learninger (best results when learners pick their own data. 
+                by focusing on most informative examples, we can dodge noise and irrelvancies and superflous signnals and learn from
+                vastly less data.
+     
+
+[^aa]: find 𝑋 Find associated 𝑌 values It can be very quick to ... It is
+a much slower task to...  
+Mine GitHub to find all the distributions
+of code size, num- ber of dependencies per function, etc.  Discover
+(a)how much that software could be sold on the market or (b) what
+is the time required to build this kind of software Count the number
+of classes in a system. Negotiate with an organization permission
+to find how much human effort was required to build and maintain
+that code.  List design options; e.g. 20 binary choices is 220 >
+1, 000, 000 options.  Check all those options with a group of human
+stakehold- ers.  List the configuration parameters for some piece
+of soft- ware.  Generate 
+a separate executable for each one of those
+pa- rameter settings, then run those executable through some test
+suite.
+List the controls of a data miners used in software analytics
+(e.g. how many neighbors to use in a k-th nearest neighbor classifier).
+Run a grid search looking for the best settings for some local data.
+Generate test case inputs (e.g.) using some grammar-based fuzzing.
+Run all all those tests.
+It can be even slower for a human to check
+through all those results looking for anomalous behavior.
+[^smac3]: @article{JMLR:v23:21-0888,
+  author  = {Marius Lindauer and Katharina Eggensperger and Matthias
+  Feurer and André Biedenkapp and Difan Deng and Carolin Benjamins
+  and Tim Ruhkopf and René Sass and Frank Hutter},
+    title   = {SMAC3: A Versatile Bayesian Optimization Package for
+    Hyperparameter Optimization},
+      journal = {Journal of Machine Learning Research},
+    year    = {2022},
+      volume  = {23},
+        number  = {54},
+          pages   = {1--9},
+        url     = {http://jmlr.org/papers/v23/21-0888.html}
+        }
+
+==========================================================
+\end{comment}
+
+% ==========================================
+% SLIDE 1: Intent & Motivation
+% ==========================================
+\begin{frame}{1. Intent \& Motivation: The "Lite" Approach}
+  \vspace{0.3cm}
+  \textbf{The Goal:} \texttt{ezr} is a \textbf{data-lite, model-lite, code-lite} approach to AI.
+  
+  \vspace{0.2cm}
+  \begin{itemize}
+      \item \textbf{Data-lite:} We don't assume terabytes of data. In SE, we often only have a few dozen reliable labels.
+      \item \textbf{Model-lite:} We aren't building ensembles of 100s of decision trees (like SMAC3), nor are we building trillion-parameter LLMs.
+      \item \textbf{Code-lite:} Tiny data + tiny models = tiny scripts. Heavy libraries like Pandas violate our core tenets (\textbf{YAGNI}).
+  \end{itemize}
+
+  \vspace{0.4cm}
+  \textbf{Does this handle all AI?} \\
+  No. But it handles a \textit{massive} slice of SE tasks: configuration, tuning, defect prediction, project forecasting, and test generation. We often default to massive complexity via cognitive bias, rather than after genuinely comparing simple vs. complex!
+\end{frame}
+
+% ==========================================
+% SLIDE 2: Core Architecture (Code)
+% ==========================================
+\begin{frame}[fragile]{2. Core Architecture: The "Data" Workhorse}
+\begin{columns}[T]
+  \begin{column}{0.4\textwidth}
+    \footnotesize 
+    \textbf{Lines 145-163:}\\
+    The \texttt{Data} structure is extraordinarily useful. It's the core atom of our system.
+
+    \vspace{0.2cm}
+    \rc{1} \textbf{Boss Class:} \texttt{Data} grabs headers and streams the rest.
+    
+    \vspace{0.15cm}
+    \rc{2} \textbf{The Clone Wars:} \texttt{clone} copies the structure. Every cluster, tree node, and Bayes class is just another \texttt{Data} object!
+
+    \vspace{0.15cm}
+    \rc{3} \textbf{Magic Sorting:} Headers with \texttt{!} (maximize) or \texttt{-} (minimize) become dependent (\texttt{ys}); others independent (\texttt{xs}).
+  \end{column}
+  
+  \begin{column}{0.6\textwidth}
+\begin{minted}{python}
+# ---- 2. Data (Tables) ----
+class Data: |\rc{1}|
+  def __init__(i, src: Iterable = None):
+    src = iter(src or {})
+    i.rows, i.cols, i._centroid = [], Cols(next(src)), None
+    adds(src, i)
+
+def clone(d: Data, rs: list = None) -> Data: |\rc{2}|
+  return adds(rs or [], Data([d.cols.names]))
+
+def mids(d: Data) -> list[Atom]:
+  d._centroid = d._centroid or [mid(c) for c in d.cols.all]
+  return d._centroid
+
+class Cols:
+  def __init__(i, names: list[str]):
+    i.names, i.all = names, [Col(txt, j) for j, txt in enumerate(names)]
+    i.klass = next((c for c in i.all if c.txt[-1] == "!"), None)
+    
+    # Separation by header notation
+    i.xs = [c for c in i.all if c.txt[-1] not in "+-!X"] |\rc{3}|
+    i.ys = [c for c in i.all if c.txt[-1] in "+-!"]
+\end{minted}
+  \end{column}
+\end{columns}
+\end{frame}
+
+% ==========================================
+% SLIDE 3: Scripting Notes A
+% ==========================================
+\begin{frame}[fragile]{3. Scripting Notes: Peeling the Iterator}
+  \vspace{0.2cm}
+  Our first code block uses constructions that can mislead newbies. Let's tease them out.
+
+  \vspace{0.3cm}
+  \textbf{Idiom 1: Safe Iterators \& The \texttt{next()} peel}
+  \begin{minted}[fontsize=\footnotesize]{python}
+  src = iter(src or {})
+  i.rows, i.cols = [], Cols(next(src))
+  \end{minted}
+  We don't load the whole file. We wrap it in a generator (\texttt{iter}). Calling \texttt{next()} cleanly "peels" off the first row (the headers) to build our columns. The rest remains lazily waiting to be streamed (\textbf{KISS} memory management).
+  
+  \vspace{0.3cm}
+  \textbf{Idiom 2: Lazy Generator Extraction}
+  \begin{minted}[fontsize=\footnotesize]{python}
+  i.klass = next((c for c in i.all if c.txt[-1] == "!"), None)
+  \end{minted}
+  Instead of a bulky \texttt{for}-loop, this builds a lazy generator expression \textit{inside} \texttt{next(...)}. It stops evaluating at the very first match, or safely defaults to \texttt{None}.
+\end{frame}
+
+% ==========================================
+% SLIDE 4: Scripting Notes B
+% ==========================================
+\begin{frame}[fragile]{4. Scripting Notes: Comprehensions \& Caches}
+  
+  \vspace{0.2cm}
+  \textbf{Idiom 3: Conditional List Comprehensions}
+  \begin{minted}[fontsize=\footnotesize]{python}
+  i.xs = [c for c in i.all if c.txt[-1] not in "+-!X"]
+  \end{minted}
+  List comprehensions with inline conditionals filter data at C-speed. It checks the last character (\texttt{txt[-1]}) to instantly route variables. Pure \textbf{DRY} logic.
+
+  \vspace{0.4cm}
+  \textbf{Idiom 4: Lazy Caching}
+  \begin{minted}[fontsize=\footnotesize]{python}
+  def mids(d: Data) -> list[Atom]:
+    d._centroid = d._centroid or [mid(c) for c in d.cols.all]
+  \end{minted}
+  We use \texttt{or} for short-circuit evaluation. Centroids are cached and reused! They are \textit{only} recalculated if \texttt{d.\_centroid} is cleared (which happens exactly when \texttt{Data} contents change).
+\end{frame}
+
+% ==========================================
+% SLIDE 5: SE Notes
+% ==========================================
+\begin{frame}{5. SE Notes: Software Engineering Principles}
+  \vspace{0.2cm}
+  This codebase thrives by strictly adhering to core SE principles (TLAs) that also govern massive systems:
+
+  \vspace{0.3cm}
+  \begin{block}{\textbf{DRY} (Don't Repeat Yourself)}
+  The \texttt{Data} object is reused relentlessly via \texttt{clone} for trees, clusters, and Bayes. \textit{In massive systems like Linux or Kubernetes, adhering strictly to DRY is exactly what prevents cascading bug failures across million-line codebases.}
+  \end{block}
+
+  \begin{block}{\textbf{KISS} \& \textbf{YAGNI} (Keep It Simple / You Ain't Gonna Need It)}
+  We didn't import Pandas. We just needed an iterable to split \texttt{Xs} from \texttt{Ys}. \textit{Even tech giants use YAGNI to prevent feature bloat. Our code-lite approach proves that SE experience allows smart shortcuts over defaulting to bloated enterprise frameworks.}
+  \end{block}
+
+  \begin{block}{\textbf{SRP} (Single Responsibility Principle)}
+  \texttt{Data} strictly stores rows. \texttt{Cols} strictly parses schemas. They do not overlap. \textit{Microservice architectures at companies like Netflix or Amazon are essentially SRP scaled to the cloud—each service does exactly one thing well.}
+  \end{block}
+\end{frame}
+
+% ==========================================
+% SLIDE 6: AI Notes
+% ==========================================
+\begin{frame}{6. AI Notes: Active Learning \& Geometry}
+  \vspace{0.3cm}
+  \textbf{Why split \texttt{xs} and \texttt{ys}?} \\
+  Because the dataset lives in two geometric spaces simultaneously:
+  \begin{itemize}
+      \item \textbf{Feature Space (\texttt{xs}):} Independent variables. Used for clustering and measuring distance.
+      \item \textbf{Objective Space (\texttt{ys}):} Dependent variables. Used to evaluate "fitness."
+  \end{itemize}
+
+  \vspace{0.4cm}
+  \textbf{AI Tip: Active Learning \& Sparsity} \\
+  \texttt{ezr} is an active learner. We get the absolute best results when learners are allowed to \textit{pick their own data}. By focusing only on the most informative examples (guided by our \texttt{ys}), we can dodge noise, ignore superfluous signals, and learn optimal configurations from vastly less data.
+\end{frame}
+

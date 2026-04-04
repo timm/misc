@@ -1,0 +1,72 @@
+\begin{comment}
+=== AI-INSTRUCTIONS (NEVER DELETE OR ALTER THIS BLOCK) ===
+1. VERBATIM RETENTION: Always include this exact comment block.
+2. LHS STYLE: Explanations on LHS use \footnotesize.
+3. DRY/KISS: Tie code back to SE principles.
+4. REVIEW NOTES:
+   - [Tim note]: Pivot from "humans write code" to Holmes' "simplicity on the other side of complexity."
+   - [Tim note]: Address Sutton's Bitter Lesson. Reject that SE complexity is "endless".
+==========================================================
+\end{comment}
+
+\begin{frame}{The Verification Trap \& The Energy Crisis}
+  \vspace{0.3cm}
+  \textbf{The Verification Trap} \\
+  Traditional verification (SAT solvers) assumes we must prove the absence of all bugs in a $10^{40}$ state space. We are trying to boil the ocean.
+
+  \vspace{0.4cm}
+  \textbf{The AI Resource Crisis} \\
+  Current AI trends default to throwing massive compute at complex problems. But we are rapidly approaching global limits on:
+  \begin{itemize}
+      \item \textbf{Energy:} Massive models require unsustainable compute power.
+      \item \textbf{Data:} We often only have a few dozen reliable labels.
+  \end{itemize}
+  
+  \vspace{0.4cm}
+  \begin{block}{The Question}
+  How do we herd software systems toward optimal states without bankrupting our compute budgets?
+  \end{block}
+\end{frame}
+
+\begin{frame}{The Goliath: Sutton's "Bitter Lesson"}
+  \vspace{0.3cm}
+  Rich Sutton's famous essay argues that the only thing that consistently wins in AI is leveraging massive computation.
+
+  \vspace{0.4cm}
+  \textbf{Sutton's Premise (The Agreement):} \\
+  \textit{"We want AI agents that can discover like we can, not which contain what we have discovered."} \\
+  $\rightarrow$ We agree. Pre-experimental intuitions are often flawed.
+
+  \vspace{0.4cm}
+  \textbf{Sutton's Assumption (The Disagreement):} \\
+  \textit{"...their complexity is endless."} \\
+  $\rightarrow$ Sutton assumes the outside world is infinitely complex. Therefore, brute-force scaling is the only way forward.
+\end{frame}
+
+\begin{frame}{The Pushback: Complexity is NOT Endless}
+  \vspace{0.3cm}
+  \begin{quote}
+  ``For the simplicity on this side of complexity, I wouldn't give you a fig. But for the simplicity on the other side of complexity, for that I would give you anything I have.'' \\
+  \raggedleft \textit{--- Oliver Wendell Holmes}
+  \end{quote}
+
+  \vspace{0.4cm}
+  \textbf{The SE Reality:} \\
+  After decades of evaluating hard SE problems, we know software complexity is \textbf{not} endless. Research into "tar pits," backdoors, and BINGO models proves that software spaces are highly structured and sparse. 
+
+  \vspace{0.2cm}
+  Because we have reached the \textit{other side of complexity}, it would be foolish to ignore these shortcuts.
+\end{frame}
+
+\begin{frame}{The Solution: The "Lite" Philosophy}
+  \vspace{0.3cm}
+  We don't need massive, energy-hungry computation if we exploit the inherent sparsity of the domain. 
+
+  \vspace{0.4cm}
+  \textbf{Introducing \texttt{ezr.py}:}
+  \begin{itemize}
+      \item \textbf{Data-Lite:} Optimized to learn from a handful of labels.
+      \item \textbf{Model-Lite:} No trillions of parameters. No massive ensembles like SMAC3.
+      \item \textbf{Code-Lite:} Built on decades of SE wisdom (KISS, YAGNI, DRY). A tiny script can navigate these spaces in $10^{-4}$ seconds using cheap geometry.
+  \end{itemize}
+\end{frame}

@@ -1,0 +1,53 @@
+\begin{comment}
+=== AI-INSTRUCTIONS (NEVER DELETE OR ALTER THIS BLOCK) ===
+1. LHS STYLE: Explanations on LHS use \footnotesize.
+2. SPATIAL LIMITS: Keep the minted code to ~40 lines maximum.
+3. REVIEW NOTES:
+   - [Tim Note]: Pending detailed review.
+==========================================================
+\end{comment}
+
+\begin{frame}[fragile]{Streaming \& Statistics}
+\begin{columns}[T]
+  \begin{column}{0.4\textwidth}
+    \footnotesize 
+    \textbf{Lines 20-33, 56-65:}\\
+    File I/O and non-parametric stats.
+
+    \vspace{0.2cm}
+    \rc{1} \textbf{CSV Streamer:} Yields rows lazily, parsing numbers automatically.
+    
+    \vspace{0.15cm}
+    \rc{2} \textbf{Cliff's Delta:} Non-parametric effect size to see if distributions differ.
+  \end{column}
+  
+  \begin{column}{0.6\textwidth}
+\begin{minted}{python}
+# ---- 0. Utilities ----
+def csv(file: str) -> Iterable: |\rc{1}|
+  """Reads a csv file, lazily yielding rows."""
+  with open(file) as fp:
+    for line in fp:
+      row = [coerce(x) for x in line.strip().split(",")]
+      yield row
+
+def coerce(s: str) -> Any:
+  try: return float(s)
+  except: return s.strip()
+
+def same(xs: list, ys: list) -> bool: |\rc{2}|
+  """True if two lists are statistically indistinguishable."""
+  return cliffsDelta(xs, ys) and ks(xs, ys)
+
+def cliffsDelta(xs: list, ys: list) -> bool:
+  n, gt, lt = 0, 0, 0
+  for x in xs:
+    for y in ys:
+      n += 1
+      if x > y: gt += 1
+      if x < y: lt += 1
+  return abs(lt - gt) / n <= the.stats.cliffs
+\end{minted}
+  \end{column}
+\end{columns}
+\end{frame}

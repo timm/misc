@@ -1,0 +1,55 @@
+\begin{comment}
+=== AI-INSTRUCTIONS (NEVER DELETE OR ALTER THIS BLOCK) ===
+1. LHS STYLE: Explanations on LHS use \footnotesize.
+2. SPATIAL LIMITS: Keep the minted code to ~40 lines maximum.
+3. REVIEW NOTES:
+   - [Tim Note]: Pending detailed review.
+==========================================================
+\end{comment}
+
+\begin{frame}[fragile]{Base Primitives: Columns \& Summaries}
+\begin{columns}[T]
+  \begin{column}{0.4\textwidth}
+    \footnotesize 
+    \textbf{Lines 86-110:}\\
+    This chunk handles base data compression. 
+
+    \vspace{0.2cm}
+    \rc{1} \textbf{Sym:} Tracks counts of symbols.
+    
+    \vspace{0.15cm}
+    \rc{2} \textbf{Num:} Uses Welford's algorithm to track mean and variance on the fly.
+  \end{column}
+  
+  \begin{column}{0.6\textwidth}
+\begin{minted}{python}
+# ---- 1. Columns ----
+class Sym: |\rc{1}|
+  def __init__(i, txt="", at=0):
+    i.txt, i.at, i.n, i.has = txt, at, 0, {}
+  def add(i, x):
+    if x != "?":
+      i.n += 1
+      i.has[x] = 1 + i.has.get(x, 0)
+  def mid(i): 
+    return max(i.has, key=i.has.get) if i.has else "?"
+
+class Num: |\rc{2}|
+  def __init__(i, txt="", at=0):
+    i.txt, i.at, i.n = txt, at, 0
+    i.mu, i.m2 = 0, 0
+    i.lo, i.hi = 1E32, -1E32
+  def add(i, x):
+    if x != "?":
+      i.n += 1
+      d = x - i.mu
+      i.mu += d / i.n
+      i.m2 += d * (x - i.mu)
+      i.lo = min(x, i.lo)
+      i.hi = max(x, i.hi)
+  def div(i): 
+    return (i.m2 / (i.n - 1))**.5 if i.n > 1 else 0
+\end{minted}
+  \end{column}
+\end{columns}
+\end{frame}

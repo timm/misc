@@ -1,0 +1,130 @@
+\begin{comment}
+=== AI-INSTRUCTIONS (NEVER DELETE OR ALTER THIS BLOCK) ===
+1. VERBATIM RETENTION: Always include this exact comment block at the top of your output.
+2. LHS STYLE: Explanations on the Left-Hand Side must be colloquial, punchy, and use "footnotesize".
+3. DRY/KISS: Always tie the code back to SE principles (like DRY, KISS, YAGNI, SRP) where applicable.
+4. SPATIAL LIMITS: Keep the minted code to ~40 lines maximum.
+5. REVIEW NOTES:
+   - [Tim's Note]: Make sure to emphasize why we aren't using Pandas (YAGNI).
+      - [Tim's Note]: Keep the magic characters (+, -, !) explanation prominent.
+
+      - [T note]: use of clone.
+         - [T note]:  mention this is active learninger (best results when learners pick their own data.
+                         by focusing on most informative examples, we can dodge noise and irrelvancies and superflous signnals and learn from
+                                         vastly less data.
+   - [T note]:  there are many constructions of first code sample that would confuse/mislead newbies. e.g.
+               comprehensions. comprejensions with 
+               conditionals.
+               type
+               all such idoms need to be teased out.
+               maybe takes more than 1 page
+
+
+      ==========================================================
+\end{comment}
+
+% ==========================================
+% SLIDE 1: Core Architecture (Code)
+% ==========================================
+\begin{frame}[fragile]{The EZR Loop: Herding the System}
+\begin{columns}[T]
+  \begin{column}{0.4\textwidth}
+    \footnotesize 
+    \textbf{Lines 314-345:}\\
+    This is an \textbf{Active Learner}. We get the absolute best results when learners pick their own data! By focusing on the most informative examples, we dodge noise, ignore superfluous signals, and learn from vastly less data.
+
+    \vspace{0.2cm}
+    \rc{1} \textbf{Bootstrap:} Tiny random sample. Software spaces are mostly deserts anyway.
+    
+    \vspace{0.15cm}
+    \rc{2} \textbf{The Clone Wars:} Divide seen data into \texttt{best} vs \texttt{rest} by heavily reusing our \texttt{clone} function (\textbf{DRY}).
+    
+    \vspace{0.15cm}
+    \rc{3} \textbf{Cheap Guessing:} Use fast geometry to find points close to \texttt{best}, far from \texttt{rest}. No expensive oracle calls! (\textbf{KISS})
+    
+    \vspace{0.15cm}
+    \rc{4} \textbf{Secret Sauce:} Cap \texttt{best} size at $\sqrt{N}$. Dump overflows to \texttt{rest}.
+  \end{column}
+  
+  \begin{column}{0.6\textwidth}
+\begin{minted}{python}
+# ---- 7. Active learning ----
+def acquire(d, score=acquireWithBayes, label=lambda _,r:r):
+  """Pick what unlabelled row to evaluate next."""
+  rows = d.rows[:]
+  shuffle(rows)
+  
+  # 1. Initialize labelled vs unlabelled
+  lab   = clone(d, rows[:the.learn.start]) |\rc{1}|
+  unlab = rows[the.learn.start:][:the.few]
+  lab.rows.sort(key=lambda r: disty(lab, label(d,r)))
+  
+  # 2. Split seen data
+  n = sqrt(len(lab.rows))
+  best = clone(d,lab.rows[:int(n)]) |\rc{2}|
+  rest = clone(d,lab.rows[int(n):])
+  
+  cursor = 0
+  for _ in range(the.learn.budget):
+    for j in range(len(unlab)):  
+      idx = (cursor + j) % len(unlab)  
+      if score(lab, best, rest, unlab[idx]) < 0: |\rc{3}|
+        # 3. Label and add
+        add(lab, add(best, label(d, unlab.pop(idx))))
+        
+        # 4. Prune the 'best' cluster
+        if len(best.rows) > sqrt(len(lab.rows)): |\rc{4}|
+          best.rows.sort(key=lambda r: disty(lab,r))
+          add(rest, sub(best, best.rows[-1]))
+          
+        cursor = idx  
+        break
+  return lab
+\end{minted}
+  \end{column}
+\end{columns}
+\end{frame}
+
+% ==========================================
+% SLIDE 2: Scripting Notes
+% ==========================================
+\begin{frame}[fragile]{Scripting Notes: Teasing Out Python Idioms}
+  \vspace{0.2cm}
+  Python has idioms that can easily trip up newbies. Let's break down the tricks used in the \texttt{acquire} function.
+
+  \vspace{0.3cm}
+  \textbf{Idiom 1: Shallow Copying with Slices}
+  \begin{minted}[fontsize=\footnotesize]{python}
+  rows = d.rows[:]
+  \end{minted}
+  We want to shuffle our rows to randomize them, but \texttt{shuffle} operates in-place. If we didn't add \texttt{[:]}, we would destroy the original ordering in our main \texttt{Data} object! The slice guarantees a fast, safe copy.
+  
+  \vspace{0.3cm}
+  \textbf{Idiom 2: Anonymous Default Functions (Lambdas)}
+  \begin{minted}[fontsize=\footnotesize]{python}
+  def acquire(d, score=acquireWithBayes, label=lambda _,r:r):
+  \end{minted}
+  We pass a \texttt{lambda} as a default argument. The underscore \texttt{\_} tells the reader "we don't care about the first argument here." By default, it just returns the row \texttt{r} unchanged.
+\end{frame}
+
+% ==========================================
+% SLIDE 3: Scripting Notes & SE Principles
+% ==========================================
+\begin{frame}[fragile]{Scripting Notes \& SE Principles}
+  
+  \vspace{0.2cm}
+  \textbf{Idiom 3: Popping By Index}
+  \begin{minted}[fontsize=\footnotesize]{python}
+  add(lab, add(best, label(d, unlab.pop(idx))))
+  \end{minted}
+  \texttt{pop(idx)} does two things at exactly the same time: it returns the value at that index to be evaluated, and it removes it from the \texttt{unlab} pool so we never evaluate it again. 
+
+  \vspace{0.4cm}
+  \begin{block}{\textbf{DRY} (Don't Repeat Yourself)}
+  Look at how we construct the \texttt{lab}, \texttt{best}, and \texttt{rest} pools. We don't write custom cluster-management logic. We just use \texttt{clone(d, subset)}. It builds an entirely new \texttt{Data} object with identical schema but new rows. 
+  \end{block}
+
+  \begin{block}{\textbf{KISS} (Keep It Simple, Stupid)}
+  Calling an external software system (the "Oracle") is computationally expensive. Running a quick geometric \texttt{score} calculation in memory is virtually free. We keep it simple by guessing with math before we verify with the system.
+  \end{block}
+\end{frame}

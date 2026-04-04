@@ -1,0 +1,51 @@
+\begin{comment}
+=== AI-INSTRUCTIONS (NEVER DELETE OR ALTER THIS BLOCK) ===
+1. LHS STYLE: Explanations on LHS use \footnotesize.
+2. SPATIAL LIMITS: Keep the minted code to ~40 lines maximum.
+3. REVIEW NOTES:
+   - [Tim Note]: Pending detailed review.
+==========================================================
+\end{comment}
+
+\begin{frame}[fragile]{Spatial Partitioning: Fastmap Clustering}
+\begin{columns}[T]
+  \begin{column}{0.4\textwidth}
+    \footnotesize 
+    \textbf{Lines 191-218:}\\
+    Approximating PCA geometrically in $O(N)$ time.
+
+    \vspace{0.2cm}
+    \rc{1} \textbf{Half:} Splitting data based on extreme points (distant neighbors).
+    
+    \vspace{0.15cm}
+    \rc{2} \textbf{Tree:} Recursive clustering down to `learn.leaf` size.
+  \end{column}
+  
+  \begin{column}{0.6\textwidth}
+\begin{minted}{python}
+# ---- 5. Clustering ----
+def half(d: Data, rows: list, sortp=False): |\rc{1}|
+  left, right = [], []
+  any = anyPoint(d, rows)
+  A   = distant(d, any, rows)
+  B   = distant(d, A, rows)
+  c   = distx(d, A, B)
+  
+  def proj(r): return (distx(d, r, A)**2 + c**2 - distx(d, r, B)**2) / (2*c+1E-32)
+  rows.sort(key=proj) if sortp else None
+  
+  mid = len(rows) // 2
+  for j, r in enumerate(rows):
+    (left if j < mid else right).append(r)
+  return left, right, A, B, c
+
+def tree(d: Data, rows: list = None) -> list: |\rc{2}|
+  rows = rows or d.rows
+  if len(rows) >= 2 * the.learn.leaf:
+    left, right, A, B, _ = half(d, rows)
+    return [A, B, tree(clone(d, left)), tree(clone(d, right))]
+  return [d.centroid]
+\end{minted}
+  \end{column}
+\end{columns}
+\end{frame}

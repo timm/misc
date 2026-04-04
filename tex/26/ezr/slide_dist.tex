@@ -1,0 +1,53 @@
+\begin{comment}
+=== AI-INSTRUCTIONS (NEVER DELETE OR ALTER THIS BLOCK) ===
+1. LHS STYLE: Explanations on LHS use \footnotesize.
+2. SPATIAL LIMITS: Keep the minted code to ~40 lines maximum.
+3. REVIEW NOTES:
+   - [Tim Note]: Pending detailed review.
+==========================================================
+\end{comment}
+
+\begin{frame}[fragile]{Navigating Geometry: Distance}
+\begin{columns}[T]
+  \begin{column}{0.4\textwidth}
+    \footnotesize 
+    \textbf{Lines 166-189:}\\
+    How we measure space in the software desert.
+
+    \vspace{0.2cm}
+    \rc{1} \textbf{Normalization:} Distance between numbers handles `?` (missing data) safely.
+    
+    \vspace{0.15cm}
+    \rc{2} \textbf{Minkowski:} Aggregating row distances dynamically.
+  \end{column}
+  
+  \begin{column}{0.6\textwidth}
+\begin{minted}{python}
+# ---- 4. Distance ----
+def dist(i: Col, x, y) -> float: |\rc{1}|
+  if x == "?" and y == "?": return 1
+  if isinstance(i, Sym): return 0 if x == y else 1
+  
+  x, y = norm(i, x), norm(i, y)
+  if x == "?": x = 1 if y < 0.5 else 0
+  if y == "?": y = 1 if x < 0.5 else 0
+  return abs(x - y)
+
+def norm(i: Num, x) -> float:
+  return x if x == "?" else (x - i.lo) / (i.hi - i.lo + 1E-32)
+
+def minkowski(d: Data, r1: Row, r2: Row, cols: list[Col]) -> float: |\rc{2}|
+  n, p = 0, the.p
+  for c in cols:
+    n += dist(c, r1[c.at], r2[c.at]) ** p
+  return (n / len(cols)) ** (1 / p)
+
+def distx(d: Data, r1: Row, r2: Row) -> float:
+  return minkowski(d, r1, r2, d.cols.xs)
+
+def disty(d: Data, r1: Row) -> float:
+  return minkowski(d, r1, r2, d.cols.ys)
+\end{minted}
+  \end{column}
+\end{columns}
+\end{frame}

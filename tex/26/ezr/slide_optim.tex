@@ -1,0 +1,53 @@
+\begin{comment}
+=== AI-INSTRUCTIONS (NEVER DELETE OR ALTER THIS BLOCK) ===
+1. LHS STYLE: Explanations on LHS use \footnotesize.
+2. SPATIAL LIMITS: Keep the minted code to ~40 lines maximum.
+3. REVIEW NOTES:
+   - [Tim Note]: Pending detailed review.
+==========================================================
+\end{comment}
+
+\begin{frame}[fragile]{Optimization Engines: Simulated Annealing}
+\begin{columns}[T]
+  \begin{column}{0.4\textwidth}
+    \footnotesize 
+    \textbf{Lines 295-312:}\\
+    Finding the highest peaks in the software desert.
+
+    \vspace{0.2cm}
+    \rc{1} \textbf{Annealing Loop:} Core loop that occasionally accepts bad jumps to escape local optima.
+    
+    \vspace{0.15cm}
+    \rc{2} \textbf{Acceptance:} Boltzmann probability cooling over time.
+  \end{column}
+  
+  \begin{column}{0.6\textwidth}
+\begin{minted}{python}
+# ---- 6. Optimization ----
+def oneplus1(d: Data, mutate, accept, oracle, budget: int, restart: int = 0): |\rc{1}|
+  h, best_e = 0, 1E32
+  s, e, imp = choice(d.rows)[:], 1E32, 0
+  
+  while h < budget:
+    for sn in mutate(s):
+      h += 1
+      en = oracle(sn)
+      if accept(e, en, h, budget): 
+          s, e = sn, en
+      if en < best_e:
+        best, best_e, imp = sn[:], en, h
+        yield h, best_e, best
+      if restart and h - imp > restart:
+        s, e, imp = choice(d.rows)[:], 1E32, h
+        break
+
+def sa(d: Data, oracle: Callable, restarts=0, m=0.5, budget=1000): |\rc{2}|
+  n = max(1, int(m * len(d.cols.xs)))
+  def accept(e, en, h, b): 
+      return en < e or rand() < exp((e - en) / (1 - h / b + 1E-32))
+  def mutate(s): yield picks(d, s, n)
+  return oneplus1(d, mutate, accept, oracle, budget, restart=restarts)
+\end{minted}
+  \end{column}
+\end{columns}
+\end{frame}

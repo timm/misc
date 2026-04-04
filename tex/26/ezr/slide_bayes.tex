@@ -1,0 +1,54 @@
+\begin{comment}
+=== AI-INSTRUCTIONS (NEVER DELETE OR ALTER THIS BLOCK) ===
+1. LHS STYLE: Explanations on LHS use \footnotesize.
+2. SPATIAL LIMITS: Keep the minted code to ~40 lines maximum.
+3. REVIEW NOTES:
+   - [Tim Note]: Pending detailed review.
+==========================================================
+\end{comment}
+
+\begin{frame}[fragile]{Probabilistic Reasoning: Naive Bayes}
+\begin{columns}[T]
+  \begin{column}{0.4\textwidth}
+    \footnotesize 
+    \textbf{Lines 134-142, 230-244:}\\
+    Laplace-smoothed probability estimation.
+
+    \vspace{0.2cm}
+    \rc{1} \textbf{Likelihood:} Estimating the probability of `x` belonging to a column.
+    
+    \vspace{0.15cm}
+    \rc{2} \textbf{Classifier:} Comparing probabilities across different hypotheses.
+  \end{column}
+  
+  \begin{column}{0.6\textwidth}
+\begin{minted}{python}
+# ---- 3. Bayes ----
+def like(i: Col, x, prior: float) -> float: |\rc{1}|
+  if isinstance(i, Sym):
+    return (i.has.get(x, 0) + the.bayes.m * prior) / (i.n + the.bayes.m)
+  v = i.div()
+  if v == 0: return 1 if x == i.mu else 0
+  nom = exp(-.5 * ((x - i.mu) / v)**2)
+  return max(0, nom / (v * 2.5066 + 1E-32))
+
+def classify(d: Data, row: Row) -> str: |\rc{2}|
+  """Return the class with max likelihood for 'row'."""
+  most, out = -1E32, None
+  for k, klass in d.klasses.items():
+    guess = likes(klass, row, len(d.rows), len(d.klasses))
+    if guess > most:
+      most, out = guess, k
+  return out
+
+def likes(d: Data, row: Row, nAll: int, nKlasses: int) -> float:
+  prior = (len(d.rows) + the.bayes.k) / (nAll + the.bayes.k * nKlasses)
+  out = log(prior)
+  for c in d.cols.xs:
+    if row[c.at] != "?":
+      out += log(like(c, row[c.at], prior))
+  return out
+\end{minted}
+  \end{column}
+\end{columns}
+\end{frame}
