@@ -1,15 +1,17 @@
 #!/usr/bin/env julia --compile=min --startup-file=no -O0 
 # ez.jl: incremental Bayes  (c) 2026 Tim Menzies  MIT
-HELP = """
+HELP = """ 
 ez.jl: incremental Bayes  (c) 2026 Tim Menzies  MIT
 
 Options:
-  -k=1      low frequency Bayes smoothing
-  -m=2      low class frequency smoothing
-  -p=2      Minkowski coefficient
-  --decs=2   decimal places
-  --seed=1   random seed
+  -k 1      low frequency Bayes smoothing
+  -m 2      low class frequency smoothing
+  -p 2      Minkowski coefficient
+  --decs 2   decimal places
+  --seed 1   random seed
 """
+import Random
+
 #-- structs ---------------------------------------------------------
 @kwdef mutable struct Col;  at=0; txt=" "; heaven=0; n=0 end
 @kwdef mutable struct Num;  col; mu=0.0; m2=0.0 end
@@ -41,7 +43,7 @@ function make(str)
     n !== nothing && return n  end
   str  end
 
-the= Dict(Symbol(m[1]) => make(m[2]) for m in eachmatch(r"(\w+)=(\S+)",HELP))
+the= Dict(Symbol(m[1]) => make(m[2]) for m in eachmatch(r"-(\w+)\s+(\S+)",HELP))
 
 function csv(filename::String, fun)
   open(filename) do s
@@ -169,9 +171,9 @@ function like(sym::Sym, val, prior)
 #-- demos -----------------------------------------------------------
 
 eg=Dict()
-eg["-h"](_)      -> println(HELP)
-eg["--the"](_)   -> println(the)
-eg["--all"](val) -> [run(fun,val) for (k,fun) in eg if k !== "--all"]
+eg["-h"]    = _     -> println(HELP)
+eg["--the"] = _     -> println(the)
+eg["--all"] = (val) -> [run(fun,val) for (k,fun) in eg if k !== "--all"]
 
 eg["--csv"] = function(file)
   rows = []
@@ -203,19 +205,17 @@ eg["--bayes"] = function(file)
     println(say(round(likes(data,row,data.n,1) * 100) / 100))  end  end
 
 #-- main ------------------------------------------------------------
-run(fun,val) -> (Random.seed!(the[:seed]); fun(val))
+function run(fun, val) Random.seed!(the[:seed]); fun(val) end
 
 function cli(the, args)
-  while !isempty(args) # dot pop.iterate over all
-    k = popfirst!(args)
-    if haskey(eg, k)
-      run(eg[l],
-      Random.seed!(the.seed) 
-      eg[k](isempty(args) ? nothing : make(popfirst!(args)))
-    else 
-      s = Symbol(lstrip(k, '-'))
-      if haskey(the, s) 
-        the[s] = make(popfirst!(args)) end end end end
+  i, n = 1, length(args)
+  while i <= n
+    key, s = args[i], Symbol(lstrip(args[i], '-'))
+    if haskey(eg, key)
+      run(eg[key], i < n ? make(args[i + 1]) : nothing); i += 2
+    elseif haskey(the, s) && i < n 
+      the[s] = make(args[i + 1]); i += 2
+    else i += 1 end end end
 
 endswith(PROGRAM_FILE, "ezr.jl") &&  cli(the,ARGS) 
 
