@@ -1,15 +1,17 @@
 #!/usr/bin/env julia --compile=min --startup-file=no -O0 
 # ez.jl: incremental Bayes  (c) 2026 Tim Menzies  MIT
-HELP = """
+HELP = """ 
 ez.jl: incremental Bayes  (c) 2026 Tim Menzies  MIT
 
 Options:
-  -k=1      low frequency Bayes smoothing
-  -m=2      low class frequency smoothing
-  -p=2      Minkowski coefficient
-  --decs=2   decimal places
-  --seed=1   random seed
+  -k 1      low frequency Bayes smoothing
+  -m 2      low class frequency smoothing
+  -p 2      Minkowski coefficient
+  --decs 2   decimal places
+  --seed 1   random seed
 """
+import Random
+
 #-- structs ---------------------------------------------------------
 @kwdef mutable struct Col;  at=0; txt=" "; heaven=0; n=0 end
 @kwdef mutable struct Num;  col; mu=0.0; m2=0.0 end
@@ -17,10 +19,10 @@ Options:
        mutable struct Cols; strs; all; xs; ys end
 @kwdef mutable struct Data; n=0; rows; cols; mids end
 
-Col(i,str)    = Col(i, str, last(str) != '-', 0)
+Col(i,str)    = Col(i, str, (occursin(r"-$",str) ? 0 : 1), 0)
 Num(i,str)    = Num(Col(i,str), 0.0, 0.0)
 Sym(i,str)    = Sym(Col(i,str), Dict())
-newcol(i,str) = (isuppercase(first(str)) ? Num : Sym)(i,str)
+newcol(i,str) = isuppercase(first(str)) ? Num(i,str) : Sym(i,str)
 Data()        = Data(0, [], nothing, nothing)
 
 #-- lib -------------------------------------------------------------
@@ -41,9 +43,9 @@ function make(str)
     n !== nothing && return n  end
   str  end
 
-the= Dict(Symbol(m[1]) => make(m[2]) for m in eachmatch(r"(\w+)=(\S+)",HELP))
+the=Dict(Symbol(m[1]) => make(m[2]) for m in eachmatch(r"-+(\w+)\s+(\S+)",HELP))
 
-function csv(filename::String, fun)
+function csv(filename, fun)
   open(filename) do s
     for str in eachline(s)
       (row = line2row(str)) !== nothing && fun(row)  end end  end
@@ -58,7 +60,13 @@ eachn(rows, n=30) = [row for (i,row) in enumerate(rows) if (i-1) % n == 0]
 
 #-- cols ------------------------------------------------------------
 function cols!(strs)
+  print(10)
+  print(strs[1],newcol(1,strs[1]))
+  for (n,str) in enumerate(strs)
+    println(">>",n,str,newcol(n-1,str)) end
+  return print(11)
   all  = [newcol(n-1, str) for (n,str) in enumerate(strs)]
+  print(20)
   endc(col) = last(col.col.txt)
   Cols(strs, all,
       [col for col in all if !in(endc(col), "-+!X")],
@@ -92,12 +100,16 @@ function add!(cols::Cols, row, w=1.0)
   [add!(col, cell(col,row)) for col in cols.all] end
 
 function add!(data::Data, row, w=1.0)
-  if data.cols === nothing  data.cols = cols!(row)
+  if data.cols === nothing
+    print(2)
+    data.cols = cols!(row)
+    print(3)
   else
     data.mids  = nothing
     data.n    += w
     add!(data.cols, row, w)
-    if w > 0  push!(data.rows, row) end end
+    if w > 0
+       push!(data.rows, row) end end
     #if w<0 decrement data, sub!(data.cols,row) and remove from data.rows
   row end
 
@@ -169,9 +181,9 @@ function like(sym::Sym, val, prior)
 #-- demos -----------------------------------------------------------
 
 eg=Dict()
-eg["-h"](_)      -> println(HELP)
-eg["--the"](_)   -> println(the)
-eg["--all"](val) -> [run(fun,val) for (k,fun) in eg if k !== "--all"]
+eg["-h"]    = _     -> println(HELP)
+eg["--the"] = _     -> println(the)
+eg["--all"] = (val) -> [run(fun,val) for (k,fun) in eg if k !== "--all"]
 
 eg["--csv"] = function(file)
   rows = []
@@ -203,22 +215,35 @@ eg["--bayes"] = function(file)
     println(say(round(likes(data,row,data.n,1) * 100) / 100))  end  end
 
 #-- main ------------------------------------------------------------
-run(fun,val) -> (Random.seed!(the[:seed]); fun(val))
+function run(fun, val) Random.seed!(the[:seed]); fun(val) end
 
 function cli(the, args)
-  while !isempty(args) # dot pop.iterate over all
-    k = popfirst!(args)
-    if haskey(eg, k)
-      run(eg[l],
-      Random.seed!(the.seed) 
-      eg[k](isempty(args) ? nothing : make(popfirst!(args)))
-    else 
-      s = Symbol(lstrip(k, '-'))
-      if haskey(the, s) 
-        the[s] = make(popfirst!(args)) end end end end
+  i, n = 1, length(args)
+  while i <= n
+    key, s = args[i], Symbol(lstrip(args[i], '-'))
+    if haskey(eg, key)
+      run(eg[key], i < n ? make(args[i + 1]) : nothing); i += 2
+    elseif haskey(the, s) && i < n 
+      the[s] = make(args[i + 1]); i += 2
+    else i += 1 end end end
 
-endswith(PROGRAM_FILE, "ezr.jl") &&  cli(the,ARGS) 
+# function cli(the, args)
+#   i, n = 1, length(args)
+#   while i <= n
+#     key = args[i]
+#     s = Symbol(replace(key, r"^-+" => ""))
+#     if haskey(eg, key)
+#       val = i < n && !startswith(args[i+1], "-") ? make(args[i+1]) : nothing
+#       run(eg[key], val); i += (val === nothing ? 1 : 2)
+#     elseif haskey(the, s) && i < n 
+#       the[s] = make(args[i+1]); i += 2
+#     else i += 1 end end end
 
+# cli(the,ARGS) 
+#--eg["--data"]("/Users/timm/gits/moot/optimize/misc/auto93.csv")
+
+data=Data()
+csv("/Users/timm/gits/moot/optimize/misc/auto93.csv", r -> add!(data,r))
 # if abspath(PROGRAM_FILE)==@__FILE__
 #   Random.seed!(the["seed"]); args=copy(ARGS)
 #   EG=Dict(replace(string(f),"eg_"=>"")=>f
