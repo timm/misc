@@ -1,0 +1,233 @@
+\documentclass[9pt,aspectratio=169]{beamer}
+
+\usetheme{Warsaw}
+\usepackage{lmodern}
+\usepackage[sfdefault,light,lining]{FiraSans}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+
+% --- Style Guide Colors [cite: 1] ---
+\definecolor{LogicBlue}{RGB}{204,0,0}
+\definecolor{InferenceRed}{RGB}{212,55,59}
+\definecolor{linkblue}{HTML}{0066FF}
+\definecolor{LiteRed}{RGB}{248,232,232}
+
+\setbeamercolor{structure}{fg=InferenceRed}
+\setbeamercolor{frametitle}{bg=LogicBlue,fg=white}
+\setbeamercolor{palette primary}{bg=LogicBlue,fg=white}
+\setbeamercolor{palette secondary}{bg=InferenceRed,fg=white}
+\setbeamercolor{block title}{bg=LogicBlue,fg=white}
+\setbeamercolor{block body}{bg=LiteRed,fg=black}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{
+  \hfill
+  \usebeamercolor[fg]{page number in head/foot}
+  \insertframenumber\,/\,\inserttotalframenumber\kern1em
+  \vbox{\vskip0pt}
+}
+
+\title{The Causal Instability Problem}
+\subtitle{An Empirical Audit of 23 Datasets and 4 Generators}
+\author{Tim Menzies \textit{et al.}}
+\institute{prof, cs, \textbf{ncstate}, usa \\ \url{http://timm.fyi}}
+\date{Mar 2025}
+
+\begin{document}
+
+% 1. TITLE SLIDE
+\begin{frame}
+\titlepage
+\end{frame}
+
+% 2. MOTIVATION (The Hype)
+\begin{frame}{Motivation: The Allure of the "Why"}
+\textbf{Claim:} Software Engineering (SE) is tired of correlations; we want \textbf{causes}.
+
+\vspace{3mm}
+\begin{itemize}
+    \item We don't want to know that "Size correlates with Defects."
+    \item We want to know: "If I change this module, will I stop the bugs?"
+    \item Causal Discovery Algorithms (CDAs) promise to find these hidden structures automatically.
+\end{itemize}
+
+\vspace{3mm}
+\footnotesize
+But as the "just throw an LLM at it" phase ends, so must the "just throw a CDA at it" phase. [cite: 3]
+\end{frame}
+
+% 3. THE CORE PROBLEM (The Reality)
+\begin{frame}{The Reality: The Instability Problem}
+\textbf{Claim:} Automatic causal graphs are currently too unstable to trust for industrial SE.
+
+\vspace{3mm}
+\begin{block}{The Definition of Instability}
+Small changes to the input data result in \textbf{large, unpredictable changes} in the resulting graph.
+\end{block}
+
+\vspace{3mm}
+\begin{itemize}
+    \item If the graph changes every time you re-run it, it isn't an "explanation."
+    \item It is just noise masquerading as a diagram.
+\end{itemize}
+\end{frame}
+
+% 4. BACKGROUND: THE TECHNOLOGY
+\begin{frame}{Class Hierarchy: Four Ways to Find a Cause}
+\centering
+\begin{tikzpicture}[
+  box/.style={draw=LogicBlue, rounded corners, thick, fill=LiteRed, minimum width=2.5cm, minimum height=0.8cm},
+  line/.style={draw=LogicBlue, thick}
+]
+\node[box] (cda) at (0,1.5) {Causal Generators};
+\node[box] (pc) at (-4.5,0) {PC (Constraint-based)};
+\node[box] (fci) at (-1.5,0) {FCI (Handles Latents)};
+\node[box] (ges) at (1.5,0) {GES (Score-based)};
+\node[box] (lin) at (4.5,0) {LiNGAM (Functional)};
+
+\draw[line] (cda) -- (pc);
+\draw[line] (cda) -- (fci);
+\draw[line] (cda) -- (ges);
+\draw[line] (cda) -- (lin);
+\end{tikzpicture}
+
+\vspace{5mm}
+\small
+We audited the four most prominent paradigms in causal discovery.
+They all share the same "Unfair Advantage" of automation—and the same flaws in stability. [cite: 7]
+\end{frame}
+
+% 5. EXPERIMENTAL DESIGN: THE CORPUS
+\begin{frame}{The Archive: 23 Datasets across 30 Years}
+\begin{itemize}
+    \item We didn't test on toy data. We used the \textbf{PROMISE} and \textbf{JURECZKO} repositories.
+    \item \textbf{Breadth:} Ant, Camel, JEdit, Lucene, POI, Tomcat, Velocity, and more.
+    \item \textbf{Depth:} Multiple releases per project (e.g., Ant 1.3, 1.4, 1.5, 1.6, 1.7).
+\end{itemize}
+
+\vspace{3mm}
+\begin{block}{Not a green-field project}
+This is a massive audit of how these tools behave on real-world SE evolution. [cite: 11]
+\end{block}
+\end{frame}
+
+% 6. METRIC: HOW WE MEASURE INSTABILITY
+\begin{frame}{The Yardstick: The Jaccard Index}
+\centering
+$J(A,B) = \frac{|E_A \cap E_B|}{|E_A \cup E_B|}$
+
+\vspace{4mm}
+\begin{itemize}
+    \item $J=1.0$: The graphs are identical.
+    \item $J=0.0$: The graphs have zero edges in common.
+    \item \textbf{The Menzies Rule:} If $J$ is low, your "Why Engine" is broken. [cite: 25]
+\end{itemize}
+
+\vspace{3mm}
+\small
+We measured Jaccard across versions, across tools, and across data subsets.
+\end{frame}
+
+% 7. FINDING 1: INTRA-PROJECT (TIME)
+\begin{frame}{Finding 1: The Time Flip}
+\textbf{Question:} Does the "cause" of defects stay the same from Version 1 to Version 2?
+
+\vspace{3mm}
+\begin{itemize}
+    \item \textbf{The Result:} In nearly all cases, over half the edges vanish between releases.
+    \item Median stability across versions: \textbf{Extremely Low}.
+    \item \textbf{The Risk:} A manager fixes a "cause" in Version 1.5 that no longer exists in Version 1.7.
+\end{itemize}
+\end{frame}
+
+% 8. FINDING 2: INTER-PROJECT (DOMAIN)
+\begin{frame}{Finding 2: The Domain Gap}
+\textbf{Question:} If I learn the causal graph for Camel, can I use it for Tomcat?
+
+\vspace{3mm}
+\begin{itemize}
+    \item \textbf{The Result:} Over two-thirds of causal connections differ between projects.
+    \item This suggests causal discovery in SE is \textbf{highly idiosyncratic}.
+    \item Generalization is a dangerous assumption in this landscape.
+\end{itemize}
+\end{frame}
+
+% 9. FINDING 3: THE GENERATOR GAP (TOOLS)
+\begin{frame}{Finding 3: The Tool War}
+\textbf{Claim:} The tool you choose matters more than the data you have.
+
+\vspace{3mm}
+\begin{itemize}
+    \item Median Jaccard between tools (PC vs GES): \textbf{0.25}.
+    \item This means \textbf{75\% of edges} are contested by different algorithms.
+    \item Which tool is "right"? Without a consensus, they might all be wrong.
+\end{itemize}
+\end{frame}
+
+% 10. FINDING 4: PARAMETER SENSITIVITY
+\begin{frame}{Finding 4: The Fragility of Alpha}
+\textbf{Question:} Does changing the significance level $\alpha$ (e.g., 0.01 to 0.05) break the graph?
+
+\vspace{3mm}
+\begin{itemize}
+    \item \textbf{The Result:} Minor tuning adjustments generate radically different causal structures.
+    \item These tools are \textbf{not robust} to standard hyperparameter variations.
+\end{itemize}
+
+\vspace{3mm}
+\begin{block}{Key Design Warning}
+If your "Why" depends on whether $\alpha=0.01$ or $0.05$, you don't have a "Why." [cite: 25]
+\end{block}
+\end{frame}
+
+% 11. FINDING 5: DATA SENSITIVITY (THE 10% TEST)
+\begin{frame}{Finding 5: The 10\% Drop Test}
+\textbf{Question:} If I hide 10\% of the data, does the graph survive?
+
+\vspace{3mm}
+\begin{itemize}
+    \item \textbf{The Result:} Even small deletions of training data cause significant edge shifts.
+    \item This exposes a lack of \textbf{repeatability} and \textbf{traceability}. [cite: 4]
+\end{itemize}
+\end{frame}
+
+% 12. DISCUSSION: WHY IS SE SO HARD?
+\begin{frame}{The Why: Why Do Graphs Fail in SE?}
+\begin{itemize}
+    \item \textbf{Data Sparsity:} SE data is often "fat and short" (many features, few rows). [cite: 9]
+    \item \textbf{Noisy Metrics:} Static code features are proxies, not direct physical laws.
+    \item \textbf{Stochastic Nature:} Software evolution is driven by human choice, not just mathematical necessity. [cite: 37]
+\end{itemize}
+
+\vspace{3mm}
+\small
+We need \textbf{hybrid workflows} that combine these graphs with symbolic checks. [cite: 5, 25]
+\end{frame}
+
+% 13. ROADMAP TO STABILITY
+\begin{frame}{Roadmap: Moving Beyond the "Hype"}
+\begin{enumerate}
+    \item \textbf{Intersection Filters:} Only report edges found by \textit{at least two} different generators.
+    \item \textbf{Stability Audits:} Always run a "10\% drop test" before publishing a graph.
+    \item \textbf{Type-Safe Checks:} Use Z3 to reject causal links that violate known SE constraints. [cite: 14, 25]
+    \item \textbf{Ensemble Causality:} Treat causal discovery as an optimization problem over an ensemble of graphs. [cite: 33]
+\end{enumerate}
+\end{frame}
+
+% 14. CLOSING PITCH
+\begin{frame}{Why Me, Why Now}
+\begin{itemize}
+    \item We have the archive: 23 projects over 30 years. [cite: 35]
+    \item We have the machinery: thousands of GPU hours auditing these generators. [cite: 36]
+    \item \textbf{The Conclusion:} Causal graphs are a powerful \textit{hypothesis generator}, but a dangerous \textit{decision maker}—until we solve the instability problem.
+\end{itemize}
+
+\vspace{4mm}
+\begin{block}{Closing pitch}
+This is the moment to connect causal mining with symbolic safety and stochastic rigor. [cite: 38]
+\end{block}
+\end{frame}
+
+\end{document}
