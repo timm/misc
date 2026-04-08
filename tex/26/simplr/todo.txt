@@ -1,0 +1,14 @@
+all interactive
+
+get the editors working. or at least 2 screens (text editor on one, cli on the other
+
+@of decoratr
+
+@ok test suite.
+
+@cli tool using anncations
+
+
+my doco suite. generate by hand. generate vua claude mincing my comments in nb_lua.pdf
+
+ell (sli config)
