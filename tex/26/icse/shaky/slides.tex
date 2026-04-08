@@ -35,6 +35,17 @@
 \institute{prof, cs, \textbf{ncstate}, usa \\ \url{http://timm.fyi}}
 \date{Mar 2025}
 
+% --- Force QR Code to Top Layer ---
+\addtobeamertemplate{frametitle}{}{
+  \begin{tikzpicture}[remember picture,overlay]
+    \ifnum\insertframenumber>1
+      \node[anchor=north east, xshift=0mm, yshift=2mm] 
+        at (current page.north east) 
+        {\includegraphics[width=20mm]{qrcode_timm.fyi.png}};
+    \fi
+  \end{tikzpicture}
+}
+
 \begin{document}
 
 % 1. TITLE SLIDE
@@ -72,13 +83,16 @@ Small changes to the input data result in \textbf{large, unpredictable changes} 
     \item If the graph changes every time you re-run it, it isn't an "explanation."
     \item It is just noise masquerading as a diagram.
 \end{itemize}
-\end{frame}
 
-% 4. BACKGROUND: THE TECHNOLOGY
-\begin{frame}{Class Hierarchy: Four Ways to Find a Cause}
+\vspace{5mm}
+We audited the four most prominent paradigms in causal discovery.
+They all share the same "Unfair Advantage" of automation—and the same flaws in stability. [cite: 7]
+
+~\\
+
 \centering
 \begin{tikzpicture}[
-  box/.style={draw=LogicBlue, rounded corners, thick, fill=LiteRed, minimum width=2.5cm, minimum height=0.8cm},
+  box/.style={draw=LogicBlue, rounded corners, thick, fill=LiteRed, minimum width=2.2cm, minimum height=0.8cm},
   line/.style={draw=LogicBlue, thick}
 ]
 \node[box] (cda) at (0,1.5) {Causal Generators};
@@ -93,10 +107,6 @@ Small changes to the input data result in \textbf{large, unpredictable changes} 
 \draw[line] (cda) -- (lin);
 \end{tikzpicture}
 
-\vspace{5mm}
-\small
-We audited the four most prominent paradigms in causal discovery.
-They all share the same "Unfair Advantage" of automation—and the same flaws in stability. [cite: 7]
 \end{frame}
 
 % 5. EXPERIMENTAL DESIGN: THE CORPUS
@@ -109,26 +119,37 @@ They all share the same "Unfair Advantage" of automation—and the same flaws in
 
 \vspace{3mm}
 \begin{block}{Not a green-field project}
-This is a massive audit of how these tools behave on real-world SE evolution. [cite: 11]
+This is a audit of how these tools behave on real-world SE evolution. [cite: 11]
 \end{block}
 \end{frame}
 
 % 6. METRIC: HOW WE MEASURE INSTABILITY
 \begin{frame}{The Yardstick: The Jaccard Index}
-\centering
-$J(A,B) = \frac{|E_A \cap E_B|}{|E_A \cup E_B|}$
 
-\vspace{4mm}
+  \vspace{3mm}
 \begin{itemize}
+  \item $J(A,B) = \frac{|E_A \cap E_B|}{|E_A \cup E_B|}$
     \item $J=1.0$: The graphs are identical.
     \item $J=0.0$: The graphs have zero edges in common.
-    \item \textbf{The Menzies Rule:} If $J$ is low, your "Why Engine" is broken. [cite: 25]
+    \item \textbf{Rule:} If $J$ is low, your "Why Engine" is broken. [cite: 25]
 \end{itemize}
 
-\vspace{3mm}
 \small
-We measured Jaccard across versions, across tools, and across data subsets.
+We measured Jaccard across versions, across tools, and across data subsets. e.g. v5,v7:
+
+      \begin{minipage}{2.1in}
+  \includegraphics[height=4.5cm]{one.png}
+\end{minipage}\begin{minipage}{2.2in}
+  \includegraphics[height=4.5cm]{two.png}
+\end{minipage}\begin{minipage}{2.2in}
+  \includegraphics[height=4cm]{three.png}
+\end{minipage}
+
 \end{frame}
+
+
+
+
 
 % 7. FINDING 1: INTRA-PROJECT (TIME)
 \begin{frame}{Finding 1: The Time Flip}
@@ -140,6 +161,11 @@ We measured Jaccard across versions, across tools, and across data subsets.
     \item Median stability across versions: \textbf{Extremely Low}.
     \item \textbf{The Risk:} A manager fixes a "cause" in Version 1.5 that no longer exists in Version 1.7.
 \end{itemize}
+
+ \begin{minipage}{2in}
+  \includegraphics[height=5cm]{rq1.png}
+  \end{minipage}
+
 \end{frame}
 
 % 8. FINDING 2: INTER-PROJECT (DOMAIN)
@@ -152,22 +178,16 @@ We measured Jaccard across versions, across tools, and across data subsets.
     \item This suggests causal discovery in SE is \textbf{highly idiosyncratic}.
     \item Generalization is a dangerous assumption in this landscape.
 \end{itemize}
+
+~\\
+
+ \begin{minipage}{2in}
+  \includegraphics[height=3.5cm]{cross1.png}
+  \end{minipage}
+
 \end{frame}
-
-% 9. FINDING 3: THE GENERATOR GAP (TOOLS)
-\begin{frame}{Finding 3: The Tool War}
-\textbf{Claim:} The tool you choose matters more than the data you have.
-
-\vspace{3mm}
-\begin{itemize}
-    \item Median Jaccard between tools (PC vs GES): \textbf{0.25}.
-    \item This means \textbf{75\% of edges} are contested by different algorithms.
-    \item Which tool is "right"? Without a consensus, they might all be wrong.
-\end{itemize}
-\end{frame}
-
 % 10. FINDING 4: PARAMETER SENSITIVITY
-\begin{frame}{Finding 4: The Fragility of Alpha}
+\begin{frame}{Finding 3: The Fragility of Alpha}
 \textbf{Question:} Does changing the significance level $\alpha$ (e.g., 0.01 to 0.05) break the graph?
 
 \vspace{3mm}
@@ -176,6 +196,12 @@ We measured Jaccard across versions, across tools, and across data subsets.
     \item These tools are \textbf{not robust} to standard hyperparameter variations.
 \end{itemize}
 
+
+ \begin{minipage}{2in}
+  \includegraphics[height=5cm]{alpha.png}
+  \end{minipage}
+
+
 \vspace{3mm}
 \begin{block}{Key Design Warning}
 If your "Why" depends on whether $\alpha=0.01$ or $0.05$, you don't have a "Why." [cite: 25]
@@ -183,14 +209,17 @@ If your "Why" depends on whether $\alpha=0.01$ or $0.05$, you don't have a "Why.
 \end{frame}
 
 % 11. FINDING 5: DATA SENSITIVITY (THE 10% TEST)
-\begin{frame}{Finding 5: The 10\% Drop Test}
-\textbf{Question:} If I hide 10\% of the data, does the graph survive?
+\begin{frame}{Finding 5: Other Data? Other Causal Generators?}
+ \begin{minipage}{2in}
+  \includegraphics[height=2cm]{rqs.png}
+  \end{minipage}
 
-\vspace{3mm}
-\begin{itemize}
-    \item \textbf{The Result:} Even small deletions of training data cause significant edge shifts.
-    \item This exposes a lack of \textbf{repeatability} and \textbf{traceability}. [cite: 4]
-\end{itemize}
+  ~\\~\\
+
+ \begin{minipage}{2in}
+  \includegraphics[height=5cm]{rqs1.png}
+  \end{minipage}
+
 \end{frame}
 
 % 12. DISCUSSION: WHY IS SE SO HARD?
