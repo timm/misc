@@ -14,9 +14,7 @@ function keys(t,        i,u)
   return function () 
     if i < #u then 
       i = i+1
-      return u[i], t[u[i]] end end 
-end 
-
+      return u[i], t[u[i]] end end end 
 
 function oo(t,pre,    indent,fmt)
   pre    = pre or ""
@@ -30,8 +28,7 @@ function oo(t,pre,    indent,fmt)
             print(fmt)
             oo(v, pre, indent+1)
           else
-            print(fmt .. tostring(v)) end end end end end
-end
+            print(fmt .. tostring(v)) end end end end end end
 
 function copy(obj,   old,new)
   if type(obj) ~= 'table' then return obj end
@@ -39,7 +36,4 @@ function copy(obj,   old,new)
   old, new = old or {}, {}
   old[obj] = new
   for k, v in pairs(obj) do new[copy(k, old)]=copy(v, old) end
-  return setmetatable(new, getmetatable(obj))
-end
-
-
+  return setmetatable(new, getmetatable(obj)) end
