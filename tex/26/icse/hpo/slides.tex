@@ -1,0 +1,215 @@
+\documentclass[9pt,aspectratio=169]{beamer}
+
+\PassOptionsToPackage{table}{xcolor}
+
+\usetheme{Warsaw}
+%\usepackage{lmodern}
+\usepackage[sfdefault,light,lining]{FiraSans}
+\usepackage{graphicx}
+
+\usepackage{amsmath,amssymb,booktabs,tikz}
+\usetikzlibrary{positioning,arrows.meta}
+
+\usepackage{tabularx}
+
+
+\definecolor{headergray}{gray}{0.75}
+\definecolor{rowgray}{gray}{0.92}
+
+% --- Style Guide Colors [cite: 1] ---
+\definecolor{LogicBlue}{RGB}{204,0,0}
+\definecolor{InferenceRed}{RGB}{212,55,59}
+\definecolor{LiteRed}{RGB}{248,232,232}
+
+\setbeamercolor{structure}{fg=InferenceRed}
+\setbeamercolor{frametitle}{bg=LogicBlue,fg=white}
+\setbeamercolor{palette primary}{bg=LogicBlue,fg=white}
+\setbeamercolor{palette secondary}{bg=InferenceRed,fg=white}
+\setbeamercolor{block title}{bg=LogicBlue,fg=white}
+\setbeamercolor{block body}{bg=LiteRed,fg=black}
+\setbeamertemplate{navigation symbols}{}
+
+% --- QR Code Logic [cite: 2, 3] ---
+\addtobeamertemplate{frametitle}{}{
+  \begin{tikzpicture}[remember picture,overlay]
+    \ifnum\insertframenumber>1
+      \node[anchor=north east, xshift=0mm, yshift=2mm] 
+        at (current page.north east) 
+        {\includegraphics[width=20mm]{qrcode.png}};
+    \fi
+  \end{tikzpicture}
+}
+
+\title{Is Hyper-Parameter Optimization Different for SE?}
+\subtitle{Yes. And here's the math to prove it.}
+\author{Rahul Yedida (NCSU) \and Tim Menzies (NCSU)}
+\institute{NC State University \cite{intro}}
+\date{2025}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Motivation: Off-the-Shelf AI for SE Data}
+
+\begin{minipage}{0.66\textwidth}
+    \includegraphics[height=1.5in]{tree.pdf}
+\end{minipage}
+\begin{minipage}{0.28\textwidth}
+    \vspace{0pt} % ensures vertical alignment
+    \raggedright
+  \footnotesize    [Tantithamthavorn et al., ICSE'16]
+\end{minipage}
+
+
+\textbf{Claim:} Most SE research uses AI defaults without audit.
+\vspace{3mm}
+\begin{itemize}
+\item HPO = hyperparameter optimization. Black art of selecting tuning parameters.
+\item HPO is applied to defect prediction and issue triage.
+\item Current tools (BOHB, DEHB) target general AI data.
+\item Question: Is SE data different? Does it need different kinds of learning?
+\end{itemize}
+\end{frame}
+\begin{frame}[plain]
+    \begin{tikzpicture}[remember picture,overlay]
+        \node[at=(current page.center)] {
+            \includegraphics[height=\paperheight]{rash.png}
+        };
+    \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{The Observation: SE Loss Landscapes are Smoother}
+\textbf{Claim:} SE model loss landscapes are exploitably smooth.
+~\\
+  \includegraphics[height=1.5in]{hpo.pdf}
+
+\vspace{1mm}
+\begin{block}{What ``smooth'' means (formally)}
+$f$ is $\beta$-smooth if: $\frac{\|\nabla f(y) - \nabla f(x)\|}{\|y - x\|} 
+\leq \beta$.
+\end{block}
+\vspace{3mm}
+\begin{itemize}
+\item SE data: mean $\beta$-smoothness $\approx$ 2.
+\item Standard AI (UCI) data: mean $\beta$-smoothness $\approx$ 5.
+\end{itemize}
+
+
+\end{frame}
+\begin{frame}[plain]
+    \begin{tikzpicture}[remember picture,overlay]
+        \node[at=(current page.center)] {
+            \includegraphics[height=.8\paperheight]{senonse.pdf}
+        };
+    \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Why SE Data is Smooth: The Naturalness Argument}
+\begin{itemize}
+\item Human code is surprisingly repetitive [Hindle et al. ICSE'12]
+\item Maintainability forces repeated use of idioms and patterns.
+\item Repetition $\Rightarrow$ minimal variation between clusters.
+\item Minimal variation $\Rightarrow$ flat loss landscapes.
+\end{itemize}
+
+~\\
+
+  \begin{minipage}[t]{2in}
+\begin{block}{The core insight}
+Maintainable code produces data with flat loss landscapes.
+\end{block}\end{minipage}\hspace{1in}\begin{minipage}[t]{2in}
+  \begin{block}{Effects of HPO}
+    Smoothing the landscape.
+  \end{block}\end{minipage}
+\end{frame}
+
+\begin{frame}{Hyper-parameter Pre-processing (Not an Exhaustive List)}
+\small
+
+\begin{block}{Basic Pre-processors}
+\begin{description}
+\item[Normalization:] $x \rightarrow \frac{x}{\|x\|}$
+\item[Standardization:] $x \rightarrow \frac{x - \mu_x}{\sigma_x}$
+\item[Min-max scaling:] $x \rightarrow \frac{x - \min x}{\max x - \min x}$
+\item[Max-abs scaling:] $x \rightarrow \frac{x}{\max |x|}$
+\item[Robust scaling:] $x \rightarrow \frac{x - P_{50}(x)}{P_{75}(x) - P_{25}(x)}$
+\end{description}
+\end{block}
+
+\vspace{2mm}
+
+\begin{block}{Advanced / Learned Pre-processors}
+\begin{description}
+\item[SMOTE:] Generates synthetic minority samples via interpolation between neighbors.
+\item[Fuzzy sampling:] Allocates $\frac{1}{2^i}$ samples across layers; helps rebalance classes.
+\item[Semi-supervised labeling:] Deletes labels, rebuilds via k-NN, assigns majority label.
+\end{description}
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}{The Algorithm: SMOOTHIE}
+\centering
+\begin{tikzpicture}[
+box/.style={draw=LogicBlue, rounded corners, thick, fill=LiteRed,
+minimum width=3.5cm, minimum height=0.7cm, font=\small},
+line/.style={draw=LogicBlue, thick, -Stealth}]
+\node[box] (s1) at (0,0) {Sample $N_1=30$ configs};
+\node[box] (s2) at (0,-1) {Compute smoothness $\beta$};
+\node[box] (s3) at (0,-2) {Keep top $N_2=5$ configs};
+\node[box] (s4) at (0,-3) {Run those $N_2$ fully};
+\draw[line] (s1)--(s2); \draw[line] (s2)--(s3); \draw[line] (s3)--(s4);
+\end{tikzpicture}
+
+  ~\\
+
+\raggedright\small
+For NNs: $\beta \propto \|W^{[L]}\|$ after 1 epoch \cite{Thm1}.
+\end{frame}
+
+\begin{frame}{Finding 1 (RQ1): SMOOTHIE Wins on SE Data}
+\begin{itemize}
+\item \textbf{Static warnings:} SMOOTHIE wins 4, ties 3.
+\item \textbf{Issue lifetime:} Ties best in all 3 datasets.
+\item \textbf{Defect prediction:} All methods tie (low complexity).
+\end{itemize}
+\begin{block}{RQ1 Answer}
+SMOOTHIE outperforms or matches SOTA on SE-specific data.
+\end{block}
+\end{frame}
+
+\begin{frame}{Finding 2 (RQ2): SMOOTHIE is Much Faster}
+\begin{itemize}
+\item Computing $\beta$ (Get-Smoothness) is negligible.
+\item End-to-end, SMOOTHIE is 4.7$\times$ faster than BOHB.
+\item End-to-end, SMOOTHIE is 8.3$\times$ faster than DEHB.
+\end{itemize}
+\begin{block}{RQ2 Answer}
+SMOOTHIE achieves SOTA accuracy 4--8$\times$ faster.
+\end{block}
+\end{frame}
+
+\begin{frame}{The Why: Why Does SMOOTHIE Win on Flat Landscapes?}
+\begin{itemize}
+\item BOHB needs contrast (bumpy landscapes) to explore.
+\item Flat loss landscapes generalize better to test data \cite{34}.
+\item Starting near $\beta \approx 2$, flattening hits the sweet spot.
+\end{itemize}
+\begin{block}{Key design trade-off}
+SMOOTHIE biases for generalization, not training performance.
+\end{block}
+\end{frame}
+
+\begin{frame}{Takeaways: What This Means for SE Research}
+\begin{enumerate}
+\item Stop assuming general AI tools transfer to SE.
+\item Compute $\beta$ as a diagnostic: if $< 4$, use SMOOTHIE.
+\item SE data has unique geometry requiring unique algorithms.
+\end{enumerate}
+\end{frame}
+
+\end{document}
