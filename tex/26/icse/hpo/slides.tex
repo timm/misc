@@ -1,17 +1,11 @@
 \documentclass[9pt,aspectratio=169]{beamer}
-
 \PassOptionsToPackage{table}{xcolor}
-
 \usetheme{Warsaw}
-%\usepackage{lmodern}
+\usepackage{lmodern}
 \usepackage[sfdefault,light,lining]{FiraSans}
-\usepackage{graphicx}
-
-\usepackage{amsmath,amssymb,booktabs,tikz}
+\usepackage{graphicx,amsmath,amssymb,booktabs,tikz}
 \usetikzlibrary{positioning,arrows.meta}
-
 \usepackage{tabularx}
-
 
 \definecolor{headergray}{gray}{0.75}
 \definecolor{rowgray}{gray}{0.92}
@@ -27,7 +21,22 @@
 \setbeamercolor{palette secondary}{bg=InferenceRed,fg=white}
 \setbeamercolor{block title}{bg=LogicBlue,fg=white}
 \setbeamercolor{block body}{bg=LiteRed,fg=black}
+
 \setbeamertemplate{navigation symbols}{}
+
+% --- Page Numbering m/n Bottom Right [cite: 1] ---
+\setbeamerfont{page number in head/foot}{size=\large}
+\setbeamertemplate{footline}{
+  \ifnum\insertframenumber>1
+    \hfill
+    \vbox{
+      \hbox{\usebeamercolor[fg]{page number in head/foot}
+            \usebeamerfont{page number in head/foot}
+            \insertframenumber\,/\,\inserttotalframenumber\kern1em}
+      \vskip30pt
+    }
+  \fi
+}
 
 % --- QR Code Logic [cite: 2, 3] ---
 \addtobeamertemplate{frametitle}{}{
@@ -51,6 +60,21 @@
 \begin{frame}
 \titlepage
 \end{frame}
+\newcommand{\yell}[1]{\color{red}{\bf #1}\color{black}}
+
+\begin{frame}{Message}
+
+  \begin{itemize}
+    \item  AI for SE is \yell{different}~to standard AI. 
+    \item SE data has 
+      “smoother” \yell{boundaries}~ between classes. 
+      \item 
+Compared to AI data, magnitude of second derivative of loss function in SE data is  much
+      \yell{smaller}.
+\item For SE data, better HPO result can be achieved using \yell{AI
+  designed for SE}.
+  \end{itemize}
+\end{frame}
 
 \begin{frame}{Motivation: Off-the-Shelf AI for SE Data}
 
@@ -64,12 +88,12 @@
 \end{minipage}
 
 
-\textbf{Claim:} Most SE research uses AI defaults without audit.
+Most SE research uses AI defaults without audit.
 \vspace{3mm}
 \begin{itemize}
 \item HPO = hyperparameter optimization. Black art of selecting tuning parameters.
 \item HPO is applied to defect prediction and issue triage.
-\item Current tools (BOHB, DEHB) target general AI data.
+\item Current tools (NSGA-II, MOEA/D, SMAC3, BOHB, DEHB, etc) target general AI data.
 \item Question: Is SE data different? Does it need different kinds of learning?
 \end{itemize}
 \end{frame}
@@ -126,10 +150,13 @@ Maintainable code produces data with flat loss landscapes.
   \end{block}\end{minipage}
 \end{frame}
 
-\begin{frame}{Hyper-parameter Pre-processing (Not an Exhaustive List)}
-\small
+    \begin{frame}[t]{Experiments with Hyper-parameters (not an exhaustive list)} 
 
-\begin{block}{Basic Pre-processors}
+    ~\\
+\scriptsize
+\begin{columns}[t]
+\begin{column}{0.5\textwidth}
+\begin{block}{\small Pre-processing (Basic)}
 \begin{description}
 \item[Normalization:] $x \rightarrow \frac{x}{\|x\|}$
 \item[Standardization:] $x \rightarrow \frac{x - \mu_x}{\sigma_x}$
@@ -139,16 +166,86 @@ Maintainable code produces data with flat loss landscapes.
 \end{description}
 \end{block}
 
-\vspace{2mm}
+\vspace{1mm}
 
-\begin{block}{Advanced / Learned Pre-processors}
+\begin{block}{\small Pre-processing (Advanced)}
 \begin{description}
-\item[SMOTE:] Generates synthetic minority samples via interpolation between neighbors.
-\item[Fuzzy sampling:] Allocates $\frac{1}{2^i}$ samples across layers; helps rebalance classes.
-\item[Semi-supervised labeling:] Deletes labels, rebuilds via k-NN, assigns majority label.
+\item[SMOTE:] Synthetic minority samples via interpolation.
+\item[Fuzzy sampling:] Allocates samples across layers ($\frac{1}{2^i}$) to rebalance.
+\item[Semi-supervised labeling:] Label deletion and k-NN rebuild.
+\end{description}
+\end{block}
+\end{column}
+
+
+\begin{column}{0.5\textwidth}
+\begin{block}{\small Neural Networks}
+\begin{description}
+\item[Feedforward:] 3--20 layers, 2--6 units/layer.
+\item[Deep Learners:] More control parameters, e.g., topology, activation functions.
 \end{description}
 \end{block}
 
+\vspace{1mm}
+
+\begin{block}{\small Traditional Classifiers}
+\begin{description}
+\item[Neighbor classifiers:] (a) Distance measure, (b) neighbor count ($k$), (c) combination method, (d) pre-clustering.
+\item[Random forests:] Number of trees, features per tree, polling method (majority or weighted).
+\item[Logistic regression:] (a) Regularization type (L1, L2, elastic net), (b) strength ($C \in \{0.1, 1, 10\}$).
+\end{description}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{The Archive: 23 Datasets across 30 Years}
+  \begin{minipage}[t]{0.4\textwidth}
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Dataset} & \textbf{\#Trn} & \textbf{\#Tst} & \textbf{Feat} \\
+\midrule
+\textit{Defect prediction}  & & &  \\
+camel    & 1819 & 442 & 20 \\
+ivy      & 352  & 352 & 20 \\
+log4j    & 244  & 205 & 20 \\
+synapse  & 379  & 256 & 20 \\
+velocity & 410  & 229 & 20 \\
+xalan    & 2411 & 909 & 20 \\
+\midrule
+\textit{Static code warnings}  & & & \\
+ant         & 28  & 7  & 329 \\
+cassandra   & 13  & 4  & 265 \\
+commons     & 17  & 5  & 127 \\
+derby       & 366 & 92 & 292 \\
+jmeter      & 14  & 4  & 287 \\
+lucene-solr & 24  & 6  & 278 \\
+tomcat      & 147 & 37 & 284 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+  \hspace{1cm}
+  \begin{minipage}[t]{0.4\textwidth}
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Dataset} & \textbf{\#Trn} & \textbf{\#Tst} & \textbf{Feat} \\
+\midrule
+\textit{Issue Lifetime Prediction }  & & &  \\
+Eclipse  & 44545 & 25459 & 12 \\
+Firefox  & 44800 & 25201 & 12 \\
+Chromium & 44801 & 25200 & 12 \\
+\midrule
+  \textit{Bayesmark (from NuerIPS'20)} & & &  \\
+breast   & 455  & 114 & 30 \\
+digits   & 1438 & 359 & 64 \\
+iris     & 120  & 30  & 4  \\
+wine     & 142  & 36  & 13 \\
+diabetes & 354  & 88  & 10 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
 \end{frame}
 
 
