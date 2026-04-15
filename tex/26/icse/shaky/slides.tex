@@ -1,4 +1,4 @@
-\documentclass[9pt,aspectratio=169]{beamer}
+\documentclass[10pt,aspectratio=169]{beamer}
 
 \usetheme{Warsaw}
 \usepackage{lmodern}
@@ -7,6 +7,10 @@
 \usepackage{booktabs}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta}
+\usepackage[utf8]{inputenc}
+\usepackage{tabularx} % For wrapping long text columns
+\usepackage{caption}
+
 
 % --- Style Guide Colors [cite: 1] ---
 \definecolor{LogicBlue}{RGB}{204,0,0}
@@ -32,7 +36,7 @@
 
 
 \title{Shaky structures: The wobbly world of causal graphs in software analytics}
-\subtitle{An Empirical Audit of 23 Datasets and 4 Causal Graph Generators}
+\subtitle{Hallunications?  Worse than you think}
 \author{Jeremy Hulse (NCSU)\\Nasir U. Eisty (U.Tennesse) \\Tim Menzies (NCSU) }
 \institute{prof, cs, \textbf{ncstate}, usa \\ \url{http://timm.fyi} \\~\\\large 
 {\bf EMSE}, 30(142), 2025, https://doi.org/10.1007/s10664-025-10690-6  \\
@@ -59,19 +63,16 @@ http://timm.fyi/26cause.pdf}
 \end{frame}
 
 % 2. MOTIVATION (The Hype)
-\begin{frame}{Motivation: The Allure of the "Why"}
-\textbf{Claim:} Software Engineering (SE) is tired of correlations; we want \textbf{causes}.
+\begin{frame}{Claim: Causal graph generations not a source of "truth"}
 
-\vspace{3mm}
 \begin{itemize}
-    \item We don't want to know that "Size correlates with Defects."
+    \item \textbf{We don't want} to know that "Size correlates with Defects."
     \item We want to know: "If I change this module, will I stop the bugs?"
     \item Causal Discovery Algorithms (CDAs) promise to find these hidden structures automatically.
+    \item But... suffer from \textbf{mass hallunication.}
 \end{itemize}
 
 \vspace{3mm}
-\footnotesize
-But as the "just throw an LLM at it" phase ends, so must the "just throw a CDA at it" phase. [cite: 3]
 \end{frame}
 
 \begin{frame}[plain]
@@ -93,22 +94,20 @@ But as the "just throw an LLM at it" phase ends, so must the "just throw a CDA a
 
 % 3. THE CORE PROBLEM (The Reality)
 \begin{frame}{The Reality: The Instability Problem}
-\textbf{Claim:} Automatic causal graphs are currently too unstable to trust for industrial SE.
+  \textbf{Claim:} Causal graphs generators:  \textbf{too unstable }to trust.
 
 \vspace{3mm}
 \begin{block}{The Definition of Instability}
-Small changes to the input data result in \textbf{large, unpredictable changes} in the resulting graph.
+Small changes to the data result in \textbf{large, unpredictable changes} in the resulting graphs.
 \end{block}
 
 \vspace{3mm}
 \begin{itemize}
     \item If the graph changes every time you re-run it, it isn't an "explanation."
-    \item It is just noise masquerading as a diagram.
+    \item It is just\textbf{ noise masquerading }as a diagram.
 \end{itemize}
 
-\vspace{5mm}
-We audited the four most prominent paradigms in causal discovery.
-They all share the same "Unfair Advantage" of automation—and the same flaws in stability. [cite: 7]
+Four most prominent paradigms in causal discovery: all hallunicate
 
 ~\\
 
@@ -131,27 +130,27 @@ They all share the same "Unfair Advantage" of automation—and the same flaws in
 
 \end{frame}
 
-% 5. EXPERIMENTAL DESIGN: THE CORPUS
-\begin{frame}{The Archive: 23 Datasets across 30 Years}
-\begin{itemize}
-    \item We didn't test on toy data. We used the \textbf{PROMISE} and \textbf{JURECZKO} repositories.
-    \item \textbf{Breadth:} Ant, Camel, JEdit, Lucene, POI, Tomcat, Velocity, and more.
-    \item \textbf{Depth:} Multiple releases per project (e.g., Ant 1.3, 1.4, 1.5, 1.6, 1.7).
-\end{itemize}
-
-\vspace{3mm}
-\begin{block}{Not a green-field project}
-This is a audit of how these tools behave on real-world SE evolution. [cite: 11]
-\end{block}
-\end{frame}
-
+% % 5. EXPERIMENTAL DESIGN: THE CORPUS
+% \begin{frame}{The Archive: 23 Datasets across 30 Years}
+% \begin{itemize}
+%     \item We didn't test on toy data. We used the \textbf{PROMISE} and \textbf{JURECZKO} repositories.
+%     \item \textbf{Breadth:} Ant, Camel, JEdit, Lucene, POI, Tomcat, Velocity, and more.
+%     \item \textbf{Depth:} Multiple releases per project (e.g., Ant 1.3, 1.4, 1.5, 1.6, 1.7).
+% \end{itemize}
+%
+% \vspace{3mm}
+% \begin{block}{Not a green-field project}
+% This is a audit of how these tools behave on real-world SE evolution. [cite: 11]
+% \end{block}
+% \end{frame}
+%
 % 6. METRIC: HOW WE MEASURE INSTABILITY
-\begin{frame}{The Yardstick: The Jaccard Index}
+\begin{frame}{Hallunications in SE (Causal graphs)}
 
   \vspace{3mm}
 \begin{itemize}
   \item $J(A,B) = \frac{|E_A \cap E_B|}{|E_A \cup E_B|}$
-    \item $J=1.0$: The graphs are identical.
+  \item $J=1.0$: The graphs are \textbf{identical}.
     \item $J=0.0$: The graphs have zero edges in common.
     \item \textbf{Rule:} If $J$ is low, your "Why Engine" is broken. [cite: 25]
 \end{itemize}
@@ -169,12 +168,94 @@ We measured Jaccard across versions, across tools, and across data subsets. e.g.
 
 \end{frame}
 
+\begin{frame}{Hallunications in SE (regression, effort estimation)}
+20 times,
+\begin{itemize}
+  \item \textbf{Select} 66\% of the data;
+\item Learn model {\em effort} $= \beta_0 + \beta_1x_1 + \beta_2x_2 +...$
+\item Show the \textbf{sorted} $\beta_i$ values.
+\end{itemize}
+
+\begin{center}
+\includegraphics[height=2.25in]{corr.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}{Hallunications in SE (defect prediction)}
+
+In 28 publications:
+\begin{itemize}
+\item 
+  Is feature X postively or negatively \textbf{correalted} to defects?
+\end{itemize}
+
+\begin{center}
+\includegraphics[height=2.5in]{defect.pdf}
+\end{center}
+\end{frame}
 
 
+
+\begin{frame}{Hallunications in SE (topic modeling)}
+Groups of words (topics) seen in Stackoverflow:
+\begin{itemize}
+  \item Two runs, \textbf{shuffle} row order in-between;
+\item Column1 = percent of words in run1's topics appearing in\textbf{ run2's topics
+}\end{itemize}
+
+
+
+    {\footnotesize % Reduces font size to fit more data
+    \renewcommand{\arraystretch}{1.1} % Slightly tighter row spacing
+    
+    \begin{columns}[T]
+        % Left Column
+        \begin{column}{0.48\textwidth}
+            \begin{tabularx}{\textwidth}{l p{2.5cm} X}
+                \toprule
+                \textbf{\%} & \textbf{Topic} & \textbf{Top Words} \\
+                \midrule
+                100 & Xaml Binding & grid window bind... \\
+                100 & Ruby on Rails & rubi rail gem lib... \\
+                100 & MVC & http com java... \\
+                88  & Objective C & self cell nsstring... \\
+                88  & Func. Returns & function const char... \\
+                77  & Testing & chang tri work use... \\
+                77  & Socket Comm. & Main send socket... \\
+                77  & Q and A & know need want... \\
+                77  & OO Prog. & instanc void type... \\
+                77  & HTML Links & com http www url... \\
+                \bottomrule
+            \end{tabularx}
+        \end{column}
+
+        % Right Column
+        \begin{column}{0.48\textwidth}
+            \begin{tabularx}{\textwidth}{l p{2.5cm} X}
+                \toprule
+                \textbf{\%} & \textbf{Topic} & \textbf{Top Words} \\
+                \midrule
+                77  & Display & height jpg imag... \\
+                66  & Windows Tips & studio net dll web... \\
+                66  & Website Des. & left span style text... \\
+                66  & Web Dev. & script jqueri func... \\
+                66  & Java Prog. & java void new... \\
+                66  & Date/Time & select day valu... \\
+                66  & Database & column order group... \\
+                66  & Android View & height content text... \\
+                66  & .NET Frame. & net form text check... \\
+                55  & iOS App Dev. & applic user need... \\
+                \bottomrule
+            \end{tabularx}
+        \end{column}
+    \end{columns}}
+    
+
+\end{frame}
 
 
 % 7. FINDING 1: INTRA-PROJECT (TIME)
-\begin{frame}{Finding 1: The Time Flip}
+\begin{frame}{Finding 1: The Time Flip in defect prediction data}
 \textbf{Question:} Does the "cause" of defects stay the same from Version 1 to Version 2?
 
 \vspace{3mm}
@@ -184,9 +265,9 @@ We measured Jaccard across versions, across tools, and across data subsets. e.g.
     \item \textbf{The Risk:} A manager fixes a "cause" in Version 1.5 that no longer exists in Version 1.7.
 \end{itemize}
 
- \begin{minipage}{2in}
+\begin{center}
   \includegraphics[height=4cm]{rq1.png}
-  \end{minipage}
+\end{center}
 
 \end{frame}
 
@@ -203,14 +284,14 @@ We measured Jaccard across versions, across tools, and across data subsets. e.g.
 
 ~\\
 
- \begin{minipage}{2in}
+\begin{center}
   \includegraphics[height=3cm]{cross1.png}
-  \end{minipage}
+\end{center}
 
 \end{frame}
 % 10. FINDING 4: PARAMETER SENSITIVITY
 \begin{frame}{Finding 3: The Fragility of Alpha}
-\textbf{Question:} Does changing the significance level $\alpha$ (e.g., 0.01 to 0.05) break the graph?
+\textbf{Question:} Does graph change with changing significance level $\alpha$ (e.g., 0.01 to 0.05)?
 
 \vspace{3mm}
 \begin{itemize}
@@ -220,7 +301,7 @@ We measured Jaccard across versions, across tools, and across data subsets. e.g.
 
 
  \begin{minipage}{2in}
-  \includegraphics[height=5cm]{alpha.png}
+  \includegraphics[height=6cm]{alpha.png}
   \end{minipage}
 
 
@@ -232,15 +313,12 @@ If your "Why" depends on whether $\alpha=0.01$ or $0.05$, you don't have a "Why.
 
 % 11. FINDING 5: DATA SENSITIVITY (THE 10% TEST)
 \begin{frame}{Finding 5: Other Data? Other Causal Generators?}
- \begin{minipage}{1.5in}
+\begin{center}
   \includegraphics[height=2cm]{rqs.png}
-  \end{minipage}
 
-  ~\\
 
- \begin{minipage}{2in}
-  \includegraphics[height=3.5cm]{rqs1.png}
-  \end{minipage}
+  \includegraphics[height=4.5cm]{rqs1.png}
+\end{center}
 
 \end{frame}
 
@@ -268,17 +346,25 @@ We need \textbf{hybrid workflows} that combine these graphs with symbolic checks
 \end{frame}
 
 % 14. CLOSING PITCH
-\begin{frame}{Why Me, Why Now}
+\begin{frame}{Conclusion}
 \begin{itemize}
-    \item We have the archive: 23 projects over 30 years. [cite: 35]
-    \item We have the machinery: thousands of GPU hours auditing these generators. [cite: 36]
-    \item \textbf{The Conclusion:} Causal graphs are a powerful \textit{hypothesis generator}, but a dangerous \textit{decision maker}—until we solve the instability problem.
+    \item  Causal graphs are a powerful \textbf{hypothesis generator}, but a dangerous \textbf{decision maker}—until we solve the instability problem.
 \end{itemize}
 
 \vspace{4mm}
 \begin{block}{Closing pitch}
-This is the moment to connect causal mining with symbolic safety and stochastic rigor. [cite: 38]
+  The hallunication problem is much \textbf{worse} than you think.
 \end{block}
+
 \end{frame}
+
+\begin{frame}[plain]
+    \begin{tikzpicture}[remember picture,overlay]
+        \node[at=(current page.center)] {
+            \includegraphics[height=\paperheight]{rash.png}
+        };
+    \end{tikzpicture}
+\end{frame}
+
 
 \end{document}
