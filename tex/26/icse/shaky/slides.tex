@@ -21,19 +21,24 @@
 \setbeamercolor{block title}{bg=LogicBlue,fg=white}
 \setbeamercolor{block body}{bg=LiteRed,fg=black}
 
-\setbeamertemplate{navigation symbols}{}
+\setbeamerfont{page number in head/foot}{size=\large}
 \setbeamertemplate{footline}{
   \hfill
   \usebeamercolor[fg]{page number in head/foot}
+  \usebeamerfont{page number in head/foot}
   \insertframenumber\,/\,\inserttotalframenumber\kern1em
-  \vbox{\vskip0pt}
+  \vbox{\vskip6pt}
 }
 
-\title{The Causal Instability Problem}
-\subtitle{An Empirical Audit of 23 Datasets and 4 Generators}
-\author{Tim Menzies \textit{et al.}}
-\institute{prof, cs, \textbf{ncstate}, usa \\ \url{http://timm.fyi}}
-\date{Mar 2025}
+
+\title{Shaky structures: The wobbly world of causal graphs in software analytics}
+\subtitle{An Empirical Audit of 23 Datasets and 4 Causal Graph Generators}
+\author{Jeremy Hulse (NCSU)\\Nasir U. Eisty (U.Tennesse) \\Tim Menzies (NCSU) }
+\institute{prof, cs, \textbf{ncstate}, usa \\ \url{http://timm.fyi} \\~\\\large 
+{\bf EMSE}, 30(142), 2025, https://doi.org/10.1007/s10664-025-10690-6  \\
+{\bf SLIDES}:
+http://timm.fyi/26cause.pdf}
+\date{Apr 2025}
 
 % --- Force QR Code to Top Layer ---
 \addtobeamertemplate{frametitle}{}{
@@ -68,6 +73,23 @@
 \footnotesize
 But as the "just throw an LLM at it" phase ends, so must the "just throw a CDA at it" phase. [cite: 3]
 \end{frame}
+
+\begin{frame}[plain]
+    \begin{tikzpicture}[remember picture,overlay]
+        \node[at=(current page.center)] {
+            \includegraphics[height=\paperheight]{correlation.png}
+        };
+    \end{tikzpicture}
+\end{frame}
+
+\begin{frame}[plain]
+    \begin{tikzpicture}[remember picture,overlay]
+        \node[at=(current page.center)] {
+            \includegraphics[height=\paperheight]{rash.png}
+        };
+    \end{tikzpicture}
+\end{frame}
+
 
 % 3. THE CORE PROBLEM (The Reality)
 \begin{frame}{The Reality: The Instability Problem}
@@ -163,7 +185,7 @@ We measured Jaccard across versions, across tools, and across data subsets. e.g.
 \end{itemize}
 
  \begin{minipage}{2in}
-  \includegraphics[height=5cm]{rq1.png}
+  \includegraphics[height=4cm]{rq1.png}
   \end{minipage}
 
 \end{frame}
@@ -182,7 +204,7 @@ We measured Jaccard across versions, across tools, and across data subsets. e.g.
 ~\\
 
  \begin{minipage}{2in}
-  \includegraphics[height=3.5cm]{cross1.png}
+  \includegraphics[height=3cm]{cross1.png}
   \end{minipage}
 
 \end{frame}
@@ -210,14 +232,14 @@ If your "Why" depends on whether $\alpha=0.01$ or $0.05$, you don't have a "Why.
 
 % 11. FINDING 5: DATA SENSITIVITY (THE 10% TEST)
 \begin{frame}{Finding 5: Other Data? Other Causal Generators?}
- \begin{minipage}{2in}
+ \begin{minipage}{1.5in}
   \includegraphics[height=2cm]{rqs.png}
   \end{minipage}
 
-  ~\\~\\
+  ~\\
 
  \begin{minipage}{2in}
-  \includegraphics[height=5cm]{rqs1.png}
+  \includegraphics[height=3.5cm]{rqs1.png}
   \end{minipage}
 
 \end{frame}
