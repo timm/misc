@@ -24,19 +24,7 @@
 
 \setbeamertemplate{navigation symbols}{}
 
-% --- Page Numbering m/n Bottom Right [cite: 1] ---
-\setbeamerfont{page number in head/foot}{size=\large}
-\setbeamertemplate{footline}{
-  \ifnum\insertframenumber>1
-    \hfill
-    \vbox{
-      \hbox{\usebeamercolor[fg]{page number in head/foot}
-            \usebeamerfont{page number in head/foot}
-            \insertframenumber\,/\,\inserttotalframenumber\kern1em}
-      \vskip30pt
-    }
-  \fi
-}
+
 
 % --- QR Code Logic [cite: 2, 3] ---
 \addtobeamertemplate{frametitle}{}{
@@ -48,12 +36,29 @@
     \fi
   \end{tikzpicture}
 }
-
+% --- Page Numbering m/n Bottom Right [cite: 1] ---
+\setbeamerfont{page number in head/foot}{size=\large}
+\setbeamertemplate{footline}{
+  \ifnum\insertframenumber>1
+    \hfill
+    \vbox{
+      \vspace{-1cm}
+      \hbox{\usebeamercolor[fg]{page number in head/foot}
+            \usebeamerfont{page number in head/foot}
+            \insertframenumber\,/\,\inserttotalframenumber\kern1em}
+    }
+  \fi
+}
 \title{Is Hyper-Parameter Optimization Different for SE?}
 \subtitle{Yes. And here's the math to prove it.}
 \author{Rahul Yedida (NCSU) \and Tim Menzies (NCSU)}
-\institute{NC State University \cite{intro}}
-\date{2025}
+\institute{\footnotesize NC State University, USA
+ \\ \url{http://timm.fyi} \\~\\ 
+{\bf TSE}, 51(6), 2025, https://ieeexplore.ieee.org/document/10919477  \\
+{\bf SLIDES}:
+http://timm.fyi/26smooth.pdf}
+
+\date{Apr 17, 2026}
 
 \begin{document}
 
@@ -66,6 +71,20 @@
 
   \begin{itemize}
     \item  AI for SE is \yell{different}~to standard AI. 
+    \item Previously:
+      \begin{itemize}
+        \item DRR: data reduction ratio: SE data tends to "flatten" far more than data from other sources.
+        \item \yell{https://arxiv.org/abs/2503.21086}
+        \item Above the "Andre threshold", astonishly simple methods work well
+          \begin{itemize}
+            \item For configuration;
+            \item For project management;
+            \item HYperparameter optimziation for predicting OSS project health.
+            \item Banking, helath, power etc applications.
+          \end{itemize}
+      \end{itemize}
+    \item Here:
+  \begin{itemize}
     \item SE data has 
       “smoother” \yell{boundaries}~ between classes. 
       \item 
@@ -73,6 +92,8 @@ Compared to AI data, magnitude of second derivative of loss function in SE data 
       \yell{smaller}.
 \item For SE data, better HPO result can be achieved using \yell{AI
   designed for SE}.
+  \end{itemize}
+    \item FSE'26: BINGO effect: \yell{https://arxiv.org/pdf/2512.13524}. 
   \end{itemize}
 \end{frame}
 
