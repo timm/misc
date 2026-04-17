@@ -51,12 +51,14 @@
 }
 \title{Is Hyper-Parameter Optimization Different for SE?}
 \subtitle{Yes. And here's the math to prove it.}
-\author{Rahul Yedida (NCSU) \and Tim Menzies (NCSU)}
-\institute{\footnotesize NC State University, USA
+\author{Rahul Yedida (Lexis Nexis) \and Tim Menzies (NCSU)}
+\institute{\footnotesize NC State University, USA\\
+timm@ieee.org
  \\ \url{http://timm.fyi} \\~\\ 
 {\bf TSE}, 51(6), 2025, https://ieeexplore.ieee.org/document/10919477  \\
 {\bf SLIDES}:
-http://timm.fyi/26smooth.pdf}
+http://timm.fyi/26smooth.pdf
+}
 
 \date{Apr 17, 2026}
 
@@ -66,37 +68,6 @@ http://timm.fyi/26smooth.pdf}
 \titlepage
 \end{frame}
 \newcommand{\yell}[1]{\color{red}{\bf #1}\color{black}}
-
-\begin{frame}{Message}
-
-  \begin{itemize}
-    \item  AI for SE is \yell{different}~to standard AI. 
-    \item Previously:
-      \begin{itemize}
-        \item DRR: data reduction ratio: SE data tends to "flatten" far more than data from other sources.
-        \item \yell{https://arxiv.org/abs/2503.21086}
-        \item Above the "Andre threshold", astonishly simple methods work well
-          \begin{itemize}
-            \item For configuration;
-            \item For project management;
-            \item HYperparameter optimziation for predicting OSS project health.
-            \item Banking, helath, power etc applications.
-          \end{itemize}
-      \end{itemize}
-    \item Here:
-  \begin{itemize}
-    \item SE data has 
-      “smoother” \yell{boundaries}~ between classes. 
-      \item 
-Compared to AI data, magnitude of second derivative of loss function in SE data is  much
-      \yell{smaller}.
-\item For SE data, better HPO result can be achieved using \yell{AI
-  designed for SE}.
-  \end{itemize}
-    \item FSE'26: BINGO effect: \yell{https://arxiv.org/pdf/2512.13524}. 
-  \end{itemize}
-\end{frame}
-
 \begin{frame}{Motivation: Off-the-Shelf AI for SE Data}
 
 \begin{minipage}{0.66\textwidth}
@@ -109,28 +80,112 @@ Compared to AI data, magnitude of second derivative of loss function in SE data 
 \end{minipage}
 
 
-Most SE research uses AI defaults without audit.
+Most SE research uses AI defaults without \yell{audit}.
 \vspace{3mm}
 \begin{itemize}
 \item HPO = hyperparameter optimization. Black art of selecting tuning parameters.
 \item HPO is applied to defect prediction and issue triage.
-\item Current tools (NSGA-II, MOEA/D, SMAC3, BOHB, DEHB, etc) target general AI data.
+\item Current tools (NSGA-II, MOEA/D, SMAC3, BOHB, DEHB, etc) target \yell{general AI data}.
 \item Question: Is SE data different? Does it need different kinds of learning?
 \end{itemize}
 \end{frame}
-\begin{frame}[plain]
-    \begin{tikzpicture}[remember picture,overlay]
-        \node[at=(current page.center)] {
-            \includegraphics[height=\paperheight]{rash.png}
-        };
-    \end{tikzpicture}
+
+\begin{frame}{Message}
+	\begin{center}
+		\includegraphics[height=2in]{head.jpg}
+	\end{center}
+	\begin{itemize}
+\item All you LLM users-- you are missing what \yell{matters}.
+\item SE-AI $\neq$ standard AI.
+\item And you can \yell{leverage}~that.
+	\end{itemize}
 \end{frame}
 
-\begin{frame}{The Observation: SE Loss Landscapes are Smoother}
-\textbf{Claim:} SE model loss landscapes are exploitably smooth.
-~\\
-  \includegraphics[height=1.5in]{hpo.pdf}
+\begin{frame}{So... many... studies....}
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+        \includegraphics[height=3in]{ir.pdf}
+    \end{column}
+    \begin{column}{0.6\textwidth}
+      \begin{itemize}
+        \item 2021: Intrinsic dimensionality\\
+              {\footnotesize \yell{doi.org/10.1109/TSE.2021.3073242}}
+        \item DRR (data reduction ratio): 
+                \begin{itemize} \item SE data ``flattens'' more than other data.\end{itemize}
+        \item Count neighbors at $R_1$ vs.\ $n \times R_1$.
+      \begin{itemize}
+        \item Selects \yell{very simple} optimization problems.
+        \item Most SE data sets are simple this way.
+      \end{itemize}
+\item \yell{Issue}:  not enough data to generalize
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
 
+\begin{frame}{So... many... (more) studies....}
+  \begin{columns}[T]
+    \begin{column}{0.57\textwidth}
+      \begin{center}
+        \includegraphics[height=2.1in]{drr.pdf}
+      \end{center}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \begin{itemize}
+        \item 2024: DRR (data reduction ratio)\\
+              {\footnotesize \yell{arxiv.org/abs/2503.21086}}
+        \item SE data ``flattens'' more than other data.
+        \item Above the ``Andre threshold'', astonishingly simple methods work \yell{well}:
+          \begin{itemize}
+            \item Configuration
+            \item Project management
+            \item Hyperparameter optimization for \yell{predicting}~OSS project health
+            \item Banking, health, power;
+\item  etc.
+          \end{itemize}
+\item \yell{Issue}:  could not  explain "why"
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{So ... many... (yet more).... studies...}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \vspace{0pt}
+      \begin{center}
+        \includegraphics[height=2.8in]{senonse.pdf}
+      \end{center}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item 2025: this study
+          \begin{itemize}
+            \item SE data has ``smoother'' \yell{boundaries} between classes.
+            \item Vs.\ AI data, magnitude of 2nd derivative of loss is much \yell{smaller}.
+            \item Better HPO via \yell{AI designed for SE}.
+          \end{itemize} ~\\
+        \item 2026: FSE'26: BINGO effect\\
+              {\footnotesize \yell{arxiv.org/pdf/2512.13524}}
+          \begin{itemize}
+            \item An even greater simplification.
+          \end{itemize}~\\
+        \item 2027: \yell{Rashomon}~sets (work in progress)
+          \begin{itemize}
+            \item Potentially: an end to hyperparameter optimization
+          \end{itemize}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{The Observation: SE Loss Landscapes are Smoother}
+\textbf{Claim:} SE model loss landscapes are \yell{exploitably}~  smooth.
+~\\
+\begin{center}
+  \includegraphics[height=1.5in]{hpo.pdf}
+\end{center}
 \vspace{1mm}
 \begin{block}{What ``smooth'' means (formally)}
 $f$ is $\beta$-smooth if: $\frac{\|\nabla f(y) - \nabla f(x)\|}{\|y - x\|} 
@@ -154,10 +209,10 @@ $f$ is $\beta$-smooth if: $\frac{\|\nabla f(y) - \nabla f(x)\|}{\|y - x\|}
 
 \begin{frame}{Why SE Data is Smooth: The Naturalness Argument}
 \begin{itemize}
-\item Human code is surprisingly repetitive [Hindle et al. ICSE'12]
+\item Human code is surprisingly \yell{repetitive}~ [Hindle et al. ICSE'12]
 \item Maintainability forces repeated use of idioms and patterns.
 \item Repetition $\Rightarrow$ minimal variation between clusters.
-\item Minimal variation $\Rightarrow$ flat loss landscapes.
+\item Minimal variation $\Rightarrow$ flat loss \yell{landscapes}.
 \end{itemize}
 
 ~\\
@@ -283,51 +338,46 @@ line/.style={draw=LogicBlue, thick, -Stealth}]
 \draw[line] (s1)--(s2); \draw[line] (s2)--(s3); \draw[line] (s3)--(s4);
 \end{tikzpicture}
 
-  ~\\
-
-\raggedright\small
-For NNs: $\beta \propto \|W^{[L]}\|$ after 1 epoch \cite{Thm1}.
 \end{frame}
 
 \begin{frame}{Finding 1 (RQ1): SMOOTHIE Wins on SE Data}
 \begin{itemize}
-\item \textbf{Static warnings:} SMOOTHIE wins 4, ties 3.
+\item \textbf{Static warnings:} SMOOTHIE \yell{wins}~4, ties 3.
 \item \textbf{Issue lifetime:} Ties best in all 3 datasets.
-\item \textbf{Defect prediction:} All methods tie (low complexity).
+\item \textbf{Defect prediction:} All methods tie (low \yell{complexity}).
+\item \textbf{Data from AI:} On NuerIPS challenge data, no win.
 \end{itemize}
 \begin{block}{RQ1 Answer}
 SMOOTHIE outperforms or matches SOTA on SE-specific data.
 \end{block}
+\begin{center}
+  \includegraphics[height=2in]{prob.pdf}
+\end{center}
+
 \end{frame}
 
 \begin{frame}{Finding 2 (RQ2): SMOOTHIE is Much Faster}
 \begin{itemize}
-\item Computing $\beta$ (Get-Smoothness) is negligible.
+\item Computing $\beta$ (Get-Smoothness) is \yell{negligible}.
 \item End-to-end, SMOOTHIE is 4.7$\times$ faster than BOHB.
-\item End-to-end, SMOOTHIE is 8.3$\times$ faster than DEHB.
+\item End-to-end, SMOOTHIE is 8.3$\times$ \yell{faster}~ than DEHB.
 \end{itemize}
 \begin{block}{RQ2 Answer}
 SMOOTHIE achieves SOTA accuracy 4--8$\times$ faster.
 \end{block}
 \end{frame}
 
-\begin{frame}{The Why: Why Does SMOOTHIE Win on Flat Landscapes?}
-\begin{itemize}
-\item BOHB needs contrast (bumpy landscapes) to explore.
-\item Flat loss landscapes generalize better to test data \cite{34}.
-\item Starting near $\beta \approx 2$, flattening hits the sweet spot.
-\end{itemize}
-\begin{block}{Key design trade-off}
-SMOOTHIE biases for generalization, not training performance.
-\end{block}
+\begin{frame}{The End}
+	\begin{center}
+		\includegraphics[height=2in]{head.jpg}
+	\end{center}
+	\begin{itemize}
+\item All you LLM users-- you are missing what \yell{matters}.
+\item SE-AI $\neq$ standard AI.
+\item And you can \yell{leverage}~that.
+\item Questions? Comments?
+	\end{itemize}
 \end{frame}
 
-\begin{frame}{Takeaways: What This Means for SE Research}
-\begin{enumerate}
-\item Stop assuming general AI tools transfer to SE.
-\item Compute $\beta$ as a diagnostic: if $< 4$, use SMOOTHIE.
-\item SE data has unique geometry requiring unique algorithms.
-\end{enumerate}
-\end{frame}
 
 \end{document}
