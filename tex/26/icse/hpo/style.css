@@ -1,0 +1,298 @@
+/* =========================================================
+   Tim Menzies homepage — style.css
+   ========================================================= */
+
+:root {
+  --fg: #222;
+  --muted: #555;
+  --accent: #b8261b;     /* NC State red */
+  --accent-dark: #8a1d14;
+  --bg: #fff;
+  --bg-soft: #f7f7f5;
+  --border: #d8d8d4;
+  --stripe: #f2f2ee;
+  --max-width: 920px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+               Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.5em 1.25em 4em;
+}
+
+/* ---------- Headings ---------- */
+h2 {
+  font-size: 1.6em;
+  margin: 1.8em 0 0.6em;
+  padding-bottom: 0.25em;
+  border-bottom: 2px solid var(--accent);
+}
+
+h3 {
+  font-size: 1.2em;
+  margin: 1.2em 0 0.4em;
+  color: var(--accent-dark);
+}
+
+a {
+  color: var(--accent-dark);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.2em 0;
+}
+
+/* ---------- Header / banner ---------- */
+.profile-header {
+  margin-bottom: 1em;
+}
+
+.banner {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  display: block;
+}
+
+.link-bars {
+  margin-top: 0.9em;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0.6em 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.4em;
+  font-size: 0.95em;
+}
+
+.link-row span i {
+  color: var(--accent);
+  margin-right: 0.25em;
+}
+
+.contact-details {
+  text-align: center;
+  font-size: 0.9em;
+  color: var(--muted);
+  margin: 0.6em 0 0;
+}
+.contact-details p { margin: 0; }
+
+/* ---------- About ---------- */
+.tagline {
+  font-size: 1.25em;
+  font-style: italic;
+  text-align: center;
+  color: var(--accent-dark);
+  margin: 0.8em 0 1.4em;
+}
+
+#about p {
+  text-align: justify;
+}
+
+/* ---------- Funder logos ---------- */
+.logo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.6em;
+  margin: 1.8em 0;
+  padding: 1em;
+  background: var(--bg-soft);
+  border-radius: 6px;
+}
+
+.logo-grid img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(20%);
+  transition: filter 0.2s;
+}
+
+.logo-grid img:hover { filter: grayscale(0%); }
+
+/* ---------- Reading group call-out ---------- */
+.center-box {
+  margin: 1.5em 0;
+  overflow: hidden;
+}
+
+.want-img {
+  float: left;
+  width: 100px;
+  margin: 5px 12px 0 0;
+}
+
+.center-box::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+/* ---------- News ---------- */
+#news ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.4em 0 1em;
+  columns: 2;
+  column-gap: 2em;
+}
+
+#news li {
+  margin: 0.25em 0;
+  break-inside: avoid;
+  font-size: 0.93em;
+}
+
+#news strong {
+  color: var(--accent-dark);
+  margin-right: 0.3em;
+}
+
+/* ---------- Research tabs ---------- */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: 1.2em;
+  padding: 0;
+}
+
+.tab {
+  background: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  padding: 0.55em 1.1em;
+  cursor: pointer;
+  font-size: 0.98em;
+  font-family: inherit;
+  color: var(--muted);
+  margin-bottom: -2px;
+  border-radius: 6px 6px 0 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab:hover {
+  background: var(--bg-soft);
+  color: var(--fg);
+}
+
+.tab.active {
+  background: var(--bg);
+  border-color: var(--accent);
+  border-bottom: 2px solid var(--bg);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.tab-panel h3 {
+  margin-top: 0.2em;
+}
+
+.tab-panel p {
+  text-align: justify;
+}
+
+/* ---------- Paper lists ---------- */
+.paper-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.6em 0;
+}
+
+.paper-list li {
+  padding: 0.35em 0;
+  border-bottom: 1px dotted var(--border);
+  font-size: 0.94em;
+}
+
+.paper-list li:last-child {
+  border-bottom: none;
+}
+
+.paper-list em {
+  color: var(--fg);
+}
+
+.paper-list a {
+  font-size: 0.85em;
+  color: var(--accent);
+}
+
+/* ---------- Tables (students) ---------- */
+table.striped {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.6em 0 1.4em;
+  font-size: 0.94em;
+}
+
+table.striped th,
+table.striped td {
+  text-align: left;
+  padding: 0.45em 0.6em;
+  border-bottom: 1px solid var(--border);
+}
+
+table.striped thead th {
+  background: var(--bg-soft);
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent-dark);
+}
+
+table.striped tbody tr:nth-child(even) {
+  background: var(--stripe);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .container { padding: 1em 0.8em 3em; }
+  h2 { font-size: 1.35em; }
+  .tagline { font-size: 1.1em; }
+
+  #news ul { columns: 1; }
+
+  .link-row { gap: 0.3em 0.9em; font-size: 0.88em; }
+
+  .logo-grid img { height: 36px; }
+
+  .tab { padding: 0.45em 0.75em; font-size: 0.9em; }
+
+  .want-img { width: 70px; }
+}

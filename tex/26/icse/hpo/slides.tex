@@ -181,50 +181,39 @@ Most SE research uses AI defaults without \yell{audit}.
 
 
 \begin{frame}{The Observation: SE Loss Landscapes are Smoother}
-\textbf{Claim:} SE model loss landscapes are \yell{exploitably}~  smooth.
-~\\
-\begin{center}
-  \includegraphics[height=1.5in]{hpo.pdf}
-\end{center}
-\vspace{1mm}
-\begin{block}{What ``smooth'' means (formally)}
-$f$ is $\beta$-smooth if: $\frac{\|\nabla f(y) - \nabla f(x)\|}{\|y - x\|} 
-\leq \beta$.
-\end{block}
-\vspace{3mm}
-\begin{itemize}
-\item SE data: mean $\beta$-smoothness $\approx$ 2.
-\item Standard AI (UCI) data: mean $\beta$-smoothness $\approx$ 5.
-\end{itemize}
-
-
-\end{frame}
-\begin{frame}[plain]
-    \begin{tikzpicture}[remember picture,overlay]
-        \node[at=(current page.center)] {
-            \includegraphics[height=.8\paperheight]{senonse.pdf}
-        };
-    \end{tikzpicture}
+  \textbf{Claim:} SE model loss landscapes are \yell{exploitably}~  smooth.
+  ~\\
+  \begin{center}
+    \includegraphics[height=1.5in]{hpo.pdf}
+  \end{center}
+  \vspace{1mm}
+  \begin{block}{What ``smooth'' means (formally)}
+    $f$ is $\beta$-smooth if: $\frac{\|\nabla f(y) - \nabla f(x)\|}{\|y - x\|} 
+    \leq \beta$.
+  \end{block}
+  \vspace{3mm}
+  \begin{itemize}
+    \item SE data: mean $\beta$-smoothness $\approx$ 2.
+    \item Standard AI (UCI) data: mean $\beta$-smoothness $\approx$ 5.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Why SE Data is Smooth: The Naturalness Argument}
-\begin{itemize}
-\item Human code is surprisingly \yell{repetitive}~ [Hindle et al. ICSE'12]
-\item Maintainability forces repeated use of idioms and patterns.
-\item Repetition $\Rightarrow$ minimal variation between clusters.
-\item Minimal variation $\Rightarrow$ flat loss \yell{landscapes}.
-\end{itemize}
-
-~\\
-
+  \begin{itemize}
+    \item Human code is surprisingly \yell{repetitive}~ [Hindle et al. ICSE'12]
+    \item Maintainability forces repeated use of idioms and patterns.
+    \item Repetition $\Rightarrow$ minimal variation between clusters.
+    \item Minimal variation $\Rightarrow$ flat loss \yell{landscapes}.
+  \end{itemize}
+  ~\\
   \begin{minipage}[t]{2in}
-\begin{block}{The core insight}
-Maintainable code produces data with flat loss landscapes.
-\end{block}\end{minipage}\hspace{1in}\begin{minipage}[t]{2in}
-  \begin{block}{Effects of HPO}
-    Smoothing the landscape.
-  \end{block}\end{minipage}
-\end{frame}
+    \begin{block}{The core insight}
+      Maintainable code produces data with flat loss landscapes.
+    \end{block}\end{minipage}\hspace{1in}\begin{minipage}[t]{2in}
+      \begin{block}{Effects of HPO}
+        Smoothing the landscape.
+      \end{block}\end{minipage}
+    \end{frame}
 
     \begin{frame}[t]{Experiments with Hyper-parameters (not an exhaustive list)} 
 
