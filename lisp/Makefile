@@ -40,16 +40,30 @@ sh: ## start up my own IDE
 HTML = ~/tmp/html
 LUA = $(wildcard *.lua)
 
-~/tmp/%.pdf : %.jl julia.ssh Makefile 
+Font ?=5
+Cols ?=3
+
+~/tmp/%.pdf : %.lua lua.ssh Makefile 
 	@echo "pdfing : $@ ... "
 	@a2ps -Bj --landscape --line-numbers=1 --highlight-level=normal \
 		--prologue=color --borders=no  --right-footer="" --left-footer=""  \
-		--pretty-print=./julia.ssh \
+		--pretty-print=./lua.ssh \
+    --columns=3 \
     --footer="page %p." -M letter \
-		--lines-per-page=100 --columns $(Cols) \
+    --font-size=$(Font) \
 		-o - $< | ps2pdf - $@
 	open $@
 
+# ~/tmp/%.pdf : %.jl julia.ssh Makefile 
+# 	@echo "pdfing : $@ ... "
+# 	@a2ps -Bj --landscape --line-numbers=1 --highlight-level=normal \
+# 		--prologue=color --borders=no  --right-footer="" --left-footer=""  \
+# 		--pretty-print=./julia.ssh \
+#     --footer="page %p." -M letter \
+# 		--lines-per-page=100 --columns $(Cols) \
+# 		-o - $< | ps2pdf - $@
+# 	open $@
+#
 
 $(HTML)/%.html: %.lisp # $I/etc/top.html
 	@echo "Generating doco for $<"
@@ -62,14 +76,14 @@ $(HTML)/%.html: %.lisp # $I/etc/top.html
 Font ?=5
 Cols ?=3
 
-~/tmp/%.pdf : %.lisp Makefile 
-	@echo "pdfing : $@ ... "
-	@a2ps -Bj --landscape --line-numbers=1 --highlight-level=normal \
-		--borders=no --pro=color --right-footer="" --left-footer=""  \
-		--footer="page %p." -M letter \
-		--lines-per-page=100 --columns $(Cols) \
-		-o - $< | ps2pdf - $@
-	open $@
+# ~/tmp/%.pdf : %.lisp Makefile 
+# 	@echo "pdfing : $@ ... "
+# 	@a2ps -Bj --landscape --line-numbers=1 --highlight-level=normal \
+# 		--borders=no --pro=color --right-footer="" --left-footer=""  \
+# 		--footer="page %p." -M letter \
+# 		--lines-per-page=100 --columns $(Cols) \
+# 		-o - $< | ps2pdf - $@
+# 	open $@
 
 
  SHOW1 = awk 'NF' | feedgnuplot --domain --lines --hardcopy out.png \

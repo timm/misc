@@ -53,13 +53,15 @@ mutable struct Cols
   d=nothing; ynum=nothing; col=nothing; cut=nothing
   left=nothing; right=nothing; hdr="" end
 
-#=================================================
+#------------------------------------------------
 # PART 2 -- Utils, Constructors, Add/Sub
-#=================================================
+#------------------------------------------------
+
 unk(v)        = v == "?"
 cell(c, row)  = row[c.at]
 eachn(rs,n=30)= rs[1:n:end]
 
+"Parse S: number if parsable, \"?\" as missing marker, else string."
 function thing(s)
   s = strip(string(s))
   for T in (Int, Float64, Bool)
@@ -133,11 +135,9 @@ function add!(d::Data, row, w=1)
             deleteat!(d.rows, findfirst(==(row), d.rows)) end
   row end
 
-adds!(vs, s=Num()) = (for v in vs; add!(s, v); end; s)
-
-#=================================================
+#------------------------------------------------
 # PART 3 -- Stats & Distance
-#=================================================
+#------------------------------------------------
 mid(n::Num) = n.mu
 mid(s::Sym) = argmax(s.has)
 function mid(d::Data)
@@ -164,6 +164,7 @@ function minkowski(vs)
 disty(d, row) = minkowski(
   abs(norm(c, cell(c, row)) - c.heaven) for c in d.cols.y)
 
+"Per-column distance. Both missing = 1. Missing assumed far from known."
 function aha(::Sym, a, b)
   unk(a) && unk(b) && return 1.0
   a == b ? 0.0 : 1.0 end
@@ -178,15 +179,9 @@ function aha(c::Num, a, b)
 distx(d, r1, r2) = minkowski(
   aha(c, cell(c, r1), cell(c, r2)) for c in d.cols.x)
 
-#=================================================
-# PART 4 -- Scoring & Trees
-#=================================================
-function wins(god)
-  ys = sort([disty(god, r) for r in god.rows])
-  lo, md = ys[1], ys[length(ys) ÷ 2 + 1]
-  r -> floor(Int, 100 *
-    (1 - (disty(god, r) - lo) / (md - lo + 1e-32))) end
-
+#------------------------------------------------
+# PART 4 -- Trees
+#------------------------------------------------
 function new_tree(d, rs, hdr="")
   sub = Data()
   add!(sub, d.cols.names)
@@ -249,17 +244,20 @@ function tree_show(t, lvl=0)
   if t.left !== nothing
     tree_show(t.left, lvl + 1); tree_show(t.right, lvl + 1) end end
 
-#=================================================
+#-------------------------------------------------
 # PART 5 -- Active Learning
-#=================================================
+# -------------------------------------------------
+"Acquisition filter: is R closer to best's centroid than rest's?"
 closer(lab, best, rest, r) =
   distx(lab, r, mid(best)) < distx(lab, r, mid(rest))
 
+"Cap best at sqrt(|lab|); evict worst-disty row into rest."
 function rebalance!(best, rest, lab)
   length(best.rows) > sqrt(length(lab.rows)) || return
   bad = argmax(r -> disty(lab, r), best.rows)
   sub!(best, bad); add!(rest, bad) end
 
+"Label 4 rows; split by disty: top sqrt into best, rest in rest."
 function warm_start!(rs, lab, best, rest, ys)
   for _ in 1:min(4, length(rs))
     r = popfirst!(rs)
@@ -270,6 +268,7 @@ function warm_start!(rs, lab, best, rest, ys)
   for r in sorted[n+1:end];   add!(rest, r); end
   rs end
 
+"Active-label until budget. Returns (best, lab, labels_used)."
 function active(rs)
   hd   = first(rs)
   lab  = make_data([hd])
@@ -286,6 +285,8 @@ function active(rs)
       rebalance!(best, rest, lab) end end
   best, lab, ys.n end
 
+"Split train/test; grow tree from labels; pay CHECK labels on top picks.
+Returns (train_win, hold_win, labels_used)."
 function validate(rs, god, w)
   check = the[:check]
   body  = shuffled(rs[2:end])
@@ -302,9 +303,16 @@ function validate(rs, god, w)
   pick = argmin(y_god, top)
   w(train_best), w(pick), labels + check end
 
-#=================================================
+"Return closure scoring a row 0..100: 100=best disty, 50=median."
+function wins(god)
+  ys = sort([disty(god, r) for r in god.rows])
+  lo, md = ys[1], ys[length(ys) ÷ 2 + 1]
+  r -> floor(Int, 100 *
+    (1 - (disty(god, r) - lo) / (md - lo + 1e-32))) end
+
+#-------------------------------------------------
 # PART 6 -- Examples & CLI
-#=================================================
+#-------------------------------------------------
 const eg = Dict{String,Function}()
 
 eg["--the"]    = _ -> println(the)
@@ -372,4 +380,8 @@ function cli()
     elseif haskey(flag2key, flag) && !isempty(args)
       the[flag2key[flag]] = thing(popfirst!(args)) end end end
 
-cli()
+#-------------------------------------------------
+# PART 7 -- Go
+#-------------------------------------------------
+
+abspath(PROGRAM_FILE) == (@__FILE__) && cli()
