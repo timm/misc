@@ -101,8 +101,14 @@ reference lands in. **TBD** = citation to pin down.
 
 ## Sidebars / craft
 
-- **Restarts dominate mutation policy** — finding in `ezeg.py` `test_compare`.
-  Connects to Selman (GSAT) + Luby (1993) in the prologue.
+- **Chen et al. (2022)** — median-only algorithm comparison hides worst-case
+  fragility; report best/median/worst or full distributions. TBD: precise cite.
+- **"Restarts matter when the search has no other escape"** — finding in
+  `ezr.lua --compare`. SA and LS-with-restart tie; LS-without-restart is
+  the clear loser. Refines the older "restarts dominate mutation" claim:
+  what matters is having *any* escape mechanism (stochastic accept, multi-col
+  mutation, or restart). Connects to Selman (GSAT) + Luby (1993) in the
+  prologue, and to `ezeg.py` `test_compare`.
 - **Sigmoid-of-z as Gaussian-CDF approximation** — `NUM.norm` trick.
   TBD: standard stat-tables ref, or Bowling et al. (2009) logistic CDF
   approximation.
