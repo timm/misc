@@ -1,0 +1,49 @@
+# Style sheet for Julia, for a2ps.
+# Identifiers that collide with a2ps grammar words
+# (end, in, type) are quoted in keyword lists.
+
+style Julia is
+
+written by "timm"
+version is 1.0
+requires a2ps 4.13
+
+first alphabet is
+   "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+second alphabet is
+   "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!"
+
+case sensitive
+
+keywords in Keyword are
+   abstract, baremodule, begin, break, catch, const,
+   continue, do, else, elseif, "end", export, finally,
+   for, function, global, if, import, "in", isa, let,
+   local, macro, module, mutable, primitive, quote,
+   return, struct, try, "type", using, where, while
+end keywords
+
+keywords in Keyword_strong are
+   true, false, nothing, missing, undef, Inf, NaN
+end keywords
+
+sequences are
+   "#" Comment,
+   "\"" String "\"" String,
+   "function " Plain Label "(" Plain,
+   "macro " Plain Label "(" Plain,
+   "mutable struct " Plain Label " " Plain,
+   "struct " Plain Label " " Plain
+end sequences
+
+operators are
+   "::", "->", "=>", "<:", ">:",
+   "==", "!=", "<=", ">=", "===", "!==",
+   "&&", "||",
+   "<<", ">>",
+   "+", "-", "*", "/", "%", "^",
+   "<", ">", "=", "!", "&", "|", "~",
+   "."
+end operators
+
+end style

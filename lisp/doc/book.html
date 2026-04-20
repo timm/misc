@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ezr.jl &mdash; an essay</title>
+<style>
+body {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 11pt;
+  line-height: 1.55;
+  max-width: 620px;
+  margin: 3em auto;
+  padding: 0 1.2em;
+  color: #222;
+  background: #fdfdfd;
+}
+h1 {
+  font-size: 15pt;
+  font-weight: normal;
+  text-align: center;
+  margin: 0 0 0.3em 0;
+}
+h1.chap {
+  font-size: 13pt;
+  text-align: left;
+  margin: 3.5em 0 0.4em 0;
+  padding-top: 1.5em;
+  border-top: 2px solid #666;
+}
+.sub {
+  text-align: center;
+  color: #666;
+  margin-bottom: 3em;
+  font-size: 10pt;
+}
+h2 {
+  font-size: 11pt;
+  font-weight: bold;
+  margin: 1.8em 0 0.4em 0;
+}
+p { margin: 0.9em 0; }
+blockquote {
+  font-style: italic;
+  color: #444;
+  margin: 1em 2em;
+}
+pre {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 9.5pt;
+  line-height: 1.35;
+  margin: 1em 0 1em 2em;
+  white-space: pre;
+  overflow-x: auto;
+}
+sup a {
+  text-decoration: none;
+  color: #0066cc;
+}
+.footnotes {
+  margin-top: 4em;
+  padding-top: 1em;
+  border-top: 1px solid #aaa;
+  font-size: 10pt;
+  color: #444;
+}
+.footnotes p { margin: 0.4em 0; }
+a { color: #0066cc; }
+a:hover { text-decoration: underline; }
+.toc { text-align: center; margin-bottom: 3em; font-size: 10pt; color: #666; }
+.toc a { color: #666; }
+</style>
+</head>
+<body>
+
+<h1>ezr.jl</h1>
+<p class="sub">an active-learning library in four hundred lines of Julia, annotated</p>
+
+<p class="toc">
+1. motivation &middot;
+2. landscape &middot;
+3. stats &middot;
+4. distance &middot;
+5. active &middot;
+6. trees &middot;
+7. notation &middot;
+8. rejected &middot;
+9. results
+</p>
+
+<h1 class="chap">1. Motivation</h1>
+
+<blockquote>
+Email is a wonderful thing for people whose role in life is to be on top of things. But not for me; my role is to be on the bottom of things.<br>
+&mdash; Donald Knuth<sup><a href="#fn1">1</a></sup>
+</blockquote>
+
+<p>In an age where everyone hands details to an LLM, what are we missing?</p>
+
+<p>We refactored an AI research codebase to the bone. Four hundred lines of Julia, one file, no dependencies beyond Julia's standard library, runs in milliseconds once the JIT has warmed. Five things stopped being true.</p>
+
+<p><b>One.</b> Regression, classification, and optimization are the same task. Our active-learning loop does all three. The only difference is a suffix in the CSV header. A column named <tt>Mpg-</tt> is a minimization target. <tt>Mpg+</tt> is maximization. <tt>class!</tt> is a classifier label. Everything else is a feature. Three textbook chapters, one algorithm.</p>
+
+<p><b>Two.</b> Five abstractions, everywhere. <tt>Num</tt>, <tt>Sym</tt>, <tt>Cols</tt>, <tt>Data</tt>, and a distance function. Every module composes from these. The <tt>Num</tt> that tracks mean and standard deviation is three lines of slots. That same <tt>Num</tt> is the beating heart of the active learner, the splitting criterion for decision trees, and the basis of every "is X better than Y" judgement the code makes. Build once, reuse always.</p>
+
+<p><b>Three.</b> Interpretability is cheap. Rudin argued that high-stakes decisions should use interpretable models, not explained black boxes<sup><a href="#fn2">2</a></sup>. We agree. The cost is small. Our decision tree learner is sixty lines of Julia. Trees print on a page. We measured the tax: at thirty labels, a tree-ranked holdout loses six points of win to a centroid baseline. At fifty labels the tax is zero. Interpretability has a minimum sample size. Above it, it costs nothing.</p>
+
+<p><b>Four.</b> Fewer than fifty labels beat big data. Labels in software engineering are expensive. Expert annotation fatigues quickly. Historical logs are unreliable; up to ninety percent of technical-debt entries are false positives<sup><a href="#fn3">3</a></sup>. Automated oracles use approximate heuristics that miss the interesting cases. Active learning picks informative rows and stops. Fifty labels outperform baselines trained on thousands.</p>
+
+<p><b>Five.</b> Dependencies are a supply-chain bet. Modern software is eighty-five to ninety-seven percent external code<sup><a href="#fn4">4</a></sup>. Each dependency widens the attack surface. A single poisoned npm or PyPI update compromises thousands of downstream packages silently. Richard Hipp, author of SQLite, practices <i>backpacking</i>: cutting code to what is essential. He built his own editor, servers, storage engine. He shunned Berkeley DB. Oracle later acquired it and demanded license fees. SQLite ships today on every Android phone, every iPhone, Chrome, Firefox, Safari, most Linux distributions, and Mars rovers. Hipp's framing: <i>if you want to be free, that means doing things yourself</i><sup><a href="#fn5">5</a></sup>. Our CSV reader is eight lines. Our CLI parser is twelve. The whole file is four hundred.</p>
+
+<h2>Why Julia?</h2>
+
+<p>Julia is the mainstream language closest to Lisp in the ways that matter for AI-math code. It has real multiple dispatch as first-class syntax &mdash; the single feature most responsible for this file being four hundred lines instead of fifteen hundred. It has keyword arguments, list comprehensions, and <tt>@kwdef</tt> structs with defaults. It JITs to near-C speed after the first call. It reads Python-ish, so any ML researcher can follow it without learning a dialect.</p>
+
+<p>You may not know Julia. That is fine. The code is short, the shape carries. <tt>function add!(n::Num, v, w=1) ... end</tt> defines a method dispatched on the <tt>Num</tt> type. <tt>struct</tt>, <tt>for</tt>, <tt>return</tt> look like what they look like everywhere. Learn the rest as you go. Every chapter ends with a <i>Try it yourself</i> list of the exercises a port would need in your language of choice.</p>
+
+<h2>The claim</h2>
+
+<p>If you cannot see the whole algorithm on one screen, you do not understand it. You trust it. Trust is a bug.</p>
+
+<h2>Try it yourself</h2>
+
+<p>Print the config. In ezr.jl it lives in a list called <tt>THE</tt>. Each entry is a 4-tuple <tt>(name, default, flag, description)</tt>. The CLI parser walks <tt>ARGS</tt>, matches flags, overwrites defaults via the <tt>the</tt> dict. No argparse, no dictionary of globals. One list that is both help text and storage.</p>
+
+<p>Implement this in your language. A list of 4-tuples, a flag parser that finds an entry by its third field, a CLI loop that overwrites the second field. The description field doubles as <tt>--help</tt>. The point is feeling how config-as-data cuts out a library.</p>
+
+<h1 class="chap">2. The landscape</h1>
+
+<p>The field is called <i>data</i> mining. Most textbooks ignore the data.</p>
+
+<p>They race to algorithms. Decision trees, gradient descent, backprop, transformers. Each one works only because the input has regularities: correlations, clusters, separable classes, distributions that repeat themselves. If rows were random noise, no algorithm would help. So what shape is the data?</p>
+
+<p>Two regularities matter. First, values have types. Some are numbers; some are words. You cannot add "five" and "three" but you can add 5.0 and 3.0. You cannot ask for the mean of <tt>["red", "green", "blue"]</tt>, but the mode is fine. Two struct types cover it:</p>
+
+<pre>
+@kwdef mutable struct Sym
+  at::Int=0; txt::String=" "; n::Int=0; has=Dict() end
+
+@kwdef mutable struct Num
+  at::Int=0; txt::String=" "; n::Int=0
+  mu::Float64=0.0; m2::Float64=0.0; heaven::Int=1 end
+</pre>
+
+<p>Both carry a position (<tt>at</tt>), a name (<tt>txt</tt>), a count (<tt>n</tt>). A <tt>Sym</tt> keeps a frequency dictionary. A <tt>Num</tt> keeps Welford's running mean (<tt>mu</tt>) and sum of squared deviations (<tt>m2</tt>). <tt>heaven</tt> is the direction of good: 1 for maximize, 0 for minimize. Keep types separate and no downstream code has to branch on type.</p>
+
+<p>Second regularity: names carry roles. Capitalize numerics. Suffix goals with <tt>+</tt> or <tt>-</tt>. Mark a classifier target with <tt>!</tt>. Mark skipped columns with <tt>X</tt>. The classifier is eight lines:</p>
+
+<pre>
+function make_cols(names)
+  all = [make_col(i, t) for (i, t) in enumerate(names)]
+  x, y = Any[], Any[]
+  for c in all
+    endswith(c.txt, "X") && continue
+    occursin(r"[!+\-]$", c.txt) ?
+      push!(y, c) : push!(x, c) end
+  Cols(names, all, x, y) end
+</pre>
+
+<p>Capital first letter gives a <tt>Num</tt>. Lowercase gives a <tt>Sym</tt>. The last character sets the role. Convention over configuration: the data tells us what the data is. No registry, no manifest, no plugin file.</p>
+
+<p>Data is rows plus their summary:</p>
+
+<pre>
+@kwdef mutable struct Data
+  rows::Vector=Any[]; cols=nothing; mid=nothing end
+</pre>
+
+<p>One idea drives the design: the stats <i>are</i> the data. There is no DataFrame of statistics alongside a list of rows. Every column object carries its own running summary. Ask for the mean; read <tt>mu</tt>. No separate <i>fit</i> step. Pop a row with <tt>sub!</tt> and the summaries correct themselves.</p>
+
+<p>The mutation vocabulary has four verbs. <tt>add!</tt> creates, <tt>sub!</tt> deletes, field-access reads (<tt>n.mu</tt>), assignment updates (<tt>n.mu = x</tt>). CRUD, the same four every REST API pretends to have. <tt>add!</tt> pushes a value into a column's summary and returns the value:</p>
+
+<pre>
+function add!(n::Num, v, w=1)
+  unk(v) && return v
+  if w &lt; 0 && n.n &lt;= 2
+    n.n = 0; n.mu = 0.0; n.m2 = 0.0
+  else
+    n.n += w
+    d = v - n.mu
+    n.mu += w * d / n.n
+    n.m2 += w * d * (v - n.mu) end
+  v end
+</pre>
+
+<p>Welford's online update, one assignment per term. Missing values (<tt>"?"</tt>) skip. The guard handles the edge case where a subtraction would push <tt>n</tt> below two; the column resets instead of going unstable. <tt>sub!</tt> is <tt>add!</tt> with <tt>w = -1</tt>. Subtraction is as cheap as addition because Welford is symmetric under negation. The active learner in Chapter 5 uses this to move rows between sets without rebuilding anything.</p>
+
+<p>Adding a row threads multiple dispatch through three layers:</p>
+
+<pre>
+function add!(d::Data, row, w=1)
+  d.mid = nothing
+  if d.cols === nothing
+    d.cols = make_cols(row)
+  else
+    add!(d.cols, row, w)
+    w &gt; 0 ? push!(d.rows, row) :
+            deleteat!(d.rows, findfirst(==(row), d.rows)) end
+  row end
+
+function add!(cs::Cols, row, w=1)
+  for (c, v) in zip(cs.all, row); add!(c, v, w); end
+  row end
+</pre>
+
+<p>One call on the <tt>Data</tt> recurses into its <tt>Cols</tt>, which maps across every column, dispatching to either the <tt>Num</tt> or <tt>Sym</tt> method. No <tt>isinstance</tt> checks at any call site. The method machinery knows.</p>
+
+<p>Sixty lines of struct and multiple-dispatch methods give us a running summary of any CSV, row removal as cheap as row addition, role assignment from column names alone, and a type system that dispatches for us. No DataFrames.jl, no StatsBase, no ORM. The data carries its own schema.</p>
+
+<h2>Try it yourself</h2>
+
+<p>Write <tt>--rows</tt>: read a CSV into a list of rows. Each row is a list of values. Strings that parse as numbers become numbers. <tt>"?"</tt> becomes a distinct missing marker. Everything else stays a string. In Python, about fifteen lines; in Julia, about eight.</p>
+
+<p>Write <tt>--data</tt>: take that list. Treat the first row as header. Build a <tt>Num</tt> or <tt>Sym</tt> per column from its first character. Assign to features or goals from its last character. Feed remaining rows through so each column updates. Print the goal columns. In Python, about thirty lines; in Julia, about twenty.</p>
+
+<p>Combined, reading and summarizing a CSV online is maybe fifty lines of Julia. None of it requires a library beyond <tt>Printf</tt>.</p>
+
+<h1 class="chap">3. Online stats</h1>
+
+<p>Given a column of four hundred numeric values, how do you answer "what is typical" and "how spread out is it" without storing all four hundred values in a list?</p>
+
+<p>Plot a column on a histogram. A curve emerges. Peaks where rows cluster, thin tails where they do not. That curve is a <i>probability density function</i>, or PDF. The cumulative form, the fraction of the column at or below <tt>x</tt>, is the CDF.</p>
+
+<p>For most real-world columns the PDF is roughly a bell. A Gaussian. Every Gaussian is two numbers: a center <tt>mu</tt> and a width <tt>sigma</tt>. Summarize those and you have the distribution.</p>
+
+<p>A naive <tt>mu</tt> sums every value and divides by count. That needs either all the values in memory or two passes over the file. A naive <tt>sigma</tt> sums squared deviations from <tt>mu</tt>, which needs a first pass to get <tt>mu</tt> and a second for the deviations. Welford solved both in 1962. Keep <tt>mu</tt> and a helper <tt>m2</tt>, the running sum of squared deviations from the <i>current</i> <tt>mu</tt>. Update in O(1) per value. After <tt>n</tt> values, <tt>sigma = sqrt(m2 / (n - 1))</tt>.</p>
+
+<p>The three arithmetic lines, already shown in Chapter 2:</p>
+
+<pre>
+n.n += w
+d = v - n.mu
+n.mu += w * d / n.n
+n.m2 += w * d * (v - n.mu)
+</pre>
+
+<p>One assignment per sample. No list. <tt>mu</tt> is always current. Anything derived from <tt>mu</tt> and <tt>m2</tt> costs O(1) to read. Pass <tt>w = -1</tt> and the same formulas unwind a previous add. Rows can be discarded after they pass through; the <tt>Num</tt> remembers what matters. This is single-source-of-truth for the column. The summary is not built from stored rows on demand. The summary <i>is</i> the stored form.</p>
+
+<p>The concept of a center and a width exists for every column type, though the math differs. For a <tt>Num</tt>, center is <tt>mu</tt> and spread is <tt>sigma</tt>. For a <tt>Sym</tt>, center is the most frequent value (the mode) and spread is an entropy-style measure over the frequency dictionary. For a <tt>Data</tt>, center is the centroid: a vector of per-column centers, memoized until the next <tt>add!</tt>.</p>
+
+<pre>
+mid(n::Num) = n.mu
+mid(s::Sym) = argmax(s.has)
+function mid(d::Data)
+  d.mid === nothing &&
+    (d.mid = [mid(c) for c in d.cols.all])
+  d.mid end
+
+spread(n::Num) = n.n &lt; 2 ? 0.0 :
+  sqrt(max(0.0, n.m2) / (n.n - 1))
+spread(s::Sym) = -sum(let p = v / s.n; p * log2(p) end
+  for v in values(s.has) if v &gt; 0; init=0.0)
+</pre>
+
+<p>The caller never writes <tt>if typeof(col) == Num</tt>. That branch lives once, at method dispatch. Add a new column type (a date column, say) by writing new methods. No caller edits. This is what <i>open for extension, closed for modification</i> buys you. The if-ladder does not grow by a branch.</p>
+
+<p>The last piece is normalization. Two columns often have different scales. <tt>Mpg</tt> lives in 10 to 40. <tt>Cylinders</tt> lives in 3 to 8. You cannot mix their deviations; the <tt>Mpg</tt> term would swamp the <tt>Cylinders</tt> one. Normalize each to a common <tt>[0, 1]</tt>:</p>
+
+<pre>
+norm(::Sym, v) = v
+function norm(n::Num, v)
+  unk(v) && return v
+  z = (v - n.mu) / (spread(n) + 1e-32)
+  1 / (1 + exp(-1.7 * clamp(z, -3, 3))) end
+</pre>
+
+<p>Compute <tt>z</tt>, the z-score. Clamp to <tt>[-3, 3]</tt>, which covers 99.7 percent of a Gaussian. Apply a sigmoid at scale 1.7, a known approximation to the Gaussian CDF. The output is the approximate fraction of the column at or below <tt>v</tt>. Every column's values now live on a common <tt>[0, 1]</tt>, comparable. For a <tt>Sym</tt>, <tt>norm</tt> is the identity. Equality is the only comparison that matters.</p>
+
+<p>Chapter 4 wants to compute distances between rows. That works across columns of different types and scales only if every value reduces to a number in <tt>[0, 1]</tt> in O(1). Welford gave us <tt>mu</tt> and <tt>m2</tt> in O(1). <tt>m2</tt> gives us <tt>sigma</tt> in O(1). <tt>sigma</tt> gives us <tt>z</tt>. The sigmoid gives us the CDF approximation. Each layer constant-time because the layer underneath it was.</p>
+
+<h2>Try it yourself</h2>
+
+<p>Write <tt>--stats</tt>: walk every column in a loaded <tt>Data</tt> and print its name, mid, and spread. The key test is that you never iterate rows inside this command. If you find yourself computing the mean from a list, Chapter 2 went wrong.</p>
+
+<p>Write <tt>--norm</tt>: pick the first row. For each goal column, print the raw value and the normalized value. Numeric columns should map into <tt>(0, 1)</tt>. Symbolic columns should pass through. Verify that <tt>norm(col, mid(col))</tt> is close to <tt>0.5</tt>: the center of the CDF.</p>
+
+<p>In Python, maybe twenty lines on top of Chapter 2. In Julia, about ten. No stats library required.</p>
+
+<h1 class="chap">4. Distance</h1>
+
+<p>Chapter 3 gave us one number per column on a common <tt>[0, 1]</tt> scale. Chapter 4 turns per-column numbers into per-row numbers. Distance.</p>
+
+<p>Two distances do two jobs. <tt>disty</tt> measures how far a row is from perfection &mdash; the "heaven" row where every minimize-column is at its minimum and every maximize-column is at its maximum. <tt>distx</tt> measures how similar two rows are on features alone. <tt>disty</tt> uses only y-columns; <tt>distx</tt> uses only x-columns. They never cross.</p>
+
+<p>Both compose from the same Minkowski kernel:</p>
+
+<pre>
+function minkowski(vs)
+  p = the[:p]; tot = 0.0; k = 0
+  for v in vs; tot += v^p; k += 1; end
+  (tot / max(1, k))^(1 / p) end
+</pre>
+
+<p>With <tt>p=1</tt> this is Manhattan distance. With <tt>p=2</tt> it is Euclidean. Pick on the CLI with <tt>-p</tt>. The kernel does not know about columns. It takes an iterator of per-element distances and combines them. All per-column math lives outside.</p>
+
+<p><tt>disty</tt> builds the iterator "how far is this value from heaven":</p>
+
+<pre>
+disty(d, row) = minkowski(
+  abs(norm(c, cell(c, row)) - c.heaven) for c in d.cols.y)
+</pre>
+
+<p>Normalize the value to <tt>[0, 1]</tt>. Subtract <tt>heaven</tt> (0 or 1). Take absolute value. Minkowski-combine across y-columns. One scalar per row, lower is better.</p>
+
+<p><tt>distx</tt> delegates per column, because different column types need different distance math:</p>
+
+<pre>
+function aha(::Sym, a, b)
+  unk(a) && unk(b) && return 1.0
+  a == b ? 0.0 : 1.0 end
+
+function aha(c::Num, a, b)
+  unk(a) && unk(b) && return 1.0
+  a, b = norm(c, a), norm(c, b)
+  unk(a) && (a = b &gt; 0.5 ? 0.0 : 1.0)
+  unk(b) && (b = a &gt; 0.5 ? 0.0 : 1.0)
+  abs(a - b) end
+
+distx(d, r1, r2) = minkowski(
+  aha(c, cell(c, r1), cell(c, r2)) for c in d.cols.x)
+</pre>
+
+<p>Two methods of <tt>aha</tt>. The sym method is equality: zero if match, one if not. The num method normalizes first, then takes absolute difference. When one side is missing, assume the far end of the scale from whatever the known side is. Missing as far as possible from anything that is not missing.</p>
+
+<p>Twenty lines, and you have pairwise distance on mixed-type rows with missing-value handling. A Python equivalent using NumPy plus pandas plus scikit-learn's <tt>NearestNeighbors</tt> plus an imputation library would be orders of magnitude more code, across several libraries, opaque to audit.</p>
+
+<p>Notice what multiple dispatch buys you. If tomorrow we add a <tt>Date</tt> column type, <tt>aha</tt> needs one new method and every existing caller works unchanged. This is open-closed doing real work.</p>
+
+<h2>Try it yourself</h2>
+
+<p>Write <tt>--ydata</tt>: build a <tt>Data</tt>, sort its rows by <tt>disty</tt>, print every thirtieth. You will see the best rows clustered at the top. Write <tt>--xdata</tt>: take the first row as a reference, sort every other row by <tt>distx</tt> to it, print every thirtieth. You will see the neighbors. The two commands together show that y and x are two separate organizations of the same rows. Chapter 5 exploits that.</p>
+
+<h1 class="chap">5. Active learning</h1>
+
+<p>Labels cost money. Reading an already-written row is free; writing the ground-truth y-value for it is not. In software engineering an expert annotation takes minutes to hours. A fuzzer run that confirms a bug takes compute. A log review takes attention. Four hundred rows to label is a two-day task.</p>
+
+<p>So pick carefully. Do not label everything. Do not label randomly. Label the rows where labeling will teach you something.</p>
+
+<p>The classical approach is probabilistic: estimate the learner's uncertainty on each unlabeled row, pay for the most uncertain one. Correct, but heavyweight, because it needs a probabilistic model. Here we use a filter that needs two <tt>distx</tt> calls and a less-than.</p>
+
+<p>The trick: keep two labeled subsets. <tt>best</tt> holds the good-looking rows; <tt>rest</tt> holds the rest. Both are real <tt>Data</tt> objects because we want their running statistics, and thus their centroids, to be current.</p>
+
+<p>The filter: is this new row closer to <tt>best</tt>'s centroid or to <tt>rest</tt>'s?</p>
+
+<pre>
+closer(lab, best, rest, r) =
+  distx(lab, r, mid(best)) &lt; distx(lab, r, mid(rest))
+</pre>
+
+<p>If closer to <tt>best</tt>, the row looks promising. Spend a label. If not, skip.</p>
+
+<p>A warm start seeds the centroids. Four random labels, sorted by <tt>disty</tt>, split top-sqrt from the rest:</p>
+
+<pre>
+function warm_start!(rs, lab, best, rest, ys)
+  for _ in 1:min(4, length(rs))
+    r = popfirst!(rs)
+    add!(lab, r); add!(ys, disty(lab, r)) end
+  sorted = sort(lab.rows, by = r -&gt; disty(lab, r))
+  n = max(1, Int(floor(sqrt(length(sorted)))))
+  for r in sorted[1:n];     add!(best, r); end
+  for r in sorted[n+1:end]; add!(rest, r); end
+  rs end
+</pre>
+
+<p>Then the main loop. Cap the remaining pool at <tt>the[:u]</tt> rows. Apply the filter to each row in turn. When closer, label it and add it to both <tt>lab</tt> (the record of everything labeled) and <tt>best</tt> (promising subset). Optionally rebalance.</p>
+
+<pre>
+function active(rs)
+  hd   = first(rs)
+  lab  = make_data([hd])
+  best = make_data([hd])
+  rest = make_data([hd])
+  ys   = Num()
+  pool = warm_start!(
+    shuffled(rs[2:end]), lab, best, rest, ys)
+  for r in pool[1:min(the[:u], length(pool))]
+    ys.n &gt;= the[:b] && break
+    if closer(lab, best, rest, r)
+      add!(ys, disty(lab, r))
+      add!(lab, r); add!(best, r)
+      rebalance!(best, rest, lab) end end
+  best, lab, ys.n end
+</pre>
+
+<p>Rebalance: when <tt>best</tt> grows past <tt>sqrt(|lab|)</tt>, evict its worst-<tt>disty</tt> row into <tt>rest</tt>. Keep best small. Keep <tt>lab</tt> as the running ledger of paid-for labels.</p>
+
+<p>The whole loop is twenty lines. No entropy, no uncertainty, no probabilistic model. The filter is "does this row look like the ones we liked?" and the answer comes from two <tt>distx</tt> calls.</p>
+
+<p>Now the evaluation question. Does it actually work?</p>
+
+<p>Honest evaluation needs a holdout. Split rows 50/50 into <tt>train</tt> and <tt>test</tt>. Run <tt>active</tt> on <tt>train</tt>. Build a tree from what it labeled (next chapter). Rank <tt>test</tt> rows by the tree's predictions, using only their features. Pay for the top <tt>check</tt> ground-truth labels. Pick the winner. Score that winner against a god-view of the full dataset:</p>
+
+<pre>
+function validate(rs, god, w)
+  check = the[:check]
+  body  = shuffled(rs[2:end])
+  n     = length(body) ÷ 2
+  train = vcat([first(rs)], body[1:n])
+  test  = body[n+1:end]
+  _, lab, labels = active(train)
+  y_god = r -&gt; disty(god, r)
+  train_best = argmin(y_god, lab.rows)
+  tr = tree_grow(lab, lab.rows)
+  sorted = sort(test,
+    by = r -&gt; mid(tree_leaf(tr, r).ynum))
+  top  = sorted[1:min(check, length(sorted))]
+  pick = argmin(y_god, top)
+  w(train_best), w(pick), labels + check end
+</pre>
+
+<p>Every god-disty call is counted. Total label cost per run is <tt>budget + check</tt>: 50 + 5 = 55 on defaults. No y-leaks anywhere during training; the tree never sees a god-disty, only the labels <tt>active</tt> paid for.</p>
+
+<p>The result on auto93.csv: median hold-win around 94 out of 100 at budget=50. For comparison: label 55 rows at random and pick the best gets you around 50. A full-dataset baseline, with access to every label, tops out around 97. Fifty-five labels get us to 97 percent of full-dataset performance.</p>
+
+<h2>Try it yourself</h2>
+
+<p>Write <tt>--active</tt>: run <tt>validate</tt> twenty times with different seeds, print each run's train-win, hold-win, and labels-used. Sort by hold-win and take the median. At budget=50 it should land near 94. At budget=30, with centroid ranking, around 91. With tree ranking, around 85. The six-point gap at thirty labels is the explanation tax, which Chapter 6 is about.</p>
+
+<h1 class="chap">6. Trees and the explanation tax</h1>
+
+<p>Chapter 5 ends with "build a tree, rank holdout by leaf-predicted y-value." This chapter builds that tree and counts what it costs.</p>
+
+<p>A decision tree partitions rows into buckets. At each internal node, one column and one cut value. Rows with column-value below the cut go left, above go right. Each leaf is a bucket; its predicted y is the mean of its rows' <tt>disty</tt> values.</p>
+
+<p>With the stats of Chapter 3 and the distance of Chapter 4 in hand, most of the tree is composition.</p>
+
+<pre>
+@kwdef mutable struct Tree
+  d=nothing; ynum=nothing; col=nothing; cut=nothing
+  left=nothing; right=nothing; hdr="" end
+
+function new_tree(d, rs, hdr="")
+  sub = Data()
+  add!(sub, d.cols.names)
+  for r in rs; add!(sub, r); end
+  ys = Num()
+  for r in rs; add!(ys, disty(d, r)); end
+  Tree(d=sub, ynum=ys, hdr=hdr) end
+</pre>
+
+<p>A node is a <tt>Data</tt> (the rows at this node), a <tt>Num</tt> of their <tt>disty</tt> values (the node's score), plus branch info and a pre-formatted header for printing.</p>
+
+<p>Choosing cuts on numeric columns is where traditional CART gets expensive and overfits. Standard CART sorts the values and evaluates every candidate threshold, picking whichever minimizes training impurity. With fifty labels that means forty-nine cut candidates per numeric column, and the "best" one is often the one that happened to separate a noise-value from the rest. The optimizer finds spurious structure in sparse data.</p>
+
+<p>We regularize by fiat. For numeric columns, only consider the median:</p>
+
+<pre>
+cand_cuts(::Sym, vs) = unique(vs)
+cand_cuts(::Num, vs) = [sort(vs)[length(vs) ÷ 2 + 1]]
+</pre>
+
+<p>One cut per numeric column. A strong prior: we believe the median is good enough regardless of the training labels. Trades theoretical optimality for variance reduction. Works because the trees stay shallow and are only asked to rank rough regions, not make precise predictions.</p>
+
+<p>Greedy split selection over all (column, cut) pairs picks whichever minimizes weighted spread of its children:</p>
+
+<pre>
+function tree_split(d, c, cut, rs)
+  l, r = Any[], Any[]; ln, rn = Num(), Num()
+  for row in rs
+    if go_left(c, cell(c, row), cut)
+      push!(l, row); add!(ln, disty(d, row))
+    else
+      push!(r, row); add!(rn, disty(d, row)) end end
+  (ln.n * spread(ln) + rn.n * spread(rn), c, cut, l, r) end
+</pre>
+
+<p>The same <tt>spread</tt> method handles both regression and classification because Chapter 3's multiple dispatch already resolved the type. Same impurity code for both tasks.</p>
+
+<p>Recurse until each node has fewer than <tt>2*leaf</tt> rows. Default <tt>leaf=3</tt>, so nodes stop splitting at five rows. Print with <tt>mid</tt> on the left, size in parens, condition on the right:</p>
+
+<pre>
+0.35 ( 27)   Mpg &lt;= 25
+0.30 ( 13)   |.. Hp &lt;= 100
+0.41 ( 14)   Mpg &gt;  25
+</pre>
+
+<p>Three columns of information: node mean disty, node size, branch condition. Read top to bottom and every decision the tree made is visible. Try that with a transformer.</p>
+
+<p>This is the XAI payoff. Rudin called for it<sup><a href="#fn2">2</a></sup>: high-stakes decisions deserve interpretable models, not post-hoc explanations of opaque ones. Here is an interpretable model, in sixty lines.</p>
+
+<p>But it is not free. We measured the tax. On auto93 at budget=30, ranking the holdout via a tree costs six points of median hold-win versus ranking via a single <tt>best</tt> centroid. At budget=50 the tax is zero. Above fifty labels the tree actually wins.</p>
+
+<p>The reason is variance. Each leaf's mean disty comes from a handful of rows. With few labels, those means are noisy and the tree routes test rows wrongly. A centroid is a single stable point: less expressive, also less variable. At small N, variance dominates bias. At large N, bias dominates. Trees win when there is enough data to stabilize the leaf estimates.</p>
+
+<p>The takeaway for interpretability advocates: your model has a minimum sample size. Below it, you are paying an explanation tax on noise-amplified decision regions. Above it, the tax vanishes. Build both rankers. Show both numbers. Let the reader pick.</p>
+
+<h2>Try it yourself</h2>
+
+<p>Write <tt>--tree</tt>: run <tt>active</tt> to get a budget of labels, grow a tree from them, print it. Try <tt>leaf=3</tt>, <tt>leaf=5</tt>, <tt>leaf=7</tt>. Smaller leaves give more decision regions and more variance. Larger leaves give fewer regions and more stability. Find your sweet spot for a dataset you care about.</p>
+
+<h1 class="chap">7. Notation</h1>
+
+<p>Why Julia? Not because it is shorter than Lisp. Look at three implementations of the same pipeline:</p>
+
+<pre>
+fri.lisp    495 lines   Common Lisp
+ezr.jl      375 lines   Julia
+ezr.py      543 lines   Python (superset; has kmeans, SA, Bayes)
+</pre>
+
+<p>The fri.lisp-equivalent subset of ezr.py is under four hundred Python lines. Julia is shortest; the three cluster within twenty percent of each other. If you measure bytes of actual code (comments stripped), Julia is about 35 percent fewer bytes than Lisp. The Python subset sits in between.</p>
+
+<p>So why Julia here instead of Lisp or Python? Multiple dispatch as first-class syntax.</p>
+
+<pre>
+function add!(n::Num, v, w=1) ... end
+function add!(s::Sym, v, w=1) ... end
+function add!(cs::Cols, row, w=1) ... end
+function add!(d::Data, row, w=1) ... end
+</pre>
+
+<p>Four methods, one generic function. Julia selects the right one at call time based on the first argument's type. Lisp's <tt>defmethod</tt> does the same thing. Python's <tt>functools.singledispatch</tt> is awkward and single-argument, so most Python ports of this code end up with <tt>if isinstance(c, Num):</tt> ladders inside a single <tt>add</tt> function. That costs lines; it also costs clarity, because now the function knows about all types rather than each type knowing about itself.</p>
+
+<p>What about Lisp's reader macros (<tt>$field</tt> for slot access, <tt>!key</tt> for config lookup)? Those save characters per access, but Julia's <tt>n.mu</tt> is already shorter than <tt>(slot-value n 'mu)</tt>. The reader-macro advantage shrinks when your base language has fluent field access. Where Lisp does pull ahead is in genuinely custom syntax &mdash; reader macros let you invent notation that no language-without-macros can match. For the slice of AI-math work in this book, that capacity doesn't pay.</p>
+
+<p>Python's disadvantage is concrete. Without first-class multiple dispatch, you either write type ladders (verbose, unbranded) or you adopt <tt>@singledispatch</tt> (awkward decorators, single argument). Either way you write more code per polymorphic operation. Across twenty polymorphic functions, that adds up.</p>
+
+<p>Julia also gives you keyword arguments with defaults (<tt>function f(x; y=1)</tt>), list comprehensions (<tt>[g(x) for x in xs]</tt>), <tt>@kwdef</tt> structs with default values, and JIT compilation to near-C speed. None of these are unique. All of them compound.</p>
+
+<p>You can port ezr.jl to any of the three. The exercise list at the end of each chapter is the port guide. Pick a target. The numbers will be close; the shape will differ.</p>
+
+<h2>Try it yourself</h2>
+
+<p>Pick a language and port a single function. <tt>add!</tt> on <tt>Num</tt> is a good first choice: ten lines here, testable against the Welford formula directly. Count the bytes of your port. That is the cost of the language on this kind of code. Usually within 30 percent either direction of Julia.</p>
+
+<h1 class="chap">8. What we rejected</h1>
+
+<p>Along the way we declined two practices most engineers would default to. Both choices matter for the argument.</p>
+
+<p>First, we did not write unit tests. No <tt>@test</tt>, no test framework, no CI of the usual kind. The file contains nine runnable <tt>eg--*</tt> demos. <tt>--the</tt> prints the config. <tt>--rows</tt> reads and prints a file. <tt>--data</tt> builds a <tt>Data</tt>. And so on up to <tt>--active</tt>, which runs twenty evaluation splits and prints a results table.</p>
+
+<p>Why no unit tests? Because correctness at the unit level is not well-defined for most of this code. What is the correct output of <tt>tree_grow</tt> on a random five-row subset? The only meaningful test is statistical: across twenty runs at a known seed, does the median hold-win stay near ninety-four? We keep reference implementations &mdash; fri.lisp in Common Lisp, ezr.py in Python &mdash; that reach the same number. Refactors are validated by running <tt>--active</tt> on fixed seeds and comparing medians against both. When Julia hits its target, it is correct enough.</p>
+
+<p>This is test-driven development's statistical cousin. The reference implementation is the oracle. The running numbers are the passing bar. It works here because the subject is a learner, not a business rule. If we were validating a billing engine we would have unit tests. Rule of thumb: unit tests for local correctness, statistical evaluation for emergent correctness, pick the right tool for the subject.</p>
+
+<p>Second, we did not document everything. The file has docstrings on a handful of functions, not most of them. The ones with docstrings are the ones a reader would not understand from the name. Everything else has no docstring at all.</p>
+
+<p>Why the silence? Because docstrings on obvious functions decay into noise. Three months after writing <tt>"Adds v to the column summary, returning v"</tt> on <tt>add!</tt>, the docstring is useless. New readers learn to skip docstrings entirely, which means the docstrings that actually matter, the ones on non-obvious functions, also get skipped. You lose the leverage of the useful comment by paying for the useless one.</p>
+
+<p>The top-of-file comment block, by contrast, earns its place. It explains the CLI commands, the naming conventions, the CSV format, and the option flags. Fifteen lines of documentation paying for itself every time someone opens the file.</p>
+
+<p>Both choices are instances of the same principle. Do what pays. Skip what does not. Unit tests and document-everything are tools, not rules. Deploy where they earn their place.</p>
+
+<h2>Try it yourself</h2>
+
+<p>List three practices you consider mandatory in your daily work. For each, name what the practice is paying for, not the name of the principle it claims. Decide whether, for the current project, that payment is worth it. Keep the ones that pay. Drop the ones that do not. Treat the list as a working document, not a creed.</p>
+
+<h1 class="chap">9. Results</h1>
+
+<p>On auto93.csv, a 398-row dataset with eight features and three goal columns (<tt>Mpg-</tt>, <tt>Acc+</tt>, <tt>Weight-</tt>), the ezr.jl pipeline:</p>
+
+<pre>
+julia --startup-file=no --compile=min -O0 ezr.jl \
+      -s 1 -b 50 --active
+</pre>
+
+<p>runs in about two seconds (mostly JIT startup) and produces twenty evaluation rows. Median train-win: 97. Median hold-win: 94. Label cost per run: 55 (50 from <tt>active</tt>, 5 from <tt>check</tt>).</p>
+
+<p>A random baseline (label 55 rows at random, keep the best) gets median hold-win around 50. A full-dataset baseline with access to every label tops out around 97. Fifty-five labels get us to 97 percent of full-dataset performance.</p>
+
+<p>The tree-ranked variant matches the centroid baseline at budget=50 and loses six points at budget=30. The explanation tax is a threshold, not a slope.</p>
+
+<p>The code, across three implementations of the same pipeline:</p>
+
+<pre>
+ezr.jl      375 lines   Julia (primary reference)
+fri.lisp    495 lines   Common Lisp
+ezr.py      543 lines   Python (superset)
+</pre>
+
+<p>Zero external dependencies beyond the respective runtime. Reproducible under a seed. Julia and Lisp run in milliseconds once warm; Python in tens of milliseconds.</p>
+
+<p>You can read any of them top to bottom in twenty minutes. You can re-implement them in a weekend. The <i>Try it yourself</i> section at the end of every chapter is the porting guide.</p>
+
+<h2>Closing</h2>
+
+<p>Knuth chose to be on the bottom of things. In an age of LLMs generating code faster than anyone can verify it, someone has to. Read the code. Compile it. Run the numbers. Port it. Own the whole chain. If you cannot see the whole algorithm on one screen, you do not understand it. You trust it. Trust is a bug.</p>
+
+<h2>Try it yourself</h2>
+
+<p>Clone ezr.jl. Run <tt>julia --startup-file=no --compile=min -O0 ezr.jl -s 1 -b 50 --active</tt>. Confirm the median. Then start your port. When you finish, come back and compare.</p>
+
+<div class="footnotes">
+
+<p><a id="fn1"></a>[1] Donald Knuth, <i>Knuth versus email</i>, <a href="https://www-cs-faculty.stanford.edu/~knuth/email.html">https://www-cs-faculty.stanford.edu/~knuth/email.html</a>.</p>
+
+<p><a id="fn2"></a>[2] C. Rudin. <i>Stop explaining black box machine learning models for high stakes decisions and use interpretable models instead.</i> Nature Machine Intelligence 1, 206&ndash;215 (2019). <a href="https://www.nature.com/articles/s42256-019-0048-x">https://www.nature.com/articles/s42256-019-0048-x</a>.</p>
+
+<p><a id="fn3"></a>[3] Z. Yu et al. <i>Identifying self-admitted technical debt in open source projects using text mining</i> (2020).</p>
+
+<p><a id="fn4"></a>[4] Martinez et al. <i>Studying the external dependencies of open-source systems</i> (2021).</p>
+
+<p><a id="fn5"></a>[5] Richard Hipp, interview (2021).</p>
+
+</div>
+
+</body>
+</html>
