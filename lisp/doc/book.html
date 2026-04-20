@@ -2,77 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ezr.lua &mdash; an essay</title>
-<style>
-body {
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 11pt;
-  line-height: 1.55;
-  max-width: 620px;
-  margin: 3em auto;
-  padding: 0 1.2em;
-  color: #222;
-  background: #fdfdfd;
-}
-h1 {
-  font-size: 15pt;
-  font-weight: normal;
-  text-align: center;
-  margin: 0 0 0.3em 0;
-}
-h1.chap {
-  font-size: 13pt;
-  text-align: left;
-  margin: 3.5em 0 0.4em 0;
-  padding-top: 1.5em;
-  border-top: 2px solid #666;
-}
-.sub {
-  text-align: center;
-  color: #666;
-  margin-bottom: 3em;
-  font-size: 10pt;
-}
-h2 {
-  font-size: 11pt;
-  font-weight: bold;
-  margin: 1.8em 0 0.4em 0;
-}
-p { margin: 0.9em 0; }
-blockquote {
-  font-style: italic;
-  color: #444;
-  margin: 1em 2em;
-}
-pre {
-  font-family: "Courier New", Courier, monospace;
-  font-size: 9.5pt;
-  line-height: 1.35;
-  margin: 1em 0 1em 2em;
-  white-space: pre;
-  overflow-x: auto;
-}
-sup a {
-  text-decoration: none;
-  color: #0066cc;
-}
-.footnotes {
-  margin-top: 4em;
-  padding-top: 1em;
-  border-top: 1px solid #aaa;
-  font-size: 10pt;
-  color: #444;
-}
-.footnotes p { margin: 0.4em 0; }
-a { color: #0066cc; }
-a:hover { text-decoration: underline; }
-.toc { text-align: center; margin-bottom: 3em; font-size: 10pt; color: #666; }
-</style>
+<title>Small AI, bu Design &mdash; an essay</title>
+     <link rel="stylesheet" href="style.css">
+     <link rel="stylesheet" media="(prefers-color-scheme: light)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github.min.css">
+  <link rel="stylesheet" media="(prefers-color-scheme: dark)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github-dark.min.css">
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+
 </head>
 <body>
 
-<h1>ezr.lua</h1>
-<p class="sub">an active-learning library in four hundred lines of Lua, annotated</p>
+<h1>Small AI, by Design</h1>
+<p class="sub">
+Explainable multi-objective optimization, in four hundred lines of code.
+    </p>
+   <P class=blurb> When big AI has a verification problem, use small AI.
+     Here, we show a few hundred lines of code that do the AI
+   that actually matters (for decision making; 
+      for multi-objective optimization, classification, regression) all from one
+  active-learning loop that needs just a few dozen labels. 
+      Explainable decision trees you can print on a page. Honest train/test
+   evaluation with a pay-to-play holdout budget. One file, no dependencies,  
+      milliseconds to load and execute: every line fits on one screen. 
+    </P>
 
 <p class="toc">
 1. motivation &middot;
@@ -86,7 +39,7 @@ a:hover { text-decoration: underline; }
 9. results
 </p>
 
-<h1 class="chap">1. Motivation</h1>
+ <h1 class="chap">1. Motivation</h1>
 
 <blockquote>
 Email is a wonderful thing for people whose role in life is to be on top of things. But not for me; my role is to be on the bottom of things.<br>
@@ -590,6 +543,16 @@ ezr.py      543        19,423      84      0.082 s
 <p><a id="fn5"></a>[5] Richard Hipp, interview (2021).</p>
 
 </div>
-
+<script>
+  addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('pre').forEach(p => {
+      const c = document.createElement('code');
+      c.className = 'language-lua';
+      c.textContent = p.textContent;
+      p.replaceChildren(c);
+    });
+    hljs.highlightAll();
+  });
+  </script>
 </body>
 </html>
