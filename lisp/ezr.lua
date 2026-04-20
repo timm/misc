@@ -73,9 +73,8 @@ function Data(src,    d)
   else for _,r in ipairs(src or {}) do add(d,r) end end
   return d end
 
--- Empty Data with same column roles, optionally seeded with rows.
-function DATA.clone(i,rows)
-  return adds(rows or {}, Data({i.cols.names})) end
+function DATA.clone(i,rs)
+  return adds(rs or {}, Data({i.cols.names})) end
 
 -- ## update ----------------------------------------------------
 function add(i,v,w) if v~="?" then i:_add(v,w or 1) end; return v end
@@ -108,7 +107,7 @@ function DATA._add(i,row,w)
     if w>0 then l.push(i.rows,row)
     else
       for n,r in ipairs(i.rows) do
-        if r==row 
+        if r.id==row.id
         then table.remove(i.rows,n); break end end end end end
 
 -- ## stats -----------------------------------------------------
@@ -158,15 +157,15 @@ function DATA.distx(i,r1,r2,    fn)
 
 -- ## tree ------------------------------------------------------
 -- Greedy tree; stops at 2*leaf rows; picks min-weighted-spread split.
-function TREE.build(i,d,rows,    mid,best,bw,w)
-  mid    = d:clone(rows):mid()
-  i.y    = adds(l.map(rows,function(r) return i.score(r) end))
+function TREE.build(i,d,rs,    mid,best,bw,w)
+  mid    = d:clone(rs):mid()
+  i.y    = adds(l.map(rs,function(r) return i.score(r) end))
   i.mids = l.kv(d.cols.y, function(c) return c.txt end,
                           function(c) return mid[c.at] end)
-  if #rows < 2*the.leaf then return i end
+  if #rs < 2*the.leaf then return i end
   best, bw = nil, 1E32
   for _,c in ipairs(d.cols.x) do
-    for _,sp in ipairs(c:splits(rows,i.score)) do
+    for _,sp in ipairs(c:splits(rs,i.score)) do
       w = sp.lhs.n*sp.lhs:spread() + sp.rhs.n*sp.rhs:spread()
       if w<bw and min(#sp.left,#sp.right)>=the.leaf then
         best, bw = sp, w end end end
@@ -199,32 +198,32 @@ function TREE.show(i)
     io.write(l.fmt("%-"..the.Show.."s ,%5.2f ,(%3d),  %s\n",
              s, n.y:mid(), n.y.n, l.o(n.mids))) end) end
 
-function split(col,rows,fn,cut,test,    lhs,rhs,L,R,ok)
+function split(col,rs,fn,cut,test,    lhs,rhs,L,R,ok)
   lhs,rhs,L,R = Num(),Num(),{},{}
-  for _,r in ipairs(rows) do
+  for _,r in ipairs(rs) do
     ok = r[col.at]=="?" or test(r[col.at])
     l.push(ok and L or R, r); add(ok and lhs or rhs, fn(r)) end
   if #L>=the.leaf and #R>=the.leaf then
     return {col=col,cut=cut,left=L,right=R,lhs=lhs,rhs=rhs} end end
 
 -- Single cut at the median. Regularization: fewer cuts, less overfit.
-function NUM.splits(i,rows,fn,    vs,mu,sp)
+function NUM.splits(i,rs,fn,    vs,mu,sp)
   vs = {}
-  for _,r in ipairs(rows) do
+  for _,r in ipairs(rs) do
     if r[i.at]~="?" then l.push(vs,r[i.at]) end end
   if #vs<2 then return {} end
   l.sort(vs)
   mu = vs[#vs//2+1]
-  sp = split(i,rows,fn,mu,function(v) return v<=mu end)
+  sp = split(i,rs,fn,mu,function(v) return v<=mu end)
   return sp and {sp} or {} end
 
-function SYM.splits(i,rows,fn,    seen,out,sp)
+function SYM.splits(i,rs,fn,    seen,out,sp)
   seen, out = {}, {}
-  for _,r in ipairs(rows) do
+  for _,r in ipairs(rs) do
     local v = r[i.at]
     if v~="?" and not seen[v] then
       seen[v] = true
-      sp = split(i,rows,fn,v,function(x) return x==v end)
+      sp = split(i,rs,fn,v,function(x) return x==v end)
       if sp then l.push(out,sp) end end end
   return out end
 
@@ -236,11 +235,9 @@ function wins(d,    ys,lo,md)
   return function(r)
     return floor(100*(1 - (d:disty(r)-lo)/(md-lo+1e-32))) end end
 
--- Acquisition filter: is R closer to best's centroid than rest's?
 function closer(lab,best,rest,r)
   return lab:distx(r,best:mid()) < lab:distx(r,rest:mid()) end
 
--- Cap best at sqrt(|lab|); evict its worst-disty row into rest.
 function rebalance(best,rest,lab,    bad,badD,d)
   if #best.rows > (#lab.rows)^0.5 then
     badD = -1E32
@@ -270,64 +267,53 @@ function active(rs,data,    lab,best,rest,ys,sorted,n)
   return best, lab, ys.n end
 
 -- Split train/test; build tree on labels; pay CHECK on top picks.
-function validate(rows,data,win)
-  local n,train,test,_,lab,lbl,tb,tbD,d,tr,top
-  l.shuffle(rows)
-  n     = #rows // 2
-  train = l.slice(rows, 1, n)
-  test  = l.slice(rows, n+1)
-  _, lab, lbl = active(train, data)
+function validate(rs,d,win)
+  local n,train,test,_,lab,lbl,tb,tbD,di,tr,top
+  l.shuffle(rs)
+  n     = #rs // 2
+  train = l.slice(rs, 1, n)
+  test  = l.slice(rs, n+1)
+  _, lab, lbl = active(train, d)
   tb, tbD = nil, 1E32
   for _,r in ipairs(lab.rows) do
-    d = data:disty(r)
-    if d<tbD then tb, tbD = r, d end end
+    di = d:disty(r)
+    if di<tbD then tb, tbD = r, di end end
   tr = Tree(function(r) return lab:disty(r) end):build(lab,lab.rows)
   l.sort(test, function(a,b)
     return tr:leaf(a).y:mid() < tr:leaf(b).y:mid() end)
   top = l.sort(l.slice(test,1,the.Check),
-               function(a,b) return data:disty(a) < data:disty(b) end)
+               function(a,b) return d:disty(a) < d:disty(b) end)
   return win(tb), win(top[1]), lbl + the.Check end
 
 -- ## lib -------------------------------------------------------
--- Attach a metatable so kl-methods dispatch on obj.
 function l.new(kl,obj) 
   kl.__index = kl; return setmetatable(obj,kl) end
 
--- Clamp n into [lo, hi].
 function l.crop(n,lo,hi) return max(lo,min(hi,n)) end
 
--- Append x to t; return x.
 function l.push(t,x) t[1+#t] = x; return x end
 
--- In-place sort; returns t.
 function l.sort(t,f) table.sort(t,f); return t end
 
--- Sum of f(x) over all x in t.
 function l.sum(t,f,    n)
   n=0; for _,x in pairs(t) do n=n+f(x) end; return n end
 
--- New table with f applied to each element.
 function l.map(t,f,    u)
   u={}; for i,x in ipairs(t) do u[i]=f(x) end; return u end
 
--- Dict from t: keys from fk(x), values from fv(x).
 function l.kv(t,fk,fv,    u)
   u={}; for _,x in ipairs(t) do u[fk(x)]=fv(x) end; return u end
 
--- Subrange copy of t[lo..hi] (default 1..#t).
 function l.slice(t,lo,hi,    u)
   u={}; for i=(lo or 1),(hi or #t) do u[1+#u]=t[i] end; return u end
 
--- Fisher-Yates in-place shuffle of t.
 function l.shuffle(t,    j)
   for i=#t,2,-1 do j=rand(i); t[i],t[j]=t[j],t[i] end; return t end
 
--- n randomly selected items from t.
 function l.many(t,n) return l.slice(l.shuffle(t),1,n) end
 
 l.fmt = string.format
 
--- Pretty-print a value or (sorted) table, recursive.
 function l.o(x,    u)
   if type(x) ~= "table" then
     return math.type(x)=="float" and l.fmt("%.2f",x) or tostring(x) end
@@ -341,12 +327,13 @@ function l.thing(s)
   return s=="true" or (s~="false" and (tonumber(s) or s)) end
 
 -- Iterator yielding typed rows from a CSV file.
-function l.csv(src,    f)
+function l.csv(src,    f,id)
   f = assert(io.open(src), "cannot open "..tostring(src))
+  id = 0
   return function(    s,t)
     s = f:read()
     if s then
-      t = {}
+      t = {}; id = id + 1; t.id = id
       for x in s:gmatch"[^,]+" do
         l.push(t, l.thing(x:match"^%s*(.-)%s*$")) end
       return t
