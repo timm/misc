@@ -495,11 +495,11 @@ function l.new(kl,obj) kl.__index = kl; return setmetatable(obj,kl) end
 file       lines   code-bytes   hold-win   runtime
 fri.lisp    495        15,172      93.5    0.111 s
 ezr.jl      387         9,632      89.5    2.948 s
-ezr.lua     408        11,361      94.5    0.058 s
+ezr.lua     393        11,351      94.5    0.058 s
 ezr.py      543        19,423      84      0.082 s
 </pre>
 
-<p>Lua is fewest lines and fastest runtime. Julia has fewest code-bytes. Python lags on both size and speed. Lisp sits in the middle.</p>
+<p>Julia is fewest lines and fewest code-bytes. Lua is fastest runtime and highest hold-win. Python lags on both size and speed. Lisp sits in the middle.</p>
 
 <p>What Lua gives you that the others do not:</p>
 
@@ -547,7 +547,7 @@ ezr.py      543        19,423      84      0.082 s
 lua ezr.lua -s 1 -B 50 --active auto93.csv
 </pre>
 
-<p>runs in 58 milliseconds and produces twenty evaluation rows. Median train-win: 97. Median hold-win: 94.5. Label cost per run: 55 (50 from <tt>active</tt>, 5 from <tt>Check</tt>).</p>
+<p>runs in 58 milliseconds and produces twenty evaluation rows. Median train-win: 97. Median hold-win: 94.5 at seed=1, 91.1 averaged across five seeds. Label cost per run: 55 (50 from <tt>active</tt>, 5 from <tt>Check</tt>).</p>
 
 <p>A random baseline (label 55 rows at random, keep the best) gets median hold-win around 50. A full-dataset baseline with access to every label tops out around 97. Fifty-five labels get us to 97 percent of full-dataset performance.</p>
 
@@ -557,13 +557,13 @@ lua ezr.lua -s 1 -B 50 --active auto93.csv
 
 <pre>
 file       lines   code-bytes   hold-win   runtime
-ezr.lua     408        11,361      94.5    0.058 s  &lt;-- this book
+ezr.lua     393        11,351      94.5    0.058 s  &lt;-- this book
 ezr.jl      387         9,632      89.5    2.948 s
 fri.lisp    495        15,172      93.5    0.111 s
 ezr.py      543        19,423      84      0.082 s
 </pre>
 
-<p>Lua wins fewest lines, highest hold-win, and fastest runtime. Julia has fewest code-bytes; its JIT warmup costs it on a per-invocation benchmark but would pay off at longer workloads. Lisp sits in the middle on every axis. Python lags on both size and accuracy.</p>
+<p>Julia wins fewest lines and fewest code-bytes. Lua wins highest hold-win and fastest runtime. Julia has fewest code-bytes; its JIT warmup costs it on a per-invocation benchmark but would pay off at longer workloads. Lisp sits in the middle on every axis. Python lags on both size and accuracy.</p>
 
 <p>Zero external dependencies in any of the four beyond the respective runtime. All reproducible under a seed.</p>
 
