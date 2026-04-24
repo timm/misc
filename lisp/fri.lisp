@@ -455,11 +455,12 @@ pay CHECK labels on top. Return (values train-win hold-win labels)."
 
 ; ---- Step 5: normalization ----
 (defun eg--norm (&optional (file !file))
-  "Row 0: raw vs normalized for every y-column (introduces `norm`)."
+  "One row: raw vs normalized for every y-column (introduces `norm`)."
   (let* ((i (make-data (read-csv file))) (r (car $rows)))
     (dolist (c (? i cols y))
-      (format t "~&~8a  raw=~a  norm=~a~%"
-              (? c txt) (elt r $at) (norm c (elt r $at))))))
+      (let ((v (elt r (? c at))))
+        (format t "~&~8a  raw=~a  norm=~a~%"
+                (? c txt) v (norm c v))))))
 
 ; ---- Step 6: goal distance ----
 (defun eg--ydata (&optional (file !file))

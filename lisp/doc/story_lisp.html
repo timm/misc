@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>A Tour of fri.lisp &mdash; from one value to XAI</title>
+<link rel="stylesheet" media="(prefers-color-scheme: light)"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github.min.css">
+<link rel="stylesheet" media="(prefers-color-scheme: dark)"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/lisp.min.js"></script>
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("pre code").forEach(el => {
+    const t = el.textContent;
+    // REPL transcripts and shell commands skip highlighting
+    if (/^\*\s/m.test(t) || /^\$\s*sbcl/m.test(t) || /^CL-USER/m.test(t)) {
+      el.classList.add("language-plaintext");
+    } else {
+      el.classList.add("language-lisp");
+    }
+    hljs.highlightElement(el);
+  });
+});
+</script>
+<style>
+body {
+  width: 700px;
+  margin: .5in auto;
+  font-size: 18px;
+  font-family: serif;
+}
+p { line-height: 1.5; }
+sup { font-size: 9pt;  }
+blockquote { line-height: 1.5; font-size: 90%; color: #555;
+             border-left: 3px solid #ccc; padding-left: 12pt; margin-left: 0; }
+h1, h2, h3, h4, h5, h6 { font-family: Helvetica; }
+h1.chap { border-bottom: solid thin #aaa; padding-top: 24pt; }
+h2 { padding-top: 18pt; }
+li { padding-top: 6pt; }
+dt { font-weight: bold; font-family: monospace;
+     padding-top: 12pt; padding-bottom: 3pt; }
+div.notes { font-size: 10pt; }
+.shaded { background: #dddddd; }
+pre { margin-left: .25in; font-size: 14px;
+      background: #f6f6f6; padding: 8pt 12pt;
+      border-left: 3px solid #ddd; overflow-x: auto; }
+code { white-space: nowrap; font-size: 15px; }
+pre code { white-space: pre; }
+div.summary { font-size: 12pt; font-family: sans-serif;
+              font-style: italic; padding-top: 6pt; }
+div.sidebar { font-size: 13px; font-family: sans-serif;
+              border: solid thin #888; padding: 1em;
+              margin: 12pt .25in; background: #fafafa; }
+div.sidebarhead { font-size: 11pt; font-weight: bold;
+                  font-family: sans-serif; padding-bottom: 6pt; }
+hr { border: 0; border-top: thin dotted #888; margin: 24pt 0; }
+table.t { border-collapse: collapse; margin: 12pt .25in; font-size: 14px; }
+table.t th, table.t td { border-bottom: thin dotted #888; padding: 3pt 8pt; text-align: left; }
+table.t th { font-family: sans-serif; font-size: 13px; }
+.prompt { color: #888; }
+</style>
+</head>
+<body>
+
+<h1>A Tour of fri.lisp</h1>
+<p class="summary">
+From one lonely value to explainable multi-objective optimization,
+in the style of a REPL walk. One file, no dependencies, five hundred lines.
+Every fragment runs; every output was captured, not imagined.
+</p>
+
+<blockquote>
+Once upon a time there was a value. It did not know where it was
+among all the other values. Then it found that it was part of a row,
+and there were many rows, and there were patterns around:
+patterns in the other values at the same place in other rows.
+Slopes. Hills. Groups. Before long, the value knew where it stood.
+</blockquote>
+
+<p>This is a tour of <a href="../fri.lisp"><code>fri.lisp</code></a>. We
+start with a single number and end with a decision tree that picks good
+cars out of a holdout it has never seen. Every stop is small. Every
+fragment is a real REPL transcript.</p>
+
+<h2>Getting ready</h2>
+
+<p>You need SBCL or CLISP. On macOS: <code>brew install sbcl</code>. Sit in
+the directory that holds <code>fri.lisp</code> and
+<code>auto93.csv</code>, and open a REPL:</p>
+
+<pre><code>$ sbcl
+* (load "fri.lisp")
+T
+*</code></pre>
+
+<p>The <code>*</code> is SBCL's prompt. Every fragment below uses it so you
+can tell input from output.</p>
+
+<p>Each chapter also maps to a command-line demo:</p>
+
+<pre><code>$ sbcl --script fri.lisp --stats auto93.csv</code></pre>
+
+<p>Those demos live at the bottom of <code>fri.lisp</code> as
+<code>eg--name</code> functions. Read them later. For now, the REPL.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">1. A value</h1>
+
+<p>Here is a value.</p>
+
+<pre><code>* 42
+42
+* (type-of 42)
+(INTEGER 0 4611686018427387903)</code></pre>
+
+<p>It is forty-two. An integer. That is everything we know. Is it big?
+Is it small? Is it typical? We cannot say. A value, alone, is a dot
+without an axis.</p>
+
+<p>Give it a friend.</p>
+
+<pre><code>* (list 42 17)
+(42 17)
+* (+ 42 17)
+59
+* (/ (+ 42 17) 2.0)
+29.5</code></pre>
+
+<p>Now we can compare. 42 is bigger than 17. We can sum. We can average.
+Two values are a thin shape &mdash; an ordering and an arithmetic &mdash;
+but they don't yet reveal anything about the world.</p>
+
+<p>Give it many friends.</p>
+
+<pre><code>* (list 8 304 193 70 1 4732 18.5 10)
+(8 304 193 70 1 4732 18.5 10)</code></pre>
+
+<p>Now something stirs. Eight numbers. Some small, some big. The
+<code>8</code> could be a count. The <code>4732</code> could be a weight.
+The <code>18.5</code> could be a measurement. We are guessing. But
+guessing is new. With one value we could not even guess.</p>
+
+<p>This row is real. It is the first data row in
+<code>auto93.csv</code>, a dataset of 398 cars. We just don't know that
+yet.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">2. Reading one row from a file</h1>
+
+<p>A file is text. Text on disk, characters. To work with it, we need to
+turn text into typed values. <code>fri.lisp</code> does this in twelve
+lines and three functions.</p>
+
+<p>First, <code>split</code>. A string and a separator go in, a list of
+substrings comes out:</p>
+
+<pre><code>* (split "8,304,193,70,1,4732,18.5,10" #\,)
+("8" "304" "193" "70" "1" "4732" "18.5" "10")</code></pre>
+
+<p>Eight strings. None of them are numbers yet &mdash; they are the
+characters between commas. Now, <code>thing</code>, which coerces one
+string:</p>
+
+<pre><code>* (thing "304")
+304
+* (thing "18.5")
+18.5
+* (thing "?")
+?
+* (thing "red")
+"red"</code></pre>
+
+<p>Four rules. If <code>read-from-string</code> gives a number, use it.
+If the string is literally <code>"?"</code>, return the symbol
+<code>?</code> (our missing-value marker). Otherwise, leave it as a
+string. No type hints, no CSV library.</p>
+
+<p>Put them together with <code>with-open-file</code> and a loop, and you
+have <code>read-csv</code>:</p>
+
+<pre><code>(defun read-csv (file)
+  (with-open-file (s file)
+    (loop for line = (read-line s nil) while line
+      collect (mapcar #'thing (split line #\,)))))</code></pre>
+
+<p>Five lines. That is the entire parser:</p>
+
+<pre><code>* (defparameter *rs* (read-csv "auto93.csv"))
+*RS*
+* (length *rs*)
+399
+* (car *rs*)
+("Clndrs" "Volume" "HpX" "Model" "origin" "Lbs-" "Acc+" "Mpg+")
+* (cadr *rs*)
+(8 304 193 70 1 4732 18.5 10)</code></pre>
+
+<p>399 rows: the header, then 398 data rows. The header came through as
+a list of strings; the first data row as a list of integers and a
+float.</p>
+
+<p>Some rows carry missing values &mdash; the string <code>"?"</code> became
+the symbol <code>?</code> during parsing:</p>
+
+<pre><code>* (find-if (lambda (r) (find '? r)) (cdr *rs*))
+(6 200 ? 74 1 2875 17 20)</code></pre>
+
+<p>That car has no horsepower listed. We will need to handle it every
+time we touch the data.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">3. Rows by the hundred</h1>
+
+<p>With hundreds of rows in memory, we can start to look around.</p>
+
+<pre><code>* (subseq *rs* 50 54)
+((8 302 140 74 1 4638 16 10)
+ (8 304 150 74 1 4257 15.5 10)
+ (8 351 148 75 1 4657 13.5 10)
+ (8 351 152 76 1 4215 12.8 10))</code></pre>
+
+<p>Rows 50-53 look like each other. Eight cylinders, big weight, low
+Mpg (the last value). That is a cluster.</p>
+
+<pre><code>* (car (last *rs*))
+(4 86 65 80 3 2110 17.9 50)</code></pre>
+
+<p>The last row is completely different. Four cylinders, light,
+<code>Mpg=50</code>. A different cluster. One row in chapter 1 was a
+guess. Four similar rows, followed by a dissimilar one, is a pattern.</p>
+
+<p>Count the rows carrying a missing value:</p>
+
+<pre><code>* (count-if (lambda (r) (find '? r)) (cdr *rs*))
+6</code></pre>
+
+<p>Six rows out of 398. A 1.5% gap. Any column summary or distance
+calculation has to tolerate this.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">4. Names decide roles</h1>
+
+<p>The header carries the schema.</p>
+
+<pre><code>* (car *rs*)
+("Clndrs" "Volume" "HpX" "Model" "origin" "Lbs-" "Acc+" "Mpg+")</code></pre>
+
+<p>Two rules classify the eight names:</p>
+
+<ul>
+<li><b>First character.</b> Uppercase &rarr; <code>Num</code>. Lowercase
+&rarr; <code>Sym</code>. So <code>Volume</code> is numeric,
+<code>origin</code> is categorical (the integers 1/2/3 stand for "USA /
+Europe / Japan" &mdash; don't average them).</li>
+<li><b>Last character.</b> <code>+</code> means maximize; <code>-</code>
+means minimize; <code>!</code> means a class label; <code>X</code> means
+skip. Anything else is a feature.</li>
+</ul>
+
+<p>Proof the rule lives in the constructors. <code>make-num</code> reads
+the suffix once to set <code>heaven</code>:</p>
+
+<pre><code>(defun make-num (&rest args &aux (i (apply #'%make-num args)))
+  (setf $heaven (if (eq #\- (ch $txt -1)) 0 1))
+  i)</code></pre>
+
+<p>Try both directions:</p>
+
+<pre><code>* (? (make-num :txt "Mpg+") heaven)
+1
+* (? (make-num :txt "Lbs-") heaven)
+0</code></pre>
+
+<p>One flag per goal, decided at construction time, never revisited.
+<code>make-cols</code> then walks the header, picks either
+<code>make-num</code> or <code>make-sym</code>, and partitions by the
+suffix:</p>
+
+<pre><code>(defun make-cols (txts &aux (i (%make-cols :names txts)) (n -1))
+  (labels ((ako (txt)
+             (if (upper-case-p (ch txt 0)) #'make-num #'make-sym))
+           (one (txt) (funcall (ako txt) :txt txt :at (incf n)))
+           (end (col) (ch (? col txt) -1)))
+    (setf $all (mapcar #'one txts))
+    (dolist (col $all i)
+      (unless (eql (end col) #\X)
+        (if (find (end col) "!-+") (push col $y) (push col $x))))))</code></pre>
+
+<p>Three tiny local functions: <code>ako</code> picks the constructor,
+<code>one</code> builds one column, <code>end</code> reads its last
+char. Now build a <code>Data</code> and inspect the partition:</p>
+
+<pre><code>* (defparameter *d* (make-data *rs*))
+*D*
+* (mapcar (lambda (c) (? c txt)) (? *d* cols y))
+("Mpg+" "Acc+" "Lbs-")
+* (mapcar (lambda (c) (? c txt)) (? *d* cols x))
+("origin" "Model" "Volume" "Clndrs")</code></pre>
+
+<p>Three y-columns (goals), four x-columns (features). <code>HpX</code>
+is gone entirely &mdash; its <code>X</code> suffix told the classifier to
+drop it.</p>
+
+<div class="sidebar">
+<div class="sidebarhead">The reader macro <code>(? x a b c)</code></div>
+<code>(? x a)</code> expands to <code>(slot-value x 'a)</code>; chains
+recurse, so <code>(? *d* cols y)</code> is
+<code>(slot-value (slot-value *d* 'cols) 'y)</code>. A second macro,
+written <code>$slot</code>, is the same thing when the object is
+implicitly named <code>i</code> (the convention inside method bodies).
+Reader macros run once at read time; after that the code is ordinary
+s-expressions.
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">5. A column that remembers</h1>
+
+<p>Data-science textbooks start with <code>numpy.mean</code>. We start
+with a harder question: <em>can a column tell you its mean without
+keeping every value it has seen?</em></p>
+
+<p>Yes. Since 1962, thanks to B. P. Welford.</p>
+
+<pre><code>* (defparameter *n* (make-num))
+*N*
+* *n*
+#S(NUM :AT 0 :TXT " " :N 0 :MU 0 :M2 0 :HEAVEN 1)</code></pre>
+
+<p>A fresh <code>Num</code> holds six slots: position, name, count, mean,
+sum of squared deviations, and <code>heaven</code>. All zero.</p>
+
+<p>Feed it five values and watch the three numbers we care about:</p>
+
+<pre><code>* (dolist (v '(10 20 30 40 50))
+    (add *n* v)
+    (format t "after ~2d: n=~a mu=~a m2=~a~%"
+            v (? *n* n) (? *n* mu) (? *n* m2)))
+after 10: n=1 mu=10.0 m2=0.0
+after 20: n=2 mu=15.0 m2=50.0
+after 30: n=3 mu=20.0 m2=200.0
+after 40: n=4 mu=25.0 m2=500.0
+after 50: n=5 mu=30.0 m2=1000.0</code></pre>
+
+<p>Mu moves as each value arrives. <code>m2</code> accumulates the
+running sum of squared deviations from the <em>current</em> mean.
+Neither reads a stored list. Here is the update:</p>
+
+<pre><code>(defmethod add ((i num) v &optional (w 1))
+  (incf $n w)
+  (let ((delta (- v $mu)))
+    (incf $mu (float (/ (* w delta) $n)))
+    (incf $m2 (float (* w delta (- v $mu))))))</code></pre>
+
+<p>Three increments per sample. Note: <code>mu</code> updates
+<em>before</em> <code>m2</code> reads it. That is not a bug &mdash; Welford's
+identity exploits the new mean for the <code>m2</code> term.</p>
+
+<p>The weight argument <code>w</code> is the trick that makes the
+summary <em>symmetric</em>. Pass <code>-1</code> and the same formulas
+unwind a previous add:</p>
+
+<pre><code>* (sub *n* 50) (sub *n* 40)
+40
+* (format t "after 2 subs: n=~a mu=~a m2=~a~%"
+        (? *n* n) (? *n* mu) (? *n* m2))
+after 2 subs: n=3 mu=20.0 m2=200.0</code></pre>
+
+<p>We rewound two adds and landed exactly where we were at step 3.
+Chapter 13 uses this to move rows between sets without recomputing.</p>
+
+<p>Symbolic columns keep a frequency alist. Same verb, simpler body:</p>
+
+<pre><code>* (defparameter *s* (make-sym))
+*S*
+* (add *s* 'red) (add *s* 'red) (add *s* 'blue)
+BLUE
+* (? *s* has)
+((BLUE . 1) (RED . 2))
+* (? *s* n)
+3</code></pre>
+
+<p>A missing value (<code>'?</code>) slips past both methods without
+updating anything. That is the only place types diverge inside
+<code>add</code>.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">6. Mid and spread</h1>
+
+<p>Every column, whatever its type, answers two questions: <em>where is
+its middle?</em> and <em>how wide is it?</em></p>
+
+<pre><code>* (mid *n*)
+20.0
+* (spread *n*)
+10.0
+* (mid *s*)
+RED
+* (spread *s*)
+3.169925</code></pre>
+
+<p>For <code>Num</code>: <code>mid</code> is the mean; <code>spread</code>
+is the standard deviation, derived in one line from <code>m2</code> and
+<code>n</code>:</p>
+
+<pre><code>(defmethod spread ((i num))
+  (if (&lt; $n 2) 0 (sqrt (/ (max 0 $m2) (1- $n)))))</code></pre>
+
+<p>The guard: if we have fewer than two values, spread is zero.
+Otherwise: <code>sqrt(m2 / (n-1))</code>. Check by hand with our
+three-value column after the two subs:
+<code>sqrt(200/2)&nbsp;=&nbsp;10.0</code>. Matches.</p>
+
+<p>For <code>Sym</code>: <code>mid</code> is the mode; <code>spread</code>
+is an entropy-like score that grows as frequencies become more
+mixed. Different math; same role: <em>how much does this column
+vary?</em></p>
+
+<p>Nothing in the caller's code looks like
+<code>if col.type == "num"</code>. Dispatch is built into
+<code>defmethod</code>, which takes a type specializer on the first
+argument.</p>
+
+<pre><code>$ sbcl --script fri.lisp --stats auto93.csv
+Clndrs        mid=5.46   spread=1.70
+Volume        mid=193.4  spread=104.3
+HpX           mid=104.5  spread=38.5
+Model         mid=76.0   spread=3.7
+origin        mid=1      spread=...
+Lbs-          mid=2970   spread=846.8
+Acc+          mid=15.6   spread=2.76
+Mpg+          mid=23.8   spread=8.34</code></pre>
+
+<p>Four hundred rows times eight columns, summarized in one pass. Peek
+any number; it is current.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">7. Where do I stand?</h1>
+
+<p>Back to the lonely value. The column knows its mid and spread. Now we
+can answer: given a value, where does it live inside the column?</p>
+
+<p>The cheap, effective trick is z-score + sigmoid. Distance from the
+mean, scaled by spread, squashed into <code>[0,1]</code>:</p>
+
+<pre><code>(defmethod norm ((i num) v)
+  (let ((z (/ (- v $mu) (+ (spread i) 1e-32))))
+    (/ 1 (+ 1 (exp (* -1.7 (max -3 (min 3 z))))))))</code></pre>
+
+<p>Four moves. Compute z. Clamp to <code>[-3, 3]</code> (covers 99.7% of
+any Gaussian). Sigmoid at scale 1.7 (approximates the Gaussian CDF).
+The <code>1e-32</code> term avoids divide-by-zero on a zero-spread
+column.</p>
+
+<p>Watch the curve at five z-levels on the real Mpg+ column
+(<code>mu=23.8</code>, <code>sd=8.34</code>):</p>
+
+<table class="t">
+<tr><th>value</th><th>z-score</th><th>norm</th><th>reads as</th></tr>
+<tr><td>10</td><td>-1.65</td><td>0.056</td><td>bottom 6%</td></tr>
+<tr><td>23.8-sd</td><td>-1.00</td><td>0.154</td><td>bottom 15%</td></tr>
+<tr><td>23.8 (mu)</td><td>0.00</td><td>0.500</td><td>median</td></tr>
+<tr><td>23.8+sd</td><td>+1.00</td><td>0.846</td><td>top 15%</td></tr>
+<tr><td>50</td><td>+3.14</td><td>0.994</td><td>top 1%</td></tr>
+</table>
+
+<pre><code>* (defparameter *mpgcol*
+    (find "Mpg+" (? *d* cols y) :key (lambda (c) (? c txt)) :test #'equal))
+*MPGCOL*
+* (norm *mpgcol* 23.8)
+0.4977463
+* (norm *mpgcol* 50)
+0.99394023
+* (norm *mpgcol* 10)
+0.056161575</code></pre>
+
+<p>Symbols don't need scaling; <code>norm</code> on a <code>Sym</code> is
+the identity (strings compare equal or not-equal; there is no "between"
+to scale).</p>
+
+<pre><code>* (norm (make-sym) 'red)
+RED</code></pre>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">8. Heaven</h1>
+
+<p>Normalization puts every column on <code>[0, 1]</code>. But zero is
+not the same in every column. For <code>Mpg+</code>, "good" is 1. For
+<code>Lbs-</code>, "good" is 0. We need a per-column target.</p>
+
+<p>Each <code>Num</code> carries a <code>heaven</code> slot. Set once at
+construction (chapter 4). The three goals of auto-93:</p>
+
+<pre><code>* (dolist (c (? *d* cols y))
+    (format t "~a heaven=~a~%" (? c txt) (? c heaven)))
+Mpg+ heaven=1
+Acc+ heaven=1
+Lbs- heaven=0</code></pre>
+
+<p>Look at one row and compare normalized value to heaven for each
+goal:</p>
+
+<pre><code>* (let ((r (car (last *rs*))))
+    (format t "row: ~a~%" r)
+    (dolist (c (? *d* cols y))
+      (let ((v (elt r (? c at))))
+        (format t "  ~4a  raw=~a  norm=~,2f  heaven=~a~%"
+                (? c txt) v (norm c v) (? c heaven)))))
+row: (4 86 65 80 3 2110 17.9 50)
+  Mpg+  raw=50    norm=0.99  heaven=1
+  Acc+  raw=17.9  norm=0.81  heaven=1
+  Lbs-  raw=2110  norm=0.15  heaven=0</code></pre>
+
+<p>Every normalized value is close to its heaven. A good car. The
+<code>Lbs-</code> line shows why heaven matters: norm 0.15 is a long way
+from 1, but it is close to 0 &mdash; exactly what we want for a column we
+are minimizing.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">9. Distance to heaven</h1>
+
+<p>Three goals, three heavens: <code>(1, 1, 0)</code>. The distance from
+a row to heaven is one number. One number per row. A scalar we can sort
+by. This is <code>disty</code>:</p>
+
+<pre><code>(defun disty (data row &optional (cols (? data cols y)))
+  (dist cols
+    (lambda (i) (abs (- (norm i (elt row $at)) $heaven)))))
+
+(defun dist (lst f &aux (d 0))
+  (dolist (v lst (expt (/ d (length lst)) (/ 1 !p)))
+    (incf d (expt (funcall f v) !p))))</code></pre>
+
+<p>For each goal: compute normalized value, subtract heaven, take
+absolute value. That gives a per-goal "how far off am I?" delta. Roll
+them up by Minkowski distance with exponent <code>!p</code> (default 2,
+i.e. Euclidean).</p>
+
+<p>Worked on the first data row:</p>
+
+<pre><code>* (defparameter *r0* (cadr *rs*))
+*R0*
+* *r0*
+(8 304 193 70 1 4732 18.5 10)</code></pre>
+
+<table class="t">
+<tr><th>col</th><th>raw</th><th>norm</th><th>heaven</th><th>|delta|</th><th>delta&sup2;</th></tr>
+<tr><td>Mpg+</td><td>10</td><td>0.056</td><td>1</td><td>0.944</td><td>0.891</td></tr>
+<tr><td>Acc+</td><td>18.5</td><td>0.859</td><td>1</td><td>0.141</td><td>0.020</td></tr>
+<tr><td>Lbs-</td><td>4732</td><td>0.972</td><td>0</td><td>0.972</td><td>0.944</td></tr>
+</table>
+
+<p>Sum of squared deltas: <code>0.891 + 0.020 + 0.944 = 1.855</code>.
+Divide by 3 goals: <code>0.6183</code>. Square root: <code>0.7863</code>.</p>
+
+<pre><code>* (disty *d* *r0*)
+0.7863217</code></pre>
+
+<p>Matches. Three goals collapsed into one scalar we can compare against
+any other row.</p>
+
+<p>Compare the best and worst rows in the file:</p>
+
+<pre><code>* (disty *d* *r0*)                              ; row 0: heavy V8
+0.7863217
+* (disty *d* (car (last *rs*)))                  ; tail: light 4-cyl
+0.1410149</code></pre>
+
+<p>0.14 is close to heaven; 0.79 is far. A scalar that ranks both cars
+on three goals at once.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">10. The world, sorted</h1>
+
+<p>One number per row &rarr; sort by it. The best cars rise; the worst
+sink. No classifier, no training &mdash; just the shape of goal space and a
+<code>sort</code> call.</p>
+
+<pre><code>$ sbcl --script fri.lisp --ydata auto93.csv</code></pre>
+
+<p>Annotated with disty values alongside each row:</p>
+
+<pre><code>disty  Clndrs Volume HpX Model origin Lbs-  Acc+ Mpg+
+-----  ------ ------ --- ----- ------ ----  ---- ----
+0.14   4      86     65  80    3      2110  17.9 50    &lt;- best
+0.22   4      120    88  82    3      2160  14.5 40
+0.28   4      71     65  74    3      1836  21.0 30
+0.34   4      105    63  81    1      2215  14.9 30
+...
+0.73   8      305    145 77    1      3880  12.5 20
+0.78   8      304    193 70    1      4732  18.5 10
+0.81   8      351    153 71    1      4154  13.5 10
+0.87   8      429    198 73    1      4952  11.5 10    &lt;- worst</code></pre>
+
+<p>Four-cylinder, light, late-model cars live at the top of the ranking.
+Eight-cylinder 70s V8s live at the bottom. Nothing surprising. But we
+used no classifier, no optimization, no Pareto sort &mdash; just statistics
+about columns plus one distance function.</p>
+
+<p>This is multi-objective optimization done with almost nothing. No
+NSGA-II, no weighted sums, no preference elicitation. A shape, a
+distance, a sort.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">11. Distance between rows</h1>
+
+<p>So far, distance was always <em>to heaven</em>. Rows can also be at a
+distance from each other, in feature space, through <code>distx</code>:</p>
+
+<pre><code>(defmethod distx ((i data) r1 r2)
+  (dist (? i cols x)
+    (lambda (i)
+      (let ((a (elt r1 $at)) (b (elt r2 $at)))
+        (if (and (eq a '?) (eq b '?)) 1 (distx i a b))))))
+
+(defmethod distx ((i sym) a b) (if (equal a b) 0 1))
+(defmethod distx ((i num) a b &aux (a (norm i a)) (b (norm i b)))
+  (cond ((eq a '?) (abs (- b (if (&gt; b 0.5) 0 1))))
+        ((eq b '?) (abs (- a (if (&gt; a 0.5) 0 1))))
+        (t         (abs (- a b)))))</code></pre>
+
+<p>Three cases. For Syms: same-or-different (0 or 1). For Nums: absolute
+difference of normalized values. For missing values: <em>pessimistic</em>.
+If <code>a</code> is known and <code>b</code> is missing, assume
+<code>b</code> sits at whichever extreme is furthest from <code>a</code>
+&mdash; the missing value is treated as "as bad as it could be." Both
+missing: distance 1.</p>
+
+<p>Five distances from row 0 (the heavy V8):</p>
+
+<pre><code>* (distx *d* *r0* *r0*)                       ; to self
+0.0
+* (distx *d* *r0* (caddr *rs*))                ; to near-twin
+0.040
+* (distx *d* *r0* (elt *rs* 200))              ; to a middle row
+0.697
+* (distx *d* *r0* (car (last *rs*)))           ; to its opposite
+0.821
+* (distx *d* *r0* (find-if (lambda (r) (find '? r)) (cdr *rs*)))
+0.249                                         ; to a row with ?</code></pre>
+
+<p>Zero to self. Tiny distance to row 2 (also a 70s V8). Middling
+distance to a Euro four-cylinder. Large distance to the best car. The
+missing-value row lands in the middle &mdash; pessimism penalizes the
+unknown column, but the other columns still compare normally.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">12. Labels cost money</h1>
+
+<p>Here is the twist. In real problems, the y-columns are
+<em>expensive</em>. You want Mpg? Build the car, drive it. Defect counts?
+Ship the release, wait. Labels cost money; features are almost free.</p>
+
+<p>So we pretend the <code>y</code> values are hidden, and we uncover
+them one at a time. The question becomes: which row should we pay to
+label next?</p>
+
+<p>The strategy in <code>fri.lisp</code>:</p>
+
+<ol>
+<li>Label 4 rows at random. Call this <code>lab</code>.</li>
+<li>Sort <code>lab</code> by <code>disty</code>. The best sqrt(N) go
+into <code>best</code>; the rest into <code>rest</code>.</li>
+<li>For each unlabeled row in the pool: is it closer (in feature space)
+to <code>best</code>'s centroid than to <code>rest</code>'s centroid? If
+yes, label it and add to <code>best</code>. If no, skip.</li>
+<li>After each addition, <code>rebalance</code>: cap <code>best</code>
+at sqrt(|lab|) rows by moving the worst-disty row from
+<code>best</code> to <code>rest</code>. Keeps the elite pile small.</li>
+<li>Stop after <code>!budget</code> labels (default 50) or when the
+pool is exhausted.</li>
+</ol>
+
+<p>The acquisition function is one line:</p>
+
+<pre><code>(defun closer? (lab best rest r)
+  (&lt; (distx lab r (mid best)) (distx lab r (mid rest))))</code></pre>
+
+<p><code>mid</code> on a <code>Data</code> is the centroid vector: one
+<code>mid</code> per column, memoized on <code>_mid</code> until the
+next <code>add</code> invalidates it.</p>
+
+<p>The whole loop:</p>
+
+<pre><code>(defun active (rs &aux (hd (list (car rs))))
+  (let* ((lab  (make-data hd)) (best (make-data hd))
+         (rest (make-data hd)) (ys   (make-num))
+         (pool (warm-start (shuffle (cdr rs)) lab best rest ys)))
+    (loop for r in (subseq pool 0 (min !few (length pool)))
+          while (&lt; (? ys n) !budget) do
+          (when (closer? lab best rest r)
+            (add ys (disty lab r)) (add lab r) (add best r)
+            (rebalance best rest lab)))
+    (values best lab (? ys n))))</code></pre>
+
+<p>Run it at the REPL and inspect the result:</p>
+
+<pre><code>* (multiple-value-bind (best lab labels) (active *rs*)
+    (declare (ignore best))
+    (format t "labels spent: ~a~%" labels)
+    (format t "lab rows:     ~a~%" (length (? lab rows)))
+    (format t "best 3 labeled rows by disty:~%")
+    (dolist (r (subseq
+                 (sort (copy-list (? lab rows)) #'&lt;
+                       :key (lambda (r) (disty lab r)))
+                 0 3))
+      (format t "  ~,3f  ~a~%" (disty lab r) r))
+    (defparameter *lab* lab))
+labels spent: 32
+lab rows:     32
+best 3 labeled rows by disty:
+  0.139  (4 89 60 80 3 1968 18.8 40)
+  0.169  (4 97 52 82 2 2130 24.6 40)
+  0.278  (4 81 60 81 3 1760 16.1 40)</code></pre>
+
+<p>Thirty-two labels bought us three rows with disty under 0.28 &mdash; all
+at the good end of the landscape. The learner never peeked at rows
+outside the labeled set. A one-twelfth budget found the top region.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">13. Hills on the landscape</h1>
+
+<p>We have 32 labeled rows. Not many, but enough to see where the good
+rows live in feature space. A decision tree trained on those labels is
+a <em>map</em> of the landscape.</p>
+
+<p>Building the tree in pieces. First, what cuts does a column offer?</p>
+
+<pre><code>(defmethod %cuts ((c sym) vs) (remove-duplicates vs :test #'equal))
+(defmethod %cuts ((c num) vs)
+  (list (elt (sort vs #'&lt;) (floor (length vs) 2))))</code></pre>
+
+<p>Sym columns offer all unique values as cuts. Num columns offer
+<em>only the median</em>. That is not laziness &mdash; it is regularization.
+At 50 labels, trying every threshold would overfit. One cut per
+numeric column keeps the tree honest.</p>
+
+<pre><code>* (tree-cuts (find "Volume" (? *lab* cols x)
+                   :key (lambda (c) (? c txt)) :test #'equal)
+             (? *lab* rows))
+(97)                            ; median volume of the 32 labels
+* (tree-cuts (find "origin" (? *lab* cols x)
+                   :key (lambda (c) (? c txt)) :test #'equal)
+             (? *lab* rows))
+(3 1 2)                         ; three origins appeared</code></pre>
+
+<p>Next, how good is a particular cut? <code>tree-split</code> divides
+the rows into left/right, computes each side's disty spread, weights by
+count, and sums:</p>
+
+<pre><code>(defun tree-split (d c cut rs)
+  (let (l r (ln (make-num)) (rn (make-num)))
+    (dolist (row rs)
+      (if (go-left? c (elt row (? c at)) cut)
+          (progn (push row l) (add ln (disty d row)))
+          (progn (push row r) (add rn (disty d row)))))
+    (list (+ (* (? ln n) (spread ln)) (* (? rn n) (spread rn)))
+          c cut l r)))</code></pre>
+
+<p>Lower score &rarr; a cleaner split. A pure-left node has
+<code>spread=0</code> on one side. The best cut across all columns wins
+and becomes the root decision.</p>
+
+<p>Then <code>tree-grow</code> recurses. Stop when a node has fewer than
+<code>2*leaf</code> rows (default leaf size: 3, so minimum node size is
+6). Show the result:</p>
+
+<pre><code>* (tree-show (tree-grow *lab* (? *lab* rows)))
+0.53 ( 32)
+0.40 ( 15)   Volume &lt;= 97
+0.50 (  7)   |.. Model &lt;= 79
+0.55 (  4)   |.. |.. Volume &lt;= 89
+0.44 (  3)   |.. |.. Volume >  89
+0.31 (  8)   |.. Model >  79
+0.32 (  3)   |.. |.. Model &lt;= 80
+0.30 (  5)   |.. |.. Model >  80
+0.65 ( 17)   Volume >  97
+0.58 ( 12)   |.. Clndrs &lt;= 4
+0.43 (  3)   |.. |.. origin == 3
+0.63 (  9)   |.. |.. origin != 3
+0.56 (  3)   |.. |.. |.. Volume &lt;= 105
+0.67 (  6)   |.. |.. |.. Volume >  105
+0.73 (  3)   |.. |.. |.. |.. Model &lt;= 80
+0.61 (  3)   |.. |.. |.. |.. Model >  80
+0.82 (  5)   |.. Clndrs >  4</code></pre>
+
+<p>Each line: mean disty at this branch, row count, branching condition.
+Lower is closer to heaven. The best leaf is
+<code>Volume&nbsp;&le;&nbsp;97&nbsp;&amp;&nbsp;Model&nbsp;&gt;&nbsp;80</code>
+at disty 0.30 &mdash; a rule a human can read: <em>small late-model
+cars</em>. The worst leaf is <code>Volume&nbsp;&gt;&nbsp;97&nbsp;&amp;&nbsp;Clndrs&nbsp;&gt;&nbsp;4</code>
+at 0.82 &mdash; <em>big multi-cylinder cars</em>.</p>
+
+<div class="sidebar">
+<div class="sidebarhead">The explanation tax</div>
+A leaf is a rule. A rule is a sentence. A sentence is testable and
+arguable. At ~50 labels, this tree breaks even with a centroid
+baseline that cannot be printed. Below 30 labels, interpretability
+costs a few points of accuracy. Above 50, it is free.
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">14. Pay to peek</h1>
+
+<p>The tree was fit on 32 labels. What does it say about rows it has
+never seen?</p>
+
+<p>Route a new row to its leaf with <code>tree-leaf</code>:</p>
+
+<pre><code>(defun tree-leaf (t0 r)
+  (if (null (? t0 left)) t0
+      (tree-leaf (if (go-left? (? t0 col)
+                               (elt r (? (? t0 col) at))
+                               (? t0 cut))
+                     (? t0 left) (? t0 right)) r)))</code></pre>
+
+<p>Try it on a known-good row that wasn't in the labeled set:</p>
+
+<pre><code>* (defparameter *tr* (tree-grow *lab* (? *lab* rows)))
+*TR*
+* (let* ((r (car (last *rs*)))
+         (leaf (tree-leaf *tr* r)))
+    (format t "row:  ~a~%" r)
+    (format t "leaf: mu=~,3f n=~a hdr=~s~%"
+            (mid (? leaf ynum)) (? (? leaf ynum) n) (? leaf hdr)))
+row:  (4 86 65 80 3 2110 17.9 50)
+leaf: mu=0.325 n=3 hdr="Model &lt;= 80"</code></pre>
+
+<p>The tree predicts disty ~0.33 for this row, based on the three rows
+in that leaf. The real disty is 0.14 &mdash; a leaf reports a mean, not a
+min, so no single row's exact disty comes out. What matters is the
+routing: this row lands in a best-region leaf, not in the
+<code>Volume > 97 &amp; Clndrs > 4</code> leaf at 0.82.</p>
+
+<p>Now the full evaluation protocol. <code>validate</code>:</p>
+
+<ol>
+<li>Split the file into <code>train</code> and <code>test</code>,
+half each.</li>
+<li>Run <code>active</code> on <code>train</code>. Spend ~30 labels.</li>
+<li>Grow a tree on those labels.</li>
+<li>Route every <code>test</code> row through the tree; sort
+<code>test</code> by predicted leaf mean.</li>
+<li><em>Pay to peek</em> at the top <code>check</code> (default 5):
+reveal their true disty.</li>
+<li>Return the best of those five.</li>
+</ol>
+
+<p>The whole thing, twenty lines:</p>
+
+<pre><code>(defun validate (rs god w &optional (check 5))
+  (let* ((body (shuffle (cdr rs)))
+         (n (floor (length body) 2))
+         (train (cons (car rs) (subseq body 0 n)))
+         (test  (subseq body n)))
+    (multiple-value-bind (best lab labels) (active train)
+      (declare (ignore best))
+      (let* ((y-god (lambda (r) (disty god r)))
+             (train-best (extremum-by (? lab rows) y-god #'&lt;))
+             (tr (tree-grow lab (? lab rows)))
+             (ranked (sort (copy-list test) #'&lt;
+                           :key (lambda (r)
+                                  (mid (? (tree-leaf tr r) ynum)))))
+             (top (subseq ranked 0 (min check (length ranked))))
+             (pick (extremum-by top y-god #'&lt;)))
+        (values (funcall w train-best)
+                (funcall w pick)
+                (+ labels check))))))</code></pre>
+
+<p>Run it 20 times, each with a different shuffle:</p>
+
+<pre><code>$ sbcl --script fri.lisp --active auto93.csv
+100  97  49
+ 94  67  50
+ 97  93  55
+ 97  97  33
+100  91  48
+...</code></pre>
+
+<p>Three columns:</p>
+
+<ul>
+<li><b>train-win.</b> Percentile rank of the best row found during
+training (100 = tied with the global best).</li>
+<li><b>hold-win.</b> Percentile rank of the best row chosen from the
+holdout top-5 &mdash; the test of whether the tree's explanation
+<em>generalizes</em>.</li>
+<li><b>labels.</b> Total labels paid: active labels + 5 check labels.</li>
+</ul>
+
+<p>Typical hold-wins land in the 80s-90s with around 40 labels total
+(out of 398 rows). Honest evaluation: the tree was built without ever
+seeing the test rows, and the pay-to-peek budget is explicit.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">15. The whole show, in eight lines</h1>
+
+<p>Every verb we have collected, in one REPL session:</p>
+
+<pre><code>* (defparameter *rs*  (read-csv "auto93.csv"))         ; chapter 2
+* (defparameter *d*   (make-data *rs*))                 ; chapter 4
+* (mid (car (? *d* cols y)))                            ; chapter 6
+23.844229
+* (norm (car (? *d* cols y)) 50)                        ; chapter 7
+0.99394023
+* (disty *d* (cadr *rs*))                               ; chapter 9
+0.7863217
+* (multiple-value-bind (_ lab n) (active *rs*)          ; chapter 12
+    (declare (ignore _))
+    (defparameter *tr* (tree-grow lab (? lab rows)))
+    (format t "~a labels~%" n))
+32 labels
+* (tree-show *tr*)                                      ; chapter 13
+0.53 ( 32) ...
+* (? (tree-leaf *tr* (car (last *rs*))) hdr)            ; chapter 14
+"Model &lt;= 80"</code></pre>
+
+<p>Read, classify columns, summarize, normalize, distance, active-learn,
+build a tree, route a row to its leaf. Eight lines. Every function was
+built from the one before it.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<h1 class="chap">16. Where we arrived</h1>
+
+<p>We started with the integer 42. It did not know where it stood.</p>
+
+<p>We gave it friends: a row. We gave the row siblings: many rows. The
+header named the columns. We taught each column to remember its middle
+and its width in constant space. We placed every value inside its own
+column's bell. We defined a direction of good &mdash; <em>heaven</em>. We
+computed one scalar per row: distance from heaven. We sorted. We
+measured rows by their feature-space neighborhoods. We labeled cheaply.
+We grew a tree on the labels. We routed fresh rows through it. We
+measured generalization with a pay-to-peek holdout.</p>
+
+<p>Each step added one verb. None of the steps was more than a few
+lines:</p>
+
+<pre><code>    value  ->  row  ->  column  ->  mid/spread  ->  norm
+                                                     |
+                     distx &lt;- heaven &lt;- disty &lt;-----+
+                      |                  |
+                    active -----> tree -----> validate</code></pre>
+
+<p>Every arrow is a function. Every function is visible. Nothing hides
+inside a dependency. A lonely value walks all the way to explainable
+multi-objective optimization without ever leaving the file.</p>
+
+<hr>
+
+<h2>Appendix A: every demo</h2>
+
+<pre><code>$ sbcl --script fri.lisp --the    x           ; print config
+$ sbcl --script fri.lisp --rows   auto93.csv  ; read CSV, print tail
+$ sbcl --script fri.lisp --data   auto93.csv  ; build Data, show y-cols
+$ sbcl --script fri.lisp --stats  auto93.csv  ; mid, spread per column
+$ sbcl --script fri.lisp --norm   auto93.csv  ; raw vs normalized y's
+$ sbcl --script fri.lisp --ydata  auto93.csv  ; rows sorted by disty
+$ sbcl --script fri.lisp --xdata  auto93.csv  ; rows sorted by distx
+$ sbcl --script fri.lisp --tree   auto93.csv  ; active-label, grow tree
+$ sbcl --script fri.lisp --active auto93.csv  ; 20 train/test splits
+$ sbcl --script fri.lisp --all    auto93.csv  ; all of the above</code></pre>
+
+<h2>Appendix B: reader macros in one page</h2>
+
+<p>Three pieces of notation save a lot of noise:</p>
+
+<dl>
+<dt>!key</dt>
+<dd>expands to <code>(second (assoc 'key *the*))</code>. A config
+lookup. <code>!p</code> is the Minkowski exponent (default 2).
+<code>!budget</code> is the label cap. Defined by one
+<code>defread</code>.</dd>
+
+<dt>$field</dt>
+<dd>expands to <code>(slot-value i 'field)</code>. Inside a method,
+<code>i</code> is always the first argument. So <code>$mu</code> in
+the <code>add ((i num) ...)</code> method reads <code>i</code>'s
+<code>mu</code> slot. One other <code>defread</code>.</dd>
+
+<dt>(? x a b c)</dt>
+<dd>nested slot access: <code>(slot-value (slot-value (slot-value x
+'a) 'b) 'c)</code>. Used when <code>i</code> isn't
+in scope. A regular macro, not a reader macro.</dd>
+
+<dt>(aif test then else)</dt>
+<dd>anaphoric if: binds <code>it</code> to <code>test</code>'s value
+inside <code>then</code> and <code>else</code>. Used once, in the CLI
+parser, to name "the matched flag-row" without a <code>let</code>.</dd>
+</dl>
+
+<h2>Appendix C: how the CLI finds your flag</h2>
+
+<p>The whole dispatcher is two defuns:</p>
+
+<pre><code>(defun run (it &optional arg)
+  (let* ((f (if (symbolp it) it
+                (intern (format nil "EG~:@(~a~)" it))))
+         (n (symbol-name f)))
+    (when (and (fboundp f) (> (length n) 3)
+               (string= n "EG-" :end1 3))
+      (setf *seed* !seed)
+      (if arg (funcall f arg) (funcall f))
+      t)))
+
+(defun cli (lsts)
+  (loop for (flag arg) on (args) by #'cddr do
+    (unless (run flag (thing arg))
+      (aif (find flag lsts :key #'third :test #'equalp)
+           (setf (second it) (thing arg))))))</code></pre>
+
+<p>Walk argv two at a time. For each <code>(flag arg)</code> pair: first
+try to dispatch it as a demo by interning
+<code>"eg" + uppercase(flag)</code> and checking <code>fboundp</code>. If
+that fails, look up the flag in <code>*the*</code> by its third field
+(the short flag name) and overwrite the default. That is the entire
+parser: no argparse, no dictionary, no help-message generator. The same
+list that holds defaults is also the help schema.</p>
+
+</body>
+</html>
