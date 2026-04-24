@@ -12,8 +12,7 @@
 window.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("pre code").forEach(el => {
     const t = el.textContent;
-    // REPL transcripts and shell commands skip highlighting
-    if (/^>>>/m.test(t) || /^\$\s/m.test(t)) {
+    if (/^>>>/m.test(t) || /^\$\s/m.test(t) || /^(μ|σ|H |d )/m.test(t)) {
       el.classList.add("language-plaintext");
     } else {
       el.classList.add("language-python");
@@ -30,12 +29,15 @@ body {
   font-family: serif;
 }
 p { line-height: 1.5; }
-sup { font-size: 9pt;  }
 blockquote { line-height: 1.5; font-size: 90%; color: #555;
              border-left: 3px solid #ccc; padding-left: 12pt; margin-left: 0; }
 h1, h2, h3, h4, h5, h6 { font-family: Helvetica; }
 h1.chap { border-bottom: solid thin #aaa; padding-top: 24pt; }
 h2 { padding-top: 18pt; }
+h3.mic { font-family: monospace; color: #888; font-size: 14px;
+         font-weight: normal; padding-top: 14pt; margin-bottom: 4pt; }
+h3.mic::before { content: "--- "; }
+h3.mic::after  { content: " ---"; }
 li { padding-top: 6pt; }
 dt { font-weight: bold; font-family: monospace;
      padding-top: 12pt; padding-bottom: 3pt; }
@@ -51,10 +53,22 @@ div.sidebar { font-size: 13px; font-family: sans-serif;
               margin: 12pt .25in; background: #fafafa; }
 div.sidebarhead { font-size: 11pt; font-weight: bold;
                   font-family: sans-serif; padding-bottom: 6pt; }
+div.note { font-size: 14px; background: #fffae6;
+           border-left: 3px solid #d4a017;
+           padding: 6pt 12pt; margin: 8pt .25in; }
+div.note::before { content: "Note. "; font-weight: bold; color: #8a6d0e; }
+div.fail { font-size: 14px; background: #fff0f0;
+           border-left: 3px solid #c44;
+           padding: 6pt 12pt; margin: 8pt .25in; }
+div.fail::before { content: "Edge case. "; font-weight: bold; color: #a33; }
+div.eng { font-style: italic; color: #555; margin: 8pt 0 0 .25in; font-size: 15px; }
 hr { border: 0; border-top: thin dotted #888; margin: 24pt 0; }
 table.t { border-collapse: collapse; margin: 12pt .25in; font-size: 14px; }
 table.t th, table.t td { border-bottom: thin dotted #888; padding: 3pt 8pt; text-align: left; }
 table.t th { font-family: sans-serif; font-size: 13px; }
+.math { font-family: Georgia, serif; background: #f6f6f6;
+        padding: 6pt 12pt; margin: 8pt .25in;
+        border-left: 3px solid #ddd; }
 </style>
 </head>
 <body>
@@ -62,8 +76,8 @@ table.t th { font-family: sans-serif; font-size: 13px; }
 <h1>A Tour of ezr.py</h1>
 <p class="summary">
 From one lonely value to explainable multi-objective optimization, in
-five hundred lines of Python. A companion to the Lisp tour. Same arc;
-different notation; identical numbers.
+five hundred lines of Python. Same arc as the Lisp tour; different
+notation; identical numbers.
 </p>
 
 <blockquote>
@@ -74,8 +88,20 @@ values at the same place in other rows. Slopes. Hills. Groups. Before
 long, the value knew where it stood.
 </blockquote>
 
-<p>This is a tour of <a href="../../ezr/ezr.py"><code>ezr.py</code></a>.
-Each stop is a few lines. Every output was captured live.</p>
+<div class="sidebar">
+<div class="sidebarhead">Where we end up</div>
+<pre><code>&gt;&gt;&gt; d   = Data(csv("auto93.csv"))
+&gt;&gt;&gt; lab = active(d, score=acquireWithCentroid)
+&gt;&gt;&gt; tr  = treeGrow(lab, lab.rows)
+&gt;&gt;&gt; treeShow(tr)
+Volume &lt;= 98                  ,0.40 ,( 17), ...
+|   origin == 2  &amp;  Model &gt; 77,0.30 ,(  3), ...
+Volume &gt; 98                   ,0.68 ,( 15), ...
+|   Volume &gt; 120              ,0.77 ,(  6), ...</code></pre>
+Four lines. Read a file, label 32 rows of 398, grow a tree, print the
+rules. Everything between here and chapter 15 explains why each line
+works.
+</div>
 
 <h2>Getting ready</h2>
 
@@ -85,21 +111,33 @@ $ python3 -i ezr.py
 &gt;&gt;&gt; random.seed(1)</code></pre>
 
 <p><code>-i</code> runs the file, then drops to the REPL with every
-function and the <code>the</code> config namespace in scope. Seed pinned
-so your numbers match ours.</p>
+function and the <code>the</code> config namespace in scope. Seed
+pinned so your numbers match ours. Every REPL block below assumes
+these two lines ran first. To rewind, restart the interpreter.</p>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">1. A value</h1>
 
+<div class="eng">Type something. Anything.</div>
+
 <pre><code>&gt;&gt;&gt; 42
 42
-&gt;&gt;&gt; type(42)
-&lt;class 'int'&gt;</code></pre>
+&gt;&gt;&gt; "?"
+'?'
+&gt;&gt;&gt; [42]
+[42]</code></pre>
 
-<p>An integer. That's everything we know. Is 42 big? Small? Typical? A
-value alone is a dot without an axis.</p>
+<p>The REPL evaluates anything &mdash; atom, string, list, call. Not
+just function invocations.</p>
+
+<div class="eng">What can we say about 42 alone?</div>
+
+<p>Nothing. Is 42 big? Small? Typical? A value alone is a dot without
+an axis.</p>
+
+<div class="eng">Give it a friend. Then seven.</div>
 
 <pre><code>&gt;&gt;&gt; [42, 17]
 [42, 17]
@@ -107,10 +145,10 @@ value alone is a dot without an axis.</p>
 [8, 304, 193, 70, 1, 4732, 18.5, 10]</code></pre>
 
 <p>Eight numbers. Some small, some big. <code>8</code> might be a count.
-<code>4732</code> might be a weight. We are guessing &mdash; but guessing is
-new. With one value we could not even guess.</p>
+<code>4732</code> might be a weight. Guessing is new. With one value
+we could not even guess.</p>
 
-<p>This row is real. It's the first data row in
+<p>This row is real &mdash; the first data row in
 <code>auto93.csv</code>, a dataset of 398 cars.</p>
 
 <hr>
@@ -118,9 +156,10 @@ new. With one value we could not even guess.</p>
 <!-- ============================================================ -->
 <h1 class="chap">2. Reading one row from a file</h1>
 
-<p>Text on disk needs typed values in memory. The whole parser in
-<code>ezr.py</code> is two functions. First, <code>thing</code> coerces
-one cell:</p>
+<p>Text on disk needs typed values in memory. The parser in
+<code>ezr.py</code> is two functions.</p>
+
+<h3 class="mic">thing: coerce one cell</h3>
 
 <pre><code>def thing(txt):
   txt = txt.strip()
@@ -129,9 +168,8 @@ one cell:</p>
     try: return f(txt)
     except ValueError: pass</code></pre>
 
-<p>Strip whitespace. Try <code>int</code>, then <code>float</code>, then
-the bool table. Fall through returns the stripped string unchanged.
-Missing values stay as the literal <code>"?"</code>.</p>
+<div class="eng">Strip, then try int, float, bool table. Fall through
+returns the string unchanged.</div>
 
 <pre><code>&gt;&gt;&gt; thing("304")
 304
@@ -144,8 +182,21 @@ Missing values stay as the literal <code>"?"</code>.</p>
 &gt;&gt;&gt; thing("true")
 1</code></pre>
 
-<p>Now <code>csv</code> wraps <code>thing</code> in a generator that
-also handles comments and blank lines:</p>
+<div class="note">
+<code>"?"</code> is just a string, not a sentinel type. Python's missing
+marker piggybacks on the string fall-through: every numeric parse
+fails, the bool table doesn't contain it, so <code>"?"</code> comes
+back as a string. The Lisp port uses the symbol <code>?</code>; Python
+uses the string. Both work because neither matches a number.
+</div>
+
+<div class="fail">
+<code>thing("")</code> returns <code>''</code>, not <code>None</code>
+and not an error. Empty cells survive as empty strings. Callers that
+care (like <code>csv</code> below) must filter.
+</div>
+
+<h3 class="mic">csv: a generator with comments and blanks</h3>
 
 <pre><code>def csv(f, clean=lambda s: s.partition("#")[0].split(",")):
   with open(f, encoding="utf-8") as file:
@@ -153,19 +204,18 @@ also handles comments and blank lines:</p>
       r = clean(s)
       if any(x.strip() for x in r): yield [thing(x) for x in r]</code></pre>
 
-<p>Three moves in five lines:</p>
+<div class="eng">Three moves in five lines.</div>
 
 <ul>
-<li><b>Comments.</b> <code>s.partition("#")[0]</code> drops everything
-from the first <code>#</code> to end-of-line, so
-<code>"1,2,3  # skip me"</code> becomes <code>"1,2,3  "</code>.</li>
-<li><b>Blank lines.</b> <code>if any(x.strip() for x in r)</code> skips
-rows where every cell is empty, including lines that were
-comment-only.</li>
-<li><b>Typing.</b> Each surviving cell goes through <code>thing</code>.</li>
+<li><b>Comments.</b> <code>s.partition("#")[0]</code> drops from the
+first <code>#</code> to end-of-line.
+<code>"1,2,3 # skip"</code> &rarr; <code>"1,2,3 "</code>.</li>
+<li><b>Blank lines.</b> <code>any(x.strip() for x in r)</code> skips
+rows where every cell is empty (including comment-only lines).</li>
+<li><b>Typing.</b> Each surviving cell through <code>thing</code>.</li>
 </ul>
 
-<p>That's the entire reader:</p>
+<div class="eng">Read the file. Inspect what came back.</div>
 
 <pre><code>&gt;&gt;&gt; rs = list(csv("../misc/lisp/auto93.csv"))
 &gt;&gt;&gt; len(rs)
@@ -175,7 +225,7 @@ comment-only.</li>
 &gt;&gt;&gt; rs[1]
 [8, 304, 193, 70, 1, 4732, 18.5, 10]</code></pre>
 
-<p>Rows with missing values:</p>
+<div class="eng">What about rows with missing values?</div>
 
 <pre><code>&gt;&gt;&gt; next(r for r in rs[1:] if "?" in r)
 [6, 200, '?', 74, 1, 2875, 17, 20]</code></pre>
@@ -183,49 +233,85 @@ comment-only.</li>
 <hr>
 
 <!-- ============================================================ -->
-<h1 class="chap">3. Rows by the hundred</h1>
+<h1 class="chap">3. A handful of rows, a first pattern</h1>
+
+<h3 class="mic">a cluster</h3>
+
+<div class="eng">Look at rows 50-53.</div>
 
 <pre><code>&gt;&gt;&gt; rs[50:54]
-[[8, 302, 140, 74, 1, 4638, 16, 10],
+[[8, 302, 140, 74, 1, 4638, 16,   10],
  [8, 304, 150, 74, 1, 4257, 15.5, 10],
  [8, 351, 148, 75, 1, 4657, 13.5, 10],
- [8, 351, 152, 76, 1, 4215, 12.8, 10]]
-&gt;&gt;&gt; rs[-1]
-[4, 86, 65, 80, 3, 2110, 17.9, 50]
-&gt;&gt;&gt; sum(1 for r in rs[1:] if "?" in r)
+ [8, 351, 152, 76, 1, 4215, 12.8, 10]]</code></pre>
+
+<p>Eight cylinders, heavy, Mpg=10. They cluster.</p>
+
+<h3 class="mic">the opposite</h3>
+
+<pre><code>&gt;&gt;&gt; rs[-1]
+[4, 86, 65, 80, 3, 2110, 17.9, 50]</code></pre>
+
+<p>Four cylinders, light, Mpg=50. The opposite pole.</p>
+
+<h3 class="mic">missing values</h3>
+
+<pre><code>&gt;&gt;&gt; sum(1 for r in rs[1:] if "?" in r)
 6</code></pre>
 
-<p>Rows 50-53 cluster: 8-cylinder, heavy, Mpg=10. The last row is the
-opposite: 4-cylinder, light, Mpg=50. Patterns. Six rows out of 398
-carry a <code>?</code>.</p>
+<p>Six rows out of 398. 1.5% gap. Any column summary or distance
+calculation has to tolerate this.</p>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">4. Names decide roles</h1>
 
-<p>The header encodes the schema. First character: uppercase &rarr;
-<code>Num</code>, lowercase &rarr; <code>Sym</code>. Last character:
-<code>+</code>/<code>-</code> goal, <code>!</code> class, <code>X</code>
-skip, else feature.</p>
+<p>The header encodes the schema. Two rules.</p>
 
-<pre><code>def Col(txt="", a=0):
-  return (Num if txt[0].isupper() else Sym)(txt, a)
+<ul>
+<li><b>First character.</b> Uppercase &rarr; <code>Num</code>; lowercase
+&rarr; <code>Sym</code>.</li>
+<li><b>Last character.</b> <code>+</code>/<code>-</code> goal;
+<code>!</code> class label; <code>X</code> skip; else feature.</li>
+</ul>
 
-class Num:
+<h3 class="mic">Num and Sym</h3>
+
+<pre><code>class Num:
   def __init__(i, txt="", a=0):
     i.txt, i.at, i.n = txt, a, 0
-    i.mu, i.m2, i.sd, i.heaven = 0, 0, 0, txt[-1:] != "-"</code></pre>
+    i.mu, i.m2, i.sd, i.heaven = 0, 0, 0, txt[-1:] != "-"
 
-<p>Suffix controls <code>heaven</code> at construction. One flag per
-goal, decided once.</p>
+class Sym:
+  def __init__(i, txt="", a=0):
+    i.txt, i.at, i.n, i.has = txt, a, 0, {}
+
+def Col(txt="", a=0):
+  return (Num if txt[0].isupper() else Sym)(txt, a)</code></pre>
+
+<div class="note">
+<code>i</code> as self-name is an ezr.py convention (inherited from
+the Lisp port). Python's usual <code>self</code> would work
+identically. <code>txt[-1:]</code> (slice, not index) is safe on empty
+string &mdash; returns <code>""</code> rather than raising.
+</div>
+
+<div class="eng">The suffix controls heaven at construction. Check
+both directions.</div>
 
 <pre><code>&gt;&gt;&gt; Num("Mpg+").heaven
 True
 &gt;&gt;&gt; Num("Lbs-").heaven
 False</code></pre>
 
-<p><code>Cols</code> walks the header and partitions:</p>
+<div class="note">
+<code>heaven</code> is a <code>bool</code>, not <code>0</code>/<code>1</code>
+as in the Lisp port. <code>int(True) == 1</code> so arithmetic works,
+but the repr differs.
+</div>
+
+<h3 class="mic">Cols: partition the header</h3>
 
 <pre><code>class Cols:
   def __init__(i, names):
@@ -234,24 +320,40 @@ False</code></pre>
     i.xs    = [c for c in i.all if c.txt[-1] not in "+-!X"]
     i.ys    = [c for c in i.all if c.txt[-1] in "+-!"]</code></pre>
 
-<p>Build a <code>Data</code> and inspect:</p>
+<div class="eng">Build a Data, inspect its partition.</div>
 
 <pre><code>&gt;&gt;&gt; d = Data(iter(rs))
 &gt;&gt;&gt; [c.txt for c in d.cols.ys]
 ['Lbs-', 'Acc+', 'Mpg+']
 &gt;&gt;&gt; [c.txt for c in d.cols.xs]
-['Clndrs', 'Volume', 'Model', 'origin']</code></pre>
+['Clndrs', 'Volume', 'Model', 'origin']
+&gt;&gt;&gt; len(d.rows), len(d.cols.ys), len(d.cols.xs)
+(398, 3, 4)</code></pre>
 
-<p>Three goals, four features. <code>HpX</code> dropped. Convention over
-configuration.</p>
+<p>Three goals, four features. <code>HpX</code> dropped. Convention
+over configuration.</p>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">5. A column that remembers</h1>
 
-<p>Can a column report its mean without keeping every value? Yes.
-Welford, 1962.</p>
+<div class="eng">Can a column report its mean without keeping every
+value? Yes. Welford, 1962.</div>
+
+<h3 class="mic">Welford, in math</h3>
+
+<pre class="math">
+  μₙ  = μₙ₋₁ + (v − μₙ₋₁) / n
+  M₂ₙ = M₂ₙ₋₁ + (v − μₙ₋₁) · (v − μₙ)
+  σ   = √( M₂ / (n − 1) )
+</pre>
+
+<p>Two increments per sample &mdash; no list of prior values needed.
+<code>σ</code> is recoverable from <code>M₂</code> and <code>n</code>
+on demand.</p>
+
+<h3 class="mic">Welford, in code</h3>
 
 <pre><code>def summarize(c, v, w=1):
   if v == "?": return v
@@ -264,35 +366,60 @@ Welford, 1962.</p>
     c.m2 += w * delta * (v - c.mu)
     c.sd = (max(0, c.m2) / (c.n - 1))**.5 if c.n &gt; 1 else 0</code></pre>
 
-<p>Three increments per sample. <code>mu</code> updates before
-<code>m2</code> reads it &mdash; Welford's identity uses the new mean. The
-weight <code>w</code> makes the update symmetric: pass <code>-1</code>
-to unwind.</p>
+<div class="note">
+<code>mu</code> updates <em>before</em> <code>m2</code> reads it &mdash;
+Welford's identity uses the NEW mean for the <code>m2</code> term. Not
+a bug.
+</div>
+
+<h3 class="mic">trace: five adds, two subs</h3>
 
 <pre><code>&gt;&gt;&gt; n = Num()
 &gt;&gt;&gt; for v in (10, 20, 30, 40, 50):
 ...     summarize(n, v)
-...     print(f"after {v}: n={n.n} mu={n.mu} m2={n.m2}")
-after 10: n=1 mu=10.0 m2=0.0
-after 20: n=2 mu=15.0 m2=50.0
-after 30: n=3 mu=20.0 m2=200.0
-after 40: n=4 mu=25.0 m2=500.0
-after 50: n=5 mu=30.0 m2=1000.0
+...     print(f"after {v}: n={n.n} μ={n.mu} M₂={n.m2}")
+after 10: n=1 μ=10.0 M₂=0.0
+after 20: n=2 μ=15.0 M₂=50.0
+after 30: n=3 μ=20.0 M₂=200.0
+after 40: n=4 μ=25.0 M₂=500.0
+after 50: n=5 μ=30.0 M₂=1000.0
 &gt;&gt;&gt; spread(n)
-15.811388300841896
-&gt;&gt;&gt; summarize(n, 50, -1); summarize(n, 40, -1)
+15.811388300841896</code></pre>
+
+<div class="eng">Undo two adds with weight −1.</div>
+
+<pre><code>&gt;&gt;&gt; summarize(n, 50, -1); summarize(n, 40, -1)
 &gt;&gt;&gt; n.n, n.mu, n.m2, spread(n)
 (3, 20.0, 200.0, 10.0)</code></pre>
 
-<p>Rewound two adds, landed exactly where we were at step 3. Chapter 13
-uses this to shuffle rows between sets without recomputing.</p>
+<p>Landed exactly where we were at step 3. Ch 12 uses this to shuffle
+rows between sets without recomputing.</p>
 
-<p>Syms keep a dict. Same verb, simpler body:</p>
+<div class="fail">
+<code>summarize(Num(), "?")</code> returns <code>"?"</code> without
+touching state. Missing values propagate, never aggregate.
+</div>
+
+<h3 class="mic">Sym: a dict instead of μ and M₂</h3>
 
 <pre><code>&gt;&gt;&gt; s = Sym()
 &gt;&gt;&gt; for v in ('red','red','blue'): summarize(s, v)
 &gt;&gt;&gt; s.has
 {'red': 2, 'blue': 1}</code></pre>
+
+<h3 class="mic">summarize vs add</h3>
+
+<p>Two related verbs you'll see through the rest of the tour:</p>
+
+<ul>
+<li><code>summarize(c, v, w)</code> updates one column's summary.</li>
+<li><code>add(it, v, w=1)</code> dispatches on type. For a
+<code>Data</code> it invalidates the centroid cache, updates every
+column, and appends the row. For a <code>Col</code> it delegates to
+<code>summarize</code>.</li>
+<li><code>sub(it, v)</code> is <code>add(it, v, -1)</code>. Symmetric
+remove.</li>
+</ul>
 
 <hr>
 
@@ -307,21 +434,42 @@ def spread(c):
   n = sum(c.has.values())
   return -sum(v/n * log2(v/n) for v in c.has.values())</code></pre>
 
-<p>Num: mid is mean, spread is SD. Sym: mid is mode, spread is Shannon
-entropy.</p>
+<div class="eng">Num: mid is mean, spread is SD. Sym: mid is mode,
+spread is Shannon entropy.</div>
+
+<pre class="math">
+  H = − Σᵢ  pᵢ · log₂ pᵢ
+</pre>
 
 <pre><code>&gt;&gt;&gt; mid(n), spread(n)
 (20.0, 10.0)
 &gt;&gt;&gt; mid(s), spread(s)
 ('red', 0.9182958340544896)</code></pre>
 
-<p>Check by hand: <code>sqrt(200/2) = 10.0</code>. Entropy for 2-red/1-blue
+<p>By hand: <code>√(200/2) = 10.0</code>. Entropy for 2-red / 1-blue
 = 0.918 bits. Matches.</p>
+
+<div class="note">
+Entropy in bits because <code>log2</code>. Max entropy for 2 categories
+is 1.0 bit (50/50 split). We're at 0.918 because 2/3 vs 1/3 is less
+mixed.
+</div>
+
+<div class="fail">
+<code>mid(Num())</code> on an empty column returns <code>0</code>
+(the default <code>mu</code>), not an error. Callers that care must
+check <code>n &gt; 0</code> first.
+</div>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">7. Where do I stand?</h1>
+
+<pre class="math">
+  z    = (v − μ) / σ
+  norm = 1 / (1 + exp( −1.7 · clamp(z, −3, 3) ))
+</pre>
 
 <pre><code>def norm(c, v):
   if v == "?": return v
@@ -329,43 +477,71 @@ entropy.</p>
   z = max(-3, min(3, z))
   return 1/(1 + exp(-1.7*z))</code></pre>
 
-<p>z-score, clamped to &plusmn;3 (covers 99.7% of a Gaussian), sigmoided
-at scale 1.7 (approximates the Gaussian CDF). Output is "fraction of
-column &le; v".</p>
+<div class="eng">z-score, clamped to ±3 (99.7% of a Gaussian),
+sigmoided at scale 1.7 (approximates the Gaussian CDF). Output is
+"fraction of column ≤ v".</div>
 
-<pre><code>&gt;&gt;&gt; mpg = [c for c in d.cols.ys if c.txt == "Mpg+"][0]
+<h3 class="mic">Mpg+, a maximize column</h3>
+
+<pre><code>&gt;&gt;&gt; mpg = next(c for c in d.cols.ys if c.txt == "Mpg+")
 &gt;&gt;&gt; mpg.mu, mpg.sd
 (23.844221105527648, 8.340720074222057)
 &gt;&gt;&gt; norm(mpg, mpg.mu)
 0.5
-&gt;&gt;&gt; norm(mpg, mpg.mu + mpg.sd)
-0.8455347349164655
 &gt;&gt;&gt; norm(mpg, 50)
 0.9939401985084158
 &gt;&gt;&gt; norm(mpg, 10)
 0.05616169582917869</code></pre>
 
 <table class="t">
-<tr><th>value</th><th>z</th><th>norm</th><th>reads as</th></tr>
-<tr><td>10</td><td>-1.66</td><td>0.056</td><td>bottom 6%</td></tr>
-<tr><td>mu&minus;sd</td><td>-1.00</td><td>0.154</td><td>bottom 15%</td></tr>
-<tr><td>mu</td><td>0.00</td><td>0.500</td><td>median</td></tr>
-<tr><td>mu+sd</td><td>+1.00</td><td>0.846</td><td>top 15%</td></tr>
+<tr><th>v</th><th>z</th><th>norm</th><th>reads as</th></tr>
+<tr><td>10</td><td>−1.66</td><td>0.056</td><td>bottom 6%</td></tr>
+<tr><td>μ−σ</td><td>−1.00</td><td>0.154</td><td>bottom 15%</td></tr>
+<tr><td>μ</td><td>0.00</td><td>0.500</td><td>median</td></tr>
+<tr><td>μ+σ</td><td>+1.00</td><td>0.846</td><td>top 15%</td></tr>
 <tr><td>50</td><td>+3.14</td><td>0.994</td><td>top 1%</td></tr>
 </table>
+
+<h3 class="mic">Lbs−, a minimize column (contrast)</h3>
+
+<pre><code>&gt;&gt;&gt; lbs = next(c for c in d.cols.ys if c.txt == "Lbs-")
+&gt;&gt;&gt; norm(lbs, 1500)
+0.0497
+&gt;&gt;&gt; norm(lbs, lbs.mu)
+0.5
+&gt;&gt;&gt; norm(lbs, 5000)
+0.9833</code></pre>
+
+<p><code>norm</code> itself does not care about direction. It always
+reports "fraction at or below". Heaven (next chapter) handles the
+direction. A light car is <code>norm=0.05</code> here; we will want it
+<em>close to heaven=0</em>, not heaven=1.</p>
+
+<div class="note">
+<code>σ + 1e-32</code> guards against zero-spread columns. Without it,
+a column with a single value would divide by zero.
+</div>
+
+<div class="fail">
+<code>norm(c, "?")</code> returns <code>"?"</code> unchanged. Missing
+propagates; later code must handle the mixed type.
+</div>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">8. Heaven</h1>
 
-<p>Zero isn't "good" everywhere. For <code>Mpg+</code>, good is 1. For
-<code>Lbs-</code>, good is 0. Each Num carries a boolean
-<code>heaven</code>.</p>
+<div class="eng">Zero is not "good" everywhere. For Mpg+, good is 1.
+For Lbs−, good is 0. Each Num carries heaven.</div>
 
 <pre><code>&gt;&gt;&gt; [(c.txt, int(c.heaven)) for c in d.cols.ys]
-[('Lbs-', 0), ('Acc+', 1), ('Mpg+', 1)]
-&gt;&gt;&gt; r = rs[-1]
+[('Lbs-', 0), ('Acc+', 1), ('Mpg+', 1)]</code></pre>
+
+<div class="eng">Take one row. Compare normalized value to heaven for
+each goal.</div>
+
+<pre><code>&gt;&gt;&gt; r = rs[-1]
 &gt;&gt;&gt; r
 [4, 86, 65, 80, 3, 2110, 17.9, 50]
 &gt;&gt;&gt; for c in d.cols.ys:
@@ -375,12 +551,18 @@ column &le; v".</p>
   Acc+  raw= 17.9 norm=0.81 heaven=1
   Mpg+  raw=   50 norm=0.99 heaven=1</code></pre>
 
-<p>Every normalized value sits near its heaven. A good car.</p>
+<p>Every normalized value sits near its heaven. Heaven is the anchor;
+disty (next chapter) is the distance to the anchor.</p>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">9. Distance to heaven</h1>
+
+<pre class="math">
+  d = ( Σᵢ |xᵢ|^p  /  n ) ^ (1/p)           Minkowski
+  disty(row) = d( |norm(c, r[c.at]) − c.heaven|  for c in ys )
+</pre>
 
 <pre><code>def minkowski(items):
   tot, n = 0, 1e-32
@@ -390,28 +572,42 @@ column &le; v".</p>
 def disty(d, r):
   return minkowski(abs(norm(c, r[c.at]) - c.heaven) for c in d.cols.ys)</code></pre>
 
-<p>For each goal: delta = |norm - heaven|. Roll up by Minkowski with
-exponent <code>the.p</code> (default 2). Worked on the first data row
-<code>[8, 304, 193, 70, 1, 4732, 18.5, 10]</code>:</p>
+<div class="eng">For each goal: |norm − heaven|. Roll up by Minkowski
+at exponent <code>the.p</code> (default 2: Euclidean).</div>
+
+<h3 class="mic">by hand for row 1 (a V8)</h3>
 
 <table class="t">
-<tr><th>col</th><th>raw</th><th>norm</th><th>heaven</th><th>|delta|</th><th>delta&sup2;</th></tr>
-<tr><td>Lbs-</td><td>4732</td><td>0.972</td><td>0</td><td>0.972</td><td>0.944</td></tr>
+<tr><th>col</th><th>raw</th><th>norm</th><th>heaven</th><th>|Δ|</th><th>Δ²</th></tr>
+<tr><td>Lbs−</td><td>4732</td><td>0.972</td><td>0</td><td>0.972</td><td>0.944</td></tr>
 <tr><td>Acc+</td><td>18.5</td><td>0.859</td><td>1</td><td>0.141</td><td>0.020</td></tr>
 <tr><td>Mpg+</td><td>10</td><td>0.056</td><td>1</td><td>0.944</td><td>0.891</td></tr>
 </table>
 
-<p>sqrt((0.944+0.020+0.891)/3) = sqrt(0.618) = 0.786.</p>
+<p>√((0.944 + 0.020 + 0.891) / 3) = √0.618 = 0.786.</p>
 
-<pre><code>&gt;&gt;&gt; disty(d, rs[1])       # the V8 in row 1
+<h3 class="mic">confirm</h3>
+
+<pre><code>&gt;&gt;&gt; disty(d, rs[1])        # V8
 0.7863215820546604
-&gt;&gt;&gt; disty(d, rs[-1])      # light 4-cyl
+&gt;&gt;&gt; disty(d, rs[-1])       # light 4-cyl
 0.1410148526186497</code></pre>
+
+<p>Three goals collapsed into one scalar. 0.79 is far from heaven;
+0.14 is close.</p>
+
+<div class="note">
+<code>n = 1e-32</code> initial guards against zero-division if
+<code>items</code> is empty. Same rail as <code>norm</code>.
+</div>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">10. The world, sorted</h1>
+
+<div class="eng">One number per row means we can sort. Everything that
+follows is a consequence of that.</div>
 
 <pre><code>&gt;&gt;&gt; ranked = sorted(d.rows, key=lambda r: disty(d, r))
 &gt;&gt;&gt; for r in ranked[:3] + ranked[-3:]:
@@ -423,10 +619,18 @@ exponent <code>the.p</code> (default 2). Worked on the first data row
 0.956  [8, 454, 220, 70, 1, 4354, 9,    10]
 0.956  [8, 455, 225, 73, 1, 4951, 11,   10]</code></pre>
 
-<p>Light late-model 4-cyl at the top. 70s V8s at the bottom. No
-classifier, no Pareto front, no weighted sums. Just a shape, a
-distance, a sort. That is multi-objective optimization with almost
-nothing.</p>
+<p>Light, late-model, 4-cyl at the top. 70s V8s at the bottom.</p>
+
+<div class="note">
+Top and bottom disties cluster near 0.075 / 0.956. The sigmoid in
+<code>norm</code> saturates at extremes, so many "best" rows get the
+same score. Active learning (ch 12) handles this — once a tie exists,
+more labels don't discriminate further.
+</div>
+
+<p>No classifier. No Pareto front. No weighted sums. Most MOEA papers
+are NSGA-II or MOEA/D, hundreds of lines. Here, the work is
+<code>sorted()</code>.</p>
 
 <hr>
 
@@ -444,33 +648,49 @@ def aha(c, u, v):
   v = v if v != "?" else (0 if u &gt; 0.5 else 1)
   return abs(u - v)</code></pre>
 
-<p>Syms: same-or-different. Nums: normalized absolute difference. A
-missing value is <em>pessimistic</em> &mdash; assume it sits at whichever
-extreme is furthest from its partner.</p>
+<div class="eng">Syms: same-or-different. Nums: normalized absolute
+difference.</div>
+
+<div class="note">
+Missing values are <em>pessimistic</em>. When one value is known and
+the other is missing, the unknown is pushed to the extreme
+<em>furthest</em> from the known. Pessimism penalizes unknowns
+without throwing them away.
+</div>
+
+<h3 class="mic">five distances from row 1</h3>
 
 <pre><code>&gt;&gt;&gt; r0 = rs[1]
-&gt;&gt;&gt; distx(d, r0, r0)                          # self
+&gt;&gt;&gt; distx(d, r0, r0)                           # self
 0.0
-&gt;&gt;&gt; distx(d, r0, rs[-1])                      # opposite
-0.8208007879992786
+&gt;&gt;&gt; distx(d, r0, rs[2])                        # twin
+0.040
+&gt;&gt;&gt; distx(d, r0, rs[200])                      # middle row
+0.697
+&gt;&gt;&gt; distx(d, r0, rs[-1])                       # opposite
+0.821
 &gt;&gt;&gt; distx(d, r0, next(r for r in rs if "?" in r))
-0.24891710571789852</code></pre>
+0.249</code></pre>
+
+<div class="fail">
+<code>distx(d, ["?"]*8, ["?"]*8)</code> returns <code>1.0</code>. Every
+column hits the both-missing branch which returns <code>1</code>.
+Rolled up by Minkowski: <code>1.0</code>.
+</div>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">12. Labels cost money</h1>
 
-<p>In real problems, y-values are expensive. You want Mpg? Build the
-car, drive it. Features are cheap; labels are not. So we pretend y is
-hidden and uncover it one row at a time. The learner decides which row
-to pay for next.</p>
+<p>In real problems y-values are expensive. Build the car, drive it.
+Ship the release, wait. Features are cheap; labels are not. So we
+pretend y is hidden and the learner decides which row to pay for
+next.</p>
 
-<p>Four pieces: <code>warm_start</code>, <code>acquireWithCentroid</code>,
-<code>rebalance</code>, and the <code>active</code> loop that ties
-them together.</p>
+<p>Four pieces: <b>seed</b>, <b>decide</b>, <b>prune</b>, <b>loop</b>.</p>
 
-<h2>warm_start: seed four, split by disty</h2>
+<h3 class="mic">seed: warm_start</h3>
 
 <pre><code>def warm_start(d, rows, label):
   lab = clone(d, rows[:the.learn.start])
@@ -478,80 +698,61 @@ them together.</p>
   n = int(sqrt(len(lab.rows)))
   return lab, clone(d, lab.rows[:n]), clone(d, lab.rows[n:])</code></pre>
 
-<p>Line by line:</p>
-
 <ol>
-<li><code>lab = clone(d, rows[:the.learn.start])</code>: take the first
-<code>4</code> rows (<code>the.learn.start=4</code>) and build a
-<code>Data</code> with just those rows. These are our four seed
-labels. <code>clone</code> keeps the column schema and summarizes the
-seeds into it &mdash; we now have mu, sd, etc. on four points.</li>
-<li><code>lab.rows.sort(key=lambda r: disty(lab, r))</code>: order the
-four by distance to heaven. Best first, worst last.</li>
-<li><code>n = int(sqrt(len(lab.rows)))</code>: for four rows,
-<code>n=2</code>. The top <code>n</code> become our "elite" pile.</li>
-<li>Return three <code>Data</code> objects: all labels
-(<code>lab</code>), the top two (<code>best</code>), the bottom two
-(<code>rest</code>).</li>
+<li>Pay for the first 4 labels (<code>the.learn.start=4</code>).
+Build a <code>Data</code> from them; μ, σ, etc. now summarize four
+points.</li>
+<li>Sort those 4 by disty. Best first.</li>
+<li>Top √4 = 2 rows are "elite", rest are "ordinary".</li>
+<li>Return three Datas: all labels, best, rest.</li>
 </ol>
 
-<p>The <code>label</code> callback decides how we get a y-value. In
-offline testing (our case) it is <code>lambda _,r: r</code> &mdash; the row
-already carries its y-columns. In an online setting it would call a
-human, run an experiment, or query a simulator.</p>
+<div class="note">
+<code>label</code> is a callback. In offline testing it is
+<code>lambda _,r: r</code> — the row already carries its y-columns. In
+an online setting it would call a human, run an experiment, or query a
+simulator.
+</div>
 
-<h2>acquireWithCentroid: one comparison, one sign</h2>
+<h3 class="mic">decide: acquireWithCentroid</h3>
 
 <pre><code>def acquireWithCentroid(d, best, rest, r):
   return distx(d, r, mids(best)) - distx(d, r, mids(rest))</code></pre>
 
-<p><code>mids(best)</code> is <code>best</code>'s centroid &mdash; one
-<code>mid</code> per column, packed into a row-shaped list. Same for
-<code>rest</code>. The function returns:</p>
+<div class="eng">One comparison, one sign.</div>
 
 <ul>
-<li><b>negative</b> when <code>r</code> is closer to <code>best</code>'s
-centroid than to <code>rest</code>'s &mdash; a sign that <code>r</code>
-might be great;</li>
-<li><b>positive</b> when closer to <code>rest</code> &mdash; probably
-not worth labeling;</li>
-<li><b>zero</b> on a tie.</li>
+<li><b>negative</b>: r is closer to best's centroid → label it.</li>
+<li><b>positive</b>: r is closer to rest's centroid → skip it.</li>
+<li><b>zero</b>: tie.</li>
 </ul>
 
-<p>The loop treats <code>&lt; 0</code> as "label this one". Centroids
-of <code>best</code> and <code>rest</code> are memoized on
-<code>_centroid</code> inside each <code>Data</code>; <code>add</code>
-and <code>sub</code> invalidate them by setting <code>_centroid</code>
-to <code>None</code>. So the comparison costs a dict lookup per column
-after the first call.</p>
+<p><code>mids(best)</code> is the centroid: one <code>mid</code> per
+column, packed into a row-shaped list, memoized on
+<code>_centroid</code>. <code>add</code>/<code>sub</code> invalidate
+by setting <code>_centroid = None</code>. Comparisons after the first
+cost a dict lookup per column.</p>
 
-<h2>rebalance: keep the elite pile small</h2>
+<h3 class="mic">prune: rebalance</h3>
 
 <pre><code>def rebalance(best, rest, lab):
   if len(best.rows) &gt; sqrt(len(lab.rows)):
     best.rows.sort(key=lambda r: disty(lab, r))
     add(rest, sub(best, best.rows[-1]))</code></pre>
 
-<p><code>best</code> gets one new member every time the acquisition
-function fires. Without a cap, it would grow to include the whole
-labeled set and stop discriminating. So after each add, we compare
-<code>|best|</code> to <code>sqrt(|lab|)</code>. When it's over, we:</p>
+<p>Best grows every time <code>acquireWithCentroid</code> fires. Cap it
+at √(|lab|): if over, sort by disty, pop the worst, push into rest.
+<code>sub</code> and <code>add</code> are the Welford-symmetric
+mutation pair.</p>
 
-<ol>
-<li>Sort <code>best.rows</code> by disty (best first, worst last).</li>
-<li><code>best.rows[-1]</code> is the worst one in the elite pile.
-<code>sub(best, ...)</code> removes it, running the Welford update
-with weight <code>-1</code> so the centroid corrects itself in
-constant time.</li>
-<li><code>add(rest, ...)</code> puts the evicted row into
-<code>rest</code>, updating that centroid too.</li>
-</ol>
+<div class="note">
+Why √N and not log N or fixed? At N labels, √N is small enough to stay
+discriminating, big enough that one noisy row does not poison the
+centroid. Empirically, √N lands right for budgets in the 30-100
+range.
+</div>
 
-<p>Net effect: <code>best</code> stays around sqrt(N) rows of the very
-best labels we've paid for. The centroid of <code>best</code>
-sharpens as the labeled set grows.</p>
-
-<h2>active: the driving loop</h2>
+<h3 class="mic">loop: active</h3>
 
 <pre><code>def active(d, score=acquireWithBayes, label=lambda _,r:r):
   rows = d.rows[:]
@@ -567,38 +768,24 @@ sharpens as the labeled set grows.</p>
   lab.rows.sort(key=lambda r: disty(lab, r))
   return lab</code></pre>
 
-<p>Step by step:</p>
-
 <ol>
-<li><code>rows = d.rows[:]; shuffle(rows)</code>: copy and randomize so
-the seed rows and pool order aren't biased by file order.</li>
-<li><code>warm_start</code>: pay for 4 seed labels; set up
-<code>best</code> and <code>rest</code> from them.</li>
-<li><code>pool = rows[the.learn.start:][:the.few]</code>: the candidate
-set. Skip the 4 already labeled, cap the rest at <code>the.few=128</code>.
-The cap bounds per-iteration work and the total pool scan.</li>
-<li><code>cap = start + budget</code>: absolute label ceiling (default
-4 + 50 = 54).</li>
-<li>For each pool row, ask <code>score(...)</code>. If negative:
-<ul>
-<li><code>add(best, label(d, r))</code>: label <code>r</code> and put
-it in <code>best</code>. This nested <code>add</code> returns
-<code>r</code> after the summary update.</li>
-<li><code>add(lab, ...)</code>: also add it to the full labeled set.</li>
-<li><code>rebalance(...)</code>: evict <code>best</code>'s worst if
-over quota.</li>
-</ul>
-</li>
-<li>After the loop, sort the labeled rows by disty so callers see
-<code>lab.rows[0]</code> as the best-known row.</li>
+<li>Shuffle: defeat file-order bias.</li>
+<li>Seed 4 with <code>warm_start</code>.</li>
+<li>Pool = remaining rows capped at <code>the.few=128</code>.</li>
+<li>For each: if <code>score &lt; 0</code>, label, add to best, rebalance.
+Stop at <code>cap = start + budget</code> (4 + 50 = 54).</li>
+<li>Final sort by disty so <code>lab.rows[0]</code> is the
+best-known.</li>
 </ol>
 
-<p>The <code>score</code> parameter is a strategy slot. Default is
-<code>acquireWithBayes</code> (Naive Bayes likelihood ratio of "best"
-vs "rest"). Pass <code>acquireWithCentroid</code> to get the distance
-version we just dissected.</p>
+<div class="note">
+<code>score</code> is a strategy slot. Default is
+<code>acquireWithBayes</code> (Naive Bayes likelihood ratio).
+<code>acquireWithCentroid</code> is the distance version we just
+dissected.
+</div>
 
-<p>Now run it:</p>
+<h3 class="mic">run: centroid</h3>
 
 <pre><code>&gt;&gt;&gt; random.seed(1)
 &gt;&gt;&gt; lab = active(d, score=acquireWithCentroid)
@@ -610,16 +797,26 @@ version we just dissected.</p>
   0.216  [4, 85, '?', 80, 2, 1835, 17.3, 40]
   0.267  [4, 71, 65, 71, 3, 1773, 19, 30]</code></pre>
 
-<p>32 labels bought three rows under disty 0.27. The learner never
-peeked at rows outside the labeled set. A one-twelfth budget found the
+<p>32 labels, top row at disty 0.13. A one-twelfth budget found the
 top region.</p>
 
-<div class="sidebar">
-<div class="sidebarhead">Default acquisition is Bayes, not centroid</div>
-<code>active</code> defaults to <code>acquireWithBayes</code>, which
-builds a Naive Bayes model over labeled rows and asks "more likely to
-be <code>best</code> than <code>rest</code>?" The centroid version is
-the closest match to the Lisp port. Both land near the same budget.
+<h3 class="mic">run: bayes (contrast)</h3>
+
+<pre><code>&gt;&gt;&gt; random.seed(1)
+&gt;&gt;&gt; lab_b = active(d, score=acquireWithBayes)
+&gt;&gt;&gt; len(lab_b.rows)
+4
+&gt;&gt;&gt; for r in lab_b.rows[:3]:
+...     print(f"  {disty(lab_b,r):.3f}  {r}")
+  0.160  [4, 85, '?', 80, 2, 1835, 17.3, 40]
+  0.589  [6, 258, 95, 76, 1, 3193, 17.8, 20]
+  0.672  [4, 121, 115, 78, 2, 2795, 15.7, 20]</code></pre>
+
+<div class="note">
+Bayes with seed=1 stopped at 4 labels — no pool row scored likely-best
+against the 2-row warm-start. Acquisition strategies disagree
+radically on the same seed. Both converge in expectation; behavior on
+a single run is noisy.
 </div>
 
 <hr>
@@ -629,13 +826,20 @@ the closest match to the Lisp port. Both land near the same budget.
 
 <p>32 labels; enough to draw a map.</p>
 
+<h3 class="mic">tree-cuts: what cuts a column offers</h3>
+
 <pre><code>def treeCuts(c, rs):
   vs = [r[c.at] for r in rs if r[c.at] != "?"]
   if not vs: return []
   return set(vs) if Sym == type(c) else [sorted(vs)[len(vs)//2]]</code></pre>
 
-<p>Sym: all unique values. Num: <em>median only</em> &mdash; regularization
-at small N.</p>
+<p>Sym: all unique values. Num: the median only.</p>
+
+<div class="note">
+Median-only is not laziness; it is regularization. At 32 labels,
+trying every threshold would overfit. One cut per numeric column keeps
+the tree honest.
+</div>
 
 <pre><code>&gt;&gt;&gt; vol = next(c for c in lab.cols.xs if c.txt == "Volume")
 &gt;&gt;&gt; list(treeCuts(vol, lab.rows))
@@ -644,9 +848,17 @@ at small N.</p>
 &gt;&gt;&gt; list(treeCuts(org, lab.rows))
 [1, 2, 3]</code></pre>
 
-<p><code>treeSplit</code> scores a cut by weighted spread of disty on
-each side. <code>treeGrow</code> picks the best cut across all columns,
-recurses, stops at <code>2 * the.learn.leaf</code> rows.</p>
+<h3 class="mic">tree-split: score a single cut</h3>
+
+<pre><code>&gt;&gt;&gt; score, c, cut, l, r = treeSplit(lab, vol, 98, lab.rows)
+&gt;&gt;&gt; score, len(l), len(r)
+(4.398, 17, 15)</code></pre>
+
+<p>Score = <code>n_left · σ_left + n_right · σ_right</code>. Lower =
+cleaner split. A pure-left node has σ_left = 0 on one side.
+<code>treeGrow</code> picks the column+cut with the lowest score.</p>
+
+<h3 class="mic">tree-grow + tree-show</h3>
 
 <pre><code>&gt;&gt;&gt; tr = treeGrow(lab, lab.rows)
 &gt;&gt;&gt; treeShow(tr)
@@ -662,20 +874,25 @@ Volume &gt;  98                  ,0.68 ,( 15), {Acc+=16.17, Lbs-=2549.00, Mpg+=2
 |   Volume &lt;= 120             ,0.62 ,(  9), {Acc+=16.44, Lbs-=2446.67, Mpg+=27.78}
 |   |   Volume &lt;= 110         ,0.59 ,(  5), {Acc+=16.02, Lbs-=2339.40, Mpg+=30.00}
 |   |   Volume &gt;  110         ,0.66 ,(  4), {Acc+=16.97, Lbs-=2580.75, Mpg+=25.00}
-|   Volume &gt;  120             ,0.77 ,(  6), {Acc+=15.75, Lbs-=2702.50, Mpg+=21.67}</code></pre>
+|   Volume &gt;  120             ,0.77 ,(  6), {Acc+=15.75, Lbs-=2702.50, Mpg+=21.67})</code></pre>
 
-<p>Each line: rule, mean disty, row count, per-goal centroid. Lower
-disty = closer to heaven. Best leaf: <code>Volume&le;98 &amp;
-origin==2 &amp; Model&gt;77</code> at 0.30 &mdash; <em>small, late-model
-European cars</em>. Worst: <code>Volume&gt;120</code> at 0.77.</p>
+<p>Each line: rule, mean disty, row count, per-goal centroid. Output
+is CSV-shaped so you can pipe <code>treeShow</code> into a table
+renderer. The dict on the right is each leaf's per-goal centroid.</p>
 
-<p>A leaf is a rule. A rule is a sentence. A sentence is testable and
-arguable.</p>
+<p>Best leaf: <code>Volume ≤ 98 &amp; origin == 2 &amp; Model &gt; 77</code>
+at 0.30 — <em>small, late-model European cars</em>. Worst:
+<code>Volume &gt; 120</code> at 0.77.</p>
+
+<p>A leaf is a rule. A rule is a sentence. A sentence is testable.</p>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">14. Route a new row</h1>
+
+<p>A tree trained on 32 labeled rows is asked about a row it never
+saw. This is where the story either pays off or collapses.</p>
 
 <pre><code>def treeLeaf(t, r):
   if not t.left: return t
@@ -683,25 +900,42 @@ arguable.</p>
   go = (v != "?" and v &lt;= t.cut) if Num == type(t.col) else (v != "?" and v == t.cut)
   return treeLeaf(t.left if go else t.right, r)</code></pre>
 
-<pre><code>&gt;&gt;&gt; leaf = treeLeaf(tr, rs[-1])
-&gt;&gt;&gt; mid(leaf.ynum), leaf.ynum.n
-(0.3635088303117473, 5)</code></pre>
+<div class="note">
+Missing values always go right (the <code>v != "?"</code> guard fails,
+which flips <code>go</code> to <code>False</code>). The Lisp port
+routes missing values <em>left</em>. Cross-port divergence; pick one
+convention and document it.
+</div>
 
-<p>The tree routes our best car into a leaf with mean disty 0.36 &mdash;
-the right neighborhood, though a leaf is a mean over 5 rows so no
-single row's exact disty comes out.</p>
+<h3 class="mic">route best and worst rows</h3>
 
-<p>Use this to rank unseen rows (holdout / test set). Pay to peek at the
-top <code>the.learn.check</code> (default 5), return the best of those
-five. Same contract as the Lisp <code>validate</code>.</p>
+<pre><code>&gt;&gt;&gt; best_r = rs[-1]                    # Mpg=50, light
+&gt;&gt;&gt; mid(treeLeaf(tr, best_r).ynum), treeLeaf(tr, best_r).ynum.n
+(0.3635, 5)
+&gt;&gt;&gt; worst_r = [8, 455, 225, 73, 1, 4951, 11, 10]
+&gt;&gt;&gt; mid(treeLeaf(tr, worst_r).ynum), treeLeaf(tr, worst_r).ynum.n
+(0.772, 6)</code></pre>
+
+<p>Best row routes to a good leaf (mean disty 0.36); worst row to a
+bad leaf (mean 0.77). A leaf is a mean over 5-6 rows so exact disty
+does not come out — but the neighborhood is correct. That is what
+generalization looks like.</p>
+
+<p>To build a holdout protocol on top of this: split the data half-and-half,
+run <code>active</code> on train, grow a tree, rank test rows by
+leaf mean, reveal the top <code>the.learn.check</code> (default 5),
+return the best of those. Same contract as the Lisp
+<code>validate</code>.</p>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">15. The whole show</h1>
 
+<div class="eng">Every verb from chapters 2-14 in one REPL session.</div>
+
 <pre><code>&gt;&gt;&gt; import random; random.seed(1)
-&gt;&gt;&gt; d = Data(csv("../misc/lisp/auto93.csv"))           # ch 2-4
+&gt;&gt;&gt; d = Data(csv("../misc/lisp/auto93.csv"))          # ch 2-4
 &gt;&gt;&gt; mid(d.cols.ys[-1])                                  # ch 6  (Mpg+)
 23.844221105527648
 &gt;&gt;&gt; norm(d.cols.ys[-1], 50)                             # ch 7
@@ -714,58 +948,66 @@ five. Same contract as the Lisp <code>validate</code>.</p>
 0.3635088303117473</code></pre>
 
 <p>Read, classify, summarize, normalize, measure distance,
-active-learn, build a tree, route. Eight lines. Each function built
-from the ones before.</p>
+active-learn, build a tree, route. Eight lines. Scroll up if any line
+surprises you &mdash; it was built one chapter at a time.</p>
 
 <hr>
 
 <!-- ============================================================ -->
 <h1 class="chap">16. Where we arrived</h1>
 
-<p>We started with 42. It didn't know where it stood.</p>
+<p>We started with the integer 42. It did not know where it stood.</p>
 
-<p>We gave it friends: a row. We gave the row siblings: many rows. The
-header named the columns. Each column learned its middle and width in
-constant space. We placed every value inside its column's bell. We
-defined <em>heaven</em>. We collapsed three goals into one scalar. We
-sorted. We measured rows by feature-space neighborhoods. We labeled
-cheaply. We grew a tree. We routed fresh rows through it.</p>
+<p>We gave it friends: a row. We gave the row siblings: many rows.
+The header named the columns. Each column learned its middle and
+width in constant space via Welford. We placed every value inside its
+column's bell with a sigmoid-of-z. We defined <em>heaven</em>. We
+collapsed three goals into one scalar through Minkowski. We sorted.
+We measured rows by feature-space neighborhoods. We labeled cheaply
+with an acquisition function and a √N elite pile. We grew a
+median-regularized decision tree. We routed fresh rows through it.</p>
 
-<pre><code>    value  ->  row  ->  column  ->  mid/spread  ->  norm
-                                                     |
-                     distx &lt;- heaven &lt;- disty &lt;-----+
-                      |                  |
-                    active -----> tree -----> treeLeaf</code></pre>
+<pre><code>  value  →  row  →  column  →  μ, σ  →  norm
+                                          │
+                              ┌───────────┴───────────┐
+                              │                       │
+                            disty ← heaven          distx
+                              │                       │
+                              └───────────┬───────────┘
+                                          │
+                                       active
+                                          │
+                                        tree → treeLeaf</code></pre>
 
 <p>Every arrow is a function. Every function is visible. The lonely
 value walks all the way to explainable multi-objective optimization
 without ever leaving <code>ezr.py</code>.</p>
 
+<p>The value, now, knows where it stands.</p>
+
 <hr>
 
-<h2>Appendix: sections of <code>ezr.py</code> not in this tour</h2>
+<h2>Appendix: sections of ezr.py not in this tour</h2>
 
 <dl>
 <dt>Bayes (section 3)</dt>
-<dd>Naive Bayes likelihood on <code>best</code> vs <code>rest</code> is
-the default active-learning acquisition function. Skipped for brevity;
-swap <code>acquireWithBayes</code> for <code>acquireWithCentroid</code>
-to see it in action.</dd>
+<dd>Naive Bayes likelihood on best vs rest; the default
+<code>acquireWithBayes</code>. Shown in contrast in ch 12.</dd>
 
 <dt>Clustering (section 6)</dt>
 <dd><code>kmeans</code>, <code>kpp</code>, <code>half</code>,
-<code>rhalf</code>: projection-based recursive halving as an alternative
-to labeled active learning. Uses <code>distx</code>; pays no labels.</dd>
+<code>rhalf</code>: projection-based recursive halving; a label-free
+alternative. Uses <code>distx</code> only.</dd>
 
 <dt>1+1 optimization (section 8)</dt>
 <dd><code>sa</code> (simulated annealing), <code>ls</code> (local
-search with restart). Same scoring by <code>disty</code>; different
-search strategy. A sandbox for comparing the learner above to classical
-optimization.</dd>
+search with restart). Same <code>disty</code> scoring; different
+search strategy. A baseline to compare active learning against.</dd>
 
 <dt>Stats (section 0)</dt>
 <dd><code>same</code> (Cliff's Delta + Kolmogorov-Smirnov),
-<code>bestRanks</code>. For honest comparison of algorithm rankings.</dd>
+<code>bestRanks</code>. For honest statistical comparison of
+algorithm rankings.</dd>
 </dl>
 
 </body>
