@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>lit</title>
+<link rel="stylesheet" media="(prefers-color-scheme: light)"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github.min.css">
+<link rel="stylesheet" media="(prefers-color-scheme: dark)"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/lisp.min.js"></script>
+<style>
+body { max-width: 720px; margin: 2em auto; padding: 0 1em;
+       font-family: Georgia, serif; font-size: 17px; line-height: 1.55;
+       color: #222; background: #fdfdfd; }
+h1, h2, h3 { font-family: Helvetica, sans-serif; }
+h1 { border-bottom: 1px solid #ccc; padding-top: 1em; padding-bottom: .2em; }
+h2 { padding-top: .8em; }
+blockquote { border-left: 3px solid #ccc; color: #555;
+             margin-left: 0; padding-left: 1em; }
+pre { background: #f6f6f6; padding: .6em 1em;
+      border-left: 3px solid #ddd; overflow-x: auto;
+      font-size: 14px; line-height: 1.4; }
+code { font-family: Menlo, monospace; font-size: 90%; }
+table { border-collapse: collapse; margin: 1em 0; }
+th, td { border-bottom: 1px dotted #888; padding: 4px 10px;
+         text-align: left; font-size: 14px; }
+hr { border: 0; border-top: 1px dotted #888; margin: 2em 0; }
+.err { color: #a00; font-family: Menlo, monospace; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+// Port of sh/lisp2md.sh awk transform.
+function lisp2md(src) {
+  const out = [];
+  let on = false;
+  const lines = src.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    if (i === 0 && /^#!/.test(line)) continue;       // skip shebang
+    if (/^\f$/.test(line)) line = "";                // ^L -> blank
+    if (/^\(/.test(line) && !on) { out.push("\n```lisp"); on = true; }
+    if (on) {
+      if (line === "") { out.push("```\n"); on = false; }
+      else out.push(line);
+    } else {
+      line = line.replace(/\n;*/g, "\n").replace(/^;+ ?/, "");
+      out.push(line);
+    }
+  }
+  if (on) out.push("```");
+  return out.join("\n");
+}
+
+async function main() {
+  const params = new URLSearchParams(location.search);
+  const path = params.get("p");
+  const out = document.getElementById("out");
+  if (!path) {
+    out.innerHTML = "<p class=err>Usage: lit.html?p=story.lisp</p>";
+    return;
+  }
+  document.title = path;
+  let src;
+  try {
+    const r = await fetch(path);
+    if (!r.ok) throw new Error(r.status + " " + r.statusText);
+    src = await r.text();
+  } catch (e) {
+    out.innerHTML = "<p class=err>fetch failed: " + e.message + "</p>";
+    return;
+  }
+  const md = lisp2md(src);
+  out.innerHTML = marked.parse(md);
+  let n = 0;
+  document.querySelectorAll("pre code").forEach(el => {
+    let t = el.textContent;
+    if (/^\*\s/m.test(t) || /^\$\s/m.test(t) || /^CL-USER/m.test(t)) {
+      // Number REPL prompts consecutively across whole doc.
+      t = t.replace(/^\* /gm, () => `[${++n}]> `);
+      el.textContent = t;
+      el.classList.add("language-plaintext");
+    } else if (!el.className) {
+      el.classList.add("language-lisp");
+    }
+    hljs.highlightElement(el);
+  });
+}
+main();
+</script>
+</body>
+</html>

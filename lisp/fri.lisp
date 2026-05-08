@@ -71,7 +71,6 @@
   "Anaphoric if: binds `it` to TEST's value for use in THEN/ELSE."
   `(let ((it ,test)) (if it ,then ,else)))
 
-
 ;=================================================================
 ; Part 2 -- TYPES
 ;=================================================================
