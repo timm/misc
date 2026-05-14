@@ -38,4 +38,3 @@ up vertically. That symmetry is the teaching point — *one* concept
 
 We are done with the data engineering. Everything from here forward
 is "now that the data summarizes itself, what can we ask it?"
-<!-- ref:l1-end -->

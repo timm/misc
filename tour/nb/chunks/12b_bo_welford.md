@@ -18,6 +18,6 @@
 >
 > Standard deviation falls out as `sqrt(m2 / (n-1))`.
 >
-> That is exactly the three working lines of [`NUM.add`](#numadd).
+> That is exactly the three working lines of [`NUM.add`](#dataadd).
 > No list of seen values is retained. The whole column lives in
 > three floats no matter how long the file.

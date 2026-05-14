@@ -26,6 +26,7 @@ function Cols(row,    all)
 pair — that is `Cols`'s contribution to the column-type dispatch.
 `sel(all, predicate)` filters the result by suffix.
 
+<!-- ref:l1-end -->
 ```
 [?]> Cols({"Name","Age","Weight-","Class!"}).y   -- == eg["--cols"]
 {NUM{:at 4 :m2 0 :mu 0 :n 0 :sd 0 :txt Class!}}

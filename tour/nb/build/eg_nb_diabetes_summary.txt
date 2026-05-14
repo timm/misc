@@ -1,4 +1,0 @@
-403 tested_negative	tested_negative
-156 tested_positive	tested_positive
-109 tested_negative	tested_positive
-94 tested_positive	tested_negative
