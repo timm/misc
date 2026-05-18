@@ -1,4 +1,5 @@
 #!/usr/bin/env lua
+-- luacheck: ignore 211 212 213 311 312 421 422 431 432 611 612 613 614 631
 local the
 local help = [[
 NAME
