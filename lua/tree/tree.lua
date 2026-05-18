@@ -52,13 +52,15 @@ function new(mt,t) mt.__index=mt; return setmetatable(t,mt) end
 
 function sort(t,f) table.sort(t,f); return t end
 
-function map(t,fn,    u) u={}; for _,v in ipairs(t) do u[1+#u]=fn(v) end; return u end
+function map(t,fn,    u) 
+  u={}; for _,v in ipairs(t) do u[1+#u]=fn(v) end; return u end
 
 function nth(n) return function(t) return t[n] end end
 
 function lt(n)  return function(a,b) return a[n] < b[n] end end
 
-function keysort(t, fn,    d) d=function(x) return {fn(x),x} end
+function keysort(t, fn,    d) 
+  d=function(x) return {fn(x),x} end
   return map(sort(map(t,d), lt(1)), nth(2)) end
 
 function welford(v,w,n,mu,m2,     d)
@@ -176,9 +178,9 @@ function dist(cols, r1, r2,    d, n, p, v1, v2)
       d = d + (v1 == v2 and 0 or 1)^p end end
   return (d/n)^(1/p) end
 
-function far(cols, rows, r1)
-  return keysort(rows, function(r) return dist(cols,r1,r) end)
-                [floor(#rows * 0.9)] end
+function far(cols, rows, r1,     d)
+  d = function(r) return dist(cols,r1,r) end
+  return keysort(rows, d)[floor(#rows * 0.9)] end
 
 function poles(cols, rows,    a, b)
   a = far(cols, rows, rows[rand(#rows)])
@@ -187,8 +189,8 @@ function poles(cols, rows,    a, b)
 
 function half(cols, rows, a, b, c,    xs, ls, rs, m)
   xs = keysort(rows, function(r,    da, db)
-    da, db = dist(cols,r,a), dist(cols,r,b)
-    return (da*da + c*c - db*db) / (2*c + 1E-32) end)
+        da, db = dist(cols,r,a), dist(cols,r,b)
+        return (da*da + c*c - db*db) / (2*c + 1E-32) end)
   ls, rs = {}, {}; m = floor(#xs / 2)
   for i,r in ipairs(xs) do
     if i <= m then ls[1+#ls]=r else rs[1+#rs]=r end end
