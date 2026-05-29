@@ -1,0 +1,138 @@
+# vim: ts=2 sw=2 sts=2 et :
+SHELL := /bin/bash
+
+OPEN := $(shell command -v open 2>/dev/null \
+                || command -v xdg-open 2>/dev/null \
+                || echo true)
+
+need = @command -v $(1) >/dev/null || { \
+         printf "missing: %s (needed for %s)\n" $(1) $(2); \
+         exit 1; }
+
+## help -------------------------------------------------------
+
+help: ## show help
+	@gawk 'BEGIN { \
+	         FS=":.*?##"; \
+	         printf "\nUsage:\n  make "; \
+	         printf "\033[36m<target>\033[0m"; \
+	         printf " [VAR=val ...]\n\ntargets:\n" } \
+	       /^[~a-zA-Z0-9_%\.\/ -]+:.*?##/ { \
+	         printf("  \033[36m%-20s\033[0m %s\n", \
+	                $$1, $$2) | "sort" }' \
+	  $(MAKEFILE_LIST)
+	@printf "\ndefaults:\n"
+	@gawk 'BEGIN { \
+	         p = "^([A-Za-z][A-Za-z0-9]*)[ \t]*\\?="; \
+	         p = p "[ \t]*([^#]*[^# \t])[ \t]*#[ \t]*(.+)" } \
+	       match($$0, p, a) { \
+	         printf("  \033[36m%-8s\033[0m = %-30s %s\n", \
+	                a[1], a[2], a[3]) | "sort" }' \
+	  $(MAKEFILE_LIST)
+
+## doctor -----------------------------------------------------
+
+doctor: ## check required tools
+	@for e in \
+	   "lua|run lua files" \
+	   "python3|run py files" \
+	   "gawk|help target (self-doc)" \
+	   "git|version control" \
+	   "luacheck|check target (lua linter)" \
+	   "ruff|check target (py linter)"; do \
+	   c=$${e%%|*}; use=$${e##*|}; \
+	   if command -v $$c >/dev/null; then \
+	     printf "  \033[32mok\033[0m %-10s used by: %s\n" \
+	            "$$c" "$$use"; \
+	   else \
+	     printf "  \033[31mXX\033[0m %-10s missing: %s\n" \
+	            "$$c" "$$use"; fi; done
+	@printf "\nmacOS: brew install lua gawk luarocks ruff\n"
+	@printf "linux: apt install lua5.4 gawk luarocks ruff\n"
+	@printf "then : luarocks install luacheck\n"
+
+## check ------------------------------------------------------
+
+Ignore ?= 211 212 213 311 312 421 422 431 432 611 612 613 614 631 # for check
+
+check: ## lint lua + py
+	$(call need,luacheck,check)
+	@luacheck --ignore $(Ignore) -- *.lua
+	@command -v ruff >/dev/null && ruff check *.py || true
+
+## bench ------------------------------------------------------
+
+Moot ?= ~/gits/moot/optimize # for bench
+P    ?= 20                   # for bench
+
+bench: ## run fft over all CSVs under $(Moot), $(P)-way parallel
+	$(call need,lua,bench)
+	@printf "%4s %4s %4s %4s %4s  %4s %4s %6s  %7s  %s\n" \
+	  p10 p30 p50 p70 p90 \#x \#y \#row time dataset
+	@find $(Moot) -name "*.csv" | \
+	 xargs -P $(P) -I {} lua bench.lua {} | sort -k 11
+
+## hist -------------------------------------------------------
+
+hist: ## paragraph line counts + cum%% (.lua + .py, skip comments)
+	@cat $(wildcard *.lua *.py) | grep -Ev '^[[:space:]]*(--|#)' | \
+	  gawk 'BEGIN{RS="";FS="\n"} \
+	        {d[NF]++; tot++} \
+	        END{n=asorti(d,k,"@ind_num_asc"); all=0; \
+	            for(i=1;i<=n;i++){ \
+	              all+=d[k[i]]; s=""; \
+	              for(j=0;j<d[k[i]];j++) s=s"#"; \
+	              printf "%3d %3d  %s\n", \
+	                k[i], int(all*100/tot), s}}'
+
+## pdf --------------------------------------------------------
+
+Font   ?= 5         # for ~/tmp/%.pdf
+Cols   ?= 3         # for ~/tmp/%.pdf
+Orient ?= landscape # for ~/tmp/%.pdf
+
+~/tmp/%.pdf : %.lua Makefile ## lua -> pdf via a2ps
+	$(call need,a2ps,pdf)
+	$(call need,ps2pdf,pdf)
+	@mkdir -p ~/tmp
+	@echo "pdfing : $@ ..."
+	@D=$$(mktemp -d); trap "rm -rf $$D" EXIT; \
+	 mkdir -p $$D/.a2ps; \
+	 echo "$$LUASSH" > $$D/.a2ps/lua.ssh; \
+	 awk '/^-- @@/ {if (NR>1) printf "\f"; next} {print}' \
+	     $< | \
+	 HOME=$$D a2ps -Bj --$(Orient) --line-numbers=1 \
+	      --highlight-level=normal --borders=no \
+	      --pro=color --right-footer="" --left-footer="" \
+	      --pretty-print=lua --footer="page %p." \
+	      -M letter --font-size=$(Font) \
+	      --columns $(Cols) -o - | ps2pdf - $@
+	@$(OPEN) $@
+
+define LUASSH
+style Lua is
+alphabets are
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0"
+case sensitive
+
+keywords in Keyword are
+  and,false,ipairs,nil,not,or,pairs,rawequal,rawget,rawlen,
+  rawset,select,tonumber,tostring,true,type
+end keywords
+
+keywords in Keyword_strong are
+  assert,break,collectgarbage,do,dofile,else,elseif,"end",
+  error,for,function,getmetatable,goto,if,"in",local,load,
+  loadfile,next,pcall,print,repeat,require,return,
+  setmetatable,then,until,while,xpcall,_G,_VERSION
+end keywords
+
+keywords in Label_strong are "^" function end keywords
+keywords in Comment       are self          end keywords
+
+sequences are
+  "[[" Comment "]]","--" Comment,C-string
+end sequences
+end style
+endef
+export LUASSH
