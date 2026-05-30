@@ -11,33 +11,15 @@ Options:
  -s --seed    random seed   seed=1234567891
  -t --trees   trees/shuffle trees=100
  -r --repeats shuffles      repeats=20
- -n --N       row subsample  N=1000
- -S --stop    leaf size      stop=None
- -f --file    data file     file=/Users/timm/gits/moot/classify/COMPAS53.csv
+ -n --N       row subsample N=1000
+ -S --stop    leaf size     stop=None
+ -f --file    data file     
+              file=/Users/timm/gits/moot/classify/COMPAS53.csv
 """
 import random, math, sys, re
 from types import SimpleNamespace as o
 
 BIG = math.inf
-
-def coerce(z):
-  for f in (int, float):
-    try: return f(z)
-    except: pass
-  z = z.strip()
-  return {'True':True,'False':False,'None':None}.get(z,z)
-
-help = re.findall(r"(\w+)=(\S+)", __doc__)
-the  = o(**{k: coerce(v) for k, v in help})
-
-def cli(the):
-  ab = re.findall(r"-(\w) --(\w+)", __doc__)
-  flags = {"-"+c: k for c, k in ab}
-  flags.update({"--"+k: k for k in vars(the)})
-  for i, s in enumerate(sys.argv):
-    if (k := flags.get(s)) and i+1 < len(sys.argv):
-      setattr(the, k, coerce(sys.argv[i+1]))
-  return the
 
 # ## constructors -----------------------------------------------
 def Num(at=0, txt=""):
@@ -48,41 +30,35 @@ def Sym(at=0, txt=""):
   return o(it=Sym, at=at, txt=txt, n=0, has={})
 
 def Data(src=[]):
-  d = o(it=Data, cols=None, rows=[])
-  return adds(src,d)
+  return adds(src, o(it=Data, cols=None, rows=[]))
+
+def Cols(names):
+  cols,x,y = [],[],[]
+  for at, s in enumerate(names):
+    z = s[-1]
+    cols += [col := (Num if z.isupper() else Sym)(at, s)]
+    if   z in "-+!": y += [col]
+    elif z != "X"  : x += [col]
+  return  o(it=Cols, all=cols, x=x, y=y, names=names)
 
 # ## add (one polymorphic) --------------------------------------
-def add(it, v):
-  if v == "?": return v
-  if it.it is Sym:
-    it.n += 1; it.has[v] = it.has.get(v, 0) + 1
-  elif it.it is Num:
-    it.n += 1; d = v - it.mu
-    it.mu += d / it.n
-    it.m2 += d * (v - it.mu)
-    it.sd = (it.m2/(it.n-1))**0.5 if it.n > 1 else 0
-    if v < it.lo: it.lo = v
-    if v > it.hi: it.hi = v
-  else:
-    if it.cols is None: it.cols = _header(v)
+def add(i, v):
+  if i.it is Data:
+    if not i.cols: i.cols = Cols(v)
     else:
-      it.rows.append(v)
-      for c in it.cols.all: add(c, v[c.at])
+      i.rows += [v]
+      for c in i.cols.all: add(c, v[c.at])
+  elif v != "?":
+    i.n += 1
+    if i.it is Sym: i.has[v] = i.has.get(v, 0) + 1
+    else:
+      d = v - i.mu
+      i.mu += d / i.n
+      i.m2 += d * (v - i.mu)
+      i.sd = (i.m2/(i.n-1))**0.5 if i.n > 1 else 0
+      if v < i.lo: i.lo = v
+      if v > i.hi: i.hi = v
   return v
-
-def _header(names):
-  cols = o(all=[], x=[], y=[], names=names)
-  for at, s in enumerate(names):
-    cols.all += [(Num if s[:1].isupper() else Sym)(at, s)]
-    if   s[-1:] in "-+!": cols.y += [cols.all[-1]]
-    elif s[-1:] != "X"  : cols.x += [cols.all[-1]]
-  return cols
-
-def csv(file):
-  for ln in open(file):
-    ln = ln.strip()
-    if ln and ln[0] != "#":
-      yield [coerce(x.strip()) for x in ln.split(",")]
 
 def adds(src, it=None):
   it = it or Num(); [add(it, x) for x in iter(src)]; return it
@@ -115,22 +91,18 @@ def disty(d, r):
   return (s/n)**0.5 if n else 0
 
 # ## fastmap ----------------------------------------------------
-def far(d, rs, ref):
-  rs.sort(key=lambda r: distx(d, ref, r))
-  return rs[int(0.9 * len(rs))]
-
-def fastmap(root, stop=None):
-  stop = stop or the.stop or len(root.rows)**.5
-  def grow(sub):
-    if len(sub.rows) <= stop: return sub  # leaf = Data
-    lo = far(root, sub.rows[:], random.choice(sub.rows))  # pole
-    sub.rows.sort(key=lambda r: distx(root, r, lo))  # near->far
-    m   = len(sub.rows) // 2
-    cut = distx(root, sub.rows[m], lo)  # split radius
+def rmap(root, stop=None):
+  def grow(rows,  stop):
+    if len(rows) <= stop: return clone(root,rows) 
+    lo = random.choice(rows)  
+    rows.sort(key=lambda r: distx(root, r, lo))  
+    m   = len(rows) // 2
+    cut = distx(root, rows[m], lo)  
     return o(it=Node, lo=lo, cut=cut,
-             left  = grow(clone(root, sub.rows[:m])),  # <=cut
-             right = grow(clone(root, sub.rows[m:])))
-  return grow(root)
+             left  = grow(rows[:m], stop),  
+             right = grow(rows[m:], stop))
+  return grow(root.rows,
+              stop or the.stop or len(root.rows)**.5)
 
 def Node(): pass
 
@@ -150,7 +122,7 @@ LABEL, GROUP = "two_year_recid!", "race"
 
 def features():               # -> rows(feature lists), lab, grp
   raw = list(csv(the.file)); head = raw[0]
-  ix  = {n: i for i, n in enumerate(head)}
+  ix  = {n: j for j, n in enumerate(head)}
   names, rows, lab, grp = [nm for _, nm in FEATS], [], {}, {}
   for r in raw[1:]:
     fr = [r[ix[c]] for c, _ in FEATS]
@@ -177,7 +149,38 @@ def evaluate(train, tree, test, lab, grp, groups):
   fair = min(fpr)/(max(fpr)+1e-32)              # predictive equality
   return acc, fair
 
+# ## lib -------------------------------------------------------
+def csv(file):
+  for ln in open(file):
+    ln = ln.strip()
+    if ln and ln[0] != "#":
+      yield [coerce(x.strip()) for x in ln.split(",")]
+
+def coerce(z):
+  for f in (int, float):
+    try: return f(z)
+    except: pass
+  z = z.strip()
+  return {'True':True,'False':False,'None':None}.get(z,z)
+
+def cli(the):
+  flags = {f: l.lstrip("-") 
+             for s, l in re.findall(r"(-\w) (--\w+)", __doc__)
+             for f in (s, l)}
+  for j, s in enumerate(sys.argv):
+    if k := flags.get(s):
+      v = the.__dict__[k]
+      if isinstance(v, bool): v = not v
+      elif j+1 < len(sys.argv): v = coerce(sys.argv[j+1])
+      the.__dict__[k] = v
+    elif re.match(r"-\D", s):
+      sys.exit("bad flag: %s\n%s" % (s, __doc__))
+  return the
+
 # ## main -------------------------------------------------------
+the = o(**{k: coerce(v)
+           for k, v in re.findall(r"(\w+)=(\S+)", __doc__)})
+
 if __name__ == "__main__":
   cli(the)
   random.seed(the.seed)
@@ -190,5 +193,5 @@ if __name__ == "__main__":
     cut   = int(.8 * len(rows))
     train = Data([names] + rows[:cut]); test = rows[cut:]
     for _ in range(the.trees):
-      acc, fair = evaluate(train, fastmap(train), test, lab, grp, groups)
+      acc, fair = evaluate(train, rmap(train), test, lab, grp, groups)
       print("%.4f %.4f" % (acc, fair))
