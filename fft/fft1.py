@@ -34,8 +34,7 @@ def Num(at=0, txt=""):
   return o(it=Num, at=at, txt=txt, n=0, mu=0, m2=0, sd=0,
            lo=BIG, hi=-BIG, heaven=0 if txt.endswith("-") else 1)
 
-def Sym(at=0, txt=""):
-  return o(it=Sym, at=at, txt=txt, n=0, has={})
+def Sym(at=0, txt=""): return o(it=Sym, at=at, txt=txt, n=0, has={})
 
 def Data():
   d = o(it=Data, cols=None, rows=[])
