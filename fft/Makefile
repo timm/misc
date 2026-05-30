@@ -85,6 +85,130 @@ hist: ## paragraph line counts + cum%% (.lua + .py, skip comments)
 	              printf "%3d %3d  %s\n", \
 	                k[i], int(all*100/tot), s}}'
 
+## sh ---------------------------------------------------------
+
+sh: ## tuned bash + vi alias (wiped on exit)
+	$(call need,nvim,sh)
+	$(call need,git,sh)
+	@bash --rcfile <(echo "$$BASHRC") -i
+
+define BASHRC
+set -o vi
+[ -f ~/.bashrc ] && source ~/.bashrc
+alias l="lua fft.lua" b="make bench" c="make check"
+alias ll='ls -la' gs='git status -s' \
+      gd='git diff' gl='git log --oneline -20'
+
+# vi via vim.pack; NVIM_APPNAME isolates pkg data
+D=$$(mktemp -d); trap 'rm -rf "$$D"' EXIT
+printf '%s\n' "$$INITLUA" > "$$D/init.lua"
+alias vi='NVIM_APPNAME=fft nvim --clean -u "$$D/init.lua"'
+endef
+export BASHRC
+
+## vi ---------------------------------------------------------
+
+F ?= $(firstword $(wildcard *.lua)) # for vi
+
+vi: ## tuned nvim + catppuccin via vim.pack (wiped on exit)
+	$(call need,nvim,vi)
+	$(call need,git,vi)
+	@D=$$(mktemp -d); trap "rm -rf $$D" EXIT; \
+	 printf '%s\n' "$$INITLUA" > $$D/init.lua; \
+	 NVIM_APPNAME=fft nvim --clean -u $$D/init.lua $F
+
+define INITLUA
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
+vim.o.number = true
+vim.o.relativenumber = true
+vim.o.cursorline = true
+vim.o.mouse = "a"
+vim.o.termguicolors = true
+vim.o.expandtab = true
+vim.o.tabstop = 2
+vim.o.shiftwidth = 2
+vim.o.softtabstop = 2
+vim.o.ignorecase = true
+vim.o.smartcase = true
+vim.o.scrolloff = 8
+vim.o.signcolumn = "yes"
+vim.o.splitbelow = true
+vim.o.splitright = true
+vim.o.wrap = true
+vim.o.linebreak = true
+vim.o.clipboard = "unnamedplus"
+vim.o.fillchars = "vert:│,eob:·"
+vim.o.winborder = "rounded"
+vim.o.splitkeep = "screen"
+vim.o.smoothscroll = true
+
+vim.opt.packpath:prepend(vim.fn.stdpath("data") .. "/site")
+vim.pack.add({
+  "https://github.com/catppuccin/nvim",
+  "https://github.com/nvim-lualine/lualine.nvim",
+  "https://github.com/zaldih/themery.nvim",
+  "https://github.com/folke/tokyonight.nvim",
+  "https://github.com/rebelot/kanagawa.nvim",
+  "https://github.com/rose-pine/neovim",
+  "https://github.com/EdenEast/nightfox.nvim",
+})
+vim.cmd.colorscheme("catppuccin-mocha")
+vim.cmd("hi! WinSeparator guifg=#7aa2f7 guibg=NONE")
+vim.cmd("hi! VertSplit    guifg=#7aa2f7 guibg=NONE")
+require("lualine").setup({ options = { theme = "auto" } })
+require("themery").setup({
+  themes = {
+    "catppuccin-mocha","catppuccin-latte",
+    "tokyonight-storm","tokyonight-day",
+    "kanagawa-wave","kanagawa-dragon",
+    "rose-pine","rose-pine-dawn",
+    "nightfox","duskfox","carbonfox",
+  },
+  livePreview = true,
+})
+
+vim.api.nvim_create_autocmd("TextYankPost", {
+  callback = function() vim.hl.on_yank() end,
+})
+
+vim.diagnostic.config({
+  virtual_text     = false,
+  signs            = true,
+  underline        = true,
+  update_in_insert = false,
+  severity_sort    = true,
+  float            = { border = "rounded" },
+})
+
+if vim.fn.executable("lua-language-server") == 1 then
+  vim.lsp.config("luals", {
+    cmd          = {"lua-language-server"},
+    filetypes    = {"lua"},
+    root_markers = {".luarc.json", ".git"},
+    settings = { Lua = {
+      diagnostics = { globals = {"vim"} },
+      workspace   = { checkThirdParty = false },
+      telemetry   = { enable = false },
+    }},
+  })
+  vim.lsp.enable("luals")
+  vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(a)
+      local c = vim.lsp.get_client_by_id(a.data.client_id)
+      if c then c.server_capabilities.semanticTokensProvider = nil end
+      local b = { buffer = a.buf, silent = true }
+      vim.keymap.set("n", "K",         vim.lsp.buf.hover,         b)
+      vim.keymap.set("n", "gd",        vim.lsp.buf.definition,    b)
+      vim.keymap.set("n", "gr",        vim.lsp.buf.references,    b)
+      vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, b)
+    end,
+  })
+end
+endef
+export INITLUA
+
 ## pdf --------------------------------------------------------
 
 Font   ?= 5         # for ~/tmp/%.pdf

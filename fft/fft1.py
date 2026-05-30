@@ -1,48 +1,57 @@
 #!/usr/bin/env python3 -B
-"""fft1.py, fastmap bi-cluster with sd-plateau stop
+"""
+fft1.py, fastmap forest -> (acc, fairness) model cloud
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT license
 
+stdout: one line per model = "acc fairness".
+repeats x trees models: each shuffle splits 80/20, learns
+trees on train, scores each tree on the 20% holdout.
+
 Options:
- -s seed   seed=1234567891
- -t trees  trees=20
- -F frac   frac=0.1
- -f file   file=auto93.csv
+ -s --seed    random seed   seed=1234567891
+ -t --trees   trees/shuffle trees=100
+ -r --repeats shuffles      repeats=20
+ -n --N       row subsample  N=1000
+ -S --stop    leaf size      stop=None
+ -f --file    data file     file=/Users/timm/gits/moot/classify/COMPAS53.csv
 """
 import random, math, sys, re
 from types import SimpleNamespace as o
 
 BIG = math.inf
-the = o(seed=1234567891, trees=20, frac=0.1, stop=None, file="auto93.csv")
 
-def coerce(s):
-  try: return int(s)
-  except:
-    try: return float(s)
-    except: return s.strip()
+def coerce(z):
+  for f in (int, float):
+    try: return f(z)
+    except: pass
+  z = z.strip()
+  return {'True':True,'False':False,'None':None}.get(z,z)
 
-# ## memo --------------------------------------------------------
-def memo(fn):
-  d = {}
-  def go(*args):
-    k = tuple(sorted(id(a) for a in args))
-    if k not in d: d[k] = fn(*args)
-    return d[k]
-  return d, go
+help = re.findall(r"(\w+)=(\S+)", __doc__)
+the  = o(**{k: coerce(v) for k, v in help})
 
-# ## constructors -------------------------------------------------
+def cli(the):
+  ab = re.findall(r"-(\w) --(\w+)", __doc__)
+  flags = {"-"+c: k for c, k in ab}
+  flags.update({"--"+k: k for k in vars(the)})
+  for i, s in enumerate(sys.argv):
+    if (k := flags.get(s)) and i+1 < len(sys.argv):
+      setattr(the, k, coerce(sys.argv[i+1]))
+  return the
+
+# ## constructors -----------------------------------------------
 def Num(at=0, txt=""):
   return o(it=Num, at=at, txt=txt, n=0, mu=0, m2=0, sd=0,
            lo=BIG, hi=-BIG, heaven=0 if txt.endswith("-") else 1)
 
-def Sym(at=0, txt=""): return o(it=Sym, at=at, txt=txt, n=0, has={})
+def Sym(at=0, txt=""):
+  return o(it=Sym, at=at, txt=txt, n=0, has={})
 
-def Data():
+def Data(src=[]):
   d = o(it=Data, cols=None, rows=[])
-  d.xs, d.distx = memo(lambda r1, r2: _distx(d, r1, r2))
-  d.ys, d.disty = memo(lambda r:      _disty(d, r))
-  return d
+  return adds(src,d)
 
-# ## add (one polymorphic) ----------------------------------------
+# ## add (one polymorphic) --------------------------------------
 def add(it, v):
   if v == "?": return v
   if it.it is Sym:
@@ -55,7 +64,6 @@ def add(it, v):
     if v < it.lo: it.lo = v
     if v > it.hi: it.hi = v
   else:
-    it.xs.clear(); it.ys.clear()
     if it.cols is None: it.cols = _header(v)
     else:
       it.rows.append(v)
@@ -70,105 +78,117 @@ def _header(names):
     elif s[-1:] != "X"  : cols.x += [cols.all[-1]]
   return cols
 
-def read(file):
+def csv(file):
   for ln in open(file):
     ln = ln.strip()
     if ln and ln[0] != "#":
       yield [coerce(x.strip()) for x in ln.split(",")]
 
 def adds(src, it=None):
-  it = it or Data(); [add(it, x) for x in src]; return it
+  it = it or Num(); [add(it, x) for x in iter(src)]; return it
 
 def clone(root, rows):
-  return adds(rows, adds([root.cols.names]))
+  return adds(rows, adds([root.cols.names],Data()))
 
-# ## metrics ------------------------------------------------------
+# ## metrics ----------------------------------------------------
 def norm(c, v): 
   return v if v=="?" else (v - c.lo) / (c.hi - c.lo + 1E-32)
 
-def _missNorm(c, v1, v2):
-  v1,v2 = norm(c,v1), norm(c,v2)
-  v1 = v1 if v1 != "?" else (0 if v2 > .5 else 1)
-  v2 = v2 if v2 != "?" else (0 if v1 > .5 else 1)
-  return v1, v2
+def distx(d, r1, r2):
+  s, cols = 0, d.cols.x
+  for c in cols:
+    a, b = r1[c.at], r2[c.at]
+    if c.it is Sym: s += a != b
+    elif a == "?" and b == "?": s += 1
+    else:
+      a = norm(c, a); b = norm(c, b)
+      if a == "?": a = 0 if b > .5 else 1
+      if b == "?": b = 0 if a > .5 else 1
+      s += (a - b) ** 2
+  return (s / len(cols)) ** 0.5
 
-def _distxCol(c, v1, v2):
-  if v1 == "?" and v2 == "?": return 1
-  if c.it is Sym: return 0 if v1 == v2 else 1
-  v1, v2 = _missNorm(c, v1, v2)
-  return (v1 - v2)**2
-
-def _distx(d, r1, r2):
-  s, n = 0, 0
-  for c in d.cols.x:
-    n += 1; s += _distxCol(c, r1[c.at], r2[c.at])
-  return (s/n)**0.5
-
-def _disty(d, r):
+def disty(d, r):
   s, n = 0, 0
   for c in d.cols.y:
     if c.it is Num and r[c.at] != "?":
       n += 1; s += (norm(c, r[c.at]) - c.heaven)**2
   return (s/n)**0.5 if n else 0
 
-def ySd(d):
-  ys = [c for c in d.cols.y if c.it is Num]
-  return sum(c.sd for c in ys) / max(1, len(ys))
-
-# ## fastmap ------------------------------------------------------
+# ## fastmap ----------------------------------------------------
 def far(d, rs, ref):
-  rs.sort(key=lambda r: d.distx(ref, r))
-  return rs[int(0.99 * len(rs))]
+  rs.sort(key=lambda r: distx(d, ref, r))
+  return rs[int(0.9 * len(rs))]
 
 def fastmap(root, stop=None):
-  stop = stop or the.stop or int(math.sqrt(len(root.rows)))
-  leaves = []
-  def go(sub, prev_sd):
-    rs = list(sub.rows)
-    cur_sd =  [c for c in sub.cols.y if c.it is Num]
-    if len(rs) <= stop:
-      leaves.append(sub); return
-    a = random.choice(rs); b = far(sub, rs, a); a = far(sub, rs, b)
-    rs.sort(key=lambda r: sub.distx(r, a)**2 - sub.distx(r, b)**2)
-    m = len(rs) // 2
-    go(clone(root, rs[:m]), cur_sd)
-    go(clone(root, rs[m:]), cur_sd)
-  go(root, BIG)
-  return leaves
+  stop = stop or the.stop or len(root.rows)**.5
+  def grow(sub):
+    if len(sub.rows) <= stop: return sub  # leaf = Data
+    lo = far(root, sub.rows[:], random.choice(sub.rows))  # pole
+    sub.rows.sort(key=lambda r: distx(root, r, lo))  # near->far
+    m   = len(sub.rows) // 2
+    cut = distx(root, sub.rows[m], lo)  # split radius
+    return o(it=Node, lo=lo, cut=cut,
+             left  = grow(clone(root, sub.rows[:m])),  # <=cut
+             right = grow(clone(root, sub.rows[m:])))
+  return grow(root)
 
-# ## jaccards -----------------------------------------------------
-def _muDisty(root, leaf):
-  return sum(root.disty(r) for r in leaf.rows) / max(1, len(leaf.rows))
+def Node(): pass
 
-def topLeaves(root, leaves, frac):
-  arr = sorted(leaves, key=lambda L: _muDisty(root, L))
-  k = max(1, int(len(arr) * frac))
-  return [set(id(r) for r in L.rows) for L in arr[:k]]
+def leaf(root, tree, row):  # route new item down tree
+  while tree.it is Node:
+    tree = (tree.left if distx(root, row, tree.lo) <= tree.cut
+                      else tree.right)
+  return tree
 
-def jac(a, b): return len(a & b) / len(a | b)
+# ## fairness experiment (COMPAS) -------------------------------
+# pre-decision features (Upper=numeric, lower=symbolic).
+FEATS = [("Age","Age"), ("Priors_count","Priors"),
+         ("Juv_fel_count","JuvFel"), ("Juv_misd_count","JuvMisd"),
+         ("Juv_other_count","JuvOther"), ("sex","sex"),
+         ("race","race"), ("c_charge_degree","charge")]
+LABEL, GROUP = "two_year_recid!", "race"
 
-def jaccards(root, N=None, frac=None):
-  N, frac = N or the.trees, frac or the.frac
-  parts = [topLeaves(root, fastmap(root), frac) for _ in range(N)]
-  out = []
-  for i, p in enumerate(parts):
-    for s in p:
-      bests = [max(jac(s, t) for t in q)
-               for j, q in enumerate(parts) if j != i]
-      out.append(sum(bests) / len(bests))
-  return sorted(out)
+def features():               # -> rows(feature lists), lab, grp
+  raw = list(csv(the.file)); head = raw[0]
+  ix  = {n: i for i, n in enumerate(head)}
+  names, rows, lab, grp = [nm for _, nm in FEATS], [], {}, {}
+  for r in raw[1:]:
+    fr = [r[ix[c]] for c, _ in FEATS]
+    rows.append(fr)
+    lab[id(fr)] = 0 if r[ix[LABEL]] in ("?","") else int(r[ix[LABEL]])
+    grp[id(fr)] = r[ix[GROUP]]
+  return names, rows, lab, grp
 
-# ## main ---------------------------------------------------------
-for n, v in enumerate(sys.argv):
-  m = re.match(r"^-([stFfS])$", v)
-  if m:
-    setattr(the, {"s":"seed","t":"trees","F":"frac","f":"file",
-                  "S":"stop"}[m.group(1)],
-            coerce(sys.argv[n+1]))
+def evaluate(train, tree, test, lab, grp, groups):
+  tp = tn = fp = fn = 0                         # accuracy counts
+  gfp = {g:0 for g in groups}; gtn = {g:0 for g in groups}
+  for r in test:
+    L = leaf(train, tree, r)                    # leaf of train rows
+    p = sum(lab[id(x)] for x in L.rows)/len(L.rows) >= .5  # leaf vote
+    y = lab[id(r)]; g = grp[id(r)]
+    if   y and p: tp += 1
+    elif y:       fn += 1
+    elif p:       fp += 1
+    else:         tn += 1
+    if not y and g in groups:                   # FPR per group
+      gfp[g] += p; gtn[g] += not p
+  acc  = (tp+tn)/(tp+tn+fp+fn+1e-32)
+  fpr  = [gfp[g]/(gfp[g]+gtn[g]+1e-32) for g in groups]
+  fair = min(fpr)/(max(fpr)+1e-32)              # predictive equality
+  return acc, fair
 
+# ## main -------------------------------------------------------
 if __name__ == "__main__":
+  cli(the)
   random.seed(the.seed)
-  data = adds(read(the.file))
-  if len(data.rows) > 2000:
-    random.shuffle(data.rows); data.rows = data.rows[:2000]
-  for j in jaccards(data): print(int(j*100))
+  from collections import Counter
+  names, rows, lab, grp = features()
+  if len(rows) > the.N: rows = random.sample(rows, the.N)
+  groups = [g for g,_ in Counter(grp.values()).most_common(2)]
+  for _ in range(the.repeats):
+    random.shuffle(rows)
+    cut   = int(.8 * len(rows))
+    train = Data([names] + rows[:cut]); test = rows[cut:]
+    for _ in range(the.trees):
+      acc, fair = evaluate(train, fastmap(train), test, lab, grp, groups)
+      print("%.4f %.4f" % (acc, fair))

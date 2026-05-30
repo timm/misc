@@ -1,5 +1,7 @@
 #!/usr/bin/env python3 -B
-"""
+from types import SimpleNamespace as o
+import random, math, sys, re
+help=re.findall(r"(\w+)=(\S+)","""
 fft.py, fastmap bi-cluster + jaccard overlap of two runs
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT license
 
@@ -7,17 +9,18 @@ Options:
  -s --random seed   seed=1234567891
  -t number of trees trees=20
  -f data file       file=auto93.csv
-"""
-from types import SimpleNamespace as o
-import random, math, sys, re
+""")
+
+BIG = math.inf
+
 def coerce(z):
   for f in (int, float):
     try: return f(z)
     except: pass
   z = z.strip(); return {'True':True,'False':False}.get(z, z)
 
-the= o(**{k:coerce(v) for k,v in re.findall(r"(\w+)=(\S+)", __doc__ or "")})
-BIG = math.inf
+the= o(**{k:coerce(v) for k,v in help})
+
 def Num(at=0,txt=""): return o(at=at,txt=txt,lo=BIG,hi=-BIG,mu=0,n=0,heaven=0 if txt[-1:]=="-" else 1)
 def Sym(at=0,txt=""): return o(at=at,txt=txt,has={})
 def Data()          : return o(rows=[], cols=[])
