@@ -91,6 +91,21 @@ Font   ?= 5         # for ~/tmp/%.pdf
 Cols   ?= 3         # for ~/tmp/%.pdf
 Orient ?= landscape # for ~/tmp/%.pdf
 
+~/tmp/%.pdf : %.py Makefile ## py -> pdf via a2ps
+	$(call need,a2ps,pdf)
+	$(call need,ps2pdf,pdf)
+	@mkdir -p ~/tmp
+	@echo "pdfing : $@ ..."
+	@D=$$(mktemp -d); trap "rm -rf $$D" EXIT; \
+	 mkdir -p $$D/.a2ps; \
+	 HOME=$$D a2ps -Bj --$(Orient) --line-numbers=1 \
+	      --highlight-level=normal --borders=no \
+	      --pro=color --right-footer="" --left-footer="" \
+	      --pretty-print=lua --footer="page %p." \
+	      -M letter --font-size=$(Font) \
+	      --columns $(Cols) -o - $< | ps2pdf - $@
+	@$(OPEN) $@
+
 ~/tmp/%.pdf : %.lua Makefile ## lua -> pdf via a2ps
 	$(call need,a2ps,pdf)
 	$(call need,ps2pdf,pdf)

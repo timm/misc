@@ -125,7 +125,7 @@ local function jaccards(d, N, frac,    rows, dy, top, jac, parts, out)
 
 -- main ------------------------------------------------------------
 for n,v in ipairs(arg) do
-  local key = ({s="seed",t="trees",F="frac",f="file"})
+  local key = ({s="seed",t="trees",F="frac",f="file",S="stop"})
               [v:match"^%-(%a)$" or ""]
   if key then the[key] = as(arg[n+1]) end end
 
