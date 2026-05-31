@@ -233,9 +233,9 @@ Orient ?= landscape # for ~/tmp/%.pdf
 	@D=$$(mktemp -d); trap "rm -rf $$D" EXIT; \
 	 mkdir -p $$D/.a2ps; \
 	 HOME=$$D a2ps -Bj --$(Orient) --line-numbers=1 \
-	      --highlight-level=normal --borders=no \
+	      --highlight-level=heavy --borders=no \
 	      --pro=color --right-footer="" --left-footer="" \
-	      --pretty-print=lua --footer="page %p." \
+	      --pretty-print=python --footer="page %p." \
 	      -M letter --font-size=$(Font) \
 	      --columns $(Cols) -o - $< | ps2pdf - $@
 	@$(OPEN) $@
