@@ -64,7 +64,7 @@ check: ## lint lua + py
 
 push: ## add+commit+push+status; msg from cli: make push my note
 	@git add -A
-	@git commit -m "$(filter-out $@,$(MAKECMDGOALS))" || true
+	@m="$(filter-out $@,$(MAKECMDGOALS))"; git commit -m "$${m:-save}" || true
 	@git push
 	@git status
 %:            # swallow the message words so make won't error

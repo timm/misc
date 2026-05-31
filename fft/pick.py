@@ -13,17 +13,15 @@ Options:
  -p --p      distance exp  p=2
  -R --Round  repr decimals Round=2
  -S --stop   leaf size     stop=None
- -P --proj   2-pole project proj=False
  -g --group  protected col group=race
  -f --file   data file     file=/Users/timm/gits/moot/classify/COMPAS53.csv
 """
 import random, os, math
 from collections import Counter
 import fft1
-from fft1 import o, Data, clone, rmap, leaf, rmapf, leaff, confused, csv
+from fft1 import o, Data, clone, rmap, leaf, confused, csv
 
 the = fft1.settings(__doc__); fft1.the = the
-RMAP, LEAF = rmapf, leaff                          # fast 1-pole default; -P=proj
 
 d = lab = grp = groups = None                    # set in load() after cli
 
@@ -39,7 +37,7 @@ def load():
 def metrics(train, tree, rows):                  # -> (recall, prec, fair)
   pairs = []; gpairs = {g: [] for g in groups}
   for r in rows:
-    L   = LEAF(train, tree, r)
+    L   = leaf(train, tree, r)
     got = int(2*sum(lab[id(x)] for x in L.rows) > len(L.rows))
     pairs.append((lab[id(r)], got))
     if grp[id(r)] in groups: gpairs[grp[id(r)]].append((lab[id(r)], got))
@@ -51,8 +49,6 @@ def heaven(m): return math.sqrt(sum((1-v)**2 for v in m))   # dist to (1,1,1)
 
 if __name__ == "__main__":
   fft1.cli(the, __doc__)
-  if the.proj: RMAP, LEAF = rmap, leaf            # opt into 2-pole projection
-  globals().update(RMAP=RMAP, LEAF=LEAF)
   load()                                          # load AFTER cli sets -f/-g
   random.seed(the.seed)
   rows = d.rows[:]
@@ -71,7 +67,7 @@ if __name__ == "__main__":
       x   = random.randint(10, 90)
       nps = min(len(pos), round(128*x/100))
       bag = random.sample(pos, nps) + random.sample(neg, min(len(neg), 128-nps))
-      sub = clone(base, bag); tree = RMAP(sub)
+      sub = clone(base, bag); tree = rmap(sub)
       mv  = metrics(sub, tree, val)                         # (recall,prec,fair)
       cloud.append(mv)                                      # the whole space
       if heaven(mv) < bestd: bestd, best = heaven(mv), (sub, tree)
