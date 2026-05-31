@@ -3,18 +3,18 @@
 fft1.py, random-cluster forest engine + confusion (library)
 (c) 2025, Tim Menzies <timm@ieee.org>, MIT license
 
-Generic services: Data, distx/disty, rmap (random 1-pole radial
-cluster trees), leaf (router), confused (pd/pf/.. from (want,got)
-pairs), cli/the. No task knowledge here -- see e.g. compas.py.
+Generic services: Data, disty, tree (random axis-cut cluster),
+treeLeaf (router), treeShow (printer), confused (pd/pf/.. from
+(want,got) pairs), cli/the. No task knowledge -- see compas.py.
 
 Options:
  -s --seed  random seed       seed=1234567891
  -p --p     distance exponent p=2
  -R --Round repr decimals     Round=2
- -b --Bins  numeric bins      Bins=5
  -S --stop  leaf size         stop=None
  -n --N     demo row sample   N=50
- -f --file  data file         file=/Users/timm/gits/moot/optimize/misc/auto93.csv
+ -f --file  data file
+            file=/Users/timm/gits/moot/optimize/misc/auto93.csv
 
 eg: python3 fft1.py -f FILE -n 50 --tree
 """
@@ -44,8 +44,7 @@ def Cols(names):
   return o(
     it=Cols, all=cols, x=x,y=y, names=names, klass=klass or y[0])
 
-def Tree(): pass
-def Rtree(): pass
+def Tree(): pass                    # interior tag (leaf=Data)
 
 # ## add (one polymorphic) --------------------------------------
 def add(i, v):
@@ -57,13 +56,6 @@ def add(i, v):
   elif v == "?": pass
   elif i.it is Sym:
     i.n += 1; i.has[v] = i.has.get(v, 0) + 1
-  elif isinstance(v, dict):            # combine another Num into i
-    if v.n:
-      n = i.n + v.n; d = v.mu - i.mu
-      i.m2 += v.m2 + d*d * i.n*v.n/n
-      i.mu  = (i.n*i.mu + v.n*v.mu) / n
-      i.n, i.lo, i.hi = n, min(i.lo, v.lo), max(i.hi, v.hi)
-      i.sd  = (i.m2/(i.n-1))**0.5 if i.n > 1 else 0
   else:                                # add a number
     i.n += 1; d = v - i.mu
     i.mu += d / i.n
@@ -83,27 +75,6 @@ def clone(root, rows):
 def norm(c, v): 
   return v if v=="?" else (v - c.lo) / (c.hi - c.lo + 1E-32)
 
-def bucket(c, v): 
-  if v == "?" or c.it is Sym: return v
-  return min(the.Bins-1, int(the.Bins*norm(c, v)))
-
-def goes(c, v, b): 
-  x = bucket(c, v)  
-  return x !="?" and (x == b if c.it is Sym else x <= b)
-
-def distx(d, r1, r2):
-  s, cols, p = 0, d.cols.x, the.p
-  for c in cols:
-    a, b = r1[c.at], r2[c.at]
-    if c.it is Sym: s += a != b
-    elif a == "?" and b == "?": s += 1
-    else:
-      a = norm(c, a); b = norm(c, b)
-      if a == "?": a = 0 if b > .5 else 1
-      if b == "?": b = 0 if a > .5 else 1
-      s += abs(a - b) ** p
-  return (s / len(cols)) ** (1/p)
-
 def disty(d, r):
   s, n, p = 0, 0, the.p
   for c in d.cols.y:
@@ -111,88 +82,56 @@ def disty(d, r):
       n += 1; s += abs(norm(c, r[c.at]) - c.goal)**p
   return (s/n)**(1/p) if n else 0
 
-# ## rmap (random 1-pole radial cluster tree) -------------------
-def rtree(root, stop=None):
-  def grow(rows, stop):
-    if len(rows) <= stop: return clone(root, rows)
-    lo  = random.choice(rows)               # random pole
-    rows.sort(key=lambda r: distx(root,r,lo)) # near->far
-    m   = len(rows) // 2
-    cut = distx(root, rows[m], lo)              # split radius
-    return o(it=Rtree, lo=lo, cut=cut,
-             left  = grow(rows[:m], stop),       # dist <= cut
-             right = grow(rows[m:], stop))
-  return grow(root.rows, stop or the.stop or len(root.rows)**.5)
+# ## tree (random axis-cut cluster tree) -----------------------
+def cutgo(c, x, v):                  # x -> left branch?
+  return x != "?" and (x == v if c.it is Sym else x <= v)
 
-def rtreeLeaf(root, tree, row):  # route a new row down the tree
-  while tree.it is Rtree:
-    tree = (tree.left if distx(root, row, tree.lo) <= tree.cut
-                      else tree.right)
-  return tree
-
-# ## tree (supervised: split to minimise y-sd) -------------
-def tree(data, rows=None):  # regression tree on disty(row)
-  m = the.stop or 4
+def tree(root, stop=None):
+  cols = root.cols.x
+  stop = stop or the.stop or len(root.rows)**.5
   def grow(rows):
-    t = o(it=Tree, root=data, at=None, bin=None, kids={},
-          n=len(rows), ymu=adds(disty(data,r) for r in rows).mu,
-          ys=[adds(r[c.at] for r in rows if r[c.at]!="?")
-              for c in data.cols.y])
-    if len(rows) > 2*m:
-      for _, at, b in treeCuts(data, rows):   # best-first
-        c, ok, no = data.cols.all[at], [], []
-        for r in rows:
-          (ok if goes(c, r[c.at], b) else no).append(r)
-        if len(ok) >= m and len(no) >= m:
-          t.at, t.bin = at, b
-          kids = {True: grow(ok), False: grow(no)}    # best-mu first
-          t.kids = dict(sorted(kids.items(), key=lambda kv: kv[1].ymu))
-          break
-    return t
-  return grow(rows or data.rows)
+    if len(rows) <= stop: return clone(root, rows)
+    for _ in range(10):              # random col + cut
+      c = random.choice(cols)
+      v = random.choice(rows)[c.at]
+      if v == "?": continue
+      ok, no = [], []
+      for r in rows:
+        (ok if cutgo(c,r[c.at],v) else no).append(r)
+      if ok and no: break
+    else:
+      return clone(root, rows)       # no good cut -> leaf
+    return o(it=Tree, at=c.at, cut=v,
+             left=grow(ok), right=grow(no))
+  return grow(root.rows)
 
-def treeCuts(data, rows):
-  d = {}
-  for r in rows:
-    y = disty(data, r)
-    for c in data.cols.x:
-      k = (c.at, bucket(c, r[c.at]))
-      if k[1] != "?":
-        if k not in d: d[k] = Num()
-        add(d[k], y)
-  return sorted(cut for c in data.cols.x for cut in treeCut(d, c))
+def treeLeaf(root, t, row):          # route row to leaf
+  while t.it is Tree:
+    c = root.cols.all[t.at]
+    t = t.left if cutgo(c, row[t.at], t.cut) else t.right
+  return t
 
-def treeCut(d, col):               # yield (exp-sd, at, bin)
-  bins = sorted((b, n) for (at,b),n in d.items() if at==col.at)
-  if len(bins) < 2: return
-  xp = lambda a, b: (a.n*a.sd + b.n*b.sd) / (a.n + b.n)
-  for j, (b, num) in enumerate(bins):
-    if col.it is Sym:              # == b  vs  rest
-      rest = adds(n for k,(_,n) in enumerate(bins) if k != j)
-      yield xp(num, rest), col.at, b
-    elif j < len(bins)-1:          # <= bin b  vs  >
-      yield xp(adds(n for _,n in bins[:j+1]),
-               adds(n for _,n in bins[j+1:])), col.at, b
-
-def treeLeaf(tree, row):              # route a new row down the tree
-  while tree.kids:
-    c = tree.root.cols.all[tree.at]
-    tree = tree.kids[goes(c, row[tree.at], tree.bin)]
-  return tree
-
-def treeShow(root):                   # ygoal, per-goal means, then tree
-  ys = "".join("%7s" % c.txt for c in root.root.cols.y)
-  print("%6s%s %5s  tree" % ("ygoal", ys, "n"))
+def treeShow(root, t):               # ygoal, goal means, tree
+  ys  = [c for c in root.cols.y if c.it is Num]
+  rowsOf = lambda t: t.rows if t.it is Data else \
+                     rowsOf(t.left) + rowsOf(t.right)
+  dy  = lambda rs: adds(disty(root,r) for r in rs).mu
+  hdr = "".join("%7s" % c.txt for c in ys)
+  print("%6s%s %5s  tree" % ("ygoal", hdr, "n"))
   def show(t, lvl, txt):
-    g = "".join("%7.1f" % y.mu for y in t.ys)
-    print("%6.2f%s %5d  %s%s" % (t.ymu, g, t.n, "|  "*lvl, txt))
-    if t.kids:
-      c = root.root.cols.all[t.at]
-      for k in t.kids:                       # already best-mu first
-        op = ("==" if k else "!=") if c.it is Sym else \
-             ("<=" if k else " >")
-        show(t.kids[k], lvl+1, "%s %s %s" % (c.txt, op, t.bin))
-  show(root, 0, "")
+    rs = rowsOf(t)
+    g = "".join("%7.1f" %
+                adds(r[c.at] for r in rs if r[c.at]!="?").mu
+                for c in ys)
+    print("%6.2f%s %5d  %s%s" %
+          (dy(rs), g, len(rs), "|  "*lvl, txt))
+    if t.it is Tree:
+      c  = root.cols.all[t.at]
+      lo, hi = ("<="," >") if c.it is Num else ("==","!=")
+      for kid, op in sorted([(t.left, lo), (t.right, hi)],
+                       key=lambda k: dy(rowsOf(k[0]))):
+        show(kid, lvl+1, "%s %s %s" % (c.txt, op, t.cut))
+  show(t, 0, "")
 
 # ## confusion (pd, pf, ... from (want,got) pairs) --------------
 def confused(pairs):            # pairs = [(want, got), ...]
@@ -241,7 +180,7 @@ def settings(doc):              # key=val defaults from doc
   return o(**{k: coerce(v)
               for k, v in re.findall(r'(\w+)=(\S+)', doc)})
 
-def cli(the, doc, egs={}):      # update `the`; --x runs test_x(); flags from doc
+def cli(the, doc, egs={}):      # --x runs test_x()
   flags = {f: l.lstrip("-")
            for s,l in re.findall(r"(-\w) (--\w+)",doc)
            for f in (s,l)}
@@ -261,10 +200,11 @@ def cli(the, doc, egs={}):      # update `the`; --x runs test_x(); flags from do
 def test_the():                 # show the config
   print(the)
 
-def test_tree():                # tree on N random rows of -f file
+def test_tree():                # tree on N rows of -f
   head, *body = csv(the.file)
   rows = random.sample(body, min(the.N, len(body)))
-  treeShow(tree(Data([head] + rows)))
+  d = Data([head] + rows)
+  treeShow(d, tree(d))
 
 # ## main -------------------------------------------------------
 the = settings(__doc__)
