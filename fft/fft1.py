@@ -12,6 +12,7 @@ Options:
  -p --p     distance exponent p=2
  -R --Round repr decimals     Round=2
  -S --stop  leaf size         stop=None
+ -B --B     Num bin count     B=7
  -n --N     demo row sample   N=50
  -f --file  data file
             file=/Users/timm/gits/moot/optimize/misc/auto93.csv
@@ -19,6 +20,7 @@ Options:
 eg: python3 fft1.py -f FILE -n 50 --tree
 """
 import random, math, sys, re
+from functools import reduce
 BIG = math.inf
 
 # ## constructors -----------------------------------------------
@@ -72,9 +74,32 @@ def adds(src, it=None):
 def clone(root, rows):
   return adds(rows, adds([root.cols.names],Data()))
 
+# ## merge (s=+1 add, s=-1 subtract) ----------------------------
+def merge(a, b, s=1):
+  if a.it is Sym:
+    has = dict(a.has)
+    for k, v in b.has.items():
+      has[k] = has.get(k, 0) + s*v
+    has = {k: v for k, v in has.items() if v > 0}
+    return o(it=Sym, at=a.at, txt=a.txt, n=a.n + s*b.n, has=has)
+  n = a.n + s*b.n
+  if n <= 0: return Num(a.at, a.txt)
+  mu = (a.n*a.mu + s*b.n*b.mu) / n
+  d  = b.mu - a.mu
+  m2 = max(0, a.m2 + s*b.m2 + s*d*d*a.n*b.n / n)
+  c  = Num(a.at, a.txt)
+  c.n, c.mu, c.m2 = n, mu, m2
+  c.lo, c.hi = min(a.lo, b.lo), max(a.hi, b.hi)
+  return c
+
 # ## metrics ----------------------------------------------------
-def norm(c, v): 
+def norm(c, v):
   return v if v=="?" else (v - c.lo) / (c.hi - c.lo + 1E-32)
+
+def binOf(c, x):                     # key = cut value (rep edge for Num)
+  if c.it is Sym: return x
+  k = min(the.B-1, int(the.B*(x-c.lo)/(c.hi-c.lo+1E-32)))
+  return c.lo + (k+1)*(c.hi-c.lo)/the.B
 
 def disty(d, r):
   s, n, p = 0, 0, the.p
@@ -91,31 +116,31 @@ def cutgo(c, x, v):                  # x -> left branch?
   return x != "?" and (x == v if c.it is Sym else x <= v)
 
 def tree(root, stop=None, yfun=None):
-  cols = root.cols.x
   yfun = yfun or (lambda r: r[root.cols.klass.at])
   stop = stop or the.stop or len(root.rows)**.5
 
-  def cuts(c, rows):                 # yield (impurity, value) cands
-    ys = [(r[c.at], yfun(r)) for r in rows if r[c.at] != "?"]
-    if c.it is Sym:                  # each cat vs the rest
-      for v in {x for x,_ in ys}:
-        L, R = Num(), Num()
-        for x, y in ys: add(L if x == v else R, y)
-        if L.n and R.n: yield L.m2 + R.m2, v
-    else:                            # Num: sweep, suffix m2 cached
-      ys.sort(); R = Num(); rm = [0.0]*len(ys)
-      for j in range(len(ys)-1, -1, -1):
-        add(R, ys[j][1]); rm[j] = R.m2
+  def cuts(c, rows):                 # yield (impurity, cut-value) over bins
+    bins = {}
+    [add(bins.setdefault(binOf(c, r[c.at]), Num()), yfun(r))
+     for r in rows if r[c.at] != "?"]
+    bs = sorted(bins.items())
+    if not bs: return
+    total = reduce(merge, (v for _, v in bs))
+    if c.it is Sym:
+      for k, v in bs:
+        R = merge(total, v, -1)
+        if v.n and R.n: yield v.m2 + R.m2, k
+    else:
       L = Num()
-      for j in range(len(ys)-1):
-        add(L, ys[j][1])
-        if ys[j][0] != ys[j+1][0]:
-          yield L.m2 + rm[j+1], ys[j][0]
+      for k, v in bs[:-1]:
+        L = merge(L, v)
+        R = merge(total, L, -1)
+        if L.n and R.n: yield L.m2 + R.m2, k
 
   def grow(rows):
     if len(rows) <= stop: return clone(root, rows)
     for _ in range(10):              # retry till a real 2-way cut
-      c = random.choice(cols)
+      c = random.choice(root.cols.x)
       _, v = min(cuts(c, rows), default=(BIG, "?"))
       if v == "?": continue
       ok, no = [], []
