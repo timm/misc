@@ -30,7 +30,8 @@ if args[0] in SETS:                       # dataset keys -> rows
 else:                                     # FILE attr attr ... (one row)
   dsets = [(os.path.basename(args[0]).split(".")[0], args[0], args[1:])]
   stem  = dsets[0][0]
-out = H + "thesis_%s.png" % stem
+out = "/Users/timm/gits/timm/misc/fft/img/thesis_%s.png" % stem
+os.makedirs(os.path.dirname(out), exist_ok=True)
 
 def run(file, g):                         # -> cloud, test
   txt = subprocess.run(["python3", "pick.py", "-f", file, "-g", g]+ARGS,
