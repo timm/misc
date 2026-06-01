@@ -37,6 +37,10 @@ def add(it, v):
     it.lo = min(it.lo, v); it.hi = max(it.hi, v)
   return v
 
+def adds(src, it=None):
+  for x in iter(src): add((it := it or Num()), x)
+  return it
+
 def dataHeader(names):
   cols = o(all=[], x=[], y=[])
   for c, s in enumerate(names):

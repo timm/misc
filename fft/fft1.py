@@ -66,7 +66,8 @@ def add(i, v):
   return v
 
 def adds(src, it=None):
-  it = it or Num(); [add(it, x) for x in iter(src)]; return it
+  for x in iter(src): add((it := it or Num()), x)
+  return it
 
 def clone(root, rows):
   return adds(rows, adds([root.cols.names],Data()))
@@ -78,8 +79,7 @@ def norm(c, v):
 def disty(d, r):
   s, n, p = 0, 0, the.p
   for c in d.cols.y:
-    if c.it is Num and r[c.at] != "?":
-      n += 1; s += abs(norm(c, r[c.at]) - c.goal)**p
+    n += 1; s += abs(norm(c, r[c.at]) - c.goal)**p
   return (s/n)**(1/p) if n else 0
 
 # ## tree (random axis-cut cluster tree) -----------------------
