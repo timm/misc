@@ -20,9 +20,8 @@ SETS = {  # key -> (csv, [protected attrs])
   "dutch":  (H+"dutchf.csv", ["sex", "Country_birth", "agegrp"]),
   "diab":   (H+"diab.csv",   ["race", "gender", "age"]),
 }
-ARGS = ["-m", "800", "-n", "4000", "-v", "200", "-r", "25"]
-# cheap models (bag64,leaf16) -> afford N=4000: big test groups
-# stabilise fairness; -v caps val so selection stays fast
+ARGS = ["-m", "800", "-n", "2000", "-v", "200", "-r", "20"]
+# cheap models (bag64) -> afford big N (stable fairness); -v caps val
 
 args = sys.argv[1:] or ["compas", "adult", "dutch", "diab"]
 if args[0] in SETS:                       # dataset keys -> rows
@@ -67,8 +66,10 @@ for i, row in enumerate(cells):
       axs[0][j].set_title("cloud: %s" % g, fontsize=8)
       axs[0][j+na].set_title("pick: %s" % g, fontsize=8)
   axs[i][0].set_ylabel(dsets[i][0], fontsize=9, weight="bold")
-fig.text(0.30, 0.995, "SPACE OF OPTIONS (train)", ha="center", weight="bold")
-fig.text(0.73, 0.995, "RESULT OF REASONING (test)", ha="center", weight="bold")
+fig.text(0.30, 0.995, "SPACE OF OPTIONS (train)",
+         ha="center", weight="bold")
+fig.text(0.73, 0.995, "RESULT OF REASONING (test)",
+         ha="center", weight="bold")
 for ax in axs[-1]: ax.set_xlabel("recall")
 fig.colorbar(sc, ax=axs, format="%.2f", fraction=.012,
              label="precision (white=%.2f, red higher)" % m)

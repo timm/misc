@@ -20,7 +20,7 @@ Options:
 import random, os, math
 from collections import Counter
 import fft1
-from fft1 import o, Data, clone, tree, treeLeaf, confused, csv
+from fft1 import o, Data, clone, tree, treeLeaf, leaves, confused, csv
 
 the = fft1.settings(__doc__); fft1.the = the
 
@@ -49,21 +49,6 @@ def metrics(train, t, rows):                  # -> (recall, prec, fair)
   fpr = [confused(gp).get(1, o(pf=0)).pf for gp in gpairs.values()]
   return c.pd, c.prec, min(fpr)/(max(fpr)+1e-32)
 
-def leaves(t):                                # walk leaf Datas of a tree
-  if t.it is fft1.Data: yield t
-  else: yield from leaves(t.left); yield from leaves(t.right)
-
-def trainScore(t):                            # confusion from leaf rows; no eval
-  pairs = []; gp = {g: [] for g in groups}    # each leaf votes its own rows
-  for lf in leaves(t):
-    got = int(2*sum(lab[id(r)] for r in lf.rows) > len(lf.rows))
-    for r in lf.rows:
-      pairs.append((lab[id(r)], got))
-      if grp[id(r)] in groups: gp[grp[id(r)]].append((lab[id(r)], got))
-  c   = confused(pairs).get(1, o(pd=0, prec=0))
-  fpr = [confused(g).get(1, o(pf=0)).pf for g in gp.values()]
-  return c.pd, c.prec, min(fpr)/(max(fpr)+1e-32)
-
 def heaven(m): return math.sqrt(sum((1-v)**2 for v in m))   # dist to (1,1,1)
 
 if __name__ == "__main__":
@@ -87,7 +72,7 @@ if __name__ == "__main__":
       x   = random.randint(10, 90)
       nps = min(len(pos), round(64*x/100))    # bag 64: ablation-cheap
       bag = random.sample(pos, nps) + random.sample(neg, min(len(neg), 64-nps))
-      sub = clone(base, bag); t = tree(sub, 16); setVotes(t)  # leaf 16
+      sub = clone(base, bag); t = tree(sub, 16); setVotes(t)
       mv  = metrics(sub, t, val)                         # held-out selection
       if i == 0: cloud.append(mv)                        # train chart = 1 run
       if heaven(mv) < bestd: bestd, best = heaven(mv), (sub, t)

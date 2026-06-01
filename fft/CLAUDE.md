@@ -25,16 +25,23 @@ careful hyper-param search.
 
 ## Engine — `fft1.py` (library, no task knowledge)
 
-ONE tree (random axis-cut). Dropped: fastmap, `distx`, supervised best-cut
-tree, `bucket`, `Bins`, `merge`.
+ONE tree (random attr, supervised min-variance cut = ladder L2,
+hardwired). Dropped: fastmap, `distx`, radial, `bucket`, `Bins`,
+`merge`, gini, the `-L`/`sup` ladder flags.
 
 - `Data/add/adds/Cols` — incremental stats (Welford for Num).
+  NOTE `adds([])` returns `None` (lazy accumulator).
 - `disty(d,r)` — distance-to-heaven over Num y-cols (Minkowski `the.p`).
-- `tree(root)` — random axis-cut cluster tree: random x-col, cut at a
-  random row's value (`<=v` Num / `==v` Sym), retry on `?`/degenerate
-  (≤10 tries) else leaf. No `distx`, no sort. Leaf = a `Data` clone.
-- `treeLeaf(root,t,row)` — router (`cutgo` test). `treeShow(root,t)` —
-  printer (ygoal=mean disty + per-goal means, best-first).
+- `tree(root, stop=None, bins=0)` — random x-col per node, cut at the
+  VALUE minimizing child klass-variance. `split()` partitions rows AND
+  accumulates each side's klass `Num` in ONE pass; impurity =
+  `ly.m2+ry.m2` (m2 = n·var = gini/2 for 0/1 label). `bins=0` tries all
+  values; `bins>0` only quantile cut-points (slower at bag=64, see
+  Bins finding). retry ≤10 on degenerate else leaf = `Data` clone.
+  Needs NUMERIC klass (0/1); multiclass strings would crash `add`.
+- `treeLeaf(root,t,row)` — router (`cutgo` test). `leaves(t)` — yield
+  leaf `Data`s. `treeShow(root,t)` — printer (ygoal=mean disty +
+  per-goal means, best-first).
 - `confused(pairs)` — `[(want,got),...]` → per-label `pd,pf,prec,acc,f1`
   (pd=recall/TPR, pf=false-alarm/FPR). Multi-class one-vs-rest.
 
@@ -42,20 +49,25 @@ tree, `bucket`, `Bins`, `merge`.
 
 - `pick.py` — honest train/select/test (the live one). Protocol per run:
   shuffle → **60 train / 20 val / 20 test**; build `-m` models from
-  class-ratio bags (x% pos, x in 10..90) of train; score each on val by
+  class-ratio bags (x% pos, x in 10..90, **bag 64**) of train, each a
+  **`tree(sub,16)`** (leaf 16, L2 cut); score each on val by
   distance-to-heaven over (recall,prec,fairness); best → test → ONE dot.
   Repeat `-r` times → `-r` test dots. Cloud chart = run #0's `-m` models.
   Emits `CLOUD` + `TEST` rows. `setVotes(t)` caches leaf majority once →
-  `metrics` = lookup.
+  `metrics` = lookup. Task-only here: `lab`/`grp`/`groups`, `setVotes`,
+  `metrics`, `heaven`; engine stuff (`leaves`) imported from `fft1`.
 - `prep.py` — raw fairness CSV → moot (keep-lists drop leaky cols; numeric
   age → `agegrp`).
-- `thesis.py` — the headline figure (see command below).
+- `thesis.py` — the headline figure (see command below). ARGS now
+  `-m 800 -n 2000 -v 200 -r 20`.
+- `ablate.py`/`valtest.py`/`ensemble.py`/`sup.py`/`levels.py`/`bins.py` —
+  the studies behind the Findings (see below). Scaffolding, not live.
 - `plot.py`, `grid.py`/`gridpick.py`/`land.py`/`panels.py` — figures.
 - `compas.py`/`fairml.py` — older task variants.
 
 Flags (`pick.py`): `-m` models/run (300) · `-r` reps (25) · `-n` TOTAL
 rows then 60/20/20 (train=.6N) · `-v` max val rows · `-S` leaf size ·
-`-g` protected col · `-f` file.
+`-g` protected col · `-f` file. (no `-L`: L2 hardwired in engine.)
 
 ## Commands you can just ask for
 
@@ -111,13 +123,42 @@ Q: which diversification operators raise test dots? A: **none**.
   0.60). Selection beats voting.
 - **"Low dots" = 2 data ceilings, not tuning:**
   1. fairness scatter = tiny protected groups. diab test-fair sd
-     .06→.02, min .75→.92 as N 1000→4000. FIX = bigger N (cheap now).
-     thesis ARGS now `-m 800 -n 4000 -v 200 -r 25` (277s) → compas/
-     adult/dutch dots lift to top fairness band.
+     .06→.02, min .75→.92 as N 1000→4000. FIX = bigger N (cheap now);
+     `-v` caps val so selection stays fast. `-n 4000` lifts compas/
+     adult/dutch dots to top fairness band (thesis ARGS use `-n 2000`
+     for speed; bump to 4000 for the tightest figure).
   2. precision pinned at base rate by label-blind splits. `sup.py`
      gini-cut lifts some (adult prec .46→.65) but trades recall; diab
      prec=base=.27, unpredictable — supervised can't help.
 - Next lever for precision (color), if wanted: supervised splits.
+
+## Supervision ladder (2026-05-31) — `levels.py` (now hardwired L2)
+
+Ladder (was `-L`, now picked + baked into `fft1.tree`): L0 random
+attr+random cut, L1 +median, L2 +best-cut, L2k K attrs+best, L3 all
+attrs+best. Climbed once via `~/tmp/l{0..3}.png` (l2/l3 kept).
+- **L0=L1** (label-blind, both ~h.60). **L1→L2 = the win**: label in
+  cut purifies leaves, adult's low-fair scatter fixed, dots redder
+  (h.586→.542). **L2→L3 = reject**: overfits 64-row bags (adult
+  regresses) AND greedy best-cut collapses cloud diversity (all
+  models pick same split).
+- Cost (full figure): L0 227s, L2 244s (1.1×), L3 474s (2.1×).
+  Supervised cut cheap because bags=64. ms/tree (bench): L0 .48, L2
+  .58 (1.2×), L2k 1.47 (3.1×), L3 1.80 (3.8×).
+- **Sweet spot = L2, HARDWIRED in `fft1.tree`** (no flag): one random
+  attr keeps cloud spread, best (min-variance) cut adds label signal.
+  diab floored regardless (precision data-property). Verified at figure
+  level: simplified m2/all-values L2 == old builder png.
+
+## Value-sampling (2026-06-01) — `bins.py`
+
+Q: try only quantile cut-points (not all values) to go faster? A: **no
+win at bag=64**. PAIRED bench (same bags, vary `bins`): bins=0 all-values
+h.603; bins=5 1.4× faster but h.617 (dutch worst); bins=10/20 SLOWER
+than all-values. Candidate count is NOT the cost — **tree SHAPE is**
+(coarser grids build bigger trees). Helps only on BIG nodes (1200-row:
+bins=5 2.1×) — irrelevant at bag=64 (nodes tiny, k→1 → all-values
+anyway). ⇒ `tree` default `bins=0` (all values). Knob kept for big bags.
 
 ## Makefile
 

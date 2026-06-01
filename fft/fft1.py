@@ -82,27 +82,42 @@ def disty(d, r):
     n += 1; s += abs(norm(c, r[c.at]) - c.goal)**p
   return (s/n)**(1/p) if n else 0
 
-# ## tree (random axis-cut cluster tree) -----------------------
+# ## tree (random attr, min-variance cut) ----------------------
 def cutgo(c, x, v):                  # x -> left branch?
   return x != "?" and (x == v if c.it is Sym else x <= v)
 
-def tree(root, stop=None):
-  cols = root.cols.x
+def tree(root, stop=None, bins=0):   # bins>0 -> only quantile cuts
+  cols = root.cols.x; y = root.cols.klass
   stop = stop or the.stop or len(root.rows)**.5
+
+  def split(c, v, rows):             # -> left,right rows + their klass Nums
+    ok, no = [], []; ly, ry = Num(), Num()
+    for r in rows:
+      side, ny = (ok, ly) if cutgo(c,r[c.at],v) else (no, ry)
+      side.append(r)
+      add(ny, r[y.at])
+    return ok, no, ly, ry
+
+  def cut(c, rows):                  # value giving purest 2 children
+    def imp(v):                      # child label-variance; BIG if 1-sided
+      ok, no, ly, ry = split(c, v, rows)
+      return ly.m2 + ry.m2 if ok and no else BIG
+    xs = [r[c.at] for r in rows if r[c.at] != "?"]
+    if c.it is Sym or not bins: vs = set(xs)   # all categories/values
+    else:                            # Num: ~bins-1 quantile cut-points
+      xs.sort(); k = max(1, len(xs)//bins); vs = xs[k::k]
+    return min(vs, key=imp, default="?")
+
   def grow(rows):
     if len(rows) <= stop: return clone(root, rows)
-    for _ in range(10):              # random col + cut
-      c = random.choice(cols)
-      v = random.choice(rows)[c.at]
-      if v == "?": continue
-      ok, no = [], []
-      for r in rows:
-        (ok if cutgo(c,r[c.at],v) else no).append(r)
-      if ok and no: break
+    for _ in range(10):              # retry till a real 2-way cut
+      c = random.choice(cols); v = cut(c, rows)
+      ok, no, *_ = split(c, v, rows)
+      if v != "?" and ok and no: break
     else:
       return clone(root, rows)       # no good cut -> leaf
-    return o(it=Tree, at=c.at, cut=v,
-             left=grow(ok), right=grow(no))
+    return o(it=Tree, at=c.at, cut=v, left=grow(ok), right=grow(no))
+
   return grow(root.rows)
 
 def treeLeaf(root, t, row):          # route row to leaf
@@ -110,6 +125,10 @@ def treeLeaf(root, t, row):          # route row to leaf
     c = root.cols.all[t.at]
     t = t.left if cutgo(c, row[t.at], t.cut) else t.right
   return t
+
+def leaves(t):                       # yield the leaf Datas of a tree
+  if t.it is Data: yield t
+  else: yield from leaves(t.left); yield from leaves(t.right)
 
 def treeShow(root, t):               # ygoal, goal means, tree
   ys  = [c for c in root.cols.y if c.it is Num]
