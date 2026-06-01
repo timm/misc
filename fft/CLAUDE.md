@@ -90,6 +90,36 @@ Figure: rows = dataset (one each); LEFT cols = cloud (space of options,
 train, run #0), RIGHT cols = heaven-selected models (result of reasoning,
 held-out test); per protected attr, coloured by precision, shared scale.
 
+## Data — WHERE TO GET IT (fresh-machine setup)
+
+**Gotcha:** the moot CSVs are NOT in this repo and ALL paths hardcode
+`/Users/<you>/tmp/`. On a new machine `thesis.py` fails ("can't find
+compas/adult/…"). Two-step chain, both in `~/tmp/`:
+
+1. RAW fairness CSVs (public benchmarks; download once into `~/tmp/`):
+   - `adultc.csv` — UCI **Adult / Census Income**
+     (archive.ics.uci.edu/dataset/2/adult).
+   - `compasC.csv` — ProPublica **COMPAS two-year recid**
+     (github.com/propublica/compas-analysis,
+     `compas-scores-two-years.csv`). NOT moot's `COMPAS53.csv` (leaky).
+   - `dutch.csv` — **Dutch Virtual Census 1971** (standard fairness
+     bench; e.g. fairness-datasets repos).
+   - `diabetes-clean.csv` — UCI **Diabetes 130-US hospitals 1999-2008**
+     (archive.ics.uci.edu/dataset/296), label `readmitted`.
+2. `python3 prep.py` → writes the moot CSVs `~/tmp/{adult,compas,
+   dutchf,diab}.csv` (keep-lists drop leaky/id cols; age→`agegrp`;
+   label→`klass!` 0/1). prep.py `__main__` hardcodes the in/out names.
+
+Then `thesis.py` (reads `~/tmp/*.csv`). To skip all this for ONE set:
+`python3 thesis.py /abs/path/to/file.csv attr1 attr2` (ad-hoc form).
+
+Headline figure checked in at `img/l2.png` (compas+adult+dutch+diab,
+L2 engine). Regen+overwrite: `python3 thesis.py compas adult dutch
+diab && cp ~/tmp/thesis_compas_adult_dutch_diab.png img/l2.png`.
+(NOT auto-generated under that name — it's a renamed thesis png.)
+Consider vendoring the 4 prepped CSVs (~8MB) into a repo `data/` dir
+to make regen machine-independent.
+
 ## Findings (2026-05-31)
 
 - Random axis-cut ≈ radial in quality, ~2.3× faster. Split mechanism
