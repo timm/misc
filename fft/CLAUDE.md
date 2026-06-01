@@ -27,22 +27,31 @@ careful hyper-param search.
 
 ONE tree (random attr, supervised min-variance cut = ladder L2,
 hardwired). Dropped: fastmap, `distx`, radial, `bucket`, `Bins`,
-`merge`, gini, the `-L`/`sup` ladder flags.
+gini, the `-L`/`sup` ladder flags.
 
 - `Data/add/adds/Cols` — incremental stats (Welford for Num).
   NOTE `adds([])` returns `None` (lazy accumulator).
 - `disty(d,r)` — distance-to-heaven over Num y-cols (Minkowski `the.p`).
-- `tree(root, stop=None, *, yfun=None)` — random x-col per node, cut
-  at VALUE minimizing child variance of `yfun(row)` (default = klass
-  value; caller can swap the cut target). `cuts(c,rows)` GENERATES
-  `(impurity,value)` candidates; `grow` does `min` (selection in one
-  place). impurity = `L.m2+R.m2` (Num `.m2` = n·var = gini/2 for 0/1).
-  SINGLE-PASS: Num col = sort once, prefix `Num`(add) + cached suffix
-  `m2` array, no per-value rescan; Sym col = each cat-vs-rest. retry
-  ≤10 on degenerate else leaf = `Data` clone. NUMERIC klass (0/1);
-  multiclass strings crash `add`. (was: per-value rescan + `bins`
-  quantile knob; dropped — see 2026-06-01 finding. `i` = self only,
-  loop index = `j`.)
+- `merge(a,b,s=1)` — combine two `Num`/`Sym` in O(1): `s=+1` add,
+  `s=-1` SUBTRACT (parallel-variance / Welford merge + unmerge).
+  Num n·var via `m2 = a.m2 + s·b.m2 + s·d²·a.n·b.n/n`; clamps n≤0
+  and m2≥0. Subtraction = the trick that makes the histogram cut
+  one-pass (R = total minus L).
+- `binOf(c,x,bins)` — value → cut key. Sym = the category; Num =
+  one of `bins` (default 7) quantile-ish edges (`c.lo`+(k+1)·step),
+  so cut value is a real threshold for `cutgo`.
+- `tree(root, stop=None, yfun=None, bins=7)` — random x-col/node;
+  HISTOGRAM cut. `cuts(c,rows)` bins rows once into a `Num` of
+  `yfun(row)` per `binOf` key, then sweeps: `total = reduce(merge,
+  bins)`; Sym = each cat vs `merge(total,cat,-1)`; Num = running
+  prefix `L`, complement `R = merge(total,L,-1)`; yields
+  `(L.m2+R.m2, key)`. `grow` does `min` (selection in ONE place),
+  retry ≤10 on degenerate else leaf = `Data` clone. impurity
+  `m2` = n·var = gini/2 for 0/1 klass. default `yfun` = klass
+  value; caller can swap the cut target. NUMERIC klass (0/1);
+  multiclass strings crash `add`. `i` = self only, loop idx = `j`.
+  (Per-model cost ~1.7× cheaper than the old per-value rescan;
+  candidate count bounded by `bins`, not #values — see findings.)
 - `treeLeaf(root,t,row)` — router (`cutgo` test). `leaves(t)` — yield
   leaf `Data`s. `treeShow(root,t)` — printer (ygoal=mean disty +
   per-goal means, best-first).
@@ -195,24 +204,32 @@ bins=5 2.1×) — irrelevant at bag=64 (nodes tiny, k→1 → all-values
 anyway). ⇒ all-values. (`bins` knob since REMOVED — sweep is
 all-values by construction; see next finding.)
 
-## Single-pass cut + Y-injection + RF (2026-06-01) — `benchcut.py`/`rf.py`
+## Faster cut + Y-injection + RF (2026-06-01) — `benchcut.py`/`rf.py`
 
-Refactored `fft1.tree`: per-value rescan → **single sorted sweep**
-(prefix `Num` + cached suffix `m2`); `bins` knob dropped; added
-`yfun` (cut target injectable, default klass — engine stays
-task-free). `cuts` yields, `grow` does `min`. `i`=self only (loop=`j`).
-- **Tree-build 2× faster, quality neutral** (PAIRED `benchcut`, same
-  protocol): old rescan 2.21 ms/tree h.626 → new sweep 1.08 ms h.606.
-  Num cut was O(values·N)≈O(N²) → now O(N log N); Sym still
-  O(cats·N) (cat-vs-rest, fresh `Num`s — never the cost).
-  (A scalar n,Σy,Σy² hand-roll hit 0.58 ms/3.8× but dups `Num`;
-  chose `Num.add`/`.m2` services for clarity over the last 2×.)
-- **Figure-level wall-clock FLAT** (~5.5min, `-m800 -n2000 -r20`).
-  Speedup invisible end-to-end: thesis is clone+eval+subprocess-load
-  bound, not cut-bound (re-confirms ablate "cost = build/clone, not
-  eval"). Cheaper cut on a non-dominant term ≈ no figure win.
-- **Verified figure-level**: new sweep == `l2.png` (semantically same
-  clouds + picks; only RNG jitter).
+Refactored `fft1.tree` to kill the per-value rescan (was
+O(values·N)≈O(N²) per Num node). Added `yfun` (cut target
+injectable, default klass — engine stays task-free); `cuts` yields,
+`grow` does the `min` (selection in ONE place). `i`=self (loop=`j`).
+- **Two implementations tried, both ~equal:** (a) single sorted
+  sweep (prefix `Num` + suffix-`m2` snapshot) — `benchcut` 2.21→1.08
+  ms/tree, h.626→.606, quality neutral; (b) **HISTOGRAM (the one
+  that landed)** — `binOf` bins to `bins=7` edges, `merge`/unmerge
+  (`merge(...,-1)`) for total∓side, cut value = `tree(...,bins=)`
+  arg. End-to-end `pick.py` (-m300 -r5 -n2000): old rescan 4.53s →
+  histogram 2.69s ≈ sweep 2.79s = **~1.7× faster**, histogram and
+  sweep tied. (A scalar n,Σy,Σy² hand-roll hit 0.58 ms but dups
+  `Num`; rejected — use `Num`/`merge` services for clarity.)
+- **`the.B` trap (fixed):** histogram read bin count from `the.B`,
+  but tasks build `the` from their OWN docstring (no `B=`) and set
+  `fft1.the` → `the.B` None → crash. ⇒ count is a `tree(bins=7)`
+  PARAM, not a global. Lesson: engine config must travel as args,
+  not via the task-owned `the`.
+- **Speedup shows in `pick.py` (~1.7×) but NOT the thesis figure**
+  (~5.5min, flat): the figure is clone+eval+12×subprocess-CSV-load
+  bound, so a cheaper cut barely moves wall-clock (re-confirms
+  ablate "cost = build/clone, not eval").
+- **Verified figure-level**: new engine == `l2.png` (semantically
+  same clouds + picks; only RNG jitter). Checked in at `img/l2.png`.
 - **RF variant REJECTED** (`rf.py`). Q: does random col-subspace +
   bigger random bags rescue all-cols best-cut (vs L3 collapse)? A:
   **no — loses on every axis.** vs L2 (ratio-64, 1 col, spread .268,
