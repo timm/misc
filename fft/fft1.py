@@ -83,37 +83,45 @@ def disty(d, r):
   return (s/n)**(1/p) if n else 0
 
 # ## tree (random attr, min-variance cut) ----------------------
+# ONE random x-col/node, best cut = value minimising child
+# variance of yfun(row) (default klass; caller can swap target).
+# cut() = single sorted sweep, running n,Sy,Syy (m2=Syy-Sy*Sy/n);
+# no per-candidate rescan, no Welford merge.
 def cutgo(c, x, v):                  # x -> left branch?
   return x != "?" and (x == v if c.it is Sym else x <= v)
 
-def tree(root, stop=None, bins=0):   # bins>0 -> only quantile cuts
-  cols = root.cols.x; y = root.cols.klass
+def tree(root, stop=None, yfun=None):
+  cols = root.cols.x
+  yfun = yfun or (lambda r: r[root.cols.klass.at])
   stop = stop or the.stop or len(root.rows)**.5
 
-  def split(c, v, rows):             # -> left,right rows + their klass Nums
-    ok, no = [], []; ly, ry = Num(), Num()
-    for r in rows:
-      side, ny = (ok, ly) if cutgo(c,r[c.at],v) else (no, ry)
-      side.append(r)
-      add(ny, r[y.at])
-    return ok, no, ly, ry
-
-  def cut(c, rows):                  # value giving purest 2 children
-    def imp(v):                      # child label-variance; BIG if 1-sided
-      ok, no, ly, ry = split(c, v, rows)
-      return ly.m2 + ry.m2 if ok and no else BIG
-    xs = [r[c.at] for r in rows if r[c.at] != "?"]
-    if c.it is Sym or not bins: vs = set(xs)   # all categories/values
-    else:                            # Num: ~bins-1 quantile cut-points
-      xs.sort(); k = max(1, len(xs)//bins); vs = xs[k::k]
-    return min(vs, key=imp, default="?")
+  def cuts(c, rows):                 # yield (impurity, value) cands
+    ys = [(r[c.at], yfun(r)) for r in rows if r[c.at] != "?"]
+    if c.it is Sym:                  # each cat vs the rest
+      for v in {x for x,_ in ys}:
+        L, R = Num(), Num()
+        for x, y in ys: add(L if x == v else R, y)
+        if L.n and R.n: yield L.m2 + R.m2, v
+    else:                            # Num: sweep, suffix m2 cached
+      ys.sort(); R = Num(); rm = [0.0]*len(ys)
+      for j in range(len(ys)-1, -1, -1):
+        add(R, ys[j][1]); rm[j] = R.m2
+      L = Num()
+      for j in range(len(ys)-1):
+        add(L, ys[j][1])
+        if ys[j][0] != ys[j+1][0]:
+          yield L.m2 + rm[j+1], ys[j][0]
 
   def grow(rows):
     if len(rows) <= stop: return clone(root, rows)
     for _ in range(10):              # retry till a real 2-way cut
-      c = random.choice(cols); v = cut(c, rows)
-      ok, no, *_ = split(c, v, rows)
-      if v != "?" and ok and no: break
+      c = random.choice(cols)
+      _, v = min(cuts(c, rows), default=(BIG, "?"))
+      if v == "?": continue
+      ok, no = [], []
+      for r in rows:
+        (ok if cutgo(c, r[c.at], v) else no).append(r)
+      if ok and no: break
     else:
       return clone(root, rows)       # no good cut -> leaf
     return o(it=Tree, at=c.at, cut=v, left=grow(ok), right=grow(no))

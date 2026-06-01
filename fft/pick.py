@@ -17,6 +17,18 @@ Options:
  -g --group  protected col group=race
  -f --file   data file     file=/Users/timm/gits/moot/classify/COMPAS53.csv
 """
+
+# fft1.py = engine. Generic. Tree, stats, confused, cli. Zero
+# fairness knowledge.
+#
+# pick.py = task. Imports engine, adds problem stuff:
+# label/protected col,
+# heaven=(recall,prec,fair), 60/20/20 protocol, model cloud.
+#
+# Why: one engine, many tasks (pick, ablate, thesis, ensemble all
+# import fft1). Write tree
+# once. Findings bake into engine, all tasks inherit.
+
 import random, os, math
 from collections import Counter
 import fft1

@@ -32,13 +32,17 @@ hardwired). Dropped: fastmap, `distx`, radial, `bucket`, `Bins`,
 - `Data/add/adds/Cols` — incremental stats (Welford for Num).
   NOTE `adds([])` returns `None` (lazy accumulator).
 - `disty(d,r)` — distance-to-heaven over Num y-cols (Minkowski `the.p`).
-- `tree(root, stop=None, bins=0)` — random x-col per node, cut at the
-  VALUE minimizing child klass-variance. `split()` partitions rows AND
-  accumulates each side's klass `Num` in ONE pass; impurity =
-  `ly.m2+ry.m2` (m2 = n·var = gini/2 for 0/1 label). `bins=0` tries all
-  values; `bins>0` only quantile cut-points (slower at bag=64, see
-  Bins finding). retry ≤10 on degenerate else leaf = `Data` clone.
-  Needs NUMERIC klass (0/1); multiclass strings would crash `add`.
+- `tree(root, stop=None, *, yfun=None)` — random x-col per node, cut
+  at VALUE minimizing child variance of `yfun(row)` (default = klass
+  value; caller can swap the cut target). `cuts(c,rows)` GENERATES
+  `(impurity,value)` candidates; `grow` does `min` (selection in one
+  place). impurity = `L.m2+R.m2` (Num `.m2` = n·var = gini/2 for 0/1).
+  SINGLE-PASS: Num col = sort once, prefix `Num`(add) + cached suffix
+  `m2` array, no per-value rescan; Sym col = each cat-vs-rest. retry
+  ≤10 on degenerate else leaf = `Data` clone. NUMERIC klass (0/1);
+  multiclass strings crash `add`. (was: per-value rescan + `bins`
+  quantile knob; dropped — see 2026-06-01 finding. `i` = self only,
+  loop index = `j`.)
 - `treeLeaf(root,t,row)` — router (`cutgo` test). `leaves(t)` — yield
   leaf `Data`s. `treeShow(root,t)` — printer (ygoal=mean disty +
   per-goal means, best-first).
@@ -158,7 +162,38 @@ h.603; bins=5 1.4× faster but h.617 (dutch worst); bins=10/20 SLOWER
 than all-values. Candidate count is NOT the cost — **tree SHAPE is**
 (coarser grids build bigger trees). Helps only on BIG nodes (1200-row:
 bins=5 2.1×) — irrelevant at bag=64 (nodes tiny, k→1 → all-values
-anyway). ⇒ `tree` default `bins=0` (all values). Knob kept for big bags.
+anyway). ⇒ all-values. (`bins` knob since REMOVED — sweep is
+all-values by construction; see next finding.)
+
+## Single-pass cut + Y-injection + RF (2026-06-01) — `benchcut.py`/`rf.py`
+
+Refactored `fft1.tree`: per-value rescan → **single sorted sweep**
+(prefix `Num` + cached suffix `m2`); `bins` knob dropped; added
+`yfun` (cut target injectable, default klass — engine stays
+task-free). `cuts` yields, `grow` does `min`. `i`=self only (loop=`j`).
+- **Tree-build 2× faster, quality neutral** (PAIRED `benchcut`, same
+  protocol): old rescan 2.21 ms/tree h.626 → new sweep 1.08 ms h.606.
+  Num cut was O(values·N)≈O(N²) → now O(N log N); Sym still
+  O(cats·N) (cat-vs-rest, fresh `Num`s — never the cost).
+  (A scalar n,Σy,Σy² hand-roll hit 0.58 ms/3.8× but dups `Num`;
+  chose `Num.add`/`.m2` services for clarity over the last 2×.)
+- **Figure-level wall-clock FLAT** (~5.5min, `-m800 -n2000 -r20`).
+  Speedup invisible end-to-end: thesis is clone+eval+subprocess-load
+  bound, not cut-bound (re-confirms ablate "cost = build/clone, not
+  eval"). Cheaper cut on a non-dominant term ≈ no figure win.
+- **Verified figure-level**: new sweep == `l2.png` (semantically same
+  clouds + picks; only RNG jitter).
+- **RF variant REJECTED** (`rf.py`). Q: does random col-subspace +
+  bigger random bags rescue all-cols best-cut (vs L3 collapse)? A:
+  **no — loses on every axis.** vs L2 (ratio-64, 1 col, spread .268,
+  .90ms, h.602): rf-sq (rand-256, sqrt cols) spread .119, 9.2ms,
+  h.765; rf-all (all cols) spread .108, 25ms, h.726. Subspace did
+  NOT restore diversity. **New result: the RATIO-SWEEP bag (10–90%
+  pos) drives cloud spread, NOT the split mechanism** — `sq-64`
+  (ratio bag + sqrt cols) keeps spread .232 vs rand-256's .11.
+  feat>1 best-cut also hurts heaven (overfits small bags). ⇒ stay
+  one-col + ratio-sweep bag. Confirms ablation: bagging+selection do
+  the work; diversification operators inert/harmful.
 
 ## Makefile
 
