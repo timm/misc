@@ -12,7 +12,6 @@ Options:
  -p --p     distance exponent p=2
  -R --Round repr decimals     Round=2
  -S --stop  leaf size         stop=None
- -B --B     Num bin count     B=7
  -n --N     demo row sample   N=50
  -f --file  data file
             file=/Users/timm/gits/moot/optimize/misc/auto93.csv
@@ -96,10 +95,10 @@ def merge(a, b, s=1):
 def norm(c, v):
   return v if v=="?" else (v - c.lo) / (c.hi - c.lo + 1E-32)
 
-def binOf(c, x):                     # key = cut value (rep edge for Num)
+def binOf(c, x, bins):               # key = cut value (rep edge for Num)
   if c.it is Sym: return x
-  k = min(the.B-1, int(the.B*(x-c.lo)/(c.hi-c.lo+1E-32)))
-  return c.lo + (k+1)*(c.hi-c.lo)/the.B
+  k = min(bins-1, int(bins*(x-c.lo)/(c.hi-c.lo+1E-32)))
+  return c.lo + (k+1)*(c.hi-c.lo)/bins
 
 def disty(d, r):
   s, n, p = 0, 0, the.p
@@ -108,22 +107,23 @@ def disty(d, r):
   return (s/n)**(1/p) if n else 0
 
 # ## tree (random attr, min-variance cut) ----------------------
-# ONE random x-col/node, best cut = value minimising child
-# variance of yfun(row) (default klass; caller can swap target).
-# cut() = single sorted sweep, running n,Sy,Syy (m2=Syy-Sy*Sy/n);
-# no per-candidate rescan, no Welford merge.
+# ONE random x-col/node. cuts() bins rows (binOf: Num -> `bins`
+# edges, Sym -> category) into a Num of yfun(row) per bin, then
+# sweeps for the min child-variance cut: total = merge(all bins),
+# each split's R = merge(total, L, -1) (unmerge); impurity =
+# L.m2+R.m2. default yfun = klass; caller can swap target.
 def cutgo(c, x, v):                  # x -> left branch?
   return x != "?" and (x == v if c.it is Sym else x <= v)
 
-def tree(root, stop=None, yfun=None):
+def tree(root, stop=None, yfun=None, bins=7):
   yfun = yfun or (lambda r: r[root.cols.klass.at])
   stop = stop or the.stop or len(root.rows)**.5
 
   def cuts(c, rows):                 # yield (impurity, cut-value) over bins
-    bins = {}
-    [add(bins.setdefault(binOf(c, r[c.at]), Num()), yfun(r))
+    hist = {}
+    [add(hist.setdefault(binOf(c, r[c.at], bins), Num()), yfun(r))
      for r in rows if r[c.at] != "?"]
-    bs = sorted(bins.items())
+    bs = sorted(hist.items())
     if not bs: return
     total = reduce(merge, (v for _, v in bs))
     if c.it is Sym:
