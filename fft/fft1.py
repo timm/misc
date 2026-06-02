@@ -106,6 +106,54 @@ def disty(d, r):
     n += 1; s += abs(norm(c, r[c.at]) - c.goal)**p
   return (s/n)**(1/p) if n else 0
 
+def distx(d, r1, r2):                # over x-cols, missing-tolerant
+  s, n, p = 0, 0, the.p
+  for c in d.cols.x:
+    n += 1; v1, v2 = r1[c.at], r2[c.at]
+    if v1=="?" and v2=="?": s += 1; continue
+    if c.it is Sym: s += 0 if v1==v2 else 1
+    else:
+      v1 = norm(c,v1) if v1!="?" else (0 if norm(c,v2)>.5 else 1)
+      v2 = norm(c,v2) if v2!="?" else (0 if v1>.5 else 1)
+      s += abs(v1-v2)**p
+  return (s/n)**(1/p)
+
+# ## fmtree (fastmap-split, stochastic poles, train-worth) -----
+def FMTree(): pass                   # tag for fmtree inner nodes
+
+def fmtree(root, stop=None, k=30):
+  stop = stop or int(len(root.rows)**.5)
+  def far(ref, some):
+    return max(some, key=lambda r: distx(root, ref, r))
+  def grow(rows):
+    if len(rows) <= stop:
+      mu = sum(disty(root, r) for r in rows)/max(1, len(rows))
+      return o(it=Data, rows=rows, worth=mu)
+    some = random.sample(rows, min(k, len(rows)))
+    A = far(random.choice(some), some); B = far(A, some)
+    c = distx(root, A, B) + 1e-32
+    proj = lambda r:(distx(root,r,A)**2 + c*c
+                     - distx(root,r,B)**2)/(2*c)
+    keyed = [(proj(r), r) for r in rows]
+    keyed.sort(key=lambda x: x[0])
+    m = len(keyed)//2
+    L = grow([r for _,r in keyed[:m]])
+    R = grow([r for _,r in keyed[m:]])
+    return o(it=FMTree, A=A, B=B, c=c, cut=keyed[m][0],
+             left=L, right=R, worth=max(L.worth, R.worth))
+  return grow(root.rows)
+
+def fmleaf(root, t, row):
+  while t.it is FMTree:
+    pr = (distx(root,row,t.A)**2 + t.c**2
+          - distx(root,row,t.B)**2)/(2*t.c)
+    t = t.left if pr <= t.cut else t.right
+  return t
+
+def fmleaves(t):                     # yield leaf Datas
+  if t.it is Data: yield t
+  else: yield from fmleaves(t.left); yield from fmleaves(t.right)
+
 # ## tree (random attr, min-variance cut) ----------------------
 # ONE random x-col/node. cuts() bins rows (binOf: Num -> `bins`
 # edges, Sym -> category) into a Num of yfun(row) per bin, then
@@ -258,6 +306,27 @@ def test_tree():                # tree on N rows of -f
   rows = random.sample(body, min(the.N, len(body)))
   d = Data([head] + rows)
   treeShow(d, tree(d))
+
+def test_fmtree():              # 30 fmtrees, runtime + worth dist
+  import time
+  head, *body = csv(the.file)
+  rows = random.sample(body, min(the.N, len(body)))
+  d    = Data([head] + rows)
+  t0   = time.time()
+  trees = [fmtree(d) for _ in range(30)]
+  dt   = time.time() - t0
+  ws   = sorted(t.worth for t in trees)
+  best = min(trees, key=lambda t: t.worth)
+  nLeaves = sum(1 for _ in fmleaves(best))
+  print("# 30 fmtrees on %s (N=%d)" % (the.file.split("/")[-1], len(rows)))
+  print("time         %.3fs  (%.1f ms/tree)" % (dt, 1000*dt/30))
+  print("worth min    %.4f" % ws[0])
+  print("worth med    %.4f" % ws[15])
+  print("worth max    %.4f" % ws[-1])
+  print("picked tree: worth=%.4f, %d leaves, stop=%d" %
+        (best.worth, nLeaves, int(len(rows)**.5)))
+  print("# all worths sorted:")
+  for w in ws: print("  %.4f" % w)
 
 # ## main -------------------------------------------------------
 the = settings(__doc__)
