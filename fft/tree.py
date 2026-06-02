@@ -15,6 +15,7 @@ Options:
  -S --stop  leaf size         stop=None
  -d --Dims  projection dims   Dims=5
  -b --Bins  divisions per dim Bins=5
+ -F --few   pole sample size  few=32
  -n --N     demo row sample   N=50
  -f --file  data file
             file=/Users/timm/gits/moot/optimize/misc/auto93.csv
@@ -121,7 +122,7 @@ def disty(d, r):
   return (s/n)**(1/p) if n else 0
 
 # ## dims (Fastmap projection -> bucket coords) -----------------
-def _gap(c, a, b):              # Aha per-col distance, 0..1
+def _distx(c, a, b):            # Aha per-col distance, 0..1
   if a == "?" and b == "?": return 1
   if c.it is Sym: return 0 if a == b else 1
   a = norm(c, a) if a != "?" else None
@@ -130,21 +131,21 @@ def _gap(c, a, b):              # Aha per-col distance, 0..1
   if b is None: b = 0 if a > .5 else 1
   return abs(a - b)
 
-def dist(data, r1, r2):         # Minkowski over x-cols, 0..1
+def distx(data, r1, r2):        # Minkowski over x-cols, 0..1
   n = s = 0
   for c in data.cols.x:
-    n += 1; s += _gap(c, r1[c.at], r2[c.at]) ** the.p
+    n += 1; s += _distx(c, r1[c.at], r2[c.at]) ** the.p
   return (s/n) ** (1/the.p) if n else 0
 
 def _far(data, rows, r):        # row farthest from r
-  return max(rows, key=lambda z: dist(data, z, r))
+  return max(rows, key=lambda z: distx(data, z, r))
 
 def proj(data, dim, r):         # position of r on dim's east-west axis
-  a, b = dist(data, r, dim.east), dist(data, r, dim.west)
+  a, b = distx(data, r, dim.east), distx(data, r, dim.west)
   return (a*a + dim.gap*dim.gap - b*b) / (2*dim.gap)
 
 def perp(data, dim, r):         # perpendicular dist of r to the axis
-  a = dist(data, r, dim.east)
+  a = distx(data, r, dim.east)
   return max(0, a*a - proj(data, dim, r)**2) ** .5
 
 def dimBin(data, dim, r):       # which of the.Bins divisions r lands in
@@ -152,15 +153,16 @@ def dimBin(data, dim, r):       # which of the.Bins divisions r lands in
 
 def dims(data):                 # -> (axes, buckets); buckets = rows
   rows, axes = data.rows, []    # grouped by their Dims-tuple of bin ids
+  lst = random.sample(rows, min(the.few, len(rows)))   # pole candidates
   for _ in range(the.Dims):
     if not axes:                # 1st axis: far-far from random anchor
-      east = _far(data, rows, random.choice(rows))
+      east = _far(data, lst, random.choice(lst))
     else:                       # next: corner orthogonal to all axes
-      east = max(rows, key=lambda z:
+      east = max(lst, key=lambda z:
                  min(perp(data, a, z) for a in axes))
-    west = _far(data, rows, east)
+    west = _far(data, lst, east)
     axes.append(o(it=Dim, east=east, west=west,
-                  gap=dist(data, east, west) or 1E-32))
+                  gap=distx(data, east, west) or 1E-32))
   buckets = {}
   for r in rows:
     key = tuple(dimBin(data, a, r) for a in axes)
