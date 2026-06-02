@@ -13,7 +13,8 @@ Options:
  -p --p     distance exponent p=2
  -R --Round repr decimals     Round=2
  -S --stop  leaf size         stop=None
- -b --bins  Num bin count     bins=7
+ -d --Dims  projection dims   Dims=5
+ -b --Bins  divisions per dim Bins=5
  -n --N     demo row sample   N=50
  -f --file  data file
             file=/Users/timm/gits/moot/optimize/misc/auto93.csv
@@ -60,6 +61,7 @@ def Cols(names):
            klass=klass or y[0])
 
 def Tree(): pass                    # interior tag (leaf=Data)
+def Dim(): pass                     # projection-axis tag
 
 # ## add / merge ------------------------------------------------
 def add(i, v):
@@ -118,12 +120,59 @@ def disty(d, r):
     n += 1; s += abs(norm(c, r[c.at]) - c.goal)**p
   return (s/n)**(1/p) if n else 0
 
+# ## dims (Fastmap projection -> bucket coords) -----------------
+def _gap(c, a, b):              # Aha per-col distance, 0..1
+  if a == "?" and b == "?": return 1
+  if c.it is Sym: return 0 if a == b else 1
+  a = norm(c, a) if a != "?" else None
+  b = norm(c, b) if b != "?" else None
+  if a is None: a = 0 if b > .5 else 1   # missing -> max gap
+  if b is None: b = 0 if a > .5 else 1
+  return abs(a - b)
+
+def dist(data, r1, r2):         # Minkowski over x-cols, 0..1
+  n = s = 0
+  for c in data.cols.x:
+    n += 1; s += _gap(c, r1[c.at], r2[c.at]) ** the.p
+  return (s/n) ** (1/the.p) if n else 0
+
+def _far(data, rows, r):        # row farthest from r
+  return max(rows, key=lambda z: dist(data, z, r))
+
+def proj(data, dim, r):         # position of r on dim's east-west axis
+  a, b = dist(data, r, dim.east), dist(data, r, dim.west)
+  return (a*a + dim.gap*dim.gap - b*b) / (2*dim.gap)
+
+def perp(data, dim, r):         # perpendicular dist of r to the axis
+  a = dist(data, r, dim.east)
+  return max(0, a*a - proj(data, dim, r)**2) ** .5
+
+def dimBin(data, dim, r):       # which of the.Bins divisions r lands in
+  return max(0, min(the.Bins-1, int(the.Bins*proj(data,dim,r)/dim.gap)))
+
+def dims(data):                 # -> (axes, buckets); buckets = rows
+  rows, axes = data.rows, []    # grouped by their Dims-tuple of bin ids
+  for _ in range(the.Dims):
+    if not axes:                # 1st axis: far-far from random anchor
+      east = _far(data, rows, random.choice(rows))
+    else:                       # next: corner orthogonal to all axes
+      east = max(rows, key=lambda z:
+                 min(perp(data, a, z) for a in axes))
+    west = _far(data, rows, east)
+    axes.append(o(it=Dim, east=east, west=west,
+                  gap=dist(data, east, west) or 1E-32))
+  buckets = {}
+  for r in rows:
+    key = tuple(dimBin(data, a, r) for a in axes)
+    buckets.setdefault(key, []).append(r)
+  return axes, buckets
+
 # ## tree (best cut over ALL cols) ------------------------------
 def cutgo(c, x, v):                  # x -> left branch?
   return x != "?" and (x == v if c.it is Sym else x <= v)
 
 def tree(root, stop=None, yfun=None, bins=None):
-  bins = bins or the.bins
+  bins = bins or the.Bins
   yfun = yfun or (lambda r: r[root.cols.klass.at])
   stop = stop or the.stop or len(root.rows)**.5
 
@@ -235,6 +284,16 @@ def test_tree():                # tree on N rows of -f, show it
   rows = random.sample(body, min(the.N, len(body)))
   d = Data([head] + rows)
   treeShow(d, tree(d))
+
+def test_dims():                # BINGO compression on full -f
+  d = Data(list(csv(the.file)))
+  _, buckets = dims(d)
+  N, n = len(d.rows), len(buckets)
+  sz = sorted((len(v) for v in buckets.values()), reverse=True)
+  print("Dims=%d Bins=%d  rows=%d buckets=%d  r=n/N=%.3f"
+        % (the.Dims, the.Bins, N, n, n/N))
+  print("possible b^d=%d  occupied=%d  top sizes=%s"
+        % (the.Bins**the.Dims, n, sz[:10]))
 
 # ## main -------------------------------------------------------
 the = settings(__doc__)
