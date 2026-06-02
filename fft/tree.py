@@ -1,22 +1,130 @@
 #!/usr/bin/env python3 -B
 """
-tree.py, experimental tree built from fft1's engine, but the node
-split tries ALL x-cols (best global cut = CART-ish), not one random
-col. Kept separate so the live fft1.tree (random col) is untouched.
-Next step: feed it Fastmap dims instead of raw cols (dims:trees).
+tree.py, standalone experimental tree: node split tries ALL x-cols
+(best global cut = CART-ish), not one random col. Self-contained
+(own Num/Sym/Data/Cols + config) so we can iterate without fft1.
+Next: feed it Fastmap dims instead of raw cols (dims:trees).
 
-Same histogram cut as fft1: binOf -> Num(yfun) per bin, sweep with
-merge/unmerge for the min child-variance (L.m2+R.m2) cut.
+Histogram cut: binOf bins each col into a Num of yfun(row), sweep
+with merge/unmerge for the min child-variance (L.m2+R.m2) cut.
+
+Options:
+ -s --seed  random seed       seed=1234567891
+ -p --p     distance exponent p=2
+ -R --Round repr decimals     Round=2
+ -S --stop  leaf size         stop=None
+ -b --bins  Num bin count     bins=7
+ -n --N     demo row sample   N=50
+ -f --file  data file
+            file=/Users/timm/gits/moot/optimize/misc/auto93.csv
+
+eg: python3 tree.py -f FILE --tree
 """
-import random
+import random, math, sys, re
 from functools import reduce
-import fft1
-from fft1 import (o, Num, Sym, Data, Tree, add, clone, merge,
-                  binOf, cutgo, treeLeaf, leaves, BIG, csv)
+BIG = math.inf
 
-def tree(root, stop=None, yfun=None, bins=7):
+# ## lib --------------------------------------------------------
+class o(dict):
+  __getattr__ = dict.get; __setattr__ = dict.__setitem__
+  def __repr__(i):
+    def f(v):
+      if isinstance(v, float):
+        return int(v) if v == int(v) else round(v, the.Round)
+      return v
+    return "{" + " ".join(":%s %s" % (k, f(i[k])) for k in i
+                          if str(k)[0] != "_") + "}"
+
+# ## constructors -----------------------------------------------
+def Num(at=0, txt=""):
+  return o(it=Num, at=at, txt=txt, n=0, mu=0, m2=0, sd=0,
+           lo=BIG, hi=-BIG, goal=0 if txt.endswith("-") else 1)
+
+def Sym(at=0, txt=""):
+  return o(it=Sym, at=at, txt=txt, n=0, has={})
+
+def Data(src=[]):
+  return adds(src, o(it=Data, cols=None, rows=[]))
+
+def Cols(names):
+  cols, x, y, klass = [], [], [], None
+  for at, s in enumerate(names):
+    z = s[-1]
+    cols += [col := (Num if s[0].isupper() else Sym)(at, s)]
+    if z in "-+!":
+      y += [col]
+      if z == "!": klass = col
+    elif z != "X": x += [col]
+  return o(it=Cols, all=cols, x=x, y=y, names=names,
+           klass=klass or y[0])
+
+def Tree(): pass                    # interior tag (leaf=Data)
+
+# ## add / merge ------------------------------------------------
+def add(i, v):
+  if i.it is Data:
+    if not i.cols: i.cols = Cols(v)
+    else:
+      i.rows += [v]
+      for c in i.cols.all: add(c, v[c.at])
+  elif v == "?": pass
+  elif i.it is Sym:
+    i.n += 1; i.has[v] = i.has.get(v, 0) + 1
+  else:
+    i.n += 1; d = v - i.mu
+    i.mu += d / i.n
+    i.m2 += d * (v - i.mu)
+    i.sd = (i.m2/(i.n-1))**0.5 if i.n > 1 else 0
+    if v < i.lo: i.lo = v
+    if v > i.hi: i.hi = v
+  return v
+
+def adds(src, it=None):
+  for x in iter(src): add((it := it or Num()), x)
+  return it
+
+def clone(root, rows):
+  return adds(rows, adds([root.cols.names], Data()))
+
+def merge(a, b, s=1):                # s=+1 add, s=-1 subtract
+  if a.it is Sym:
+    has = dict(a.has)
+    for k, v in b.has.items(): has[k] = has.get(k, 0) + s*v
+    has = {k: v for k, v in has.items() if v > 0}
+    return o(it=Sym, at=a.at, txt=a.txt, n=a.n + s*b.n, has=has)
+  n = a.n + s*b.n
+  if n <= 0: return Num(a.at, a.txt)
+  mu = (a.n*a.mu + s*b.n*b.mu) / n
+  d  = b.mu - a.mu
+  m2 = max(0, a.m2 + s*b.m2 + s*d*d*a.n*b.n / n)
+  c  = Num(a.at, a.txt)
+  c.n, c.mu, c.m2 = n, mu, m2
+  c.lo, c.hi = min(a.lo, b.lo), max(a.hi, b.hi)
+  return c
+
+# ## metrics ----------------------------------------------------
+def norm(c, v):
+  return v if v == "?" else (v - c.lo) / (c.hi - c.lo + 1E-32)
+
+def binOf(c, x, bins):               # key = cut value (rep edge for Num)
+  if c.it is Sym: return x
+  k = min(bins-1, int(bins*(x-c.lo)/(c.hi-c.lo+1E-32)))
+  return c.lo + (k+1)*(c.hi-c.lo)/bins
+
+def disty(d, r):
+  s, n, p = 0, 0, the.p
+  for c in d.cols.y:
+    n += 1; s += abs(norm(c, r[c.at]) - c.goal)**p
+  return (s/n)**(1/p) if n else 0
+
+# ## tree (best cut over ALL cols) ------------------------------
+def cutgo(c, x, v):                  # x -> left branch?
+  return x != "?" and (x == v if c.it is Sym else x <= v)
+
+def tree(root, stop=None, yfun=None, bins=None):
+  bins = bins or the.bins
   yfun = yfun or (lambda r: r[root.cols.klass.at])
-  stop = stop or fft1.the.stop or len(root.rows)**.5
+  stop = stop or the.stop or len(root.rows)**.5
 
   def cuts(c, rows):                 # yield (impurity, cut-value) over bins
     hist = {}
@@ -43,7 +151,7 @@ def tree(root, stop=None, yfun=None, bins=7):
     for c in root.cols.x:
       for imp, v in cuts(c, rows):
         if imp < best: best, bc, bv = imp, c, v
-    if bc is None: return clone(root, rows)   # no valid cut -> leaf
+    if bc is None: return clone(root, rows)
     ok, no = [], []
     for r in rows:
       (ok if cutgo(bc, r[bc.at], bv) else no).append(r)
@@ -52,10 +160,81 @@ def tree(root, stop=None, yfun=None, bins=7):
 
   return grow(root.rows)
 
-if __name__ == "__main__":           # smoke: leaves + depth on -f
-  fft1.cli(fft1.the, fft1.__doc__); random.seed(fft1.the.seed)
-  d = Data(list(csv(fft1.the.file)))
-  t = tree(d, 16)
-  depth = lambda t: 0 if t.it is Data else \
-                    1 + max(depth(t.left), depth(t.right))
-  print("leaves", sum(1 for _ in leaves(t)), "depth", depth(t))
+def treeLeaf(root, t, row):          # route row to leaf
+  while t.it is Tree:
+    c = root.cols.all[t.at]
+    t = t.left if cutgo(c, row[t.at], t.cut) else t.right
+  return t
+
+def leaves(t):                       # yield the leaf Datas
+  if t.it is Data: yield t
+  else: yield from leaves(t.left); yield from leaves(t.right)
+
+def treeShow(root, t):               # ygoal mean + tree
+  ys = [c for c in root.cols.y if c.it is Num]
+  rowsOf = lambda t: t.rows if t.it is Data else \
+                     rowsOf(t.left) + rowsOf(t.right)
+  dy = lambda rs: adds(disty(root, r) for r in rs).mu
+  hdr = "".join("%7s" % c.txt for c in ys)
+  print("%6s%s %5s  tree" % ("ygoal", hdr, "n"))
+  def show(t, lvl, txt):
+    rs = rowsOf(t)
+    g = "".join("%7.1f" %
+                adds(r[c.at] for r in rs if r[c.at] != "?").mu
+                for c in ys)
+    print("%6.2f%s %5d  %s%s" %
+          (dy(rs), g, len(rs), "|  "*lvl, txt))
+    if t.it is Tree:
+      c = root.cols.all[t.at]
+      lo, hi = ("<=", " >") if c.it is Num else ("==", "!=")
+      for kid, op in sorted([(t.left, lo), (t.right, hi)],
+                            key=lambda k: dy(rowsOf(k[0]))):
+        show(kid, lvl+1, "%s %s %s" % (c.txt, op, t.cut))
+  show(t, 0, "")
+
+# ## config -----------------------------------------------------
+def csv(file):
+  for ln in open(file):
+    ln = ln.strip()
+    if ln and ln[0] != "#":
+      yield [coerce(x.strip()) for x in ln.split(",")]
+
+def coerce(z):
+  for f in (int, float):
+    try: return f(z)
+    except: pass
+  z = z.strip()
+  return {'True': True, 'False': False, 'None': None}.get(z, z)
+
+def settings(doc):
+  return o(**{k: coerce(v)
+              for k, v in re.findall(r'(\w+)=(\S+)', doc)})
+
+def cli(the, doc, egs={}):
+  flags = {f: l.lstrip("-")
+           for s, l in re.findall(r"(-\w) (--\w+)", doc)
+           for f in (s, l)}
+  for j, s in enumerate(sys.argv):
+    if fn := egs.get("test_" + s.lstrip("-")):
+      random.seed(the.seed); fn()
+    elif k := flags.get(s):
+      v = the[k]
+      if isinstance(v, bool): v = not v
+      elif j+1 < len(sys.argv): v = coerce(sys.argv[j+1])
+      the[k] = v
+    elif re.match(r"-\D", s):
+      sys.exit("bad flag: %s\n%s" % (s, doc))
+  return the
+
+# ## egs --------------------------------------------------------
+def test_tree():                # tree on N rows of -f, show it
+  head, *body = csv(the.file)
+  rows = random.sample(body, min(the.N, len(body)))
+  d = Data([head] + rows)
+  treeShow(d, tree(d))
+
+# ## main -------------------------------------------------------
+the = settings(__doc__)
+random.seed(the.seed)
+if __name__ == "__main__":
+  cli(the, __doc__, globals())
