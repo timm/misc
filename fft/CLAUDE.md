@@ -242,6 +242,37 @@ injectable, default klass — engine stays task-free); `cuts` yields,
   one-col + ratio-sweep bag. Confirms ablation: bagging+selection do
   the work; diversification operators inert/harmful.
 
+## dims:trees / BINGO (2026-06-02) — `tree.py`/`pickdim.py`/`thesisdim.py`
+
+From the "data-light / BINGO" paper (Ganguly & Menzies): SE data
+clumps into n≪b^d buckets. Built a dims:trees pipeline as an
+alternative to row-trees.
+- `tree.py` (standalone, num-only CART-ish all-cols cut) + Fastmap
+  `dims(data)`: orthogonal poles (sampled `few=32`) → each row a
+  Dims-tuple of Bins bin-ids → BINGO buckets. compression r=n/N:
+  adult .006, compas .015, diab .068 (strong clumping). Cut at REAL
+  data values (max-in-bin), not synthetic edges.
+- `pickdim.py` v2: collapse train to ~80 CELLS (one pre-summed label
+  `Num` each); M cell-trees/projection over them (ratio-sweep =
+  REWEIGHT cells, no resample → trees ~free); N projections/rep.
+- **N:M settled by sweep (compas, 800 models):** cloud spread FLAT
+  across N∈{1,4,10,40} (sd recall≈.41 everywhere) — extra
+  projections add ZERO diversity. Ratio-sweep (M) is the sole
+  diversity lever (3rd confirmation, after split-mechanism and
+  RF-subspace both inert). Time rises with N. ⇒ **N=1**.
+- **M-sweep (N=1):** M 800/400/200/100 → 54/29/14/8s (linear:
+  scoring is the floor, cost ∝ M), test-heaven .550/.553/.555/.560
+  (flat). ⇒ **M=100–200** plenty. At 8–14s/cell, dims:trees is
+  FASTER than row `pick.py` (28s/cell): cells make trees free, N=1
+  kills projection redundancy, low M kills scoring.
+- **Quality (`img/l2dim.png` vs `img/l2.png`):** reproduces the
+  headline — picks land top-right (recall+fairness preserved), diab
+  floored, dutch deep-red. BUT precision ~0.09 LOWER (scale .30–.48
+  vs .40–.57): projecting to 5 dims discards info raw-column cuts
+  use for precision. Recall/fairness free; precision pays the toll.
+- Bottleneck migrated cut→projection→**scoring** (score M models on
+  val); see [[reprofile-bottleneck-moves]].
+
 ## Makefile
 
 `make sh` (tuned bash), `make vi` (isolated nvim), `make ~/tmp/X.pdf`
