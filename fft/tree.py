@@ -169,6 +169,14 @@ def dims(data):                 # -> (axes, buckets); buckets = rows
     buckets.setdefault(key, []).append(r)
   return axes, buckets
 
+def project(data):              # -> (axes, Data of Dims Num cols + klass)
+  axes, _ = dims(data)
+  kl = data.cols.klass
+  names = ["Dim%d" % j for j in range(len(axes))] + [kl.txt]
+  rows = [[dimBin(data, a, r) for a in axes] + [r[kl.at]]
+          for r in data.rows]
+  return axes, Data([names] + rows)
+
 # ## tree (best cut over ALL cols) ------------------------------
 def cutgo(c, x, v):                  # x -> left branch?
   return x != "?" and (x == v if c.it is Sym else x <= v)
@@ -210,6 +218,36 @@ def tree(root, stop=None, yfun=None, bins=None):
     for r in rows:
       (ok if cutgo(bc, r[bc.at], bv) else no).append(r)
     if not (ok and no): return clone(root, rows)
+    return o(it=Tree, at=bc.at, cut=bv, left=grow(ok), right=grow(no))
+
+  return grow(root.rows)
+
+# ## dtree (numeric-only tree over dim bins) --------------------
+# x-cols are integer bin ids (0..Bins-1): no binOf, no Sym, no "?".
+def dtree(root, stop=None, yfun=None):
+  yfun = yfun or (lambda r: r[root.cols.klass.at])
+  stop = stop or the.stop or len(root.rows)**.5
+
+  def cuts(c, rows):                 # sweep distinct bin ids
+    g = {}
+    for r in rows: add(g.setdefault(r[c.at], Num()), yfun(r))
+    bs = sorted(g.items())
+    if len(bs) < 2: return
+    total = reduce(merge, (n for _, n in bs))
+    L = Num()
+    for v, n in bs[:-1]:
+      L = merge(L, n); R = merge(total, L, -1)
+      if L.n and R.n: yield L.m2 + R.m2, v
+
+  def grow(rows):
+    if len(rows) <= stop: return clone(root, rows)
+    best, bc, bv = BIG, None, None     # best cut across ALL dims
+    for c in root.cols.x:
+      for imp, v in cuts(c, rows):
+        if imp < best: best, bc, bv = imp, c, v
+    if bc is None: return clone(root, rows)
+    ok = [r for r in rows if r[bc.at] <= bv]
+    no = [r for r in rows if r[bc.at] >  bv]
     return o(it=Tree, at=bc.at, cut=bv, left=grow(ok), right=grow(no))
 
   return grow(root.rows)
@@ -296,6 +334,17 @@ def test_dims():                # BINGO compression on full -f
         % (the.Dims, the.Bins, N, n, n/N))
   print("possible b^d=%d  occupied=%d  top sizes=%s"
         % (the.Bins**the.Dims, n, sz[:10]))
+
+def test_dtree():               # dim-tree on -f, leaf klass purity
+  d = Data(list(csv(the.file)))
+  _, dd = project(d)
+  t = dtree(dd)
+  kat = dd.cols.klass.at
+  print("dim-tree leaves:", sum(1 for _ in leaves(t)))
+  for lf in sorted(leaves(t),
+                   key=lambda l: sum(r[kat] for r in l.rows)/len(l.rows)):
+    ys = [r[kat] for r in lf.rows]
+    print("  n=%4d  klass+=%.2f" % (len(ys), sum(ys)/len(ys)))
 
 # ## main -------------------------------------------------------
 the = settings(__doc__)
