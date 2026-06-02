@@ -28,12 +28,13 @@ BIG = math.inf
 class o(dict):
   __getattr__ = dict.get; __setattr__ = dict.__setitem__
   def __repr__(i):
-    def f(v):
-      if isinstance(v, float):
-        return int(v) if v == int(v) else round(v, the.Round)
-      return v
-    return "{" + " ".join(":%s %s" % (k, f(i[k])) for k in i
+    return "{" + " ".join(":%s %s" % (k, shrink(i[k])) for k in i
                           if str(k)[0] != "_") + "}"
+
+def shrink(v):                  # round floats for display (the.Round)
+  if isinstance(v, float):
+    return int(v) if v == int(v) else round(v, the.Round)
+  return v
 
 # ## constructors -----------------------------------------------
 def Num(at=0, txt=""):
@@ -126,24 +127,26 @@ def tree(root, stop=None, yfun=None, bins=None):
   yfun = yfun or (lambda r: r[root.cols.klass.at])
   stop = stop or the.stop or len(root.rows)**.5
 
-  def cuts(c, rows):                 # yield (impurity, cut-value) over bins
-    hist = {}
+  def cuts(c, rows):                 # yield (impurity, REAL cut value)
+    hist = {}                        # binkey -> [Num(yfun), max real x]
     for r in rows:
       if (x := r[c.at]) != "?":
-        add(hist.setdefault(binOf(c, x, bins), Num()), yfun(r))
+        cell = hist.setdefault(binOf(c, x, bins), [Num(), x])
+        add(cell[0], yfun(r))
+        if c.it is not Sym and x > cell[1]: cell[1] = x
     bs = sorted(hist.items())
     if not bs: return
-    total = reduce(merge, (v for _, v in bs))
-    if c.it is Sym:
-      for k, v in bs:
+    total = reduce(merge, (cell[0] for _, cell in bs))
+    if c.it is Sym:                  # cut = the category (already real)
+      for key, (v, _) in bs:
         R = merge(total, v, -1)
-        if v.n and R.n: yield v.m2 + R.m2, k
-    else:
+        if v.n and R.n: yield v.m2 + R.m2, key
+    else:                            # cut = largest real value going left
       L = Num()
-      for k, v in bs[:-1]:
+      for _, (v, hi) in bs[:-1]:
         L = merge(L, v)
         R = merge(total, L, -1)
-        if L.n and R.n: yield L.m2 + R.m2, k
+        if L.n and R.n: yield L.m2 + R.m2, hi
 
   def grow(rows):
     if len(rows) <= stop: return clone(root, rows)
@@ -189,7 +192,7 @@ def treeShow(root, t):               # ygoal mean + tree
       lo, hi = ("<=", " >") if c.it is Num else ("==", "!=")
       for kid, op in sorted([(t.left, lo), (t.right, hi)],
                             key=lambda k: dy(rowsOf(k[0]))):
-        show(kid, lvl+1, "%s %s %s" % (c.txt, op, t.cut))
+        show(kid, lvl+1, "%s %s %s" % (c.txt, op, shrink(t.cut)))
   show(t, 0, "")
 
 # ## config -----------------------------------------------------
