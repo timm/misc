@@ -122,8 +122,7 @@ def tree(root, stop=None, yfun=None, bins=7):
   def cuts(c, rows):                 # yield (impurity, cut-value) over bins
     hist = {}
     for r in rows:
-      x = r[c.at]
-      if x != "?":
+      if (x := r[c.at]) != "?":
         add(hist.setdefault(binOf(c, x, bins), Num()), yfun(r))
     bs = sorted(hist.items())
     if not bs: return

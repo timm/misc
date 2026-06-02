@@ -103,7 +103,7 @@ def merge(a, b, s=1):                # s=+1 add, s=-1 subtract
   c.lo, c.hi = min(a.lo, b.lo), max(a.hi, b.hi)
   return c
 
-# ## metrics ----------------------------------------------------
+# ## metrics ----------------------------------------------------
 def norm(c, v):
   return v if v == "?" else (v - c.lo) / (c.hi - c.lo + 1E-32)
 
@@ -195,7 +195,7 @@ def treeShow(root, t):               # ygoal mean + tree
         show(kid, lvl+1, "%s %s %s" % (c.txt, op, shrink(t.cut)))
   show(t, 0, "")
 
-# ## config -----------------------------------------------------
+# ## config -----------------------------------------------------
 def csv(file):
   for ln in open(file):
     ln = ln.strip()
