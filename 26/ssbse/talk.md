@@ -4,22 +4,43 @@ theme: default
 paginate: true
 style: |
   section.invert       { background: #CC0000; color: #ffffff; }
+  section.lead.invert  { background: radial-gradient(120% 120% at 30% 20%,
+                           #e23 0%, #CC0000 45%, #990000 100%); }
+  section.lead.invert h1 { color: #ffffff; }
+  section.invert a     { color: #ffffff; }
   section.invert h1,
   section.invert h2,
   section.invert h3,
   section.invert strong { color: #ffffff; }
-  section.lead.invert  { background: #CC0000; }
+  section.bleed        { background: radial-gradient(130% 130% at 25% 15%,
+                           #ff6b6b 0%, #CC0000 55%, #8f0000 100%); color: #ffffff; }
+  section.bleed h1, section.bleed h2, section.bleed h3,
+  section.bleed strong, section.bleed a { color: #ffffff; }
+  section.bleed blockquote { color: #ffffff; border-color: #ffffff; }
   section strong       { color: #CC0000; }
   section.invert blockquote { color: #ffffff; border-color: #ffffff; }
   section blockquote   { border-left: 6px solid #CC0000; padding-left: .6em; }
   section.lead h1      { color: #CC0000; }
   section img[alt~="portrait"] { border: 4px solid #CC0000; }
+  section::after        { left: 24px; right: auto; bottom: 14px;
+                          color: #CC0000; font-weight: 700; }
+  section.invert::after { color: #ffffff; }
+  section.bleed::after  { color: #ffffff; }
+  section.tight table   { font-size: 22px; line-height: 1.2; }
+  section.tight h2      { margin: .1em 0 .2em; }
+  section.tight .cols   { display: grid; grid-template-columns: 1fr 1fr;
+                          gap: 1.6em; align-items: start; }
+  section.big           { font-size: 1.4em; }
+  section.glow          { background: radial-gradient(120% 120% at 30% 20%,
+                           #ff9a9a 0%, #ff2d2d 45%, #cc0000 100%); color: #fff; }
+  section.glow h1, section.glow h2, section.glow strong { color: #fff; }
+  section.glow::after   { color: #fff; }
 ---
 
-<!-- _class: lead -->
+<!-- _class: lead invert -->
 <!-- _paginate: false -->
 
-# <!-- fit --> can we reason about the world?
+# <!-- fit --> DEBLOAT
 
 ### a short history of theory — and where scale runs out
 
@@ -39,86 +60,111 @@ July 2026
 
 ## credits
 
-- **Kishan Ganguly** &middot; <https://github.com/KKGanguly>
-  *BINGO* (FSE).
-- **Amirali Rayegan** &middot; <https://amiiralii.github.io/>
-  *simpler explanation* (JSS).
-- **Srinath Srinivasan** &middot; <https://srina1h.github.io/>
-  *EZR.py*.
+- **Kishan Ganguly** &middot; *BINGO* (FSE) + *budget-aware reasoning* (arXiv).
+- **Amirali Rayegan** &middot; *simpler explanation* (JSS) + *explanation stability* (arXiv).
+- **Srinath Srinivasan** &middot; *EZR.py* (arXiv) + *neurosymbolic systems* (arXiv).
 
 ---
 
-<!-- _class: lead -->
+<!-- _class: tight -->
+
+## ezr: a case study in debloat
+
+<div class="cols">
+
+| six myths | reality |
+|---|---|
+| heavy infra | **stdlib** |
+| each task its own algo | **same 4 classes** |
+| trees differ by type | **1-line flip** |
+| newer beats older | **SA'83 wins** |
+| need massive data | **100 labels = 85-95%** |
+| text needs big models | **30-line NB > SVM** |
+
+| by the numbers | |
+|---|---|
+| vs. SMAC3 | **500x faster** |
+| labels to optimum | **< 100** |
+| features used | **< 10** |
+| code size | **400 lines** |
+| install size | **< 1 MB** |
+| tasks tested | **120+** |
+
+</div>
+
+<https://github.com/timm/ezr> &middot; the *what* — before the *how*, first the **why**.
+
+---
+
+<!-- _class: lead bleed -->
+
+> Before you buy a Ferrari
+> to drive to the grocery store,
+> **try walking.**
+
+---
+
+<!-- _class: lead bleed big -->
 
 ## the bet
 
 > the world is **legible**
-> because it is **mathematical**.
+> because it is **readable**.
 
-everything after is footnotes.
+read it, and you can **reason** about it.
 
 ---
 
 ![bg right:35%](https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Galileo_Galilei_%281564-1642%29_RMG_BHC2700.tiff/lossy-page1-330px-Galileo_Galilei_%281564-1642%29_RMG_BHC2700.tiff.jpg)
 
-## Galileo
+## Galileo — nature is legible
 
 > the book of nature is written in mathematics.
 
-- nature is **legible**, not capricious.
+- it can be **read**, not just feared.
 
 ---
 
 ![bg right:35%](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Portrait_of_Sir_Isaac_Newton%2C_1689_%28brightened%29.jpg/330px-Portrait_of_Sir_Isaac_Newton%2C_1689_%28brightened%29.jpg)
 
-## Newton — unification I
+## Newton — read here, know there
 
-- heaven + earth -> **one** law of gravity.
-- same physics here and on Jupiter.
-- Kelvin-Helmholtz: clouds in our sky **and** Jupiter's bands.
+- one law unifies **heaven + earth**.
+- **read the earth** -> reason about the sky.
+- same physics on Jupiter (Kelvin-Helmholtz bands).
 
 ---
 
 ![bg right:35%](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/James-Clerk-Maxwell-1831-1879.jpg/330px-James-Clerk-Maxwell-1831-1879.jpg)
 
-## Maxwell — unification II
+## Maxwell — fewer things to read
 
 - electricity + magnetism + light -> **one** field.
+- the forces turn out to be **synonyms**.
 - predicted **c** from two bench constants.
-- purest *"we can reason about the world"* moment.
-- continues: electroweak -> Standard Model -> (gravity: open).
+- less to read than we feared.
 
 ---
 
 ![bg right:35%](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Emmy_Noether_%283x4_cropped%29.jpg/330px-Emmy_Noether_%283x4_cropped%29.jpg)
 
-## Noether — why laws exist
+## Noether — read one, infer another
 
 - 1918: every **symmetry** -> a **conservation law**.
-- time-symmetric -> energy conserved.
-- explains *why* physics is legible at all.
+- read one quantity, **infer** its partner.
+- explains *why* the world is readable at all.
 - the deepest answer Galileo's bet ever got.
-
----
-
-![bg right:35%](https://upload.wikimedia.org/wikipedia/commons/3/39/Laplace%2C_Pierre-Simon%2C_marquis_de.jpg)
-
-## Laplace's demon
-
-- know every position + momentum -> predict **everything**.
-- determinism as the dream of total knowledge.
-- Laplace sits on **both** sides of this story.
 
 ---
 
 ![bg right:35%](https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Boltzmann2.jpg/330px-Boltzmann2.jpg)
 
-## the demon retreats
+## the stream — read it statistically
 
 - Maxwell + Boltzmann (1860s-70s): statistical mechanics.
-- stop tracking every particle. reason about **ensembles**.
+- stop reading every particle. read the **ensemble**.
+- the world becomes a **stream** — predict where it flows.
 - temperature = ignorance, managed well.
-- physics **chooses** statistics over the demon.
 
 ---
 
@@ -126,22 +172,12 @@ everything after is footnotes.
 ![bg right:50%](https://upload.wikimedia.org/wikipedia/commons/f/f3/Pierre_de_Fermat.jpg)
 ![bg right:50%](https://upload.wikimedia.org/wikipedia/commons/d/d4/Thomas_Bayes.gif)
 
-## uncertainty gets a calculus
+## reading the past -> the future
 
-- Pascal-Fermat (1654).
-- Bayes / Laplace: **learning from evidence**.
-- ancestor of ML.
-
----
-
-![bg right:40%](https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Florence_Nightingale_%28H_Hering_NPG_x82368%29.jpg/330px-Florence_Nightingale_%28H_Hering_NPG_x82368%29.jpg)
-
-## Nightingale — stats meets policy
-
-- Crimea 1858: **coxcomb** diagrams.
-- showed disease, not battle, killed soldiers.
-- first to **rule by evidence**, in public.
-- statistics as instrument of state, not theory.
+- Pascal-Fermat (1654): forward — known setup -> odds.
+- Bayes / Laplace: inverse — evidence -> hidden cause.
+- inverse probability = **learning**. ancestor of ML.
+- Laplace: probability = measured **ignorance**.
 
 ---
 
@@ -149,7 +185,7 @@ everything after is footnotes.
 ![bg right:50%](https://upload.wikimedia.org/wikipedia/commons/4/42/Kurt_g%C3%B6del.jpg)
 ![bg right:50%](https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Alan_turing_header.jpg/330px-Alan_turing_header.jpg)
 
-## the cracks
+## reading the world: not always easy
 
 - Poincare: 3 bodies break determinism.
 - quantum: **irreducible** chance.
@@ -163,9 +199,9 @@ everything after is footnotes.
 
 ## algorithm before machine
 
-- Lovelace (1843): the **first algorithm**, no machine yet.
-- Hopper (1952): the **compiler** — machines read symbols.
-- programming = thinking, **then** running.
+- Lovelace (1843): first algorithm — a program **made to be read**.
+- Hopper (1952): the compiler — now **machines** read our symbols.
+- code = one text **both human and machine** can read.
 
 ---
 
@@ -175,9 +211,10 @@ everything after is footnotes.
 
 ## the computational turn
 
-- Shannon: the **bit**.
-- von Neumann: Monte Carlo.
-- Lorenz: chaos on a computer.
+- Shannon: the **bit** — reading made measurable.
+- von Neumann: Monte Carlo — read the world by sampling.
+- Lorenz (1963): round a number, weather flips.
+  tiny **misread** -> wild divergence. some streams **can't** be read far ahead.
 
 ---
 
@@ -187,9 +224,9 @@ everything after is footnotes.
 
 ## where we are now
 
-- Kolmogorov: shortest program wins.
-- Pearl: **interventions**, not correlations.
-- Gigerenzer: **fast & frugal** heuristics.
+- Kolmogorov: shortest program = most **readable** description.
+- Pearl: read **causes**, not just correlations.
+- Gigerenzer: read **less** — fast & frugal cues.
 
 ---
 
@@ -197,21 +234,10 @@ everything after is footnotes.
 
 ## Simon — bounded rationality
 
-- Simon (1956): **satisficing**. good enough, fast.
+- Simon (1956): **satisficing** — read enough, then act.
 - Carnegie school. Nobel 1978.
-- the **ancestor** of fast & frugal.
-- the demon was always going to lose to a clock.
-
----
-
-![bg right:35%](https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Margaret_Hamilton_1995.jpg/330px-Margaret_Hamilton_1995.jpg)
-
-## Hamilton — naming the discipline
-
-- Apollo guidance: software that **had to not fail**.
-- coined *software engineering* (~1968).
-- error-detection, priority scheduling, recovery.
-- SE born **inside** a hard-constrained problem.
+- the perfect optimizer never **halts**: always one more thing to read.
+- it loses not to a smarter rival but to **time** — clock out before it stops.
 
 ---
 
@@ -219,7 +245,7 @@ everything after is footnotes.
 
 - Harman & Jones (2001): SE problems = **search** problems.
 - precursor: Clark et al, York (2000) — metaheuristics in SE.
-- testing, modules, refactoring -> optimization.
+- when code's too big to **read**, **search** it instead.
 - the SE-domain bet on **scale + search**.
 
 ---
@@ -234,6 +260,10 @@ everything after is footnotes.
 > cleverness loses to scale + search.
 
 — Sutton, *The Bitter Lesson* (2019)
+
+- condones **exponential** resource growth -> now hitting **hard limits**.
+- assumes you can **evaluate at runtime**.
+- so slow props — **maintainability, security** — go **unscored**.
 
 ### ... does it?
 
@@ -252,7 +282,7 @@ everything after is footnotes.
 
 - **maintainability**: signal months later, noisy, can't self-play.
 - **reliability**: tail events — needs long runtime or proof.
-- **human understanding**: reward = a person gets a testable idea.
+- **security**: failure is adversarial, shows up after ship.
 - each eval is *slow, costly, human.*
 
 ---
@@ -306,17 +336,7 @@ not scale vs cleverness.
 
 ---
 
-## debloat
-
-- every dependency = a margin loan on future **attention**.
-- cheap to add (compiles, tests green) — slow to pay (CVEs, churn).
-- left-pad / Log4Shell / xz: dep count is now measured risk.
-- not *"fewer deps"* — fewer **un-evaluated, low-trust** deps.
-- **eval-weighted minimalism.**
-
----
-
-<!-- _class: lead invert -->
+<!-- _class: lead glow -->
 
 ## the thesis
 
@@ -328,7 +348,7 @@ not scale vs cleverness.
 
 ---
 
-<!-- _class: lead invert -->
+<!-- _class: lead bleed -->
 
 ## close
 
@@ -338,7 +358,7 @@ not scale vs cleverness.
 
 ---
 
-<!-- _class: lead -->
+<!-- _class: lead bleed -->
 
 # case study
 
@@ -346,26 +366,27 @@ not scale vs cleverness.
 
 ---
 
-<!-- _class: lead -->
+## reading the world is costly — so we strip it
 
-> Before you buy a Ferrari
-> to drive to the grocery store,
-> **try walking.**
+> *"explain the phenomena by the simplest hypothesis possible."*
+> — Ptolemy, 130 AD &middot; Occam, ~1300
+
+- **1902** PCA &middot; **1974** prototypes &middot; **1997** feature selection
+- **2009** active learning &middot; **2010s** surrogates &middot; **2020s** distillation
+- 120 years, one move: **throw most of it away.**
 
 ---
 
-![bg right:40%](https://scholar.googleusercontent.com/citations?view_op=view_photo&user=K4teyvoAAAAJ&citpid=10)
-![bg right:40%](https://github.com/KKGanguly.png)
-![bg right:40%](https://amiiralii.github.io/pic.png)
+![bg right:38%](img/grid.png)
+![bg right:38% vertical](img/lego.png)
 
-## why frugal works
+## we forget to subtract
 
-- **PROMISETUNE** (Tao Chen): ~5 of N knobs move the metric.
-- **BINGO** (Kishan Ganguly, FSE): tiny y-region holds the wins.
-- **simpler explanation** (Amirali Rayegan, JSS): minimal data, full story.
-- x-space important part: **small**. y-space: **smaller**.
-
-> *the world is simpler than you think.*
+- make the logo symmetric / the tower stronger?
+- people **add** tiles & struts — rarely **remove** the bad ones.
+- Adams (*Nature* 2021) / Fillon: additive : subtractive = **4 : 1**.
+- *"humans needlessly complicate their designs."*
+- **DEBLOAT** = the move we're blind to.
 
 ---
 
@@ -381,6 +402,44 @@ w/ **Srinath Srinivasan**.
 
 ---
 
+![bg right:40%](img/tournament.png)
+
+## EZR wins the tournament
+
+- 20 optimizers &middot; 106 MOOT tasks &middot; 4 budgets &middot; **14,000 CPU-hrs**.
+- a bracket of SBSE assumptions — EZR takes the **grand final** at few labels.
+- NSGA-II needs **1000** samples for what EZR reaches in **50**.
+- a cheap rule even predicts the winner: ties/beats the oracle on **75%**.
+
+---
+
+## same wins, far less data
+
+- *Minimal Data, Maximum Clarity* (Rayegan).
+- **>90%** of best-known optimization across **60** datasets.
+- on a **fraction** of the labels full supervision needs.
+- its decision-tree reasons **beat** LIME / SHAP / BreakDown.
+
+---
+
+## and it makes LLMs better
+
+- **SNAP2**: cheap classical learner **seeds**, the LLM **finishes**.
+- best of all methods on **85%** of 100+ SE tasks (LLM-alone: 75%).
+- **30% fewer tokens**, **1.4x faster** — EZR does the cheap work first.
+- classical-then-LLM **beats either alone**.
+
+---
+
+## why so few labels work
+
+- **BINGO** (Ganguly): 10k rows collapse to ~**100** filled buckets.
+- **PromiseTune** (Chen): the wins sit in a **tiny** promising region.
+- Chen: useful part of **y** is small. me: useful part of **x** is small.
+- both axes mostly empty -> a handful of labels **is** the data.
+
+---
+
 ![bg right:35%](https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Karen_Sp%C3%A4rck.jpg/330px-Karen_Sp%C3%A4rck.jpg)
 
 ## how — strip the redundancy
@@ -390,32 +449,6 @@ w/ **Srinath Srinivasan**.
 - 1-line flip: decision tree numeric <-> symbolic.
 - 1983 Simulated Annealing still beats modern Local Search.
 - Spärck Jones (1972) IDF -> 30-line NB beats SVM on text.
-
----
-
-## six myths
-
-| # | myth | reality |
-|---|---|---|
-| 1 | need heavy infra | **stdlib** |
-| 2 | each task its own algo | **same 4 classes** |
-| 3 | trees differ by type | **1-line flip** |
-| 4 | newer beats older | **SA'83 wins** |
-| 5 | need massive data | **100 labels = 85-95%** |
-| 6 | text needs advanced models | **30-line NB beats SVM** |
-
----
-
-## by the numbers
-
-| metric | value |
-|---|---|
-| vs. SMAC3 | **500x faster** |
-| labels to optimum | **< 100** |
-| features used | **< 10** |
-| code size | **400 lines** |
-| install size | **< 1 MB** |
-| tasks tested | **120+** |
 
 ---
 
