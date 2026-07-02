@@ -31,6 +31,7 @@ style: |
   section.tight .cols   { display: grid; grid-template-columns: 1fr 1fr;
                           gap: 1.6em; align-items: start; }
   section.big           { font-size: 1.4em; }
+  section.huge blockquote { font-size: 2.4em; line-height: 1.15; }
   section.glow          { background: radial-gradient(120% 120% at 30% 20%,
                            #ff9a9a 0%, #ff2d2d 45%, #cc0000 100%); color: #fff; }
   section.glow h1, section.glow h2, section.glow strong { color: #fff; }
@@ -96,10 +97,12 @@ July 2026
 
 ---
 
-<!-- _class: lead bleed -->
+<!-- _class: lead bleed huge -->
 
 > Before you buy a Ferrari
 > to drive to the grocery store,
+>    
+>       
 > **try walking.**
 
 ---
