@@ -1,0 +1,556 @@
+\documentclass[10pt,conference]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{balance}
+\usepackage{xcolor}
+\usepackage{multicol}
+
+\begin{document}
+
+%\title{Easier AI: If Anyone Can Do It for a Dollar,\\ Can You Do It for a Cent?}
+\title{A Sweeter Lesson?\\ A Second Look at Big AI for Software Engineering}
+
+% Double-anonymous submission: author block and acknowledgements are
+% commented out until camera-ready.
+\author{\IEEEauthorblockN{Anonymous Author(s)}\IEEEauthorblockA{Anonymous Institution}}
+%\author{\IEEEauthorblockN{Tim Menzies}
+%\IEEEauthorblockA{North Carolina State University, Raleigh, NC, USA \\ timm@ieee.org}}
+
+\maketitle
+
+\begin{abstract}
+Sutton's bitter lesson says that general methods riding ever-cheaper
+computation ultimately beat approaches built from human knowledge.
+Written in 2019, before GPT-3, the essay predicted the scaling era we
+now live in. This paper rereads it from inside software engineering
+(SE) and reports a sweeter lesson. All four of Sutton's motivating
+examples (chess, Go, speech, vision) enjoy fast, cheap, reliable
+feedback, so computation can substitute for knowledge. Much of SE
+analytics has no such oracle: labels cost hours of expert time or
+whole test-suite runs. There, the bitter lesson's preconditions fail,
+and radical simplicity wins. Across 127 multi-objective SE
+optimization tasks, an active learner that labels just 50 examples,
+then checks five, reaches 85\% of the best known result, via trees of
+four to nine attributes, in two hours on one laptop. Yet in a survey
+of 229 papers on LLMs in SE, only 5\% compared against anything
+simpler. We propose an agenda to fix that: baseline the simple; ask,
+at review time, ``compared to what simpler?''; and teach easier AI
+first, scaling up only when the simple fails.
+\end{abstract}
+
+\begin{IEEEkeywords}
+active learning, search-based software engineering, green AI, empirical standards
+\end{IEEEkeywords}
+
+\section{Introduction}
+In March 2019, before GPT-3 existed, Sutton published a short essay
+called {\em The Bitter Lesson}~\cite{sutton19}. Figure~\ref{fig:sutton}
+reprints it in full. Its claim: general methods that leverage
+computation beat methods built from human knowledge; always,
+eventually, and by a large margin. The essay was prescient. It
+described the scaling era before that era arrived, and its
+unlimited-CPU perspective now looms over most current thinking about
+AI, including AI for software engineering (SE). This paper is a
+second look at that lesson, from inside SE. We will argue that, for
+much of this field, there is a sweeter lesson going unlearned.
+
+The cost of not looking compounds. Lehman's second law warns that a
+system grows ever more complex unless work is done to reduce
+it~\cite{lehman80}. AI-for-SE is now such a system: models, training
+sets, energy budgets, and invoices all grow by orders of magnitude,
+and little work pushes the other way.
+
+This paper pushes the other way. We ask two questions. First: how
+much of AI-for-SE could be radically simpler? Recent evidence,
+summarized in \S\ref{sec:how}, says much of it~\cite{ganguly26}.
+Second: if simple works so well, why do so few papers check? In a
+survey of 229 papers on LLMs in SE, only 5\% baselined against
+anything simpler~\cite{menzies26}. We call that a methodological
+error. We also think it is a fixable one.
+
+One caveat, stated early: generative tasks (translation, code
+summarization, natural-language interfaces) genuinely need large
+models. But many SE tasks (configuration, tuning, defect prediction,
+testing, cost estimation) have far simpler solutions, and this paper
+is about those.
+
+The experiments cited here appeared, or will appear, in prior papers
+by Ganguly, Rayegan, Senthilkumar, Srinivasan, Menzies, and
+colleagues~\cite{ganguly26, rayegan26, senthilkumar26, srinivasan26,
+menzies26}. What is new here is the rereading of Sutton, the
+synthesis, and the agenda: \S\ref{sec:why} argues the why,
+\S\ref{sec:how} the how, \S\ref{sec:whynot} diagnoses why not, and
+\S\ref{sec:future} plans the full-length empirical result.
+
+\begin{figure*}[!t]
+\centering
+\begin{minipage}{0.94\textwidth}
+\fontsize{6.6}{7.0}\selectfont\ttfamily
+\setlength{\parskip}{2.5pt}\setlength{\parindent}{0pt}
+\begin{multicols}{2}
+\centerline{THE BITTER LESSON}
+\centerline{Rich Sutton, March 13, 2019}
+\medskip
+
+The biggest lesson that can be read from 70 years of AI research is
+that general methods that leverage computation are ultimately the most
+effective, and by a large margin. The ultimate reason for this is
+Moore's law, or rather its generalization of continued exponentially
+falling cost per unit of computation. Most AI research has been
+conducted as if the computation available to the agent were constant
+(in which case leveraging human knowledge would be one of the only
+ways to improve performance) but, over a slightly longer time than a
+typical research project, massively more computation inevitably
+becomes available. Seeking an improvement that makes a difference in
+the shorter term, researchers seek to leverage their human knowledge
+of the domain, but the only thing that matters in the long run is the
+leveraging of computation. These two need not run counter to each
+other, but in practice they tend to. Time spent on one is time not
+spent on the other. There are psychological commitments to investment
+in one approach or the other. And the human-knowledge approach tends
+to complicate methods in ways that make them less suited to taking
+advantage of general methods leveraging computation. There were many
+examples of AI researchers' belated learning of this bitter lesson,
+and it is instructive to review some of the most prominent.
+
+{\color{blue!55!black}
+In computer chess, the methods that defeated the world champion,
+Kasparov, in 1997, were based on massive, deep search. At the time,
+this was looked upon with dismay by the majority of computer-chess
+researchers who had pursued methods that leveraged human understanding
+of the special structure of chess. When a simpler, search-based
+approach with special hardware and software proved vastly more
+effective, these human-knowledge-based chess researchers were not good
+losers. They said that ``brute force'' search may have won this time,
+but it was not a general strategy, and anyway it was not how people
+played chess. These researchers wanted methods based on human input to
+win and were disappointed when they did not.
+
+A similar pattern of research progress was seen in computer Go, only
+delayed by a further 20 years. Enormous initial efforts went into
+avoiding search by taking advantage of human knowledge, or of the
+special features of the game, but all those efforts proved irrelevant,
+or worse, once search was applied effectively at scale. Also important
+was the use of learning by self play to learn a value function (as it
+was in many other games and even in chess, although learning did not
+play a big role in the 1997 program that first beat a world champion).
+Learning by self play, and learning in general, is like search in that
+it enables massive computation to be brought to bear. Search and
+learning are the two most important classes of techniques for
+utilizing massive amounts of computation in AI research. In computer
+Go, as in computer chess, researchers' initial effort was directed
+towards utilizing human understanding (so that less search was needed)
+and only much later was much greater success had by embracing search
+and learning.
+
+In speech recognition, there was an early competition, sponsored by
+DARPA, in the 1970s. Entrants included a host of special methods that
+took advantage of human knowledge---knowledge of words, of phonemes,
+of the human vocal tract, etc. On the other side were newer methods
+that were more statistical in nature and did much more computation,
+based on hidden Markov models (HMMs). Again, the statistical methods
+won out over the human-knowledge-based methods. This led to a major
+change in all of natural language processing, gradually over decades,
+where statistics and computation came to dominate the field. The
+recent rise of deep learning in speech recognition is the most recent
+step in this consistent direction. Deep learning methods rely even
+less on human knowledge, and use even more computation, together with
+learning on huge training sets, to produce dramatically better speech
+recognition systems. As in the games, researchers always tried to make
+systems that worked the way the researchers thought their own minds
+worked---they tried to put that knowledge in their systems---but it
+proved ultimately counterproductive, and a colossal waste of
+researcher's time, when, through Moore's law, massive computation
+became available and a means was found to put it to good use.
+
+In computer vision, there has been a similar pattern. Early methods
+conceived of vision as searching for edges, or generalized cylinders,
+or in terms of SIFT features. But today all this is discarded. Modern
+deep-learning neural networks use only the notions of convolution and
+certain kinds of invariances, and perform much better.
+}
+
+This is a big lesson. As a field, we still have not thoroughly learned
+it, as we are continuing to make the same kind of mistakes. To see
+this, and to effectively resist it, we have to understand the appeal
+of these mistakes. We have to learn the bitter lesson that building in
+how we think we think does not work in the long run. The bitter lesson
+is based on the historical observations that 1) AI researchers have
+often tried to build knowledge into their agents, 2) this always helps
+in the short term, and is personally satisfying to the researcher, but
+3) in the long run it plateaus and even inhibits further progress, and
+4) breakthrough progress eventually arrives by an opposing approach
+based on scaling computation by search and learning. The eventual
+success is tinged with bitterness, and often incompletely digested,
+because it is success over a favored, human-centric approach.
+
+One thing that should be learned from the bitter lesson is the great
+power of general purpose methods, of methods that continue to scale
+with increased computation even as the available computation becomes
+very great. The two methods that seem to scale arbitrarily in this way
+are search and learning.
+
+The second general point to be learned from the bitter lesson is that
+the actual contents of minds are tremendously, irredeemably complex;
+we should stop trying to find simple ways to think about the contents
+of minds, such as simple ways to think about space, objects, multiple
+agents, or symmetries. All these are part of the arbitrary,
+intrinsically-complex, outside world. They are not what should be
+built in, as their complexity is endless; instead we should build in
+only the meta-methods that can find and capture this arbitrary
+complexity. Essential to these methods is that they can find good
+approximations, but the search for them should be by our methods, not
+by us. We want AI agents that can discover like we can, not which
+contain what we have discovered. Building in our discoveries only
+makes it harder to see how the discovering process can be done.
+\end{multicols}
+\end{minipage}
+\caption{Sutton's bitter lesson, reprinted verbatim~\cite{sutton19}.
+Blue: the essay's four motivating examples. Each comes from a domain
+with a fast, cheap, reliable feedback oracle. \S\ref{sec:how} argues
+that much of SE analytics has no such oracle.}
+\label{fig:sutton}
+\end{figure*}
+
+\section{Why Easier AI?}
+\label{sec:why}
+Before the economics, reread the blue paragraphs of
+Figure~\ref{fig:sutton}. Sutton offered four examples: chess, Go,
+speech recognition, and computer vision. Note what they share. A
+chess or Go program scores a candidate move by playing millions of
+games against itself; speech and vision systems train against
+millions of labeled utterances and images. In every case, feedback is
+immediate, cheap, and incorruptible, so computation can substitute
+for knowledge without limit. That is the essay's silent premise. We
+do not dispute Sutton's history. We dispute the transfer: where
+feedback is slow, dear, or scarce (\S\ref{sec:how}), scale loses its
+lever, and the lesson turns sweeter.
+Start with money. Thirty years ago, Wirth complained that software
+gets slower faster than hardware gets faster~\cite{wirth95}.
+Even as the price per token falls,
+Jevons' paradox applies: cheaper inference means more inference, and
+total token consumption has grown by orders of magnitude since 2023.
+Bain \& Company forecasts that by 2030, the AI industry must find
+\$800 billion per year in new revenue to fund its own compute
+build-out; capital expenditure was near \$725 billion in 2026 and is
+projected to pass \$1 trillion in 2027~\cite{bain25}. Someone must
+pay for all this, and researchers who build on rented frontier models
+should ask what happens when the subsidies stop.
+
+Money is one worry. Trust is another. A model small enough to read is
+a model that can be audited, repaired, and defended in front of a
+regulator. Rudin argues that high-stakes decisions need interpretable
+models, not post-hoc explanations of black boxes~\cite{rudin19}.
+Bender et al.\ ask, of language models, ``can they be too
+big?''~\cite{bender21}. For much of SE analytics, the honest answer is
+yes. In one study, 52\% of ChatGPT answers to StackOverflow questions
+were partly incorrect, and readers overlooked those errors 39\% of
+the time~\cite{kabir24}. Scale the generation and you scale the
+verification queue~\cite{baltes26}.
+
+Some domains do not get a choice. The Green AI literature documents
+the energy and carbon cost of large models~\cite{schwartz20,
+strubell19}. Beyond that: much of the global south
+lacks American-scale infrastructure; community colleges and K--12
+classrooms teach on personal hardware; defense, healthcare, finance,
+and law restrict what may leave the building; air-gapped and
+on-device settings have no cloud at all. For all of these, easier AI
+is the entry ticket.
+
+SE itself has been teaching this lesson for decades. Modern software
+is mostly assembled from pre-made parts, and more reuse means more
+attack surface: left-pad, MOVEit (\$12 billion), and similar
+supply-chain failures cost an estimated \$24 billion in 2025 alone.
+Survivability argues the same way; SQLite ships its own tiny B-tree
+rather than adopting Berkeley DB (which Oracle later acquired and
+relicensed), and now runs on Mars. As SQLite's author puts it, ``if
+you want to be free, that means doing things
+yourself''~\cite{hipp21}. More code
+is more to maintain and more to go wrong. Even our configuration
+files are bloated: Xu et al.\ found that most users cannot cope with
+most of the options we give them~\cite{xu15}.
+
+There is also a supply problem. The big-data era ran on a silent
+premise: more data exists. Villalobos et
+al.\ project that the stock of human-generated public text runs out
+within years~\cite{villalobos24}. Synthetic replacements trade away
+privacy or fidelity~\cite{ling24}, and training recursively on
+machine output collapses model quality~\cite{shumailov24}.
+
+Finally, more was never always better. For agile effort estimation, a
+support vector machine over TF-IDF features out-predicts deep learners
+while running 100 times faster~\cite{tawosi23}. For text mining
+StackOverflow, tuned simple learners ran 500 times faster than deep
+learning, at no loss~\cite{majumder18}. Tree ensembles still beat deep
+networks on typical tabular data~\cite{grinsztajn22}.
+Often, better data or better tuning beats better (bigger)
+learners~\cite{agrawal18, fu16, fu17}. Hooker calls this the hardware
+lottery: ideas win because the available hardware favors them, not
+because they are best~\cite{hooker21}. Big AI won a lottery. That is
+not the same as winning the argument.
+
+Summing up: the bitter lesson has preconditions (a clear objective,
+abundant data, ever-cheaper compute). Chess and vision met all three;
+much of SE meets none. Where the preconditions fail, acting as if the
+lesson still applied is not rigor. It is habit.
+
+\section{How: Active Learning with EZR}
+\label{sec:how}
+Less is a very old idea. Around
+1300, William of Ockham warned against multiplying entities beyond
+necessity. Pearson reduced data to a few principal components in
+1901~\cite{pearson01}. Chang shrank nearest-neighbor classifiers to a
+few prototypes in 1974~\cite{chang74}. Kohavi and John pruned feature
+sets in 1997~\cite{kohavi97}. Active learning~\cite{settles09} and
+model distillation continue the tradition. Of these, we focus on
+active learning,
+since labels are what SE data lacks. As Table~\ref{tab:xy} shows, for
+$y=f(x)$ problems in SE, the independent features $x$ come cheap
+while the dependent labels $y$ come dear: measuring runtimes, running
+test suites, or eliciting expert judgment is slow and expensive,
+while unlabeled examples are nearly free.
+
+\begin{table}[t]
+\caption{In SE, for $y=f(x)$, acquiring features $x$ is often far
+cheaper than determining labels $y$.}
+\label{tab:xy}
+\centering
+{\footnotesize
+\begin{tabular}{p{.44\columnwidth}|p{.44\columnwidth}}
+\hline
+{\bf cheap feature acquisition ($x$)} & {\bf costly label determination ($y$)} \\
+\hline
+mine GitHub metadata (code size, dependencies) &
+estimate market value or total development effort \\
+count system classes &
+audit actual maintenance effort \\
+list design option permutations &
+validate configurations via stakeholder consensus \\
+enumerate software parameters &
+execute full test suites for every unique build \\
+identify learner hyper-parameters &
+run exhaustive grid searches \\
+generate fuzzing inputs &
+execute tests, audit outputs \\
+\hline
+\end{tabular}}
+\end{table}
+
+Nor do the usual shortcuts fix this. Expert labeling is sluggish and
+fatigue-prone, taking hours per case for security or technical-debt
+judgments. Labels lifted from historical logs can mislead; in one
+audit, most logged technical-debt entries were false
+positives~\cite{yu22}. And asking an LLM to do the labeling does not
+close the gap, since human-model agreement is no proxy for ground
+truth~\cite{ahmed25}. Whatever the labeling method, budgets stay
+small. So the research question becomes: how to spend a small budget
+well?
+
+The loop is short. Label a few random examples. Build a small model.
+Use that model to pick the most informative unlabeled example: explore
+where the model is most uncertain, exploit where it predicts the best
+outcomes, and shift slowly from explore to exploit. Label it, rebuild,
+repeat until the budget runs out. State-of-the-art optimizers such as
+SMAC3 run the same loop over an ensemble of decision
+trees~\cite{lindauer22}, and earlier SE work did so over pairs of
+performance models~\cite{nair18}. But note the hidden cost in the
+heavyweight versions: every new label triggers a rebuild of the whole
+ensemble, so the machinery around the labels can cost far more than
+the labels themselves. The EZR toolkit strips the loop to
+a few hundred lines of dependency-free Python: a Naive Bayes-style
+learner picks the labels, then a small regression tree summarizes
+them~\cite{menzies26}. In that loop, labeling is the only expensive
+step; everything else runs in milliseconds.
+
+Testing such claims needs many tasks, not one case study. The MOOT
+repository holds 127 multi-objective optimization datasets extracted
+from recent SE papers~\cite{moot26}. The tasks cover software configuration, performance
+tuning, product lines, project health, defect prediction, testing,
+cost estimation, cross-domain generalization, and text mining. They
+range from 3 to 1,044 independent attributes, one to eight goals, and
+93 to 100,000 rows. Performance is scored as
+$\mathit{win}=100\times(1-\mathit{regret})$, where regret is the
+distance from the best result in the full dataset, normalized so that
+100 means best-known and 0 means as bad as random guessing.
+
+\begin{figure}[t]
+\begin{scriptsize}
+\begin{verbatim}
+ win     n     Lbs-    Acc+    Mpg+
+   8    43   2334.2    16.3    27.4
+  41    26   2038.7    17.1    30.0  Volume <= 111
+  71    10   1871.7    18.1    32.0  |  Volume <= 83
+  85     4   1831.7    19.0    32.5  |  |  Model <= 73
+  62     6   1898.3    17.4    31.7  |  |  Model > 73
+  22    16   2143.0    16.5    28.7  |  Volume > 83
+  36     7   2098.1    18.0    28.6  |  |  Model <= 73
+  12     9   2177.9    15.3    28.9  |  |  Model > 73
+  26     4   2210.0    15.7    30.0  |  |  |  Volume > 97
+   0     5   2152.2    15.0    28.0  |  |  |  Volume <= 97
+ -41    17   2786.1    15.1    23.5  Volume > 111
+  -9     5   2279.8    14.6    28.0  |  Volume <= 116
+ -54    12   2997.1    15.3    21.7  |  Volume > 116
+ -44     8   2921.1    15.8    22.5  |  |  Model > 73
+ -38     4   2563.0    14.0    25.0  |  |  |  Clndrs <= 4
+ -50     4   3279.2    17.4    20.0  |  |  |  Clndrs > 4
+ -75     4   3149.0    14.4    20.0  |  |  Model <= 73
+\end{verbatim}
+\end{scriptsize}
+\caption{An EZR tree for a three-goal automotive task: minimize
+weight (Lbs), maximize acceleration (Acc) and miles per gallon
+(Mpg). Each line is one node: $\mathit{win}$ score, row count $n$,
+mean goal values, and the branch test. Built from 43 labels; the
+whole model fits in 17 lines and mentions three attributes.}
+\label{fig:tree}
+\end{figure}
+
+This is best shown by example. In Figure~\ref{fig:tree}, rows
+describe cars; the goals are to minimize weight while maximizing
+acceleration and miles per gallon. From 43 labels, the root scores
+$\mathit{win}=8$: barely better than guessing. Two tests down (engine
+volume at most 83, model year at most '73) sit four cars scoring
+$\mathit{win}=85$: light, quick, thrifty. The worst leaf
+($\mathit{win}=-75$) holds heavy gas-guzzlers, so the tree also says,
+just as plainly, what to avoid. The whole policy mentions three
+attributes; a domain expert can dispute it line by line. To apply it,
+sort new unlabeled examples down its branches and spend the labeling
+budget only on those landing in the best leaves.
+
+Does it work at scale? A study of 100,000 runs over MOOT proceeded as
+follows~\cite{ganguly26}. Pick one of the 127 datasets. Hide the
+labels; split off a holdout. Let the active learner spend at most 50
+labels on the training side, then build a tree from what it learned.
+Sort the holdout through that tree and label only the first five
+suggestions, scoring the best of those five. Median result across all
+runs: 85\% of the best known. The whole study ran in two hours on one
+laptop.
+
+How does that compare? In a tournament run at matched budgets,
+NSGA-II~\cite{deb02} needed roughly 1,000 evaluations to reach what
+these methods reach in 50~\cite{ganguly26b}, and EZR's per-task
+runtimes sit in the milliseconds. That is not just faster science;
+500 times less CPU is 500 times less energy, every run. Nor is this
+the first such warning~\cite{chen19, menzies21}.
+
+Are the resulting models small enough to trust? Across the 127
+datasets, EZR's trees use four to nine attributes, out of as many as
+1,044~\cite{rayegan26}. Systems described by a thousand variables
+are routinely controlled by fewer than ten; effort spent modeling
+the rest buys noise. Small is only useful if nothing important got
+thrown away, so that work also ran a harder test: if EZR's tree uses
+$N$ attributes, ask state-of-the-art attribute selectors for their
+top $N$, build models from each selection, and compare. Trees built
+from EZR's few attributes usually tied with, or came close to, the
+best of those selectors~\cite{rayegan26}. A model that fits on half
+a page can be checked by a domain expert before lunch. None of the
+black-box alternatives offer that.
+
+\section{Why Not More Easier AI?}
+\label{sec:whynot}
+If the evidence is this good, why is easier AI so rare? We offer four
+answers.
+
+First, weak empirical standards. LLM papers now flood SE
+venues~\cite{hou24}, yet in a survey of 229 of them, only 5\% compared
+against a simpler approach~\cite{menzies26}. That is an error, not a
+style choice, since simpler methods can be better, faster, or
+both~\cite{fu17, majumder18, tawosi23}. The fix is old: Cohen's 1995
+empirical-AI text recommended baselining against straw-man
+ablations~\cite{cohen95}. So, before shipping a clever method, build
+the stupidest straw man that could possibly work. Surprisingly
+often, the straw man wins, and the clever method should be thrown
+away~\cite{menzies21}.
+
+Second, incentives. Big sells. A data center has a ribbon the mayor
+can cut. A 300-line script has no launch event, no special hardware to
+sell (it is too fast to need any), and no valuation story. The
+spectacle funds itself; the simplification does not.
+
+Third, the simplicity paradox. Simplicity must be earned twice.
+Earned in experience, since knowing what to cut takes years of
+mistakes (``experience is the name every one gives to their
+mistakes,'' as Wilde had it). And earned in compute, since certifying
+that simple suffices means running both the simple and the complex
+method at scale; the tournament behind \S\ref{sec:how} consumed some
+20 months of CPU~\cite{ganguly26b}. Simple results are expensive to
+prove and cheap-looking once proved. A bad bargain for a career, and
+researchers know it.
+
+Fourth, our brains fight us. In studies covering hundreds of
+subjects, Adams et al.\ found that people systematically reach for
+additive changes over subtractive ones, by roughly four to
+one~\cite{adams21}. We suspect the simpler methods reported here were
+not found earlier for the simplest of reasons: nobody was looking
+down.
+
+Call the sum of these the inverse bitter lesson. Sutton warned that
+researchers cling to clever hand-crafted methods when scale would do
+better~\cite{sutton19}. The companion failure is just as real:
+reaching for scale reflexively, an LLM and an embedding API for a
+problem that thirty lines of Naive Bayes over 1,700 rows would solve.
+The first failure wastes a project. The second, repeated across 95\%
+of a literature~\cite{menzies26}, wastes a field.
+
+\section{Future Plans}
+\label{sec:future}
+The emerging result: 50 labels often suffice. The new idea: treat
+that as a research program, the data-light challenge, asking for
+which SE tasks a handful of labels suffices and when it
+fails~\cite{ganguly26}. A full-length result needs four things.
+
+Characterization. Not all tasks simplify; we need to predict which.
+The plan: regress label-budget requirements against measurable task
+features (dimensionality, goal count, noise, intrinsic dimension)
+across an expanded MOOT~\cite{moot26} that adds failure cases, since
+a corpus that simple methods always win teaches nothing.
+
+Tournaments. The comparison set must include what people actually
+use: state-of-the-art optimizers~\cite{lindauer22, deb02} and
+LLM-based agents, run head-to-head at matched labeling
+budgets~\cite{ganguly26b}, with energy reported alongside accuracy.
+
+Hybrids. Easier AI need not be anti-LLM. Early results suggest LLMs
+can warm-start active learning with a few good initial
+guesses~\cite{senthilkumar26}, and that running classical optimizers
+before LLMs beats the reverse order~\cite{srinivasan26}. The open
+question is where the crossover sits: how few labels before the prior
+knowledge inside an LLM stops paying rent?
+
+Standards and teaching. We will draft a one-line addition to SE
+review checklists (``compared to what simpler?'') and an
+easier-AI-first curriculum, where students meet the 300-line version
+before the trillion-parameter one.
+
+What could kill this idea? Three things, all testable.
+MOOT could be biased toward tasks where simple methods win
+(fix: grow the corpus adversarially). Safety-critical work may
+reject 85\% of best (the characterization study should mark that
+boundary). And the evidence here is tabular; whether it extends to
+code, traces, and text is what the hybrid studies will answer. Either
+way, the community gets what it lacks: an evidence-based boundary
+between easy and hard.
+
+\section{Conclusion}
+Lehman told us that complexity grows unless work is done to reduce
+it~\cite{lehman80}. This paper argues we must (economics, energy, trust, access) and
+that we can (50 labels, four to nine attributes, 85\% of best, one
+laptop). The tools and data are public~\cite{menzies26, moot26}.
+Sutton was right where feedback is free. The sweeter lesson covers
+the rest: where labels are dear, a few dozen well-chosen ones go
+most of the way. Baseline the simple. At review time, ask
+``compared to what simpler?'' Teach the easy version first. Scale
+only when the simple fails.
+
+%\section*{Acknowledgements}
+% Camera-ready only (double-anonymous). Students, per the supervision-tree
+% slide of the talk: Kishan Kumar Ganguly, Amirali Rayegan, Srinath
+% Srinivasan, Lohith Senthilkumar, Amritanshu Agrawal, Vivek Nair,
+% Jianfeng Chen, Andre Lustosa.
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{nier}
+
+\end{document}
