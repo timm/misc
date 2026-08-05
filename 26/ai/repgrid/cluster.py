@@ -87,9 +87,8 @@ def focus_grid(data, constructs, title, outfile, bold_rows=("NCSU CSC",)):
     zc = linkage(X.T, method="ward")
 
     nrow, ncol = X.shape
-    cw = 0.30
-    hm_w, hm_h = ncol * cw, nrow * cw
-    left, bottom, top_d, right_d = 2.05, 1.75, 0.55, 0.80
+    hm_w, hm_h = ncol * 0.30, nrow * 0.21
+    left, bottom, top_d, right_d = 2.05, 1.75, 0.45, 0.80
     fw = left + hm_w + right_d + 0.15
     fh = bottom + hm_h + top_d + 0.30
 
