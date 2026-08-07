@@ -116,13 +116,13 @@
 \multicolumn{3}{@{}l}{\emph{Is it right?}}\\
 1 & Given a vague goal, write a domain definition (inputs, outputs, correctness, out-of-scope) that a second team can test without asking a question. & \se{510}, \se{518} --- \emph{partial}\\
 2 & Given a spec, design a test suite that detects all seeded defects, covering boundaries, regressions, and nondeterministic outputs. & \se{510} --- \emph{partial}\\
-3 & Given generated statistics, plots, or citations, verify each against raw data or the primary source; flag whatever cannot be traced. & \textcolor{rule}{\textbf{gap}}\\
-4 & Given code they did not write, identify defects, judge maintainability, and accept or reject with reasons that survive challenge. & \se{510}, \se{517}, \se{521} --- \emph{partial}\\
+3 & Given generated statistics, plots, or citations, verify each against raw data or the primary source; flag whatever cannot be traced. & \se{510} (prompt reports mark caught LLM errors) --- \emph{partial}\\
+4 & Given code they did not write, identify defects, judge maintainability, and accept or reject with reasons that survive challenge. & \se{510}, \se{517}, \se{521} --- \textbf{ok}\\
 5 & Given an algorithm, prove its invariants and classify its problem as tractable, intractable, or undecidable. & 505, 512 --- \textbf{ok}\\
 \multicolumn{3}{@{}l}{\emph{What does it cost?}}\\
 6 & Given an algorithm, predict scaling from complexity analysis, then confirm by measurement. & 505, 572 --- \textbf{ok}\\
 7 & Given a running system, measure latency, throughput, and run-to-run variance, and locate the bottleneck. & 501 --- \emph{partial}\\
-8 & Given an AI result, benchmark it against at least one non-AI baseline over at least 20 repeated runs, reporting effect size and variance. & 522 (labs, light) --- \emph{partial}\\
+8 & Given an AI result, benchmark it against at least one non-AI baseline over at least 20 repeated runs, reporting effect size and variance. & \se{510} (M0: metric/threshold/baseline eval), 522 --- \emph{partial}\\
 9 & Given a decomposed workflow, allocate each sub-task to an LLM, retrieval, optimization, or deterministic logic, and defend the split with measured cost and quality. & \se{591b}, 528 --- \emph{partial}\\
 10 & Given conflicting stakeholder needs, produce an MVP scope and release plan with a business case that prices the do-nothing option. & \se{510} --- \emph{partial}\\
 \multicolumn{3}{@{}l}{\emph{Can it be trusted?}}\\
@@ -131,7 +131,7 @@
 13 & Given a pipeline, audit training-data provenance, license status of generated code, and PII flow, and state what risk remains after the fixes. & 533, 534 --- \emph{partial}\\
 14 & Given a failure, diagnose the fault mode and specify detection and recovery --- not a patch. & 501, 537 --- \emph{partial}\\
 15 & Given a model, evaluate it beyond accuracy --- calibration, robustness, fairness, drift --- reporting each against a stated threshold. & 528 --- \textbf{ok} (elective)\\
-16 & Given a published result, reproduce it from its stated environment, seeds, and scripts. & \se{519} --- \emph{partial}\\
+16 & Given a published result, reproduce it from its stated environment, seeds, and scripts. & \se{510} (twice: explore and maintain projects), \se{519} --- \textbf{ok}\\
 \multicolumn{3}{@{}l}{\emph{Does it fit the world?}}\\
 17 & Given stakeholders in conflict, elicit requirements and negotiate a release plan that every stakeholder signs off on. & \se{510}, \se{518} --- \textbf{ok}\\
 18 & Given a hypothesis, design an experiment with controls, confounds handled, and ablations. & research apprenticeship only --- \textcolor{rule}{\textbf{gap}}\\
@@ -144,7 +144,7 @@
 
 \vspace{4pt}
 \normalsize
-\textbf{How the graduate program covers this set.} Stronger than undergrad, as expected: security gains depth (515, 537), evaluation beyond accuracy has a real home (528, Trustworthy and Efficient AI), and DevOps (519) turns two undergrad gaps (16, 19) into partials. But three hard holes remain: verifying generated claims (3), designing experiments (18 --- taught today only by research apprenticeship, so course students never see it), and learning the next tool from documentation alone (20 --- covered at undergrad by 491a, which has no graduate twin). Those three are precisely the skills a post-bubble, cost-conscious industry will pay for, and none needs new hardware. The near-approved MS+AI track is the natural vehicle: write outcomes 3, 8, 18, and 20 into its required core and the graduate program covers the full set without a single new course proposal.
+\textbf{How the graduate program covers this set.} Stronger than undergrad, as expected: security gains depth (515, 537), and evaluation beyond accuracy has a real home (528, Trustworthy and Efficient AI). \se{510}'s Fall~2026 redesign lifts several rows at course-edit cost --- exactly the mechanism this memo recommends: judging alien code (4) and reproducing old repos (16) are now marked twice each (fork--build--run in its explore project, again on a stranger's code in its maintenance project); a required ``M0'' milestone (a pre-registered metric/threshold/baseline eval, instrument in CI, synthetic data acceptable, real data bonus) gives benchmarking (8) a home; and its prompt reports now score \emph{caught} LLM errors, not prompt cleverness (3, lightly). Two hard holes remain: designing experiments (18 --- taught today only by research apprenticeship, so course students never see it) and learning the next tool from documentation alone (20 --- covered at undergrad by 491a, which has no graduate twin). Both are precisely the skills a post-bubble, cost-conscious industry will pay for, and neither needs new hardware. The near-approved MS+AI track is the natural vehicle: write outcomes 8, 18, and 20 into its required core and the graduate program covers the full set without a single new course proposal.
 
 \newpage
 
