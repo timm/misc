@@ -1,0 +1,183 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{libertinus}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\definecolor{rule}{RGB}{120,30,30}
+\definecolor{sered}{RGB}{200,0,0}
+\newcommand{\se}[1]{\textcolor{sered}{#1}}
+\usepackage{draftwatermark}
+\SetWatermarkText{WORK IN PROGRESS}
+\SetWatermarkScale{0.45}
+\SetWatermarkColor{gray!18}
+\titleformat{\section}{\large\bfseries\color{rule}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{8pt}{3pt}
+\setlist{nosep,leftmargin=1.2em}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+
+\begin{document}
+
+{\large\bfseries AI at CSC: Situation and Way Forward}\\[1pt]
+{\small To: CSC leadership \quad From: Tim Menzies \quad August 2026 \quad (one page + three one-page appendices)}
+
+\vspace{2pt}\textcolor{rule}{\hrule height 1pt}
+
+\emph{This memo is based on a preliminary analysis of our subjects. If there is interest in moving forward, that analysis must be carefully verified --- e.g., by discussing this memo with the lecturers of those subjects and with other interested parties.}
+
+\section{Part 1 --- Where we stand, and the way forward}
+
+\textbf{Three blunt facts.}
+\begin{enumerate}
+\item \textbf{Peers ship while we deliberate.} Purdue: BS in AI. Arizona: BS + minor. Georgia Tech: two AI minors and an NVIDIA-backed Makerspace. Duke: required AI in the CS core this fall. Maryland: BS/BA in AI, 2026--27. NC~State: no minor, no standalone credential, BS ``on hold.'' The bottleneck is our own process, not our talent.
+\item \textbf{Industry hiring has changed --- and industry disagrees on how.} Our advisory-board interviews show wide divergence. Some CTOs push to remove the human: ``If the human is in the loop, you are going too slow.'' Others want better humans: ``We want to hire, not so much your degree, but someone who is a problem solver --- everything will be moving fast.'' The remove-the-human camp rides today's gold rush of cheap, subsidized tokens --- perhaps to its detriment. Both camps need what we teach: people who can build \emph{and check} agentic systems, not merely operate them.
+\item \textbf{Current AI economics will not hold.} Token and GPU costs climb, vendors ration capacity, and many AI products lose money per user. If (when) the bubble bursts, the field moves to a new era of cost-effective neurosymbolic AI: mix and match the best of LLMs with cheaper, faster methods. That era is our opening, not only a threat --- it is the curriculum we can own (see Part~2).
+\end{enumerate}
+
+\textbf{The way forward, ranked by friction (lowest first).}
+\begin{enumerate}
+\item \textbf{Now:} add AI-assessment learning objectives to existing courses (Appendix) --- course-level edits, no degree paperwork.
+\item \textbf{This semester:} land MS+AI (already near approval) and launch CSC~202/301 as the college-wide freshman AI sequence. Service enrollment funds staff lines; degrees follow money.
+\item \textbf{Next:} AI minor. Park the BS --- the ``on hold'' fight is not winnable this year, and everything above proceeds without it.
+\end{enumerate}
+
+\textbf{Political cover already exists in print.} Every step above executes Provost Pfaendtner's published agenda (Red Hat Research Quarterly, Summer 2026): AI ``dose early, redose often'' for 1,850 engineering freshmen; fundamentals defended against deskilling; small cheap models that will ``transform the way we educate''; faculty AI-upskilling fellowships (CSC should claim seats in the first cohort). A repertory-grid comparison of NCSU against the 12 BOG-approved peers plus Duke, scored on the Provost's own published criteria, is available on request.
+
+\section{Part 2 --- The merits of CS: why study CS/SE in the age of AI?}
+
+\textbf{Tools get students hired; judgment gets them promoted.} AI now writes code cheaply. Someone still must define what correct means, verify generated claims, review work they did not write, secure the system, and measure cost against quality. Those are computer-science skills, and together they are the senior-engineer role --- exactly the role industry deskilling threatens to empty out. We train the reviewers, not the reviewed.
+
+\textbf{CSC studies what others merely use.} The Appendix lists twenty skills for \emph{assessing computation} that no other department teaches. Departments that use AI cannot repair its defects; the department that studies those defects must teach them --- to the whole college.
+
+\textbf{Our resource limits mirror industry's --- so we teach for them.} We will not win a GPU arms race, and neither will most employers. We therefore teach AI that does not require exponential compute: small models, hybrid neurosymbolic methods, rigorous evaluation on cheap hardware. Most of the Appendix skills need no GPU at all. A curriculum built on judgment and parsimony survives an AI bubble; one built on unlimited tokens does not.
+
+\newpage
+
+{\large\bfseries Appendix A: Twenty skills for assessing computation, as learning outcomes --- undergraduate}\\[1pt]
+{\small Skills that CS teaches and no one else does. Coverage column shows where the CSC undergraduate program touches each today: \textbf{ok} = covered; \emph{partial} = course exists but predates AI-generated systems; \textcolor{rule}{\textbf{gap}} = not taught. \se{Red course numbers} are SE subjects, including the proposed Fall~2026 UG SE concentration.}
+
+\vspace{4pt}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}r X l@{}}
+\toprule
+& \textbf{Students will be able to\ldots} & \textbf{CSC ugrad today}\\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Is it right?}}\\
+1 & Given a vague goal, write a domain definition (inputs, outputs, correctness, out-of-scope) that a second team can test without asking a question. & \se{216}, \se{326} --- \emph{partial}\\
+2 & Given a spec, design a test suite that detects all seeded defects, covering boundaries, regressions, and nondeterministic outputs. & \se{326}, \se{404} (new) --- \emph{partial}\\
+3 & Given generated statistics, plots, or citations, verify each against raw data or the primary source; flag whatever cannot be traced. & \textcolor{rule}{\textbf{gap}}\\
+4 & Given code they did not write, identify defects, judge maintainability, and accept or reject with reasons that survive challenge. & \se{326}, \se{421}, \se{491a} --- \emph{partial}\\
+5 & Given an algorithm, prove its invariants and classify its problem as tractable, intractable, or undecidable. & 226, 333, 366 --- \textbf{ok}\\
+\multicolumn{3}{@{}l}{\emph{What does it cost?}}\\
+6 & Given an algorithm, predict scaling from complexity analysis, then confirm by measurement. & 316, 366 --- \textbf{ok}\\
+7 & Given a running system, measure latency, throughput, and run-to-run variance, and locate the bottleneck. & 230, 246 --- \emph{partial}\\
+8 & Given an AI result, benchmark it against at least one non-AI baseline over at least 20 repeated runs, reporting effect size and variance. & \textcolor{rule}{\textbf{gap}}\\
+9 & Given a decomposed workflow, allocate each sub-task to an LLM, retrieval, optimization, or deterministic logic, and defend the split with measured cost and quality. & \se{421}, \se{491a}, \se{491b} (electives) --- \emph{partial}\\
+10 & Given conflicting stakeholder needs, produce an MVP scope and release plan with a business case that prices the do-nothing option. & \se{408} (elective) --- \emph{partial}\\
+\multicolumn{3}{@{}l}{\emph{Can it be trusted?}}\\
+11 & Given a system design, build a threat model --- assets, adversaries, attack surface --- so complete that a second team finds no critical item to add. & 405, 474 (electives) --- \textbf{ok}\\
+12 & Given a deployed system, execute an adversarial test plan covering prompt injection, data leakage, and access weakness. & \se{415} --- \emph{partial}\\
+13 & Given a pipeline, audit training-data provenance, license status of generated code, and PII flow, and state what risk remains after the fixes. & 379, \se{433} --- \emph{partial}\\
+14 & Given a failure, diagnose the fault mode and specify detection and recovery --- not a patch. & 246 --- \emph{partial}\\
+15 & Given a model, evaluate it beyond accuracy --- calibration, robustness, fairness, drift --- reporting each against a stated threshold. & 422, 425 --- \emph{partial}\\
+16 & Given a published result, reproduce it from its stated environment, seeds, and scripts. & \textcolor{rule}{\textbf{gap}}\\
+\multicolumn{3}{@{}l}{\emph{Does it fit the world?}}\\
+17 & Given stakeholders in conflict, elicit requirements and negotiate a release plan that every stakeholder signs off on. & \se{326}, \se{418} --- \textbf{ok}\\
+18 & Given a hypothesis, design an experiment with controls, confounds handled, and ablations. & \textcolor{rule}{\textbf{gap}}\\
+19 & Given a production system, define monitors for drift and a response plan for when they fire. & \textcolor{rule}{\textbf{gap}}\\
+20 & Given only vendor documentation, reimplement a core abstraction in under 500 lines and evaluate it against the industrial version. & \se{491a} (elective) --- \emph{partial}\\
+\bottomrule
+\end{tabularx}
+
+{\footnotesize Key --- special-topics sections pending permanent numbers: \se{491a} = Secrets of the Software Gurus (proposed CSC 413); \se{491b} = SE for AI (proposed CSC 426); \se{404} = Software Testing (proposed, SE-concentration required core).}
+
+\vspace{4pt}
+\normalsize
+\textbf{How the undergraduate program covers this set.} Four outcomes are solid (5, 6, 11, 17): algorithmic fundamentals, threat modeling, requirements --- our base, and no other department on campus has it. Five are outright gaps (3, 8, 16, 18, 19), and every gap is AI-facing \emph{assessment}: verifying generated claims, benchmarking against baselines, reproducing, experimenting, monitoring. The ten partials have a home course that predates generated code (e.g., 326 tests deterministic programs; 422/425 stop at accuracy). Every gap and partial is fixable by course-level learning-objective edits or by moving an elective (408, 421, 491a, 491b) toward the core --- no new degree, no new committee. Note how much of the table is \se{red}: the proposed SE concentration already routes students through most of the partials, so its learning-objective edits are the highest-leverage fix available. Outcomes 1--5, 8, 18, and 20 need no GPU, no budget, and no programming prerequisite: teachable to the whole College of Engineering this year.
+
+\newpage
+
+{\large\bfseries Appendix B: The same twenty outcomes --- graduate}\\[1pt]
+{\small Same outcomes, mapped to the CSC graduate program. Identical objectives at both levels is deliberate: the skill does not change with level, the criterion does --- graduate students meet each criterion on larger systems, against stiffer thresholds, defended to research standard. \se{Red course numbers} are SE subjects: graduate SE courses (510, 515, 517) and the graduate twins of dual-listed UG SE concentration courses (518, 519, 521, and 591b --- see table key).}
+
+\vspace{4pt}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}r X l@{}}
+\toprule
+& \textbf{Students will be able to\ldots} & \textbf{CSC grad today}\\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Is it right?}}\\
+1 & Given a vague goal, write a domain definition (inputs, outputs, correctness, out-of-scope) that a second team can test without asking a question. & \se{510}, \se{518} --- \emph{partial}\\
+2 & Given a spec, design a test suite that detects all seeded defects, covering boundaries, regressions, and nondeterministic outputs. & \se{510} --- \emph{partial}\\
+3 & Given generated statistics, plots, or citations, verify each against raw data or the primary source; flag whatever cannot be traced. & \textcolor{rule}{\textbf{gap}}\\
+4 & Given code they did not write, identify defects, judge maintainability, and accept or reject with reasons that survive challenge. & \se{510}, \se{517}, \se{521} --- \emph{partial}\\
+5 & Given an algorithm, prove its invariants and classify its problem as tractable, intractable, or undecidable. & 505, 512 --- \textbf{ok}\\
+\multicolumn{3}{@{}l}{\emph{What does it cost?}}\\
+6 & Given an algorithm, predict scaling from complexity analysis, then confirm by measurement. & 505, 572 --- \textbf{ok}\\
+7 & Given a running system, measure latency, throughput, and run-to-run variance, and locate the bottleneck. & 501 --- \emph{partial}\\
+8 & Given an AI result, benchmark it against at least one non-AI baseline over at least 20 repeated runs, reporting effect size and variance. & 522 (labs, light) --- \emph{partial}\\
+9 & Given a decomposed workflow, allocate each sub-task to an LLM, retrieval, optimization, or deterministic logic, and defend the split with measured cost and quality. & \se{591b}, 528 --- \emph{partial}\\
+10 & Given conflicting stakeholder needs, produce an MVP scope and release plan with a business case that prices the do-nothing option. & \se{510} --- \emph{partial}\\
+\multicolumn{3}{@{}l}{\emph{Can it be trusted?}}\\
+11 & Given a system design, build a threat model --- assets, adversaries, attack surface --- so complete that a second team finds no critical item to add. & \se{515}, 537 --- \textbf{ok}\\
+12 & Given a deployed system, execute an adversarial test plan covering prompt injection, data leakage, and access weakness. & \se{515}, 537 --- \emph{partial}\\
+13 & Given a pipeline, audit training-data provenance, license status of generated code, and PII flow, and state what risk remains after the fixes. & 533, 534 --- \emph{partial}\\
+14 & Given a failure, diagnose the fault mode and specify detection and recovery --- not a patch. & 501, 537 --- \emph{partial}\\
+15 & Given a model, evaluate it beyond accuracy --- calibration, robustness, fairness, drift --- reporting each against a stated threshold. & 528 --- \textbf{ok} (elective)\\
+16 & Given a published result, reproduce it from its stated environment, seeds, and scripts. & \se{519} --- \emph{partial}\\
+\multicolumn{3}{@{}l}{\emph{Does it fit the world?}}\\
+17 & Given stakeholders in conflict, elicit requirements and negotiate a release plan that every stakeholder signs off on. & \se{510}, \se{518} --- \textbf{ok}\\
+18 & Given a hypothesis, design an experiment with controls, confounds handled, and ablations. & research apprenticeship only --- \textcolor{rule}{\textbf{gap}}\\
+19 & Given a production system, define monitors for drift and a response plan for when they fire. & \se{519} (light) --- \emph{partial}\\
+20 & Given only vendor documentation, reimplement a core abstraction in under 500 lines and evaluate it against the industrial version. & \textcolor{rule}{\textbf{gap}}\\
+\bottomrule
+\end{tabularx}
+
+{\footnotesize Key: \se{591b} = SE for AI, graduate section (proposed CSC 526).}
+
+\vspace{4pt}
+\normalsize
+\textbf{How the graduate program covers this set.} Stronger than undergrad, as expected: security gains depth (515, 537), evaluation beyond accuracy has a real home (528, Trustworthy and Efficient AI), and DevOps (519) turns two undergrad gaps (16, 19) into partials. But three hard holes remain: verifying generated claims (3), designing experiments (18 --- taught today only by research apprenticeship, so course students never see it), and learning the next tool from documentation alone (20 --- covered at undergrad by 491a, which has no graduate twin). Those three are precisely the skills a post-bubble, cost-conscious industry will pay for, and none needs new hardware. The near-approved MS+AI track is the natural vehicle: write outcomes 3, 8, 18, and 20 into its required core and the graduate program covers the full set without a single new course proposal.
+
+\newpage
+
+{\large\bfseries Appendix C: How the twenty outcomes overlap the Provost's published statements}\\[1pt]
+{\small From our repertory-grid study of NCSU CSC against the 12 BOG-approved peers plus Duke: nine constructs (C1--C9), each derived from Provost Pfaendtner's published positions (Red Hat Research Quarterly, Summer 2026), each department scored 1 (ideal) to 5 with per-cell public evidence. Below, each construct with the Provost's own words and the outcomes (Appendices A/B) that serve it.}
+
+\vspace{4pt}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}l X l@{}}
+\toprule
+\textbf{Construct (ideal pole)} & \textbf{The Provost, in print} & \textbf{Outcomes}\\
+\midrule
+C1 AI dosed early, redosed often & ``Where does the dose of AI come early on, and where do we keep redosing it?'' & 1--5, 8, 18, 20\\
+C2 Fundamentals-first & ``You can't replace the time and space a college student has to learn fundamentals and critical thinking.'' & all 20\\
+C3 Parsimony: small, cheap models & ``Small language models that do bespoke tasks with way less power usage\ldots transformational\ldots the way we educate.'' & 8, 9\\
+C4 Doing, not talking & ``Stop talking, start doing.'' & all 20\\
+C5 Open source \& reproducibility & ``Open source means we publish our work first.'' & 3, 16\\
+C6 Faculty AI-upskilling & ``A faculty fellowship program\ldots with the explicit purpose of upskilling in AI.'' & 20\\
+C7 Serves the whole college & ``1,850 brand-new freshmen\ldots how are we teaching them to think about AI?'' & 1--5, 8, 18, 20\\
+C8 Ships credentials, agile & ``Being agile is essential.'' & 3, 8, 18, 20\\
+C9 AI rigor: test/eval/secure AI & Asked about debugging and security fundamentals under AI: ``100\%.'' & 2, 3, 11--16, 19\\
+\bottomrule
+\end{tabularx}
+
+\vspace{-2pt}
+\begin{center}
+\includegraphics[width=0.62\textwidth]{repgrid/grid1-cluster.pdf}
+\end{center}
+\vspace{-10pt}
+{\footnotesize FOCUS-style clustered grid: dendrograms above (constructs) and right (departments); 1 = the Provost's ideal pole, 5 = contrast pole; d = distance from IDEAL. Three reads. (i)~NCSU ties Purdue as closest to the ideal (d\,=\,9; every peer sits at 10--14) --- we argue from strength. (ii)~The test/eval/security column: no department scores better than 2 --- an empty lane sector-wide; outcomes 2, 3, 11--16, and 19 claim it at course-edit cost. (iii)~The dose-early column is the sector-wide failure (most peers at 4); our 201/301 architecture already answers it, and these outcomes are the content that keeps it answered. Every cell carries a public-evidence link (catalog, program page, or syllabus) in \texttt{repgrid/} --- full grid and rubrics available on request.}
+
+\vspace{4pt}
+\normalsize
+\textbf{Main finding: most of what the Provost wants can be taught with little or no LLM support.} Outcomes 1--5, 8, 18, and 20 need no GPU, no token budget, and no programming prerequisite --- pen, paper, planted defects, and cheap baselines suffice. \textbf{C1/C7} --- that same no-cost set is both the freshman dose and the college-wide service offer; the remaining outcomes are the redose through the major. \textbf{C2/C4} --- every outcome is fundamentals expressed as judgment, and every one is graded by artifact (``Given X, produce Y''), not by essay: doing, not talking. \textbf{C3} --- outcomes 8 and 9 make parsimony examinable: benchmark against cheap baselines, defend the LLM/non-LLM split with measured cost. \textbf{C6} --- outcome 20 (learn a tool from its documentation alone) is the upskilling skill itself; the full set is a ready syllabus for a CSC fellowship cohort. \textbf{C8} --- outcomes 3, 8, 18, 20 slot into the near-approved MS+AI core; the rest land by course-level edits, so credentials ship without new degree paperwork.
+
+\end{document}
