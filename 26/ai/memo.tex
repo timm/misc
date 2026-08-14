@@ -158,11 +158,11 @@ C9 AI rigor: test/eval/secure AI & Asked about debugging and security fundamenta
 \multicolumn{5}{@{}l}{\emph{Is it right?}}\\
 1 & Given a vague goal, specify a domain definition (inputs, outputs, correctness, out-of-scope) that a second team can test without asking a question. & \se{510}, \se{518} (prop.) --- \emph{partial} & \ding{51} & \ding{51}\\
 2 & Given a spec, design a test suite that detects all seeded defects, covering boundaries, regressions, and nondeterministic outputs. & \se{510} --- \emph{partial} & \ding{51} & \ding{51}\\
-3 & Given generated statistics, plots, or citations, verify each against raw data or the primary source; flag whatever cannot be traced. & \textcolor{rule}{\textbf{gap}} & \ding{51} & \ding{51}\\
-4 & Given code they did not write, identify defects, judge maintainability, and accept or reject with reasons that survive challenge. & \se{510}, \se{517}, \se{521} (prop.) --- \emph{partial} & \ding{51} & \\
+3 & Given generated statistics, plots, or citations, verify each against raw data or the primary source; flag whatever cannot be traced. & \se{510} (prompt reports) --- \emph{partial} & \ding{51} & \ding{51}\\
+4 & Given code they did not write, identify defects, judge maintainability, and accept or reject with reasons that survive challenge. & \se{510}, \se{517}, \se{521} (prop.) --- \textbf{ok} & \ding{51} & \\
 5 & Given an algorithm, prove its invariants and classify its problem as tractable, intractable, or undecidable. & 505, 512 --- \textbf{ok} & \ding{51} & \\
 \multicolumn{5}{@{}l}{\emph{What does it cost?}}\\
-8 & Given an AI result, benchmark it against at least one non-AI baseline over at least 20 repeated runs, reporting effect size and variance. & 522 (labs, light) --- \emph{partial} & \ding{51} & \ding{51}\\
+8 & Given an AI result, benchmark it against at least one non-AI baseline over at least 20 repeated runs, reporting effect size and variance. & \se{510} (M0 eval), 522 --- \emph{partial} & \ding{51} & \ding{51}\\
 9 & Given a decomposed workflow, allocate each sub-task to an LLM, retrieval, optimization, or deterministic logic, and defend the split with measured cost and quality. & \se{591b}, 528 --- \emph{partial} & \ding{51} & \\
 10 & Given conflicting stakeholder needs, produce an MVP scope and release plan with a business case that prices the do-nothing option. & \se{510} --- \emph{partial} & \ding{51} & \\
 \multicolumn{5}{@{}l}{\emph{Can it be trusted?}}\\
@@ -171,7 +171,7 @@ C9 AI rigor: test/eval/secure AI & Asked about debugging and security fundamenta
 13 & Given a pipeline, audit training-data provenance, license status of generated code, and PII flow, and state what risk remains after the fixes. & 533, 534 --- \emph{partial} & \ding{51} & \\
 14 & Given a failure, diagnose the fault mode and specify detection and recovery --- not a patch. & 501, 537 --- \emph{partial} & \ding{51} & \\
 15 & Given a model, evaluate it beyond accuracy --- calibration, robustness, fairness, drift --- reporting each against a stated threshold. & 528 --- \textbf{ok} (elective) &  & \\
-16 & Given a published result, reproduce it from its stated environment, seeds, and scripts. & \se{519} --- \emph{partial} &  & \\
+16 & Given a published result, reproduce it from its stated environment, seeds, and scripts. & \se{510} ($\times$2), \se{519} --- \textbf{ok} &  & \\
 \multicolumn{5}{@{}l}{\emph{Does it scale? --- up (larger problems), out (more users), down (edge devices)}}\\
 6 & Given an algorithm, predict scaling from complexity analysis, then confirm by measurement. & 505, 572 --- \textbf{ok} & \ding{51} & \\
 7 & Given a running system, measure latency, throughput, and run-to-run variance, and locate the bottleneck. & 501 --- \emph{partial} & \ding{51} & \\
@@ -189,7 +189,7 @@ C9 AI rigor: test/eval/secure AI & Asked about debugging and security fundamenta
 
 \vspace{4pt}
 \normalsize
-\textbf{How the graduate program covers this set.} Stronger than undergrad, as expected: security gains depth (515, 537), evaluation beyond accuracy has a real home (528, Trustworthy and Efficient AI), and DevOps (519) turns two undergrad gaps (16, 19) into partials. The scale outcomes also land better here than at undergrad: load-testing to many users (21) is partial (501, 519), and fitting an edge budget (22) has a real home (528). But three hard holes remain: verifying generated claims (3), designing experiments (18 --- taught today only by research apprenticeship, so course students never see it), and learning the next tool from documentation alone (20 --- covered at undergrad by 491a, which has no graduate twin). Those three are precisely the skills a post-bubble, cost-conscious industry will pay for, and none needs new hardware. The near-approved MS+AI track is the natural vehicle: write outcomes 3, 8, 18, and 20 into its required core and the graduate program covers the full set without a single new course proposal.
+\textbf{How the graduate program covers this set.} Stronger than undergrad, as expected: security gains depth (515, 537); evaluation beyond accuracy has a real home (528). \se{510}'s Fall~2026 redesign lifts four rows at course-edit cost --- exactly the mechanism this memo recommends: alien-code review (4) and reproduction (16) are marked twice each across its explore and maintenance projects; a required M0 milestone (pre-registered metric/threshold/baseline eval) houses benchmarking (8); prompt reports score \emph{caught} LLM errors (3, lightly). Scale lands better here too: 21 partial (501, 519), 22 at home (528). Two hard holes remain: experiment design (18 --- research apprenticeship only, so course students never see it) and next-tool-from-docs (20 --- no graduate twin of 491a). Both are what a post-bubble industry pays for; neither needs hardware. The near-approved MS+AI track is the vehicle: write outcomes 8, 18, and 20 into its required core and the graduate program covers the full set without a single new course proposal.
 
 \newpage
 
