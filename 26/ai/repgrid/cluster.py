@@ -36,7 +36,7 @@ G1_CONSTRUCTS = [
 # IDEAL now clean all-1s (C8 judgement call removed)
 G1 = {
     "IDEAL (Pfaendtner)": [1, 1, 1, 1, 1, 1, 1, 1, 1],
-    "NCSU CSC":           [2, 2, 2, 1, 2, 2, 2, 2, 3],
+    "NCSU CSC":           [2, 2, 2, 1, 2, 2, 2, 3, 3],  # C8=3: no shipped credential yet (memo fact 1)
     "Purdue":             [2, 1, 2, 2, 2, 2, 3, 2, 2],
     "Duke":               [2, 1, 2, 3, 2, 3, 1, 2, 3],
     "Georgia (UGA)":      [4, 1, 2, 2, 2, 1, 2, 2, 3],

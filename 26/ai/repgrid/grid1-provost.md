@@ -5,7 +5,7 @@ Scale 1–5; 1 = ideal pole. Constructs + rubrics + sources: `rubric-grid1.md`. 
 | Element | C1 dose | C2 fund | C3 parsim | C4 doing | C5 open | C6 upskill | C7 serve | C8 creds | C9 rigor | Dist. from IDEAL |
 |---|---|---|---|---|---|---|---|---|---|---|
 | **IDEAL (Pfaendtner)** | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 1 | 0 |
-| **NCSU CSC** | 2 | 2 | 2 | 1 | 2 | 2 | 2 | 2 | 3 | **8** |
+| **NCSU CSC** | 2 | 2 | 2 | 1 | 2 | 2 | 2 | 3 | 3 | **9** |
 | Purdue | 2 | 1 | 2 | 2 | 2 | 2 | 3 | 2 | 2 | **8** |
 | Duke | 2 | 1 | 2 | 3 | 2 | 3 | 1 | 2 | 3 | 9 |
 | Georgia (UGA) | 4 | 1 | 2 | 2 | 2 | 1 | 2 | 2 | 3 | 9 |
@@ -22,7 +22,7 @@ Scale 1–5; 1 = ideal pole. Constructs + rubrics + sources: `rubric-grid1.md`. 
 
 ## Findings
 
-1. **NCSU ties Purdue for closest to the Provost's ideal (distance 8/36).** Drivers: CSC 201 applied-AI in year 1 (C1=2 — only Purdue, Arizona, Duke match), 30-year corporate-sponsored required capstone (C4=1 — only GT and MSU match), live AI concentration + MCS track (C8=2).
+1. **Purdue closest to the Provost's ideal (distance 8/36); NCSU one point back at 9, tied with Duke and UGA.** NCSU drivers: CSC 201 applied-AI in year 1 (C1=2 — only Purdue, Arizona, Duke match), 30-year corporate-sponsored required capstone (C4=1 — only GT and MSU match). C8 rescored 2→3 for consistency with memo fact 1: concentration and track exist, but no shipped standalone credential (no minor, BS on hold).
 2. **C1 (dose early/redose) is the sector-wide failure**: mean ≈ 3.3; nine of fourteen departments require zero AI before senior electives. NCSU's 201/301 architecture is a genuine differentiator — exactly the "where does the dose come early" question the Provost posed.
 3. **C9 (testing/eval/security-of-AI) is an empty lane**: no department scores better than 2 (Purdue); nobody requires AI-rigor coursework. Trustworthy-AI content everywhere sits in grad electives. First mover to require it defines the category.
 4. **C2 fundamentals: everyone strong** (mean ≈ 1.1). No differentiation available here; the Provost's fundamentals worry is already the sector norm.
