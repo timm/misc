@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Behind the scenes: the struggle for each paper</title>
+<meta name="viewport" content="width=device-width" />
+<style>
+:root {
+    --back-color: rgb(30, 30, 30);
+    --text-color: rgb(212, 212, 212);
+}
+
+/* minimalist reset */
+* {
+    padding: 0;
+    margin: 0;
+    font-size: 1em;
+}
+
+body {
+    background-color: var(--back-color);
+    color: var(--text-color);
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+}
+
+main {
+    margin: 0 auto;
+    padding: 30px 140px 0 140px;
+    max-width: 600px;
+    min-height: 100vh;
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid var(--text-color);
+    margin: 3em 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 1.2em;
+    font-weight: 700;
+    display: inline;
+    margin-right: 5px;
+    line-height: 1.2;
+}
+
+h2 {
+    margin-top: 50px;
+    font-size: 1.4em;
+}
+
+h3 {
+    margin-top: 40px;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+h4 {
+    font-weight: 400;
+    margin-bottom: 40px;
+}
+
+ol {
+    counter-reset: item;
+}
+ol>li {
+    counter-increment: item;
+    list-style: none inside;
+    margin: 20px 0;
+    overflow: hidden;
+    line-height: 1.5em;
+}
+ol>li:before {
+    content: counter(item) ;
+    margin-right: 10px;
+    padding: 8px;
+    border-radius: 50%;
+    width: 25px;
+    background: var(--text-color);
+    color: var(--back-color);
+    text-align: center;
+    float: left;
+    font-weight: 700;
+}
+
+footer {
+    text-align: right;
+    margin-top: 80px;
+    padding-bottom: 20px;
+    font-size: 0.7em;
+    font-style: italic;
+}
+
+p {
+    line-height: 1.5em;
+    margin-top: 20px;
+    display: block;
+}
+
+a {
+    color: inherit;
+}
+a:hover, a:focus {
+    color: var(--back-color);
+    background-color: var(--text-color);
+}
+
+img {
+    margin: 3px;
+}
+
+ul {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-left: 1.4em;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.85em;
+    line-height: 1.35;
+}
+th, td {
+    border: 1px solid rgba(212, 212, 212, 0.35);
+    padding: 4px 9px;
+    text-align: left;
+}
+th {
+    font-weight: 700;
+}
+
+.reference {
+    font-size: 0.8rem;
+    line-height: 1.2rem;
+}
+
+.footnote {
+    font-size: 0.8rem;
+    line-height: 1.2rem;
+    margin-top: 20px;
+}
+
+sup {
+    font-size: 0.7em;
+    line-height: 0;
+}
+
+.reference > a {
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+  main {
+      max-width: 600px;
+    padding: 10px;
+  }
+  h2 {
+    font-size: 1.2em;
+  }
+  img {
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Stories of how my research papers were published</h1>
+<h2>Behind the scenes: the struggle for each paper</h2>
+<h4>By <a href="https://jeffhuang.com">Jeff Huang</a>, published 2021-06-14, updated 2021-08-11</h4>
+<p>
+The start of my sabbatical has given me a moment to reflect on my publications. But <a href="https://jeffhuang.com/CurriculumVitae.pdf">my CV</a> only shows a list of neatly cataloged papers: title, authors, conference. Each one appearing no different from another. But how each paper ended up published is its own story, a story about people and opportunity.
+</p>
+<p>
+If you read this page in its entirety, it will take about 30 minutes. But you can skip any story, and it should still make sense. The first half are my <a href="#student_papers">student stories</a>.
+</p>
+<hr id="student_papers">
+<h3>Part 1: Papers as a student author</h3>
+<hr>
+<ol>
+<li>
+I first stumbled upon research in September 2003 while I was a second-year undergraduate student. My inbox popped up the message, <em>"call me or track me down in class, 'cause a full explanation will take a lot of typing. -Bo"</em>.
+<br><br>
+Because I was learning as I went, I made all the novice mistakes from study design to paper structure. It was a long 3.5 years between when I got that first message and when it was published, after my graduation.
+<br><br><div class="reference">
+<a href="https://jeffhuang.com/papers/Graphstract_UIST07.pdf">Graphstract: Minimal Graphical Help for Computers</a>. Jeff Huang, Michael Twidale. UIST 2007.
+</div>
+</li>
+<hr>
+<p>
+My next paper was sadly my first and only full paper with my original advisor. It was intended to be something easy but original&mdash;a starter project analyzing the sequences in existing data released by AOL.:q
+</p>
+<p>
+It puzzles me that this is my most cited full paper, but I think it's due to its topic rather than because of its contribution.
+</p>
+<br><br><div class="reference">
+<a href="https://jeffhuang.com/papers/Reformulation_CIKM09.pdf">Analyzing and Evaluating Query Reformulation Strategies in Web Search Logs</a>. Jeff Huang, Efthimis Efthimiadis. CIKM 2009.
+</div>
+</ol>
+<hr>
+<h3 id="introspection">Introspection</h3>
+<hr>
+<p>
+After reviewing these notes, I'm a bit ambivalent. When I was a clueless student, I got lucky with my collaborators and acceptance decisions, which made all the difference.
+</p>
+<div style="border: 1px solid #333; margin-top: 5rem; padding: 1.5rem"> <h3 style="margin: 0">Also in this series</h3> <p style="padding-top: 0.5rem; margin: 0"><a href="/designed_to_last/">This page is designed to last</a>, a manifesto for preserving content on the web</p> </div>
+<footer>This page is <a href="http://jeffhuang.com/designed_to_last/">designed to last</a>.</footer>
+</main>
+</body>
+</html>
