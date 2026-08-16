@@ -8,6 +8,20 @@ footer: This page is [designed to last](http://jeffhuang.com/designed_to_last/).
 
 #### By [Tim Menzies](https://timm.fyi), published 2026-08-16, updated 2026-08-16
 
+*Summary: Big AI is a bubble, and the bubble is leaking. Data centers
+age fast, revenues trail spending by a trillion dollars, and the
+regulators are closing in. When it pops, expect a third AI winter.
+This page is a survival guide. Do not bet your career on renting a
+dinosaur. Learn instead to be a rat: use small models, small data,
+and small tools that one person can build, test, and understand. Four
+rat tricks follow: reuse, then refactor; keep it simple and
+stochastic; know when near enough is good enough; and mix old
+symbolic AI with new neural AI, joined at the seam that pays. The
+evidence below shows a few hundred lines of code keeping pace with
+tools that burn thousands of LLM tokens.*
+
+---
+
 <img src="rats.png" width=300 align=right>
 
 Huge LLM companies dominate today's AI scene. They hold more resources than we
@@ -354,9 +368,4 @@ then join the parts at the seam that pays.
 
 @ [Srinivasan & Menzies: Better together, in the right order: Classical-then-LLM optimization for SE](https://arxiv.org/abs/2607.02583). Srinath Srinivasan, Tim Menzies. arXiv:2607.02583, 2026.
 
-.
 
-<div style="border: 1px solid #333; margin-top: 5rem; padding: 1.5rem">
-<h3 style="margin: 0">Also in this series</h3>
-<p style="padding-top: 0.5rem; margin: 0"><a href="/designed_to_last/">This page is designed to last</a>, a manifesto for preserving content on the web</p>
-</div>
