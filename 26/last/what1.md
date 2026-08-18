@@ -5,17 +5,16 @@ author: "[Tim Menzies](https://timm.fyi)"
 date: 2026-08-16, updated 2026-08-16
 ---
 > **Summary:** Are you a good software engineer? What does "good"
-mean? How abot this: if anyone can do it for a dollar, a good
-engineer does it for a penny. Good engineers know their machine's
-parts, how the parts fit, and how to reassemble them into something
-better and faster. AI has parts too, symbolic and neural, and we
-will soon have to reassemble them: Big AI is a leaking bubble, and
-when it pops a third AI winter follows. This lecture is for the
-rats who will thrive in that winter: engineers nimble enough to
-nibble AI down to small models, small data, and small tools one
-person can build, test, and understand. Learn the parts, and you
-are not renting the future from the AI dinosaur. You are building
-it.
+mean? How about this: if anyone can do it for a dollar, a good
+engineer does it for a penny. How? By knowing the parts: what each
+does, how they fit, and how to reassemble them into something better
+and faster. AI has parts too, symbolic and neural, and we will soon
+have to reassemble them: Big AI is a leaking bubble, and when it pops
+a third AI winter follows. This lecture is for the rats who will
+thrive in that winter: engineers nimble enough to nibble AI down to
+small models, small data, and small tools one person can build, test,
+and understand. Learn the parts, and you are not renting the future
+from the AI dinosaur. You are building it.
 
 ## Are you an LLM dinosaur, or a rat?
 
