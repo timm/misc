@@ -18,12 +18,13 @@
 #   blank line                   paragraph break
 
 BEGIN { CSS = "\
+@import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');\
 :root { --fg: #000; --bg: #fff }\
 :root[data-theme=dark] { --fg: #eee; --bg: #000 }\
 * { margin: 0; padding: 0; box-sizing: border-box }\
 body { background: var(--bg); color: var(--fg);\
-       font: 15px/1.6 ui-monospace, Menlo, Consolas, monospace }\
-main { max-width: 600px; padding: 20px 10px 40px 20px }\
+       font: 16px/1.45 Optima, Marcellus, 'Gill Sans', sans-serif }\
+main { max-width: 600px; margin: 0 auto; padding: 20px 10px 40px 20px }\
 #mode { position: fixed; top: 12px; right: 14px;\
         background: none; border: 0; color: inherit; font-size: 18px }\
 h1, h2, h3, h4 { margin-top: 48px; font-size: 1em;\
