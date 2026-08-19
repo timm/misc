@@ -1,0 +1,30 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root { --fg: #111; --bg: #fdfdfb }
+:root[data-theme=dark] { --fg: #eee; --bg: #000 }
+* { margin: 0; padding: 0; box-sizing: border-box }
+html { background: var(--bg) }
+body { color: var(--fg); font: 16px/1.35 Optima, sans-serif;
+       max-width: 600px; margin: 0 auto; padding: 20px 10px 40px 20px }
+#mode { position: fixed; top: 12px; right: 14px; font-size: 18px;
+        background: none; border: 0; color: inherit }
+.fork { position: fixed; top: 44px; left: -44px; width: 220px; transform: rotate(-45deg);
+        background: #c00; color: #fff; text-align: center; font-size: .75em; line-height: 2.2em;
+        text-decoration: none; box-shadow: 0 2px 4px #0006 }
+header { text-align: center; padding: 12px 0; margin-bottom: 24px;
+         border-top: 2px solid; border-bottom: 2px solid }
+header * { margin-top: 8px; font: inherit } header h1 { font-weight: 700 }
+h2, h3 { margin-top: 48px; font-size: 1em; text-align: center;
+         text-transform: uppercase; letter-spacing: .08em }
+h2 { border-top: 2px solid; padding-top: 36px; margin-bottom: 32px }
+p { margin-top: 16px }
+.num { display: inline-block; width: 1.6em; line-height: 1.6em; border-radius: 50%;
+       background: var(--fg); color: var(--bg); text-align: center;
+       font-weight: 700; margin-right: .5em }
+table { border-collapse: collapse; margin: 16px 0; font-size: .85em }
+th, td { border: 1px solid; padding: 3px 8px }
+.footnotes { font-size: .8em; opacity: .75; overflow-wrap: anywhere; margin-top: 2em }
+a { color: inherit }
+img { max-width: 100% } .right { float: right; margin: 0 0 8px 16px }
+@media (max-width: 600px) { img { float: none; width: 100% } }
+</style>
