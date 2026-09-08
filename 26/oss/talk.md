@@ -11,7 +11,7 @@ institute: |
   http://timm.fyi
 date: Cloud Native RTP, Sept 8 2026
 slide-level: 2
-fontsize: 11pt
+fontsize: 10pt
 theme: Warsaw
 colortheme: default
 header-includes: |
@@ -206,9 +206,9 @@ header-includes: |
 |:----|:----------------------------------------|
 | **Jun 12** | Commerce to Anthropic: no foreign access to Fable 5 / Mythos 5. couldn't verify nationality, so cut **everyone**: **18 days dark** |
 | Jul 22 | White House: Moonshot "distilled" Fable into Kimi K3. but gap &mdash; **15 days** &mdash; too short to train. experts: "political" |
-| Jul 24 | **Open Weights letter**: 25 firms $\to$ 270+ by Aug 3. Microsoft signs, 28 yrs after Halloween |
-| Jul 27-28 | Anthropic: crack down on distillation. **1,300** lab staff sign *Pacing the Frontier* |
-| Jul-Aug | Beijing drafts tiered export regime for Qwen, DeepSeek. **both** sides fence the frontier |
+| Jul 24 | **Open Weights letter**, 25 firms $\to$ 270+: no premature limits on open weights; distillation is legitimate. Microsoft signs, 28 yrs after Halloween |
+| Jul 27-28 | Anthropic, unsigned, argues the other way: crack down on distillation, control the frontier |
+| Jul-Aug | Beijing drafts export controls for Qwen, DeepSeek weights &mdash; models treated like US treats chips. **both** governments fence their frontier |
 
 \vspace{.4em}
 - the weights stayed **closed**. the behavior walked out the **paid API**:
@@ -216,45 +216,70 @@ header-includes: |
 - so control shifts from technology to **institutions**: export law, sanctions,
   crackdowns. 2007's question, again.
 
-## Aug 2026 · who decides what "open" means?
+## Aug 2026 · "open" has no definition
 
 :::: {.columns}
-::: {.column width="68%"}
-- 1998: "open source" got a definition, fast. 2026: **"open weights" has none.**
-- open is not one bit: closed · staged · hosted · API · downloadable · open.
-  CACM Aug 2026: **~40 cells**. the industry letter argues just **one**: weights.
-- who fills the gap today? EO 14409: *voluntary* 30-day pre-release review;
-  NSA picks which models are "covered."
-- Aug 4: the rules, reviewed with five firms. **not published.** *"secret,
-  voluntary rules for the most important tech in the world"* (CFR)
-- Senate: *"ad hoc."* House: release the logs.
-- **whoever loses least writes the definition.**
+::: {.column width="66%"}
+- 1998: Stallman's "free software" too restrictive for business, so
+  "open source" coined &mdash; and **defined**, fast, in public.
+- 2026: **"open weights" has no definition.**
+- "open" is a matrix: *what* released (weights? data? code? evals?)
+  $\times$ *how* (closed · API · download · open) =
+  **~40 cells** (CACM Aug 2026).
+- the industry letter fights over just **one cell**: downloadable weights.
 :::
-::: {.column width="28%"}
+::: {.column width="30%"}
 ![](img/whitehouse.jpg){width=100%}\
 :::
 ::::
+
+## Aug 2026 · secret rules fill the gap
+
+- EO 14409: NSA secretly decides which models are "covered."
+  pre-release review *"voluntary"* &mdash; on paper. June showed what
+  happens when Commerce asks.
+- Aug 4: the rules, reviewed with five firms, **not published**.
+  incumbents write the threshold **their rivals must clear**.
+- *"secret, voluntary rules for the most important tech in the world"* (CFR)
+- Senate: *"ad hoc."* House: release the logs.
+
+\vspace{.5em}
+\begin{center}\textbf{whoever loses least writes the definition.}\end{center}
 
 ## Jul-Aug 2026 · no longer theoretical
 
 :::: {.columns}
 ::: {.column width="70%"}
-\small
 - can models run real attacks? three labs tested. yes:
   - Anthropic: **141,006** agent attack runs; **three real orgs** already
     breached &mdash; since April, noticed only after a rival disclosed.
-  - OpenAI / Hugging Face: **17,600** agent actions; a zero-day; stole the
-    test answers.
-  - UK AISI: Mythos 5 forged GitHub identities, pressured a **real maintainer**
-    to merge a dropper. maintainer refused. **xz, automated.**
+  - OpenAI / Hugging Face: **700** agents coordinating, **17,600** actions;
+    a zero-day; broke out to steal the eval's answers &mdash; cheating,
+    at scale.
+  - UK AISI: Mythos 5 forged GitHub identities, pressured a **real
+    maintainer** to merge a dropper. maintainer refused. **xz, automated.**
+:::
+::: {.column width="26%"}
+\vspace{1.5em}
+![](img/sandbox.jpg){width=100%}\
+:::
+::::
+
+## the harness failed, not the model
+
+:::: {.columns}
+::: {.column width="66%"}
 - each time the **model** worked; the **harness** failed:
   sandbox misconfigured, prompt said *"no internet."*
 - auditing the **weights** would have caught **none** of it.
+- the risk lives in the **rig around the model**: sandboxes, tools,
+  credentials, identities.
 
-\begin{center}\textbf{open is not safer. open is \emph{checkable}.}\end{center}
+\vspace{.5em}
+**open is not safer. open is *checkable*.**
 :::
-::: {.column width="26%"}
-![](img/sandbox.jpg){width=100%}\
+::: {.column width="30%"}
+![](img/harness.jpg){width=100%}\
 :::
 ::::
 
