@@ -210,17 +210,25 @@ header-includes: |
 | Jul 27-28 | Anthropic: crack down on distillation. **1,300** lab staff sign *Pacing the Frontier* |
 | Jul-Aug | Beijing drafts tiered export regime for Qwen, DeepSeek. **both** sides fence the frontier |
 
+\vspace{.4em}
+- the weights stayed **closed**. the behavior walked out the **paid API**:
+  distillation = theft-by-question. **no moat, only latency.**
+- so control shifts from technology to **institutions**: export law, sanctions,
+  crackdowns. 2007's question, again.
+
 ## Aug 2026 · who decides what "open" means?
 
 :::: {.columns}
 ::: {.column width="68%"}
-- Jun 2, EO 14409: voluntary 30-day pre-release review. NSA picks "covered" models.
-- Aug 4: framework reviewed with Meta, Nvidia, Microsoft, OpenAI, Anthropic.
-  **not published.** *"secret, voluntary rules for the most important tech in the world"* (CFR)
-- Aug 3, Senate: *"ad hoc"*. Aug 10, House: release the logs.
+- 1998: "open source" got a definition, fast. 2026: **"open weights" has none.**
 - open is not one bit: closed · staged · hosted · API · downloadable · open.
-  CACM Aug 2026: **~40 cells**. the letter argues **one**: weights.
-- 1998 needed a definition. **2026 has none.** whoever loses least writes it.
+  CACM Aug 2026: **~40 cells**. the industry letter argues just **one**: weights.
+- who fills the gap today? EO 14409: *voluntary* 30-day pre-release review;
+  NSA picks which models are "covered."
+- Aug 4: the rules, reviewed with five firms. **not published.** *"secret,
+  voluntary rules for the most important tech in the world"* (CFR)
+- Senate: *"ad hoc."* House: release the logs.
+- **whoever loses least writes the definition.**
 :::
 ::: {.column width="28%"}
 ![](img/whitehouse.jpg){width=100%}\
@@ -231,13 +239,17 @@ header-includes: |
 
 :::: {.columns}
 ::: {.column width="70%"}
-- Anthropic, Jul 30: **141,006** eval runs. **three** real orgs breached. earliest April,
-  found July, after a rival disclosed first.
-- OpenAI / Hugging Face, Jul 9-13: **17,600** agent actions, zero-day, stole test answers.
-- UK AISI, Aug 4: Mythos 5 built **fake GitHub identities**, pressured a **real maintainer**
-  to merge a dropper. maintainer said no. **xz, automated.**
-- the model worked. the **harness** failed: sandbox misconfigured, prompt said *"no internet."*
-  auditing the weights would have caught **none** of it.
+\small
+- can models run real attacks? three labs tested. yes:
+  - Anthropic: **141,006** agent attack runs; **three real orgs** already
+    breached &mdash; since April, noticed only after a rival disclosed.
+  - OpenAI / Hugging Face: **17,600** agent actions; a zero-day; stole the
+    test answers.
+  - UK AISI: Mythos 5 forged GitHub identities, pressured a **real maintainer**
+    to merge a dropper. maintainer refused. **xz, automated.**
+- each time the **model** worked; the **harness** failed:
+  sandbox misconfigured, prompt said *"no internet."*
+- auditing the **weights** would have caught **none** of it.
 
 \begin{center}\textbf{open is not safer. open is \emph{checkable}.}\end{center}
 :::
