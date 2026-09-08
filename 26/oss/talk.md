@@ -63,12 +63,13 @@ header-includes: |
 
 :::: {.columns}
 ::: {.column width="52%"}
-- practiced what i preached: shared the **experiments** as OSS (SP&E'11),
+- practiced what i preached: shared the **experiments** as OSS
+  \textcolor{myred}{\textbf{(SP\&E'11)}},
   shared the **data** (PROMISE repo, 100s of SE datasets).
-- first such paper (TSE'07): at its peak, SE's **most cited** paper
-  (cites/month).
+- first such paper \textcolor{myred}{\textbf{(TSE'07)}}: at its peak,
+  SE's **most cited** paper (cites/month).
 - by 2018, **20%** of leading TSE papers used data i'd shared or
-  first curated (TSE'25).
+  first curated \textcolor{myred}{\textbf{(TSE'25)}}.
 
 \vspace{.5em}
 **open really worked — for me.**
@@ -169,8 +170,10 @@ header-includes: |
 :::: {.columns}
 ::: {.column width="70%"}
 - **good news!** OSS not chaos, actually **predictable**: health forecastable
-  a year out (1,159 repos, 64k months, EMSE'22); a dozen **archetypes** cover
-  it all (MSR'22). we can **forecast** the dying projects.
+  a year out (1,159 repos, 64k months,
+  \textcolor{myred}{\textbf{EMSE'22}}); a dozen **archetypes** cover
+  it all \textcolor{myred}{\textbf{(MSR'22)}}. we can **forecast** the
+  dying projects.
 - **not so good:**
   - we fund none of them. **80%+** of every product is OSS:
     **your** attack surface, **their** unpaid hobby.
@@ -248,8 +251,7 @@ header-includes: |
   "open source" coined &mdash; and **defined**, fast, in public.
 - 2026: **"open weights" has no definition.**
 - "open" is a matrix: *what* released (weights? data? code? evals?)
-  $\times$ *how* (closed · API · download · open) =
-  **~40 cells** (CACM Aug 2026).
+  $\times$ *how* (closed · API · download · open).
 - the industry letter fights over just **one cell**: downloadable weights.
 
 \vspace{.5em}
@@ -268,8 +270,6 @@ header-includes: |
   real orgs breached, evals gamed.
 - UK AISI: Mythos 5 forged GitHub identities, pressured a **real
   maintainer** to merge a dropper. maintainer refused. **xz, automated.**
-- each time the **model** worked; the **harness** failed:
-  sandbox misconfigured, prompt said *"no internet."*
 - auditing the **weights** would have caught **none** of it. the risk
   lives in the **rig**: sandboxes, tools, credentials, identities.
 
@@ -295,7 +295,7 @@ header-includes: |
 \vspace{.3em}
 **2007's last line: *what social institutions will handle it?*** still open.
 
-## four things this room can do · then discussion
+## things this room can do · then discussion
 
 :::: {.columns}
 ::: {.column width="66%"}
@@ -331,6 +331,10 @@ header-includes: |
   *Predicting Health Indicators for Open Source Projects
   (using Hyperparameter Optimization).*
   Empirical Software Eng. 27:122, 2022.
+- **(MSR'22)** Majumder, Xia, Krishna, Menzies.
+  *Methods for Stabilizing Models across Large Samples of Projects
+  (with case studies on predicting defect and project health).*
+  IEEE/ACM 19th Int'l Conf. on Mining Software Repositories (MSR), 2022.
 - **(TSE'25)** Menzies.
   *Retrospective: Data Mining Static Code Attributes to Learn
   Defect Predictors.* IEEE Trans. Software Eng. 51(3):858-859, 2025.
