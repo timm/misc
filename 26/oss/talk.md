@@ -63,9 +63,9 @@ header-includes: |
 
 :::: {.columns}
 ::: {.column width="62%"}
-- Mauss, *The Gift*: **give, receive, reciprocate.**
+- Marcel Mauss, *The Gift* (1925): **give, receive, reciprocate.**
 - potlatch: leaders **give away** wealth $\to$ gain rank.
-- Hyde (1983): a gift must keep **moving**. hoard it, it dies.
+- Lewis Hyde (1983): a gift must keep **moving**. hoard it, it dies.
 - OSS looked inexplicable. it wasn't. it was **old**.
 :::
 ::: {.column width="34%"}
@@ -108,7 +108,8 @@ header-includes: |
 
 :::: {.columns}
 ::: {.column width="62%"}
-- Torvalds 1991: kernel, *"simplest design possible"*, herd a crowd.
+- Torvalds, Aug 1991: *"I'm doing a (free) operating system (just a hobby,
+  won't be big and professional like gnu) for 386(486) AT clones."*
 - Raymond 1997: bazaar. *"given enough eyeballs, all bugs are shallow."*
 - Feb 1998: **"open source"** coined; OSI; Open Source Definition.
 - Oct 1998: **Halloween documents**. Microsoft: existential threat.
@@ -145,10 +146,12 @@ header-includes: |
 
 :::: {.columns}
 ::: {.column width="70%"}
-- **80%+** of every product is OSS. project health is **forecastable** a year out
-  (1,159 repos, 64k months, EMSE'22); all of them fall into just **12 archetypes** (MSR'22).
-  we can see the commons dying. we just don't pay.
-- Heartbleed 2014 · left-pad 2016 · log4shell 2021 · xz 2024.
+- **80%+** of every product is OSS: **your** attack surface, **their** unpaid hobby.
+- OSS not chaos, actually **predictable**: health forecastable a year out
+  (1,159 repos, 64k months, EMSE'22); a dozen **archetypes** cover it all (MSR'22).
+  we can **forecast** the dying projects. we fund none of them.
+- critical infrastructure maintained by nearly nobody, failing in public:
+  - Heartbleed 2014 · left-pad 2016 · log4shell 2021 · xz 2024.
 - Linus's Law: *"given enough eyeballs, all bugs are shallow."*
   asserted 1997. **never measured.** the eyeballs were never there.
 :::
@@ -165,11 +168,12 @@ header-includes: |
   **\$2k/yr** in donations. funded only *after* Heartbleed.
 - **left-pad, 2016**: one dev pulled 11 lines. Facebook, Netflix broke.
 - **xz, 2024**: one unpaid volunteer, burned out. 2 years of social
-  engineering. root backdoor to every distro. caught by **500ms** of latency.
-- the gift got taken. the reciprocity never came.
+  engineering. root backdoor to every distro. no audit caught it —
+  one engineer noticed logins ran **500ms slow**.
 :::
 ::: {.column width="42%"}
-![](img/xkcd2347.png){height=6.6cm}\
+\vspace{1.5em}
+![](img/xkcd2347.png){width=100%}\
 \tiny xkcd 2347
 :::
 ::::
@@ -183,11 +187,13 @@ header-includes: |
 - May 2023, leaked Google memo: *"we have no moat, and neither does OpenAI."*
 - Llama 2023 · DeepSeek 2025 · Qwen · Meta Muse Glimmer, Aug 2026.
   one US firm: **\$400k/yr** saved running Qwen.
-- **chip sellers** (Nvidia): more models running, more GPUs. want open.
+- **chip sellers** (Nvidia): more models, more GPUs. want open —
+  yet **\$40B** into OpenAI + Anthropic.
   **token sellers** (OpenAI): free weights are the rival. want closed.
   both say *"security."* both mean *"revenue."*
 :::
 ::: {.column width="34%"}
+\vspace{2.5em}
 ![](img/llama.jpg){width=100%}\
 :::
 ::::
@@ -198,8 +204,8 @@ header-includes: |
 
 | date | event |
 |:----|:----------------------------------------|
-| **Jun 12** | Commerce to Anthropic: cut Fable 5 / Mythos 5 for all foreign nationals. **18 days dark** |
-| Jul 22 | OSTP: Moonshot "distilled" Fable into Kimi K3. gap: **15 days**. experts: "political" |
+| **Jun 12** | Commerce to Anthropic: no foreign access to Fable 5 / Mythos 5. couldn't verify nationality, so cut **everyone**: **18 days dark** |
+| Jul 22 | White House: Moonshot "distilled" Fable into Kimi K3. but gap &mdash; **15 days** &mdash; too short to train. experts: "political" |
 | Jul 24 | **Open Weights letter**: 25 firms $\to$ 270+ by Aug 3. Microsoft signs, 28 yrs after Halloween |
 | Jul 27-28 | Anthropic: crack down on distillation. **1,300** lab staff sign *Pacing the Frontier* |
 | Jul-Aug | Beijing drafts tiered export regime for Qwen, DeepSeek. **both** sides fence the frontier |

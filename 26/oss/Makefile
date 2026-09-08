@@ -11,7 +11,8 @@ IMGS   := $(IMGDIR)/ncsu.png $(IMGDIR)/mauss.jpg $(IMGDIR)/gates.jpg \
           $(IMGDIR)/whitehouse.jpg $(IMGDIR)/sandbox.jpg $(IMGDIR)/harness.jpg \
           $(IMGDIR)/kula.jpg $(IMGDIR)/tournament.png $(IMGDIR)/talk2007.png $(IMGDIR)/xkcd2347.png
 
-.PHONY: all fast handout push clean distclean
+.PHONY: all fast handout view push clean distclean
+FYI := $(HOME)/gits/timm/fyi/26oss.pdf
 
 # everything: slides + 4-up handout
 all: $(PDF) handout
@@ -56,10 +57,15 @@ define fetch
 	mkdir -p $(IMGDIR); curl -sL -A "Mozilla/5.0" "$(W)/$(1)?width=700" -o $@
 endef
 
-# commit everything here with a prompted message, then push
-push:
+# build then open in Skim
+view: $(PDF)
+	open -a Skim $(PDF)
+
+# commit everything here with a prompted message, push, then copy pdf to fyi
+push: $(PDF)
 	@read -p "Reason? " msg; \
 	 git add -A . ; git commit -m "$$msg"; git push; git status --short .
+	cp $(PDF) $(FYI)
 
 clean:
 	rm -f $(PDF) talk-handout.pdf
