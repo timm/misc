@@ -9,7 +9,8 @@ IMGS   := $(IMGDIR)/ncsu.png $(IMGDIR)/mauss.jpg $(IMGDIR)/gates.jpg \
           $(IMGDIR)/stallman.jpg $(IMGDIR)/torvalds.jpg $(IMGDIR)/potlatch.png \
           $(IMGDIR)/heartbleed.png $(IMGDIR)/harvest.jpg $(IMGDIR)/llama.jpg \
           $(IMGDIR)/whitehouse.jpg $(IMGDIR)/sandbox.jpg $(IMGDIR)/harness.jpg \
-          $(IMGDIR)/kula.jpg $(IMGDIR)/tournament.png $(IMGDIR)/talk2007.png $(IMGDIR)/xkcd2347.png
+          $(IMGDIR)/kula.jpg $(IMGDIR)/tournament.png $(IMGDIR)/talk2007.png $(IMGDIR)/xkcd2347.png \
+          $(IMGDIR)/spe2010.png $(IMGDIR)/tse2025.png
 
 .PHONY: all fast handout view push clean distclean
 FYI := $(HOME)/gits/timm/fyi/26oss.pdf
@@ -35,9 +36,12 @@ $(IMGDIR)/redhat.png:   ; $(call fetch,Red_Hat_Logo_2019.svg)
 $(IMGDIR)/ibm.png:      ; $(call fetch,IBM_logo.svg)
 $(IMGDIR)/k8s.png:      ; $(call fetch,Kubernetes_logo.svg)
 $(IMGDIR)/aws.png:      ; $(call fetch,Amazon_Web_Services_Logo.svg)
-# the corporate gifts (and the rival forced to take one), stacked tall (needs ImageMagick montage)
+# the corporate gifts (and the rival forced to take one), stacked tall (needs netpbm)
 $(IMGDIR)/potlatch.png: $(IMGDIR)/redhat.png $(IMGDIR)/ibm.png $(IMGDIR)/k8s.png $(IMGDIR)/aws.png
-	montage $^ -tile 1x -geometry 500x200+0+30 -background white $@
+	for f in $^; do pngtopnm -mix -background white $$f | pnmscale -xysize 500 200 | \
+	  pnmpad -white -width 500 -top 30 -bottom 30 > $$f.pnm; done
+	pnmcat -tb -white $(addsuffix .pnm,$^) | pnmtopng > $@
+	rm -f $(addsuffix .pnm,$^)
 $(IMGDIR)/heartbleed.png: ; $(call fetch,Heartbleed.svg)
 $(IMGDIR)/harvest.jpg:  ; $(call fetch,Combine_harvester_cutting_wheat_field_-_geograph.org.uk_-_520759.jpg)
 $(IMGDIR)/llama.jpg:    ; $(call fetch,Lama_glama_4zz.jpg)
@@ -49,8 +53,13 @@ $(IMGDIR)/xkcd2347.png: ; mkdir -p $(IMGDIR); curl -sL -A "Mozilla/5.0" https://
 # local: NC State logo, EZR tournament (from ../ssbse), 2007 title slide (cropped)
 $(IMGDIR)/ncsu.png:       ; mkdir -p $(IMGDIR); cp ~/gits/timm/fyi/ncsu_brick.png $@
 $(IMGDIR)/tournament.png: ; mkdir -p $(IMGDIR); cp ../ssbse/img/tournament.png $@
-$(IMGDIR)/talk2007.png:   ; mkdir -p $(IMGDIR); pdftoppm -r 150 -png -f 1 -l 1 "Open source_ can you ignore it_ _ ODP.pdf" $(IMGDIR)/odp && \
-	python3 -c "from PIL import Image; Image.open('$(IMGDIR)/odp-01.png').crop((132,585,1030,1262)).save('$@')" && rm -f $(IMGDIR)/odp-01.png
+# paper headers (screenshots checked into this repo)
+$(IMGDIR)/spe2010.png:    ; mkdir -p $(IMGDIR); cp spe2010.png $@
+$(IMGDIR)/tse2025.png:    ; mkdir -p $(IMGDIR); cp tse2025.png $@
+$(IMGDIR)/talk2007.png:   ; mkdir -p $(IMGDIR); gs -q -dNOPAUSE -dBATCH -sDEVICE=png16m -r150 \
+	-dFirstPage=1 -dLastPage=1 -sOutputFile=$(IMGDIR)/odp.png "Open source_ can you ignore it_ _ ODP.pdf" && \
+	pngtopnm $(IMGDIR)/odp.png | pnmcut -left 132 -top 585 -width 898 -height 677 | pnmtopng > $@ && \
+	rm -f $(IMGDIR)/odp.png
 comma := ,
 
 define fetch

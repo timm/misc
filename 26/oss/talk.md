@@ -59,17 +59,24 @@ header-includes: |
 :::
 ::::
 
-## 1925 · the gift economy
+## full disclosure · i was "mr. open science"
 
 :::: {.columns}
-::: {.column width="62%"}
-- Marcel Mauss, *The Gift* (1925): **give, receive, reciprocate.**
-- potlatch: leaders **give away** wealth $\to$ gain rank.
-- Lewis Hyde (1983): a gift must keep **moving**. hoard it, it dies.
-- OSS looked inexplicable. it wasn't. it was **old**.
+::: {.column width="52%"}
+- practiced what i preached: shared the **experiments** as OSS (SP&E'11),
+  shared the **data** (PROMISE repo, 100s of SE datasets).
+- first such paper (TSE'07): at its peak, SE's **most cited** paper
+  (cites/month).
+- by 2018, **20%** of leading TSE papers used data i'd shared or
+  first curated (TSE'25).
+
+\vspace{.5em}
+**open really worked — for me.**
 :::
-::: {.column width="34%"}
-![](img/mauss.jpg){width=100%}\
+::: {.column width="44%"}
+![](img/spe2010.png){width=100%}\
+\vspace{.4em}
+![](img/tse2025.png){width=100%}\
 :::
 ::::
 
@@ -87,6 +94,21 @@ header-includes: |
 :::
 ::: {.column width="46%"}
 ![](img/gates.jpg){width=100%}\
+:::
+::::
+
+## 1925 · the gift economy
+
+:::: {.columns}
+::: {.column width="62%"}
+- why would sharing win? seems strange. it isn't. it's **old**.
+- Marcel Mauss, *The Gift* (1925): **give, receive, reciprocate** &mdash;
+  seen across human cultures, everywhere.
+- potlatch: leaders **give away** wealth $\to$ gain rank.
+- Lewis Hyde (1983): a gift must keep **moving**. hoard it, it dies.
+:::
+::: {.column width="34%"}
+![](img/mauss.jpg){width=100%}\
 :::
 ::::
 
@@ -146,14 +168,16 @@ header-includes: |
 
 :::: {.columns}
 ::: {.column width="70%"}
-- **80%+** of every product is OSS: **your** attack surface, **their** unpaid hobby.
-- OSS not chaos, actually **predictable**: health forecastable a year out
-  (1,159 repos, 64k months, EMSE'22); a dozen **archetypes** cover it all (MSR'22).
-  we can **forecast** the dying projects. we fund none of them.
-- critical infrastructure maintained by nearly nobody, failing in public:
-  - Heartbleed 2014 · left-pad 2016 · log4shell 2021 · xz 2024.
-- Linus's Law: *"given enough eyeballs, all bugs are shallow."*
-  asserted 1997. **never measured.** the eyeballs were never there.
+- **good news!** OSS not chaos, actually **predictable**: health forecastable
+  a year out (1,159 repos, 64k months, EMSE'22); a dozen **archetypes** cover
+  it all (MSR'22). we can **forecast** the dying projects.
+- **not so good:**
+  - we fund none of them. **80%+** of every product is OSS:
+    **your** attack surface, **their** unpaid hobby.
+  - critical infrastructure maintained by nearly nobody, failing in public:
+    Heartbleed 2014 · left-pad 2016 · log4shell 2021 · xz 2024.
+  - Linus's Law: *"given enough eyeballs, all bugs are shallow."*
+    asserted 1997. **never measured.** the eyeballs were never there.
 :::
 ::: {.column width="26%"}
 ![](img/heartbleed.png){width=100%}\
@@ -163,18 +187,19 @@ header-includes: |
 ## one person in Nebraska
 
 :::: {.columns}
+::: {.column width="42%"}
+\vspace{1.5em}
+![](img/xkcd2347.png){width=100%}\
+\tiny xkcd 2347
+:::
 ::: {.column width="54%"}
+\vspace{2\baselineskip}
 - **OpenSSL, 2014**: secured 2/3 of the web. one full-time dev,
   **\$2k/yr** in donations. funded only *after* Heartbleed.
 - **left-pad, 2016**: one dev pulled 11 lines. Facebook, Netflix broke.
 - **xz, 2024**: one unpaid volunteer, burned out. 2 years of social
   engineering. root backdoor to every distro. no audit caught it —
   one engineer noticed logins ran **500ms slow**.
-:::
-::: {.column width="42%"}
-\vspace{1.5em}
-![](img/xkcd2347.png){width=100%}\
-\tiny xkcd 2347
 :::
 ::::
 
@@ -205,9 +230,8 @@ header-includes: |
 | date | event |
 |:----|:----------------------------------------|
 | **Jun 12** | Commerce to Anthropic: no foreign access to Fable 5 / Mythos 5. couldn't verify nationality, so cut **everyone**: **18 days dark** |
-| Jul 22 | White House: Moonshot "distilled" Fable into Kimi K3. but gap &mdash; **15 days** &mdash; too short to train. experts: "political" |
 | Jul 24 | **Open Weights letter**, 25 firms $\to$ 270+: no premature limits on open weights; distillation is legitimate. Microsoft signs, 28 yrs after Halloween |
-| Jul 27-28 | Anthropic, unsigned, argues the other way: crack down on distillation, control the frontier |
+| Jul 27-28 | Anthropic, unsigned, argues the other way: crack down on distillation, mandatory pre-release safety tests, control the frontier |
 | Jul-Aug | Beijing drafts export controls for Qwen, DeepSeek weights &mdash; models treated like US treats chips. **both** governments fence their frontier |
 
 \vspace{.4em}
@@ -227,53 +251,27 @@ header-includes: |
   $\times$ *how* (closed · API · download · open) =
   **~40 cells** (CACM Aug 2026).
 - the industry letter fights over just **one cell**: downloadable weights.
+
+\vspace{.5em}
+\textbf{whoever loses least writes the definition.}
 :::
 ::: {.column width="30%"}
 ![](img/whitehouse.jpg){width=100%}\
 :::
 ::::
 
-## Aug 2026 · secret rules fill the gap
-
-- EO 14409: NSA secretly decides which models are "covered."
-  pre-release review *"voluntary"* &mdash; on paper. June showed what
-  happens when Commerce asks.
-- Aug 4: the rules, reviewed with five firms, **not published**.
-  incumbents write the threshold **their rivals must clear**.
-- *"secret, voluntary rules for the most important tech in the world"* (CFR)
-- Senate: *"ad hoc."* House: release the logs.
-
-\vspace{.5em}
-\begin{center}\textbf{whoever loses least writes the definition.}\end{center}
-
-## Jul-Aug 2026 · no longer theoretical
-
-:::: {.columns}
-::: {.column width="70%"}
-- can models run real attacks? three labs tested. yes:
-  - Anthropic: **141,006** agent attack runs; **three real orgs** already
-    breached &mdash; since April, noticed only after a rival disclosed.
-  - OpenAI / Hugging Face: **700** agents coordinating, **17,600** actions;
-    a zero-day; broke out to steal the eval's answers &mdash; cheating,
-    at scale.
-  - UK AISI: Mythos 5 forged GitHub identities, pressured a **real
-    maintainer** to merge a dropper. maintainer refused. **xz, automated.**
-:::
-::: {.column width="26%"}
-\vspace{1.5em}
-![](img/sandbox.jpg){width=100%}\
-:::
-::::
-
-## the harness failed, not the model
+## Jul-Aug 2026 · the harness failed, not the model
 
 :::: {.columns}
 ::: {.column width="66%"}
+- can models run real attacks? three labs tested. **yes**: zero-days,
+  real orgs breached, evals gamed.
+- UK AISI: Mythos 5 forged GitHub identities, pressured a **real
+  maintainer** to merge a dropper. maintainer refused. **xz, automated.**
 - each time the **model** worked; the **harness** failed:
   sandbox misconfigured, prompt said *"no internet."*
-- auditing the **weights** would have caught **none** of it.
-- the risk lives in the **rig around the model**: sandboxes, tools,
-  credentials, identities.
+- auditing the **weights** would have caught **none** of it. the risk
+  lives in the **rig**: sandboxes, tools, credentials, identities.
 
 \vspace{.5em}
 **open is not safer. open is *checkable*.**
@@ -318,4 +316,22 @@ header-includes: |
 ![](img/kula.jpg){width=100%}\
 :::
 ::::
+
+## references (this speaker)
+
+\scriptsize
+
+- **(TSE'07)** Menzies, Greenwald, Frank.
+  *Data Mining Static Code Attributes to Learn Defect Predictors.*
+  IEEE Trans. Software Eng. 33(1):2-13, 2007.
+- **(SP&E'11)** Nelson, Menzies, Gay.
+  *Sharing Experiments Using Open Source Software.*
+  Software: Practice & Experience 41(3):283-305, 2011.
+- **(EMSE'22)** Xia, Fu, Shu, Agrawal, Menzies.
+  *Predicting Health Indicators for Open Source Projects
+  (using Hyperparameter Optimization).*
+  Empirical Software Eng. 27:122, 2022.
+- **(TSE'25)** Menzies.
+  *Retrospective: Data Mining Static Code Attributes to Learn
+  Defect Predictors.* IEEE Trans. Software Eng. 51(3):858-859, 2025.
 
