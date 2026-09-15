@@ -1,0 +1,160 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Artifact Appendix (EuroSys'22 AE template) for
+% "How Low Can You Go? The Data-Light SE Challenge"
+% Ganguly & Menzies, FSE 2026. arXiv:2512.13524v2
+% Repo: https://github.com/KKGanguly/NEO @ 5a0d487 (2026-07-27)
+% Drafted 2026-09-14 from repo inspection + smoke test of
+% report/plot scripts only. Full optimizer re-runs NOT executed.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+\section{Artifact Appendix}
+
+\subsection{Abstract}
+The artifact contains the Python optimizers (LITE, LINE, EZR, RANDOM
+wrappers plus DEHB, SMAC and TPE via their public packages), a Lua
+scoring harness, precomputed results for all optimizers over the MOOT
+benchmark tasks, and scripts that rebuild the paper's summary table
+(Table~3, percent-best and $\Delta$ per budget), Figure~4 (percent-best
+vs.\ label budget) and Figure~5 (runtime box plots). The cheap path
+(table and figures from precomputed results) runs in seconds. The
+expensive path (re-running all optimizers on all tasks) is optional.
+
+\subsection{Description \& Requirements}
+
+\subsubsection{How to access}
+\url{https://github.com/KKGanguly/NEO}, commit \texttt{5a0d487}
+(2026-07-27), MIT license, $\approx$104\,MB cloned (mostly precomputed
+results). The benchmark data is \emph{not} in this repository: clone
+\url{https://github.com/timm/moot} into \path{NEO/moot/} (the
+Makefiles and Lua harness expect \path{NEO/moot/optimize/*/*.csv};
+the README's \path{data/moot/} path is wrong).
+
+\subsubsection{Hardware dependencies}
+Authors' rig: 4-core 1.30\,GHz Linux, 16\,GB RAM, no GPU. E1--E3 below
+run on any laptop. E4 (full re-run) benefits from many cores; the
+generated \texttt{commands.sh} launches one process per dataset in
+parallel.
+
+\subsubsection{Software dependencies}
+Python (README says 3.13; \texttt{.python-version} says 3.11; 3.13
+confirmed for E2--E3) with \texttt{requirements.txt} (pandas,
+matplotlib, seaborn, scipy, numba, ConfigSpace, dehb, smac, optuna,
+optunahub, hebo; CMake/SWIG needed to build SMAC). Lua~5.x, GNU make,
+bash, awk, egrep, gawk. Lua is required by \texttt{make comparez}
+and is \emph{not} mentioned in the README. No container is provided.
+
+\subsubsection{Benchmarks}
+127 multi-objective SE optimization tasks from MOOT (Table~1 of the
+paper): software configuration, HPO, product lines, project health,
+cost/effort, defect prediction. Note: the committed
+\texttt{report.csv} covers 112 tasks; 15 tasks named in paper v2 are
+absent from the precomputed results.
+
+\subsection{Set-up}
+{\footnotesize\begin{verbatim}
+git clone https://github.com/KKGanguly/NEO
+cd NEO
+git clone https://github.com/timm/moot  # NEO/moot
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+brew install lua    # or: apt install lua5.4
+\end{verbatim}}
+Basic test (no data needed): \texttt{cd experiments/LUA\_run\_all
+\&\& make report} must print nothing and rewrite
+\path{results/optimization_performance/report.csv}.
+
+\subsection{Evaluation workflow}
+
+\subsubsection{Major Claims}
+\begin{itemize}
+\item \textit{(C1)} With label budgets of 6--200, simple pool-based
+  optimizers (LITE, LINE, RANDOM, EZR) match or beat SMAC, TPE and DEHB
+  in percent-best rank and normalized improvement $\Delta$; LITE is best
+  overall and DEHB worst. Shown in Table~3 (\S5.5). Reproduced by E1.
+\item \textit{(C2)} Percent-best gains flatten after $\approx$100
+  labels; small budgets favor LINE/RANDOM, mid budgets favor LITE.
+  Shown in Figure~4. Reproduced by E2.
+\item \textit{(C3)} RANDOM runs $>$10{,}000$\times$ faster than the
+  membership-query optimizers; SMAC is $>$2 orders of magnitude slower
+  than LITE/EZR. Shown in Figure~5. Reproduced by E3.
+\item \textit{(C4)} The BINGO effect (\S6, Table~4, Figure~7: data
+  collapses into few occupied buckets). \textbf{Not covered}: no script
+  in the repository regenerates Table~4 or Figure~7.
+\end{itemize}
+
+\subsubsection{Experiments}
+
+\medskip\par\noindent\textit{Experiment (E1): Summary table} [5 human-min + 1 compute-sec
+from committed scores; Lua rescoring untimed]. Rebuilds Table~3.\\
+\textit{[Preparation]}\
+Set-up above. \texttt{comparez.out} (Lua
+percent-best/$\Delta$ per task) is committed, so the Lua step is
+optional.\\
+\textit{[Execution]}\
+\texttt{cd experiments/LUA\_run\_all; make
+report}. To rescore from the raw runs: \texttt{make comparez} first
+(runs \texttt{lua run\_all.lua --comparez} once per MOOT csv, reading
+\path{results/results_*/} through \texttt{FileResultsReader.py};
+RANDOM and LINE are computed inside the Lua script, not from Python
+runs).\\
+\textit{[Results]}\
+\path{results/optimization_performance/report.csv}:
+one row per task, columns \texttt{<OPT>-<budget>} and
+\texttt{<OPT>-<budget>\_sd}; last row is the column mean. Compare the
+mean row with Table~3 (e.g.\ LITE $=$ ACT column: 32, 54, 70, 75, 82,
+88, 94; DEHB: 24, 25, 31, 39, 59, 64, 69). Regenerating from the
+committed \texttt{comparez.out} gave $\pm$1 differences in a few cells
+of the mean row vs.\ the committed csv.
+
+
+\medskip\par\noindent\textit{Experiment (E2): Figure 4} [2 human-min + 1 compute-sec].\\
+\textit{[Execution]}\
+\texttt{cd experiments; MPLBACKEND=Agg python3
+optim\_performance\_comp.py}. Without \texttt{MPLBACKEND=Agg} the
+script blocks on \texttt{plt.show()}.\\
+\textit{[Results]}
+\path{results/optimization_performance/optimization_performance_comparison.png}:
+percent-best vs.\ budget, one line per optimizer; LITE on top from
+budget 12 onward, DEHB lowest everywhere (C2).
+
+
+\medskip\par\noindent\textit{Experiment (E3): Figure 5} [2 human-min + 1 compute-sec].\\
+\textit{[Execution]}\
+\texttt{cd experiments; MPLBACKEND=Agg python3
+performance\_box.py} (reads \texttt{report\_tmp.csv}, written by E1).\\
+\textit{[Results]}
+\path{results/runtime_plot/families_runtime_boxplot.png}, log-ms
+boxes for DEHB, SMAC, TPE, LITE, EZR, LINE, RANDOM; RANDOM lowest,
+SMAC highest (C3).
+
+
+\medskip\par\noindent\textit{Experiment (E4, optional): Re-run optimizers} [10 human-min +
+days of compute, not measured]. 127 tasks $\times$ 7 budgets
+$\times$ 20 repeats per optimizer.\\
+\textit{[Execution]}\
+From repo root: \texttt{make generate-commands
+NAME=SMAC} (also DEHB, TPE, Active\_Learning, EZR), then
+\texttt{cd experiments \&\& ./commands.sh}. Output replaces
+\path{results/results_<NAME>/<NAME>/<task>_<budget>.csv} (three
+lines: sampled configs, d2h scores, seconds, one entry per repeat).
+Then E1--E3. Stochastic; expect Table~3 cells to move by a few points.
+
+\subsection{Notes on Reusability}
+New task: drop a MOOT-format csv (goal columns end in \texttt{+}/\texttt{-})
+under \path{moot/optimize/<group>/}; \texttt{make generate-commands}
+picks it up; add its name to the \texttt{comparez} glob in
+\path{experiments/LUA_run_all/Makefile}. New optimizer: subclass
+\path{optimizers/base_optimizer.py}, register in
+\path{experiments/experiment_runner_cluster.py}, add a results
+reader block in \texttt{run\_all.lua}. Budgets and repeats are the
+\texttt{--budget}/\texttt{--repeats} flags in the root Makefile.
+
+\subsection{General Notes}
+Known gaps an evaluator will hit: (1) README points to
+\path{data/moot/}, code expects \path{moot/}; (2) README calls the
+summary "Table 4", paper v2 numbers it Table~3; (3) Lua and gawk are
+undocumented dependencies; (4) 112 of 127 tasks have precomputed
+results; (5) no Docker image; (6) \texttt{plt.show()} in E2 needs a
+headless backend on servers.

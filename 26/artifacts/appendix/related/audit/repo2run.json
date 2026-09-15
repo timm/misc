@@ -1,0 +1,98 @@
+{
+  "element": "Repo2Run / ExecutionAgent",
+  "files": [
+    "/Users/timm/gits/timm/misc/26/artifacts/appendix/related/neurips25_repo2run.pdf",
+    "/Users/timm/gits/timm/misc/26/artifacts/appendix/related/arxiv_2412.10133.pdf"
+  ],
+  "ratings": {
+    "UC1": {
+      "rating": 0,
+      "evidence": "\"the desired output consists of two scripts: one to create an isolated environment, such as a container, and one to build the project and run its tests\" (ExecutionAgent Sec. 2.1, p.3)",
+      "confidence": "high",
+      "note": "Both tools emit Dockerfiles/scripts only; no venue-format appendix or prose description of the artifact is produced by either."
+    },
+    "UC2": {
+      "rating": 0,
+      "evidence": "no evidence found",
+      "confidence": "high",
+      "note": ""
+    },
+    "UC3": {
+      "rating": 0,
+      "evidence": "no evidence found",
+      "confidence": "high",
+      "note": "Neither tool reads the paper; there is nothing to link claims to."
+    },
+    "UC4": {
+      "rating": 0,
+      "evidence": "\"Otherwise, the control center provides feedback to the LLM agent, pointing out what exactly is missing, and asks for a new command.\" (ExecutionAgent Sec. 2.4.4, p.10)",
+      "confidence": "medium",
+      "note": "The 'what is missing' feedback is internal to the agent loop (missing output files), not a user-facing gap report; Repo2Run's failure taxonomy (Table 4, Sec. 5.2, p.8) is the authors' manual inspection, not tool output. A build failure is at most an implicit signal that the package lacks a working environment."
+    },
+    "UC5": {
+      "rating": 0,
+      "evidence": "no evidence found",
+      "confidence": "high",
+      "note": ""
+    },
+    "UC6": {
+      "rating": 1,
+      "evidence": "\"given a code repository, Repo2Run iteratively builds the Docker image, runs unit tests based on the feedback of the building, and synthesizes the Dockerfile until the entire pipeline is executed successfully\" (Repo2Run Abstract, p.1)",
+      "confidence": "high",
+      "note": "Partial is right: both generate environment material (Dockerfile; ExecutionAgent also install_and_run.sh, Fig. 5, p.11) but from the repository A, never from the paper P, and only the environment piece, not docs or layout."
+    },
+    "UC7": {
+      "rating": 0,
+      "evidence": "no evidence found",
+      "confidence": "high",
+      "note": ""
+    },
+    "UC8": {
+      "rating": 0,
+      "evidence": "no evidence found",
+      "confidence": "high",
+      "note": ""
+    },
+    "B1": {
+      "rating": 3,
+      "evidence": "\"a valuable tool for developers, automated programming tools, and researchers that need to execute tests across a wide variety of projects\" (ExecutionAgent Abstract, p.1); \"Repo2Run will serve as the foundational infrastructure ... facilitating the community to efficiently scale up their executable code data\" (Repo2Run Sec. 1, p.3)",
+      "confidence": "medium",
+      "note": "Current 2 is debatable: the intended user is a third party (benchmark builder, dataset curator, contributor) running an arbitrary repo they did not write, not the artifact author packaging their own work; if anything the task resembles an evaluator trying to get a stranger's repo running, so a neutral 3 (or 0 = not applicable) fits better than author-leaning 2."
+    },
+    "B2": {
+      "rating": 5,
+      "evidence": "\"We provide the agent with the capability to execute any command available in a Linux terminal via the linux_terminal tool.\" (ExecutionAgent Sec. 2.4.2, p.9); Repo2Run: \"The internal environment is a Docker container where the agent can execute actions restricted to a container, e.g., test running.\" (Sec. 3, p.3)",
+      "confidence": "high",
+      "note": "ExecutionAgent additionally reads README/CI scripts/web docs (Sec. 2.3.4-2.3.5) but only as input to command execution; both are firmly at the execute pole."
+    },
+    "B3": {
+      "rating": 5,
+      "evidence": "\"Input: Repository URL u  Output: Scripts to set up an environment and run tests\" (ExecutionAgent Algorithm 1, p.5); \"Given a code repository, Repo2Run synthesizes a runnable Dockerfile\" (Repo2Run Sec. 3, p.3)",
+      "confidence": "high",
+      "note": ""
+    },
+    "B4": {
+      "rating": 1,
+      "evidence": "\"Instead of engineering such prompts manually, we leverage the impressive knowledge of LLMs to generate prompts with up-to-date guidelines targeted at the given project.\" (ExecutionAgent Sec. 2.3.1, p.6)",
+      "confidence": "high",
+      "note": "ExecutionAgent's meta-prompted 'guidelines' are LLM-generated build-technology tips, not a venue standard or published criteria; success is defined purely by tests running (Repo2Run EBSR, Sec. 4.2, p.6)."
+    },
+    "B5": {
+      "rating": 2,
+      "evidence": "\"checking whether three files exist: a file to create a container (e.g., a Dockerfile), an installation script to be executed within the container, and a file that contains the test results (i.e., the number of passed, failed, and skipped tests)\" (ExecutionAgent Sec. 2.4.4, p.10)",
+      "confidence": "medium",
+      "note": "Neither emits a badge nor prose; the deliverable is executable code plus a binary built/not-built outcome and (ExecutionAgent only) pass/fail/skip counts, which is score-like. 2 fits ExecutionAgent; for Repo2Run alone (Dockerfile only, Sec. 3.3, p.5) 0 = not applicable would also be defensible."
+    }
+  },
+  "per_paper_differences": [
+    "Scope: Repo2Run is Python/pytest only (420 GitHub repos, gpt-4o); ExecutionAgent is language-agnostic (50 projects, 14 languages, gpt-4o-mini).",
+    "Output: Repo2Run emits a Dockerfile synthesized deterministically from the successful command trajectory (with docker-commit rollback); ExecutionAgent emits an LLM-written Dockerfile + install/test shell script + a test-results file with pass/fail/skip counts validated against CI ground truth.",
+    "Inputs beyond the repo: ExecutionAgent reads README/docs, CI/CD scripts and web search results (Sec. 2.3.4-2.3.5); Repo2Run works only inside the container from the repo contents (the README-reading 'LLM generator' is just its baseline).",
+    "Artifact availability: ExecutionAgent gives GitHub + Zenodo DOI (Sec. 7); Repo2Run gives a GitHub URL and a NeurIPS checklist but no DOI."
+  ],
+  "disagreements": [
+    "B1: current 2, should be 3 (or 0 = N/A) because the intended user is a third-party developer/researcher/benchmark builder running an arbitrary repo they did not author (EA Abstract p.1; R2R Sec. 1 p.3), not the artifact author; the task is closer to an evaluator getting a stranger's repo running than to author-side packaging.",
+    "B5: current 2 is fine for ExecutionAgent (emits pass/fail/skip counts, Sec. 2.4.4 p.10) but Repo2Run alone emits only a Dockerfile plus a built/not-built outcome, so 0 = not applicable is equally defensible; keep 2 for the combined element with a note."
+  ],
+  "one_line_summary": "LLM agents that take a code repository, iteratively install dependencies and run its test suite in Docker, and emit a Dockerfile/scripts reproducing that executable environment; no paper input, no report."
+}

@@ -1,0 +1,261 @@
+{
+ "P001": {
+  "owner": "AdvertisementAccessibility",
+  "repo": "Advertisement-Accessibility",
+  "pdfs": [
+   "User Study/Qualitative Study Protocol.pdf"
+  ],
+  "pick": "User Study/Qualitative Study Protocol.pdf"
+ },
+ "P007": {
+  "owner": "JohnnyPeng18",
+  "repo": "TypeFix",
+  "pdfs": [
+   "results/eval.pdf",
+   "results/samples/FINAL_FIX_TEMPLATE_11696.pdf",
+   "results/samples/FINAL_FIX_TEMPLATE_11698.pdf",
+   "results/samples/FINAL_FIX_TEMPLATE_12786.pdf",
+   "results/samples/FINAL_FIX_TEMPLATE_14045.pdf",
+   "results/samples/FINAL_FIX_TEMPLATE_16471.pdf",
+   "results/samples/FINAL_FIX_TEMPLATE_16480.pdf",
+   "results/samples/FINAL_FIX_TEMPLATE_16726.pdf"
+  ],
+  "pick": "results/eval.pdf"
+ },
+ "P015": {
+  "owner": "queserasera22",
+  "repo": "Calibration-of-Pretrained-Code-Models",
+  "pdfs": [
+   "APPENDIX_calibration.pdf"
+  ],
+  "pick": "APPENDIX_calibration.pdf"
+ },
+ "P017": {
+  "owner": "ucd-plse",
+  "repo": "FPLearner",
+  "pdfs": [
+   "icse-24-fplearner.pdf"
+  ],
+  "pick": "icse-24-fplearner.pdf"
+ },
+ "P026": {
+  "owner": "DeepSoftwareAnalytics",
+  "repo": "CoCoSoDa",
+  "pdfs": [
+   "Appendix/Appendix.pdf"
+  ],
+  "pick": "Appendix/Appendix.pdf"
+ },
+ "P031": {
+  "owner": "sumonbis",
+  "repo": "Fairify",
+  "pdfs": [
+   "Appendix-Result.pdf"
+  ],
+  "pick": "Appendix-Result.pdf"
+ },
+ "P037": {
+  "owner": "cristianstaicu",
+  "repo": "SecBench.js",
+  "pdfs": [
+   "analyses/graphs/heatmap.pdf",
+   "analyses/graphs/versions-surface.pdf",
+   "scripts/file.pdf",
+   "scripts/included-classes.pdf",
+   "scripts/mismatch_with_snyk.pdf",
+   "scripts/patches.pdf",
+   "scripts/tree_example_for_snyk.pdf"
+  ],
+  "pick": "scripts/file.pdf"
+ },
+ "P040": {
+  "owner": "donald-pinckney",
+  "repo": "pacsolve",
+  "pdfs": [
+   ".archived/Experiments/SavedPlots/plots-bv-encoding.pdf",
+   ".archived/Experiments/SavedPlots/plots-unary-encoding.pdf",
+   "Rplots.pdf",
+   "slurm/analysis_top1000/Rplots.pdf",
+   "slurm/analysis_top1000/analysis.pdf",
+   "slurm/permanently_saved_results/apr-10-more-combos/plots/disk_delta_ecdf.pdf",
+   "slurm/permanently_saved_results/apr-10-more-combos/plots/disk_delta_hist.pdf",
+   "slurm/permanently_saved_results/apr-10-more-combos/plots/disk_shrinkage_ecdf.pdf"
+  ],
+  "pick": "Rplots.pdf"
+ },
+ "P043": {
+  "owner": "awsm-research",
+  "repo": "AutoTransform-Replication",
+  "pdfs": [
+   "epoch_calculation.pdf"
+  ],
+  "pick": "epoch_calculation.pdf"
+ },
+ "P045": {
+  "owner": "wcventure",
+  "repo": "PERIOD",
+  "pdfs": [
+   "tool/SVF/images/svf-stat.pdf"
+  ],
+  "pick": "tool/SVF/images/svf-stat.pdf"
+ },
+ "P046": {
+  "owner": "SATE-Lab",
+  "repo": "DeepState",
+  "pdfs": [
+   "exp_results/rq1-result-fig/rq1_agnews_blstm.pdf",
+   "exp_results/rq1-result-fig/rq1_agnews_lstm.pdf",
+   "exp_results/rq1-result-fig/rq1_fashion_gru.pdf",
+   "exp_results/rq1-result-fig/rq1_fashion_lstm.pdf",
+   "exp_results/rq1-result-fig/rq1_mnist_blstm.pdf",
+   "exp_results/rq1-result-fig/rq1_mnist_lstm.pdf",
+   "exp_results/rq1-result-fig/rq1_snips_blstm.pdf",
+   "exp_results/rq1-result-fig/rq1_snips_gru.pdf"
+  ],
+  "pick": "exp_results/rq1-result-fig/rq1_snips_gru.pdf"
+ },
+ "P052": {
+  "owner": "ForAllSecure",
+  "repo": "GraphFuzz",
+  "pdfs": [
+   "docs/research/GraphFuzz_ICSE_2022.pdf"
+  ],
+  "pick": "docs/research/GraphFuzz_ICSE_2022.pdf"
+ },
+ "P054": {
+  "owner": "ltlfuzzer",
+  "repo": "LTL-Fuzzer",
+  "pdfs": [
+   "AFLGo/testcases/others/pdf/small.pdf",
+   "ltl-property/LTL-Properties.pdf"
+  ],
+  "pick": "ltl-property/LTL-Properties.pdf"
+ },
+ "P058": {
+  "owner": "ubisoft",
+  "repo": "ubisoft-laforge-brownbuild",
+  "pdfs": [
+   "paper_additional_material/choice_baseline_stat_job_duration.pdf",
+   "paper_additional_material/choice_baseline_stat_job_duration_5splits.pdf",
+   "paper_additional_material/validation_drift_concept_figures.pdf"
+  ],
+  "pick": "paper_additional_material/validation_drift_concept_figures.pdf"
+ },
+ "P065": {
+  "owner": "vasumv",
+  "repo": "bonsai-fuzzing",
+  "pdfs": [
+   "chocopy_grammar.pdf"
+  ],
+  "pick": "chocopy_grammar.pdf"
+ },
+ "P066": {
+  "owner": "wsong-nj",
+  "repo": "IMGDroid",
+  "pdfs": [
+   "icse-215.pdf"
+  ],
+  "pick": "icse-215.pdf"
+ },
+ "P070": {
+  "owner": "salmanee",
+  "repo": "Librarian",
+  "pdfs": [
+   "images/approach_cropped.pdf"
+  ],
+  "pick": "images/approach_cropped.pdf"
+ },
+ "P072": {
+  "owner": "AI-4-SE",
+  "repo": "White-Box-Performance-Influence-Models",
+  "pdfs": [
+   "supplementary-website/SubjectSystems/feature-tracing/catena_bb.pdf",
+   "supplementary-website/SubjectSystems/feature-tracing/catena_wb_methods.pdf",
+   "supplementary-website/SubjectSystems/feature-tracing/cpd_bb.pdf",
+   "supplementary-website/SubjectSystems/feature-tracing/cpd_wb_methods.pdf",
+   "supplementary-website/SubjectSystems/feature-tracing/density-converter_bb.pdf",
+   "supplementary-website/SubjectSystems/feature-tracing/density-converter_wb_methods.pdf",
+   "supplementary-website/SubjectSystems/feature-tracing/pmd_bb.pdf",
+   "supplementary-website/SubjectSystems/feature-tracing/pmd_wb_methods.pdf"
+  ],
+  "pick": "supplementary-website/SubjectSystems/feature-tracing/cpd_bb.pdf"
+ },
+ "P074": {
+  "owner": "icse20",
+  "repo": "RT-CI",
+  "pdfs": [
+   "results/SupplementalMaterial.pdf"
+  ],
+  "pick": "results/SupplementalMaterial.pdf"
+ },
+ "P077": {
+  "owner": "kupl",
+  "repo": "SAVER_public",
+  "pdfs": [
+   "ICSE20.pdf",
+   "benchmarks/projects/WavPack/audition/readme.pdf",
+   "benchmarks/projects/WavPack/doc/WavPack5FileFormat.pdf",
+   "benchmarks/projects/WavPack/doc/WavPack5LibraryDoc.pdf",
+   "benchmarks/projects/WavPack/doc/WavPack5PortingGuide.pdf",
+   "benchmarks/projects/snort-2.9.13/doc/OpenDetectorDeveloperGuide.pdf",
+   "benchmarks/projects/snort-2.9.13/doc/snort_manual.pdf"
+  ],
+  "pick": "ICSE20.pdf"
+ },
+ "P082": {
+  "owner": "zlfben",
+  "repo": "autotap",
+  "pdfs": [
+   "data/survey.pdf"
+  ],
+  "pick": "data/survey.pdf"
+ },
+ "P086": {
+  "owner": "se-passau",
+  "repo": "Distance-Based_Data",
+  "pdfs": [
+   "SupplementaryWebsite/Machine_Learning_Techniques.pdf",
+   "SupplementaryWebsite/Results_binomial_geometric.pdf",
+   "SupplementaryWebsite/Statistic_binomial_geometric.pdf",
+   "SupplementaryWebsite/Variances.pdf",
+   "SupplementaryWebsite/kruskalTable.pdf",
+   "SupplementaryWebsite/leveneTable.pdf"
+  ],
+  "pick": "SupplementaryWebsite/Variances.pdf"
+ },
+ "P089": {
+  "owner": "tsantalis",
+  "repo": "RefactoringMiner,",
+  "pdfs": [
+   "{\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/git/trees#get-a-tree\",\"status\":\"404\"}"
+  ],
+  "pick": "{\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/git/trees#get-a-tree\",\"status\":\"404\"}"
+ },
+ "P090": {
+  "owner": "RafaelTupynamba",
+  "repo": "quicksampler",
+  "pdfs": [
+   "quicksampler.pdf"
+  ],
+  "pick": "quicksampler.pdf"
+ },
+ "P095": {
+  "owner": "njuap",
+  "repo": "ICSE2017",
+  "pdfs": [
+   "method&data/Manual Inspection.pdf",
+   "method&data/Statistical comparision between cross-project and within-project bugs.pdf",
+   "method&data/Survey Analysis.pdf"
+  ],
+  "pick": "method&data/Survey Analysis.pdf"
+ },
+ "P097": {
+  "owner": "corvette-berkeley",
+  "repo": "shadow-execution",
+  "pdfs": [
+   "tests/prof.kahan/Cubic.pdf",
+   "tests/prof.kahan/DHBLNG.pdf"
+  ],
+  "pick": "tests/prof.kahan/Cubic.pdf"
+ }
+}

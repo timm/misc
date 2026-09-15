@@ -1,0 +1,260 @@
+{
+ "P001": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3639228",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3639228"
+  ]
+ },
+ "P003": {
+  "best": "",
+  "all": []
+ },
+ "P004": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3623307",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3623307"
+  ]
+ },
+ "P005": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3608138",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3608138",
+   "https://www.research.ed.ac.uk/en/publications/f3150a47-cf50-4f6d-9bdc-e2003c51c5f7"
+  ]
+ },
+ "P006": {
+  "best": "",
+  "all": []
+ },
+ "P007": {
+  "best": "",
+  "all": []
+ },
+ "P009": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3639123",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3639123"
+  ]
+ },
+ "P010": {
+  "best": "",
+  "all": []
+ },
+ "P011": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3639219",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3639219"
+  ]
+ },
+ "P012": {
+  "best": "",
+  "all": []
+ },
+ "P015": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3639126",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3639126"
+  ]
+ },
+ "P016": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3639222",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3639222",
+   "https://ink.library.smu.edu.sg/sis_research/9248"
+  ]
+ },
+ "P017": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3623338",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3623338"
+  ]
+ },
+ "P020": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3639170",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3639170"
+  ]
+ },
+ "P021": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3639202",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3639202"
+  ]
+ },
+ "P022": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3597503.3639169",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3597503.3639169"
+  ]
+ },
+ "P023": {
+  "best": "",
+  "all": []
+ },
+ "P024": {
+  "best": "https://ieeexplore.ieee.org/ielx7/10172484/10172342/10172836.pdf",
+  "all": [
+   "https://ieeexplore.ieee.org/ielx7/10172484/10172342/10172836.pdf"
+  ]
+ },
+ "P026": {
+  "best": "",
+  "all": []
+ },
+ "P027": {
+  "best": "",
+  "all": []
+ },
+ "P028": {
+  "best": "",
+  "all": []
+ },
+ "P029": {
+  "best": "",
+  "all": []
+ },
+ "P030": {
+  "best": "",
+  "all": []
+ },
+ "P031": {
+  "best": "",
+  "all": []
+ },
+ "P032": {
+  "best": "",
+  "all": []
+ },
+ "P033": {
+  "best": "https://ink.library.smu.edu.sg/sis_research/8511",
+  "all": [
+   "https://ink.library.smu.edu.sg/sis_research/8511"
+  ]
+ },
+ "P034": {
+  "best": "",
+  "all": []
+ },
+ "P035": {
+  "best": "",
+  "all": []
+ },
+ "P036": {
+  "best": "",
+  "all": []
+ },
+ "P038": {
+  "best": "",
+  "all": []
+ },
+ "P039": {
+  "best": "",
+  "all": []
+ },
+ "P040": {
+  "best": "",
+  "all": []
+ },
+ "P045": {
+  "best": "",
+  "all": []
+ },
+ "P054": {
+  "best": "https://dl.acm.org/doi/pdf/10.1145/3510003.3510082",
+  "all": [
+   "https://dl.acm.org/doi/pdf/10.1145/3510003.3510082"
+  ]
+ },
+ "P056": {
+  "best": "",
+  "all": []
+ },
+ "P057": {
+  "best": "",
+  "all": []
+ },
+ "P058": {
+  "best": "",
+  "all": []
+ },
+ "P062": {
+  "best": "",
+  "all": []
+ },
+ "P063": {
+  "best": "",
+  "all": []
+ },
+ "P065": {
+  "best": "",
+  "all": []
+ },
+ "P066": {
+  "best": "",
+  "all": []
+ },
+ "P067": {
+  "best": "",
+  "all": []
+ },
+ "P069": {
+  "best": "",
+  "all": []
+ },
+ "P070": {
+  "best": "http://infoscience.epfl.ch/record/288802",
+  "all": [
+   "http://infoscience.epfl.ch/record/288802"
+  ]
+ },
+ "P071": {
+  "best": "",
+  "all": []
+ },
+ "P073": {
+  "best": "",
+  "all": []
+ },
+ "P075": {
+  "best": "",
+  "all": []
+ },
+ "P076": {
+  "best": "",
+  "all": []
+ },
+ "P080": {
+  "best": "",
+  "all": []
+ },
+ "P082": {
+  "best": "",
+  "all": []
+ },
+ "P083": {
+  "best": "https://research.birmingham.ac.uk/en/publications/9ea03c93-2765-4a05-b8ca-8d41b682fb00",
+  "all": [
+   "https://research.birmingham.ac.uk/en/publications/9ea03c93-2765-4a05-b8ca-8d41b682fb00"
+  ]
+ },
+ "P084": {
+  "best": "https://figshare.com/articles/conference_contribution/DeepPerf_Performance_Prediction_for_Configurable_Software_with_Deep_Sparse_Neural_Network/20709226",
+  "all": [
+   "https://figshare.com/articles/conference_contribution/DeepPerf_Performance_Prediction_for_Configurable_Software_with_Deep_Sparse_Neural_Network/20709226"
+  ]
+ },
+ "P085": {
+  "best": "https://doi.org/10.17863/cam.35755",
+  "all": [
+   "https://doi.org/10.17863/cam.35755"
+  ]
+ },
+ "P086": {
+  "best": "",
+  "all": []
+ },
+ "P088": {
+  "best": "",
+  "all": []
+ }
+}

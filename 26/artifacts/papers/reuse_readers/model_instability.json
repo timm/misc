@@ -1,0 +1,167 @@
+{
+  "paper": "model_instability",
+  "file": "/Users/timm/gits/timm/misc/26/artifacts/papers/model_instability.pdf",
+  "title": "Is Model Instability just Noise to be Tolerated or a Property that can be Managed?",
+  "edges": [
+    {
+      "target": "EZR default configuration (Menzies & Srinivasan)",
+      "ref": "[52] T. Menzies and S. Srinivasan, \"Can AI be easy? Lessons learned from the ezr.py toolkit,\" 2026.",
+      "doi_or_url": "https://arxiv.org/abs/2606.03640",
+      "type": "steppingstone",
+      "evidence": "Throughout the results, we compare two EZR configurations: initial (the defaults of [52]) and refined (Table IV).",
+      "section": "III-C Primary Learner",
+      "confidence": "high"
+    },
+    {
+      "target": "KMeans clustering (MacQueen)",
+      "ref": "[44] J. MacQueen, \"Some methods for classification and analysis of multivariate observations,\" Proc. 5th Berkeley Symposium, 1967.",
+      "doi_or_url": "",
+      "type": "steppingstone",
+      "evidence": "RQ3 also runs three clusterers (KMeans, HDBSCAN, CURE; rationale in §II-C) as stability anchors.",
+      "section": "III-C Other learners / RQ3",
+      "confidence": "high"
+    },
+    {
+      "target": "HDBSCAN (Campello et al.)",
+      "ref": "[45] R. J. G. B. Campello, D. Moulavi, and J. Sander, \"Density-based clustering based on hierarchical density estimates,\" PAKDD 2013.",
+      "doi_or_url": "",
+      "type": "steppingstone",
+      "evidence": "we evaluate one method from each major family: KMeans [44] ..., HDBSCAN [45] (density-based clustering ...), and CURE [46]",
+      "section": "II-C Data Locality / RQ3",
+      "confidence": "high"
+    },
+    {
+      "target": "CURE clustering (Guha et al.)",
+      "ref": "[46] S. Guha, R. Rastogi, and K. Shim, \"Cure: An efficient clustering algorithm for large databases,\" ACM SIGMOD Record, 1998.",
+      "doi_or_url": "",
+      "type": "steppingstone",
+      "evidence": "Comparing Performance and stability of EZR with clustering methods. Green bars and red lines show the stability and performance scores across 127 datasets.",
+      "section": "Fig. 11 / RQ3",
+      "confidence": "high"
+    },
+    {
+      "target": "Cliff's delta effect size (Rosenthal; Sawilowsky; Macbeth et al.)",
+      "ref": "[60] Rosenthal et al. 1994; [61] Sawilowsky 2009; [62] Macbeth et al., \"Cliff's delta calculator,\" Universitas Psychologica 2011.",
+      "doi_or_url": "",
+      "type": "statmethod",
+      "evidence": "A K-S test [59] at α = 0.05 plus Cliff's delta δ ≤ 0.195 (small-to-medium) [60]–[62].",
+      "section": "III-F Statistics",
+      "confidence": "high"
+    },
+    {
+      "target": "Kolmogorov-Smirnov test (Lilliefors)",
+      "ref": "[59] H. W. Lilliefors, \"On the Kolmogorov-Smirnov test for normality with mean and variance unknown,\" JASA, 1967.",
+      "doi_or_url": "",
+      "type": "statmethod",
+      "evidence": "A K-S test [59] at α = 0.05 plus Cliff's delta δ ≤ 0.195",
+      "section": "III-F Statistics",
+      "confidence": "medium"
+    },
+    {
+      "target": "Effect-size guidance for SE experiments (Kampenes et al.)",
+      "ref": "[58] V. B. Kampenes, T. Dybå, J. E. Hannay, D. I. Sjøberg, \"A systematic review of effect size in software engineering experiments,\" IST 2007.",
+      "doi_or_url": "",
+      "type": "statmethod",
+      "evidence": "we require statistical significance and practical effect size, avoiding p-value-only pitfalls [58].",
+      "section": "III-F Statistics",
+      "confidence": "high"
+    },
+    {
+      "target": "Top-set ranking via variance-maximizing iterative partition (Scott-Knott style)",
+      "ref": "[30] L. Semenova, H. Chen, R. Parr, C. Rudin, \"A path to simpler models starts with noise,\" NeurIPS 2023. (citation as printed; likely mis-cited)",
+      "doi_or_url": "",
+      "type": "statmethod",
+      "evidence": "To rank many treatments we find the top set: a variance-maximizing iterative partition [30] peels away distinguishably worse treatments",
+      "section": "III-F Statistics",
+      "confidence": "medium"
+    },
+    {
+      "target": "Weighted Jaccard feature-stability measure (Kalousis et al.)",
+      "ref": "[57] A. Kalousis, J. Prados, M. Hilario, \"Stability of feature selection algorithms: a study on high-dimensional spaces,\" KAIS 2007.",
+      "doi_or_url": "",
+      "type": "methodology",
+      "evidence": "Following Kalousis et al. [57], we use Jaccard similarity to compare the structure of two trees trained under identical settings.",
+      "section": "III-E Measuring Stability",
+      "confidence": "high"
+    },
+    {
+      "target": "PromiseTune confounder filter (Chen & Chen)",
+      "ref": "[50] P. Chen and T. Chen, \"Promisetune: Unveiling causally promising and explainable configuration tuning,\" 2025.",
+      "doi_or_url": "",
+      "type": "methodology",
+      "evidence": "Following PromiseTune, we add a confounder filter to our model construction.",
+      "section": "II-C Causal-inspired / RQ3",
+      "confidence": "high"
+    },
+    {
+      "target": "Gain-ratio splitting criterion for stable trees (Lee et al.)",
+      "ref": "[51] J. Lee, M. K. Sim, J.-S. Hong, \"Assessing decision tree stability: a comprehensive method for generating a stable decision tree,\" IEEE Access 2024.",
+      "doi_or_url": "",
+      "type": "methodology",
+      "evidence": "After filtering, splits are scored by the gain ratio 1−H(Y|X)/H(Y), the most stable splitting criterion per Lee et al. [51].",
+      "section": "II-C Causal-inspired / RQ3",
+      "confidence": "high"
+    },
+    {
+      "target": "MOOT repository (Chen & Menzies)",
+      "ref": "[43] T. Menzies, T. Chen, Y. Ye, K. K. Ganguly, A. Rayegan, S. Srinivasan, A. Lustosa, \"Moot: a repository of many multi-objective optimization tasks,\" MSR 2026.",
+      "doi_or_url": "http://tiny.cc/moot",
+      "type": "dataset",
+      "evidence": "We use 127 multi-objective SE optimization problems from Chen & Menzies' MOOT repository http://tiny.cc/moot [43].",
+      "section": "III-A Data / Table III",
+      "confidence": "high"
+    },
+    {
+      "target": "150-label saturation result (Menzies & Srinivasan)",
+      "ref": "[52] T. Menzies and S. Srinivasan, \"Can AI be easy? Lessons learned from the ezr.py toolkit,\" 2026.",
+      "doi_or_url": "https://arxiv.org/abs/2606.03640",
+      "type": "sanitycheck",
+      "evidence": "This is consistent with (indeed, slightly more generous than) the 150-label saturation effect reported by Menzies and Srinivasan [52]",
+      "section": "III-A Data",
+      "confidence": "high"
+    },
+    {
+      "target": "Rashomon ratio / label-noise theory (Semenova, Rudin et al.)",
+      "ref": "[30] Semenova et al., \"A path to simpler models starts with noise,\" NeurIPS 2023; [28] Semenova et al., FAccT 2022; [14] Xin et al., NeurIPS 2022.",
+      "doi_or_url": "https://doi.org/10.1145/3531146.3533232",
+      "type": "sanitycheck",
+      "evidence": "theory predicts structural instability is something to measure, not fix. RQ1 confirms this empirically.",
+      "section": "II-B Structural Instability and the Rashomon Effect",
+      "confidence": "medium"
+    },
+    {
+      "target": "Breiman's instability/stabilization heuristics",
+      "ref": "[63] L. Breiman, \"Heuristics of instability and stabilization in model selection,\" Annals of Statistics, 1996.",
+      "doi_or_url": "",
+      "type": "sanitycheck",
+      "evidence": "by replacing trees with stable-by-design clusterers [63] that model local regions rather than a single global structure.",
+      "section": "IV-D RQ3",
+      "confidence": "medium"
+    },
+    {
+      "target": "EZR active-learning optimizer (ezr.py)",
+      "ref": "[53] T. Menzies, \"The case for compact AI,\" CACM 2025; [52] Menzies & Srinivasan, \"Can AI be easy? Lessons learned from the ezr.py toolkit,\" 2026.",
+      "doi_or_url": "https://arxiv.org/abs/2606.03640",
+      "type": "software",
+      "evidence": "Our primary learner is EZR [53], the active-learning optimizer shown in Figure 4.",
+      "section": "III-C Primary Learner",
+      "confidence": "high"
+    },
+    {
+      "target": "Trees/results from Rayegan & Menzies causality paper",
+      "ref": "[12] A. Rayegan and T. Menzies, \"Can causality cure confusion caused by correlation (in software analytics)?\" arXiv:2602.16091, 2026.",
+      "doi_or_url": "",
+      "type": "software",
+      "evidence": "Results are from 4 repeats varying only the random seed, extracted from [12], on Coc1000 dataset from MOOT",
+      "section": "Fig. 2",
+      "confidence": "medium"
+    }
+  ],
+  "not_reuse_examples": [
+    "[56] SMAC3: mentioned only as a speed comparison point for EZR ('500x faster than SMAC3'); never run in this paper.",
+    "[8] Agrawal et al. LDA instability (Table I) and [7] Menzies et al. coefficient instability (Fig. 3): prior results reproduced as motivation only, not used in experiments.",
+    "[47],[48] Pearl Causality / Book of Why and [49] Unicorn: background motivation for the causal-inspired treatment; the actual mechanism adopted is PromiseTune's confounder filter.",
+    "SPLOT, Pygmo, Platypus: named only to explain why MOOT was preferred; not used."
+  ],
+  "notes": "Empirical study (127 MOOT tasks, 20 seeds); the top-set ranking method is cited as [30] (Semenova NeurIPS) which appears to be a mis-citation of a Scott-Knott-style procedure; acquisition functions and d2h are used without specific prior-paper citations."
+}

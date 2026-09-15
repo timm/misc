@@ -1,0 +1,23 @@
+{
+  "element": "Snelleman et al. (Automated Reproducibility Has a Problem Statement Problem, RAI/ReproAI Workshop @ AAAI 2026)",
+  "files": ["/Users/timm/gits/timm/misc/26/artifacts/appendix/related/arxiv_2601.04226.pdf"],
+  "ratings": {
+    "UC1": {"rating": 0, "evidence": "no evidence found", "confidence": "high", "note": "Output is a hypotheses/experiments/interpretations graph, not a venue-format artifact appendix."},
+    "UC2": {"rating": 0, "evidence": "no evidence found", "confidence": "high", "note": ""},
+    "UC3": {"rating": 1, "evidence": "\"correct any mistakes made by the LLM in its phrasings, links between hypotheses, experiments and interpretations, as well as experiment details, such as measured outcomes\" (Method, p.3); Table 2 lists 'Experiment Hypothesis links', 'Interpretation Experiment links' (p.4)", "confidence": "medium", "note": "Links are paper-internal (hypothesis->experiment->result), never to artifact files/scripts; 1 is defensible only as the claim-side half of L, 0 is also arguable."},
+    "UC4": {"rating": 0, "evidence": "no evidence found", "confidence": "high", "note": "The artifact/repo is never read; input is the PDF only."},
+    "UC5": {"rating": 0, "evidence": "\"in some cases, a clear phrasing of hypotheses or research questions within a given study is essential for capturing the essence of the work\" (Discussion, p.5)", "confidence": "high", "note": "Extraction failures are observed as a limitation of the method, not reported to users as paper gaps; no deliverable on paper underspecification."},
+    "UC6": {"rating": 0, "evidence": "\"automatically extract the problem statement of reproducibility for any empirical AI study\" (Introduction, p.1)", "confidence": "medium", "note": "The extracted structure is meant as input to reproduction agents, not as code/env/docs artifact material; 0 stands but a generous reader could call it a structured doc from P."},
+    "UC7": {"rating": 0, "evidence": "no evidence found", "confidence": "high", "note": ""},
+    "UC8": {"rating": 0, "evidence": "no evidence found", "confidence": "high", "note": "Related papers are only discussed in the Related Work section; the tool does not link papers."},
+    "B1": {"rating": 4, "evidence": "\"In order to relieve independent investigators of the workload, the automatisation of reproducing studies to any extent would have a substantial impact.\" (Introduction, p.1)", "confidence": "medium", "note": "Intended consumer is an independent reproducer / automated reproducibility agent, not the original author; authors only served as ground-truth raters. Current 3 is defensible as 'neither', 4 fits better."},
+    "B2": {"rating": 1, "evidence": "\"We constructed a relatively simple prompt and presented this, together with the PDF of each publication, to Google Gemini 2.5 Pro\" (Method, p.3)", "confidence": "high", "note": ""},
+    "B3": {"rating": 1, "evidence": "\"We applied our representation to automatically extract the problem from any PDF and reviewed its capabilities on 20 studies\" (Conclusion, p.5)", "confidence": "high", "note": ""},
+    "B4": {"rating": 1, "evidence": "\"We consider the following notion of reproducibility, based on Gundersen (2021) ... we derive our problem statement, formulated in terms of the scientific method\" (Background, p.3)", "confidence": "medium", "note": "Driven by the authors' own scientific-method schema, not a venue standard; 2 is arguable given reliance on Gundersen 2021's published definition."},
+    "B5": {"rating": 4, "evidence": "\"prompted the model to produce the hypotheses, experiments and interpretations of outcomes for the 20 publications\" (Method, p.3); \"Authors were given the opportunity to adapt the phrasing.\" (Fig. 5 caption, p.4)", "confidence": "medium", "note": "Emits a structured graph of textual statements and links, not a score; 4 (structured document, not free prose) is reasonable."}
+  },
+  "disagreements": [
+    "B1: current 3, should be 4 because the stated beneficiary is the independent investigator / automated reproduction agent (evaluator side), and original authors appear only as raters of extraction quality, never as intended users."
+  ],
+  "one_line_summary": "Gemini 2.5 Pro extracts a hypotheses-experiments-results-interpretations graph from a paper PDF as a generalisable problem statement for automated reproduction; 20 papers' authors rated the extractions."
+}

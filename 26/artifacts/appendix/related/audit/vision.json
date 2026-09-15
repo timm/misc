@@ -1,0 +1,17 @@
+{"element":"Triple-A vision","files":["Drive doc 'bridges' (13lywcxuTmXFZecHEKOg3DVtkobbVsSXmll4nzh953EY)"],
+"ratings":{
+"UC1":{"rating":2,"evidence":"'1. Create an artifact appendix. Input: paper draft and existing artifacts. Output: an artifact appendix' (Initial use cases)","confidence":"high","note":"stated intent, not demonstrated capability"},
+"UC2":{"rating":2,"evidence":"'P, A1, [S1], S2 => A2 + adaptation report' (use case 2)","confidence":"high","note":""},
+"UC3":{"rating":2,"evidence":"'3. Establish claim-evidence links. P, A => L' (use case 3)","confidence":"high","note":""},
+"UC4":{"rating":2,"evidence":"'S, [P], A => what is missing in A' (use case 4)","confidence":"high","note":""},
+"UC5":{"rating":2,"evidence":"'S, P, A, L => what is missing in the paper or appendix ... its exact scope remains open' (use case 5)","confidence":"medium","note":"doc itself flags the scope as open"},
+"UC6":{"rating":2,"evidence":"'6. Create an artifact from a paper. P => A ... that boundary needs definition'","confidence":"medium","note":"boundary undefined; arguably 1"},
+"UC7":{"rating":2,"evidence":"'(P, A, L)1 + comparison examples (P, A, L)2..n => C'","confidence":"high","note":""},
+"UC8":{"rating":1,"evidence":"'Retain this as an exploratory use case. The notes do not specify...'","confidence":"high","note":""},
+"B1":{"rating":2,"evidence":"'Supporting you in creating an Artifact Appendix from your paper draft and artifacts'; 'Help researchers make the relationship ... explicit'","confidence":"high","note":""},
+"B2":{"rating":3,"evidence":"'Should the first checking skill inspect documentation only, or also execute artifacts?' (Questions to resolve next)","confidence":"high","note":"was 2; doc is explicitly undecided, so midpoint 3 is honest"},
+"B3":{"rating":3,"evidence":"'Input: paper draft and existing artifacts'","confidence":"high","note":""},
+"B4":{"rating":5,"evidence":"'S = Standards or guidelines, including venue expectations'; use cases 2, 4, 5 take S as input","confidence":"high","note":""},
+"B5":{"rating":5,"evidence":"'the useful deliverable is therefore an appendix draft plus a claim-by-claim coverage and missing-information report' (guidelines report, synthesis section)","confidence":"high","note":""}},
+"disagreements":["B2: current 2, should be 3 because the notes leave docs-only vs execute as an open question"],
+"one_line_summary":"Proposed agentic skills that take paper, artifact and venue standard and emit an appendix, claim-evidence links and missing-item reports; intent only, nothing built."}

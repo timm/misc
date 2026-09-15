@@ -1,0 +1,372 @@
+{
+ "paper": "VMSH: Hypervisor-agnostic Guest Overlays for VMs (Thalheim, Okelmann, Unnibhavi, Gouicem, Bhatotia)",
+ "paper_version": "EuroSys '22 (April 5-8 2022, Rennes), ACM DL version, DOI 10.1145/3492321.3519589, pp. 678-696 incl. Artifact Appendix A. Artifact: Zenodo DOI 10.5281/zenodo.6337102, stated git sha 0bf900e4869d232f665f2c77518880662f2e86a5 (appendix A.2.1); tarball main.tar.gz -> vmsh-main/, files dated 2022-03-07, no .git dir so sha not verifiable from tarball.",
+ "artifact_files_inspected": [
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/README.md",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/EVALUATION.md",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/justfile",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/Cargo.toml",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/flake.nix",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/.gitmodules (empty)",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/reproduce.py",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/test_hypervisor.py",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/test_attach.py",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/test_alpine.py",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/xfstests.py",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/measure_phoronix.py",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/measure_block.py",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/measure_console.py",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/graphs.py",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/tests/docker-images.json",
+  "/private/tmp/claude-502/-Users-timm-gits-timm-ezr/15e69b20-6ada-40e0-8211-1edf16e7e3b8/scratchpad/cea_vmsh/vmsh-main/nix/linux-ioregionfd.nix",
+  "full file listing (164 files; src/ Rust sources listed, not read in depth: src/stage2/src/{namespace,mountns,user_namespace,cgroup,capabilities}.rs, src/kvm/hypervisor/ioregionfd.rs, src/tracer/wrap_syscall.rs)",
+  "NOT present in tarball: tests/measurements/ (raw results), tests/graphs/ (figures), runq fork (Docker de-bloat tooling), lambda-pirate (use-case #1)"
+ ],
+ "claims": [
+  {
+   "id": "C1",
+   "statement": "(i) VMSH adds no overhead for the applications running in the VM",
+   "location": "Abstract; restated Sec 1 ('find no slowdown of the guest while VMSH is attached (§ 6.3)'), Sec 6.3B (p.688), Sec 8, Appendix A.4.1 (C2)",
+   "why_selected": "Abstract claim (i) and the appendix's declared 'main goal'; headline of Sec 6.3B.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Overhead = change in throughput (GB/s) and IOPS of the guest's existing qemu-blk virtio device measured with fio while a vmsh-blk device is attached vs. not attached. Relationship: equality (no reduction).",
+    "subjects": "Applications in a QEMU/KVM guest (8 GiB RAM, 4 vCPUs) using the vanilla QEMU block device; VMSH attached in two MMIO implementations (wrap_syscall/ptrace, ioregionfd).",
+    "conditions_time_limits": "Body text conditions the claim: 'the same as without VMSH when using the ioregionfd implementation'; with wrap_syscall read throughput drops 1.5x and IOPS 6x. Host i9-9900K, Intel P4600 NVMe, host Linux 5.12.14 (paper) / 5.15.14 (EVALUATION.md inxi), turbo disabled, vCPUs pinned, TRIM before IO benchmarks. ioregionfd is an out-of-tree kernel patch (nix/linux-ioregionfd.nix).",
+    "missing": "Abstract/Sec 1 statement is unconditional; the ioregionfd condition appears only in Sec 6.3B. Only block IO on one device type is measured (no CPU/memory/network workloads)."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "fio libaio: throughput with 256 KiB sequential (best case), IOPS with 4 KiB sequential (worst case), read and write; systems direct_detached_qemublk (baseline), direct_ws_qemublk, direct_iorefd_qemublk (rows tagged dagger in Fig 6).",
+    "analysis": "tests/measure_block.py runs the configurations listed in its docstring -> tests/measurements/fio-latest.tsv; tests/graphs.py fio()/fio_overhead() plot means with stddev (gobshit_to_stddev/stddev_to_series) -> tests/graphs/fio-*.pdf (per EVALUATION.md).",
+    "files_versions_results": "tests/reproduce.py block(); tests/measure_block.py; tests/graphs.py; nix/linux-ioregionfd.nix (ioregionfd kernel); flake.lock pins nixpkgs. Results: Figure 6a/6b p.688; raw TSVs not shipped in tarball.",
+    "figure_or_table": "Figure 6 (a) throughput, (b) IOPS, rows marked dagger",
+    "missing": "Number of fio repetitions/duration not stated in paper (measure_block.py has QUICK flag; values not in text); raw measurement files absent from tarball; exact fio version only via nix pin."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Paper: with ioregionfd 'KVM already filters MMIO accesses for the VMSH MMIO region in the kernel', so no extra context switches reach the hypervisor; with ptrace every VMEXIT is intercepted, explaining the 1.5x/6x loss. Conclusion: 'ioregionfd is the best implementation'.",
+    "assumptions_uncertainty_limits": "Assumes disk IO on qemu-blk is representative of 'applications running in the VM'; assumes the attached vmsh-blk is idle during the measurement (not stated). Uncertainty shown only as error bars in Fig 6; no numbers in text. Limit acknowledged: ioregionfd is 'under review for inclusion into the Linux kernel'.",
+    "objections_addressed": "Objection that ptrace implementation violates non-invasiveness is raised and conceded. Objection that only block IO is measured (no CPU-bound, network, or memory-bandwidth workloads; vmsh-blk under load) is not addressed. The unconditional abstract wording vs. the ioregionfd-only result is not reconciled.",
+    "missing": "Statement of limits of 'no overhead' (workload types, idle vs. active attached device, dependence on out-of-tree kernel feature); explicit assumptions."
+   },
+   "level": 3,
+   "claim_type": "comparative / negative-result (descriptive)",
+   "asserts_cause": false,
+   "theory": "MMIO trap routing: ptrace-based interception adds context switches to every hypervisor KVM_RUN exit; ioregionfd filters in-kernel so only VMSH-region accesses are forwarded.",
+   "evidence_strength": "Moderate for the narrow claim (qemu-blk fio throughput/IOPS unchanged with ioregionfd); weak for the broad abstract wording, since the artifact's own wrap_syscall numbers show 6x IOPS loss and only disk IO is measured.",
+   "file_checks": "not run; inspected: tests/measure_block.py, tests/graphs.py, tests/reproduce.py, nix/linux-ioregionfd.nix, EVALUATION.md. No raw fio results in tarball.",
+   "information_source": "authors: setup, fio parameters, Fig 6, mechanism explanation; reviewer-added: mapping to measure_block.py system names, host-kernel mismatch 5.12.14 vs 5.15.14, note that only disk IO is tested; unknown: repetitions, whether vmsh-blk was idle, ioregionfd patch version.",
+   "causal_overreach": false,
+   "note": "Abstract states the claim without the ioregionfd qualifier that the evidence requires."
+  },
+  {
+   "id": "C2",
+   "statement": "(ii) de-bloating images from the Docker registry can save up to 60% of their size on average",
+   "location": "Abstract; Sec 1 ('average size reduction of 60%'); Sec 6.4 Results p.689; Figure 8",
+   "why_selected": "Abstract claim (ii) and headline of the Effectiveness section 6.4 (E7).",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Property: VM image size (MB) before vs. after removing files not opened during a run; relationship: percentage reduction, mean 60%, range 50-97% (text).",
+    "subjects": "Top-40 most-downloaded official Docker Hub images (tests/docker-images.json lists 41 entries with repo_digest pins).",
+    "conditions_time_limits": "Each image run in a QEMU-based hypervisor (runq fork); files opened recorded by a sysdig-based tracer in the initrd; 'check that the application still works' = port probes/wget in docker-images.json test_ports. Snapshot of Docker Hub in 2021 (digests pinned). Authors note results are 'conservative' because containers, not VM images, were analysed.",
+    "missing": "'Up to 60% on average' is ambiguous (max vs. mean). Text says reductions range 50%-97% yet '3 of the 40 containers are reduced by less than 10%' - internally inconsistent range."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "old_size (bytes, in docker-images.json) vs new_size produced by shrink_containers.py; reduction = 100*(1 - new_size/old_size) (tests/graphs.py image_sizes()).",
+    "analysis": "tests/reproduce.py docker_hub(): git clone https://github.com/Mic92/runq (unpinned), nix-shell 'python shrink_containers.py', 'python export_tsv.py' -> tests/measurements/docker-images.tsv; graphs.py image_sizes() prints reduction.describe() (mean) and the <=10% subset, plots before/after -> tests/graphs/docker-images.pdf.",
+    "files_versions_results": "tests/docker-images.json (41 images, digests); tests/reproduce.py; tests/graphs.py; external runq fork (not in tarball, no commit pinned); Figure 8 p.689.",
+    "figure_or_table": "Figure 8",
+    "missing": "runq fork commit/version not stated; shrink_containers.py and the tracer not in the tarball; the TSV with per-image sizes not shipped; 41 vs 40 images discrepancy unexplained."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Removed files are 'package managers, coreutils and shells' - tools not needed by the running app; hence lightweight images are feasible if such tools can be re-attached on demand via VMSH.",
+    "assumptions_uncertainty_limits": "Assumption (implicit): a single traced run covers all files the app ever needs; correctness verified only by port probe. Limits stated: container images not VM images (conservative); 3 images are static Go binaries with <10% gain. No uncertainty statement beyond the distribution in Fig 8.",
+    "objections_addressed": "Objection 'containers already small' addressed (conservative). Objection that trace-based pruning may break untested code paths is not addressed. The inconsistency between '50%-97%' and '3 images <10%' is not addressed.",
+    "missing": "Coverage assumption of dynamic tracing; reconciliation of reported range; how 'still works' was validated beyond port probes."
+   },
+   "level": 3,
+   "claim_type": "descriptive (measurement of potential); used as motivation for VMSH",
+   "asserts_cause": false,
+   "theory": "Images carry tooling (shells, package managers, coreutils) unused by the application; VMSH overlays make that tooling attachable on demand so it can be pruned.",
+   "evidence_strength": "Moderate: pinned digests and a scripted pipeline exist, but the shrinking tool is external/unpinned, raw sizes are not shipped, and the reported range contradicts the <10% cases.",
+   "file_checks": "not run; inspected: tests/docker-images.json (41 entries), tests/reproduce.py docker_hub(), tests/graphs.py image_sizes(). runq not in tarball.",
+   "information_source": "authors: dataset, method, Fig 8, mean 60%; reviewer-added: 41-entry count, unpinned runq clone, range inconsistency, port-probe validation detail from JSON; unknown: runq version, per-image numbers.",
+   "causal_overreach": false,
+   "note": "The claim measures de-bloating potential, not VMSH itself; abstract wording 'up to 60% ... on average' conflates max and mean."
+  },
+  {
+   "id": "C3",
+   "statement": "(iii) VMSH enables cloud providers to offer services to customers, such as recovery shells, without interfering with their VM's execution.",
+   "location": "Abstract; Sec 6.5 Use-cases p.689-690; Appendix A.4.1 (C3) and E8-E10",
+   "why_selected": "Abstract claim (iii); headline of Sec 6.5.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "'Offer services' = attach a file-system image with a tool (chpasswd rescue image; Alpine package security scanner; interactive debug shell in a Firecracker lambda) to a running VM. 'Without interfering' = no agent in the image, no reboot, VM keeps running ('can be attached while the VM is still running').",
+    "subjects": "Cloud providers and their customers' VMs; concretely QEMU guests (use-cases 2,3) and vHive/Firecracker-containerd lambda VMs (use-case 1).",
+    "conditions_time_limits": "Linux x86_64 guests on KVM hypervisors supported in Sec 6.2; Firecracker requires seccomp disabled (Sec 6.2); use-case 1 requires vHive integration that also blocks scale-down of the lambda VM.",
+    "missing": "'Interfering' is not operationalised in Sec 6.5 (no metric); the claim leans on Sec 6.3B (C1) and the namespace isolation of Sec 4.4 without saying so."
+   },
+   "cea3": {
+    "met": false,
+    "measures": "No measurement in 6.5. Artifact: use-case 2 = pytest test_hypervisor.py::test_qemu_and_change_password (password reset succeeds); use-case 3 = tests/test_alpine.py (waits for 'no known insecure packages found'); use-case 1 = external lambda-pirate repo, reproduce.py usecase1() is 'pass'.",
+    "analysis": "Binary pass/fail unit tests; EVALUATION.md: 'no graphs, just a successful unittest'. No observation of the guest's own workload during/after attachment is recorded in these tests (test_attach.py does check 'echo ping' after detach, but that is E3 not E9/E10).",
+    "files_versions_results": "tests/test_hypervisor.py, tests/test_alpine.py, nix/passwd-image.nix, nix/alpine-sec-scanner*.nix, tests/reproduce.py usecase2()/usecase3(); lambda-pirate (github.com/pogobanane/lambda-pirate) not in tarball. Paper reports no results for E9/E10 beyond prose.",
+    "figure_or_table": "none",
+    "missing": "A measure of non-interference for the use-cases; reported outcomes (pass counts) in the paper; version of lambda-pirate/vHive; scanner correctness evidence."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "",
+    "assumptions_uncertainty_limits": "",
+    "objections_addressed": "",
+    "missing": "Not reached."
+   },
+   "level": 2,
+   "claim_type": "design / demonstrative (enabling claim)",
+   "asserts_cause": false,
+   "theory": "Agent-less side-loading plus container-based overlay lets providers ship tools out-of-image; isolation via selective namespaces protects the guest userspace.",
+   "evidence_strength": "Weak-to-moderate: functional demos exist as unit tests, but 'without interfering' is asserted, not measured, in this section.",
+   "file_checks": "not run; inspected: tests/test_hypervisor.py (test_qemu_and_change_password), tests/test_alpine.py, tests/reproduce.py (usecase1 is a no-op), EVALUATION.md.",
+   "information_source": "authors: use-case descriptions, appendix E8-E10; reviewer-added: mapping to test functions, observation that usecase1 is not automated; unknown: any result numbers, lambda-pirate version.",
+   "causal_overreach": false,
+   "note": "Non-interference is borrowed implicitly from C1 and Sec 4.4; not evidenced in 6.5 itself."
+  },
+  {
+   "id": "C4",
+   "statement": "We demonstrate VMSH approaches its goal of generality by successfully testing 4 industry leading KVM-based hypervisors and all current long-term support versions of the Linux kernel (§ 6.2).",
+   "location": "Sec 1 p.679; Sec 6.2 p.686-687 ('VMSH is able to support 4 out of the 5 hypervisors'); Table 1; Appendix A.4.1 (C1), E2/E3",
+   "why_selected": "Third bullet contribution ('compatible across many hypervisors and Linux versions') and headline of Sec 6.2; appendix major claim C1.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Support = VMSH can attach, side-load its kernel library, register devices and spawn the overlay in a guest run by hypervisor H / with guest kernel K. Relationship: works for each listed H and K.",
+    "subjects": "Hypervisors QEMU, kvmtool, Firecracker, crosvm (supported); Cloud Hypervisor (unsupported, MSI-X/PCI). Kernels: Table 1 lists LTS v5.10, v5.4, v4.19, v4.14, v4.9, v4.4 in QEMU guests.",
+    "conditions_time_limits": "x86_64 only; Linux guests; Firecracker with seccomp disabled; VMSH developed against 5.12; 'current' LTS as of 2021. Kernel portability effort: 'one person a week's worth of time to cover 5 years'.",
+    "missing": "Hypervisor versions not stated in paper (only via flake.lock/nix); 'all current LTS' - 5.15 (LTS since Nov 2021) is absent from Table 1."
+   },
+   "cea3": {
+    "met": false,
+    "measures": "Pass/fail of attach tests: tests/test_hypervisor.py (test_firecracker, test_crosvm, test_kvmtool, test_qemu_and_change_password); tests/test_attach.py (test_attach_4_4, _4_19, _5_10, _5_15, _5_16 via flake.nix not-os-image_* targets), asserting 'stage1 driver started', ext4 mount in dmesg, VM alive after detach.",
+    "analysis": "pytest; reproduce.py generality_hypervisors()/generality_kernels() write *.ok marker files. No quantitative output beyond test counts.",
+    "files_versions_results": "tests/test_hypervisor.py, tests/test_attach.py, flake.nix lines 90-94, nix/kvmtool.nix, flake.lock. Results: prose in Sec 6.2 and Table 1; no shipped test logs.",
+    "figure_or_table": "Table 1",
+    "missing": "MISMATCH: Table 1 lists kernels 5.4, 4.14, 4.9, which have no tests in the artifact; the artifact tests 5.15 and 5.16, which Table 1 omits. Observations for 3 of 6 claimed kernel versions are therefore untraceable in the artifact. No hypervisor versions in paper; no result logs."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "",
+    "assumptions_uncertainty_limits": "",
+    "objections_addressed": "",
+    "missing": "Not reached."
+   },
+   "level": 2,
+   "claim_type": "descriptive / design (compatibility)",
+   "asserts_cause": false,
+   "theory": "Targeting the KVM ioctl API and MMIO virtio transport, plus a 12-function minimal kernel API with consistency-checked symbol parsing, keeps VMSH independent of hypervisor and kernel version.",
+   "evidence_strength": "Moderate for hypervisors (4 unit tests present); weak for the kernel list as published (half the versions in Table 1 are not in the artifact).",
+   "file_checks": "not run; inspected: tests/test_hypervisor.py, tests/test_attach.py, flake.nix (not-os-image_4_4/4_19/5_10/5_15/5_16), tests/reproduce.py.",
+   "information_source": "authors: Table 1, Sec 6.2 prose, appendix E2/E3; reviewer-added: kernel-version mismatch, missing hypervisor versions; unknown: whether 5.4/4.14/4.9 were tested with a script not shipped.",
+   "causal_overreach": false,
+   "note": "Paper also says 'twelve kernel functions' (Sec 5) and '2 out of the 10 required kernel functions' (Sec 6.2) - inconsistent counts."
+  },
+  {
+   "id": "C5",
+   "statement": "Out of the 619 tests, all succeed natively. For both qemu-blk and vmsh-blk, three tests (0.5%) fail. [...] since vmsh-blk passes all tests that are passed by known-good devices, we conclude that the vmsh-blk device has no regressions w.r.t. qemu-blk.",
+   "location": "Sec 6.1 Results p.686; Appendix E1",
+   "why_selected": "Headline result of the Robustness evaluation section; supports appendix claim C3 (functionality).",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Robustness = number of xfstests 'quick' group tests passed on XFS via the device; relationship: vmsh-blk fails no test that native or qemu-blk passes.",
+    "subjects": "Native NVMe partitions, QEMU virtio-blk (qemu-blk), VMSH block device (vmsh-blk, wrap_syscall per xfstests.py ioregionfd=False).",
+    "conditions_time_limits": "xfstests quick group, XFS, physical NVMe with two partitions (test + scratch); inapplicable tests auto-skipped; additional 'sustained load test' (sha256 of large image). Failure criterion defined explicitly.",
+    "missing": "Which three tests fail is not named (code comments hint quota tests xfs/050,144,153); xfstests version only via nix/xfstests.nix; whether vmsh-blk used wrap_syscall or ioregionfd is not stated in paper."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "tail of results/check.log ('Passed all N tests' / failure line) per system; failures re-run individually and counted as 'recoveries'; stored in tests/measurements/xfstests.json.",
+    "analysis": "tests/xfstests.py native()/qemu_blk()/vmsh_blk() -> stats dict; reproduce.py robustness(); EVALUATION.md: 'outputs how many tests passes'. excludes() returns [] so no tests are excluded (the qemu_blk_scratch list is dead code and lacks commas).",
+    "files_versions_results": "tests/xfstests.py, tests/measure_helpers.py, nix/xfstests.nix, nix/xfsdump.nix; results only as prose numbers (619, 3, 0.5%); no xfstests.json shipped.",
+    "figure_or_table": "none (prose)",
+    "missing": "Names of the 3 failing tests; the undisclosed re-run/'recovery' step in xfstests.py and whether the reported 3 failures are pre- or post-recovery; location of the sustained-load test in the artifact; raw check.log."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Same failure set on a known-good device (qemu-blk) implies failures are environmental (quota reporting), not vmsh-blk regressions.",
+    "assumptions_uncertainty_limits": "Assumes 'quick' group is representative; assumes deterministic test outcomes (but the script retries failures singly, indicating flakiness was observed). Limits: XFS only, one file-system, one MMIO implementation.",
+    "objections_addressed": "Objection that quick tests use small IOs is addressed by the added sustained-load test. Flakiness/retry policy and its effect on the count are not disclosed in the paper.",
+    "missing": "Disclosure of retry handling; statement of limits (single FS, single implementation); result of sustained load test is not reported numerically."
+   },
+   "level": 3,
+   "claim_type": "comparative / negative-result",
+   "asserts_cause": false,
+   "theory": "A VirtIO block device implemented with rust-vmm libraries that passes the same POSIX conformance suite as QEMU's device is functionally equivalent.",
+   "evidence_strength": "Moderate: clear criterion and script, but failing tests unnamed, retry logic undisclosed, and no logs shipped.",
+   "file_checks": "not run; inspected: tests/xfstests.py (excludes() returns [], recovery loop lines ~236-256), tests/reproduce.py, EVALUATION.md.",
+   "information_source": "authors: counts, criterion, methodology; reviewer-added: retry/recovery step, dead exclusion list, wrap_syscall setting; unknown: identities of failing tests, sustained-load result.",
+   "causal_overreach": false,
+   "note": "Script re-runs failed tests individually ('recoveries'); paper does not mention this."
+  },
+  {
+   "id": "C6",
+   "statement": "On average, VMSH is 1.5 × ±0.6 slower than qemu-blk.",
+   "location": "Sec 6.3A p.687-688; Figure 5; Appendix A.4.1 (C2): 'attached tools running through VMSH are on average 1.5× slower'",
+   "why_selected": "Headline number of the Phoronix performance experiment (E4) and an appendix major claim.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Per-benchmark ratio of vmsh-blk to qemu-blk performance (lower-is-better metrics: vmsh/qemu; higher-is-better: qemu/vmsh), averaged over the Phoronix Disk suite benchmarks; 1.5 ± 0.6.",
+    "subjects": "Phoronix Test Suite pts/disk (Compile Bench, DBENCH, fs_mark, fio, IOR, PostMark, Sqlite; IOzone skipped per script) run inside a QEMU guest on a file system mounted from vmsh-blk vs. qemu-blk.",
+    "conditions_time_limits": "Default PTS parameters; 4 vCPUs (PTS_NPROC=4); measure_phoronix.py uses ioregionfd=True for vmsh-blk; 'in practice the guest workload will continue to use the QEMU block device'.",
+    "missing": "Meaning of ±0.6 (std across benchmarks? across runs?) not defined; MMIO implementation used not stated in paper text; PTS run count not stated."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "PTS composite.xml parsed by measure_phoronix.parse_result() -> tests/measurements/phoronix-stats.tsv with identifier in {vmsh-blk, qemu-blk} (native commented out).",
+    "analysis": "tests/graphs.py phoronix(): filters fio MB/s duplicates, groupby benchmark_id, compute_ratio() -> Figure 5 bars with baseline line at 1. The 1.5 ± 0.6 aggregate is NOT computed by graphs.py; would need to be derived from the TSV.",
+    "files_versions_results": "tests/measure_phoronix.py, tests/phoronix.py, nix/phoronix.nix, nix/phoronix-image.nix, tests/graphs.py; Figure 5 p.687; phoronix-stats.tsv not shipped.",
+    "figure_or_table": "Figure 5",
+    "missing": "Script producing the 1.5 ± 0.6 summary; raw TSV; PTS version (nix-pinned only); repetitions."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Slowdowns concentrate in fio direct-IO (up to 3.7x) which bypasses the guest page cache and hits the device per request; metadata/page-cache-heavy workloads show little overhead; IOR has ~20% page-cache hit rate.",
+    "assumptions_uncertainty_limits": "Uncertainty given as ±0.6 but undefined; limit stated: only vmsh-mounted workloads are affected, guest workloads keep using qemu-blk. Assumes attached tools tolerate 1.5x.",
+    "objections_addressed": "'Is 1.5x acceptable?' addressed by arguing developer-tool workloads dominate. Which implementation, and whether wrap_syscall would be worse, not discussed here.",
+    "missing": "Definition of the ±; implementation used; number of runs."
+   },
+   "level": 3,
+   "claim_type": "comparative (descriptive)",
+   "asserts_cause": false,
+   "theory": "Cross-process device emulation (process_vm_readv/writev, extra context switches) costs per request; page-cache-friendly workloads amortise it.",
+   "evidence_strength": "Moderate: figure and pipeline exist; the headline mean/±0.6 is not reproduced by the shipped analysis code.",
+   "file_checks": "not run; inspected: tests/measure_phoronix.py (benchmarks list, ioregionfd=True), tests/graphs.py phoronix()/compute_ratio().",
+   "information_source": "authors: numbers, explanations; reviewer-added: aggregate not computed in graphs.py, ioregionfd setting, IOzone skipped; unknown: ± definition, run count.",
+   "causal_overreach": false,
+   "note": ""
+  },
+  {
+   "id": "C7",
+   "statement": "Finally, vmsh-blk suffers a 94% write and 7% read overhead in throughput compared to qemu-blk (40% write/2.3% read overhead compared to qemu-9p), but still has good IOPS (14% degradation compared to qemu-blk and is 7× better than qemu-9p).",
+   "location": "Sec 6.3C p.688-689; Figure 6 (rows marked asterisk and double-dagger)",
+   "why_selected": "Headline quantitative result of the intrinsic vmsh-blk performance experiment (E5).",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Relative throughput (GB/s) and IOPS of vmsh-blk vs qemu-blk (direct IO) and vs qemu-9p (file IO), read and write.",
+    "subjects": "vmsh-blk (wrap_syscall and ioregionfd), qemu-blk, qemu-9p, native host; fio libaio 256 KiB sequential (throughput) and 4 KiB sequential (IOPS).",
+    "conditions_time_limits": "Same host/VM setup as C1; TRIM before runs; 'attached devices would be more prone to small sized IOs' motivates IOPS as key metric.",
+    "missing": "Earlier in the same section: 'throughput and IOPS are halved compared to qemu-blk, indifferent to the used implementation' - which conflicts with 7% read / 14% IOPS degradation; which numbers refer to which implementation is unclear."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "fio results per system (attached_ws_javdev, attached_iorefd_javdev, detached_qemublk, detached_qemu9p, direct_host) in tests/measure_block.py; context switches counted 'over the same sampling period'.",
+    "analysis": "fio-latest.tsv -> graphs.py fio() (means + stddev) and fio_overhead() (ratio to baseline mean) -> fio-best-case-bw-seperate*.pdf, fio-worst-case-iops-seperate*.pdf.",
+    "files_versions_results": "tests/measure_block.py, tests/measure_helpers.py, tests/graphs.py; Figure 6 p.688; TSVs not shipped.",
+    "figure_or_table": "Figure 6a, 6b",
+    "missing": "Raw data; run count; how context-switch counts were collected is not in the shipped scripts as far as inspected."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Data-copy time equal for both devices, so extra context switches (measured 2x for vmsh-blk) explain the gap; 9p's stacked file systems/page caches explain its poor IOPS.",
+    "assumptions_uncertainty_limits": "Assumption stated: copy cost identical, leaving context switches as the cause; supported by a context-switch measurement. Uncertainty via error bars only. Limit: IOPS prioritised over throughput for VMSH's use cases.",
+    "objections_addressed": "Why compare against 9p (file-sharing alternative) is explained. The internal inconsistency ('halved' vs 7%/14%) is not addressed.",
+    "missing": "Reconciliation of the two sets of numbers; explicit implementation labels for the quoted percentages."
+   },
+   "level": 3,
+   "claim_type": "comparative (descriptive) with an explanatory sub-claim",
+   "asserts_cause": true,
+   "theory": "Overhead arises from doubled context switches between guest driver, hypervisor process and VMSH host process; not from data copying.",
+   "evidence_strength": "Moderate: pipeline and figure exist and the mechanism is supported by a context-switch count, but the prose gives contradictory magnitudes.",
+   "file_checks": "not run; inspected: tests/measure_block.py (docstring configurations), tests/graphs.py fio()/fio_overhead().",
+   "information_source": "authors: percentages, mechanism, context-switch 2x; reviewer-added: inconsistency between 'halved' and 7%/14%; unknown: repetitions, context-switch measurement script.",
+   "causal_overreach": false,
+   "note": "Causal sub-claim (context switches) is backed by a direct measurement, so not flagged."
+  },
+  {
+   "id": "C8",
+   "statement": "Our measurements show that, with around 0.9ms, the latency of the VMSH console is very similar to the one of SSH (see Figure 7). The latency of the VMSH console is an order of magnitude faster than the capabilities of the human eye [91], making it sufficient for real life use cases.",
+   "location": "Sec 6.3D p.689; Figure 7; Appendix E6",
+   "why_selected": "Headline result of the console-responsiveness experiment (E6).",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Latency = round-trip time from writing an echo command to a pts until the echoed response arrives; compared between VMSH console and SSH, and against a human visual-comprehension threshold [91].",
+    "subjects": "VMSH virtio console (attached shell) vs. SSH session into the same QEMU guest.",
+    "conditions_time_limits": "Same host; measure_console.py: 32 samples (SIZE=32), 'echo hello world' with prompt detection; QUICK=False.",
+    "missing": "SSH's numeric latency not given in text; human-eye threshold value not quoted (only cited)."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "Seconds per echo round-trip, sampled 32 times per system (measure_console.py echo()/sample()).",
+    "analysis": "console-stats.json -> console-latest.tsv -> graphs.py console(): bar with ci='sd' -> tests/graphs/console.pdf.",
+    "files_versions_results": "tests/measure_console.py, tests/graphs.py console(), tests/reproduce.py console(); Figure 7 p.689; raw TSV not shipped.",
+    "figure_or_table": "Figure 7",
+    "missing": "Raw samples; SSH cipher/config unstated."
+   },
+   "cea4": {
+    "met": true,
+    "why_supports": "~0.9 ms is comparable to SSH and ~10x below human perception thresholds, so console responsiveness is not a usability limit.",
+    "assumptions_uncertainty_limits": "Assumes echo round-trip represents interactive use; variability shown as sd bars; limit framed: throughput irrelevant for interactive use.",
+    "objections_addressed": "'Throughput matters' objection pre-empted by arguing latency is the relevant metric for consoles.",
+    "missing": "Minor: no numeric sd in text."
+   },
+   "level": 4,
+   "claim_type": "comparative (descriptive)",
+   "asserts_cause": false,
+   "theory": "Virtio console with host-side device thread adds little beyond the network/SSH path.",
+   "evidence_strength": "Adequate for a simple latency claim; small scale (single VM, 32 samples).",
+   "file_checks": "not run; inspected: tests/measure_console.py, tests/graphs.py console().",
+   "information_source": "authors: 0.9 ms, method, Fig 7; reviewer-added: sample size 32 from script; unknown: raw data.",
+   "causal_overreach": false,
+   "note": ""
+  },
+  {
+   "id": "C9",
+   "statement": "We design a system for hypervisor-independent side-loading into a VM of a generic guest-overlay that does not impose limitations on both the original guest application or the spawned service, and a device that can be attached to hypervisors non-cooperatively (§ 4).",
+   "location": "Sec 1 contributions, second bullet p.679; Sec 4.4; Sec 8",
+   "why_selected": "Numbered/bulleted contribution; the 'no limitations' and 'non-cooperative' properties are central design claims.",
+   "cea2": {
+    "met": false,
+    "properties_relationship": "'Does not impose limitations' on guest application and spawned service is not defined (functional? performance? security?); 'non-cooperatively' = no hypervisor modification (defined in Sec 7 vs vhost-user).",
+    "subjects": "Original guest application; spawned service in the overlay; KVM hypervisors.",
+    "conditions_time_limits": "Linux x86_64, KVM, MMIO virtio transport only (Cloud Hypervisor excluded); Firecracker needs seccomp disabled - itself a cooperation requirement.",
+    "missing": "Definition of 'limitations'; any measure; conditions under which the overlay cannot see guest namespaces (Sec 4.4 says namespaces are mounted selectively)."
+   },
+   "cea3": {
+    "met": false,
+    "measures": "",
+    "analysis": "",
+    "files_versions_results": "Design implemented in src/stage2/src/{namespace,mountns,user_namespace,cgroup,capabilities,lsm}.rs and src/kvm/*; no experiment targets this claim.",
+    "figure_or_table": "none",
+    "missing": "Not reached."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "",
+    "assumptions_uncertainty_limits": "",
+    "objections_addressed": "",
+    "missing": "Not reached."
+   },
+   "level": 1,
+   "claim_type": "design",
+   "asserts_cause": false,
+   "theory": "Container-based overlay with selectively mounted namespaces isolates the injected service from the guest userspace while giving it access; side-loading via injected KVM ioctls avoids hypervisor changes.",
+   "evidence_strength": "Weak: design argument only; the seccomp workaround for Firecracker contradicts 'non-cooperative' in one case.",
+   "file_checks": "not run; listed only: src/stage2/src/*.rs, src/kvm/hypervisor/*.rs, src/tracer/*.rs.",
+   "information_source": "authors: design description; reviewer-added: seccomp caveat; unknown: any test of 'no limitations'.",
+   "causal_overreach": false,
+   "note": "Unevaluated design claim; located but not defined."
+  }
+ ],
+ "summary": {
+  "n_claims": 9,
+  "levels": {
+   "1": 1,
+   "2": 2,
+   "3": 5,
+   "4": 1
+  },
+  "causal_overreach_count": 0,
+  "time_minutes": 6
+ },
+ "notes": "Artifact is code + scripts only (no raw results/figures); kernel list in Table 1 (5.4/4.14/4.9) does not match artifact tests (5.15/5.16 instead); abstract's 'no overhead' holds only for ioregionfd; several internal numeric inconsistencies (halved vs 7%/14%; 50-97% range vs <10% cases; 12 vs 10 kernel functions; host kernel 5.12.14 vs 5.15.14)."
+}

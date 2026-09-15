@@ -1,0 +1,26 @@
+{"paper": "26impact",
+ "file": "/Users/timm/gits/timm/misc/26/artifacts/papers/26impact.pdf",
+ "title": "The Impact of AI on Productivity and Code (IEEE Software guest editors' introduction, Yedida, Menzies, Novielli, Jul/Aug 2026)",
+ "edges": [
+   {"target": "Menzies retrospective on defect predictors / need for baselines",
+    "ref": "T. Menzies, \"Retrospective: Data mining static code attributes to learn defect predictors,\" IEEE TSE, vol. 51, no. 3, pp. 858-863, 2025",
+    "doi_or_url": "10.1109/TSE.2025.3537406",
+    "type": "sanitycheck",
+    "evidence": "only 13/229 ~ 5% of those papers compared LLMs to other approaches. This is a methodological error since other methods can produce results that are better and/or faster.6",
+    "section": "Practical Industrial Applications (lack of baselines)",
+    "confidence": "low"},
+   {"target": "Kocaguneli et al., Distributed development considered harmful? (Microsoft auto-generated code)",
+    "ref": "E. Kocaguneli, T. Zimmermann, C. Bird, N. Nagappan, T. Menzies, \"Distributed development considered harmful?\" ICSE 2013, pp. 882-890",
+    "doi_or_url": "10.1109/ICSE.2013.6606637",
+    "type": "sanitycheck",
+    "evidence": "it is known that Microsoft has been automatically generating its code, via traditional build systems, for decades.5",
+    "section": "Practical Industrial Applications (lack of baselines)",
+    "confidence": "low"}
+ ],
+ "not_reuse_examples": [
+   "[2] Zheng et al. MultiCodeBench and [11] Zhuo et al. BigCodeBench: benchmark results summarized as background; the editorial does not run or use these benchmarks.",
+   "[4] Alshahwan et al. TestGen-LLM at Meta: industrial results quoted as evidence of benefits; tool not executed or built upon.",
+   "[13] Orel et al. CoDet-M4 and [14] He et al. LLM-as-judge: survey-style background on detection/evaluation, not adopted as a method.",
+   "A1-A6 special-issue articles: summarized as the issue's contents, not reused."
+ ],
+ "notes": "Guest editors' introduction to a special issue: no experiments, no datasets, no tools run; all 14 refs are background survey citations, only two low-confidence sanitycheck edges (both self-citations by Menzies) support the editorial's 'baselines are missing' argument."}

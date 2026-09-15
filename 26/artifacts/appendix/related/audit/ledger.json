@@ -1,0 +1,104 @@
+{
+ "element": "LEDGER / Argonne (claim-to-evidence tracing over agent sessions)",
+ "files": [
+  "/Users/timm/gits/timm/misc/26/artifacts/appendix/related/arxiv_2608.18398.pdf",
+  "/Users/timm/gits/timm/misc/26/artifacts/appendix/related/arxiv_2608.18312.pdf"
+ ],
+ "key_question": {
+  "question": "Do these link claims in a research paper to artifact evidence, or only claims made by an agent during a session?",
+  "answer": "Neither takes a human-written paper P and a package A as input. LEDGER links an agent's in-session conclusions to session artifacts. Argonne links claims in an AGENT-GENERATED manuscript draft to evidence, but as a proposed live-emission schema (no tool), bound during the run, not extracted from a finished paper.",
+  "LEDGER_settling_passage": "Table 2, p.5: 'claim: Records a final answer, explicit finding, status handoff, or user-facing conclusion.' and Sec 1, p.1: 'a tracing and review system that builds layered trace graphs over observed agent sessions.'",
+  "Argonne_settling_passage": "Sec 4.2, p.4: 'Our proposal records the run from which such a package can be compiled. An agent-native artifact is an end-state package. Claim-aware artifact observability is the live log that preserves branch structure, evaluator history, claim evidence, and steering events before the final package is assembled.' Also Table 2, p.5: 'Individual: draft -- id=i_draft, kind=manuscript_draft, payload hash for generated text.'"
+ },
+ "ratings": {
+  "UC1": {
+   "rating": 0,
+   "evidence": "no evidence found",
+   "confidence": "high",
+   "note": "Argonne App. D proposes a 'compact package for review' (event stream, manifest, validator report, queries) but it is a trace export, not a venue-format appendix."
+  },
+  "UC2": {
+   "rating": 0,
+   "evidence": "no evidence found",
+   "confidence": "high",
+   "note": "Argonne Sec 4.2 maps its profile onto PROV-O / RO-Crate / OpenLineage; these are provenance data standards, not venue artifact standards, and nothing adapts an existing package."
+  },
+  "UC3": {
+   "rating": 1,
+   "evidence": "Sec 1, p.2 (LEDGER): 'Typed semantic edges such as uses, produces, checked_by, and supports describe how actions, artifacts, validation steps, and claims relate to one another.'",
+   "confidence": "medium",
+   "note": "Both produce claim->artifact links as the deliverable but only for agent-generated claims (LEDGER: session conclusions, implemented; Argonne Sec 5 p.5: 'Each claim should link to evidence artifacts and, when possible, to the exact value or field used', proposed schema only) -- a subclass, so partial rather than 0."
+  },
+  "UC4": {
+   "rating": 0,
+   "evidence": "no evidence found",
+   "confidence": "medium",
+   "note": "Argonne App. D 'Validator report: Reference checks, acyclicity checks, required-field checks, final-claim coverage' checks a trace against its own profile, not a package against a venue standard; proposed, not built."
+  },
+  "UC5": {
+   "rating": 1,
+   "evidence": "Sec 4.1, p.4 (Argonne): 'A reviewer or operator can ask for all claims in the final draft whose evidence does not exist, whose extracted value differs from the cited metric, or whose verifier failed.'",
+   "confidence": "medium",
+   "note": "Argonne's whole worked example (Sec 6, Table 2, App. C 'Hallucinated number') is detecting claim/evidence mismatch in a generated manuscript -- counts as partial per rubric; LEDGER leaves detection to the human reviewer ('emphasize unsupported claims' is listed as future work, Sec 6)."
+  },
+  "UC6": {
+   "rating": 0,
+   "evidence": "no evidence found",
+   "confidence": "high",
+   "note": ""
+  },
+  "UC7": {
+   "rating": 0,
+   "evidence": "no evidence found",
+   "confidence": "high",
+   "note": ""
+  },
+  "UC8": {
+   "rating": 0,
+   "evidence": "no evidence found",
+   "confidence": "high",
+   "note": "Argonne allows 'literature items' as evidence refs for a claim (Sec 4.1) but never links papers to each other."
+  },
+  "B1": {
+   "rating": 4,
+   "evidence": "Sec 1, p.1 (LEDGER): 'productive use depends not only on generation speed, but also on the user's ability to audit the recorded work.'",
+   "confidence": "medium",
+   "note": "LEDGER's 'reviewer' is the agent operator auditing their own session (~3-4); Argonne targets external 'scientists, reviewers, and safety monitors' and 'independent auditors' (5); 5 overstates LEDGER."
+  },
+  "B2": {
+   "rating": 3,
+   "evidence": "Sec 3.1, p.3 (LEDGER): 'Our prototype tests this capture path on Codex using lifecycle hooks and transcript reconstruction, but the approach is not specific to Codex.'",
+   "confidence": "medium",
+   "note": "Neither tool executes code itself: LEDGER passively records a live executing session; Argonne is a schema whose verifiers 'may be automatic scripts ... theorem provers'. 3 is a fair midpoint."
+  },
+  "B3": {
+   "rating": 5,
+   "evidence": "Sec 3, p.3 (LEDGER): 'The graph is built from captured records and a session transcript, then organized into Trace Records, Evidence Nodes, Workflow Nodes, Artifact, and typed Semantic Edges.'",
+   "confidence": "medium",
+   "note": "Primary input is the execution trace plus produced artifacts; no paper text exists as input, so the artifact pole is right even though the literal input is a transcript rather than a repo."
+  },
+  "B4": {
+   "rating": 2,
+   "evidence": "Sec 5, p.4 (Argonne): 'we propose five minimum requirements for autonomous scientific agents for research venues, benchmarks, and tool builders'",
+   "confidence": "medium",
+   "note": "LEDGER is fully agnostic (1); Argonne proposes its own profile, aligns to PROV-O/RO-Crate/OpenTelemetry, and pitches venue requirements, but no existing venue standard drives either -- 2 for the pair."
+  },
+  "B5": {
+   "rating": 3,
+   "evidence": "Sec 1, p.2 (LEDGER): 'The resulting graph makes the audit path explicit: a reviewer can start from a conclusion, follow support edges to relevant artifacts and actions, and inspect the source records behind them.'",
+   "confidence": "medium",
+   "note": "LEDGER emits an interactive graph/dashboard (neither score nor prose); Argonne emits an event log plus per-claim verdicts 'supported, unsupported, contradicted, or needs_human_review' (Sec 4.1), closer to 2."
+  }
+ },
+ "disagreements": [
+  "UC3: current 0, should be 1 because both deliver explicit claim->artifact links (LEDGER 'supports' edges to files/plots/tables/patches; Argonne evidence bindings to 'the exact value or field used'), but only for agent-generated claims -- a subclass of paper-claim linking, never a human-written P against an existing A.",
+  "UC5: current 0, should be 1 because Argonne's central use case is flagging claims in a generated draft 'whose extracted value differs from the cited metric' (Sec 4.1, Table 2, App. C) -- rubric says claim/artifact inconsistency detection counts as at least partial (Argonne only; LEDGER stays 0).",
+  "B1: current 5, should be 4 because LEDGER's reviewer is the agent's own operator auditing their session ('the user's ability to audit the recorded work'); only Argonne is squarely external-reviewer-facing.",
+  "B4: current 1, should be 2 because Argonne proposes its own observability profile, maps it to PROV-O/RO-Crate/OpenTelemetry, and states 'minimum requirements ... for research venues' (Sec 5); LEDGER alone would be 1."
+ ],
+ "per_paper_differences": {
+  "LEDGER": "Implemented sidecar tracer + dashboard for Codex sessions; claims = agent's in-session conclusions; links are LLM-inferred (Sec 6: 'not fully deterministic'); no inconsistency detection; no standards.",
+  "Argonne": "Position paper / schema, no implementation; claims = statements in agent-generated manuscript drafts, bound live to evidence with verifier verdicts; proposes venue requirements and exports to provenance standards."
+ },
+ "one_line_summary": "LEDGER builds claim-to-artifact trace graphs over recorded coding-agent sessions; Argonne proposes a schema binding agent-generated manuscript claims to evidence. Neither analyzes a human-written paper against its artifact."
+}

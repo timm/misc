@@ -1,0 +1,25 @@
+{
+  "element": "Heye et al. (Supporting Artifact Evaluation with LLMs: A Study with Published Security Research Papers, arXiv:2603.06862)",
+  "files": ["/Users/timm/gits/timm/misc/26/artifacts/appendix/related/arxiv_2603.06862.pdf"],
+  "ratings": {
+    "UC1": {"rating": 0, "evidence": "no evidence found", "confidence": "high", "note": "No stage produces any appendix or venue-format document; outputs are scores, a container, and logs."},
+    "UC2": {"rating": 0, "evidence": "no evidence found", "confidence": "high", "note": ""},
+    "UC3": {"rating": 0, "evidence": "\"(ii) detect potential inconsistencies between claims and submitted artifacts\" (Sec. I, p.1)", "confidence": "medium", "note": "Intro promises claim/artifact inconsistency detection but no stage actually produces claim-to-component links; RATE/ASSESS are concept-vector scores, PREPARE only runs code."},
+    "UC4": {"rating": 1, "evidence": "\"The final deliverable of this stage is either a runnable container image ... or a structured error report that pinpoints issues the agent faced.\" (Sec. III-C, p.4)", "confidence": "high", "note": "PREPARE reports setup failures (missing deps, bad links) and RATE scores Readme quality, but neither is relative to an explicit standard S; partial is right."},
+    "UC5": {"rating": 1, "evidence": "\"The classifier outputs which pitfalls are most likely present. The report highlights potential design or evaluation flaws, providing reviewers with insights\" (Sec. III-D, p.4)", "confidence": "medium", "note": "ASSESS flags methodological gaps in the paper text (e.g. lab-only evaluation, inappropriate baseline/threat model from Arp et al.'s taxonomy), which is a partial form of reporting what the paper lacks; current 0 seems too low."},
+    "UC6": {"rating": 1, "evidence": "\"The final deliverable of this stage is either a runnable container image ready for further analysis by an AE expert\" (Sec. III-C, p.4)", "confidence": "medium", "note": "PREPARE autonomously generates an execution environment (Docker container) as a deliverable, but from A+Readme+P rather than from P alone, so at most partial; current 0 is debatable."},
+    "UC7": {"rating": 0, "evidence": "\"we derive a unique concept vector for each pitfall individually using a set of training papers\" (Sec. III-D, p.4)", "confidence": "high", "note": "Training papers are used to fit concept vectors/classifiers, not to present exemplar comparisons to a user."},
+    "UC8": {"rating": 0, "evidence": "no evidence found", "confidence": "high", "note": ""},
+    "B1": {"rating": 5, "evidence": "\"we aim to provide automated support for reviewers of scientific contributions to improve the scalability of AE\" (Sec. I, p.1)", "confidence": "high", "note": ""},
+    "B2": {"rating": 4, "evidence": "\"The LLM-based agent used in this stage iteratively issues shell commands to clone the repository, install dependencies, and compile and execute code\" (Sec. III-A, p.3)", "confidence": "high", "note": "PREPARE executes code in Docker; RATE and ASSESS are text-only hidden-state projections, so 4 rather than 5."},
+    "B3": {"rating": 3, "evidence": "\"the full paper text and, in the case of RATE, a Readme file associated with the submission's code artifact\" (Sec. IV-B, p.4)", "confidence": "high", "note": "RATE takes paper+Readme, ASSESS paper only, PREPARE the codebase+paper; genuinely mixed."},
+    "B4": {"rating": 3, "evidence": "\"We focus on Arp et al.'s [35] taxonomy of ten common pitfalls in AI-driven cybersecurity research\" (Sec. III-D, p.4)", "confidence": "medium", "note": "ASSESS is explicitly driven by a published pitfall taxonomy and RATE is trained against Olszewski's reproducibility labels, though no venue badging standard is encoded; 3 fits better than 2."},
+    "B5": {"rating": 2, "evidence": "\"The resulting score s reflects how strongly the paper's text aligns with the distilled reproducibility concept vector\" (Sec. III-B, p.4)", "confidence": "high", "note": "Outputs are scores/binary classifications plus a container and a structured error log; no prose report."}
+  },
+  "disagreements": [
+    "UC5: current 0, should be 1 because ASSESS delivers a per-paper report of methodological pitfalls present in the paper text (lab-only evaluation, inappropriate baseline, etc.), a partial form of 'what the paper lacks'.",
+    "UC6: current 0, arguably 1 because PREPARE's deliverable is an autonomously generated runnable container image (environment material), though it starts from A+Readme rather than P alone.",
+    "B4: current 2, arguably 3 because ASSESS is explicitly driven by Arp et al.'s published ten-pitfall taxonomy and RATE thresholds are fit to Olszewski's published reproducibility labels."
+  ],
+  "one_line_summary": "Reviewer-facing three-stage pipeline: hidden-state concept vectors score paper+Readme reproducibility, an LLM agent auto-builds Docker environments, and a classifier flags Arp-taxonomy methodological pitfalls in the paper."
+}

@@ -1,0 +1,95 @@
+{
+  "element": "Paper2Code family (PaperCoder, ReproAgent, AutoReproduce)",
+  "files": [
+    "/Users/timm/gits/timm/misc/26/artifacts/appendix/related/arxiv_2504.17192.pdf",
+    "/Users/timm/gits/timm/misc/26/artifacts/appendix/related/arxiv_2608.24291.pdf",
+    "/Users/timm/gits/timm/misc/26/artifacts/appendix/related/arxiv_2505.20662.pdf"
+  ],
+  "ratings": {
+    "UC1": {
+      "rating": 0,
+      "evidence": "no evidence found",
+      "confidence": "high",
+      "note": "Deliverables are code repos plus config.yaml/reproduce.sh (PaperCoder App. A.4, p.18: 'designed to generate only the source code'); no venue-format appendix in any of the three."
+    },
+    "UC2": {
+      "rating": 0,
+      "evidence": "no evidence found",
+      "confidence": "high",
+      "note": "No paper mentions venue standards or translating a package between them."
+    },
+    "UC3": {
+      "rating": 1,
+      "evidence": "ReproAgent Sec 3.4, p.5: 'Each generated file returns a provenance record linking file regions back to the requirement and evidence IDs they realize'; units carry 'src records the paper source span' (Sec 3.1, p.3).",
+      "confidence": "medium",
+      "note": "Current 0 is wrong for the family: ReproAgent builds paper-snippet->unit->file provenance and exports it as audit records (App. H.1), but as an internal traceability object, not a user deliverable, and for requirements rather than claims/results; PaperCoder and AutoReproduce are 0."
+    },
+    "UC4": {
+      "rating": 0,
+      "evidence": "no evidence found",
+      "confidence": "high",
+      "note": "ReproAgent's requirement review reports 'missing' obligations of its own generated repo relative to the paper, not of a given package relative to a venue standard."
+    },
+    "UC5": {
+      "rating": 1,
+      "evidence": "PaperCoder Fig. 35, p.56 (Overall Plan artifact): '7. AMBIGUITIES & UNCERTAIN DETAILS. Tokenization & BPE/Word-piece: The exact BPE merge operations and vocabulary processing details are not fully described.'",
+      "confidence": "medium",
+      "note": "Current 0 is debatable: PaperCoder's planning prompt has an 'Anything UNCLEAR ... clarifications needed from the paper' node (Fig. 16, p.30) and its plan artifact lists paper underspecifications; ReproAgent provenance 'lists implementation choices that are inferred rather than directly specified' (Sec 3.4, p.5); AutoReproduce fills gaps via lineage but does not report them. All are by-products, hence partial."
+    },
+    "UC6": {
+      "rating": 2,
+      "evidence": "PaperCoder Abstract, p.1: 'we introduce PaperCoder, a multi-agent LLM framework that transforms machine learning papers into operational code repositories.'",
+      "confidence": "high",
+      "note": "Core purpose of all three; PaperCoder also emits config.yaml, class/sequence diagrams and reproduce.sh (App. A.4), AutoReproduce runs in Docker with unit tests, ReproAgent adds runtime validation and repair."
+    },
+    "UC7": {
+      "rating": 0,
+      "evidence": "no evidence found",
+      "confidence": "medium",
+      "note": "Debatable: PaperCoder's reference-based evaluator critiques a generated repo against the same paper's gold repo (Fig. prompt p.~33: 'Identify Logical Errors and Deviations'), and AutoReproduce/ReproAgent use cited-paper repos as exemplars, but only to guide generation or to score their own output, never to critique a user's (P,A) pair against domain exemplars."
+    },
+    "UC8": {
+      "rating": 1,
+      "evidence": "AutoReproduce Sec 3.2.2, p.3: 'the research agent identifies the top-k relevant papers (default k=3) from the source paper's references ... retrieves the manuscripts via the ArXiv API, summarizes their content, and identifies linked code repositories.'",
+      "confidence": "medium",
+      "note": "Current 0 is wrong for the family: AutoReproduce's Paper Lineage and ReproAgent's reference-evidence channel ('related repositories listed in the paper's bibliography', Sec 3.2, p.3) link the paper to related papers/repos, and AutoReproduce evaluates that linking against expert-curated references (Sec 5.5, p.8); still an internal step, so partial. PaperCoder is 0."
+    },
+    "B1": {
+      "rating": 3,
+      "evidence": "PaperCoder Abstract, p.1: 'corresponding code implementations are often unavailable, making it slow and labor-intensive for researchers to reproduce results and build upon prior work.'",
+      "confidence": "medium",
+      "note": "Intended user is a third-party researcher reproducing someone else's paper, neither the author nor a venue reviewer; 3 is reasonable, arguably 3-4 since the user is checking another author's claims."
+    },
+    "B2": {
+      "rating": 4,
+      "evidence": "ReproAgent Sec 3.4, p.5: 'Runtime validation runs dependency installation, import checks, declared entry points, smoke commands, and benchmark commands when available.'",
+      "confidence": "medium",
+      "note": "Current 5 is debatable at family level: ReproAgent and AutoReproduce (Docker, sampled-batch unit tests, up to 20 debug tries) are 5, but PaperCoder's pipeline is text-to-code only ('designed to generate only the source code', App. A.4, p.18) with execution only as post-hoc analysis, roughly 2."
+    },
+    "B3": {
+      "rating": 1,
+      "evidence": "PaperCoder Sec 3.2, p.3: 'generating code repositories directly from machine learning papers (without access to pre-existing artifacts or implementations, such as skeleton code).'",
+      "confidence": "high",
+      "note": "AutoReproduce and ReproAgent additionally pull cited-work repositories as reference evidence, but the primary input remains the paper text; a 1-2 rating is defensible."
+    },
+    "B4": {
+      "rating": 1,
+      "evidence": "no evidence found",
+      "confidence": "high",
+      "note": "No venue standard drives any of the tools; ReproAgent's 'contract' is derived from the paper itself (Sec 3.1: 'An implementation requirement is a paper snippet that must be realized in code'), and PaperBench rubrics are used only for evaluation."
+    },
+    "B5": {
+      "rating": 3,
+      "evidence": "PaperCoder Sec 3.1, p.3: 'we define this task as a function (or a model) M that maps a paper R to a corresponding code repository C.'",
+      "confidence": "medium",
+      "note": "Output is code, neither score nor prose report; PaperCoder additionally emits prose planning documents and ReproAgent emits per-unit verdicts (pass/missing/wrong-surface/inconsistent-with-source) as diagnostics, so 3 is a fair midpoint."
+    }
+  },
+  "disagreements": [
+    "UC3: current 0, should be 1 because ReproAgent builds and exports provenance records linking paper source spans -> requirement units -> generated file regions (Sec 3.4, App. A.1, App. H.1), an internal traceability step rather than a deliverable; PaperCoder and AutoReproduce remain 0.",
+    "UC5: current 0, should be 1 because PaperCoder's planning stage explicitly lists paper underspecifications ('Anything UNCLEAR' node in Fig. 16; 'AMBIGUITIES & UNCERTAIN DETAILS' section in the Fig. 35 plan artifact) and ReproAgent flags implementation choices 'inferred rather than directly specified'; by-products, so partial.",
+    "UC8: current 0, should be 1 because AutoReproduce's Paper Lineage selects and downloads the top-k related papers and their repos from the source paper's references and validates the selection against expert-curated references (Sec 3.2.2, Sec 5.5); ReproAgent does similar via its reference-evidence channel; internal step, so partial.",
+    "B2: current 5, arguably 4 because PaperCoder (the flagship) generates code without executing it in its main pipeline, while ReproAgent and AutoReproduce execute in sandboxes/Docker; 5 is defensible if the family is rated by its most execution-heavy members."
+  ],
+  "one_line_summary": "LLM multi-agent pipelines that turn an ML paper (plus, for two of three, cited-work repos) into a runnable code repository, with plan/contract documents and execution-repair loops as by-products."
+}

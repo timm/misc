@@ -1,0 +1,61 @@
+{
+ "papers": 24,
+ "edges": 735,
+ "targets": 429,
+ "types": {
+  "steppingstone": 81,
+  "statmethod": 58,
+  "methodology": 181,
+  "dataset": 66,
+  "software": 69,
+  "sanitycheck": 125,
+  "numericfact": 133,
+  "theory": 10,
+  "replication": 12
+ },
+ "self": 161,
+ "executed": 413,
+ "refutes": 89,
+ "top": [
+  [
+   "Scott-Knott ranking",
+   13
+  ],
+  [
+   "scikit-learn",
+   13
+  ],
+  [
+   "Bootstrap significance test (Efron)",
+   12
+  ],
+  [
+   "A12 effect size (Vargha & Delaney; Arcuri & Briand)",
+   10
+  ],
+  [
+   "Config-tuning and analytics data (Fu; Jamshidi; Guo; Ha; Weber; Krishna)",
+   9
+  ],
+  [
+   "SVM",
+   9
+  ],
+  [
+   "Random forests (Breiman)",
+   8
+  ],
+  [
+   "Yu et al. SLR corpora / FASTREAD",
+   7
+  ],
+  [
+   "Classic search heuristics (GA, HC, Tabu, DE, ES, PSO, ILS, ...)",
+   6
+  ],
+  [
+   "PROMISE / SEACRAFT repository (NASA, SOFTLAB, Jureczko)",
+   6
+  ]
+ ]
+}

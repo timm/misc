@@ -1,0 +1,428 @@
+{
+ "paper": "ezr_easier_ai",
+ "file": "/Users/timm/gits/timm/misc/26/artifacts/papers/ezr_easier_ai.pdf",
+ "title": "Can AI be Easy? Lessons Learned from the EZR.py Toolkit",
+ "edges": [
+  {
+   "target": "MOOT repository (Menzies, Chen, Ye et al.)",
+   "ref": "5. Menzies T, Chen T, Ye Y, et al. MOOT: a Repository of Many Multi-Objective Optimization Tasks. In: MSR 2026.",
+   "doi_or_url": "https://arxiv.org/pdf/2511.16882 ; https://github.com/timm/moot",
+   "type": "dataset",
+   "evidence": "EZR has been tested on the 120+ multi-objective tasks shown in Table 1 from the MOOT repository 5.",
+   "section": "1 Introduction / Table 1",
+   "confidence": "high"
+  },
+  {
+   "target": "Yu's four SLR corpora (Wahono, Hall, Radjenovic, Kitchenham)",
+   "ref": "26. Yu Z, Menzies T. Total recall, language processing, and software engineering. NL4SE 2018:10-13",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "We tested if this active learner approach can solve the same problems explored by Yu et al. (see Table 6). Yu's test cases come from four real-world published SE SLRs",
+   "section": "7.3 / Table 6",
+   "confidence": "high"
+  },
+  {
+   "target": "Hall et al. fault-prediction SLR corpus",
+   "ref": "77. Hall T, Beecham S, Bowes D, Gray D, Counsell S. A Systematic Literature Review on Fault Prediction Performance in Software Engineering. TSE 201...",
+   "doi_or_url": "10.1109/TSE.2011.103",
+   "type": "dataset",
+   "evidence": "Hall et al.'s work 77 on fault prediction ... The data sets of Table 6 were extracted from the careful logs they kept of their reading process.",
+   "section": "7.3",
+   "confidence": "medium"
+  },
+  {
+   "target": "Wahono defect-prediction SLR corpus",
+   "ref": "78. Wahono RS. A systematic literature review of software defect prediction. Journal of software engineering. 2015;1(1):1-16.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "Wahono 78's study on defect prediction ... The data sets of Table 6 were extracted from the careful logs they kept",
+   "section": "7.3",
+   "confidence": "medium"
+  },
+  {
+   "target": "Radjenovic et al. fault-metrics SLR corpus",
+   "ref": "79. Radjenovic D, Hericko M, Torkar R, Zivkovic A. Software fault prediction metrics: A systematic literature review. IST 2013;55(8):1397-1418.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "Radjenovic et al.'s study 79 on software fault metrics ... The data sets of Table 6 were extracted from the careful logs they kept",
+   "section": "7.3",
+   "confidence": "medium"
+  },
+  {
+   "target": "Kitchenham & Brereton tertiary SLR corpus",
+   "ref": "80. Kitchenham B, Brereton P. A systematic review of systematic review process research in software engineering. IST 2013;55(12):2049-2075.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "Kitchenham et al.'s study 80 tertiary SLR study ... The Kitchenham corpus has two relevance levels: 132 papers passed title-and-abstract review",
+   "section": "7.3 / Table 6",
+   "confidence": "medium"
+  },
+  {
+   "target": "Rayegan & Menzies data (SS-*, X264, wc/rs/sol configs, testing, misc)",
+   "ref": "6. Rayegan A, Menzies T. Minimal Data, Maximum Clarity: A Heuristic for Explaining Optimization. JSS, to appear. 2026.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "Data comes from recent papers from the SE literature (ICSE, FSE, TSE, IST, EMSE, TOSEM, and ASE 6,7,8,9,10,11,12,13,14,15,16).",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "PromiseTune configuration data (7z, LLVM, BDBC)",
+   "ref": "7. Chen P, Chen T. Promisetune: Unveiling causally promising and explainable configuration tuning. arXiv:2507.05995. 2025.",
+   "doi_or_url": "arXiv:2507.05995",
+   "type": "dataset",
+   "evidence": "12 PromiseTune Perf. 7z, LLVM, BDBC ... Minimize execution time and energy consumption ... Refs 7",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Senthilkumar & Menzies warm-start data (Apache_AllMeas)",
+   "ref": "8. Senthilkumar L, Menzies T. Can large language models improve se active learning via warm-starts?. TOSEM. 2024.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "1 Cloud compute Tuning Apache_AllMeas ... Refs 8",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Chen, Gong & Chen surrogate/config data (SQL_AllMeas)",
+   "ref": "9. Chen P, Gong J, Chen T. Accuracy Can Lie: On the Impact of Surrogate Model in Configuration Tuning. TSE 2025;51(2):548-580.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "1 Cloud compute Tuning SQL_AllMeas ... Refs 9",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Lustosa & Menzies project-health data (Health-Closed)",
+   "ref": "10. Lustosa A, Menzies T. Learning from Very Little Data: On the Value of Landscape Analysis for Predicting Software Project Health. TOSEM 2024;33(...",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "35 Proj. health Health Health-Closed ... Optimize PR rates and minimize developer churn ... Refs 10",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Lustosa & Menzies iSNEAK data (Scrum, feature models)",
+   "ref": "11. Lustosa A, Menzies T. iSNEAK: Partial Ordering as Heuristics for Model-Based Reasoning in Software Engineering. IEEE Access. 2024;12:142915-142...",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "3 Scrum Agile Scrum[1k-100k] ... 8 Feature mod. Config FFM, FM-* ... Refs 11",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Chen, Nair & Menzies SBSE models (POM3, XOMO, nasa93dem, coc1000)",
+   "ref": "12. Chen J, Nair V, Menzies T. Beyond evolutionary algorithms for search-based software engineering. IST 2018;95:281-294.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "4 POM3 Process pom3[a-d] ... 4 XOMO Defects xomo_[flt,grd] ... Refs 12",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Kaggle EA Sports FC 25 dataset (all_players)",
+   "ref": "13. nyagami. EA Sports FC 25 Database - Ratings and Stats. 2025. Kaggle.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "4 Behavioral Behavior all_players, etc. ... Maximize user retention and predict cohort churn ... Refs 13",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Kaggle Telco Customer Churn / BankChurners",
+   "ref": "14. blastchar. Telco Customer Churn. 2025. Kaggle.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "4 Financial Finance BankChurners ... Minimize credit risk vs. pricing models ... Refs 14",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Kaggle Life Expectancy (WHO) dataset",
+   "ref": "15. Rajarshi KA. Life Expectancy (WHO) Dataset. 2025. Kaggle.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "3 Health Health COVID19, Life ... Maximize accuracy/life vs. readmission likelihood ... Refs 15",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Kaggle Marketing Analytics dataset",
+   "ref": "16. Daoud J. Marketing Analytics - Marketing Data. 2022. Kaggle.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "5 Sales Market Marketing, socks ... Maximize ROI vs. minimize forecasting error ... Refs 16",
+   "section": "Table 1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Boehm COCOMO models (source of the 10,000-row what-if data in Figure 1)",
+   "ref": "62. Boehm B, Abts C, Brown AW, et al. Cost estimation with COCOMO II. Prentice-Hall. 2000.",
+   "doi_or_url": "",
+   "type": "dataset",
+   "evidence": "Figure 1 was built by EZR studying a data set with 10,000 rows generated by running what-if queries on Boehm's COCOMO software models.",
+   "section": "6.3",
+   "confidence": "medium"
+  },
+  {
+   "target": "FASTREAD (Yu, Kraft & Menzies)",
+   "ref": "39. Yu Z, Kraft NA, Menzies T. Finding better active learners for faster literature reviews. EMSE 2018;23:3161-3186.",
+   "doi_or_url": "",
+   "type": "steppingstone",
+   "evidence": "Vertical bars on the recall panels mark the labeling budget at which Yu et al. 39 reached the same recall with FASTREAD.",
+   "section": "7.4 / Figure 4",
+   "confidence": "high"
+  },
+  {
+   "target": "SMAC (Hutter, Hoos & Leyton-Brown) / SMAC3 (Lindauer et al.)",
+   "ref": "23. Hutter F, Hoos HH, Leyton-Brown K. Sequential Model-Based Optimization for General Algorithm Configuration. LION 2011:507-523. / 24. Lindauer e...",
+   "doi_or_url": "",
+   "type": "steppingstone",
+   "evidence": "Ganguly et al. 25 compare EZR's optimizations against state-of-the-art optimizers including SMAC3 23 and others ... they found that EZR ran 500 times faster than SMAC3.",
+   "section": "6.2, 6.4.4, Table 4",
+   "confidence": "medium"
+  },
+  {
+   "target": "SHAP (Lundberg & Lee)",
+   "ref": "84. Lundberg SM, Lee SI. A Unified Approach to Interpreting Model Predictions. NeurIPS 2017:4765-4774.",
+   "doi_or_url": "",
+   "type": "steppingstone",
+   "evidence": "Rayegan et al. 6 compared EZR's trees against standard AI explanation algorithms (SHAP, LIME, and Anchors) on standard XAI benchmarks.",
+   "section": "6.4.4, 8.2",
+   "confidence": "medium"
+  },
+  {
+   "target": "LIME (Ribeiro et al.)",
+   "ref": "85. Ribeiro MT. Why should i trust you?: Explaining the predictions of any classifier. In: KDD 2016.",
+   "doi_or_url": "",
+   "type": "steppingstone",
+   "evidence": "EZR's trees matched or exceeded the named baselines on both metrics.",
+   "section": "6.4.4, 8.2",
+   "confidence": "medium"
+  },
+  {
+   "target": "Anchors (Ribeiro, Singh & Guestrin)",
+   "ref": "86. Ribeiro MT, Singh S, Guestrin C. Anchors: High-Precision Model-Agnostic Explanations. AAAI 2018.",
+   "doi_or_url": "",
+   "type": "steppingstone",
+   "evidence": "our comparators were selected from those that prior studies in the same domain named as representative: ... SHAP, LIME, Anchors, and ReliefF for explanation 84,85,86,87",
+   "section": "8.2",
+   "confidence": "medium"
+  },
+  {
+   "target": "ReliefF (Robnik-Sikonja & Kononenko)",
+   "ref": "87. Robnik-Sikonja M, Kononenko I. An adaptation of Relief for attribute estimation in regression. ICML 1997:296-304.",
+   "doi_or_url": "",
+   "type": "steppingstone",
+   "evidence": "these trees can rank features (via mean decrease in impurity) just as well as other explanation algorithms such as SHAP and ReliefF.",
+   "section": "6.3, 8.2",
+   "confidence": "medium"
+  },
+  {
+   "target": "TPE (Bergstra et al.)",
+   "ref": "83. Bergstra J, Bardenet R, Bengio Y, Kegl B. Algorithms for Hyper-Parameter Optimization. NeurIPS 2011:2546-2554.",
+   "doi_or_url": "",
+   "type": "steppingstone",
+   "evidence": "our comparators were selected from those that prior studies in the same domain named as representative: SMAC3 and TPE for optimization 23,83",
+   "section": "8.2",
+   "confidence": "low"
+  },
+  {
+   "target": "Simulated annealing, 1983 default configuration (Kirkpatrick et al.)",
+   "ref": "22. Kirkpatrick S, Gelatt Jr CD, Vecchi MP. Optimization by simulated annealing. Science. 1983;220(4598):671-680.",
+   "doi_or_url": "",
+   "type": "steppingstone",
+   "evidence": "simulated annealing in its 1983 default configuration 22 matches or beats every local-search variant we tested across 20 MOOT benchmarks.",
+   "section": "5 / Table 5",
+   "confidence": "high"
+  },
+  {
+   "target": "Local search with reset-retry (Crawford & Baker)",
+   "ref": "44. Crawford JM, Baker AB. Experimental results on the application of satisfiability algorithms to scheduling problems. AAAI'94:1092-1097.",
+   "doi_or_url": "",
+   "type": "steppingstone",
+   "evidence": "Local search uses a reset-retry policy 44. If no progress is being made, it jumps back to a fresh start with a new random seed.",
+   "section": "5.1",
+   "confidence": "high"
+  },
+  {
+   "target": "1990s local-search variants (GSAT, WalkSAT, GRASP, Iterated LS)",
+   "ref": "18. Selman, Levesque, Mitchell AAAI'92; 19. Selman, Kautz, Cohen AAAI'94; 20. Feo & Resende JGO 1995; 21. Lourenco, Martin, Stutzle 2003",
+   "doi_or_url": "10.1007/BF01096763",
+   "type": "steppingstone",
+   "evidence": "The 1990s metaheuristics literature (GSAT 18, WalkSAT 19, GRASP 20, Iterated LS 21) argued the second truism explicitly ... A reader who read that literature would expect LS to dominate here.",
+   "section": "5, 5.2",
+   "confidence": "low"
+  },
+  {
+   "target": "Sawilowsky 0.35 sigma effect-size threshold",
+   "ref": "48. Sawilowsky SS. New effect size rules of thumb. Journal of modern applied statistical methods. 2009;8(2):26.",
+   "doi_or_url": "",
+   "type": "statmethod",
+   "evidence": "Differences smaller than Sawilowsky's threshold of 0.35 sigma 48 are clamped to zero before scoring.",
+   "section": "5.2.1, 6.4.1 (wins, line 337)",
+   "confidence": "high"
+  },
+  {
+   "target": "Welford's incremental mean/variance algorithm",
+   "ref": "34. Welford BP. Note on a Method for Calculating Corrected Sums of Squares and Products. Technometrics. 1962;4(3):419-420.",
+   "doi_or_url": "10.1080/00401706.1962.10490022",
+   "type": "statmethod",
+   "evidence": "For Num, it updates mu, m2, and sd via Welford's algorithm 34, an exact and incremental method for updating mean and standard deviation.",
+   "section": "2.4 (add, line 77)",
+   "confidence": "high"
+  },
+  {
+   "target": "Irwin-Hall Gaussian approximation sampler (Johnson, Kotz & Balakrishnan)",
+   "ref": "43. Johnson NL, Kotz S, Balakrishnan N. Continuous Univariate Distributions, Volume 2. Wiley. 2nd ed., 1995. Section 26.9.",
+   "doi_or_url": "",
+   "type": "statmethod",
+   "evidence": "To pick from Nums, we draw from a distribution centered on a supplied mu (defaulting to the column mean) using the Irwin-Hall sampler 43.",
+   "section": "3.3 (pick, line 144)",
+   "confidence": "medium"
+  },
+  {
+   "target": "Reference-optimum convention (McGeoch; Cohen)",
+   "ref": "47. McGeoch CC. A Guide to Experimental Algorithmics. Cambridge University Press, 2012",
+   "doi_or_url": "",
+   "type": "methodology",
+   "evidence": "According to the empirical algorithms literature 47,29, the reference optimum is the best solution observed in the dataset.",
+   "section": "5.2 (footnote)",
+   "confidence": "medium"
+  },
+  {
+   "target": "Cohen straw-man baseline methodology",
+   "ref": "29. Cohen PR. Empirical methods for artificial intelligence. MIT press Cambridge, MA, 1995.",
+   "doi_or_url": "",
+   "type": "methodology",
+   "evidence": "Cohen 29 argued that supposedly sophisticated methods should always be benchmarked against seemingly stupider ones, the 'straw man' approach to scientific verification.",
+   "section": "1",
+   "confidence": "medium"
+  },
+  {
+   "target": "Nearest-neighbour surrogate oracle protocol (Pfisterer et al., YAHPO Gym)",
+   "ref": "45. Pfisterer F, Schneider L, Moosbauer J, Binder M, Bischl B. Yahpo gym-an efficient multi-objective multi-fidelity benchmark for hyperparameter o...",
+   "doi_or_url": "",
+   "type": "methodology",
+   "evidence": "the standard way to build this oracle is a procedure followed by (e.g.) Pfisterer 45 and Zela et al. 46 where ... y values of a new mutant are copied from their nearest neighbor",
+   "section": "5.1, 8.4",
+   "confidence": "high"
+  },
+  {
+   "target": "Surrogate NAS benchmark protocol (Zela et al.)",
+   "ref": "46. Zela A, Siems J, Zimmer L, Lukasik J, Keuper M, Hutter F. Surrogate NAS benchmarks: Going beyond the limited search spaces of tabular NAS bench...",
+   "doi_or_url": "arXiv:2008.09777",
+   "type": "methodology",
+   "evidence": "we use a nearest-neighbor surrogate that is the de facto standard for such studies 45,46 (our setup matches theirs).",
+   "section": "5.1, 8.4",
+   "confidence": "high"
+  },
+  {
+   "target": "Complementary Naive Bayes (Rennie et al.)",
+   "ref": "28. Rennie JD, Shih L, Teevan J, Karger DR. Tackling the poor assumptions of naive bayes text classifiers. ICML-03:616-623.",
+   "doi_or_url": "",
+   "type": "methodology",
+   "evidence": "30 lines of complementary Bayes 28 ... The red lines shows results using Rennie et al.'s recommendation of normalizing a likelihood by dividing it by the sum of all likelihoods.",
+   "section": "7.3, 7.4",
+   "confidence": "high"
+  },
+  {
+   "target": "k-means++ seeding (Arthur & Vassilvitskii)",
+   "ref": "42. Arthur D, Vassilvitskii S. k-means++: The Advantages of Careful Seeding. SODA '07:1027-1035.",
+   "doi_or_url": "",
+   "type": "methodology",
+   "evidence": "k-means++ 42 is a heuristic for picking the initial clusters given to k-means. The heuristic picks one centroid at random, then picks each subsequent centroid with probability proportional to its squared distance",
+   "section": "3.3 (kpp, line 151)",
+   "confidence": "high"
+  },
+  {
+   "target": "Aha's instance-based distance heuristics (Aha, Kibler & Albert)",
+   "ref": "41. Aha DW, Kibler D, Albert MK. Instance-Based Learning Algorithms. Machine Learning. 1991;6(1):37-66.",
+   "doi_or_url": "10.1023/A:1022689900470",
+   "type": "methodology",
+   "evidence": "The per-column distance is aha (after Aha's 1991 instance-based reasoning algorithm 41) ... If both values are missing, their distance is maximal (Aha's heuristic).",
+   "section": "3.2 (aha, line 113)",
+   "confidence": "high"
+  },
+  {
+   "target": "Yu et al. SLR relevance-filtering task, warm-start and recall protocol",
+   "ref": "26. Yu Z, Menzies T. Total recall, language processing, and software engineering. NL4SE 2018:10-13",
+   "doi_or_url": "",
+   "type": "methodology",
+   "evidence": "Recall is tp/(tp + fn): the fraction of relevant papers found ... Yu's study achieved a recall of 95%. ... Each run was initialized with a warm start",
+   "section": "7.2, 7.4",
+   "confidence": "high"
+  },
+  {
+   "target": "Feldt & Magazinius threats-to-validity framework",
+   "ref": "81. Feldt R, Magazinius A. Validity Threats in Empirical Software Engineering Research-An Initial Survey. In: SEKE 2010:374-379.",
+   "doi_or_url": "",
+   "type": "methodology",
+   "evidence": "Feldt et al. 81 note that a critical element of any empirical study is to analyze and mitigate threats to the validity of the results. We therefore consider the threats",
+   "section": "8",
+   "confidence": "medium"
+  },
+  {
+   "target": "Martin's clean-code rules (small functions)",
+   "ref": "35. Martin RC. Clean code: a handbook of agile software craftsmanship. Pearson Education, 2009.",
+   "doi_or_url": "",
+   "type": "methodology",
+   "evidence": "Per Martin's clean-code rules, ezr.py's 44 functions average 5 +/- 4 lines.",
+   "section": "2.5 Design notes",
+   "confidence": "medium"
+  },
+  {
+   "target": "Rayegan & Menzies: tiny trees rank features as well as SHAP/ReliefF",
+   "ref": "6. Rayegan A, Menzies T. Minimal Data, Maximum Clarity: A Heuristic for Explaining Optimization. JSS, to appear. 2026.",
+   "doi_or_url": "",
+   "type": "sanitycheck",
+   "evidence": "We use this regression tree format since a recent study by Rayegan et al. 6 showed that these trees can rank features ... just as well as other explanation algorithms such as SHAP and ReliefF.",
+   "section": "6.3, 6.4.4, 8.4",
+   "confidence": "high"
+  },
+  {
+   "target": "Ganguly & Menzies: EZR 500x faster than SMAC3",
+   "ref": "25. Ganguly KK, Menzies T. How Low Can You Go? The Data-Light SE Challenge. FSE '26. To appear.",
+   "doi_or_url": "",
+   "type": "sanitycheck",
+   "evidence": "Ganguly et al. 25 report that this use of rebalance makes EZR run 500 times faster than SMAC3.",
+   "section": "6.2, 6.4.4, 8.4",
+   "confidence": "high"
+  },
+  {
+   "target": "Martinez & Duran: supply-chain attack risk of large dependencies",
+   "ref": "17. Martinez J, Duran JM. Software Supply Chain Attacks, a Threat to Global Cybersecurity: SolarWinds' Case Study. IJSSE 2021;11(5):537-545.",
+   "doi_or_url": "10.18280/ijsse.110505",
+   "type": "sanitycheck",
+   "evidence": "a single poisoned update can compromise tens of thousands of downstream packages without the primary developer's knowledge 17. To sidestep that risk, EZR shuns pandas",
+   "section": "2, Table 4",
+   "confidence": "medium"
+  },
+  {
+   "target": "Tempero et al.: inheritance use is shallow and replaceable",
+   "ref": "36. Tempero E, Yang HY, Noble J. What Programmers Do with Inheritance in Java. ECOOP 2013:577-601.",
+   "doi_or_url": "",
+   "type": "sanitycheck",
+   "evidence": "Following Tempero et al. 36, EZR prefers composition over inheritance. Most reported inheritance use in practice is shallow and replaceable",
+   "section": "2.5 Design notes",
+   "confidence": "medium"
+  },
+  {
+   "target": "Valov et al.: exhaustive x264 exploration took 1000+ hours",
+   "ref": "57. Valov P, Petkovich J, Guo J, Fischmeister S, Czarnecki K. Transferring Performance Prediction Models Across Different Hardware Platforms. ICPE...",
+   "doi_or_url": "",
+   "type": "sanitycheck",
+   "evidence": "an exhaustive exploration of the 11 parameters of the x264 video encoder took 1000+ hours to terminate 57. Such costs mean that, in practice, the number of evaluations is often limited",
+   "section": "6.1",
+   "confidence": "low"
+  }
+ ],
+ "not_reuse_examples": [
+  "Arcuri & Briand [88]: named only as a 'future extension' for effect-size reporting; not applied in this paper.",
+  "Settles [60,70], Zhu [69], Kohavi & John [68], Pearson [65], Chang [66], Johnson-Lindenstrauss [67]: historical background for feature selection / active learning, nothing adopted or run.",
+  "Witten & Frank [40], PEP 544/557 [37,38], Lewis et al. RAG [75], Wolpert NFL [82]: framing/background only; no protocol, data or tool taken from them.",
+  "Fu/Nair/Agrawal 'simpler beats complex' papers [30-33,89-91]: cited as precedent for the paper's thesis, not reused."
+ ],
+ "notes": "Own-toolkit paper (EZR, stdlib-only Python); comparisons to SMAC3/SHAP/LIME/ReliefF are imported from the authors' prior papers [6,25] rather than re-run here, so those steppingstone edges are medium; no third-party software executed (0 software edges); the only fresh experiments are SA-vs-LS on 20 MOOT tasks and CNB-vs-FASTREAD on Yu's four SLR corpora."
+}

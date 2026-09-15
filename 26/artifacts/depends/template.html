@@ -1,0 +1,191 @@
+<title>__TITLE__</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#FBFAF7; --ink:#1B1D26; --ink2:#4B4F61; --ink3:#7C8095; --rule:#D9D8D2; --rule2:#ECEBE6; --none:#F1F0EB; --slot:#E4E2DB;
+  --t-steppingstone:#3D4F9F; --t-replication:#3D4F9F; --t-statmethod:#A8851A; --t-methodology:#8E44AD; --t-dataset:#1F8A70; --t-software:#C1651F;
+  --t-sanitycheck:#C43D5C; --t-numericfact:#C43D5C; --t-theory:#C43D5C;
+  --focus:#C1651F; --bar:#DCDAD3; --hatch:rgba(255,255,255,.55);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15161C; --ink:#EDEDF2; --ink2:#B9BCCB; --ink3:#8A8EA3; --rule:#33364A; --rule2:#24263A; --none:#1D1F2A; --slot:#262838;
+    --t-steppingstone:#6E82DC; --t-replication:#6E82DC; --t-statmethod:#AA8826; --t-methodology:#A46DCC; --t-dataset:#2FA07E; --t-software:#CC7A3A;
+    --t-sanitycheck:#D05F7A; --t-numericfact:#D05F7A; --t-theory:#D05F7A;
+    --focus:#CC7A3A; --bar:#3A3D4E; --hatch:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15161C; --ink:#EDEDF2; --ink2:#B9BCCB; --ink3:#8A8EA3; --rule:#33364A; --rule2:#24263A; --none:#1D1F2A; --slot:#262838;
+  --t-steppingstone:#6E82DC; --t-replication:#6E82DC; --t-statmethod:#AA8826; --t-methodology:#A46DCC; --t-dataset:#2FA07E; --t-software:#CC7A3A;
+  --t-sanitycheck:#D05F7A; --t-numericfact:#D05F7A; --t-theory:#D05F7A;
+  --focus:#CC7A3A; --bar:#3A3D4E; --hatch:rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15px;line-height:1.5;padding-block:32px 56px;padding-inline:clamp(16px,4vw,48px)}
+header{max-width:82ch;display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+h1{font-family:"Bricolage Grotesque","IBM Plex Sans",sans-serif;font-weight:700;font-size:clamp(28px,4vw,40px);line-height:1.08;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lede{color:var(--ink2);margin:0;max-width:72ch}
+.ctl{display:flex;flex-direction:column;gap:8px;margin:2px 0 18px}
+.row{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;font-size:13px}
+.row .lab{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);width:92px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:999px;border:1px solid var(--rule);background:transparent;color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
+.chip .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.chip .g{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--ink3)}
+.chip .n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--ink2)}
+.chip[aria-pressed="false"]{opacity:.42}
+.chip:focus-visible,.search input:focus-visible,select:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;font-size:12.5px;padding:5px 10px;border:0;background:transparent;color:var(--ink2);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.seg button:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.search{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink3)}
+.search input{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--rule);border-radius:5px;background:var(--paper);color:var(--ink);width:240px}
+.hatch{background-image:repeating-linear-gradient(135deg,var(--hatch) 0 2px,transparent 2px 5px)}
+.dots{background-image:radial-gradient(var(--hatch) 1.2px,transparent 1.3px);background-size:5px 5px}
+.stat{font-size:12.5px;color:var(--ink3);font-family:"IBM Plex Mono",ui-monospace,monospace}
+.scroll{overflow-x:auto;border-top:2px solid var(--ink);padding-bottom:24px}
+table{border-collapse:separate;border-spacing:0;font-size:12.5px}
+th,td{padding:0;vertical-align:bottom}
+thead tr.dend th{height:auto;border-bottom:0}
+thead tr.dend th.dcol{height:70px;position:relative}
+thead tr.dend th.dcol svg{position:absolute;left:0;bottom:0;overflow:visible}
+thead th.el{width:76px;min-width:76px;height:290px;position:relative;border-bottom:1px solid var(--rule)}
+thead th.el span{position:absolute;left:calc(50% - 10px);bottom:8px;transform:rotate(-62deg);transform-origin:0 100%;white-space:nowrap;display:block;color:var(--ink);font-size:12px;font-weight:500;line-height:1}
+thead th.rowhead{vertical-align:bottom;padding:0 12px 6px 0;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);width:330px;min-width:330px;border-bottom:1px solid var(--rule);text-align:left;position:sticky;left:96px;background:var(--paper);z-index:3}
+thead th.sum{width:140px;min-width:140px;border-bottom:1px solid var(--rule);vertical-align:bottom;padding:0 0 6px 10px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);text-align:left}
+tbody th.rh{text-align:left;font-weight:400;padding:0 12px 0 0;height:24px;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:330px;border-bottom:1px solid var(--rule2);position:sticky;left:96px;background:var(--paper);z-index:1;color:var(--ink);font-size:12px}
+tbody th.rh i{font-style:normal;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;color:var(--ink3);margin-right:7px;display:inline-block;width:18px;text-align:right}
+tbody th.rh .self{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;color:var(--t-software);margin-left:6px}
+tbody tr.hide{display:none}
+tbody td{height:24px;border-bottom:1px solid var(--rule2);padding:2px 3px}
+tbody td .c{height:18px;display:grid;grid-template-columns:repeat(9,1fr);gap:1px;border-radius:2px;cursor:default}
+tbody td .c i{display:block;border-radius:1.5px;background:var(--slot);opacity:.6;position:relative}
+tbody td .c.empty i{opacity:.28}
+tbody td .c i.on{opacity:1}
+tbody td .c i.on.low{opacity:.5}
+tbody td .c i.on.ref::after{content:'';position:absolute;inset:3px 2px;border:1.5px solid var(--paper);border-radius:1px}
+tbody td .c i.off{background:var(--slot)!important;background-image:none!important;opacity:.28}
+tbody td .c i.off::after{display:none}
+tbody td .c:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+td.drow{width:96px;min-width:96px;vertical-align:top;padding:0 6px 0 0;border-bottom:0;position:sticky;left:0;background:var(--paper);z-index:2}
+td.drow svg{display:block;overflow:visible}
+td.sumcell{padding-left:10px;vertical-align:middle;white-space:nowrap}
+.bar{display:flex;height:9px;border-radius:2px;overflow:hidden;width:80px;background:var(--bar)}
+.bar span{display:block;height:100%}
+.sumtxt{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;color:var(--ink3);margin-left:6px}
+tfoot td{padding:6px 3px 0;vertical-align:top;border-top:1px solid var(--rule)}
+tfoot td .bar{width:68px;margin:0 auto}
+tfoot td .sumtxt{display:block;text-align:center;margin:3px 0 0}
+tfoot th{position:sticky;left:96px;background:var(--paper);text-align:left;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:8px 12px 0 0;border-top:1px solid var(--rule);vertical-align:top;font-weight:400}
+.dl{stroke:var(--ink2);stroke-width:1.1;fill:none}
+.dt{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9.5px;fill:var(--ink3)}
+.dg{stroke:var(--rule2);stroke-width:1}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--paper);padding:9px 11px;border-radius:5px;font-size:12.5px;max-width:460px;line-height:1.4;box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;transition:opacity .12s;z-index:9}
+.tip b{display:block;font-weight:600;margin-bottom:3px}
+.tip .e{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.18)}
+.tip .e i{font-style:normal;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;opacity:.75;margin-right:6px}
+@media (prefers-reduced-motion: reduce){.tip{transition:none}}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px;max-width:1120px;margin-top:34px}
+.notes h2{font-family:"Bricolage Grotesque","IBM Plex Sans",sans-serif;font-size:16px;font-weight:700;margin:0 0 6px}
+.notes p{margin:0;color:var(--ink2);font-size:14px}
+.notes p b{color:var(--ink);font-weight:600}
+footer{margin-top:36px;font-size:12.5px;color:var(--ink3);max-width:82ch}
+</style>
+
+<header>
+  <div class="eyebrow">__EYEBROW__</div>
+  <h1>__H1__</h1>
+  <p class="lede">__LEDE_INTRO__ Each cell has nine slots in fixed order S T M D W · C N Θ · R. A lit slot is one kind of reuse. The three rose slots are the evidence family (sanity check, numeric fact, theory) told apart by position and fill; R is replication, hatched indigo. A white inner ring marks an edge that refutes what it reuses. Filters below remove edge types or restrict by flag. Hover or focus a cell for the quoted sentence behind each slot.</p>
+  <div class="ctl">
+    <div class="row" id="types"><span class="lab">edge types</span></div>
+    <div class="row"><span class="lab">source</span><span class="seg" id="segSelf"><button aria-pressed="true" data-v="all">all</button><button aria-pressed="false" data-v="self">own group</button><button aria-pressed="false" data-v="ext">external</button></span>
+      <span class="lab" style="width:auto;margin-left:10px">executed</span><span class="seg" id="segExec"><button aria-pressed="true" data-v="all">all</button><button aria-pressed="false" data-v="yes">ran it</button><button aria-pressed="false" data-v="no">cited only</button></span>
+      <span class="lab" style="width:auto;margin-left:10px">polarity</span><span class="seg" id="segPol"><button aria-pressed="true" data-v="all">all</button><button aria-pressed="false" data-v="refutes">refutes</button><button aria-pressed="false" data-v="supports">supports</button></span>
+      <span class="lab" style="width:auto;margin-left:10px">transitive</span><span class="seg" id="segTr"><button aria-pressed="true" data-v="all">all</button><button aria-pressed="false" data-v="no">direct only</button></span></div>
+    <div class="row"><span class="lab">rows</span><span class="search"><input id="q" type="search" placeholder="find row, e.g. SMAC, Kaggle, Scott" autocomplete="off"></span><label style="font-size:13px;color:var(--ink2)"><input type="checkbox" id="hideEmpty" checked> hide rows with nothing left after filtering</label><span class="stat" id="stat"></span></div>
+  </div>
+</header>
+
+<div class="scroll"><table id="grid" aria-label="Reuse matrix: reused items by paper, nine type slots per cell"></table></div>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+<section class="notes" id="notes"></section>
+<footer>v2 reading: each paper's v1 edges were re-typed under the nine-type scheme, flagged, and the paper re-scanned for replication, refutation, numeric-fact and theory edges. One reader per paper, verbatim quote required, confidence rated; half-faded slots are low confidence. Target names merged by an alias table; raw name in the tooltip. Edge list: artifacts/papers/reuse_edges_v2.csv.</footer>
+
+<script>
+const D = __MATRIX__;
+const TN={steppingstone:"stepping stone",statmethod:"statistical method",methodology:"metric / protocol / definition",dataset:"dataset",software:"software",sanitycheck:"sanity check",numericfact:"numeric fact",theory:"theory / bound",replication:"replication"};
+const TG={steppingstone:"S",statmethod:"T",methodology:"M",dataset:"D",software:"W",sanitycheck:"C",numericfact:"N",theory:"Θ",replication:"R"};
+const TF={numericfact:"dots",theory:"hatch",replication:"hatch"};
+const CW=76, RH=24, DENDW=96, DENDH=70;
+const on=Object.fromEntries(D.types.map(t=>[t,true])); const F={self:'all',exec:'all',pol:'all',tr:'all'};
+const grid=document.getElementById('grid'), tip=document.getElementById('tip'), q=document.getElementById('q'), stat=document.getElementById('stat'), hideEmpty=document.getElementById('hideEmpty');
+const types=document.getElementById('types');
+D.types.forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.setAttribute('aria-pressed','true');
+  b.innerHTML=`<span class="sw ${TF[t]||''}" style="background-color:var(--t-${t})"></span>${TN[t]} <span class="g">${TG[t]}</span> <span class="n">${D.totals[t]}</span>`;
+  b.addEventListener('click',()=>{on[t]=!on[t];b.setAttribute('aria-pressed',String(on[t]));paint();});types.appendChild(b);});
+[['segSelf','self'],['segExec','exec'],['segPol','pol'],['segTr','tr']].forEach(([id,k])=>{const s=document.getElementById(id);s.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{s.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');F[k]=b.dataset.v;paint();}));});
+function dendro(tree,order,max,orient){
+  const pos={}; order.forEach((id,i)=>pos[id]=i);
+  const L=orient==='top'?order.length*CW:order.length*RH; const Dd=orient==='top'?DENDH:DENDW;
+  const ns='http://www.w3.org/2000/svg'; const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('width',orient==='top'?L:Dd); svg.setAttribute('height',orient==='top'?Dd:L);
+  const sc=d=>(Dd-12)*(d/max); const path=[];
+  [100,50,0].forEach(p=>{const x=sc(max*(1-p/100)); const g=document.createElementNS(ns,'line'); g.setAttribute('class','dg');
+    if(orient==='top'){g.setAttribute('x1',0);g.setAttribute('x2',L);g.setAttribute('y1',Dd-x);g.setAttribute('y2',Dd-x);}else{g.setAttribute('y1',0);g.setAttribute('y2',L);g.setAttribute('x1',Dd-x);g.setAttribute('x2',Dd-x);} svg.appendChild(g);
+    const t=document.createElementNS(ns,'text');t.setAttribute('class','dt');t.textContent=p+'%';
+    if(orient==='top'){t.setAttribute('x',-6);t.setAttribute('y',Dd-x+3);t.setAttribute('text-anchor','end');}else{t.setAttribute('x',Dd-x);t.setAttribute('y',L+11);t.setAttribute('text-anchor','middle');} svg.appendChild(t);});
+  function rec(n){ if('leaf' in n){return {c:(pos[n.leaf]+.5)*(orient==='top'?CW:RH),d:0};}
+    const a=rec(n.l),b=rec(n.r),h=sc(n.h);
+    if(orient==='top')path.push(`M${a.c},${Dd-sc(a.d)}V${Dd-h}H${b.c}V${Dd-sc(b.d)}`);else path.push(`M${Dd-sc(a.d)},${a.c}H${Dd-h}V${b.c}H${Dd-sc(b.d)}`);
+    return {c:(a.c+b.c)/2,d:n.h}; }
+  rec(tree); const p=document.createElementNS(ns,'path');p.setAttribute('class','dl');p.setAttribute('d',path.join(' '));svg.appendChild(p);return svg;
+}
+function bar(counts,w){const tot=counts.reduce((a,b)=>a+b,0)||1;return `<div class="bar" style="width:${w}px">${D.types.map((t,x)=>`<span style="width:${100*counts[x]/tot}%;background:var(--t-${t})"></span>`).join('')}</div>`;}
+function build(){
+  grid.innerHTML='';
+  const thead=document.createElement('thead');
+  let tr=document.createElement('tr');tr.className='dend';tr.innerHTML='<th></th><th></th>';
+  let th=document.createElement('th');th.className='dcol';th.colSpan=D.colOrder.length;th.appendChild(dendro(D.colTree,D.colOrder,D.colMax,'top'));tr.appendChild(th);tr.appendChild(document.createElement('th'));thead.appendChild(tr);
+  tr=document.createElement('tr');th=document.createElement('th');th.style.width=DENDW+'px';th.style.minWidth=DENDW+'px';th.style.borderBottom='1px solid var(--rule)';tr.appendChild(th);
+  th=document.createElement('th');th.className='rowhead';th.textContent='reused item ↓   paper →';tr.appendChild(th);
+  D.colOrder.forEach(j=>{const t=document.createElement('th');t.className='el';t.innerHTML=`<span>${D.plabels[j]}</span>`;tr.appendChild(t);});
+  th=document.createElement('th');th.className='sum';th.textContent='edges by type';tr.appendChild(th);thead.appendChild(tr);grid.appendChild(thead);
+  const tb=document.createElement('tbody');
+  D.rowOrder.forEach((i,k)=>{const tr=document.createElement('tr');tr.dataset.name=D.targets[i].toLowerCase();
+    if(k===0){const td=document.createElement('td');td.className='drow';td.rowSpan=D.rowOrder.length;td.appendChild(dendro(D.rowTree,D.rowOrder,D.rowMax,'left'));tr.appendChild(td);}
+    const th=document.createElement('th');th.className='rh';th.title=D.targets[i];th.innerHTML=`<i>${D.indeg[i]}</i>${D.targets[i]}${D.tself[i]?'<span class="self" title="reused work shares an author with the citing papers">own</span>':''}`;tr.appendChild(th);
+    D.colOrder.forEach(j=>{const td=document.createElement('td');const c=D.grid[i][j];const d=document.createElement('div');
+      d.className='c'+(c?'':' empty');
+      D.types.forEach(t=>{const s=document.createElement('i');const e=c&&c.slots[t];
+        if(e){s.className='on'+(e.conf==='low'?' low':'')+(e.polarity==='refutes'?' ref':'')+(TF[t]?' '+TF[t]:'');s.style.backgroundColor=`var(--t-${t})`;s.dataset.t=t;s.dataset.self=e.self?'1':'0';s.dataset.exec=e.executed?'1':'0';s.dataset.pol=e.polarity;s.dataset.tr=e.transitive?'1':'0';}
+        d.appendChild(s);});
+      if(c){d.tabIndex=0;d.dataset.title=`${D.plabels[j]} → ${D.targets[i]}`;
+        d.dataset.body=c.ev.map(e=>`<div class="e"><i>${TG[e.type]} ${TN[e.type]} · ${e.conf}${e.self?' · own group':''}${e.executed?' · ran it':''}${e.polarity==='refutes'?' · REFUTES':''}${e.transitive?' · via intermediary':''}${e.sec?' · '+e.sec:''}</i>“${e.q}”${e.raw!==D.targets[i]?' <i>['+e.raw+']</i>':''}</div>`).join('');}
+      td.appendChild(d);tr.appendChild(td);});
+    const td=document.createElement('td');td.className='sumcell';const tot=D.ttype[i].reduce((a,b)=>a+b,0);
+    td.innerHTML=`<div style="display:flex;align-items:center">${bar(D.ttype[i],80)}<span class="sumtxt">${tot}</span></div>`;tr.appendChild(td);tb.appendChild(tr);});
+  grid.appendChild(tb);
+  const tf=document.createElement('tfoot');const fr=document.createElement('tr');fr.innerHTML='<td></td>';const fh=document.createElement('th');fh.textContent='paper totals';fr.appendChild(fh);
+  D.colOrder.forEach(j=>{const td=document.createElement('td');const tot=D.ptype[j].reduce((a,b)=>a+b,0);td.innerHTML=bar(D.ptype[j],68)+`<span class="sumtxt">${tot}</span>`;fr.appendChild(td);});
+  fr.appendChild(document.createElement('td'));tf.appendChild(fr);grid.appendChild(tf); paint();
+}
+function pass(s){if(!on[s.dataset.t])return false;
+  if(F.self==='self'&&s.dataset.self!=='1')return false; if(F.self==='ext'&&s.dataset.self!=='0')return false;
+  if(F.exec==='yes'&&s.dataset.exec!=='1')return false; if(F.exec==='no'&&s.dataset.exec!=='0')return false;
+  if(F.pol!=='all'&&s.dataset.pol!==F.pol)return false; if(F.tr==='no'&&s.dataset.tr!=='0')return false; return true;}
+function paint(){let lit=0;grid.querySelectorAll('.c i.on').forEach(s=>{const ok=pass(s);s.classList.toggle('off',!ok);if(ok)lit++;});
+  const v=q.value.trim().toLowerCase();let shown=0;
+  grid.querySelectorAll('tbody tr').forEach(tr=>{const nm=!v||tr.dataset.name.includes(v);const any=tr.querySelector('.c i.on:not(.off)');const h=!nm||(hideEmpty.checked&&!any);tr.classList.toggle('hide',h);if(!h)shown++;});
+  const d=grid.querySelector('td.drow');if(d)d.style.visibility=(shown===D.targets.length)?'visible':'hidden';
+  stat.textContent=`${lit} lit slots (${D.nedges} edges) · ${shown} of ${D.targets.length} rows`;}
+q.addEventListener('input',paint);hideEmpty.addEventListener('change',paint);
+function show(e){const c=e.target.closest('.c');if(!c||c.classList.contains('empty'))return;tip.innerHTML=`<b>${c.dataset.title}</b>${c.dataset.body}`;tip.style.opacity=1;move(e);}
+function move(e){const x=(e.clientX??0)+14,y=(e.clientY??0)+14,w=tip.offsetWidth,h=tip.offsetHeight;tip.style.left=Math.min(x,innerWidth-w-8)+'px';tip.style.top=Math.min(y,innerHeight-h-8)+'px';}
+function hide(){tip.style.opacity=0;}
+grid.addEventListener('mouseover',show);grid.addEventListener('mousemove',e=>{if(tip.style.opacity==='1')move(e);});grid.addEventListener('mouseout',hide);
+grid.addEventListener('focusin',e=>{const c=e.target.closest('.c');if(!c)return;const r=c.getBoundingClientRect();show({target:c,clientX:r.left,clientY:r.bottom});});grid.addEventListener('focusout',hide);
+build();
+document.getElementById('notes').innerHTML = __NOTES__;
+</script>

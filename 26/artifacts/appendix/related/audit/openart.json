@@ -1,0 +1,28 @@
+{
+  "element": "OpenART (abstract) — Muttakin, Mondal & Roy, ICSE 2026 JAWS workshop",
+  "files": [
+    "https://conf.researchr.org/details/icse-2026/jaws-2026-papers/10/OpenART-Manuscript-Driven-Support-for-Promoting-Executability-of-Software-Engineerin (abstract only; no PDF, arXiv, author page, or GitHub version found via web search)"
+  ],
+  "source_note": "Only the researchr.org abstract exists. Web searches (title, authors, 'OpenART' + replication package) returned only the authors' separate ICSE 2026 paper 'The State of Open Science in SE Research: A Case Study of ICSE Artifacts' (arXiv:2601.02066), which motivates OpenART but is not it. All ratings are abstract-only.",
+  "ratings": {
+    "UC1": {"rating": 1, "evidence": "\"generate structured artifact documentation, including required components, dependencies, and execution steps\" (abstract)", "confidence": "medium", "note": "Produces artifact documentation from P alone, not a venue-format appendix from P + A; partial is right."},
+    "UC2": {"rating": 0, "evidence": "no evidence found", "confidence": "low", "note": "No mention of translating between venue standards; absence in an abstract is weak evidence."},
+    "UC3": {"rating": 0, "evidence": "\"extracts explicit and implicit execution-relevant information from papers to generate structured artifact documentation\" (abstract)", "confidence": "low", "note": "Maps paper-described components to an expected layout, but no claim/result-to-file links are stated; 0 defensible, 1 arguable."},
+    "UC4": {"rating": 2, "evidence": "\"automated identification of missing or inconsistent components in existing packages\" (abstract)", "confidence": "medium", "note": "Deliverable is a missing-components report, but the reference is the manuscript-derived layout, not a venue standard S; 2 is generous, 1 arguable."},
+    "UC5": {"rating": 1, "evidence": "\"automated identification of missing or inconsistent components in existing packages\" (abstract)", "confidence": "low", "note": "Current 0; rubric says detecting paper-artifact inconsistencies counts as at least partial, and 'inconsistent' here is relative to the manuscript-derived spec. Paper-side gaps are not reported."},
+    "UC6": {"rating": 1, "evidence": "\"derives an expected artifact layout that enables (i) guided preparation of replication packages from scratch\" (abstract)", "confidence": "medium", "note": "Generates docs and layout from P (two of the four UC6 items) but no code or environment; 1 correct, 2 arguable."},
+    "UC7": {"rating": 0, "evidence": "no evidence found", "confidence": "low", "note": ""},
+    "UC8": {"rating": 0, "evidence": "no evidence found", "confidence": "low", "note": ""},
+    "B1": {"rating": 1, "evidence": "\"mixed-method user study with SE researchers across two realistic workflows: artifact creation and artifact completion\" (abstract)", "confidence": "medium", "note": "Author-facing; abstract also cites 'reviewer-friendly artifact evaluation' as a downstream aim, so 2 is arguable."},
+    "B2": {"rating": 1, "evidence": "\"Leveraging both foundation and fine-tuned large language models, OpenART extracts explicit and implicit execution-relevant information from papers\" (abstract)", "confidence": "low", "note": "No execution stated; package completion implies inspecting file contents, so 2 arguable."},
+    "B3": {"rating": 1, "evidence": "\"automatically deriving actionable artifact specifications directly from companion manuscripts\" (abstract; title says 'Manuscript-Driven')", "confidence": "high", "note": "Completion workflow also takes an existing package as secondary input."},
+    "B4": {"rating": 1, "evidence": "\"Despite substantial progress in artifact availability and badging\" (abstract, background only)", "confidence": "low", "note": "Current 2; the spec is derived from each manuscript, and no venue standard or published criteria drives the tool, so 1 fits better."},
+    "B5": {"rating": 4, "evidence": "\"generate structured artifact documentation ... From this documentation, OpenART further derives an expected artifact layout\" (abstract)", "confidence": "medium", "note": "Outputs are structured docs, a layout spec, and a missing-components list; no score or badge."}
+  },
+  "disagreements": [
+    "UC5: current 0, should be 1 because the abstract states it identifies 'missing or inconsistent components in existing packages' relative to the manuscript-derived spec, and the rubric counts paper-artifact inconsistency detection as at least partial (low confidence, abstract only).",
+    "B4: current 2, should be 1 because the reference spec is derived from each manuscript, not from any venue standard or published criteria; 'badging' appears only as motivation (low confidence).",
+    "UC4: current 2 is debatable (1 arguable) because the missing-components check is against the paper-derived layout, not a venue standard S."
+  ],
+  "one_line_summary": "LLM framework that extracts execution-relevant info from a manuscript to generate artifact documentation and an expected layout, guiding package creation and flagging missing/inconsistent components."
+}

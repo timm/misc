@@ -1,0 +1,419 @@
+{
+ "paper": "SafePM: A Sanitizer for Persistent Memory (Bozdogan, Stavrakakis, Issa, Bhatotia), EuroSys '22",
+ "paper_version": "ACM DL camera-ready, EuroSys '22, Rennes, April 2022, pp. 506-524, DOI 10.1145/3492321.3519574 (PDF 3492321.3519574.pdf); artifact: Zenodo DOI 10.5281/zenodo.6338745, zip safepm-artifact_evaluation.zip = GitHub TUM-DSE/safepm snapshot 9197f68 (files dated 2022-02-02)",
+ "artifact_files_inspected": [
+  "TUM-DSE-safepm-9197f68/Readme.md",
+  "TUM-DSE-safepm-9197f68/.gitmodules",
+  "TUM-DSE-safepm-9197f68/pmdk/ (empty submodule dir)",
+  "TUM-DSE-safepm-9197f68/test.sh",
+  "TUM-DSE-safepm-9197f68/CMakeLists.txt (listing)",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/README.md",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/run_all.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/run_pmembench.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/run_pmemkv.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/run_ripe.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/run_crash_consistency.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/reproduce_bugs.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/figure_3.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/figure_4.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/figure_5.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/figure_6.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/figure_7.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/safepm_figures.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/table_4.sh",
+  "TUM-DSE-safepm-9197f68/artifact_evaluation/valgrind_summary.sh",
+  "TUM-DSE-safepm-9197f68/benchmarks/README.md",
+  "TUM-DSE-safepm-9197f68/benchmarks/pmembench/{README.md,run-variants.sh,inner_run.sh,change_pmembench_file_path.sh,Dockerfile}",
+  "TUM-DSE-safepm-9197f68/benchmarks/pmemkv/{README.md,run-variants.sh,run-all.sh,run-pmemkv-bench-read.sh,avg.py}; listing of Dockerfile_{vanilla,asan,safepm}, *.patch, other run-pmemkv-bench-*.sh",
+  "TUM-DSE-safepm-9197f68/benchmarks/ripe/{Readme.md,run-variants.sh,ripe_tester.py (first ~200 lines),Dockerfile_safepm}; listing of Dockerfile_{intact,asan_system_heap,asan_pmemobj_heap,memcheck}, memcheck.patch, Makefile, source/*",
+  "TUM-DSE-safepm-9197f68/benchmarks/crash_consistency/{README.md,run-variants.sh,inner_run.sh,change_pmembench_file_path.sh,Dockerfile}",
+  "TUM-DSE-safepm-9197f68/benchmarks/bugs/{README.md,safepm_bugs.sh,bug1_btree.sh,bug2_tx.sh,Dockerfile}",
+  "TUM-DSE-safepm-9197f68/plot_utils/{README,analyse.py,parser.py (head),plot_config_maps.yml,plot_config_pmembench_tx.yml,plot_config_open_create.yml,plot_config_partial_coverage.yml,plot_config_pmemkv.yml}; grep of plotters.py/generate_plots.py for variance computation",
+  "TUM-DSE-safepm-9197f68/utils/pool_overhead.cpp",
+  "TUM-DSE-safepm-9197f68/tests/ (listing of 18 files)"
+ ],
+ "claims": [
+  {
+   "id": "C1",
+   "statement": "We introduce SafePM, a memory safety mechanism that transparently and comprehensively detects both spatial and temporal memory safety violations for PM-based applications. [...] We present the design (§ 4) of SafePM, the first solution for comprehensive spatial and temporal memory safety for PMDK-based PM applications.",
+   "location": "Abstract (p.506) and Contribution bullet 1, §1 (p.507)",
+   "why_selected": "Central abstract claim and first numbered contribution; states the capability (spatial+temporal, transparent) and a novelty ('first') assertion.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "'Spatial' = access outside assigned boundaries, 'temporal' = access before creation/after deletion (§1, §2.2); 'transparent' = no source code modifications (§3, Design goals); 'comprehensively' = both classes; mechanism = ASan shadow memory format placed in PM pool (PSM) + persistent red zones + wrappers around PMDK pool/alloc/free API (Table 1).",
+    "subjects": "Applications written against PMDK libpmemobj (v1.9.2 fork), compiled with gcc -fsanitize=address.",
+    "conditions_time_limits": "Limits stated in §4.3: inherits ASan limits (no intra-object overflow; misses OOB landing inside another object); temporal safety is 'probabilistic' with no quarantine, relying on PMDK delaying reuse 'based on our experience'; PSM <= 16 GB so pools <= 128 GB; PMDK internals assumed correct and not instrumented (§5); pools not compatible between PMDK and SafePM. 'First' is argued only against related work (§3, §7: memcheck, Corundum, Poseidon).",
+    "missing": ""
+   },
+   "cea3": {
+    "met": true,
+    "measures": "RIPE attack outcomes always/sometimes/never (Table 5) for spatial violations; deliberate-violation unit tests in the artifact (tests/overflow*.cpp, root_overflow/underflow, use_after_free*.cpp, use_after_realloc.cpp, double_free*.cpp, mismatched_free.cpp, alloc_tx_abort.cpp, tx_add_overflow.cpp, overflow_persistence.sh) checked by test.sh for the expected ASan shadow byte codes ([fa] red zone, [fd] freed, 'Invalid free'). Real-bug detections in §6.7.",
+    "analysis": "RIPE: each attack 3 attempts, counts tabulated (ripe_tester.py both 3 gcc). Unit tests: pass/fail on crash + grep of ASan output (test.sh should_crash/should_not_crash). No quantitative analysis of temporal detection rate in the paper.",
+    "files_versions_results": "TUM-DSE-safepm-9197f68/tests/*.cpp, TUM-DSE-safepm-9197f68/test.sh, TUM-DSE-safepm-9197f68/benchmarks/ripe/{run-variants.sh,ripe_tester.py,Dockerfile_safepm,source/attack_gen_pmemobj_heap.c}; results in Table 5 (p.518) and in test.sh console output. PMDK fork github.com/mstniy/pmdk branches pmasan-1.9.2 (SafePM; + disable_asan.patch = 'SafePM w/o ASan'), asan_only-1.9.2, vanilla-1.9.2 (branch names only, no commit hashes; the pmdk/ submodule directory in the zip is EMPTY and the pmembench .cfg files live in the fork, so they are not in the artifact zip); base PMDK v1.9.2; Ubuntu 20.04, kernel 5.4.0, gcc 9.3.0, Docker 20.10.7; artifact = GitHub TUM-DSE/safepm commit 9197f68 (Zenodo 10.5281/zenodo.6338745)",
+    "figure_or_table": "Table 5; tests/ (artifact only, not reported in paper)",
+    "missing": "Temporal-violation detection is evidenced only by artifact unit tests, not by any paper table; RIPE exercises spatial overflows only."
+   },
+   "cea4": {
+    "met": true,
+    "why_supports": "Paper argues that using ASan's own shadow format and compiler pass unchanged, with the PSM overmapped at the address ASan computes, yields ASan's detection for PM objects (§3, §4.1); RIPE numbers for SafePM equal ASan-on-system-heap (Table 5); unit tests show each violation class crashes with the expected shadow code.",
+    "assumptions_uncertainty_limits": "Assumptions stated: PMDK internals bug-free and uninstrumented (§5); libpmemobj delays reuse of freed regions (temporal detection probabilistic, §4.3); red zone 16 B trades safety vs space (§4.1). Limits listed in §4.3 Limitations.",
+    "objections_addressed": "memcheck (state-of-the-art PM checker) discussed as prohibitively slow and less precise (§3, §7); Corundum requires new library/language (§7); Poseidon needs PMDK changes (§4.3 Metadata protection).",
+    "missing": ""
+   },
+   "level": 4,
+   "claim_type": "design / existence-capability (plus a novelty assertion)",
+   "asserts_cause": false,
+   "theory": "Shadow-memory (trip-wire) model: if the metadata ASan expects is persisted inside the pool, kept crash-consistent via PMDK transactions, and overmapped to ASan's shadow address range, ASan's unchanged checks apply to PM objects.",
+   "evidence_strength": "Moderate for spatial (RIPE, 3 attempts per attack, matches ASan exactly); weak for temporal (only artifact unit tests, no paper-reported measurement; probabilistic by design). 'First' is unsupported beyond a related-work argument.",
+   "file_checks": "not run; inspected: TUM-DSE-safepm-9197f68/tests/ (18 files), test.sh, benchmarks/ripe/*, Readme.md",
+   "information_source": "authors: definitions, limits, RIPE table, test list; reviewer-added: mapping of unit tests to violation classes from test.sh expected patterns; unknown: how often PMDK actually delays reuse (temporal detection probability).",
+   "causal_overreach": false,
+   "note": "Paper's claim of 'no memory safety mechanism for PM' (abstract) is softened in §3 which acknowledges memcheck."
+  },
+  {
+   "id": "C2",
+   "statement": "SafePM achieves memory safety effectiveness for the PM heap equivalent to that achieved by ASan for the volatile (system) heap. [...] Finally, we observe that SafePM is able to detect and prevent a higher number of memory vulnerabilities compared to the state-of-the-art memcheck [21].",
+   "location": "§6.4 Effectiveness, p.518; also Intro p.507 ('same memory safety guarantees ... as ASan provides for volatile memory') and Artifact Appendix A.4.1 (C2)",
+   "why_selected": "Headline result of the effectiveness section and the paper's stated second major artifact claim.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Effectiveness = number of RIPE exploits that always / sometimes / never succeed; 'equivalent' = same counts as the ASan-with-system-heap variant; 'higher than memcheck' = fewer 'always' successes.",
+    "subjects": "Five variants of the 64-bit RIPE port (Intact, ASan w/ system heap, ASan w/ PM pool heap, SafePM, memcheck), gcc 9.3.0, default GCC stack protection; PM-heap variants use libpmemobj allocations.",
+    "conditions_time_limits": "RIPE attack set: direct+indirect techniques, 4 locations, 16 code pointers, 3 attacks (nonop/simplenop disabled), 10 functions; 3 repetitions per exploit; 'we run the RIPE benchmark suite several times to make sure the results are stable' (count not given).",
+    "missing": ""
+   },
+   "cea3": {
+    "met": true,
+    "measures": "Counts of attacks Always/Sometimes/Never successful (Table 5: Intact 306/14/1014; ASan sys heap 27/1/1306; ASan PM heap 119/12/1203; SafePM 27/1/1306; memcheck 62/0/1272).",
+    "analysis": "ripe_tester.py loops over all parameter combinations, runs each 3 times, classifies by number of successful attempts, writes summary file; table_4.sh parses the 'OK:' summary lines into the table.",
+    "files_versions_results": "TUM-DSE-safepm-9197f68/benchmarks/ripe/{run-variants.sh (variants intact, asan_system_heap, asan_pmemobj_heap, safepm, memcheck; 'both 3 gcc'), ripe_tester.py, Dockerfile_*, memcheck.patch, source/attack_gen_{system,pmemobj}_heap.c, Makefile}; TUM-DSE-safepm-9197f68/artifact_evaluation/{run_ripe.sh, table_4.sh}. Valgrind pmem fork commit 06f15d69. Results: benchmarks/ripe/results/<variant> (generated at run time, not shipped); Table 5 p.518.",
+    "figure_or_table": "Table 5 (artifact script is named table_4.sh; the paper's appendix itself notes it prints 'a table similar to Table 5')",
+    "missing": "Number of whole-suite repetitions unspecified; raw result files not shipped."
+   },
+   "cea4": {
+    "met": true,
+    "why_supports": "Reasoning: with the PM heap, ASan cannot see the persistent heap layout so exploitable count rises (27->119); linking against SafePM restores the count to exactly the system-heap level (27/1/1306), which the paper reads as equivalence; memcheck leaves 62 always-successful attacks.",
+    "assumptions_uncertainty_limits": "Assumes RIPE's attack corpus is representative of memory vulnerabilities; equality of counts read as equality of guarantees (generalization from a benchmark to 'guarantees'). Residual 27 always-successful attacks are not analysed. Stability asserted qualitatively.",
+    "objections_addressed": "Alternative baselines (ASan alone on PM heap; memcheck) are included as variants; memcheck's lower precision explained in §7 (runtime translation, no compiler support).",
+    "missing": "No discussion of which attack classes remain exploitable under SafePM/ASan, nor of temporal attacks (RIPE has none)."
+   },
+   "level": 4,
+   "claim_type": "comparative (with generalization to 'same guarantees')",
+   "asserts_cause": false,
+   "theory": "Same shadow-memory format and compiler pass => same detection capability; ASan alone fails on PM heap because the persistent allocator bypasses ASan's malloc interception.",
+   "evidence_strength": "Repeated-measurement (3 attempts per exploit, suite re-run 'several times'); strong for the RIPE corpus, but 'same guarantees' extrapolates beyond spatial overflow attacks.",
+   "file_checks": "not run; inspected: TUM-DSE-safepm-9197f68/benchmarks/ripe/run-variants.sh, ripe_tester.py, Readme.md, Dockerfile_safepm, Dockerfile_memcheck (listing), TUM-DSE-safepm-9197f68/artifact_evaluation/table_4.sh, run_ripe.sh",
+   "information_source": "authors: variants, counts, procedure; reviewer-added: attack-space enumeration from ripe_tester.py lists; unknown: number of suite repetitions, raw per-attack logs.",
+   "causal_overreach": false,
+   "note": "Artifact appendix calls this claim 'Efficiency' though it is about effectiveness."
+  },
+  {
+   "id": "C3",
+   "statement": "Our evaluation shows that SafePM offers the same memory safety guarantees for persistent memory as ASan provides for volatile memory with reasonable performance overheads, e.g., 1.20 − 2.62× slowdown for the KV store [...] In general, SafePM is 1.68-2.00×, 1.16-1.50× and 1.68-1.87× slower than the native PMDK for the insert, get and remove operations, respectively. [...] The respective values for SafePM are 1.20-2.55×.",
+   "location": "Intro p.507; §6.2 Persistent indices and Persistent KV store, pp.515-516; Figures 3 and 4; Abstract ('reasonable overheads')",
+   "why_selected": "Abstract/intro headline on overheads and the headline results of §6.2 (Fig 3 indices, Fig 4 pmemkv); Artifact Appendix claim C1.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Property = throughput slowdown (ops/s) of variant relative to native PMDK; 'reasonable' is operationalised as 'comparable to those of ASan for volatile memory' (§3) and 'very close to those of the highly optimized ASan' (§6.2). Variants defined in Table 2 (Native, ASan, SafePM w/o ASan, SafePM).",
+    "subjects": "Four PMDK persistent indices (ctree, rtree, rbtree, hashmap) under pmembench: 1M insert/get/remove, 8-byte keys, uniform random; pmemkv 1.4 (cmap engine) via pmemkv-bench: 1M entries, 10M ops, 16 B keys / 1024 B values, workloads 50/50, 95/5, random read, sequential read, threads 1-24.",
+    "conditions_time_limits": "Testbed: Xeon Gold 6212U 24 cores, 192 GB DRAM, 768 GB Optane DC, Ubuntu 20.04, kernel 5.4; red zone 16 B; 'reported values are the average of at least 3 runs'; PMDK internals not instrumented (§5).",
+    "missing": ""
+   },
+   "cea3": {
+    "met": true,
+    "measures": "pmembench ops-per-second[1/sec] (plot_utils/analyse.py metrics; plot_config_maps.yml y_axis) and pmemkv_bench ops/sec (plot_config_pmemkv.yml), normalised to native.",
+    "analysis": "pmembench: inner_run.sh runs pmembench_map.cfg for 4 PMDK builds (repeats defined in cfg, which lives in the fork; crash_consistency/change_pmembench_file_path.sh reveals the cfg default 'repeats = 3'); pmemkv: run-pmemkv-bench-read.sh REPEATS=3, avg.py averages per-metric across the 3 CSVs; figure_3.sh / figure_4.sh import results and plot via generate_plots.py. No variance or CI computed anywhere in plot_utils.",
+    "files_versions_results": "TUM-DSE-safepm-9197f68/benchmarks/pmembench/{run-variants.sh,inner_run.sh,Dockerfile,change_pmembench_file_path.sh}; TUM-DSE-safepm-9197f68/benchmarks/pmemkv/{run-variants.sh,run-all.sh,run-pmemkv-bench-{read,randomreadwrite,delete,fill,numops}.sh,avg.py,Dockerfile_{vanilla,asan,safepm},pmemkv_asan.patch,pmemkv_bench_asan.patch}; TUM-DSE-safepm-9197f68/artifact_evaluation/{run_all.sh,run_pmembench.sh,run_pmemkv.sh,figure_3.sh,figure_4.sh}; TUM-DSE-safepm-9197f68/plot_utils/{import_pmembench.sh,import_pmemkv.sh,generate_plots.py,parser.py,analyse.py,plotters.py,plot_config_maps.yml,plot_config_pmemkv.yml}. pmemkv stack versions: memkind v1.11.0, libpmemobj-cpp stable-1.12, pmemkv 1.4, pmemkv-bench commit 32d94c0. PMDK fork github.com/mstniy/pmdk branches pmasan-1.9.2 (SafePM; + disable_asan.patch = 'SafePM w/o ASan'), asan_only-1.9.2, vanilla-1.9.2 (branch names only, no commit hashes; the pmdk/ submodule directory in the zip is EMPTY and the pmembench .cfg files live in the fork, so they are not in the artifact zip); base PMDK v1.9.2; Ubuntu 20.04, kernel 5.4.0, gcc 9.3.0, Docker 20.10.7; artifact = GitHub TUM-DSE/safepm commit 9197f68 (Zenodo 10.5281/zenodo.6338745). Results: Fig 3 p.515, Fig 4 p.516; raw results not shipped.",
+    "figure_or_table": "Figure 3, Figure 4",
+    "missing": "Raw result files absent; PMDK fork pinned by branch not commit; pmembench .cfg files not in zip."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Paper: SafePM overhead is within ~20% of ASan's on indices (except hashmap get) and 'marginally higher' than ASan on pmemkv, hence the performance goal ('very close to ASan') is met; ablation variant SafePM w/o ASan isolates wrapper cost (<20%, rtree insert 1.34x).",
+    "assumptions_uncertainty_limits": "No variance, error bars, or run-to-run spread reported for Figs 3/4 despite 'average of at least 3 runs'; the intro figure (1.20-2.62x) and §6.2 figure (1.20-2.55x) disagree; ablation design (Table 2) is a stated strength.",
+    "objections_addressed": "Anomalies are explained: hashmap get overhead attributed to red zones changing alignment and causing extra cache-line accesses; overhead drop beyond 8 threads in update-intensive pmemkv 'attributed to the native application suffering from increasing level of contention while the instrumentation decreases this stress'. Neither explanation is measured.",
+    "missing": "Uncertainty not stated (no spread); the two causal explanations for anomalies are asserted without supporting measurement (e.g., cache-miss counters, lock contention profile); the 2.62 vs 2.55 discrepancy is unexplained."
+   },
+   "level": 3,
+   "claim_type": "comparative (descriptive of overhead) with explanatory sub-claims",
+   "asserts_cause": false,
+   "theory": "Overhead = ASan instrumentation cost + SafePM wrapper/crash-consistency bookkeeping; keeping ASan's compiler pass intact keeps the first term equal to plain ASan, and the ablation variant bounds the second.",
+   "evidence_strength": "Repeated-measurement (>=3 runs, averaged) on real hardware with a proper 4-variant ablation; weakened by no reported variance, unshipped raw data, and an internal numeric inconsistency.",
+   "file_checks": "not run; inspected: pmembench and pmemkv benchmark scripts, Dockerfiles, avg.py, plot_utils analysis/plot config files, artifact_evaluation figure scripts and README",
+   "information_source": "authors: workloads, hardware, ranges, 'at least 3 runs'; reviewer-added: repeats=3 inferred from the sed pattern in crash_consistency/change_pmembench_file_path.sh, REPEATS=3 from pmemkv scripts, absence of variance from plot_utils code; unknown: actual cfg contents (in fork), raw numbers, which of 2.55/2.62 is correct.",
+   "causal_overreach": true,
+   "note": "Flag is for the embedded causal explanations (alignment/cache lines for hashmap get; contention for >8 threads) that are phrased as established causes without measurement; the headline slowdown ranges themselves are comparative and well traced. Also: 'SafePM does not affect the scalability of the KV-store' is asserted from the same figure."
+  },
+  {
+   "id": "C4",
+   "statement": "For object allocation, we observe that the overhead decreases for both atomic and transactional allocation as the object size grows (2.4-5.8×). The reallocation operation maintains a relatively constant overhead for all the tested data sizes (1.85-2.25×). SafePM incurs a higher performance overhead for the free operation (3.5-7.0×) compared to alloc and realloc for every object size. [...] SafePM poses a higher overhead for the atomic versions of the operations, as it transparently converts them into their transactional counterpart.",
+   "location": "§6.2 Atomic and transactional PM operations, p.516; Figure 5",
+   "why_selected": "Headline result for the PM-operations microbenchmark, the largest overheads reported in the paper.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Throughput slowdown of SafePM vs native PMDK for atomic/transactional alloc, realloc, free as a function of object size (64 B - 16 KB).",
+    "subjects": "pmembench-based microbenchmark (obj_atomic_alloc, obj_tx_alloc, obj_atomic_free, obj_tx_free, obj_atomic_realloc, obj_tx_realloc per plot_config_pmembench_tx.yml), 100K operations per experiment.",
+    "conditions_time_limits": "'The reported results are the average of 10 runs' (artifact sed pattern confirms cfg default 'repeats = 10', ops-per-thread = 100000); red zone 16 B; same testbed as §6.1.",
+    "missing": ""
+   },
+   "cea3": {
+    "met": true,
+    "measures": "ops-per-second[1/sec] from pmembench, x-axis data-size (realloc-size for realloc), normalised to native (plot_config_pmembench_tx.yml; analyse.py).",
+    "analysis": "inner_run.sh runs pmembench_tx_safepm.cfg for safepm, wrappers_only, asan_only, vanilla builds; figure_5.sh imports and plots only pmdk vs safepm (yml comments out the other two variants, consistent with Fig 5 showing SafePM only). Averaging done inside pmembench (total-avg / ops-per-second over repeats).",
+    "files_versions_results": "TUM-DSE-safepm-9197f68/benchmarks/pmembench/inner_run.sh; TUM-DSE-safepm-9197f68/artifact_evaluation/figure_5.sh; TUM-DSE-safepm-9197f68/plot_utils/plot_config_pmembench_tx.yml; cfg pmembench_tx_safepm.cfg in the PMDK fork (not in zip). PMDK fork github.com/mstniy/pmdk branches pmasan-1.9.2 (SafePM; + disable_asan.patch = 'SafePM w/o ASan'), asan_only-1.9.2, vanilla-1.9.2 (branch names only, no commit hashes; the pmdk/ submodule directory in the zip is EMPTY and the pmembench .cfg files live in the fork, so they are not in the artifact zip); base PMDK v1.9.2; Ubuntu 20.04, kernel 5.4.0, gcc 9.3.0, Docker 20.10.7; artifact = GitHub TUM-DSE/safepm commit 9197f68 (Zenodo 10.5281/zenodo.6338745). Result: Figure 5 p.516.",
+    "figure_or_table": "Figure 5",
+    "missing": "cfg not in zip; raw results not shipped."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Paper attributes overheads to (i) ASan runtime checks and (ii) SafePM's PSM snapshot/update operations; the atomic>transactional gap follows from the design decision (§4.2) to route atomic ops through transactions.",
+    "assumptions_uncertainty_limits": "No spread over the 10 runs reported. The free-operation overhead (3.5-7.0x, the largest) is listed but not explained beyond the generic two causes.",
+    "objections_addressed": "None specific; the ASan-only and wrappers-only variants were run (inner_run.sh) but are not shown in Fig 5, so the decomposition into (i)/(ii) is asserted rather than shown.",
+    "missing": "Uncertainty not stated; decomposition of overhead not shown although the data to show it were collected; no explanation for why free is costliest."
+   },
+   "level": 3,
+   "claim_type": "descriptive / comparative with a design-derived explanation",
+   "asserts_cause": false,
+   "theory": "Each alloc/realloc/free must snapshot and rewrite a PSM region inside a PMDK transaction; atomic operations lose their non-transactional fast path.",
+   "evidence_strength": "Repeated-measurement (average of 10 runs); no variance; only two of four collected variants plotted.",
+   "file_checks": "not run; inspected: TUM-DSE-safepm-9197f68/benchmarks/pmembench/inner_run.sh, TUM-DSE-safepm-9197f68/artifact_evaluation/figure_5.sh, TUM-DSE-safepm-9197f68/plot_utils/plot_config_pmembench_tx.yml, analyse.py",
+   "information_source": "authors: ranges, 100K ops, 10 runs; reviewer-added: variant filtering in yml; unknown: raw numbers, cfg contents.",
+   "causal_overreach": false,
+   "note": ""
+  },
+  {
+   "id": "C5",
+   "statement": "We observe that opening a pool with SafePM takes ∼30ms instead of 10ms with native PMDK, a slowdown of up to 3×. The slowdown appears to be largely caused by the introduced ASan checks because the performance of the SafePM w/o Asan variant is close to that of the native PMDK. Further, during pool creation, SafePM incurs significant slowdown which increases with the pool size, causing the create operation to take a few seconds to complete. [...] pool creation is an one-time operation, hence, the high overhead is largely irrelevant to application performance.",
+   "location": "§6.2 PM pool create/open, p.517; Figure 6",
+   "why_selected": "Headline result for pool create/open; contains an explicit causal attribution.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Average wall time (s) of pmemobj_open and pmemobj_create for pools of 256 MB - 128 GB across the four Table 2 variants.",
+    "subjects": "pmembench microbenchmark 'obj_open_sizes' / 'obj_create_sizes' (pmembench_obj_gen_safepm.cfg).",
+    "conditions_time_limits": "Same testbed; 'average of at least 3 runs'; PSM = 1/8 of pool, must be initialised at creation (§4.1).",
+    "missing": ""
+   },
+   "cea3": {
+    "met": true,
+    "measures": "total-avg[sec] (plot_config_open_create.yml, plot type pmembench_open_create_time_log used by figure_6.sh), per pool size.",
+    "analysis": "inner_run.sh runs pmembench_obj_gen_safepm.cfg for all four builds; figure_6.sh plots average time on log scale.",
+    "files_versions_results": "TUM-DSE-safepm-9197f68/benchmarks/pmembench/inner_run.sh; TUM-DSE-safepm-9197f68/artifact_evaluation/figure_6.sh; TUM-DSE-safepm-9197f68/plot_utils/plot_config_open_create.yml (benchmark names obj_open_sizes_256MB_64GB / obj_create_sizes_256MB_64GB). PMDK fork github.com/mstniy/pmdk branches pmasan-1.9.2 (SafePM; + disable_asan.patch = 'SafePM w/o ASan'), asan_only-1.9.2, vanilla-1.9.2 (branch names only, no commit hashes; the pmdk/ submodule directory in the zip is EMPTY and the pmembench .cfg files live in the fork, so they are not in the artifact zip); base PMDK v1.9.2; Ubuntu 20.04, kernel 5.4.0, gcc 9.3.0, Docker 20.10.7; artifact = GitHub TUM-DSE/safepm commit 9197f68 (Zenodo 10.5281/zenodo.6338745). Result: Figure 6 p.517.",
+    "figure_or_table": "Figure 6",
+    "missing": "The artifact's benchmark names stop at 64 GB while Fig 6 shows 128 GB (README hardware requirement also says 'at least 64 GB'); cfg not in zip."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Open: ablation (SafePM w/o ASan ~ native) isolates ASan checks as the dominant cost, hedged with 'appears'. Create: cost attributed to overmapping and initialising the PSM, consistent with growth in pool size. Relevance argued away as one-time cost.",
+    "assumptions_uncertainty_limits": "No spread reported; the create explanation (PSM init) is not separately measured but is a direct design consequence.",
+    "objections_addressed": "That create cost matters is addressed (one-time operation).",
+    "missing": "Uncertainty not stated; the 64 GB vs 128 GB mismatch between artifact and figure is unexplained."
+   },
+   "level": 3,
+   "claim_type": "descriptive / comparative with causal attribution supported by ablation",
+   "asserts_cause": true,
+   "theory": "Open cost = ASan checks on the recovery/overmap path; create cost = writing 1/8 of the pool as PSM initialised to inaccessible.",
+   "evidence_strength": "Repeated-measurement (>=3 runs, ablation variant); the causal attribution for open is supported by the w/o-ASan variant; no variance.",
+   "file_checks": "not run; inspected: TUM-DSE-safepm-9197f68/benchmarks/pmembench/inner_run.sh, TUM-DSE-safepm-9197f68/artifact_evaluation/figure_6.sh, TUM-DSE-safepm-9197f68/plot_utils/plot_config_open_create.yml",
+   "information_source": "authors: times, sizes, attribution; reviewer-added: 64 GB benchmark-name observation; unknown: raw data, 128 GB run provenance.",
+   "causal_overreach": false,
+   "note": "Causal attribution is hedged ('appears') and backed by the ablation variant, so not flagged."
+  },
+  {
+   "id": "C6",
+   "statement": "With ASan disabled, SafePM's wrappers introduce insignificant overhead (<300 μs) in the recovery time compared to PMDK. When we enable ASan, the shadow memory checks incur an inevitable, but minor, overhead (approximately 10 ms). Overall, SafePM does not introduce any further delays in the recovery process other than those of ASan.",
+   "location": "§6.2 Recovery time, p.517; Table 3",
+   "why_selected": "Headline result of the recovery-time experiment, which supports the design goal 'coverage of recovery paths' (§3.2 #4).",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Recovery time (ms) = time to reopen a pool after an injected crash, including undo-log replay, as a function of undo-log size (4 KB - 4 MB) for the four Table 2 variants.",
+    "subjects": "Custom microbenchmark: pool created, N 1 KB objects allocated and snapshotted in one transaction (N = log size in KB), crash injected, pool reopened.",
+    "conditions_time_limits": "'We perform this experiment 100 times for each configuration'; values are averages.",
+    "missing": ""
+   },
+   "cea3": {
+    "met": false,
+    "measures": "Average reopen time in ms (Table 3).",
+    "analysis": "Average over 100 repetitions; crash injection method not described.",
+    "files_versions_results": "No file in the artifact implements this experiment: grep for recover/log size/snapshot across the zip finds nothing; artifact_evaluation/README.md and Appendix A list only Figures 3-7, Table 5 (RIPE), valgrind summaries and bug reproduction. Result location: Table 3 p.517 only.",
+    "figure_or_table": "Table 3",
+    "missing": "Source code/script for the recovery microbenchmark; how the crash is injected; raw timings."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "(not reached) Paper reasons that wrapper overhead is bounded (<300 us) and ASan adds ~10 ms uniformly across log sizes.",
+    "assumptions_uncertainty_limits": "None stated beyond 100 repetitions.",
+    "objections_addressed": "None.",
+    "missing": "CEA3 not met."
+   },
+   "level": 2,
+   "claim_type": "comparative (descriptive)",
+   "asserts_cause": false,
+   "theory": "Recovery replays PMDK logs; PSM modifications are in-place and undo-logged, so recovery has no SafePM-specific extra work (§4.3 System recovery).",
+   "evidence_strength": "Repeated-measurement (100 repetitions) as described, but unverifiable: no artifact code, no spread.",
+   "file_checks": "not run; searched entire zip listing and grep (recover|log size|table_3|snapshot): no matching files; inspected artifact_evaluation/README.md",
+   "information_source": "authors: procedure and Table 3; reviewer-added: absence of artifact support; unknown: crash injection, timer placement, raw data.",
+   "causal_overreach": false,
+   "note": "Only evaluation result in the paper with no artifact counterpart."
+  },
+  {
+   "id": "C7",
+   "statement": "The persistent shadow memory always occupies one eighth of the pool which corresponds to an overhead of 12.5%. For the ctree, rbtree and hashmap_tx, we observe that this is the only considerable space overhead as the persistent object red zones occupy space which is wasted to padding by the native PMDK allocator. For the rtree index the object red zones increase persistent memory usage leading to slightly higher space overheads.",
+   "location": "§6.3 Space Overhead, p.517; Table 4",
+   "why_selected": "Headline result of the space-overhead section (one of the three 'overheads' dimensions in the contributions).",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Space overhead = extra PM (PSM + red zones, excluding shadow root object) as percentage of total pool size, reported at peak usage.",
+    "subjects": "Four persistent indices (ctree 12.5%, rtree 13.8-14.25%, rbtree 12.5%, hashmap_tx 12.5%) under the §6.2 insert/get/remove workloads, linked against SafePM.",
+    "conditions_time_limits": "Red zone 16 B; PSM fixed at 1/8 of pool by design; peak measured.",
+    "missing": ""
+   },
+   "cea3": {
+    "met": false,
+    "measures": "Percentage of pool size (Table 4).",
+    "analysis": "How peak PM usage of an index run was measured is not described.",
+    "files_versions_results": "No artifact script produces Table 4 (the artifact's table_4.sh prints the RIPE table, i.e., paper Table 5). TUM-DSE-safepm-9197f68/utils/pool_overhead.cpp measures only the user-available area of an EMPTY pool by binary-searching the largest tx_alloc that succeeds (/dev/shm pool), which yields PSM+PMDK metadata overhead but not per-index peak usage with red zones. Result location: Table 4 p.517.",
+    "figure_or_table": "Table 4",
+    "missing": "Measurement method for peak usage; script for per-index red-zone overhead; raw numbers."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "(not reached) Explanation offered: red zones fit in allocator padding for three indices; rtree object sizes do not.",
+    "assumptions_uncertainty_limits": "None stated.",
+    "objections_addressed": "None.",
+    "missing": "CEA3 not met; the padding explanation is not shown (no allocator size-class analysis)."
+   },
+   "level": 2,
+   "claim_type": "descriptive with an explanatory sub-claim",
+   "asserts_cause": false,
+   "theory": "PSM is exactly 1/8 by construction; PMDK's size-class allocator rounds allocations up, so 2x16 B red zones are often absorbed into existing padding.",
+   "evidence_strength": "Single reported table; the 12.5% component is analytically certain by design, the red-zone component is unverifiable from the artifact.",
+   "file_checks": "not run; inspected: TUM-DSE-safepm-9197f68/utils/pool_overhead.cpp, TUM-DSE-safepm-9197f68/utils/CMakeLists.txt (listing), artifact_evaluation/table_4.sh, README.md",
+   "information_source": "authors: Table 4 and padding explanation; reviewer-added: what pool_overhead.cpp actually measures; unknown: peak-usage measurement method.",
+   "causal_overreach": false,
+   "note": "Table numbering: paper Table 4 = space overhead, artifact table_4.sh = RIPE (paper Table 5)."
+  },
+  {
+   "id": "C8",
+   "statement": "We validate the crash-consistency property for both the application data and SafePM metadata using existing tools, pmemcheck [22] and memcheck [74]. [...] We observe that for the tested indices, neither pmemcheck nor memcheck report any error. For the PM operations benchmark, pmemcheck again reports no error, while memcheck does not report any error beyond the ones also reported for the case of unmodified PMDK.",
+   "location": "§6.5 Crash Consistency, p.518; Abstract ('crash consistent data structures and system operations'); Contribution 3; Appendix A.4.1 (C3)",
+   "why_selected": "Third evaluation dimension named in the abstract and contributions; the artifact appendix says the valgrind summaries 'prove' this claim.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Crash consistency = absence of pmemcheck-reported persistence errors (unflushed/unordered stores) and memcheck errors when running SafePM-wrapped PMDK; scope = application data AND PSM/shadow-root metadata.",
+    "subjects": "Persistent indices benchmark (pmembench_map.cfg) and PM operations benchmark (pmembench_tx_safepm.cfg) run on the 'SafePM w/o ASan' build (wrappers only) under Valgrind pmemcheck and memcheck.",
+    "conditions_time_limits": "ASan disabled 'as it is incompatible with Valgrind'; ops limited to 10000 per index; Valgrind pmem fork commit 06f15d69.",
+    "missing": ""
+   },
+   "cea3": {
+    "met": true,
+    "measures": "Valgrind error summaries (ERROR SUMMARY lines) per tool per benchmark.",
+    "analysis": "inner_run.sh runs valgrind --tool=memcheck and --tool=pmemcheck on the wrappers-only build for both cfgs, logging to results/{map,tx}_{memcheck,pmemcheck}; change_pmembench_file_path.sh reduces ops-per-thread to 10000 (map) / 50000 (tx) and repeats to 1; valgrind_summary.sh tails each log. Single run.",
+    "files_versions_results": "TUM-DSE-safepm-9197f68/benchmarks/crash_consistency/{run-variants.sh,inner_run.sh,change_pmembench_file_path.sh,Dockerfile (clones pmasan-1.9.2 + disable_asan.patch; builds pmem/valgrind at 06f15d69)}; TUM-DSE-safepm-9197f68/artifact_evaluation/{run_crash_consistency.sh,valgrind_summary.sh}. Result: text in §6.5 (no table); logs generated at run time, not shipped.",
+    "figure_or_table": "none (prose in §6.5)",
+    "missing": "The comparison baseline 'errors also reported for unmodified PMDK' is NOT run by inner_run.sh (only the wrappers build is exercised), so that part of the result cannot be regenerated from the artifact as written; raw logs not shipped."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Reasoning: pmemcheck flags stores not flushed/ordered before a potential crash; zero reports on the wrapper code paths that snapshot and rewrite the PSM means those paths obey PMDK's persistence discipline; memcheck adds no new memory errors.",
+    "assumptions_uncertainty_limits": "Stated: ASan must be disabled, so the checked binary lacks instrumentation. Not stated: that absence of pmemcheck reports on one workload is only necessary, not sufficient, for crash consistency (no crash-injection or state-recovery test of the PSM beyond the design argument in §4.3); single run; reduced workload; 'validate'/'prove' language.",
+    "objections_addressed": "Valgrind incompatibility acknowledged and worked around; §4.3 gives a design argument (undo-log snapshot before in-place PSM writes) for consistency.",
+    "missing": "Uncertainty/limits of tool-based absence-of-error evidence not discussed; the pre-existing memcheck errors in unmodified PMDK are neither enumerated nor reproduced by the script."
+   },
+   "level": 3,
+   "claim_type": "descriptive (negative-result style: no errors found) supporting a design property",
+   "asserts_cause": false,
+   "theory": "All PSM updates occur inside libpmemobj transactions with prior snapshot, so PMDK's redo/undo logging makes them atomic with heap changes (§4.2-4.3).",
+   "evidence_strength": "Single-run tool check on reduced workloads; consistent with, but not a proof of, crash consistency; the paper and appendix overstate it as 'validate'/'prove'.",
+   "file_checks": "not run; inspected: TUM-DSE-safepm-9197f68/benchmarks/crash_consistency/{README.md,run-variants.sh,inner_run.sh,change_pmembench_file_path.sh,Dockerfile}, TUM-DSE-safepm-9197f68/artifact_evaluation/{run_crash_consistency.sh,valgrind_summary.sh}",
+   "information_source": "authors: tools, ops limit, results; reviewer-added: repeats=1, tx ops=50000, missing vanilla baseline run in the script; unknown: content of baseline memcheck errors, raw logs.",
+   "causal_overreach": false,
+   "note": "Wording 'prove SafePM's crash consistency' (artifact README) exceeds what an absence of Valgrind reports can establish."
+  },
+  {
+   "id": "C9",
+   "statement": "We observe that for all three operations the relative overhead decreases as more objects are excluded from the ASan instrumentation and runtime checks. However, there is still an inevitable overhead that stems from ASan intercepting the volatile heap management functions, which are used by PMDK internally. Note that with get operation there is no overhead as there are no intercepted malloc/free calls.",
+   "location": "§6.6 Partial Safety Coverage, p.518; Figure 7; also Appendix A.4.1 C1 ('overheads can be further reduced via SafePM's partial coverage approach')",
+   "why_selected": "Headline result of §6.6, supporting the usage-model claim that partial coverage limits overhead (§3).",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Slowdown vs native of the persistent hashmap insert/remove/get as the percentage of 'unsafe' (uninstrumented, allocated via unsafe_-prefixed wrappers) objects varies 0-100%.",
+    "subjects": "PMDK hashmap_tx index under pmembench, partial-coverage branch of the fork.",
+    "conditions_time_limits": "Same setup as §6.2 ('in a similar fashion'); unsafe objects must only be accessed in uninstrumented functions (§4.3 limitation).",
+    "missing": "Run count for this experiment not stated separately (general 'at least 3 runs' applies)."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "ops-per-second[1/sec] vs 'probability' (x-axis) per operation type (plot_config_partial_coverage.yml: map_insert_partial_cov, map_remove_partial_cov, map_get_partial_cov).",
+    "analysis": "inner_run.sh runs pmembench_map_partial_cov.cfg on the pmasan-1.9.2-partial_coverage build and on vanilla; figure_7.sh plots the ratio.",
+    "files_versions_results": "TUM-DSE-safepm-9197f68/benchmarks/pmembench/{inner_run.sh,Dockerfile (branch pmasan-1.9.2-partial_coverage)}; TUM-DSE-safepm-9197f68/artifact_evaluation/figure_7.sh; TUM-DSE-safepm-9197f68/plot_utils/plot_config_partial_coverage.yml. Result: Figure 7 p.518.",
+    "figure_or_table": "Figure 7",
+    "missing": "cfg not in zip; raw results not shipped."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Controlled variation of the unsafe fraction with monotone overhead decrease supports the claim; residual overhead explained by ASan's malloc/free interception in PMDK internals, corroborated by get (no malloc/free) showing no overhead.",
+    "assumptions_uncertainty_limits": "No spread reported; the residual-overhead explanation is inferred from the get case, not measured directly.",
+    "objections_addressed": "None (e.g., what fraction of real applications' objects can be safely marked unsafe is not discussed).",
+    "missing": "Uncertainty not stated."
+   },
+   "level": 3,
+   "claim_type": "comparative / explanatory (controlled experiment)",
+   "asserts_cause": true,
+   "theory": "Overhead scales with the number of instrumented accesses and PSM updates; PMDK's internal volatile allocations remain intercepted by ASan's runtime regardless.",
+   "evidence_strength": "Repeated-measurement controlled sweep on one index; cause (instrumentation fraction) is manipulated directly, so the causal reading is warranted; no variance.",
+   "file_checks": "not run; inspected: TUM-DSE-safepm-9197f68/benchmarks/pmembench/inner_run.sh, Dockerfile, TUM-DSE-safepm-9197f68/artifact_evaluation/figure_7.sh, TUM-DSE-safepm-9197f68/plot_utils/plot_config_partial_coverage.yml",
+   "information_source": "authors: setup and trend; reviewer-added: branch name for partial coverage from Dockerfile; unknown: raw data, run count.",
+   "causal_overreach": false,
+   "note": ""
+  },
+  {
+   "id": "C10",
+   "statement": "Through SafePM we have also identified two memory safety bugs in the widely-used PMDK library. [...] (i) in the btree example of PMDK version 1.9.2, a call to memmove on line 378 of btree_map.c causes an off-by-one overflow on PM residing data objects and (ii) in the transactional operations benchmark, shipped as part of pmembench, a configuration file lacks the configuration setting nestings. This causes the transaction to not be aborted, which triggers invalid frees at line 295 in pmemobj_tx.cpp, that is detected by SafePM, when the benchmark attempts the cleanup.",
+   "location": "Abstract, Intro p.507, §6.7 Discovered Bugs and Anomalies p.518; Appendix A.4.1 (C4)",
+   "why_selected": "Abstract-level claim ('uncovered real-world bugs') and its own evaluation subsection.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Bug (i): spatial off-by-one overflow in btree_map.c:378 (PMDK 1.9.2 examples); bug (ii): invalid frees at pmemobj_tx.cpp:295 in pmembench caused by a missing 'nestings' setting in the shipped pmembench_tx.cfg.",
+    "subjects": "PMDK v1.9.2 example code and benchmark harness.",
+    "conditions_time_limits": "Detected while running the §6.2 benchmarks with SafePM (ASan report / failed assertion on invalid free).",
+    "missing": ""
+   },
+   "cea3": {
+    "met": true,
+    "measures": "ASan error report (bug i); failed assertion for invalid free (bug ii) on standard output.",
+    "analysis": "Deterministic reproduction: pmembench run with pmembench_map_bug.cfg (btree) and pmembench_tx_bug.cfg (obj_tx_realloc_sizes_abort) on the DEBUG SafePM build.",
+    "files_versions_results": "TUM-DSE-safepm-9197f68/benchmarks/bugs/{safepm_bugs.sh,bug1_btree.sh,bug2_tx.sh,Dockerfile (make DEBUG=1, branch pmasan-1.9.2),change_pmembench_bugs_file_path.sh,README.md}; TUM-DSE-safepm-9197f68/artifact_evaluation/reproduce_bugs.sh; bug cfgs live in the fork. External records: github.com/pmem/pmdk/issues/5333 and /5334 (linked from artifact README). Result: §6.7 prose.",
+    "figure_or_table": "none (§6.7 prose)",
+    "missing": "Paper references [11] and [12] for the GitHub issues are placeholders ('XXX'); Appendix names the script run_reproduce_bugs.sh but the artifact file is reproduce_bugs.sh."
+   },
+   "cea4": {
+    "met": true,
+    "why_supports": "A sanitizer report pinpointing source line and access type is direct evidence of a violation; §6.7 explains the mechanism of each (memmove length; missing abort -> cleanup frees objects already freed).",
+    "assumptions_uncertainty_limits": "Assumes the reports are true positives (external validation delegated to the filed PMDK issues); §6.7's own title calls them 'Bugs and Anomalies', while the abstract/intro call both 'memory safety bugs in the PMDK library' although (ii) is in the benchmark harness configuration.",
+    "objections_addressed": "Distinction bug vs anomaly is made in §6.7 heading; no further discussion.",
+    "missing": ""
+   },
+   "level": 4,
+   "claim_type": "existence / descriptive",
+   "asserts_cause": false,
+   "theory": "SafePM's persistent red zones and freed-state PSM marks make an off-by-one PM overflow and an invalid free observable where vanilla PMDK/ASan are silent.",
+   "evidence_strength": "Deterministic reproduction scripts plus externally filed issues; strong for existence, though (ii) is a harness-config anomaly rather than a library bug.",
+   "file_checks": "not run; inspected: TUM-DSE-safepm-9197f68/benchmarks/bugs/{README.md,safepm_bugs.sh,bug1_btree.sh,bug2_tx.sh,Dockerfile}, TUM-DSE-safepm-9197f68/artifact_evaluation/reproduce_bugs.sh, README.md",
+   "information_source": "authors: bug descriptions, scripts; reviewer-added: issue numbers from artifact README (paper refs are XXX), script-name mismatch; unknown: maintainer disposition of the issues.",
+   "causal_overreach": false,
+   "note": "Abstract phrasing 'real-world bugs in the widely-used PMDK library' slightly overstates (ii)."
+  }
+ ],
+ "summary": {
+  "n_claims": 10,
+  "levels": {
+   "1": 0,
+   "2": 2,
+   "3": 5,
+   "4": 3
+  },
+  "causal_overreach_count": 1,
+  "time_minutes": 30
+ },
+ "notes": "Well-scripted artifact for Figs 3-7, Table 5, valgrind checks and bug repro, but the PMDK fork (with all pmembench .cfg files) is fetched by mutable branch name and absent from the zip, no raw results or variance are shipped, and Table 3 (recovery time) and Table 4 (space overhead) have no artifact support; the paper also carries an internal 2.55x/2.62x inconsistency and 'XXX' citation placeholders for the bug reports."
+}

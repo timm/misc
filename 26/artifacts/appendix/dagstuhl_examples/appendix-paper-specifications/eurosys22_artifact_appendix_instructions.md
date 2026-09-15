@@ -1,0 +1,7 @@
+https://sysartifacts.github.io/eurosys2022/instructions#artifact-appendix
+
+Artifact Appendix
+
+The artifact appendix is a self-contained document which describes a roadmap for evaluators. This particularly includes a description of the hardware, software, and configuration requirements, as well as the major claims made by the paper and how to reproduce each claim through your artifact. Linking the claims of the paper to the artifact is a necessary step that ultimately allows artifact evaluators to reproduce your results. It is of foremost importance that you state your paper’s key results and claims clearly. This is especially important if you think that these claims differ from the expectations set up by your paper. The AEC is still going to evaluate your artifacts relatively to your paper, but your explanation can help to set expectations up front, especially in cases that might frustrate the evaluators without prior notice. In addition, an artifact appendix must provide details on the time and hardware resources (e.g., storage) required to run the experiments in your paper. If possible, the appendix should also describe how to compare the results of a reproduced experiment to the ones found in the paper (e.g., by providing access to the underlying dataset of the results).
+
+The intention for the artifact appendix is to be published in conjunction with your artifact. A template for the artifact appendix can be found here: LaTeX Template and PDF Example.

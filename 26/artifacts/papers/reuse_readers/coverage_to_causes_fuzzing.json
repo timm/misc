@@ -1,0 +1,239 @@
+{
+  "paper": "coverage_to_causes_fuzzing",
+  "file": "/Users/timm/gits/timm/misc/26/artifacts/papers/coverage_to_causes_fuzzing.pdf",
+  "title": "From Coverage to Causes: Data-Centric Fuzzing for JavaScript Engines",
+  "edges": [
+    {
+      "target": "Fuzzilli (Gross et al.)",
+      "ref": "[16] Samuel Gross, Simon Koch, Lukas Bernhard, Thorsten Holz, Martin Johns. Fuzzilli: Fuzzing for javascript jit compiler vulnerabilities. NDSS, 2023.",
+      "doi_or_url": "",
+      "type": "steppingstone",
+      "evidence": "Fuzzilli and DIE both found one crash in ~94 and ~87 hours, respectively. ... compared the execution rate of our approach with a coverage-guided baseline (Fuzzilli)",
+      "section": "6.2.4 RQ5 (Table 5), 6.2.5 RQ6 (Table 6)",
+      "confidence": "high"
+    },
+    {
+      "target": "FuzzJIT (Wang et al.)",
+      "ref": "[8] Junjie Wang, Zhiyi Zhang, Shuang Liu, Xiaoning Du, Junjie Chen. FuzzJIT: Oracle-Enhanced fuzzing for JavaScript engine JIT compiler. USENIX Security 23.",
+      "doi_or_url": "",
+      "type": "steppingstone",
+      "evidence": "In our experiments, FuzzJIT was not able to find any crashes within the 96 hour fuzzing campaign.",
+      "section": "6.2.4 RQ5 (Table 5)",
+      "confidence": "high"
+    },
+    {
+      "target": "DIE (Park et al.)",
+      "ref": "[6] Soyeon Park, Wen Xu, Insu Yun, Daehee Jang, Taesoo Kim. Fuzzing javascript engines with aspect-preserving mutation. IEEE S&P 2020, pages 1629-1642.",
+      "doi_or_url": "",
+      "type": "steppingstone",
+      "evidence": "Fuzzilli and DIE both found one crash in ~94 and ~87 hours, respectively.",
+      "section": "6.2.4 RQ5 (Table 5)",
+      "confidence": "high"
+    },
+    {
+      "target": "Fuzzilli (base fuzzer)",
+      "ref": "[16] Samuel Gross, Simon Koch, Lukas Bernhard, Thorsten Holz, Martin Johns. Fuzzilli: Fuzzing for javascript jit compiler vulnerabilities. NDSS, 2023.",
+      "doi_or_url": "",
+      "type": "software",
+      "evidence": "This fuzzer was built on top of Fuzzilli, which has been utilized in multiple works in JS engine fuzzing",
+      "section": "5.6 Feature-Guided Fuzzing",
+      "confidence": "high"
+    },
+    {
+      "target": "XGBoost (Chen & Guestrin)",
+      "ref": "[50] Tianqi Chen and Carlos Guestrin. Xgboost: A scalable tree boosting system. KDD 2016, pages 785-794.",
+      "doi_or_url": "10.1145/2939672.2939785",
+      "type": "software",
+      "evidence": "We implemented M using the XGBoost Machine Learning model. ... We use the XGBoost feature importance score to answer RQ4.",
+      "section": "5.5 Phase 5; 6.1.2 Machine Learning Algorithms",
+      "confidence": "high"
+    },
+    {
+      "target": "Scikit-learn (XGBoost sklearn estimator)",
+      "ref": "footnote 10: https://xgboost.readthedocs.io/en/stable/python/sklearn_estimator.html",
+      "doi_or_url": "https://xgboost.readthedocs.io/en/stable/python/sklearn_estimator.html",
+      "type": "software",
+      "evidence": "We implemented XGBoost using Scikit-learn. ... Scikit-learn's XGBoost includes the scale_pos_weight hyperparameter",
+      "section": "6.1.2 Machine Learning Algorithms",
+      "confidence": "high"
+    },
+    {
+      "target": "GPT-4.1 (OpenAI)",
+      "ref": "footnote 9: https://openai.com/index/gpt-4-1",
+      "doi_or_url": "https://openai.com/index/gpt-4-1",
+      "type": "software",
+      "evidence": "In Phase 2 and 3, we use GPT 4.1, the latest model available at the time of this study, to extract features.",
+      "section": "5.3 Phase 2 and 3: Feature Generation",
+      "confidence": "high"
+    },
+    {
+      "target": "SHAP (Lundberg & Lee)",
+      "ref": "[47] Scott M Lundberg and Su-In Lee. A unified approach to interpreting model predictions. NeurIPS 30, 2017.",
+      "doi_or_url": "",
+      "type": "software",
+      "evidence": "we used SHapley Additive exPlanations (SHAP) to provide instance-specific guidance [47, 48]. For each parent seed, we identified the feature subset that SHAP deemed most responsible",
+      "section": "5.6 Feature-Guided Fuzzing (Algorithm 3)",
+      "confidence": "high"
+    },
+    {
+      "target": "ShapFuzz (Zhang et al.)",
+      "ref": "[48] Kunpeng Zhang, Xiaogang Zhu, Xi Xiao, Minhui Xue, Chao Zhang, Sheng Wen. Shapfuzz: Efficient fuzzing via shapley-guided byte selection. arXiv:2308.09239, 2023.",
+      "doi_or_url": "arXiv:2308.09239",
+      "type": "methodology",
+      "evidence": "we used SHapley Additive exPlanations (SHAP) to provide instance-specific guidance [47, 48].",
+      "section": "5.6 Feature-Guided Fuzzing",
+      "confidence": "medium"
+    },
+    {
+      "target": "jsvu (JavaScript engine Version Updater)",
+      "ref": "footnote 8: https://github.com/GoogleChromeLabs/jsvu",
+      "doi_or_url": "https://github.com/GoogleChromeLabs/jsvu",
+      "type": "software",
+      "evidence": "Since building many versions of V8 takes substantial time, we prebuilt binaries provided by the JavaScript (engine) Version Updater (jsvu) tool.",
+      "section": "5.2.1 Positive Samples",
+      "confidence": "high"
+    },
+    {
+      "target": "V8 JavaScript engine (with trace flags)",
+      "ref": "https://v8.dev (system under test; trace flags such as --trace-gc, --log-maps, --trace-ic)",
+      "doi_or_url": "https://v8.dev/docs/release-process",
+      "type": "software",
+      "evidence": "executes the input with the selected V8 tracing flags, captures the resulting log output, and parses it to construct the dynamic feature vector",
+      "section": "5.4 Phase 4; 6.2.4 RQ5",
+      "confidence": "high"
+    },
+    {
+      "target": "Chromium bug repository V8 vulnerability PoCs",
+      "ref": "footnotes 6-7: https://issues.chromium.org/issues?q=componentid:(1456800|...) status:(fixed|verified) type:vulnerability created:2019-01-01..2025-06-30",
+      "doi_or_url": "https://issues.chromium.org/issues",
+      "type": "dataset",
+      "evidence": "We queried the Chromium bug repository with a search query which retrieves fixed or verified bug reports related to the vulnerabilities within the V8 runtime ... we obtained 220 reports.",
+      "section": "5.2.1 Positive Samples (Vulnerable PoCs)",
+      "confidence": "high"
+    },
+    {
+      "target": "V8 mjsunit test suite (negative samples)",
+      "ref": "official V8 test suites, mjsunit (no formal reference; V8 source tree)",
+      "doi_or_url": "",
+      "type": "dataset",
+      "evidence": "the negative samples were collected from the official V8 test suites. Specifically, for each time-based fold ... the test cases from the mjsunit suite",
+      "section": "5.2.2 Negative Samples",
+      "confidence": "high"
+    },
+    {
+      "target": "Walk-forward / time-ordered validation (Falessi et al.)",
+      "ref": "[49] Davide Falessi, Jacky Huang, Likhita Narayana, Jennifer Fong Thai, Burak Turhan. On the need of preserving order of data when validating within-project defect classifiers. EMSE 25(6), 2020.",
+      "doi_or_url": "",
+      "type": "methodology",
+      "evidence": "the data is divided into four folds for cross-validation with a walk-forward protocol [49].",
+      "section": "6.1.1 Dataset",
+      "confidence": "high"
+    },
+    {
+      "target": "Aspect-preserving mutation (DIE, Park et al.)",
+      "ref": "[6] Soyeon Park, Wen Xu, Insu Yun, Daehee Jang, Taesoo Kim. Fuzzing javascript engines with aspect-preserving mutation. IEEE S&P 2020.",
+      "doi_or_url": "",
+      "type": "methodology",
+      "evidence": "we extended the concept of aspect-preserving mutation proposed by Park et al. [6] to feature-preserving mutation.",
+      "section": "5.6 Feature-Guided Fuzzing",
+      "confidence": "high"
+    },
+    {
+      "target": "LLM-driven feature generation for tabular data (Nam et al.; Zhang et al.; LLM-FE)",
+      "ref": "[41] Nam et al. Optimized feature generation for tabular data via llms with decision tree reasoning. NeurIPS 37, 2024; [42] arXiv:2406.03505; [43] arXiv:2503.14434",
+      "doi_or_url": "",
+      "type": "methodology",
+      "evidence": "Inspired by the effectiveness of LLMs in feature discovery shown in recent studies [41-43], we propose an LLM-driven feature discovery approach using historical vulnerabilities.",
+      "section": "5.3 Phase 2 and 3: Feature Generation",
+      "confidence": "medium"
+    },
+    {
+      "target": "Wilcoxon rank-sum / Mann-Whitney test",
+      "ref": "[52] Frank Wilcoxon. Individual comparisons by ranking methods. Biometrics Bulletin 1(6), 1945; [53] Mann & Whitney, Ann. Math. Statist. 18, 1947.",
+      "doi_or_url": "",
+      "type": "statmethod",
+      "evidence": "We statistically compared our methods using the Wilcoxon Rank-Sum test [52, 53].",
+      "section": "6.1.4 Statistical Analysis (Table 4)",
+      "confidence": "low"
+    },
+    {
+      "target": "OptFuzz observation: no crashes on latest V8 (Wang et al.)",
+      "ref": "[5] Jiming Wang et al. OptFuzz: Optimization path guided fuzzing for JavaScript JIT compilers. USENIX Security 24, pages 865-882.",
+      "doi_or_url": "",
+      "type": "sanitycheck",
+      "evidence": "Similar to Wang et al. [5], we observed that running the state-of-the-art fuzzers for a week on the latest V8 did not yield any crashes. Hence ... we opted to use an older (2023) version of V8.",
+      "section": "6.2.4 RQ5; footnote 2",
+      "confidence": "high"
+    },
+    {
+      "target": "Declining bug-discovery rates in mature software (Elahi & Wang)",
+      "ref": "[20] Haroon Elahi and Guojun Wang. Forward-porting and its limitations in fuzzer evaluation. Information Sciences 662:120142, 2024.",
+      "doi_or_url": "",
+      "type": "sanitycheck",
+      "evidence": "an outcome that is consistent with recent studies showing declining rates of bug discovery in mature, heavily-tested software [5, 20]",
+      "section": "1 Introduction, footnote 2",
+      "confidence": "medium"
+    },
+    {
+      "target": "XGBoost vs deep learning on tabular data (Shwartz-Ziv & Armon)",
+      "ref": "[51] Ravid Shwartz-Ziv and Amitai Armon. Tabular data: Deep learning is not all you need. Information Fusion 81:84-90, 2022.",
+      "doi_or_url": "",
+      "type": "sanitycheck",
+      "evidence": "Shwartz-Ziv and Armon showed that XGBoost can be as effective as deep learners for tabular data, in terms of both predictive performance and training time [51].",
+      "section": "6.1.2 Machine Learning Algorithms",
+      "confidence": "high"
+    },
+    {
+      "target": "Role identification improves LLM performance (GRACE, Lu et al.)",
+      "ref": "[44] Guilong Lu, Xiaolin Ju, Xiang Chen, Wenlong Pei, Zhilong Cai. Grace: Empowering llm-based software vulnerability detection with graph structure and in-context learning. JSS 212, 2024.",
+      "doi_or_url": "",
+      "type": "sanitycheck",
+      "evidence": "Identification specifies the role of the LLM ... Lu et al., showed that identification significantly improves LLM's performance [44].",
+      "section": "5.3 Feature Generation (Prompt 1)",
+      "confidence": "high"
+    },
+    {
+      "target": "LLMs fail to follow structural constraints (CRANE; Break-the-chain)",
+      "ref": "[45] Banerjee et al. Crane: Reasoning with constrained llm generation. arXiv:2502.09061, 2025; [46] Roh et al. Break-the-chain. arXiv:2506.06971, 2025.",
+      "doi_or_url": "arXiv:2502.09061",
+      "type": "sanitycheck",
+      "evidence": "The reason we initially did not extract five flags is that LLMs often fail to follow structural constraints [45, 46]. Hence, we slightly relaxed the constraint and then curated the list.",
+      "section": "5.3.2 Phase 3: Dynamic Feature Generation",
+      "confidence": "medium"
+    },
+    {
+      "target": "mjsunit as seed corpus / static seed features (Wen et al.)",
+      "ref": "[19] Ming Wen, Yongcong Wang, Yifan Xia, Hai Jin. Evaluating seed selection for fuzzing javascript engines. EMSE 28(6):133, 2023.",
+      "doi_or_url": "",
+      "type": "sanitycheck",
+      "evidence": "The mjsunit test suit is widely used as seed corpus because it contains both simple and adversarial code [12, 19]. ... prioritizing valid input seeds with code structure ... is highly effective [19]",
+      "section": "7.1.3 Construct Validity; 4.2",
+      "confidence": "medium"
+    },
+    {
+      "target": "Montage: buggy fragments come from regression tests (Lee et al.)",
+      "ref": "[12] Suyoung Lee, HyungSeok Han, Sang Kil Cha, Sooel Son. Montage: A neural network language Model-Guided JavaScript engine fuzzer. USENIX Security 20.",
+      "doi_or_url": "",
+      "type": "sanitycheck",
+      "evidence": "Montage shows that most buggy fragments come from the JS engine tests ... Hence, using this makes our findings more meaningful compared to using trivial and easy-to-predict negative sample.",
+      "section": "7.1.3 Construct Validity",
+      "confidence": "medium"
+    },
+    {
+      "target": "Iterative validation improves LLM generalizability (Xu et al.; Step-Opt)",
+      "ref": "[57] Xu et al. Enhancing tool retrieval with iterative feedback from LLMs. arXiv:2406.17465, 2024; [58] Wu et al. Step-opt. arXiv:2506.17637, 2025.",
+      "doi_or_url": "arXiv:2406.17465",
+      "type": "sanitycheck",
+      "evidence": "We mitigate this risk by iterative validation on unseen PoCs and manual curation, a strategy shown to improve LLM generalizability in other contexts [57, 58].",
+      "section": "7.1.2 External Validity",
+      "confidence": "low"
+    }
+  ],
+  "not_reuse_examples": [
+    "[25]/[26]/[27] AFL, AFL++, libFuzzer and Radamsa: named only as examples of grey-box/black-box fuzzers in Terminology; never run.",
+    "[54] Conover, Practical Nonparametric Statistics: cited only for the conventional 0.05 significance level; textbook, not a method reuse.",
+    "[55] Bohme et al. Directed greybox fuzzing and [56] RIFF: used to interpret results (why low FA helps, why coverage instrumentation is slow), not to justify a design choice or as anything executed.",
+    "[13]-[15],[17],[18],[28]-[33],[37],[38] Skyfire, Superion, CodeAlchemist, Favocado, COMFORT, PMFuzz, Jest, CovRL-Fuzz etc.: appear only in the Table 1 literature classification."
+  ],
+  "notes": "Empirical paper with two experiment tiers: a large time-aware what-if study (XGBoost on LLM-generated features) and a small 96h fuzzing prudence check vs Fuzzilli/FuzzJIT/DIE; also releases its own dataset/scripts at https://github.com/KKGanguly/DataCentricFuzzJS."
+}

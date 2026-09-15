@@ -1,0 +1,110 @@
+Paper ID,Title,Year,Replication Package Link,Programming Language,Executability Status,Result Status,Reproducibility Status
+P001,"""I tend to view ads almost like a pestilence"": On the Accessibility Implications of Mobile Ads for Blind Users",2024,https://github.com/AdvertisementAccessibility/Advertisement-Accessibility,Java,Not Executable,N/A,N/A
+P002,A Framework For Inferring Properties of User-Defined Functions,2024,https://github.com/sub-helper/lambda_artifact,C++,Not Executable,N/A,N/A
+P003,DEMISTIFY: Identifying On-device Machine Learning Models Stealing and Reuse Vulnerabilities in Mobile Apps,2024,https://github.com/MGYN/DeMistify,Java,Not Executable,N/A,N/A
+P004,Detecting Logic Bugs in Graph Database Management Systems via Injective and Surjective Graph Query Transformation,2024,https://github.com/YuanchengJiang/GraphGenie,Py,Executable,Results Produced,Unverifiable
+P005,Do Automatic Test Generation Tools Generate Flaky Tests?,2024,https://doi.org/10.6084/m9.figshare.22344706,Py,Executable,Results Produced,Fully Reproducible
+P006,DocFlow: Extracting Taint Specifications from Software Documentation,2024,https://gitlab.com/s3lab-rhul/android/docflow,Py,Executable,Results Produced,Fully Reproducible
+P007,Domain Knowledge Matters: Improving Prompts with Fix Templates for Repairing Python Type Errors,2024,https://github.com/JohnnyPeng18/TypeFix,Py,Not Executable,N/A,N/A
+P008,EGFE: End-to-end Grouping of Fragmented Elements in UI Designs with Multimodal Learning,2024,https://github.com/test2975/EGFE,Py,Not Executable,N/A,N/A
+P009,Efficiently Trimming the Fat: Streamlining Software Dependencies with Java Reflection and Dependency Analysis,2024,https://slimming-fat.github.io/,Java,Partially Executable,No Output Generated,N/A
+P010,Empirical Analysis of Vulnerabilities Life Cycle in Golang Ecosystem,2024,"https://sites.google.com/view/vulnerabilities-life-cycle/
+https://github.com/Silence-worker-02/Golang_Empirical_Analysis ",Py,Not Executable,N/A,N/A
+P011,Evaluating Large Language Models in Class-Level Code Generation,2024,"https://github.com/FudanSELab/ClassEval , https://huggingface.co/datasets/FudanSELab/ClassEval",Py,Partially Executable,Partially Produced,Unverifiable
+P012,Fuzz4All: Universal Fuzzing with Large Language Models,2024,"https://doi.org/10.5281/zenodo.10456883 , https://github.com/fuzz4all/fuzz4all",Py,Partially Executable,Partially Produced,Partially Reproducible
+P013,FuzzSlice: Pruning False Positives in Static Analysis Warnings through Function-Level Fuzzing,2024,https://github.com/NobleMathews/FuzzSliceICSE,C,Partially Executable,Partially Produced,Partially Reproducible
+P014,Kind Controllers and Fast Heuristics for None-Well-Separated GR(1) Specifications,2024,https://doi.org/10.5281/zenodo.8312832,Java,Executable,Results Produced,Unverifiable
+P015,On Calibration of Pre-trained Code Models,2024,https://github.com/queserasera22/Calibration-of-Pretrained-Code-Models,Py,Not Executable,N/A,N/A
+P016,"Out of Sight, Out of Mind: Better Automatic Vulnerability Repair by Broadening Input Ranges and Sources",2024,https://github.com/soarsmu/VulMaster_,Py,Partially Executable,Partially Produced,Unverifiable
+P017,Predicting Performance and Accuracy of Mixed-Precision Programs for Precision Tuning,2024,https://github.com/ucd-plse/FPLearner,C++,Executable,Results Produced,Unverifiable
+P018,PyTy: Repairing Static Type Errors in Python,2024,"https://github.com/sola-st/PyTy , https://zenodo.org/records/10441045",Py,Partially Executable,Partially Produced,Partially Reproducible
+P019,Semantic Analysis of Macro Usage for Portability,2024,"https://github.com/appleseedlab/macro-analyzer , https://zenodo.org/record/8326488",C,Executable,Results Produced,Unverifiable
+P020,Towards Causal Deep Learning for Vulnerability Detection,2024,https://figshare.com/s/0ffda320dcb96c249ef2,Py,Not Executable,N/A,N/A
+P021,Where is it? Tracing the Vulnerability-relevant Files from Vulnerability Reports,2024,https://github.com/anonymous-77400046/vulnerability_file_trace.git,Py,Partially Executable,No Output Generated,N/A
+P022,The Classics Never Go Out of Style: An Empirical Study of Downgrades from the Bazel Build Technology,2024,https://zenodo.org/records/10499104,Py,Executable,Results Produced,Fully Reproducible
+P023,Analysing the Impact of Workloads on Modeling the Performance of Configurable Software Systems,2023,https://doi.org/10.5281/zenodo.7504284,Py,Executable,Results Produced,Partially Reproducible
+P024,Bad Snakes: Understanding and Improving Python Package Index Malware Scanning,2023,https://github.com/lyvd/bad-snakes-icse23-artifacts,Py,Partially Executable,No Output Generated,N/A
+P025,Balancing Effectiveness and Flakiness of None-Deterministic Machine Learning Tests,2023,https://github.com/ise-uiuc/FASER,Py,Partially Executable,No Output Generated,N/A
+P026,CoCoSoDa: Effective Contrastive Learning for Code Search,2023,https://github.com/DeepSoftwareAnalytics/CoCoSoDa,Py,Not Executable,N/A,N/A
+P027,"Code Review of Build System Specifications: Prevalence, Purposes, Patterns, and Perceptions",2023,https://doi.org/10.5281/zenodo.7042929,Py,Executable,Results Produced,Fully Reproducible
+P028,Compiling Parallel Symbolic Execution with Continuations,2023,https://continuation.passing.style/GenSym,JAVA,Executable,Results Produced,Fully Reproducible
+P029,ContraBERT: Enhancing Code Pre-trained Models via Contrastive Learning,2023,"https://sites.google.com/view/contrabert 
+https://github.com/shangqing-liu/ContraBERT",Py,Executable,Results Produced,Unverifiable
+P030,Enhancing Deep Learning-based Vulnerability Detection by Building Behavior Graph Model,2023,https://github.com/CGCL-codes/VulBG,Py,Not Executable,N/A,N/A
+P031,Fairify: Fairness Verification of Neural Networks,2023,https://github.com/sumonbis/Fairify,Py,Executable,Results Produced,Unverifiable
+P032,Fill in the Blank: Context-aware Automated Text Input Generation for Mobile GUI Testing,2023,https://github.com/franklinbill/QTypist,Py,Not Executable,N/A,N/A
+P033,Fine-grained Commit-level Vulnerability Type Prediction by CWE Tree Structure,2023,https://doi.org/10.6084/m9.figshare.19727050,Py,Executable,Results Produced,Unverifiable
+P034,Fonte: Finding Bug Inducing Commits from Failures,2023,https://github.com/coinse/fonte,Py,Executable,Results Produced,Fully Reproducible
+P035,Information-Theoretic Testing and Debugging of Fairness Defects in Deep Neural Networks,2023,https://github.com/armanunix/Fairness-testing,Py,Executable,Results Produced,Unverifiable
+P036,Retrieval-Based Prompt Selection for Code-Related Few-Shot Learning,2023,https://github.com/prompt-learning/cedar,Py,Not Executable,N/A,N/A
+P037,SecBench.js: An Executable Security Benchmark Suite for Server-Side JavaScript,2023,https://github.com/cristianstaicu/SecBench.js,Node,Executable,Results Produced,Unverifiable
+P038,CodaMosa: Escaping Coverage Plateaus in Test Generation with Pre-trained Large Language Models,2023,https://github.com/microsoft/codamosa,Py,Not Executable,N/A,N/A
+P039,Concrat: An Automatic C-to-Rust Lock API Translator for Concurrent Programs,2023,https://doi.org/10.5281/zenodo.7573490,C,Executable,Results Produced,Fully Reproducible
+P040,Flexible and Optimal Dependency Management via Max-SMT,2023,"https://doi.org/10.5281/zenodo.7554407, https://github.com/donald-pinckney/pacsolve ",Node,Not Executable,N/A,N/A
+P041,Safe Low-Level Code Without Overhead is Practical,2023,https://github.com/dslab-epfl/tinynf,Roff,Partially Executable,Partially Produced,Partially Reproducible
+P042,Aries: Efficient Testing of Deep Neural Networks via Labeling-Free Accuracy Estimation,2023,https://github.com/wellido/Aries,Py,Not Executable,N/A,N/A
+P043,AutoTransform: automated code transformation to support modern code review process,2022,https://github.com/awsm-research/AutoTransform-Replication,Py,Executable,Results Produced,Unverifiable
+P044,Change is the only constant: dynamic updates for workflows,2022,https://doi.org/10.5281/zenodo.5864684,Docker,Executable,Results Produced,Partially Reproducible
+P045,Controlled concurrency testing via periodical scheduling,2022,"https://sites.google.com/view/period-cct/ 
+https://github.com/wcventure/PERIOD",C++,Executable,Results Produced,Fully Reproducible
+P046,DeepState: selecting test suites to enhance the robustness of recurrent neural networks,2022,https://github.com/SATE-Lab/DeepState,Py,Executable,Results Produced,Partially Reproducible
+P047,Detecting false alarms from automatic static analysis tools: how far are we?,2022,https://github.com/soarsmu/SA_retrospective,Py,Partially Executable,Partially Produced,Partially Reproducible
+P048,Difuzer: uncovering suspicious hidden sensitive operations in Android apps,2022,https://github.com/Trustworthy-Software/Difuzer,Java,Not Executable,N/A,N/A
+P049,FlakiMe: laboratory-controlled test flakiness impact assessment,2022,https://github.com/serval-uni-lu/flakime-replication-package,Py,Partially Executable,No Output Generated,N/A
+P050,Garbage collection makes rust easier to use: a randomized controlled trial of the bronze garbage collector,2022,"https://crates.io/crates/bronze_gc ,
+ https://doi.org/10.5281/zenodo.6045904",Rust,Not Executable,N/A,N/A
+P051,Generating and visualizing trace link explanations,2022,"https://trace-exp-study.github.io/pages , https://zenodo.org/record/6040328 , https://github.com/yliu26/TraceLinkExplanation",Py,Partially Executable,Partially Produced,Unverifiable
+P052,GraphFuzz: library API fuzzing with lifetime-aware dataflow graphs,2022,https://github.com/ForAllSecure/GraphFuzz,C,Executable,Results Produced,Fully Reproducible
+P053,Green AI: do deep learning frameworks have different costs?,2022,https://zenodo.org/records/6029576,Bash,Not Executable,N/A,N/A
+P054,Linear-time temporal logic guided greybox fuzzing,2022,https://github.com/ltlfuzzer/LTL-Fuzzer,Py,Not Executable,N/A,N/A
+P055,Practical automated detection of malicious npm packages,2022,"https://github.com/githubnext/amalfi-artifact , https://zenodo.org/records/5908852",Py,Partially Executable,Partially Produced,Unverifiable
+P056,Repairing order-dependent flaky tests via test generation,2022,https://github.com/UT-SE-Research/ODRepair,Java,Partially Executable,Partially Produced,Unverifiable
+P057,SugarC: scalable desugaring of real-world preprocessor usage into pure C,2022,https://zenodo.org/records/5915048,VM,Executable,Results Produced,Fully Reproducible
+P058,Towards language-independent brown build detection,2022,https://github.com/ubisoft/ubisoft-laforge-brownbuild,Py,Not Executable,N/A,N/A
+P059,V-SZZ: automatic identification of version ranges affected by CVE vulnerabilities,2022,https://github.com/baolingfeng/V-SZZ,Py,Partially Executable,No Output Generated,N/A
+P060,EAGLE: creating equivalent graphs to test deep learning libraries,2022,https://github.com/lin-tan/eagle,Py,Partially Executable,No Output Generated,N/A
+P061,ARCLIN: automated API mention resolution for unformatted texts,2022,https://github.com/YintongHuo/ARCLIN,Py,Not Executable,N/A,N/A
+P062,FLACK: Counterexample-Guided Fault Localization for Alloy Models,2021,https://doi.org/10.6084/m9.figshare.13439894.v4,Java,Executable,Partially Produced,Partially Reproducible
+P063,FlakeFlagger: Predicting Flakiness Without Rerunning Tests,2021,"https://zenodo.org/records/4450723,
+https://github.com/AlshammariA/FlakeFlagger",Java,Partially Executable,No Output Generated,N/A
+P064,GenTree: Using Decision Trees to Learn Interactions for Configurable Software,2021,"https://github.com/dynaroars/gentree , https://zenodo.org/records/4514778",C,Executable,Results Produced,Fully Reproducible
+P065,Growing a Test Corpus with Bonsai Fuzzing,2021,https://github.com/vasumv/bonsai-fuzzing,JS,Executable,Results Produced,Fully Reproducible
+P066,IMGDroid: Detecting Image Loading Defects in Android Applications,2021,https://github.com/wsong-nj/IMGDroid,Java,Executable,Results Produced,Partially Reproducible
+P067,Identifying Key Features from App User Reviews,2021,https://github.com/GIST-NJU/KEFE,Py,Not Executable,N/A,N/A
+P068,Improving Fault Localization by Integrating Value and Predicate Based Causal Inference Techniques,2021,https://zenodo.org/records/4441439,VM,Executable,Results Produced,Not Reproducible
+P069,PyART: Python API Recommendation in Real-Time,2021,https://github.com/PYART0/PyART,Py,Executable,Results Produced,Not Reproducible
+P070,Too Quiet in the Library: An Empirical Study of Security Updates in Android Apps’ Native Code,2021,https://github.com/salmanee/Librarian,Py,Executable,Results Produced,Partially Reproducible
+P071,Unrealizable Cores for Reactive Systems Specifications,2021,http://smlab.cs.tau.ac.il/syntech/unrealcores/,Bash,Executable,Results Produced,Partially Reproducible
+P072,White-Box Performance-Influence Models: A Profiling and Learning Approach,2021,https://github.com/AI-4-SE/White-Box-Performance-Influence-Models,Scala,Not Executable,N/A,N/A
+P073,Importance-driven deep learning system testing,2020,https://deepimportance.github.io/,Py,Not Executable,N/A,N/A
+P074,Learning-to-rank vs ranking-to-learn: strategies for regression testing in continuous integration,2020,https://github.com/icse20/RT-CI,Py,Not Executable,N/A,N/A
+P075,Practical fault detection in puppet programs,2020,"https://github.com/theosotr/fsmove-eval
+https://github.com/AUEB-BALab/fsmove/",Ocaml,Executable,Results Produced,Partially Reproducible
+P076,Retrieval-based neural source code summarization,2020,https://github.com/zhangj111/rencos,Py,Executable,Results Produced,Not Reproducible
+P077,"SAVER: scalable, precise, and safe memory-error repair",2020,https://github.com/kupl/SAVER_public/,C,Executable,No Output Generated,N/A
+P078,Scaling open source communities: an empirical study of the Linux kernel,2020,https://archive.softwareheritage.org/browse/directory/33d1a7540c8dc449b90d4771f6dd52ba45e26879/,Py,Not Executable,N/A,N/A
+P079,Testing DNN image classifiers for confusion & bias errors,2020,"Code - https://github.com/ARiSE-Lab/DeepInspect,
+Errors - https://www.rayb.info/deepinspect",Py,Partially Executable,Partially Produced,Partially Reproducible
+P080,Testing file system implementations on layered models,2020,https://midwinter1993.github.io/dogfood/,Py,Partially Executable,No Output Generated,N/A
+P081,When APIs are intentionally bypassed: an exploratory study of API workarounds,2020,https://github.com/senseuwaterloo/API-Workarounds,Java,Not Executable,N/A,N/A
+P082,AutoTap: Synthesizing and Repairing Trigger-Action Programs Using LTL Properties,2019,https://github.com/zlfben/autotap,Py,Executable,Results Produced,Fully Reproducible
+P083,Class Imbalance Evolution and Verification Latency in Just-in-Time Software Defect Prediction,2019,https://zenodo.org/records/2555695,Java,Not Executable,N/A,N/A
+P084,DeepPerf: Performance Prediction for Configurable Software with Deep Sparse Neural Network,2019,https://github.com/DeepPerf/DeepPerf,Py,Executable,Results Produced,Fully Reproducible
+P085,Detecting Incorrect Build Rules,2019,https://github.com/nandor/mkcheck,C++,Partially Executable,No Output Generated,N/A
+P086,Distance-Based Sampling of Software Configuration Spaces,2019,https://github.com/se-passau/Distance-Based_Data,Py,Partially Executable,Partially Produced,Not Reproducible
+P087,DockerizeMe: Automatic Inference of Environment Dependencies for Python Code Snippets,2019,https://github.com/dockerizeme/dockerizeme,Py,Executable,Results Produced,Unverifiable
+P088,FOCUS: A Recommender System for Mining API Function Calls and Usage Patterns,2019,https://zenodo.org/records/2550379,Java,Not Executable,N/A,N/A
+P089,Accurate and efficient refactoring detection in commit history,2018,"Repo - https://github.com/tsantalis/RefactoringMiner,
+Database - https://refactoring.encs.concordia.ca/oracle/ (404)",Java,Executable,Results Produced,Partially Reproducible
+P090,Efficient sampling of SAT solutions for testing,2018,https://github.com/RafaelTupynamba/quicksampler,C++,Partially Executable,No Output Generated,N/A
+P091,Goal-conflict likelihood assessment based on model counting,2018,https://sites.google.com/site/goalconflictsmodelcounting/,Java,Not Executable,N/A,N/A
+P092,Nemo: multi-criteria test-suite minimization with integer nonlinear programming,2018,"https://ics.uci.edu/~seal/projects/nemo/index.html,
+https://github.com/jwlin/Nemo",Py,Executable,Results Produced,Partially Reproducible
+P093,Prioritizing browser environments for web application test execution,2018,https://webeng.kaist.ac.kr/browser-env-prio/,Py,Executable,Results Produced,Unverifiable
+P094,Clone Refactoring with Lambda Expressions,2017,https://users.encs.concordia.ca/~nikolaos/ICSE_2017/,R,Not Executable,N/A,N/A
+P095,How Do Developers Fix Cross-Project Correlated Bugs? A Case Study on the GitHub Scientific Python Ecosystem,2017,https://github.com/njuap/ICSE2017,Py,Not Executable,N/A,N/A
+P096,Travioli: A Dynamic Analysis for Detecting Data-Structure Traversals,2017,https://github.com/rohanpadhye/travioli,Py,Partially Executable,No Output Generated,N/A
+P097,Floating-point precision tuning using blame analysis,2016,https://github.com/corvette-berkeley/shadow-execution,C,Not Executable,N/A,N/A
+P098,The impact of test case summaries on bug fixing performance: an empirical investigation,2016,https://zenodo.org/records/45120,Java,Not Executable,N/A,N/A
+P099,A Comparative Study of Programming Languages in Rosetta Code,2015,https://bitbucket.org/nanzs/rosettacodedata/src/master/,Py,Not Executable,N/A,N/A
+P100,"No PAIN, No Gain? The Utility of PArallel Fault INjections",2015,https://github.com/DEEDS-TUD/PAIN,C,Not Executable,N/A,N/A

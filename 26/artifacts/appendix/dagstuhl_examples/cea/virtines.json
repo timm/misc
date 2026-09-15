@@ -1,0 +1,418 @@
+{
+ "paper": "Isolating Functions at the Hardware Limit with Virtines (Wanninger, Bowden, Shetty, Garg, Hale), EuroSys '22",
+ "paper_version": "ACM DL version, EuroSys '22 (April 5-8 2022, Rennes), DOI 10.1145/3492321.3519553, pp. 644-662 incl. Artifact Appendix A; artifact DOI 10.5281/zenodo.6350453 (wasp-v1.0.1.zip, repo snapshot virtines-wasp-1d2d2be)",
+ "artifact_files_inspected": [
+  "virtines-wasp-1d2d2be/README.md",
+  "virtines-wasp-1d2d2be/Makefile",
+  "virtines-wasp-1d2d2be/CMakeLists.txt",
+  "virtines-wasp-1d2d2be/CITATION.cff",
+  "virtines-wasp-1d2d2be/cloudlab.profile",
+  "virtines-wasp-1d2d2be/.travis.yml",
+  "virtines-wasp-1d2d2be/plotgen/README.md",
+  "virtines-wasp-1d2d2be/plotgen/Makefile",
+  "virtines-wasp-1d2d2be/plotgen/fig3-mode-latency.py",
+  "virtines-wasp-1d2d2be/plotgen/fig4-boot-milestones.py",
+  "virtines-wasp-1d2d2be/plotgen/fig8-wasp-latency.py",
+  "virtines-wasp-1d2d2be/plotgen/fig11-fib-latency.py",
+  "virtines-wasp-1d2d2be/plotgen/fig12-image-size.py",
+  "virtines-wasp-1d2d2be/plotgen/fig13-http-tput.py",
+  "virtines-wasp-1d2d2be/plotgen/fig13-http-latency.py",
+  "virtines-wasp-1d2d2be/plotgen/fig14-js.py",
+  "virtines-wasp-1d2d2be/data_example/README.md",
+  "virtines-wasp-1d2d2be/data_example/gen.sh",
+  "virtines-wasp-1d2d2be/data_example/replot.sh",
+  "virtines-wasp-1d2d2be/data_example/gold/ (table1.csv, fig*.pdf, data/{fig3,fig4,fig8,fig11,fig12,fig14,http,openssl,kernel-latency})",
+  "virtines-wasp-1d2d2be/data_example/gold/data/fig8/README.md",
+  "virtines-wasp-1d2d2be/data_example/gold/data/openssl/{baseline,virtine,virtine_snapshot}.csv",
+  "virtines-wasp-1d2d2be/data_example/AMD-EPYC-7281-tinker-2/data/{uname,cpuinfo,table1.csv,openssl.txt} and fig* CSV line counts",
+  "virtines-wasp-1d2d2be/data_example/{AMD-EPYC-7302P-cloudlab,AMD-Opteron-4122-r415,AMD-Ryzen-3600x-desktop,Intel-i7-10750H-XPS-9500,Intel-i7-6600U-thinkpad-p40-yoga,Intel-XEON-Gold-6126-chameleon,Intel-XEON-Gold-6142-cloudlab,VIRT-Intel-XEON-E5-2670-nested}/ (listing only)",
+  "virtines-wasp-1d2d2be/artifacts.tar (tar listing only: data/* + fig*.pdf, 62 entries)",
+  "virtines-wasp-1d2d2be/test/ (listing; grep of trial counts in fib/main.cpp, http/http.c, js/host.cpp, js/baseline.cpp, boottime/main.cpp, echo_server/host.cpp, create_cache/main.cpp, vmrun/main.cpp)",
+  "virtines-wasp-1d2d2be/test/include/bench.h",
+  "virtines-wasp-1d2d2be/src/, include/, pass/, scripts/build_newlib.sh, libc/ (newlib port; listing only)"
+ ],
+ "claims": [
+  {
+   "id": "C1",
+   "statement": "The core components of virtual context creation comprise only a few tens of thousands of cycles. [...] The row labeled \"Paging/ident. map\" is by far the most expensive at ~28K cycles.",
+   "location": "Artifact Appendix A.4.1 claim (C1), p.661; Section 4.2 'Eliminating traditional boot sequences' and Table 1, pp.647-648",
+   "why_selected": "Headline result of Section 4.2 / Table 1 and the first of the eight 'Major Claims' the authors enumerate in the artifact appendix.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Per-component boot latency (cycles) of a minimal ~160-line assembly image (protected mode, GDT, paging, jump to 64-bit) inside a KVM VM; Table 1 reports the 'minimum latencies observed per component'; identity-mapping 1GB with 2MB pages is the dominant component.",
+    "subjects": "KVM virtual context on 'tinker' (AMD EPYC 7281 Naples, 16 cores, 2.69 GHz, 32 GB DDR4, Linux 5.9.12, HT/turbo/DVFS disabled); measured with rdtsc.",
+    "conditions_time_limits": "\"Unless otherwise noted, we conduct experiments with 1000 trials\" (Sec 4.1); minimum (not mean) per component; README warns 'Figures 3 and 8 and Table 1 show some discrepancies between AMD and Intel'. Time period: not stated (artifact tinker-2 data carry a kernel 5.14.16 uname dated Nov 2021; OpenSSL build dated Feb 2022).",
+    "missing": "Exact experiment dates; why minimum was chosen as the statistic."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "rdtsc cycle counts per boot milestone: cli, lgdt, prot, in 32, id map, long, in 64 (CSV header of table1.csv).",
+    "analysis": "test/boottime/main.cpp (NPOINTS 1000) runs test/virtines/boottime.asm and prints per-trial per-component cycles; Makefile target data/table1.csv; paper reports per-column minimum. No script in the artifact computes the minimum or renders Table 1 (reviewer inference from CSV + paper text).",
+    "files_versions_results": "virtines-wasp-1d2d2be/test/boottime/main.cpp, virtines-wasp-1d2d2be/test/virtines/boottime.asm, virtines-wasp-1d2d2be/Makefile (targets data/table1.csv, table1_data), results virtines-wasp-1d2d2be/data_example/gold/table1.csv (1000 rows), per-machine data_example/*/data/table1.csv. Versions: Wasp v1.0.1 (zip), gcc 10.2.1 / clang 10.0.1 / NASM 2.14 (README).",
+    "figure_or_table": "Table 1 (p.648)",
+    "missing": "Appendix E1 says 'Run make figure1_data' and results in data/figure1_data.csv; no such Makefile target exists (actual: make table1_data -> data/table1.csv). The gold table1.csv values (id map ~263K cycles, prot ~59K) are ~10x the paper's Table 1 (28109, 3217); no note explains which machine/kernel produced gold."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Paper explains paging cost as 'three levels of page tables (i.e., 12KB of memory references), plus ... construction of an EPT inside KVM'; calls the 3K protected-mode cost 'a bit surprising'.",
+    "assumptions_uncertainty_limits": "No variance reported (minimum only); README notes AMD/Intel and microarchitectural-generation discrepancies.",
+    "objections_addressed": "None identified in the paper for this claim.",
+    "missing": "No uncertainty statement for Table 1; no discussion of why minimum is representative; no reconciliation with the appendix's own '<~100K cycles total average' expectation or the gold data."
+   },
+   "level": 3,
+   "claim_type": "descriptive",
+   "asserts_cause": false,
+   "theory": "Boot cost is dominated by memory references for page-table construction and KVM EPT setup; mode transitions are comparatively cheap.",
+   "evidence_strength": "Repeated measurement (1000 trials) on one machine, but only minima are reported and the artifact's reference data disagree with the published numbers by an order of magnitude; moderate-to-weak support for the specific numbers, adequate for the qualitative ordering.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/Makefile, virtines-wasp-1d2d2be/test/boottime/main.cpp (listing), virtines-wasp-1d2d2be/data_example/gold/table1.csv (head), virtines-wasp-1d2d2be/data_example/AMD-EPYC-7281-tinker-2/data/table1.csv (head); appendix target name 'figure1_data' does not exist in Makefile.",
+   "information_source": "authors: setup, 1000 trials, minimum statistic, component list; reviewer-added: mapping of appendix E1 to Makefile target table1_data, observation of value mismatch in gold data; unknown: which machine/kernel produced gold/table1.csv, experiment dates.",
+   "causal_overreach": false,
+   "note": "Regeneration script exists (make table1_data) but the appendix points to a non-existent target and the packaged reference data do not match the paper table."
+  },
+  {
+   "id": "C2",
+   "statement": "These results suggest—provided that the virtine is short-lived (on the order of microseconds) and can feasibly execute in real-mode—that 10K cycles may potentially be saved.",
+   "location": "Section 4.2 'The cost of processor modes', p.648, Figure 3; Appendix claim (C2) p.661",
+   "why_selected": "Headline result of the mode-latency experiment (Figure 3) and appendix major claim C2.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Latency (cycles) from KVM_RUN on the host to completion of recursive fib(20) and exit, for 16-bit real, 32-bit protected and 64-bit long mode; relationship: latency increases with mode complexity.",
+    "subjects": "Hand-written assembly virtines (test/virtines/fib16/32/64.asm) on KVM, tinker (AMD EPYC 7281), Linux 5.9.12.",
+    "conditions_time_limits": "1000 trials (Sec 4.1); outliers removed by Tukey 1.5 IQR (footnote 3); hedged: 'may potentially be saved'; appendix: 'In most machines the time to run the function will vary with processor modes, but on some there is little difference.'",
+    "missing": "Exact dates."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "Cycles per trial (rdtsc), per mode.",
+    "analysis": "test/run/main.cpp runs each .virtine binary; plotgen/fig3-mode-latency.py applies Tukey filtering (quantile 0.25/0.75, 1.5 IQR), then mean and std per mode, bar chart with false origin; matches paper footnote 3.",
+    "files_versions_results": "virtines-wasp-1d2d2be/test/run/main.cpp, virtines-wasp-1d2d2be/test/virtines/fib16.asm|fib32.asm|fib64.asm, virtines-wasp-1d2d2be/Makefile (fig3_data, fig3.pdf, fig3_gold.pdf), virtines-wasp-1d2d2be/plotgen/fig3-mode-latency.py; results virtines-wasp-1d2d2be/data_example/gold/data/fig3/fib16.csv|fib32.csv|fib64.csv (1001 lines each), gold/fig3.pdf; tinker-2 example has 10001 lines per file.",
+    "figure_or_table": "Figure 3 (p.648)",
+    "missing": "Nothing material; tinker-2 example uses 10000 trials vs paper's stated 1000."
+   },
+   "cea4": {
+    "met": true,
+    "why_supports": "16-bit mode skips the paging and protected-mode setup that Table 1 shows are the costly components; 'consistent with descriptions in the hardware manuals [15, 37]'.",
+    "assumptions_uncertainty_limits": "Outliers attributed to host kernel scheduling and removed (stated); std error bars; claim conditioned on short-lived, real-mode-feasible virtines; hedged with 'may potentially'.",
+    "objections_addressed": "Appendix and README acknowledge that on some microarchitectures the difference is small and that AMD/Intel differ; the paper frames the result as an optimization opportunity rather than a guarantee.",
+    "missing": "No per-machine quantification of the effect in the paper (only in data_example)."
+   },
+   "level": 4,
+   "claim_type": "comparative",
+   "asserts_cause": false,
+   "theory": "More complex processor modes require the expensive setup steps of Table 1; a virtine that stays in real mode avoids them.",
+   "evidence_strength": "Repeated measurement (1000 trials, Tukey-filtered, mean+std) on one primary machine plus reference data on 9 other machines in data_example; reasonably strong for the qualitative claim, savings magnitude is machine-dependent.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/Makefile, virtines-wasp-1d2d2be/plotgen/fig3-mode-latency.py (grep), virtines-wasp-1d2d2be/test/run/main.cpp and test/virtines/*.asm (listing), gold/data/fig3 line counts.",
+   "information_source": "authors: setup, Tukey filtering, hedging, machine variance; reviewer-added: mapping to files and confirmation that the plot script implements the stated filter; unknown: dates.",
+   "causal_overreach": false,
+   "note": "Full make target chain (fig3_data -> fig3.pdf) present."
+  },
+  {
+   "id": "C3",
+   "statement": "Even when leveraging the underlying host OS, and when adding the from-scratch virtual context creation time from Figure 2, we can achieve sub-millisecond HTTP response latencies (<300 μs) without optimizations (§5.2).",
+   "location": "Section 4.2 'Booting up for useful code', p.649, Figure 4; Appendix claim (C3) p.661",
+   "why_selected": "Headline result of the echo-server experiment (Figure 4) and appendix major claim C3.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Mean cycles to reach three startup milestones (C entry 'kmain()', after recv(), after send()) inside a protected-mode (no paging) echo-server context; sum plus context creation < 300 us.",
+    "subjects": "Custom 970-line C + 150-line asm runtime, 900-line C++ micro-hypervisor, hypercall-based I/O; tinker, KVM.",
+    "conditions_time_limits": "'Milestone measurements are taken inside the virtual context'; 'the guest-to-host interactions in this test introduce variance from the host kernel's network stack, indicated by the large standard deviations shown in Figure 4'; 'without optimizations'.",
+    "missing": "Where requests originate (localhost assumed, not stated in Sec 4.2), request size, exact dates."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "rdtsc cycles at milestones kmain(), after recv(), after send().",
+    "analysis": "test/echo_server/host.cpp (iters = 1000) drives build/echo_server.bin; plotgen/fig4-boot-milestones.py removes Tukey 1.5 IQR outliers, reports mean and std per milestone.",
+    "files_versions_results": "virtines-wasp-1d2d2be/test/echo_server/{host.cpp,main.c,boot.asm,kernel.ld,CMakeLists.txt}, virtines-wasp-1d2d2be/Makefile (build/echo_server.bin, fig4_data, fig4.pdf, fig4_gold.pdf), virtines-wasp-1d2d2be/plotgen/fig4-boot-milestones.py; results virtines-wasp-1d2d2be/data_example/gold/data/fig4/echo-server.csv (210 lines), gold/fig4.pdf; tinker-2 example 1001 lines.",
+    "figure_or_table": "Figure 4 (p.648)",
+    "missing": "gold echo-server.csv has ~209 trials, not the 1000 stated; the '<300 us' conversion from cycles is not shown in any script."
+   },
+   "cea4": {
+    "met": true,
+    "why_supports": "Response time = context creation (Fig 2) + milestones (Fig 4), so a bound follows; few host interactions keep latency acceptable ('having few host/virtine interactions can keep execution latencies in a virtual context within an acceptable range').",
+    "assumptions_uncertainty_limits": "Large std from host network stack acknowledged; result explicitly 'without optimizations'; appendix expects 100K-500K cycles on other machines.",
+    "objections_addressed": "Variance objection addressed by attributing it to the host network stack; the paper draws only a coarse conclusion (sub-ms) rather than a precise one.",
+    "missing": "No explicit statement of how the 300 us figure was computed from cycle data."
+   },
+   "level": 4,
+   "claim_type": "descriptive",
+   "asserts_cause": false,
+   "theory": "Hypercall-based I/O avoids device emulation and drivers, so a minimal environment reaches useful code in ~10K cycles and answers a request within hundreds of microseconds.",
+   "evidence_strength": "Repeated measurement (stated 1000 trials; gold file holds ~209) with Tukey filtering and std reported; single machine; adequate for a sub-millisecond bound.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/Makefile, virtines-wasp-1d2d2be/plotgen/fig4-boot-milestones.py (grep), virtines-wasp-1d2d2be/test/echo_server/ listing, host.cpp iters grep, gold/data/fig4/echo-server.csv line count.",
+   "information_source": "authors: runtime sizes, milestone definitions, variance source; reviewer-added: file mapping, trial-count discrepancy; unknown: request source/size, dates.",
+   "causal_overreach": false,
+   "note": "Complete regeneration chain present (make fig4.pdf)."
+  },
+  {
+   "id": "C4",
+   "statement": "By recycling virtines, we can reach latencies much lower than Linux thread creation and much closer to the hardware limit, i.e., the vmrun instruction. [...] This measurement shows that the caching mechanism brings the cost of provisioning a virtine shell to within 4% of a bare vmrun.",
+   "location": "Section 5.2 'Caching', p.650, Figure 8 (and Figure 2, Sec 4.2 p.647); Appendix claim (C4) p.661",
+   "why_selected": "Headline result of the context-creation microbenchmark (Figures 2 and 8), central to the abstract's 'microsecond scale startup latencies' and the contribution 'extensive microbenchmarking'.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Creation latency (cycles, create+enter+exit observable by hypervisor) of Process, Wasp (from scratch), pthread, Wasp+C (cached shell incl. clean), Wasp+CA (cached, async clean), vmrun (KVM_RUN ioctl only); Wasp+CA within 4% of vmrun.",
+    "subjects": "Wasp on KVM/Linux 5.9 on tinker (AMD EPYC 7281); SGX Create/ECALL on Dell XPS 9500 (Intel i7-10750H, Ubuntu 20.04, kernel 5.13.0-28) for the lower half of Fig 8.",
+    "conditions_time_limits": "1000 trials; rdtsc; 'Wasp+CA ... does not measure the cost of cleaning virtines and instead cleans them asynchronously'; log-scale axis; README: AMD/Intel discrepancies for Fig 8.",
+    "missing": "Dates; which statistic the '4%' compares (Fig 8 is a box plot)."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "Per-trial cycles for six abstractions (linux_process, wasp_create, linux_thread, wasp_create_cache, wasp_create_cache_async, wasp_vmrun).",
+    "analysis": "Makefile fig8_data runs build/test/{pthread_overhead,process_overhead,create,create_cache,create_cache_async,vmrun}; plotgen/fig8-wasp-latency.py concatenates CSVs and draws a seaborn box plot (fliersize=0, log x); no script computes the 4% ratio.",
+    "files_versions_results": "virtines-wasp-1d2d2be/test/{pthread,process,create,create_cache,create_cache_async,vmrun}/main.cpp, virtines-wasp-1d2d2be/Makefile (fig8_data, fig8.pdf, fig8_gold.pdf), virtines-wasp-1d2d2be/plotgen/fig8-wasp-latency.py; results virtines-wasp-1d2d2be/data_example/gold/data/fig8/*.csv (1000 rows each; also function_call.csv, hyperv.csv, vm_cold.csv, vm_warm.csv, thread.csv not used by the script), gold/data/fig8/README.md, gold/fig8.pdf.",
+    "figure_or_table": "Figure 8 (p.651) and Figure 2 (p.647)",
+    "missing": "SGX Create/ECALL measurements (bottom half of Fig 8) have no code or data in the artifact; the 4% figure is not computed by any script; tinker-2 example wasp_create.csv has only 100 rows."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Cold path pays KVM_CREATE_VM allocation of VMCS/VMCB; pooled shells avoid it; async cleaning removes clean cost from the critical path.",
+    "assumptions_uncertainty_limits": "Assumes cleaning can be deferred to idle time or a background thread (stated); Hyper-V 'similar' but not shown; no variance stated for the 4% figure.",
+    "objections_addressed": "The paper notes Wasp+CA excludes clean cost; does not discuss whether background cleaning competes for CPU under load.",
+    "missing": "No uncertainty for the 4% number; SGX comparison not traceable; no discussion of the ioctl/ring-transition floor as a limit of 'hardware limit' framing beyond Sec 4.2."
+   },
+   "level": 3,
+   "claim_type": "comparative",
+   "asserts_cause": false,
+   "theory": "The dominant creation cost is host-kernel allocation of VM state; reuse of pre-created, cleared contexts reduces cost to the KVM_RUN floor.",
+   "evidence_strength": "Repeated measurement (1000 trials) with box plots; single Linux machine plus 9 reference machines in data_example; the precise 4% figure is unsupported by any packaged computation and the SGX part is unreproducible.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/Makefile, virtines-wasp-1d2d2be/plotgen/fig8-wasp-latency.py (full), virtines-wasp-1d2d2be/data_example/gold/data/fig8/README.md, gold fig8 CSV line counts, test/*/main.cpp listing.",
+   "information_source": "authors: abstractions measured, 1000 trials, async-clean caveat; reviewer-added: that Fig 8 is a box plot and no script computes 4%, SGX absent from artifact; unknown: statistic behind 4%, dates.",
+   "causal_overreach": false,
+   "note": "Appendix says Figure 2 is a subset of Figure 8 and is elided in the artifact."
+  },
+  {
+   "id": "C5",
+   "statement": "At first, the relative slowdown between native function invocation and virtines with snapshotting is 6.6×. [...] with larger computational requirements, the slowdown drops to 1.03× for n = 25 and 1.01× for n = 30. [...] Here we can amortize start-up overheads with ∼100μs of work. [...] producing an overall speedup of 2.5× relative to virtines without snapshotting for fib(0).",
+   "location": "Section 6.1, pp.652; Figure 11; Appendix claim (C5) p.661",
+   "why_selected": "Headline result of evaluation Section 6.1 and appendix major claim C5.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Invocation latency of fib(n) as a compiler-generated virtine (with and without snapshot) vs native, for n in {0,5,...,30}; slowdown ratio decreases with n; amortization point ~100 us.",
+    "subjects": "vcc/LLVM-pass virtines with newlib-based image, Wasp on KVM, tinker.",
+    "conditions_time_limits": "1000 trials; 'we are not measuring the steady state, so the bars include the overhead for taking the initial snapshot'; argument loaded at address 0x0; includes libc image setup and marshalling.",
+    "missing": "Dates."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "Microseconds per call (test/fib/main.cpp prints (end-start)/1000 ns) for baseline, virtine, virtine+snapshot per n.",
+    "analysis": "Makefile fig11 targets run build/test/fib N with GET_BASELINE=yes / WASP_NO_SNAPSHOT=yes / default; plotgen/fig11-fib-latency.py computes mean and std per (variant, n), bar chart with log y; ratios quoted in the paper are means (script comment shows the ratio computation).",
+    "files_versions_results": "virtines-wasp-1d2d2be/test/fib/{main.cpp,virtine.c,boot.asm,rt.ld}, virtines-wasp-1d2d2be/Makefile (FIG11_DATA_FILES, fig11.pdf, fig11_gold.pdf), virtines-wasp-1d2d2be/plotgen/fig11-fib-latency.py; results virtines-wasp-1d2d2be/data_example/gold/data/fig11/{baseline,virtine,virtine+snapshot}_{0..30}.csv (21 files, 1000 rows), gold/fig11.pdf.",
+    "figure_or_table": "Figure 11 (p.652); Table 2 for context",
+    "missing": "Nothing material."
+   },
+   "cea4": {
+    "met": true,
+    "why_supports": "When short-lived, 'the costs of provisioning a virtine shell and initializing it account for most of the execution time'; as work grows the fixed cost is amortized 'as expected'.",
+    "assumptions_uncertainty_limits": "Non-steady-state measurement and resulting extra variance stated; Table 2 comparison caveated ('types of isolation ... slightly different', SeCage/Hodor measure VMFUNC only, virtine latency includes syscall/ring switches).",
+    "objections_addressed": "Objection that other isolation systems cross boundaries faster is addressed by explaining what each number includes.",
+    "missing": "No confidence intervals on the ratios."
+   },
+   "level": 4,
+   "claim_type": "comparative",
+   "asserts_cause": false,
+   "theory": "Fixed start-up cost (shell provisioning, image copy, libc init, marshalling) plus per-call compute; snapshotting removes the boot/init portion.",
+   "evidence_strength": "Repeated measurement (1000 trials, mean+std) across 7 work sizes, 3 variants, one machine plus reference machines; strong for the trend, ratios are point estimates.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/Makefile, virtines-wasp-1d2d2be/plotgen/fig11-fib-latency.py (grep), virtines-wasp-1d2d2be/test/fib/main.cpp (grep: 1000 iterations), gold/data/fig11 listing.",
+   "information_source": "authors: all conditions and caveats; reviewer-added: file mapping and that means are used; unknown: dates.",
+   "causal_overreach": false,
+   "note": "Best-articulated experiment in the package."
+  },
+  {
+   "id": "C6",
+   "statement": "With a 16MB image size, the start-up cost is 2.3ms. This amounts to roughly 6.8GB/s, which is in line with our measurement of the memcpy bandwidth on our tinker machine, 6.7GB/s. This shows the minimal cost a virtine will incur for start-up with a simple snapshotting strategy when the boot sequence is eliminated.",
+   "location": "Section 6.2, pp.652-653, Figure 12; Appendix claim (C6) p.661 ('Once virtine image size reaches around 2MB, start-up latency becomes bottlenecked by memory bandwidth')",
+   "why_selected": "Headline result of evaluation Section 6.2 and appendix major claim C6; also the basis for the 16 us/21KB estimate used in Sec 6.4.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Start-up latency (us) of a minimal halt-only virtine vs image size (padded with zeroes up to 16MB); latency is linear in size and bounded by memcpy bandwidth.",
+    "subjects": "Wasp snapshot restore (memcpy-based) on tinker.",
+    "conditions_time_limits": "Synthetic zero padding; 'simple snapshotting strategy'; copy-on-write expected to reduce cost drastically; appendix: knee location depends on machine memory-copy bandwidth.",
+    "missing": "Number of trials per size (paper default 1000; gold file has 20000 rows total across sizes); dates."
+   },
+   "cea3": {
+    "met": false,
+    "measures": "Microseconds per trial per image size (test/image_size/main.cpp prints trial, bytes, microseconds).",
+    "analysis": "plotgen/fig12-image-size.py computes mean and std per byte size and plots with error bars.",
+    "files_versions_results": "virtines-wasp-1d2d2be/test/image_size/main.cpp, virtines-wasp-1d2d2be/test/include/bench.h (1-byte hlt virtine), virtines-wasp-1d2d2be/Makefile (fig12_data, fig12.pdf, fig12_gold.pdf), virtines-wasp-1d2d2be/plotgen/fig12-image-size.py; results virtines-wasp-1d2d2be/data_example/gold/data/fig12/image_size.csv (20001 lines), gold/fig12.pdf.",
+    "figure_or_table": "Figure 12 (p.652)",
+    "missing": "The memcpy-bandwidth measurement (6.7 GB/s) that supports the 'memory bound' conclusion has no method, code, or data file in the artifact; the 6.8 GB/s derivation is not in any script."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Observed bandwidth (16MB/2.3ms) matches independently measured memcpy bandwidth, so copying the snapshot is the bottleneck.",
+    "assumptions_uncertainty_limits": "Assumes memcpy dominates once boot is eliminated; std error bars in plot; CoW alternative noted; unikernel boot times cited for context.",
+    "objections_addressed": "Alternative explanation (boot cost) excluded by using a halt-only image.",
+    "missing": "Not assessed beyond CEA3 gap; the supporting bandwidth measurement is untraceable."
+   },
+   "level": 2,
+   "claim_type": "explanatory",
+   "asserts_cause": true,
+   "theory": "Snapshot restore is a memcpy of the whole image, so start-up latency is memory-bandwidth bound for large images.",
+   "evidence_strength": "Repeated measurement over 200 sizes with mean/std for the latency curve; the causal link rests on one unreported memcpy measurement; moderate.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/Makefile, virtines-wasp-1d2d2be/plotgen/fig12-image-size.py (grep), virtines-wasp-1d2d2be/test/image_size/main.cpp (grep), virtines-wasp-1d2d2be/test/include/bench.h, gold/data/fig12 line count.",
+   "information_source": "authors: latency curve, memcpy bandwidth figure, CoW remark; reviewer-added: file mapping, absence of bandwidth benchmark; unknown: how memcpy bandwidth was measured, trials per size.",
+   "causal_overreach": false,
+   "note": "Causal claim is plausibly argued but its key corroborating measurement is not in the package."
+  },
+  {
+   "id": "C7",
+   "statement": "However, despite the cost of these host interactions, virtines with snapshots incur only a 12% decrease in throughput relative to the baseline.",
+   "location": "Section 6.3, p.653, Figure 13; Appendix claim (C7) p.661 ('less than 20% drop in throughput')",
+   "why_selected": "Headline result of evaluation Section 6.3 and appendix major claim C7.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Mean response latency and harmonic-mean throughput of a single-threaded static-file HTTP server whose connection handler is a virtine (with/without snapshot) vs native; throughput drop of 12%.",
+    "subjects": "test/http/http.c compiled with vcc vs gcc -DBASELINE; requests from a custom generator on localhost requesting one static file; 7 hypercalls per request; tinker.",
+    "conditions_time_limits": "'Requests are generated from localhost using a custom request generator (which always requests a single static file)'; single-threaded; snapshotting on; appendix: 'Snapshotting may actually reduce performance ... on machines with limited memory bandwidth.'",
+    "missing": "Dates; file size served."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "Latency: microseconds per request (LAT_TRIALS 1000); throughput: microseconds per 1000-request batch, 100 batches, converted to req/s.",
+    "analysis": "plotgen/fig13-http-tput.py converts batch times to requests/s and takes scipy.stats.hmean; fig13-http-latency.py plots mean latency; Makefile fig13 targets build http_baseline/http_virtine and run with -l / -t, WASP_NO_SNAPSHOT=1 for non-snapshot.",
+    "files_versions_results": "virtines-wasp-1d2d2be/test/http/{http.c,index.html}, virtines-wasp-1d2d2be/Makefile (fig13_lat_data, fig13_tput_data, fig13_lat.pdf, fig13_tput.pdf), virtines-wasp-1d2d2be/plotgen/fig13-http-tput.py, fig13-http-latency.py; results virtines-wasp-1d2d2be/data_example/gold/data/http/http_{baseline,virtine,virtine_snapshot}_{lat,thru}.csv (lat 1000 rows, thru 100 rows), gold/fig13_lat.pdf, gold/fig13_tput.pdf.",
+    "figure_or_table": "Figure 13 (p.653)",
+    "missing": "Gold data are under data/http/ whereas the Makefile expects data/fig13/ (no fig13_gold target); the 12% ratio is not computed by a script."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Seven hypercalls per request each cause a doubly expensive exit (ring transitions), yet the measured drop is small; 'we expect that these costs would be reduced in a more realistic HTTP server'.",
+    "assumptions_uncertainty_limits": "Limits: localhost, single file, single-threaded; no variance reported for the 12% figure.",
+    "objections_addressed": "The appendix (not the paper body) admits that on other machines a ~2x latency increase and ~2x throughput drop should be expected and that snapshotting can hurt with limited memory bandwidth — this contradicts the paper's 12% headline without reconciliation.",
+    "missing": "Uncertainty on the 12% figure; explanation of the paper-vs-appendix discrepancy (12% vs 'a little more than 2x drop')."
+   },
+   "level": 3,
+   "claim_type": "comparative",
+   "asserts_cause": false,
+   "theory": "Host interactions cost VM exits plus ring transitions; with few interactions per request the overhead stays small relative to network/file I/O.",
+   "evidence_strength": "Repeated measurement (100 throughput batches of 1000 requests; 1000 latency trials) on one machine; the appendix's own expected result (~2x drop) undermines the generality of the 12% figure; weak-to-moderate.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/Makefile, virtines-wasp-1d2d2be/plotgen/fig13-http-tput.py (grep), virtines-wasp-1d2d2be/test/http/http.c (grep: trial constants, 127.0.0.1), gold/data/http listing and line counts.",
+   "information_source": "authors: workload description, hypercall list, 12% figure, appendix expectation; reviewer-added: file mapping, gold path mismatch, discrepancy flag; unknown: served file size, dates.",
+   "causal_overreach": false,
+   "note": "Paper headline (12%) vs appendix expectation (~2x drop) is the largest internal inconsistency found."
+  },
+  {
+   "id": "C8",
+   "statement": "Compiling OpenSSL using virtines was straightforward. [...] In all, the change took roughly one hour for an experienced developer. [...] with our optimizations and a 16KB cipher block size, virtines only incur a 17× slowdown relative to native execution with snapshotting.",
+   "location": "Section 6.4, pp.653-654 (footnotes 4-5); supports abstract claim 'only a few lines of changes to existing codebases and with acceptable slowdowns' and contribution 5",
+   "why_selected": "Headline result of evaluation Section 6.4 and the library half of the abstract's integration-effort claim.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Developer effort (time, lines changed) to move OpenSSL's AES-128 block cipher into a virtine; throughput slowdown (openssl speed -elapsed -evp aes-128-cbc) of virtine+snapshot vs native at 16KB blocks.",
+    "subjects": "OpenSSL 3.0.0 alpha7; one 'experienced developer'; tinker.",
+    "conditions_time_limits": "'this would not be a good candidate for running in virtine context from a performance perspective'; 'Though our main goal here was not to evaluate end-to-end performance'; block cipher invoked thousands of times per second amplifies creation cost; 21KB image -> 16 us per invocation per Fig 12.",
+    "missing": "Dates; who the developer was relative to the project; what 'a few lines' amounts to numerically."
+   },
+   "cea3": {
+    "met": false,
+    "measures": "OpenSSL speed output in 1000s of bytes/s per block size (16..16384 B) for baseline, virtine, virtine_snapshot.",
+    "analysis": "Ratio of native to virtine+snapshot kB/s at 16384 B: gold 292050.26/16591.53 = 17.6x (reviewer computed by hand from the CSVs); no script computes it. Effort claim: no diff, commit log, or timing record in the package.",
+    "files_versions_results": "Results only: virtines-wasp-1d2d2be/data_example/gold/data/openssl/{baseline,virtine,virtine_snapshot}.csv, virtines-wasp-1d2d2be/data_example/*/data/openssl.txt (raw openssl speed output, version 3.0.0-alpha7-dev built Feb 1 2022 with /usr/local/bin/vcc). Source of the modified OpenSSL is NOT in the zip: Makefile target build/wasp-openssl does 'git clone https://github.com/virtines/wasp-openssl.git --depth 1' at build time, then ./virtine-build.sh and ./virtine-test.sh.",
+    "figure_or_table": "No figure; numbers in text of Sec 6.4",
+    "missing": "The modified OpenSSL source/diff (external unpinned repo, not archived in the Zenodo package); any record supporting the 'one hour' effort figure; script computing the 17x ratio; data/openssl_baseline.txt is listed in the README but absent from gold and machine directories (gold has baseline.csv instead)."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Explains the 17x as creation overhead amplified by high invocation rate and memory-bound snapshot copy (21KB -> 16 us).",
+    "assumptions_uncertainty_limits": "Explicitly not a performance-motivated use; realistic deployments would include more work per virtine.",
+    "objections_addressed": "Not assessed beyond CEA3 gap.",
+    "missing": "n/a (capped at CEA2)"
+   },
+   "level": 2,
+   "claim_type": "design",
+   "asserts_cause": false,
+   "theory": "Annotating a function with the virtine keyword plus swapping the compiler suffices for integration; per-call cost is dominated by snapshot copy.",
+   "evidence_strength": "Effort: anecdotal (one developer, self-reported ~1 hour). Slowdown: single benchmark run (openssl speed) per variant, no repeats reported; the reference CSV reproduces the ~17x ratio; weak.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/Makefile (openssl targets), virtines-wasp-1d2d2be/data_example/gold/data/openssl/*.csv (full), virtines-wasp-1d2d2be/data_example/AMD-EPYC-7281-tinker-2/data/openssl.txt (head); wasp-openssl repository not present in the package.",
+   "information_source": "authors: effort narrative, 17x figure, image size; reviewer-added: hand-computed ratio from gold CSV, observation that modified OpenSSL lives in an external unpinned repo; unknown: diff size, developer identity, repeats.",
+   "causal_overreach": false,
+   "note": "The abstract's 'few lines of changes' claim rests on this section and the JS case study; neither packages a diff."
+  },
+  {
+   "id": "C9",
+   "statement": "The virtine trial without snapshotting takes 125μs longer to execute than the baseline. [...] By taking advantage of snapshotting ... virtines can enjoy a significant reduction in overhead–roughly 2×. [...] These optimizations cause the overall latency to drop to 137μs, which effectively constitutes the parsing and execution of the JavaScript code. (Baseline latency is 419μs.)",
+   "location": "Section 6.5 'Benchmarking and evaluation', p.654, Figure 14; Appendix claim (C8) p.661",
+   "why_selected": "Headline result of evaluation Section 6.5, appendix major claim C8, and the managed-runtime half of the abstract's 'acceptable slowdowns' claim.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Latency (us) of a Duktape base64-encoding function: native (alloc context, run, free) vs virtine, virtine NT (no teardown), virtine+snapshot, virtine+snapshot+NT; slowdown ratios relative to native.",
+    "subjects": "Duktape JS engine (~578KB image) using the Wasp C++ API directly with three hypercalls (snapshot, get_data, return_data); tinker.",
+    "conditions_time_limits": "'the virtine is not executing code any faster than native, but ... executing less code'; Sec 7.2: Duktape lacks JIT, not V8; snapshot/get_data callable once.",
+    "missing": "Trials for virtine variants (host.cpp loops 100 times vs 1000 for baseline; gold CSVs have 1000 rows each, tinker-2 example 100); input buffer size; dates."
+   },
+   "cea3": {
+    "met": true,
+    "measures": "Microseconds per invocation for baseline.csv, virtine.csv, virtine_noteardown.csv, virtine_snapshot.csv, virtine_snapshot_noteardown.csv.",
+    "analysis": "Makefile fig14 targets run build/test/js with -s (snapshot) / -t (teardown) flags and build/js_baseline; plotgen/fig14-js.py takes np.mean per file and plots y_means[i]/y_means[0] with the absolute mean annotated.",
+    "files_versions_results": "virtines-wasp-1d2d2be/test/js/{host.cpp,baseline.cpp,test.js}, virtines-wasp-1d2d2be/test/js/rt/{virtine.c,virtine.h,boot.asm,rt.ld,duktape.c,duktape.h,duk_config.h,base64.h,duk_source_meta.json}, virtines-wasp-1d2d2be/Makefile (js, fig14_data, fig14.pdf, fig14_gold.pdf), virtines-wasp-1d2d2be/plotgen/fig14-js.py; results virtines-wasp-1d2d2be/data_example/gold/data/fig14/*.csv (1000 rows), gold/fig14.pdf.",
+    "figure_or_table": "Figure 14 (p.654)",
+    "missing": "Nothing material; appendix wording '(< 1.5×) slow-downs (∼2×)' is self-contradictory."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "Overhead 'attributed to several sources, including the required virtine provisioning and initialization overhead and the overhead to allocate and later free the Duktape context'; NT retains the context so alloc/free is skipped, explaining sub-native latency.",
+    "assumptions_uncertainty_limits": "Limits stated (Duktape vs V8, no JIT); SEUSS comparison; no variance or CI reported for the 125 us / 137 us figures.",
+    "objections_addressed": "Objection 'virtine faster than native?' addressed by clarifying it executes less code.",
+    "missing": "Attribution of the 125 us overhead to specific sources is asserted, not decomposed by measurement; no uncertainty reported."
+   },
+   "level": 3,
+   "claim_type": "comparative",
+   "asserts_cause": false,
+   "theory": "Snapshotting after engine allocation and skipping teardown removes redundant runtime initialization, as in SEUSS.",
+   "evidence_strength": "Repeated measurement (1000 baseline trials; 100 or 1000 virtine trials depending on data set) with means only; single machine; moderate.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/Makefile, virtines-wasp-1d2d2be/plotgen/fig14-js.py (grep), virtines-wasp-1d2d2be/test/js/host.cpp and baseline.cpp (grep: loop counts), gold/data/fig14 line counts.",
+   "information_source": "authors: variants, absolute latencies, attribution, limits; reviewer-added: file mapping, trial-count asymmetry; unknown: input size, dates.",
+   "causal_overreach": false,
+   "note": "Full regeneration chain present; 'we attribute' language is hedged."
+  },
+  {
+   "id": "C10",
+   "statement": "We present a prototype embeddable hypervisor framework, Wasp, that implements the virtine abstraction. Wasp runs as a Type-II micro-hypervisor on both Linux and Windows.",
+   "location": "Section 1, contribution 2, p.645 (also Abstract: 'a small, embeddable hypervisor that runs on both Linux and Windows'; Sec 4.1: 'Hyper-V performance was similar')",
+   "why_selected": "Numbered contribution and abstract claim; the Windows/Hyper-V part is asserted but not evaluated.",
+   "cea2": {
+    "met": true,
+    "properties_relationship": "Existence/capability: Wasp (userspace library hypervisor) runs on Linux via KVM ioctls and on Windows via Hyper-V WHvRunVirtualProcessor (Fig 5); Hyper-V performance 'similar' to KVM.",
+    "subjects": "Wasp runtime (src/, include/), Linux/KVM and Windows/Hyper-V hosts.",
+    "conditions_time_limits": "'prototype implementation in Windows'; Appendix A.2.3: 'While early versions of Wasp ran on Hyper-V, the port of our compiler extensions and benchmarks is not yet complete, so for this artifact we focus on Linux.'",
+    "missing": "Windows version, Hyper-V version, hardware used; what 'similar' means numerically."
+   },
+   "cea3": {
+    "met": false,
+    "measures": "None reported for Windows beyond the qualitative 'similar'.",
+    "analysis": "None.",
+    "files_versions_results": "Linux side: virtines-wasp-1d2d2be/src/{Virtine.cpp,Cache.cpp,binding.cpp}, virtines-wasp-1d2d2be/include/wasp/*.h, virtines-wasp-1d2d2be/CMakeLists.txt, virtines-wasp-1d2d2be/.travis.yml (Linux focal build). Windows side: grep finds Windows/Hyper-V references in CMakeLists.txt, include/wasp/*.h, src/Cache.cpp only; an unexplained virtines-wasp-1d2d2be/data_example/gold/data/fig8/hyperv.csv (1000 rows) exists but is not used by any plot script or documented.",
+    "figure_or_table": "Figure 5 (architecture); no result figure",
+    "missing": "No Windows build instructions, no Hyper-V benchmark data documented, no numbers for 'similar'."
+   },
+   "cea4": {
+    "met": false,
+    "why_supports": "n/a",
+    "assumptions_uncertainty_limits": "n/a",
+    "objections_addressed": "n/a",
+    "missing": "n/a (capped at CEA2)"
+   },
+   "level": 2,
+   "claim_type": "design",
+   "asserts_cause": false,
+   "theory": "Wasp abstracts the host virtualization API (KVM ioctl vs Hyper-V WHv*) behind one runtime interface.",
+   "evidence_strength": "Linux: strong (source, tests, CI config present). Windows: anecdotal (assertion plus one undocumented CSV); the artifact appendix itself scopes Windows out.",
+   "file_checks": "not run; inspected: virtines-wasp-1d2d2be/README.md, virtines-wasp-1d2d2be/CMakeLists.txt, virtines-wasp-1d2d2be/.travis.yml, src/ and include/ listing, grep for hyperv/WHv/windows, gold/data/fig8 listing.",
+   "information_source": "authors: Windows claim, 'similar' performance, appendix scoping; reviewer-added: grep results, hyperv.csv observation; unknown: Windows environment and measurements.",
+   "causal_overreach": false,
+   "note": "Claim is honest about prototype status; evidence for the Windows half is not traceable."
+  }
+ ],
+ "summary": {
+  "n_claims": 10,
+  "levels": {
+   "1": 0,
+   "2": 3,
+   "3": 4,
+   "4": 3
+  },
+  "causal_overreach_count": 0,
+  "time_minutes": 35
+ },
+ "notes": "Well-packaged artifact (make artifacts.tar regenerates Table 1 and Figs 3,4,8,11,12,13,14 with gold + 9-machine reference data); gaps: appendix target 'figure1_data' absent, gold table1.csv ~10x paper values, OpenSSL code in external unpinned repo, SGX/Hyper-V/Vespid(Fig 15)/memcpy-bandwidth data absent, paper 12% HTTP throughput drop vs appendix ~2x expectation; time period taken from stated software versions (exact dates unstated for all claims) rather than failing every claim at CEA2."
+}

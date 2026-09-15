@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0",
+  "description": "Example papers with linked artifact packages, used as reference material for Triple-A (Agentic Artifact Appendices).",
+  "sources": {
+    "reprodb_artifacts": "https://reprodb.github.io/assets/data/artifacts.json"
+  },
+  "generated_by": "populate_examples.py",
+  "generated_at": "2026-09-15",
+  "examples": [
+    {
+      "id": "eurosys2022-isolating-at-the-hardware-limit-with-virtines",
+      "title": "Isolating at the Hardware Limit with Virtines",
+      "conference": {
+        "name": "EuroSys",
+        "year": 2022,
+        "category": "systems"
+      },
+      "paper": {
+        "doi": "10.1145/3492321.3519553",
+        "url": "https://doi.org/10.1145/3492321.3519553",
+        "local_pdf": "3492321.3519553.pdf",
+        "appendix_url": null,
+        "appendix_form": "in-paper-or-unknown",
+        "local_appendix": null
+      },
+      "evaluation": {
+        "badges": [
+          "available",
+          "functional",
+          "reproduced"
+        ],
+        "award": "Distinguished Artifact"
+      },
+      "artifact": {
+        "landing_page": "https://zenodo.org/records/6350453",
+        "doi": "10.5281/zenodo.6350453",
+        "files": [
+          {
+            "filename": "virtines/wasp-v1.0.1.zip",
+            "url": "https://zenodo.org/api/records/6350453/files/virtines/wasp-v1.0.1.zip/content",
+            "size_bytes": 32792159,
+            "local_path": "artifacts/eurosys2022-isolating-at-the-hardware-limit-with-virtines/zenodo/wasp-v1.0.1.zip",
+            "sha256": "6d5275df6a1feb872778736103523a5aa4f21b16e3eafe90968bb29b38a87d05"
+          }
+        ]
+      },
+      "repository": {
+        "url": "https://github.com/virtines/wasp",
+        "ref": "v1.0.1",
+        "tree_url": "https://github.com/virtines/wasp/tree/v1.0.1",
+        "source_url": null,
+        "local_path": "artifacts/eurosys2022-isolating-at-the-hardware-limit-with-virtines/repo"
+      }
+    },
+    {
+      "id": "eurosys2022-safepm",
+      "title": "SafePM: A Sanitizer for Persistent Memory",
+      "conference": {
+        "name": "EuroSys",
+        "year": 2022,
+        "category": "systems"
+      },
+      "paper": {
+        "doi": "10.1145/3492321.3519574",
+        "url": "https://doi.org/10.1145/3492321.3519574",
+        "local_pdf": "3492321.3519574.pdf",
+        "appendix_url": null,
+        "appendix_form": "in-paper-or-unknown",
+        "local_appendix": null
+      },
+      "evaluation": {
+        "badges": [
+          "available",
+          "functional",
+          "reproduced"
+        ],
+        "award": "Distinguished Artifact Honorable Mention"
+      },
+      "artifact": {
+        "landing_page": "https://zenodo.org/records/6338745",
+        "doi": "10.5281/zenodo.6338745",
+        "files": [
+          {
+            "filename": "TUM-DSE/safepm-artifact_evaluation.zip",
+            "url": "https://zenodo.org/api/records/6338745/files/TUM-DSE/safepm-artifact_evaluation.zip/content",
+            "size_bytes": 101757,
+            "local_path": "artifacts/eurosys2022-safepm/zenodo/safepm-artifact_evaluation.zip",
+            "sha256": "bb9ed730bdcf8b3a29f01430942e353b02d0a778519cf0a6b28bd0e266e6fa1c"
+          }
+        ]
+      },
+      "repository": {
+        "url": "https://github.com/TUM-DSE/safepm",
+        "ref": "artifact_evaluation",
+        "tree_url": "https://github.com/TUM-DSE/safepm/tree/artifact_evaluation",
+        "source_url": null,
+        "local_path": "artifacts/eurosys2022-safepm/repo"
+      }
+    },
+    {
+      "id": "eurosys2022-vmsh",
+      "title": "VMSH: Hypervisor-agnostic Guest Overlays for VMs",
+      "conference": {
+        "name": "EuroSys",
+        "year": 2022,
+        "category": "systems"
+      },
+      "paper": {
+        "doi": "10.1145/3492321.3519589",
+        "url": "https://doi.org/10.1145/3492321.3519589",
+        "local_pdf": "3492321.3519589.pdf",
+        "appendix_url": null,
+        "appendix_form": "in-paper-or-unknown",
+        "local_appendix": null
+      },
+      "evaluation": {
+        "badges": [
+          "available",
+          "functional",
+          "reproduced"
+        ],
+        "award": "Distinguished Artifact Honorable Mention"
+      },
+      "artifact": {
+        "landing_page": "https://zenodo.org/records/6337102",
+        "doi": "10.5281/zenodo.6337102",
+        "files": [
+          {
+            "filename": "main.tar.gz",
+            "url": "https://zenodo.org/api/records/6337102/files/main.tar.gz/content",
+            "size_bytes": 183500,
+            "local_path": "artifacts/eurosys2022-vmsh/zenodo/main.tar.gz",
+            "sha256": "f0b28e837da12d33dca520597570233b9dd6b893fdf76f3b100c2a4fd187b2df"
+          }
+        ]
+      },
+      "repository": {
+        "url": "https://github.com/Mic92/vmsh",
+        "ref": null,
+        "tree_url": "https://github.com/Mic92/vmsh",
+        "source_url": null,
+        "local_path": "artifacts/eurosys2022-vmsh/repo"
+      }
+    }
+  ]
+}
