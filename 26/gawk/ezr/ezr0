@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+## usage: ezr0 [file] [seed]  -- ezr0.py as a gawk pipeline
+Here=$(cd "$(dirname "$0")" && pwd)
+f=${1:-$HOME/gits/moot/optimize/misc/auto93.csv}
+
+gawk -v Seed="${2:-1}" -f "$Here/lib.awk" -f "$Here/bestRest.awk" "$f" |
+gawk -f "$Here/lib.awk" -f "$Here/test.awk"                           |
+gawk -f "$Here/lib.awk" -f "$Here/xplain.awk"

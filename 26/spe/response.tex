@@ -1,0 +1,144 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\usepackage{url}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\begin{document}
+\begin{center}
+{\Large\bf Response to Reviewers (Round 2)}\\[4pt]
+{\it Can AI be Easy? Lessons Learned from the EZR.py Toolkit}\\[2pt]
+Menzies, Srinivasan, Ganguly \hfill Software: Practice and Experience
+\end{center}
+\medskip
+
+
+We thank the reviewer for a second careful reading. All new or
+altered text in this revision is again printed in blue. Point by
+point:
+
+\subsection*{Reviewer 1}
+
+\smallskip\noindent{\bf M1(a).} {\em The abstract's text-mining claim is
+contradicted by \S7.4.} Fixed. The abstract now states that the
+recall match holds on three of the four corpora and that on the
+fourth (Kitchenham) the filter converges faster but plateaus
+below FASTREAD's ceiling, pointing to the fuller treatment in
+\S7.
+
+\smallskip\noindent{\bf M1(b).} {\em ``Tested on the 120+ tasks'' overstates
+the evidence for results (a) and (c).} Fixed. The abstract now
+scopes each result: (a) 20 randomly selected MOOT benchmarks,
+(b) the MOOT tasks, (c) Yu et al.'s four SLR corpora. The
+matching overstatement in \S8.1 is likewise rescoped: the
+124-task claim now attaches only to the active-learning results,
+and the optimizer and text-mining studies are scoped explicitly.
+
+\smallskip\noindent{\bf M1(c).} {\em Tables 2 and 4 still present
+companion-derived numbers as findings of this paper.} Fixed. The
+\S6 row of Table~2 now opens ``A companion
+study\ldots (not a result of this paper) reports\ldots'', and the
+label-hunger row of Table~4 marks its comparator
+numbers as drawn from companion studies.
+
+\smallskip\noindent{\bf M2.} {\em ``Co-authored by the first author''
+understates the overlap now that Ganguly is an author.} Fixed.
+All instances (abstract, \S6.4.4, \S8.2, \S8.3, \S8.4, and
+the closing remarks) now read ``co-authored by authors of this
+paper.''
+
+\smallskip\noindent{\bf M3(a).} {\em Cite the version-specific DOI and git
+tag.} Fixed, with an apology: DOI
+\textsf{10.5281/zenodo.17118009} was in fact already
+version-specific (it resolves to the \textsf{v0.5.0} deposit);
+our text mislabeled it a concept DOI. The paper now names the
+tag and version-specific DOI at every point of use
+(\textsf{v0.9.4}, \textsf{10.5281/zenodo.22554751}, freshly
+archived for this revision; listings trace to \textsf{v0.5.0},
+\textsf{10.5281/zenodo.17118009}) and gives the true concept
+DOI (\textsf{10.5281/zenodo.11183058}) for the full release
+history.
+
+\smallskip\noindent{\bf M3(b).} {\em Confirm the Zenodo deposit contains the
+400-line single-file version.} Confirmed. We downloaded the
+\textsf{v0.5.0} deposit from Zenodo
+(\textsf{timm/ezr-v0.5.0.zip} under DOI
+\textsf{10.5281/zenodo.17118009}) and verified it contains
+\textsf{ezr/ezr.py}: 412 physical lines, 44 functions, matching
+the listings of this paper. The current head of the repository
+(\textsf{v0.9.4}, two files, less than 1000 lines) is now also
+archived, under DOI \textsf{10.5281/zenodo.22554751}, and the
+paper's size claims now say ``less than 1000 lines'' so that the
+text matches the current release. Additionally: a new Appendix~A gives tested
+two-minute instructions (\textsf{pip install ezr} plus the MOOT
+data) for running the toolkit's fast demos and its full self-test
+suite, with sample output, so that an editor or reviewer can
+check the code runs without setting up our full experiments.
+
+\smallskip\noindent{\bf M4.} {\em Table 4's ``weeks'' contradicts \S2.6's
+``one session,'' undermining the order-of-magnitude claim.}
+Fixed. \S2.6 now says ``weeks of sessions vs.\ a
+semester course,'' and the order-of-magnitude claim explicitly
+excludes the pedagogy axis, noting that the gap there is weeks
+vs.\ a semester and rests on author experience rather than
+formal evaluation.
+
+\smallskip\noindent{\bf M5(a).} {\em \S8.4's surrogate-bias paragraph is
+stale.} Fixed. The paragraph now names panel~(a), corrects the
+count (\textsf{sa-r} at 100 on 13 of 20 rows, mean 98, under the
+new 100-repeat runs), reports
+the panel~(b) view (no cell at 100, mean 94), and downgrades
+``decisive evidence'' to ``suggestive'': the surrogate drives
+the search to within a few points of the optimum, but panel~(b)
+shows the optimum is approached, not exactly attained.
+
+\smallskip\noindent{\bf M5(b).} {\em The regenerated panel (a) shifts several
+column means; 20 repeats do not stabilise \textsf{ls-r}.} The
+caption of Table~5 now states that these runs
+supersede the original submission's table and that high-variance
+columns shift several points between regenerations. Further, we
+took the first of the reviewer's two offered remedies: the whole
+table (all four treatments, both panels, one set of runs) was
+regenerated with the repeat count raised from 20 to 100, so each
+cell mean now carries a standard error of sd/10. Under the
+100-repeat runs the qualitative conclusions are unchanged
+(\textsf{ls-r} remains worst and most erratic;
+\textsf{ls+r}, mean 97, still does not pass SA, mean 98;
+restart on SA remains a rounding error), and all numbers quoted
+in \S5.2 and \S8.4 have been updated to the new runs.
+
+\smallskip\noindent{\bf Minor 1.} {\em ``?'' bibliography entries; SHAP and
+ReliefF uncited.} Fixed. Five missing database entries
+(Lundberg \& Lee 2017 for SHAP; Robnik-\v{S}ikonja \&
+Kononenko 1997 for ReliefF; Yu et al.\ 2018 ``Finding better
+active learners''; PEP~544; PEP~557) have been added, repairing
+all eight ``?'' instances.
+
+\smallskip\noindent{\bf Minor 2.} {\em Broken cross-reference and unbalanced
+parenthesis in \S6.2.} Fixed; the reference now resolves to
+Figure~1 and the parenthesis is balanced.
+
+\smallskip\noindent{\bf Minor 3.} {\em The \S7 numbers do not reconcile (warm
+start 24, budget 50, x-axes to 300--600, plateaus ``after 100
+labels,'' 40 labels/108 papers, ``100 vs.\ 300+'').} Fixed; the
+reviewer caught real errors, and we thank them. The true protocol
+(now stated in \S7.3, and readable from the ``40'' and
+``Baseline'' marks on Figure~5 itself) is: warm start
+of 40 labeled samples (20 known-relevant plus 20 presumptive
+negatives), not 24; then one label per acquisition, with each run
+continuing to the number of labels Yu et al.\ spent on that
+corpus (290--630), which is what the x-axis counts. The ``budget
+was 50'' sentence was a copy-slip from \S6 and has been deleted.
+The Kitchenham claim is now stated in the same currency (after
+the 40-label warm start, recall is 87\%, settling to 82\% = 108
+of 132). Yu et al.'s labeling cost is now given as 300--630 in
+both \S7.2 and the \S7.4 summary.
+
+\smallskip\noindent{\bf Minor 4.} {\em Confirmed as fixed.} We
+thank the reviewer; no further action was needed on this point.
+
+\smallskip\noindent{\bf Minor 5.} {\em Three identical affiliations.} Fixed;
+all three authors now share one affiliation.
+
+
+\end{document}
