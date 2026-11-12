@@ -26,6 +26,7 @@ profile(female_25, 2100).
 whoami(male_25).            % change to female_25 as needed
 
 :- dynamic item/6, venue/2.
+:- table best_meal/6.
 
 load_menus :-
     expand_file_name('menus/*.pl', Files),
