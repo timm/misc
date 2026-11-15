@@ -133,7 +133,7 @@ define BASHRC
 export HISTFILE=$(Tmp)/bash_history
 export EDITOR="nvim --clean -u $(Tmp)/init.lua -i $(Tmp)/shada"
 alias ls="ls -G"
-alias vi="nvim --clean -u $(Tmp)/init.lua -i $(Tmp)/shada"
+alias vi='$$EDITOR'
 alias gs="git status -sb"
 alias gl="git log --oneline --graph -12"
 alias gd="git diff --stat"
@@ -144,6 +144,14 @@ alias serve="python3 -m http.server"
 mk() { mkdir -p "$$1" && cd "$$1"; }       # make dir and enter it
 h()  { history | grep -i "$$1" | tail; }   # search own history
 f()  { grep -rniI --exclude-dir=.git "$$1" .; }  # find text here
+# every ## make rule is a command here: argless ones as aliases
+# (parsed live from the Makefile, so new rules auto-appear);
+# file-taking ones as functions; sh excluded (shadows /bin/sh)
+for t in $$(gawk -F: '/^[a-z]+:.*##/ && !/^(sh|edit|hi):/ {print $$1}' $(CURDIR)/Makefile); do
+  alias $$t="make -C $(CURDIR) $$t"
+done
+edit() { make -C $(CURDIR) edit it="$$1"; }
+hi()   { make -C $(CURDIR) hi it="$$1" cols="$${2:-3}"; }
 export HISTCONTROL=ignoredups
 shopt -s autocd 2>/dev/null                # bare dir name = cd
 # prompt: parent/dir (branch*) -- star = dirty working tree
