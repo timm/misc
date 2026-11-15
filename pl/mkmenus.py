@@ -8,11 +8,11 @@ Realistic menu sizes: ~20-45 items per venue.
 """
 import os
 
-def shakes(flavors, price, base_sugar):
+def shakes(flavors, price, base_sugar) -> list:
     return [(f"{f}_shake", "dessert", price, base_sugar + 4*(i % 4))
             for i, f in enumerate(flavors)]
 
-def subs(names, price, sugar=4):
+def subs(names, price, sugar=4) -> list:
     return [(n, "main", price + 0.5*(i % 3), sugar + (i % 4))
             for i, n in enumerate(names)]
 
@@ -293,7 +293,7 @@ os.makedirs("menus", exist_ok=True)
 assert len(V) == 20, len(V)
 total = 0
 for venue,(pretty,addr,items) in V.items():
-    def cal(course, price, sugar):
+    def cal(course, price, sugar) -> int:
         if course == "starter": c = 40*price + 150
         elif course == "main":  c = 80*price + 200
         else:                   c = 25*price + 9*sugar

@@ -10,6 +10,7 @@ Ranking: least cost first (cost matters most), then least sugar.
 Run:  python3 diet.py [N]      # top N plans, default 5
 """
 import re, sys, glob
+from collections.abc import Iterator
 from itertools import product
 
 BUDGET    = 40.00
@@ -20,7 +21,7 @@ WHOAMI    = "male_25"
 ITEM  = re.compile(r'item\((\w+),\s*(\w+),\s*(\w+),\s*([\d.]+),\s*(\d+),\s*(\d+)\)\.')
 VENUE = re.compile(r'venue\((\w+),\s*"([^"]+)"\)\.')
 
-def load(pattern="menus/*.pl"):
+def load(pattern="menus/*.pl") -> tuple:
     venues, items = {}, {}
     for f in glob.glob(pattern):
         src = open(f).read()
@@ -31,7 +32,7 @@ def load(pattern="menus/*.pl"):
                 (item, float(price), int(sugar), int(cal)))
     return venues, items
 
-def best_meal(items, v, courses):
+def best_meal(items, v, courses) -> tuple|None:
     """cheapest (then least sugar) combo of one item per course at venue v."""
     pools = [items.get(v, {}).get(c, []) for c in courses]
     if not all(pools):
@@ -41,7 +42,7 @@ def best_meal(items, v, courses):
               for xs in product(*pools))
     return min(combos)            # (cost, sugar, cal, names)
 
-def plans(venues, items):
+def plans(venues, items) -> Iterator[tuple]:
     slot = {v: best_meal(items, v, ["starter", "main"]) for v in venues}
     din  = {v: best_meal(items, v, ["starter", "main", "dessert"]) for v in venues}
     cap  = PROFILE[WHOAMI]
@@ -57,7 +58,7 @@ def plans(venues, items):
         if cost <= BUDGET and sugar <= SUGAR_CAP and cal <= cap:
             yield cost, sugar, cal, (b, B), (l, L), (d, D)
 
-def main(n=5):
+def main(n=5) -> None:
     venues, items = load()
     found = sorted(plans(venues, items))      # ascending cost, then sugar
     print(f"{len(found)} plans fit budget ${BUDGET:.2f}, "
