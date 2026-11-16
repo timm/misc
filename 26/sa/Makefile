@@ -33,14 +33,33 @@ edit: $(Tmp)/init.lua ## edit $(it) in nvim (use: make it=file)
 sh: $(Tmp)/bashrc ## bash with our prompt and aliases
 	bash --rcfile $(Tmp)/bashrc -i
 
-hi: $(Tmp)/hi.py ## render $(it) as colored html, serve it
-	mkdir -p $(Tmp)/www
-	python3 $(Tmp)/hi.py $(cols) $(it) > "$(Tmp)/www/$(notdir $(it)).html"
-	echo "open http://localhost:8000/$(notdir $(it)).html"
+hi: $(Tmp)/www/$(it).html ## render $(it) as colored html, serve it
+	echo "open http://localhost:8000/$(it).html"
 	cd $(Tmp)/www && python3 -m http.server 2>/dev/null
 
-$(Tmp)/hi.py: Makefile | $(Tmp)
-	echo "$$HI_PY" > $@
+paint = mkdir -p $(@D); \
+				RULES="$$$(1)" python3 $(Tmp)/color.py $(cols) $< > $@
+
+$(Tmp)/www/%.py.html: %.py $(Tmp)/color.py FORCE
+	$(call paint,PY_RULES)
+
+$(Tmp)/www/%.lua.html: %.lua $(Tmp)/color.py FORCE
+	$(call paint,LUA_RULES)
+
+FORCE:
+
+ignore: .gitignore ## write .gitignore (python, macos, vim)
+
+license: LICENSE.md ## write MIT LICENSE.md
+
+.gitignore:
+	echo "$$GITIGNORE" > $@
+
+LICENSE.md:
+	echo "$$LICENSE_MD" > $@
+
+$(Tmp)/color.py: Makefile | $(Tmp)
+	echo "$$COLOR_PY" > $@
 
 $(Tmp):
 	mkdir -p $(Tmp)/undo $(Tmp)/swap $(Tmp)/backup
@@ -62,23 +81,93 @@ END            {print "  make \033[36mit=F\033[0m      edit file F in nvim\n"}
 endef
 export HELP_AWK
 
-define HI_PY
-# a2ps for the browser: tiny type, N columns, line numbers.
-# One pass: named-group alternation, first rule wins, so strings
-# beat comments beat keywords -- no placeholder or state games.
-import re, sys, html
+define GITIGNORE
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.env
+# macos
+.DS_Store
+._*
+# vim / nvim
+*.sw[a-p]
+*~
+Session.vim
+endef
+export GITIGNORE
 
-RULES = [
- ("str", r'"""[\s\S]*?"""|"[^"]*"|\'[^\']*\''),
- ("com", r"#.*"),
- ("fun", r"(?<=def )\w+|(?<=class )\w+"),
- ("kw",  r"\b(?:if|elif|else|for|while|return|break|continue|def|"
-         r"lambda|yield|import|from|as|and|or|not|in|is|class|try|"
-         r"except|with|pass|True|False|None|self)\b"),
- ("num", r"\b\d+\.?\d*\b")]
+define LICENSE_MD
+MIT License
+
+Copyright (c) 2026 Tim Menzies
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+endef
+export LICENSE_MD
+
+define PY_RULES
+str  """[\s\S]*?"""|"[^"]*"|'[^']*'
+com  #.*
+fun  (?<=def )\w+|(?<=class )\w+
+kw   \b(?:if|elif|else|for|while|return|break|continue|def|
+     lambda|yield|import|from|as|and|or|not|in|is|class|try|
+     except|with|pass|True|False|None|self)\b
+num  \b\d+\.?\d*\b
+endef
+export PY_RULES
+
+define LUA_RULES
+com  --\[\[[\s\S]*?\]\]|--.*
+str  \[\[[\s\S]*?\]\]|"[^"]*"|'[^']*'
+fun  (?<=function )[\w.:]+
+kw   \b(?:and|break|do|else|elseif|end|false|for|function|goto|
+     if|in|local|nil|not|or|repeat|return|then|true|until|
+     while)\b
+num  \b\d+\.?\d*\b
+endef
+export LUA_RULES
+
+define COLOR_PY
+# a2ps for the browser: tiny type, N columns, line numbers.
+# Language-blind: $$RULES holds "name regex" lines, one per token
+# class; indented lines continue the rule above (see *_RULES
+# in the Makefile). One pass: named-group
+# alternation, first rule wins, so strings beat comments beat
+# keywords -- no placeholder or state games.
+import os, re, sys, html
+
+RULES = []                # indented line = more of the rule above
+for l in os.environ["RULES"].splitlines():
+  if   l[:1].isspace(): RULES[-1][1] += l.strip()
+  elif l.strip():       RULES += [l.split(None, 1)]
 COLOR = dict(str="#a31515", com="#6a737d", fun="#795e26",
              kw="#0033b3",  num="#098658", n="#b0b0b0")
-PAT = re.compile("|".join("(?P<%s>%s)" % kv for kv in RULES))
+PAT = re.compile("|".join("(?P<%s>%s)" % (k, v) for k, v in RULES))
 
 def paint(m) -> str:
   return '<span style="color:%s">%s</span>' % (COLOR[m.lastgroup], m.group())
@@ -103,7 +192,7 @@ for n, line in enumerate(out.split("\n"), 1):   # close it at eol,
   print('<span style="color:%s">%4d</span> %s' % (COLOR["n"], n, line))
 print("</pre>")
 endef
-export HI_PY
+export COLOR_PY
 
 define INIT_LUA
 -- generated by Makefile; edit there, not here
